@@ -38,3 +38,12 @@ h1 {
 .sidebar ul li:hover {
     background-color: lightgray;
 }
+
+.inventory {
+    text-align: center;
+}
+
+.inventory table {
+    width: 100%;
+    border-collapse: collapse;
+}

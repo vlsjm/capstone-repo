@@ -1,8 +1,10 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -10,7 +12,92 @@
 <body>
     {% include 'app/navbar.html' %}
     {% block content %}
-        <h1>Welcome, Admin!</h1>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>Resource Hive</h2>
+            <ul>
+                <li>Dashboard</li>
+                <li>Inventory</li>
+                <li>Requests</li>
+                <li>Reports</li>
+                <li>Settings</li>
+            </ul>
+            <div class="user-info">Admin User</div>
+        </aside>
+
+        <main class="main-content">
+            <header class="navbar">
+                <h1>Welcome Admin</h1>
+            </header>
+
+            <section class="status-cards">
+                <div class="card">Available Items: 245</div>
+                <div class="card">Checked Out: 132</div>
+                <div class="card">Pending Requests: 28</div>
+                <div class="card">Damaged Items: 15</div>
+            </section>
+
+            <section class="quick-actions">
+                <button>Check-in</button>
+                <button>Check-out</button>
+                <button>New Request</button>
+                <button>Scan Barcode</button>
+            </section>
+
+            <section class="inventory">
+                <h2>Recent Inventory</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Status</th>
+                            <th>Last Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Chromebook Laptop</td>
+                            <td>Electronics</td>
+                            <td>25</td>
+                            <td class="status available">Available</td>
+                            <td>2023-06-15</td>
+                        </tr>
+                        <tr>
+                            <td>Science Lab Kit</td>
+                            <td>Lab Equipment</td>
+                            <td>15</td>
+                            <td class="status checked-out">Checked Out</td>
+                            <td>2023-06-10</td>
+                        </tr>
+                        <tr>
+                            <td>Whiteboard Markers</td>
+                            <td>Office Supplies</td>
+                            <td>5</td>
+                            <td class="status low-stock">Low Stock</td>
+                            <td>2023-06-12</td>
+                        </tr>
+                        <tr>
+                            <td>Projector</td>
+                            <td>Electronics</td>
+                            <td>2</td>
+                            <td class="status damaged">Damaged</td>
+                            <td>2023-06-08</td>
+                        </tr>
+                        <tr>
+                            <td>Basketball</td>
+                            <td>Sports Equipment</td>
+                            <td>12</td>
+                            <td class="status available">Available</td>
+                            <td>2023-06-14</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
     {% endblock content %}
 </body>
+
 </html>
