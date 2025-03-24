@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requests</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    {% include 'app/navbar.html' %}
+    
+    {% block content %}
+    <div class="main-container">
+        <h1>Requests</h1>
+
+        <!-- Search & Filter Section -->
+        <div class="request-controls">
+            <input type="text" class="search-input" placeholder="Search requests..." id="searchBox">
+            <select id="filterStatus">
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+            </select>
+            <button onclick="filterRequests()">Filter</button>
+        </div>
+
+        <!-- Requests Table -->
+        <div class="request-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Request Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in requests %}
+                    <tr class="request-row" data-status="{{ request.status }}">
+                        <td>{{ request.user.username }}</td>
+                        <td>{{ request.supply.supply_name }}</td>
+                        <td>{{ request.quantity }}</td>
+                        <td>{{ request.status|title }}</td>
+                        <td>{{ request.request_date }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">No requests found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endblock content %}
+
+    <script>
+        function filterRequests() {
+            let statusFilter = document.getElementById("filterStatus").value;
+            let rows = document.querySelectorAll(".request-row");
+
+            rows.forEach(row => {
+                let status = row.getAttribute("data-status");
+                if (statusFilter === "all" || status === statusFilter) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
