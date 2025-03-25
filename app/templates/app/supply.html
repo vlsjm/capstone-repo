@@ -1,0 +1,69 @@
+{% extends 'app/base.html' %} {% load static %} {% block content %}
+<h2>Supply List</h2>
+
+<div class="main-container">
+  <nav class="sidebar">
+    <h1>Resource Hive</h1>
+    <ul>
+      <li>
+        <a href="{% url 'dashboard' %}"
+          ><i class="fas fa-chart-line"></i> Dashboard</a
+        >
+      </li>
+      <li>
+        <a href="{% url 'supply_list' %}"
+          ><i class="fas fa-boxes"></i> Supply</a
+        >
+      </li>
+      <li>
+        <a href="{% url 'requests' %}"
+          ><i class="fas fa-clipboard-list"></i> Requests</a
+        >
+      </li>
+      <li>
+        <a href="{% url 'reports' %}"
+          ><i class="fas fa-file-alt"></i> Reports</a
+        >
+      </li>
+      <li>
+        <a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Settings</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="content">
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Supply Name</th>
+          <th>Quantity</th>
+          <th>Date Received</th>
+          <th>Barcode</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th>Available for Request</th>
+          <th>Last Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for supply in supplies %}
+        <tr>
+          <td>{{ supply.supply_name }}</td>
+          <td>{{ supply.quantity }}</td>
+          <td>{{ supply.date_received }}</td>
+          <td>{{ supply.barcode }}</td>
+          <td>{{ supply.category }}</td>
+          <td>{{ supply.get_status_display }}</td>
+          <td>{{ supply.available_for_request }}</td>
+          <td>{{ supply.last_updated }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8">No supplies available.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

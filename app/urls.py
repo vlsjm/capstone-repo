@@ -4,7 +4,8 @@ from .views import (
     InventoryPageView,
     RequestsPageView,
     ReportPageView,
-    SettingsPageView
+    SettingsPageView,
+    SupplyListView
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path('requests/', RequestsPageView.as_view(), name='requests'),
     path('reports/', ReportPageView.as_view(), name='reports'),
     path('settings/', SettingsPageView.as_view(), name='settings'),
+    path('supplies/', SupplyListView.as_view(), name='supply_list'),
 ]
