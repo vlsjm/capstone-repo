@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -16,13 +17,27 @@ h1 {
     position: fixed;
     top: 0;
     left: 0;
+=======
+.main-container {
+    display: flex;           
+    min-height: 100vh;       
+  }
+  
+  .sidebar {
+    width: 250px;            
+    background-color: white;
+    position: relative;      
+>>>>>>> d02330c7a4b296fcd42b71fecfde7bc104ddcc50
     border-top-right-radius: 50px;
     border-bottom-right-radius: 50px;
-}
-
-.sidebar ul {
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);  
+    padding: 20px;
+  }
+  
+  .sidebar ul {
     list-style-type: none;
     padding: 0;
+<<<<<<< HEAD
 }
 
 .sidebar ul li {
@@ -41,3 +56,47 @@ h1 {
 .main-container{
     margin-left: 250px;
 }
+=======
+  }
+  
+  .sidebar ul li {
+    padding: 15px;
+    text-align: left;
+  }
+  
+  .sidebar ul li a {
+    color: black;
+    text-decoration: none;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .sidebar ul li a:hover {
+    background-color: lightgray;
+    border-radius: 10px;
+  }
+  
+  .content {
+    flex: 1;               
+    padding: 20px;
+    background-color: lightblue;  
+    overflow-x: auto;       
+  }
+  
+  table {
+    width: 100%;            
+    border-collapse: collapse;
+  }
+  
+  table th, table td {
+    padding: 10px;
+    text-align: left;
+  }
+  
+  h2 {
+    margin-bottom: 20px;
+  }
+  
+>>>>>>> d02330c7a4b296fcd42b71fecfde7bc104ddcc50

@@ -32,7 +32,7 @@ class Supply(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return self.supply_name
 
 class Property(models.Model):
     CONDITION_CHOICES = [
@@ -58,7 +58,7 @@ class Property(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return self.property_name
 
 class SupplyRequest(models.Model):
     STATUS_CHOICES = [
@@ -76,7 +76,7 @@ class SupplyRequest(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
-        return f"Request by {self.user.username} for {self.supply.name}"
+        return f"Request by {self.user.username} for {self.supply.supply_name}"
 
 
 class Reservation(models.Model):
@@ -89,7 +89,7 @@ class Reservation(models.Model):
     purpose = models.TextField()
 
     def __str__(self):
-        return f"Reservation by {self.user.username} for {self.item.name}"
+        return f"Reservation by {self.user.username} for {self.item.property_name}"
 
 class DamageReport(models.Model):
     STATUS_CHOICES = [
@@ -105,7 +105,7 @@ class DamageReport(models.Model):
     report_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Damage Report for {self.item.name}"
+        return f"Damage Report for {self.item.property_name}"
 
 class BorrowRequest(models.Model):
     STATUS_CHOICES = [
@@ -125,6 +125,6 @@ class BorrowRequest(models.Model):
     purpose = models.TextField()
 
     def __str__(self):
-        return f"Borrow request by {self.user.username} for {self.property.name}"
+        return f"Borrow request by {self.user.username} for {self.property.property_name}"
 
 

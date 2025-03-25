@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
+from .models import Supply
 
 
 class DashboardPageView(TemplateView):
@@ -17,6 +18,14 @@ class ReportPageView(TemplateView):
 class SettingsPageView(TemplateView):
     template_name = 'app/settings.html'
 
+<<<<<<< HEAD
     
 
 # Create your views here.
+=======
+class SupplyListView(ListView):
+    model = Supply
+    template_name = 'app/supply.html'  
+    context_object_name = 'supplies'  
+
+>>>>>>> d02330c7a4b296fcd42b71fecfde7bc104ddcc50
