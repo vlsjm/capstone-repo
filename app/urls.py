@@ -1,18 +1,25 @@
 from django.urls import path
 from .views import (
     DashboardPageView,
-    InventoryPageView,
-    RequestsPageView,
+    RequestsListView,
     ReportPageView,
-    SettingsPageView,
-    SupplyListView
+    ActivityPageView,
+    SupplyListView,
+    PropertyListView,
+    CheckOutPageView,
+    ManageUsersPageView,
+
 )
 
 urlpatterns = [
     path('', DashboardPageView.as_view(), name='dashboard'),
-    path('inventory/', InventoryPageView.as_view(), name='inventory'),
-    path('requests/', RequestsPageView.as_view(), name='requests'),
+    path('requests/', RequestsListView.as_view(), name='requests'),
     path('reports/', ReportPageView.as_view(), name='reports'),
-    path('settings/', SettingsPageView.as_view(), name='settings'),
+    path('activity/', ActivityPageView.as_view(), name='activity'),
     path('supplies/', SupplyListView.as_view(), name='supply_list'),
+    path('property/', PropertyListView.as_view(), name='property_list'),
+    path('check-out/', CheckOutPageView.as_view(), name='checkout'),
+    path('manage-users/', ManageUsersPageView.as_view(), name='manage_users'),
+
+
 ]

@@ -12,10 +12,9 @@
     {% include 'app/navbar.html' %}
     
     {% block content %}
-    <div class="main-container">
-        <h1>Requests</h1>
+    <div class="content">
+        <h2>Requests</h2>
 
-        <!-- Search & Filter Section -->
         <div class="request-controls">
             <input type="text" class="search-input" placeholder="Search requests..." id="searchBox">
             <select id="filterStatus">
@@ -27,7 +26,6 @@
             <button onclick="filterRequests()">Filter</button>
         </div>
 
-        <!-- Requests Table -->
         <div class="request-list">
             <table>
                 <thead>
@@ -35,6 +33,7 @@
                         <th>User</th>
                         <th>Item</th>
                         <th>Quantity</th>
+                        <th>Purpose</th>
                         <th>Status</th>
                         <th>Request Date</th>
                     </tr>
@@ -45,6 +44,7 @@
                         <td>{{ request.user.username }}</td>
                         <td>{{ request.supply.supply_name }}</td>
                         <td>{{ request.quantity }}</td>
+                        <td>{{ request.purpose }}</td>
                         <td>{{ request.status|title }}</td>
                         <td>{{ request.request_date }}</td>
                     </tr>

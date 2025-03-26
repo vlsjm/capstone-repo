@@ -1,36 +1,17 @@
-{% extends 'app/base.html' %} {% load static %} {% block content %}
+{% load static %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supply</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  {% include 'app/navbar.html' %}
+  {% block content %}
 <h2>Supply List</h2>
-
-<div class="main-container">
-  <nav class="sidebar">
-    <h1>Resource Hive</h1>
-    <ul>
-      <li>
-        <a href="{% url 'dashboard' %}"
-          ><i class="fas fa-chart-line"></i> Dashboard</a
-        >
-      </li>
-      <li>
-        <a href="{% url 'supply_list' %}"
-          ><i class="fas fa-boxes"></i> Supply</a
-        >
-      </li>
-      <li>
-        <a href="{% url 'requests' %}"
-          ><i class="fas fa-clipboard-list"></i> Requests</a
-        >
-      </li>
-      <li>
-        <a href="{% url 'reports' %}"
-          ><i class="fas fa-file-alt"></i> Reports</a
-        >
-      </li>
-      <li>
-        <a href="{% url 'settings' %}"><i class="fas fa-cog"></i> Settings</a>
-      </li>
-    </ul>
-  </nav>
-
   <div class="content">
     <table border="1">
       <thead>
@@ -67,3 +48,6 @@
   </div>
 </div>
 {% endblock %}
+</body>
+
+</html>
