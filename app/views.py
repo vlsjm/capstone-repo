@@ -1,8 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, ListView
 from .models import Supply, Property, SupplyRequest, DamageReport
-
+from .forms import PropertyForm, SupplyForm
+from django.contrib import messages
 from django.db.models import Count, Q
+
+
 
 class DashboardPageView(TemplateView):
     template_name = 'app/dashboard.html'
@@ -44,22 +47,51 @@ class ActivityPageView(TemplateView):
 class RequestsListView(ListView):
     model = SupplyRequest
     template_name = 'app/requests.html'
-    context_object_name ='requests'
+    context_object_name = 'requests'
 
 class SupplyListView(ListView):
     model = Supply
-    template_name = 'app/supply.html'  
-    context_object_name = 'supplies'  
+    template_name = 'app/supply.html'  # The template for listing supplies
+    context_object_name = 'supplies'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = SupplyForm()  # Add the SupplyForm to the context for the modal
+        return context
+
+# Function-based view to add a new supply
+def add_supply(request):
+    if request.method == 'POST':
+        form = SupplyForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Supply added successfully.')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    return redirect('supply_list')  # Redirect to the supply list view after submission
 
 class PropertyListView(ListView):
     model = Property
     template_name = 'app/property.html'  
     context_object_name = 'properties'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = PropertyForm()
+        return context
+
+def add_property(request):
+    if request.method == 'POST':
+        form = PropertyForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Property added successfully.')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    return redirect('property_list')
+
 class CheckOutPageView(TemplateView):
     template_name = 'app/checkout.html'
 
 class ManageUsersPageView(TemplateView):
     template_name = 'app/manage_users.html'
-
-

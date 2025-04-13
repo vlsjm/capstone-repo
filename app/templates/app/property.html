@@ -2,18 +2,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property List</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Property List</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
   {% include 'app/navbar.html' %}
   {% block content %}
-  
+
   <h2>Property List</h2>
-  
+
+  <!-- Add Property Button -->
+  <div class="add-property-container">
+    <button id="openModalBtn" class="add-btn">+ Add Property</button>
+  </div>
+
   <div class="content">
     <table border="1">
       <thead>
@@ -50,6 +55,33 @@
       </tbody>
     </table>
   </div>
+
+  <!-- Modal -->
+  <div id="addPropertyModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModalBtn">&times;</span>
+      <h3>Add New Property</h3>
+      <form method="POST" action="{% url 'add_property' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="submit-btn">Submit</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById("addPropertyModal");
+    const openBtn = document.getElementById("openModalBtn");
+    const closeBtn = document.getElementById("closeModalBtn");
+
+    openBtn.onclick = () => modal.style.display = "block";
+    closeBtn.onclick = () => modal.style.display = "none";
+    window.onclick = (event) => {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    };
+  </script>
 
   {% endblock %}
 </body>
