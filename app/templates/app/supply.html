@@ -1,87 +1,76 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Supply List</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-</head>
-<body>
-  {% include 'app/navbar.html' %}
-  {% block content %}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supply List</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+  </head>
+  <body>
+    {% include 'app/navbar.html' %} {% block content %}
 
-  <h2>Supply List</h2>
+    <h2>Supply List</h2>
 
-  <!-- Add Supply Button -->
-  <div class="add-property-container">
-    <button id="openModalBtn" class="add-btn">+ Add Supply</button>
-  </div>
-
-  <div class="content">
-    <table border="1">
-      <thead>
-        <tr>
-          <th>Supply Name</th>
-          <th>Quantity</th>
-          <th>Date Received</th>
-          <th>Barcode</th>
-          <th>Category</th>
-          <th>Status</th>
-          <th>Available for Request</th>
-          <th>Last Updated</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for supply in supplies %}
-        <tr>
-          <td>{{ supply.supply_name }}</td>
-          <td>{{ supply.quantity }}</td>
-          <td>{{ supply.date_received }}</td>
-          <td>{{ supply.barcode }}</td>
-          <td>{{ supply.category }}</td>
-          <td>{{ supply.get_status_display }}</td>
-          <td>{{ supply.available_for_request|yesno:"Yes,No" }}</td>
-          <td>{{ supply.last_updated }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="8">No supplies available.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Modal -->
-  <div id="addSupplyModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeModalBtn">&times;</span>
-      <h3>Add New Supply</h3>
-      <form method="POST" action="{% url 'add_supply' %}">
-        {% csrf_token %}
-        {{ form.as_p }}  <!-- This will render the SupplyForm fields -->
-        <button type="submit" class="submit-btn">Submit</button>
-      </form>
+    <!-- Add Supply Button -->
+    <div class="add-property-container">
+      <button id="openModalBtn" class="add-btn">+ Add Supply</button>
     </div>
-  </div>
 
-  <!-- Modal Script -->
-  <script>
-    const modal = document.getElementById("addSupplyModal");
-    const openBtn = document.getElementById("openModalBtn");
-    const closeBtn = document.getElementById("closeModalBtn");
+    <div class="content">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Supply Name</th>
+            <th>Quantity</th>
+            <th>Date Received</th>
+            <th>Barcode</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Available for Request</th>
+            <th>Last Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for supply in supplies %}
+          <tr>
+            <td>{{ supply.supply_name }}</td>
+            <td>{{ supply.quantity }}</td>
+            <td>{{ supply.date_received }}</td>
+            <td>{{ supply.barcode }}</td>
+            <td>{{ supply.category }}</td>
+            <td>{{ supply.get_status_display }}</td>
+            <td>{{ supply.available_for_request|yesno:"Yes,No" }}</td>
+            <td>{{ supply.last_updated }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8">No supplies available.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-    openBtn.onclick = () => modal.style.display = "block";
-    closeBtn.onclick = () => modal.style.display = "none";
-    window.onclick = (event) => {
-      if (event.target == modal) {
-        modal.style.display = "none";
-      }
-    };
-  </script>
+    <!-- Modal -->
+    <div id="addSupplyModal" class="modal">
+      <div class="modal-content">
+        <span class="close" id="closeModalBtn">&times;</span>
+        <h3>Add New Supply</h3>
+        <form method="POST" action="{% url 'add_supply' %}">
+          {% csrf_token %} {{ form.as_p }}
+          <!-- This will render the SupplyForm fields -->
+          <button type="submit" class="submit-btn">Submit</button>
+        </form>
+      </div>
+    </div>
 
-  {% endblock %}
-</body>
+    <script src="{% static 'scripts/supplyModal.js' %}"></script>
+
+    {% endblock %}
+  </body>
 </html>

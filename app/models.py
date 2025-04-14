@@ -54,7 +54,7 @@ class Property(models.Model):
     barcode = models.CharField(max_length=100, unique=True)
     condition = models.CharField(max_length=20, choices=CONDITION_CHOICES, default='new')
     availability = models.CharField(max_length=20, choices=AVAILABILITY_CHOICES, default='available')
-    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    assigned_to = models.CharField(max_length=255)
     available_for_request = models.BooleanField(default=True)
     last_updated = models.DateTimeField(auto_now=True)
 
