@@ -4,6 +4,8 @@ from .models import Supply, Property, SupplyRequest, DamageReport
 from .forms import PropertyForm, SupplyForm
 from django.contrib import messages
 from django.db.models import Count, Q
+from django.shortcuts import get_object_or_404
+
 
 
 
@@ -88,6 +90,27 @@ def add_property(request):
             messages.success(request, 'Property added successfully.')
         else:
             messages.error(request, 'Please correct the errors below.')
+    return redirect('property_list')
+
+def edit_property(request, pk):
+    property = get_object_or_404(Property, pk=pk)
+    if request.method == 'POST':
+        form = PropertyForm(request.POST, instance=property)
+        if form.is_valid():
+            form.save()
+            # redirect or return success
+    else:
+        form = PropertyForm(instance=property)
+
+    return render(request, 'your_template.html', {'form': form})
+
+
+
+def delete_property(request, id):
+    property = get_object_or_404(Property, id=id)
+    if request.method == 'POST':
+        property.delete()
+        messages.success(request, 'Property deleted successfully.')
     return redirect('property_list')
 
 class CheckOutPageView(TemplateView):

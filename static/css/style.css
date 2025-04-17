@@ -234,6 +234,7 @@ h3 {
   height: 100%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 /* Modal Box */
@@ -245,6 +246,24 @@ h3 {
   width: 450px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   position: relative;
+  animation: slideDown 0.4s ease;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Close Button */
@@ -308,10 +327,10 @@ h3 {
 }
 
 .submit-btn:hover {
-  background-color: #152d64;
+  background-color: #0f2b5c;
 }
 
-/* Add Property Button */
+/* Add Button Style */
 .add-btn {
   background-color: #152d64;
   color: white;
@@ -327,19 +346,52 @@ h3 {
 .add-btn:hover {
   background-color: #0f2b5c;
 }
+/* Submit Button */
+.submit-btn {
+  background-color: #152d64;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
 
+.submit-btn:hover {
+  background-color: #0f2b5c;
+}
 
-@media (max-width: 768px) {
-  .dashboard-summary {
-    grid-template-columns: 1fr; /* Stack cards vertically */
-  }
+/* Delete Button */
+.submit-btn.delete {
+  background-color: #9c2518;
+}
 
-  .dashboard-charts {
-    grid-template-columns: 1fr; /* Stack charts vertically */
-  }
+.submit-btn.delete:hover {
+  background-color: #c0392b;
+}
 
-  .div6 {
-    flex: 0 0 200px;  /* Adjust sidebar width for smaller screens */
-  }
+/* Modal Button Alignment */
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  align-self: center;
+  padding: 10px 20px;
+  background-color: #152d64;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  border: none;
+}
+
+button:hover {
+  background-color: #0f2b5c;
 }
 

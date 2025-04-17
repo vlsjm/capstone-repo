@@ -11,6 +11,7 @@ from .views import (
     ManageUsersPageView,
     add_property,
     add_supply,
+    edit_property, delete_property
 )
 
 urlpatterns = [
@@ -24,4 +25,7 @@ urlpatterns = [
     path('add-property/', add_property, name='add_property'),  # URL to add property
     path('check-out/', CheckOutPageView.as_view(), name='checkout'),
     path('manage-users/', ManageUsersPageView.as_view(), name='manage_users'),
+    path('edit-property/<int:id>/', edit_property, name='edit_property'),
+    path('delete-property/<int:id>/', delete_property, name='delete_property'),
+
 ]
