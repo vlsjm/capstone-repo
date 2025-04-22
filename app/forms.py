@@ -21,13 +21,4 @@ class SupplyForm(forms.ModelForm):
             'available_for_request': forms.Select(choices=[(True, 'Yes'), (False, 'No')]),
         }
 
-class PropertyForm(forms.ModelForm):
-    class Meta:
-        model = Property
-        fields = [
-            'property_name', 'quantity', 'date_acquired', 'barcode',
-            'condition', 'availability', 'assigned_to', 'available_for_request'
-        ]
-        widgets = {
-            'date_acquired': forms.DateInput(attrs={'type': 'date'}),
-        }
+

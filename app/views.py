@@ -92,17 +92,55 @@ def add_property(request):
             messages.error(request, 'Please correct the errors below.')
     return redirect('property_list')
 
-def edit_property(request, pk):
-    property = get_object_or_404(Property, pk=pk)
-    if request.method == 'POST':
-        form = PropertyForm(request.POST, instance=property)
-        if form.is_valid():
-            form.save()
-            # redirect or return success
-    else:
-        form = PropertyForm(instance=property)
+def edit_property(request, id):
+    property_obj = get_object_or_404(Property, id=id)
 
-    return render(request, 'your_template.html', {'form': form})
+    if request.method == 'POST':
+        # Get form values with proper validation
+        property_obj.property_name = request.POST.get('property_name')
+        
+        # Convert quantity to integer
+        quantity = request.POST.get('quantity')
+        property_obj.quantity = int(quantity) if quantity else 0
+        
+        # Date handling
+        property_obj.date_acquired = request.POST.get('date_acquired')
+        property_obj.barcode = request.POST.get('barcode')
+        
+        # Critical fields - make sure they're not empty
+        condition = request.POST.get('condition')
+        if condition:  # Check if not empty
+            property_obj.condition = condition
+        # If empty, keep the original value - don't overwrite with None
+        
+        availability = request.POST.get('availability')
+        if availability:  # Check if not empty
+            property_obj.availability = availability
+        # If empty, keep the original value - don't overwrite with None
+        
+        # Handle the assigned_to field - can be null
+        assigned_to = request.POST.get('assigned_to')
+        property_obj.assigned_to = assigned_to if assigned_to else None
+        
+        # Convert string 'True'/'False' to Python boolean
+        available_for_request = request.POST.get('available_for_request')
+        if available_for_request:
+            property_obj.available_for_request = available_for_request == 'True'
+        
+        # Debug - print values before saving
+        print(f"Saving property with condition: {property_obj.condition}")
+        print(f"Saving property with availability: {property_obj.availability}")
+        
+        # Save the updated property
+        property_obj.save()
+
+        # Redirect after updating
+        return redirect('property_list')
+
+    # If GET request, you'd render a template, but since you're using a modal, this may not be needed
+    return render(request, 'app/property_list.html', {'property': property_obj})
+
+
 
 
 

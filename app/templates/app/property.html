@@ -80,22 +80,45 @@
     <form method="POST" id="editPropertyForm" action="">
       {% csrf_token %}
       <input type="hidden" id="editId" name="id">
+      
       <label for="editPropertyName">Property Name</label>
       <input type="text" id="editPropertyName" name="property_name" required>
+      
       <label for="editQuantity">Quantity</label>
       <input type="number" id="editQuantity" name="quantity" required>
+      
       <label for="editDateAcquired">Date Acquired</label>
       <input type="date" id="editDateAcquired" name="date_acquired" required>
+      
       <label for="editBarcode">Barcode</label>
       <input type="text" id="editBarcode" name="barcode">
+      
       <label for="editCondition">Condition</label>
-      <input type="text" id="editCondition" name="condition">
+      <select id="editCondition" name="condition">
+        <option value="New">New</option>
+        <option value="Good">Good</option>
+        <option value="Fair">Fair</option>
+        <option value="Poor">Poor</option>
+        <option value="Damaged">Damaged</option>
+      </select>
+      
       <label for="editAvailability">Availability</label>
-      <input type="text" id="editAvailability" name="availability">
+      <select id="editAvailability" name="availability">
+        <option value="Available">Available</option>
+        <option value="Unavailable">Unavailable</option>
+        <option value="In Use">In Use</option>
+        <option value="Under Maintenance">Under Maintenance</option>
+      </select>
+      
       <label for="editAssignedTo">Assigned To</label>
       <input type="text" id="editAssignedTo" name="assigned_to">
+      
       <label for="editAvailableForRequest">Available for Request</label>
-      <input type="checkbox" id="editAvailableForRequest" name="available_for_request">
+      <select id="editAvailableForRequest" name="available_for_request">
+        <option value="True">Yes</option>
+        <option value="False">No</option>
+      </select>
+      
       <button type="submit" class="submit-btn">Update</button>
     </form>
   </div>

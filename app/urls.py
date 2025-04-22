@@ -14,15 +14,19 @@ from .views import (
     edit_property, delete_property
 )
 
+from django.contrib.auth.views import LoginView, LogoutView
+
 urlpatterns = [
-    path('', DashboardPageView.as_view(), name='dashboard'),
+    path('', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('dashboard/', DashboardPageView.as_view(), name='dashboard'),
     path('requests/', RequestsListView.as_view(), name='requests'),
     path('reports/', ReportPageView.as_view(), name='reports'),
     path('activity/', ActivityPageView.as_view(), name='activity'),
     path('supplies/', SupplyListView.as_view(), name='supply_list'),
-    path('add-supply/', add_supply, name='add_supply'),  # URL to add supply
+    path('add-supply/', add_supply, name='add_supply'),  
     path('property/', PropertyListView.as_view(), name='property_list'),
-    path('add-property/', add_property, name='add_property'),  # URL to add property
+    path('add-property/', add_property, name='add_property'),  
     path('check-out/', CheckOutPageView.as_view(), name='checkout'),
     path('manage-users/', ManageUsersPageView.as_view(), name='manage_users'),
     path('edit-property/<int:id>/', edit_property, name='edit_property'),

@@ -14,6 +14,8 @@ SECRET_KEY = 'django-insecure-#4^q#*41gu^s0-yr^tqy(c*z$*br@h-+d$w9*ojsej)k=2l^vx
 DEBUG = True
 
 ALLOWED_HOSTS = []
+LOGIN_REDIRECT_URL = '/dashboard/' 
+LOGOUT_REDIRECT_URL = '/'
 
 
 # Application definition
@@ -27,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app.apps.AppConfig',
     'accounts',
+    'userpanel',
 ]
 
 MIDDLEWARE = [

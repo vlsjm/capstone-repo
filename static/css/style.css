@@ -43,6 +43,7 @@ h1 {
 .sidebar ul li a:hover {
   color: #fbff00;
 }
+
 .content {
   margin-left: 270px;
   padding: 20px;
@@ -393,5 +394,8 @@ button {
 
 button:hover {
   background-color: #0f2b5c;
+}
+.logout-button{
+  margin-top: 350px;
 }
 
