@@ -19,10 +19,8 @@
         <h2>Hello, <span>{{ request.user.username }}</span></h2>
       </div>
       <div class="content">
-        <!-- Main Dashboard Content Section -->
         <div class="div2">
           <div class="dashboard-content">
-            <!-- Summary Cards Grid -->
             <div class="dashboard-summary">
               <div class="summary-card">
                 <div class="card-icon"><i class="fas fa-box"></i></div>
@@ -56,7 +54,6 @@
               </div>
             </div>
 
-            <!-- Charts Grid -->
             <div class="dashboard-charts">
               <div class="chart-container">
                 <h3>Supply Status</h3>
@@ -72,7 +69,6 @@
       </div>
     </div>
 
-    <!-- Pass data as JSON -->
     <script id="supplyData" type="application/json">
       {% autoescape off %} [{{ supply_available|default:"0" }}, {{ supply_low_stock|default:"0" }}, {{ supply_out_of_stock|default:"0" }}] {% endautoescape %}
     </script>
