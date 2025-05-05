@@ -1,7 +1,5 @@
-# app/forms.py
-
 from django import forms
-from .models import Property, Supply
+from .models import Property, Supply, UserProfile
 
 class PropertyForm(forms.ModelForm):
     class Meta:
@@ -21,4 +19,7 @@ class SupplyForm(forms.ModelForm):
             'available_for_request': forms.Select(choices=[(True, 'Yes'), (False, 'No')]),
         }
 
-
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = '__all__'

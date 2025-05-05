@@ -1,18 +1,47 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registered Users</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 </head>
 <body>
-    {% include 'app/navbar.html' %}
-    {% block content %}
-    
-    {% endblock content %}
+  {% include 'app/navbar.html' %}
+  {% block content %}
+  <div class="container">
+      <h2>Registered Users</h2>
+      <div class="content">
+        <table border="1" class="user-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                    <th>Phone</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in users %}
+                <tr>
+                    <td>{{ profile.user.username }}</td>
+                    <td>{{ profile.user.email }}</td>
+                    <td>{{ profile.get_role_display }}</td>
+                    <td>{{ profile.department|default:"—" }}</td>
+                    <td>{{ profile.phone|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No users found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+      </div>
+  </div>
+  {% endblock %}
 </body>
 </html>

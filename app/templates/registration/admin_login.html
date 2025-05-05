@@ -11,6 +11,15 @@
     {% block content %}
     <div class="auth-container">
       <h2>Login</h2>
+
+      {% if form.non_field_errors %}
+      <ul class="errorlist">
+        {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
       <form action="{% url 'login' %}" method="post">
         {% csrf_token %}
         <div class="form-group">
