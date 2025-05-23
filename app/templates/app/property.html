@@ -1,157 +1,173 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Property List</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-</head>
-<body>
-{% include 'app/navbar.html' %}
-{% block content %}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Property List</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  </head>
+  <body>
+    {% include 'app/navbar.html' %}
 
-<h2>Property List</h2>
+    {% block content %}
+    <h2>Property List</h2>
 
-<!-- Add Property Button -->
-<div class="add-property-container">
-  <button id="openModalBtn" class="add-btn">+ Add Property</button>
-</div>
+    <!-- Add Property Button -->
+    <div class="add-property-container">
+      <button id="openModalBtn" class="add-btn">+ Add Property</button>
+    </div>
 
-<!-- Property Table -->
-<div class="content">
-  <table border="1">
-    <thead>
-      <tr>
-        <th>Property Name</th>
-        <th>Quantity</th>
-        <th>Date Acquired</th>
-        <th>Barcode</th>
-        <th>Condition</th>
-        <th>Availability</th>
-        <th>Assigned To</th>
-        <th>Available for Request</th>
-        <th>Last Updated</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for property in properties %}
-        <tr data-id="{{ property.id }}" 
-            data-name="{{ property.property_name }}" 
-            data-quantity="{{ property.quantity }}" 
-            data-date="{{ property.date_acquired }}" 
-            data-barcode="{{ property.barcode }}" 
-            data-condition="{{ property.get_condition_display }}" 
-            data-availability="{{ property.get_availability_display }}" 
-            data-assigned="{{ property.assigned_to|default:"Unassigned" }}" 
-            data-request="{{ property.available_for_request }}">
-        
-            <td>{{ property.property_name }}</td>
-            <td>{{ property.quantity }}</td>
-            <td>{{ property.date_acquired }}</td>
-            <td>{{ property.barcode }}</td>
-            <td>{{ property.get_condition_display }}</td>
-            <td>{{ property.get_availability_display }}</td>
-            <td>{{ property.assigned_to|default:"Unassigned" }}</td>
-            <td>{{ property.available_for_request|yesno:"Yes,No" }}</td>
-            <td>{{ property.last_updated }}</td>
-            <td>
-              <button class="edit-btn" onclick="openEditModal({{ property.id }})">Edit</button>
+    <div class="content">
+      {% if grouped_properties %}
+        {% for category, properties_in_category in grouped_properties.items %}
+          <h3>{{ category }}</h3>
+          <table border="1">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Property Name</th>
+                <th>Description</th>
+                <th>Barcode</th>
+                <th>Unit of Measure</th>
+                <th>Unit Value</th>
+                <th>Quantity</th>
+                <th>Location</th>
+                <th>Condition</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for property in properties_in_category %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ property.property_name|default:"N/A" }}</td>
+                <td>{{ property.description|default:"N/A" }}</td>
+                <td>{{ property.barcode|default:"N/A" }}</td>
+                <td>{{ property.unit_of_measure|default:"N/A" }}</td>
+                <td>{{ property.unit_value|default:"N/A" }}</td>
+                <td>{{ property.quantity|default:"N/A" }}</td>
+                <td>{{ property.location|default:"N/A" }}</td>
+                <td>{{ property.get_condition_display|default:"N/A" }}</td>
+                <td>
+                  <!-- Edit Button -->
+                   <div class="button-group">
+                  <button class="edit-btn" 
+                    data-id="{{ property.id }}"
+                    data-name="{{ property.property_name }}"
+                    data-description="{{ property.description }}"
+                    data-barcode="{{ property.barcode }}"
+                    data-unit="{{ property.unit_of_measure }}"
+                    data-value="{{ property.unit_value }}"
+                    data-quantity="{{ property.quantity }}"
+                    data-location="{{ property.location }}"
+                    data-condition="{{ property.condition }}"
+                    data-category="{{ property.category }}">
+                    Edit
+                  </button>
 
-              <!-- Delete Button -->
-              <button class="delete-btn" onclick="openDeleteModal({{ property.id }})">Delete</button>
-            </td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="10">No properties available.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+                  <!-- Delete Button -->
+                  <form method="POST" action="{% url 'delete_property' property.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="del-btn" onclick="return confirm('Are you sure you want to delete this property?');">Delete</button>
+                  </form>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="10">No properties available in this category.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endfor %}
+      {% else %}
+        <p>No properties available.</p>
+      {% endif %}
+    </div>
 
+    <!-- Add Property Modal -->
+    <div id="addPropertyModal" class="modal">
+      <div class="modal-content">
+        <span class="close" id="closeModalBtn">&times;</span>
+        <h3>Add New Property</h3>
+        <form method="POST" action="{% url 'add_property' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {% if form.errors %}
+          <ul class="form-errors">
+            {% for field in form %}
+              {% for error in field.errors %}
+                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+              {% endfor %}
+            {% endfor %}
+          </ul>
+        {% endif %}
+        <button type="submit" class="submit-btn">Submit</button>
+        </form>
+      </div>
+    </div>
+
+   <!-- Edit Property Modal -->
 <div id="editPropertyModal" class="modal">
   <div class="modal-content">
-    <span class="close" id="closeEditModal">&times;</span>
+    <span class="close" id="closeEditModalBtn">&times;</span>
     <h3>Edit Property</h3>
-    <form method="POST" id="editPropertyForm" action="">
+    <form method="POST" action="{% url 'edit_property' %}" id="editPropertyForm">
       {% csrf_token %}
-      <input type="hidden" id="editId" name="id">
-      
-      <label for="editPropertyName">Property Name</label>
-      <input type="text" id="editPropertyName" name="property_name" required>
-      
-      <label for="editQuantity">Quantity</label>
-      <input type="number" id="editQuantity" name="quantity" required>
-      
-      <label for="editDateAcquired">Date Acquired</label>
-      <input type="date" id="editDateAcquired" name="date_acquired" required>
-      
-      <label for="editBarcode">Barcode</label>
-      <input type="text" id="editBarcode" name="barcode">
-      
-      <label for="editCondition">Condition</label>
-      <select id="editCondition" name="condition">
-        <option value="New">New</option>
-        <option value="Good">Good</option>
-        <option value="Fair">Fair</option>
-        <option value="Poor">Poor</option>
-        <option value="Damaged">Damaged</option>
+      <input type="hidden" name="id" id="edit_id" />
+
+      <label>Property Name</label>
+      <input type="text" name="property_name" id="edit_property_name" class="type-box" />
+
+      <label>Description</label>
+      <input type="text" name="description" id="edit_description" />
+
+      <label>Barcode</label>
+      <input type="text" name="barcode" id="edit_barcode" />
+
+      <label>Unit of Measure</label>
+      <input type="text" name="unit_of_measure" id="edit_unit_of_measure" />
+
+      <label>Unit Value</label>
+      <input type="number" step="any" name="unit_value" id="edit_unit_value" />
+
+      <label>Quantity</label>
+      <input type="number" name="quantity" id="edit_quantity" />
+
+      <label>Location</label>
+      <input type="text" name="location" id="edit_location" />
+
+      <label>Condition</label>
+      <select name="condition" id="edit_condition">
+        <option value="">Select Condition</option>
+        <option value="In good condition">In good condition</option>
+        <option value="Needing repair">Needing repair</option>
+        <option value="Unserviceable">Unserviceable</option>
+        <option value="Obsolete">Obsolete</option>
+        <option value="No longer needed">No longer needed</option>
+        <option value="Not used since purchased">Not used since purchased</option>
       </select>
-      
-      <label for="editAvailability">Availability</label>
-      <select id="editAvailability" name="availability">
-        <option value="Available">Available</option>
-        <option value="Unavailable">Unavailable</option>
-        <option value="In Use">In Use</option>
-        <option value="Under Maintenance">Under Maintenance</option>
+
+      <label>Category</label>
+      <select name="category" id="edit_category">
+        <option value="">Select Category</option>
+        <option value="Office Equipment">Office Equipment</option>
+        <option value="ICT Equipment">ICT Equipment</option>
+        <option value="Communication Equipment">Communication Equipment</option>
+        <option value="Other Machinery and Equipment">Other Machinery and Equipment</option>
+        <option value="Furniture and Fixtures">Furniture and Fixtures</option>
       </select>
-      
-      <label for="editAssignedTo">Assigned To</label>
-      <input type="text" id="editAssignedTo" name="assigned_to">
-      
-      <label for="editAvailableForRequest">Available for Request</label>
-      <select id="editAvailableForRequest" name="available_for_request">
-        <option value="True">Yes</option>
-        <option value="False">No</option>
-      </select>
-      
+
       <button type="submit" class="submit-btn">Update</button>
     </form>
   </div>
 </div>
 
-<!-- Add Modal -->
-<div id="addPropertyModal" class="modal">
-  <div class="modal-content">
-    <span class="close" id="closeModalBtn">&times;</span>
-    <h3>Add New Property</h3>
-    <form method="POST" action="{% url 'add_property' %}">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="submit-btn">Submit</button>
-    </form>
-  </div>
-</div>
 
-<!-- Delete Modal -->
-<div id="deletePropertyModal" class="modal">
-  <div class="modal-content">
-    <span class="close" id="closeDeleteModal">&times;</span>
-    <h3>Confirm Deletion</h3>
-    <p>Are you sure you want to delete this property?</p>
-    <form method="POST" id="deletePropertyForm" action="">
-      {% csrf_token %}
-      <button type="submit" class="submit-btn delete">Delete</button>
-    </form>
-  </div>
-</div>
-
-<script src="{% static 'scripts/propertyModal.js' %}"></script>
-
-{% endblock %}
-</body>
+    <script src="{% static 'scripts/propertyModal.js' %}"></script>
+    {% endblock %}
+  </body>
 </html>

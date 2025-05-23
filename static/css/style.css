@@ -43,7 +43,6 @@ h1 {
 .sidebar ul li a:hover {
   color: #fbff00;
 }
-
 .content {
   margin-left: 270px;
   padding: 20px;
@@ -206,7 +205,8 @@ span{
 h3 {
   color: #152d64;
   font-size: 1.5rem;
-  margin-bottom: 15px;
+  margin-bottom: 0;
+  margin-top: 0;
 }
 
 /* General Layout Enhancements */
@@ -224,7 +224,7 @@ h3 {
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-/* Modal Background */
+
 .modal {
   display: none;
   position: fixed;
@@ -235,47 +235,32 @@ h3 {
   height: 100%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.5);
-  animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Modal Box */
+/* Modal Box: wider landscape layout */
 .modal-content {
   background-color: white;
-  margin: 8% auto;
-  padding: 25px 30px;
-  border-radius: 10px;
-  width: 450px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  margin: 3% auto;
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   position: relative;
-  animation: slideDown 0.4s ease;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* Close Button */
 .close {
   position: absolute;
-  top: 12px;
-  right: 20px;
-  font-size: 24px;
+  top: 15px;
+  right: 25px;
+  font-size: 28px;
   font-weight: bold;
   color: #888;
   cursor: pointer;
+  z-index: 1001;
 }
 
 .close:hover {
@@ -284,54 +269,124 @@ h3 {
 
 /* Modal Header */
 .modal-content h3 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 22px;
+  margin: 0 0 25px 0;
+  font-size: 24px;
   color: #152d64;
   text-align: center;
+  border-bottom: 2px solid #152d64;
+  padding-bottom: 10px;
 }
 
-/* Modal Form Fields */
+/* Form container - landscape grid layout */
+.modal-content form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 30px;
+  align-items: start;
+}
+
+/* Form field containers */
+.modal-content form p,
+.modal-content form > label,
+.modal-content form > input,
+.modal-content form > select,
+.modal-content form > textarea {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+/* Style for Django form.as_p paragraphs */
 .modal-content form p {
-  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
 }
 
-.modal-content label {
+.modal-content form p label {
   font-weight: bold;
-  display: block;
-  margin-bottom: 5px;
   color: #152d64;
-}
-
-.modal-content input,
-.modal-content select,
-.modal-content textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  margin-bottom: 6px;
   font-size: 14px;
 }
 
-/* Submit Button */
+.modal-content form p input,
+.modal-content form p select,
+.modal-content form p textarea {
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.modal-content form p input:focus,
+.modal-content form p select:focus,
+.modal-content form p textarea:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 5px rgba(21, 45, 100, 0.3);
+}
+
+/* Direct form elements (for edit modal) */
+.modal-content form > label {
+  font-weight: bold;
+  color: #152d64;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.modal-content form > input,
+.modal-content form > select,
+.modal-content form > textarea {
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  margin-bottom: 0;
+}
+
+.modal-content form > input:focus,
+.modal-content form > select:focus,
+.modal-content form > textarea:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 5px rgba(21, 45, 100, 0.3);
+}
+
+/* Hidden inputs (like CSRF token, ID) - don't take grid space */
+.modal-content form input[type="hidden"] {
+  display: none;
+}
+
+/* Submit button - spans full width at bottom */
 .submit-btn {
+  grid-column: 1 / -1;
   background-color: #152d64;
   color: white;
-  padding: 10px 20px;
+  padding: 15px 25px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
-  width: 100%;
-  margin-top: 10px;
+  font-weight: bold;
+  margin-top: 20px;
   transition: background-color 0.3s ease;
 }
 
 .submit-btn:hover {
-  background-color: #0f2b5c;
+  background-color: #0f224a;
+  transform: translateY(-1px);
 }
 
-/* Add Button Style */
+/* Special handling for textarea fields to span more width if needed */
+.modal-content form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+
+/* Add Property Button */
 .add-btn {
   background-color: #152d64;
   color: white;
@@ -345,57 +400,53 @@ h3 {
 }
 
 .add-btn:hover {
-  background-color: #0f2b5c;
-}
-/* Submit Button */
-.submit-btn {
-  background-color: #152d64;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  width: 100%;
-  margin-top: 10px;
-  transition: background-color 0.3s ease;
+  background-color: #1759ca;
 }
 
-.submit-btn:hover {
-  background-color: #0f2b5c;
-}
-
-/* Delete Button */
-.submit-btn.delete {
-  background-color: #9c2518;
-}
-
-.submit-btn.delete:hover {
-  background-color: #c0392b;
-}
-
-/* Modal Button Alignment */
-.modal-content form {
+.button-group {
   display: flex;
-  flex-direction: column;
+  gap: 10px; /* space between buttons */
+  align-items: center;
 }
 
-button {
-  align-self: center;
-  padding: 10px 20px;
+.edit-btn {
   background-color: #152d64;
   color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
   border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+.edit-btn:hover{
+  background-color: #1759ca;
+}
+.del-btn {
+  background-color: #c21300;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+.del-btn:hover {
+  background-color: #eb1a03;
 }
 
-button:hover {
-  background-color: #0f2b5c;
-}
-.logout-button{
-  margin-top: 350px;
-}
 
+@media (max-width: 768px) {
+  .dashboard-summary {
+    grid-template-columns: 1fr; /* Stack cards vertically */
+  }
+
+  .dashboard-charts {
+    grid-template-columns: 1fr; /* Stack charts vertically */
+  }
+
+  .div6 {
+    flex: 0 0 200px;  /* Adjust sidebar width for smaller screens */
+  }
+}

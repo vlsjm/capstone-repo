@@ -19,8 +19,10 @@
         <h2>Hello, <span>{{ request.user.username }}</span></h2>
       </div>
       <div class="content">
+        <!-- Main Dashboard Content Section -->
         <div class="div2">
           <div class="dashboard-content">
+            <!-- Summary Cards Grid -->
             <div class="dashboard-summary">
               <div class="summary-card">
                 <div class="card-icon"><i class="fas fa-box"></i></div>
@@ -54,6 +56,7 @@
               </div>
             </div>
 
+            <!-- Charts Grid -->
             <div class="dashboard-charts">
               <div class="chart-container">
                 <h3>Supply Status</h3>
@@ -69,13 +72,24 @@
       </div>
     </div>
 
+    <!-- Pass data as JSON -->
     <script id="supplyData" type="application/json">
       {% autoescape off %} [{{ supply_available|default:"0" }}, {{ supply_low_stock|default:"0" }}, {{ supply_out_of_stock|default:"0" }}] {% endautoescape %}
     </script>
 
-    <script id="propertyData" type="application/json">
-      {% autoescape off %} [{{ property_new|default:"0" }}, {{ property_good|default:"0" }}, {{ property_needs_repair|default:"0" }}, {{ property_damaged|default:"0" }}] {% endautoescape %}
-    </script>
+<script id="propertyData" type="application/json">
+  {% autoescape off %}
+    [
+      {{ property_in_good_condition|default:"0" }},
+      {{ property_needing_repair|default:"0" }},
+      {{ property_unserviceable|default:"0" }},
+      {{ property_obsolete|default:"0" }},
+      {{ property_no_longer_needed|default:"0" }},
+      {{ property_not_used_since_purchased|default:"0" }}
+    ]
+  {% endautoescape %}
+</script>
+
 
     <script src="{% static 'scripts/charts.js' %}"></script>
     {% endblock content %}

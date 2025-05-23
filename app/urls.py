@@ -8,29 +8,36 @@ from .views import (
     SupplyListView,
     PropertyListView,
     CheckOutPageView,
+    UserProfileListView,
     add_property,
     add_supply,
-    edit_property, delete_property, LandingPageView, AdminLoginView,
-    UserListView,
-
+    edit_property,
+    delete_property,
+    edit_supply,
+    delete_supply,
+    LandingPageView, 
+    AdminLoginView,
+ 
 )
-
 from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
-    path('manage-users/', UserListView.as_view(), name='user_list'),  # Fixed
     path('', LandingPageView.as_view(), name='landing'),
     path('login/admin/', AdminLoginView.as_view(), name='login_admin'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('dashboard/', DashboardPageView.as_view(), name='dashboard'),
+
     path('requests/', RequestsListView.as_view(), name='requests'),
     path('reports/', ReportPageView.as_view(), name='reports'),
     path('activity/', ActivityPageView.as_view(), name='activity'),
     path('supplies/', SupplyListView.as_view(), name='supply_list'),
-    path('add-supply/', add_supply, name='add_supply'),  
+    path('add-supply/', add_supply, name='add_supply'),
+    path('edit-supply/', edit_supply, name='edit_supply'),
+    path('delete-supply/<int:pk>/', delete_supply, name='delete_supply'),
     path('property/', PropertyListView.as_view(), name='property_list'),
-    path('add-property/', add_property, name='add_property'),  
+    path('add-property/', add_property, name='add_property'),
+    path('edit-property/', edit_property, name='edit_property'),
+    path('delete-property/<int:pk>/', delete_property, name='delete_property'),
     path('check-out/', CheckOutPageView.as_view(), name='checkout'),
-    path('edit-property/<int:id>/', edit_property, name='edit_property'),
-    path('delete-property/<int:id>/', delete_property, name='delete_property'),
+    path('manage-users/', UserProfileListView.as_view(), name='manage_users'),
 ]
