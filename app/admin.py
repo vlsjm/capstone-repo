@@ -8,3 +8,4 @@ admin.site.register(DamageReport)
 admin.site.register(BorrowRequest)
 admin.site.register(UserProfile)
 admin.site.register(ActivityLog)  
+

@@ -92,26 +92,25 @@ class UserBorrowRequestListView(ListView):
     context_object_name = 'borrow_requests'
 
     def get_queryset(self):
-        return BorrowRequest.objects.filter(user=self.request.user).select_related('user', 'user__userprofile').order_by('-borrow_date')
-
+        return BorrowRequest.objects.select_related('user', 'property').order_by('-borrow_date')
 
 
 class UserSupplyRequestListView(ListView):
     model = SupplyRequest
     template_name = 'app/requests.html'
     context_object_name = 'requests'
-
+    
     def get_queryset(self):
-        return SupplyRequest.objects.filter(user=self.request.user).order_by('-request_date')
+        return SupplyRequest.objects.select_related('user', 'supply').order_by('-request_date')
 
 
 class UserDamageReportListView(ListView):
     model = DamageReport
     template_name = 'app/reports.html'
     context_object_name = 'damage_reports'
-
+    
     def get_queryset(self):
-        return DamageReport.objects.filter(user=self.request.user).order_by('-report_date')
+        return DamageReport.objects.select_related('user', 'item').order_by('-report_date')
 
 
 class UserReservationListView(ListView):
@@ -120,7 +119,7 @@ class UserReservationListView(ListView):
     context_object_name = 'reservations'
 
     def get_queryset(self):
-        return Reservation.objects.filter(user=self.request.user).order_by('-reservation_date')
+        return Reservation.objects.select_related('user', 'item').order_by('-reservation_date')
 
 
 class SupplyListView(ListView):
@@ -332,5 +331,22 @@ class LandingPageView(TemplateView):
     template_name = "app/landing_page.html"
 
 
+    
 class AdminLoginView(LoginView):
     template_name = 'registration/admin_login.html'
+    success_url = reverse_lazy('dashboard')  
+    
+    def form_valid(self, form):
+        user = form.get_user()
+        
+        try:
+            profile = UserProfile.objects.get(user=user)
+            if profile.role != 'admin':
+                messages.error(self.request, 'Access denied. Admin credentials required.')
+                return self.form_invalid(form)
+        except UserProfile.DoesNotExist:
+            messages.error(self.request, 'Access denied. Admin credentials required.')
+            return self.form_invalid(form)
+        
+        # If user is admin, proceed with normal login
+        return super().form_valid(form)

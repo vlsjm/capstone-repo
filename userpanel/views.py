@@ -6,6 +6,9 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm
 
+from django.contrib.auth.views import LoginView
+from app.models import UserProfile
+
 
 class UserBorrowView( TemplateView):
     template_name = 'userpanel/user_borrow.html'
@@ -80,23 +83,33 @@ class UserReportView(TemplateView):
         return render(request, self.template_name, {'form': form})
 
 
-# Custom User Login View
-def user_login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')  # Or 'email' depending on your form
-        password = request.POST.get('password')
+class UserLoginView(LoginView):
+    template_name = 'registration/user_login.html'
+    success_url = reverse_lazy('user_dashboard')  
+    
+    def form_valid(self, form):
+        user = form.get_user()
+        
+        # Check if user has a profile and is NOT an admin
+        try:
+            profile = UserProfile.objects.get(user=user)
+            if profile.role == 'admin':
+                messages.error(self.request, 'Access denied. Please use the admin login.')
+                return self.form_invalid(form)
+            
+            # Allow login for faculty and csg_officer only
+            if profile.role not in ['faculty', 'csg_officer']:
+                messages.error(self.request, 'Access denied. Invalid user role.')
+                return self.form_invalid(form)
+                
+        except UserProfile.DoesNotExist:
+            messages.error(self.request, 'User profile not found.')
+            return self.form_invalid(form)
+        
+        # If user is faculty or csg_officer, proceed with normal login
+        return super().form_valid(form)
 
-        user = authenticate(request, username=username, password=password)
 
-        if user is not None:
-            login(request, user)
-            return redirect('user_dashboard')  # Redirect to the user dashboard after successful login
-        else:
-            messages.error(request, 'Invalid username or password.')
-
-    return render(request, 'registration/user_login.html')
-
-# Dashboard Page View
 class UserDashboardView(TemplateView):
     template_name = 'userpanel/user_dashboard.html'
 
