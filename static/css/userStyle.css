@@ -1,0 +1,158 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: whitesmoke;
+}
+h1 {
+  text-align: center;
+  margin-top: 20px;
+  color: #fbff00;
+}
+.sidebar {
+  width: 250px;
+  height: 100%;
+  background-color: #152d64;
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+.sidebar ul li {
+  padding: 20px;
+  display: flex;
+  justify-content: left;
+  height: 100%; 
+  padding-left: 50px;            
+}
+
+.sidebar ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  display: flex;
+  gap: 10px;
+  font-weight: bold;
+}
+
+.sidebar ul li a:hover {
+  color: #fbff00;
+}
+
+.request-form-container {
+  background-color: white;
+  margin: 2% auto;
+  padding: 30px;
+  border-radius: 12px;
+  width: 60%;
+  max-width: 9700px;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+
+  /* ✅ Add this line to push content beside the sidebar */
+  margin-left: 350px; /* 250px sidebar + a little gap */
+}
+
+
+/* Header title */
+.request-form-container h1 {
+  font-size: 24px;
+  color: #152d64;
+  text-align: center;
+  border-bottom: 2px solid #152d64;
+  padding-bottom: 10px;
+  margin-bottom: 25px;
+}
+
+/* Form layout (grid like modal) */
+.request-form-container form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 30px;
+  align-items: start;
+}
+
+/* Style for Django form.as_p paragraphs */
+.request-form-container form p {
+  display: flex;
+  flex-direction: column;
+}
+
+.request-form-container form p label {
+  font-weight: bold;
+  color: #152d64;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.request-form-container form p input,
+.request-form-container form p select,
+.request-form-container form p textarea {
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.request-form-container form p input:focus,
+.request-form-container form p select:focus,
+.request-form-container form p textarea:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 5px rgba(21, 45, 100, 0.3);
+}
+
+/* Hidden inputs (CSRF token etc.) */
+.request-form-container form input[type="hidden"] {
+  display: none;
+}
+
+/* Submit button (matches modal style) */
+.btn-submit {
+  grid-column: 1 / -1;
+  background-color: #152d64;
+  color: white;
+  padding: 15px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+  background-color: #0f224a;
+  transform: translateY(-1px);
+}
+
+/* Optional: messages styling */
+.messages {
+  grid-column: 1 / -1;
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 15px;
+}
+
+.messages li {
+  padding: 10px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  color: white;
+}
+
+.messages .success {
+  background-color: #4CAF50;
+}
+
+.messages .error {
+  background-color: #f44336;
+}

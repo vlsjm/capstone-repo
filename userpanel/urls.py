@@ -5,6 +5,7 @@ from .views import (
     UserReserveView,
     UserReportView,
     user_login,
+    UserBorrowView,
 )
 
 urlpatterns = [
@@ -13,4 +14,6 @@ urlpatterns = [
     path('user_reserve/', UserReserveView.as_view(), name='user_reserve'),
     path('user_report/', UserReportView.as_view(), name='user_report'),
     path('login/user/', user_login, name='login_user'),  # Correct login URL
+    path('user_borrow/', UserBorrowView.as_view(), name='user_borrow'),
+
 ]

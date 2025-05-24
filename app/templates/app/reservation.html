@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Reservations</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+  />
+</head>
+<body>
+  {% include 'app/navbar.html' %}
+
+  <div class="content">
+    <h2>Your Reservations</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Reserver</th> <!-- Full name + role + department -->
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Purpose</th>
+          <th>Needed Date</th> <!-- NEW -->
+          <th>Reservation Date</th> <!-- when the reservation was made-->
+          <th>Return Date</th>
+          <th>Approved Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reservation in reservations %}
+        <tr class="reservation-row">
+          <td>
+            {% with reservation.user.first_name as first_name %}
+            {% with reservation.user.last_name as last_name %}
+              {% if first_name or last_name %}
+                {{ first_name }} {{ last_name }}
+              {% else %}
+                {{ reservation.user.username }}
+              {% endif %}
+            {% endwith %}
+            {% endwith %}
+            <br/>
+            <small>
+              {{ reservation.user.userprofile.get_role_display }}<br/>
+              Dept: {{ reservation.user.userprofile.department }}
+            </small>
+          </td>
+          <td>{{ reservation.item.property_name }}</td>
+          <td>{{ reservation.quantity }}</td>
+          <td>{{ reservation.purpose }}</td>
+          <td>{{ reservation.needed_date|date:"M d, Y" }}</td> <!-- NEW -->
+          <td>{{ reservation.reservation_date|date:"M d, Y H:i" }}</td>
+          <td>{{ reservation.return_date|date:"M d, Y" }}</td>
+          <td>
+            {% if reservation.approved_date %}
+              {{ reservation.approved_date|date:"M d, Y H:i" }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8">No reservations found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

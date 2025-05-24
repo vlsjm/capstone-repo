@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
+from datetime import date
+
 
 class ActivityLog(models.Model):
     ACTION_CHOICES = [
@@ -111,7 +113,8 @@ class Reservation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(Property, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
-    reservation_date = models.DateTimeField(auto_now_add=True)
+    reservation_date = models.DateTimeField(auto_now_add=True)  # when the reservation was made
+    needed_date = models.DateField(null=True, blank=True)
     return_date = models.DateField()
     approved_date = models.DateTimeField(null=True, blank=True)
     purpose = models.TextField()

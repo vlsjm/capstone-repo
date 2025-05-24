@@ -3,30 +3,35 @@
     <ul>
       <li>
         <a href="{% url 'user_dashboard' %}">
-          <i class="fas fa-home"></i> Dashboard
+        🏠 Dashboard
         </a>
       </li>
       <li>
         <a href="{% url 'user_request' %}">
-          <i class="fas fa-paper-plane"></i> Make a request
+         📤 Make a request
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'user_borrow' %}">
+        🤝 Borrow
         </a>
       </li>
       <li>
         <a href="{% url 'user_reserve' %}">
-          <i class="fas fa-calendar-check"></i> Reserve
+        📅 Reserve
         </a>
       </li>
       <li>
         <a href="{% url 'user_report' %}">
-          <i class="fas fa-exclamation-triangle"></i> Report
+        ⚠️ Report
         </a>
       </li>
-      <li >
+      <li>
         <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
           {% csrf_token %}
         </form>
         <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-          <i class="fas fa-sign-out-alt"></i> Logout
+        🚪 Logout
         </a>
       </li>
     </ul>

@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Borrow Requests</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+  />
+</head>
+<body>
+  {% include 'app/navbar.html' %}
+
+  <div class="content">
+    <h2>Your Borrow Requests</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Borrower</th> <!-- Full name of the borrower -->
+          <th>Property</th>
+          <th>Quantity</th>
+          <th>Purpose</th>
+          <th>Status</th>
+          <th>Borrow Date</th>
+          <th>Return Date</th>
+          <th>Actual Return Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for borrow in borrow_requests %}
+        <tr class="borrow-row" data-status="{{ borrow.status }}">
+          <td>
+  {% with borrow.user.first_name as first_name %}
+  {% with borrow.user.last_name as last_name %}
+    {% if first_name or last_name %}
+      {{ first_name }} {{ last_name }}
+    {% else %}
+      {{ borrow.user.username }}
+    {% endif %}
+  {% endwith %}
+  {% endwith %}
+  <br/>
+  <small>
+    {{ borrow.user.userprofile.get_role_display }}<br/>
+    Dept: {{ borrow.user.userprofile.department }}
+  </small>
+</td>
+
+          <td>{{ borrow.property.property_name }}</td>
+          <td>{{ borrow.quantity }}</td>
+          <td>{{ borrow.purpose }}</td>
+          <td>{{ borrow.get_status_display }}</td>
+          <td>{{ borrow.borrow_date|date:"M d, Y H:i" }}</td>
+          <td>{{ borrow.return_date|date:"M d, Y" }}</td>
+          <td>
+            {% if borrow.actual_return_date %}
+              {{ borrow.actual_return_date|date:"M d, Y" }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8">No borrow requests found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
