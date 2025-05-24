@@ -85,29 +85,29 @@ class UserReportView(TemplateView):
 
 class UserLoginView(LoginView):
     template_name = 'registration/user_login.html'
-    success_url = reverse_lazy('user_dashboard')  
-    
+
+    def get_success_url(self):
+        return reverse_lazy('user_dashboard')  
+
     def form_valid(self, form):
         user = form.get_user()
-        
-        # Check if user has a profile and is NOT an admin
+
         try:
             profile = UserProfile.objects.get(user=user)
             if profile.role == 'admin':
                 messages.error(self.request, 'Access denied. Please use the admin login.')
                 return self.form_invalid(form)
             
-            # Allow login for faculty and csg_officer only
             if profile.role not in ['faculty', 'csg_officer']:
                 messages.error(self.request, 'Access denied. Invalid user role.')
                 return self.form_invalid(form)
-                
+
         except UserProfile.DoesNotExist:
             messages.error(self.request, 'User profile not found.')
             return self.form_invalid(form)
-        
-        # If user is faculty or csg_officer, proceed with normal login
+
         return super().form_valid(form)
+
 
 
 class UserDashboardView(TemplateView):

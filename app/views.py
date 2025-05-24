@@ -7,8 +7,11 @@ from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, ListView
 
+from django.views import View
+from django.contrib.auth import login, authenticate
 from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport, Reservation, ActivityLog, UserProfile
 from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm
+from django.contrib.auth.forms import AuthenticationForm
 
 
 def create_user(request):
@@ -44,7 +47,7 @@ class UserProfileListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = UserRegistrationForm()  # Add empty form here
+        context['form'] = UserRegistrationForm()  
         return context
 
 class DashboardPageView(TemplateView):
@@ -332,21 +335,41 @@ class LandingPageView(TemplateView):
 
 
     
+# class AdminLoginView(LoginView):
+#     template_name = 'registration/admin_login.html'
+#     success_url = reverse_lazy('dashboard')  
+    
+#     def form_valid(self, form):
+#         user = form.get_user()
+        
+#         try:
+#             profile = UserProfile.objects.get(user=user)
+#             if profile.role != 'admin':
+#                 messages.error(self.request, 'Access denied. Admin credentials required.')
+#                 return self.form_invalid(form)
+#         except UserProfile.DoesNotExist:
+#             messages.error(self.request, 'Access denied. Admin credentials required.')
+#             return self.form_invalid(form)
+        
+#         # If user is admin, proceed with normal login
+#         return super().form_valid(form)
+
 class AdminLoginView(LoginView):
     template_name = 'registration/admin_login.html'
-    success_url = reverse_lazy('dashboard')  
-    
+
+    def get_success_url(self):
+        return reverse_lazy('dashboard')
+
     def form_valid(self, form):
         user = form.get_user()
-        
         try:
             profile = UserProfile.objects.get(user=user)
             if profile.role != 'admin':
                 messages.error(self.request, 'Access denied. Admin credentials required.')
                 return self.form_invalid(form)
+
         except UserProfile.DoesNotExist:
             messages.error(self.request, 'Access denied. Admin credentials required.')
             return self.form_invalid(form)
-        
-        # If user is admin, proceed with normal login
+
         return super().form_valid(form)
