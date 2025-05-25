@@ -19,7 +19,11 @@ from .views import (
     delete_property,
     edit_supply,
     delete_supply,
-    create_user
+    create_user,
+    request_detail,
+    borrow_request_details,  # ✅ NEW
+    damage_report_detail,
+    reservation_detail
 )
 
 urlpatterns = [
@@ -49,4 +53,10 @@ urlpatterns = [
     path('my-supply-requests/', UserSupplyRequestListView.as_view(), name='user_supply_requests'),
     path('my-damage-reports/', UserDamageReportListView.as_view(), name='user_damage_reports'),
     path('my-reservations/', UserReservationListView.as_view(), name='user_reservations'),
+
+    path('requests/<int:pk>/', request_detail, name='request_detail'),
+    path('borrow-requests/<int:pk>/', borrow_request_details, name='borrow_request_details'),  # ✅ NEW
+    path('reports/<int:pk>/', damage_report_detail, name='damage_report_detail'),
+    path('reservations/<int:pk>/', reservation_detail, name='reservation_detail'),
+
 ]

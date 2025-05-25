@@ -110,14 +110,25 @@ class SupplyRequest(models.Model):
 
 
 class Reservation(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    item = models.ForeignKey(Property, on_delete=models.CASCADE)
+    item = models.ForeignKey('Property', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     reservation_date = models.DateTimeField(auto_now_add=True)  # when the reservation was made
     needed_date = models.DateField(null=True, blank=True)
     return_date = models.DateField()
     approved_date = models.DateTimeField(null=True, blank=True)
     purpose = models.TextField()
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending'
+    )
 
     def __str__(self):
         return f"Reservation by {self.user.username} for {self.item.property_name}"
@@ -140,6 +151,7 @@ class DamageReport(models.Model):
 
 class BorrowRequest(models.Model):
     STATUS_CHOICES = [
+        ('pending', 'Pending'),
         ('approved', 'Approved'),
         ('returned', 'Returned'),
         ('overdue', 'Overdue'),
@@ -149,7 +161,7 @@ class BorrowRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     property = models.ForeignKey(Property, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='approved')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     borrow_date = models.DateTimeField(auto_now_add=True)
     return_date = models.DateField()
     actual_return_date = models.DateField(null=True, blank=True)

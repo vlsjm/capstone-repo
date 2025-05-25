@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Borrow Request Details</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+</head>
+<body>
+  {% include 'app/navbar.html' %}
+
+  <div class="content">
+    <div class="details-p">
+      <h2 class="h2title">Borrow Request Details</h2>
+
+      <p><span>Borrower:</span> 
+        {% with borrow_obj.user.first_name as first_name %}
+        {% with borrow_obj.user.last_name as last_name %}
+          {% if first_name or last_name %}
+            {{ first_name }} {{ last_name }}
+          {% else %}
+            {{ borrow_obj.user.username }}
+          {% endif %}
+        {% endwith %}
+        {% endwith %}
+      </p>
+
+      <p><span>Department:</span> {{ borrow_obj.user.userprofile.department }}</p>
+      <p><span>Property:</span> {{ borrow_obj.property.property_name }}</p>
+      <p><span>Quantity:</span> {{ borrow_obj.quantity }}</p>
+      <p><span>Purpose:</span> {{ borrow_obj.purpose }}</p>
+      <p><span>Status:</span> {{ borrow_obj.get_status_display }}</p>
+      <p><span>Borrow Date:</span> {{ borrow_obj.borrow_date|date:"M d, Y H:i" }}</p>
+      <p><span>Return Date:</span> {{ borrow_obj.return_date|date:"M d, Y" }}</p>
+      <p><span>Actual Return Date:</span>
+        {% if borrow_obj.actual_return_date %}
+          {{ borrow_obj.actual_return_date|date:"M d, Y" }}
+        {% else %}
+          -
+        {% endif %}
+      </p>
+
+      <form method="post" class="stat-button">
+        {% csrf_token %}
+        <button type="submit" name="action" value="approve" class="btn-approve">Approve</button>
+        <button type="submit" name="action" value="decline" class="btn-reject">Decline</button>
+        <button type="submit" name="action" value="return" class="btn-approve">Mark as Returned</button>
+        <button type="submit" name="action" value="overdue" class="btn-reject">Mark as Overdue</button>
+        <a href="{% url 'user_borrow_requests' %}" class="btn-back">← Back to Borrow Requests</a>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

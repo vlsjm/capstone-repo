@@ -22,7 +22,7 @@ class UserBorrowView( TemplateView):
         if form.is_valid():
             borrow_request = form.save(commit=False)
             borrow_request.user = request.user
-            borrow_request.status = 'approved'  # default status
+            borrow_request.status = 'pending'  # default status
             borrow_request.save()
             messages.success(request, 'Borrow request submitted successfully.')
             return redirect('user_borrow')

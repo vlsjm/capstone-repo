@@ -15,3 +15,20 @@
         modal.style.display = "none";
       }
     }
+
+    function filterRole(role) {
+      const rows = document.querySelectorAll('.user-row');
+      rows.forEach(row => {
+        if (role === 'all' || row.dataset.role === role) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      // Highlight active button
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+    }

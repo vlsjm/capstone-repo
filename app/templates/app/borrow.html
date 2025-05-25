@@ -6,71 +6,265 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Borrow Requests</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 </head>
 <body>
   {% include 'app/navbar.html' %}
 
-  <div class="content">
-    <h2>Your Borrow Requests</h2>
+  <div class="parent">
+    <div class="div1">
+      <h2>Borrow Requests</h2>
+    </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Borrower</th> <!-- Full name of the borrower -->
-          <th>Property</th>
-          <th>Quantity</th>
-          <th>Purpose</th>
-          <th>Status</th>
-          <th>Borrow Date</th>
-          <th>Return Date</th>
-          <th>Actual Return Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for borrow in borrow_requests %}
-        <tr class="borrow-row" data-status="{{ borrow.status }}">
-          <td>
-  {% with borrow.user.first_name as first_name %}
-  {% with borrow.user.last_name as last_name %}
-    {% if first_name or last_name %}
-      {{ first_name }} {{ last_name }}
-    {% else %}
-      {{ borrow.user.username }}
-    {% endif %}
-  {% endwith %}
-  {% endwith %}
-  <br/>
-  <small>
-    {{ borrow.user.userprofile.get_role_display }}<br/>
-    Dept: {{ borrow.user.userprofile.department }}
-  </small>
-</td>
+    <main class="content">
+      <div class="request-controls">
+        <div class="button-group">
+          <button onclick="filterStatus('all')" class="filter-btn">All</button>
+          <button onclick="filterStatus('pending')" class="filter-btn">Pending</button> <!-- Added Pending -->
+          <button onclick="filterStatus('approved')" class="filter-btn">Approved</button>
+          <button onclick="filterStatus('returned')" class="filter-btn">Returned</button>
+          <button onclick="filterStatus('overdue')" class="filter-btn">Overdue</button>
+          <button onclick="filterStatus('declined')" class="filter-btn">Declined</button>
+        </div>
+      </div>
 
-          <td>{{ borrow.property.property_name }}</td>
-          <td>{{ borrow.quantity }}</td>
-          <td>{{ borrow.purpose }}</td>
-          <td>{{ borrow.get_status_display }}</td>
-          <td>{{ borrow.borrow_date|date:"M d, Y H:i" }}</td>
-          <td>{{ borrow.return_date|date:"M d, Y" }}</td>
-          <td>
-            {% if borrow.actual_return_date %}
-              {{ borrow.actual_return_date|date:"M d, Y" }}
-            {% else %}
-              -
-            {% endif %}
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="8">No borrow requests found.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+      <!-- Pending Requests Table -->
+      <div class="status-table" data-status="pending">
+        <h3>Pending Requests</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Borrower</th>
+              <th>Property</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Borrow Date</th>
+              <th>Return Date</th>
+              <th>Actual Return Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for request in pending_requests %}
+            <tr>
+              <td>
+                {% with request.user.first_name as first_name %}
+                {% with request.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ request.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br/>
+                <small>{{ request.user.userprofile.get_role_display }}<br/>Dept: {{ request.user.userprofile.department }}</small>
+              </td>
+              <td>{{ request.property.property_name }}</td>
+              <td>{{ request.quantity }}</td>
+              <td>{{ request.get_status_display }}</td>
+              <td>{{ request.borrow_date|date:"M d, Y H:i" }}</td>
+              <td>{{ request.return_date|date:"M d, Y" }}</td>
+              <td>{% if request.actual_return_date %}{{ request.actual_return_date|date:"M d, Y" }}{% else %}-{% endif %}</td>
+              <td><a href="{% url 'borrow_request_details' request.id %}" class="edit-btn">Details</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8">No pending requests found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Existing Approved Requests Table -->
+      <div class="status-table" data-status="approved">
+        <h3>Approved Requests</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Borrower</th>
+              <th>Property</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Borrow Date</th>
+              <th>Return Date</th>
+              <th>Actual Return Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for request in approved_requests %}
+            <tr>
+              <td>
+                {% with request.user.first_name as first_name %}
+                {% with request.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ request.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br/>
+                <small>{{ request.user.userprofile.get_role_display }}<br/>Dept: {{ request.user.userprofile.department }}</small>
+              </td>
+              <td>{{ request.property.property_name }}</td>
+              <td>{{ request.quantity }}</td>
+              <td>{{ request.get_status_display }}</td>
+              <td>{{ request.borrow_date|date:"M d, Y H:i" }}</td>
+              <td>{{ request.return_date|date:"M d, Y" }}</td>
+              <td>{% if request.actual_return_date %}{{ request.actual_return_date|date:"M d, Y" }}{% else %}-{% endif %}</td>
+              <td><a href="{% url 'borrow_request_details' request.id %}" class="edit-btn">Details</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8">No approved requests found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Returned Requests Table -->
+      <div class="status-table" data-status="returned">
+        <h3>Returned Requests</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Borrower</th>
+              <th>Property</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Borrow Date</th>
+              <th>Return Date</th>
+              <th>Actual Return Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for request in returned_requests %}
+            <tr>
+              <td>
+                {% with request.user.first_name as first_name %}
+                {% with request.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ request.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br/>
+                <small>{{ request.user.userprofile.get_role_display }}<br/>Dept: {{ request.user.userprofile.department }}</small>
+              </td>
+              <td>{{ request.property.property_name }}</td>
+              <td>{{ request.quantity }}</td>
+              <td>{{ request.get_status_display }}</td>
+              <td>{{ request.borrow_date|date:"M d, Y H:i" }}</td>
+              <td>{{ request.return_date|date:"M d, Y" }}</td>
+              <td>{{ request.actual_return_date|date:"M d, Y" }}</td>
+              <td><a href="{% url 'borrow_request_details' request.id %}" class="edit-btn">Details</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8">No returned requests found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Overdue Requests Table -->
+      <div class="status-table" data-status="overdue">
+        <h3>Overdue Requests</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Borrower</th>
+              <th>Property</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Borrow Date</th>
+              <th>Return Date</th>
+              <th>Actual Return Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for request in overdue_requests %}
+            <tr>
+              <td>
+                {% with request.user.first_name as first_name %}
+                {% with request.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ request.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br/>
+                <small>{{ request.user.userprofile.get_role_display }}<br/>Dept: {{ request.user.userprofile.department }}</small>
+              </td>
+              <td>{{ request.property.property_name }}</td>
+              <td>{{ request.quantity }}</td>
+              <td>{{ request.get_status_display }}</td>
+              <td>{{ request.borrow_date|date:"M d, Y H:i" }}</td>
+              <td>{{ request.return_date|date:"M d, Y" }}</td>
+              <td>{{ request.actual_return_date|date:"M d, Y" }}</td>
+              <td><a href="{% url 'borrow_request_details' request.id %}" class="edit-btn">Details</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8">No overdue requests found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Declined Requests Table -->
+      <div class="status-table" data-status="declined">
+        <h3>Declined Requests</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Borrower</th>
+              <th>Property</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Borrow Date</th>
+              <th>Return Date</th>
+              <th>Actual Return Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for request in declined_requests %}
+            <tr>
+              <td>
+                {% with request.user.first_name as first_name %}
+                {% with request.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ request.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br/>
+                <small>{{ request.user.userprofile.get_role_display }}<br/>Dept: {{ request.user.userprofile.department }}</small>
+              </td>
+              <td>{{ request.property.property_name }}</td>
+              <td>{{ request.quantity }}</td>
+              <td>{{ request.get_status_display }}</td>
+              <td>{{ request.borrow_date|date:"M d, Y H:i" }}</td>
+              <td>{{ request.return_date|date:"M d, Y" }}</td>
+              <td>{% if request.actual_return_date %}{{ request.actual_return_date|date:"M d, Y" }}{% else %}-{% endif %}</td>
+              <td><a href="{% url 'borrow_request_details' request.id %}" class="edit-btn">Details</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8">No declined requests found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </main>
   </div>
+
+  <script src="{% static 'scripts/filterStatus.js' %}"></script>
 </body>
 </html>

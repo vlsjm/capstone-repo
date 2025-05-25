@@ -6,68 +6,163 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Supply Requests</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 </head>
 <body>
   {% include 'app/navbar.html' %}
 
-  <main class="content">
-    <h2>Your Supply Requests</h2>
+  <div class="parent">
+    <div class="div1">
+      <h2>Supply Requests</h2>
+    </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Requester</th> <!-- NEW -->
-          <th>Supply</th>
-          <th>Quantity</th>
-          <th>Purpose</th>
-          <th>Status</th>
-          <th>Request Date</th>
-          <th>Approved Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for request in requests %}
-        <tr class="request-row" data-status="{{ request.status }}">
-          <td>
-            {% with request.user.first_name as first_name %}
-            {% with request.user.last_name as last_name %}
-              {% if first_name or last_name %}
-                {{ first_name }} {{ last_name }}
-              {% else %}
-                {{ request.user.username }}
-              {% endif %}
-            {% endwith %}
-            {% endwith %}
-            <br/>
-            <small>
-              {{ request.user.userprofile.get_role_display }}<br/>
-              Dept: {{ request.user.userprofile.department }}
-            </small>
-          </td>
-          <td>{{ request.supply.supply_name }}</td>
-          <td>{{ request.quantity }}</td>
-          <td>{{ request.purpose }}</td>
-          <td>{{ request.get_status_display }}</td>
-          <td>{{ request.request_date|date:"M d, Y H:i" }}</td>
-          <td>
-            {% if request.approved_date %}
-              {{ request.approved_date|date:"M d, Y H:i" }}
-            {% else %}
-              -
-            {% endif %}
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="7">No supply requests found.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </main>
+    <main class="content">
+      <div class="request-controls">
+        <div class="button-group">
+          <button onclick="filterStatus('all')" class="filter-btn">All</button>
+          <button onclick="filterStatus('pending')" class="filter-btn">Pending</button>
+          <button onclick="filterStatus('approved')" class="filter-btn">Approved</button>
+          <button onclick="filterStatus('rejected')" class="filter-btn">Rejected</button>
+        </div>
+      </div>
+
+      <!-- Pending Requests Table -->
+      <div class="status-table" data-status="pending">
+        <h3>Pending Requests</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Requester</th>
+              <th>Supply</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Request Date</th>
+              <th>Approved Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for request in pending_requests %}
+            <tr>
+              <td>
+                {% with request.user.first_name as first_name %}
+                {% with request.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ request.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br/>
+                <small>{{ request.user.userprofile.get_role_display }}<br/>Dept: {{ request.user.userprofile.department }}</small>
+              </td>
+              <td>{{ request.supply.supply_name }}</td>
+              <td>{{ request.quantity }}</td>
+              <td>{{ request.get_status_display }}</td>
+              <td>{{ request.request_date|date:"M d, Y H:i" }}</td>
+              <td>{% if request.approved_date %}{{ request.approved_date|date:"M d, Y H:i" }}{% else %}-{% endif %}</td>
+              <td><a href="{% url 'request_detail' request.id %}" class="edit-btn">Details</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">No pending requests found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Approved Requests Table -->
+      <div class="status-table" data-status="approved">
+        <h3>Approved Requests</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Requester</th>
+              <th>Supply</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Request Date</th>
+              <th>Approved Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for request in approved_requests %}
+            <tr>
+              <td>
+                {% with request.user.first_name as first_name %}
+                {% with request.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ request.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br/>
+                <small>{{ request.user.userprofile.get_role_display }}<br/>Dept: {{ request.user.userprofile.department }}</small>
+              </td>
+              <td>{{ request.supply.supply_name }}</td>
+              <td>{{ request.quantity }}</td>
+              <td>{{ request.get_status_display }}</td>
+              <td>{{ request.request_date|date:"M d, Y H:i" }}</td>
+              <td>{% if request.approved_date %}{{ request.approved_date|date:"M d, Y H:i" }}{% else %}-{% endif %}</td>
+              <td><a href="{% url 'request_detail' request.id %}" class="edit-btn">Details</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">No approved requests found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Rejected Requests Table -->
+      <div class="status-table" data-status="rejected">
+        <h3>Rejected Requests</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Requester</th>
+              <th>Supply</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Request Date</th>
+              <th>Approved Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for request in rejected_requests %}
+            <tr>
+              <td>
+                {% with request.user.first_name as first_name %}
+                {% with request.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ request.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br/>
+                <small>{{ request.user.userprofile.get_role_display }}<br/>Dept: {{ request.user.userprofile.department }}</small>
+              </td>
+              <td>{{ request.supply.supply_name }}</td>
+              <td>{{ request.quantity }}</td>
+              <td>{{ request.get_status_display }}</td>
+              <td>{{ request.request_date|date:"M d, Y H:i" }}</td>
+              <td>{% if request.approved_date %}{{ request.approved_date|date:"M d, Y H:i" }}{% else %}-{% endif %}</td>
+              <td><a href="{% url 'request_detail' request.id %}" class="edit-btn">Details</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">No rejected requests found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script src="{% static 'scripts/filterStatus.js' %}"></script>
 </body>
 </html>

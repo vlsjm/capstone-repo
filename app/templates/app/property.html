@@ -12,14 +12,16 @@
     {% include 'app/navbar.html' %}
 
     {% block content %}
-    <h2>Property List</h2>
-
-    <!-- Add Property Button -->
+    <div class="parent">
+      <div class="div1">
+        <h2 >Properties</h2>
+      </div>
+    <div class="content">
+          <!-- Add Property Button -->
     <div class="add-property-container">
       <button id="openModalBtn" class="add-btn">+ Add Property</button>
     </div>
 
-    <div class="content">
       {% if grouped_properties %}
         {% for category, properties_in_category in grouped_properties.items %}
           <h3>{{ category }}</h3>

@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Request Details</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+  />
+</head>
+<body>
+  {% include 'app/navbar.html' %}
+
+  <div class="content">
+    <div class="details-p">
+      <h2 class="h2title">Request Details</h2>
+
+        <p><span>Requester:</span> 
+        {% with request_obj.user.first_name as first_name %}
+        {% with request_obj.user.last_name as last_name %}
+            {% if first_name or last_name %}
+            {{ first_name }} {{ last_name }}
+            {% else %}
+            {{ request_obj.user.username }}
+            {% endif %}
+        {% endwith %}
+        {% endwith %}
+        </p>
+      <p><span>Department:</span> {{ request_obj.user.userprofile.department }}</p>
+      <p><span>Supply:</span> {{ request_obj.supply.supply_name }}</p>
+      <p><span>Quantity:</span> {{ request_obj.quantity }}</p>
+      <p><span>Purpose:</span> {{ request_obj.purpose }}</p>
+      <p><span>Status:</span> {{ request_obj.get_status_display }}</p>
+      <p><span>Requested Date:</span> {{ request_obj.request_date|date:"M d, Y H:i" }}</p>
+
+<form method="post" class="stat-button">
+  {% csrf_token %}
+  <!-- Approve button styled as green -->
+  <button type="submit" name="action" value="approve" class="btn-approve">Approve</button>
+
+  <!-- Reject button styled as red -->
+  <button type="submit" name="action" value="rejected" class="btn-reject">Reject</button>
+
+    <!-- Back button styled as dark blue -->
+  <a href="{% url 'user_supply_requests' %}" class="btn-back">← Back to Requests</a>
+</form>
+
+
+  </div>
+</body>
+</html>

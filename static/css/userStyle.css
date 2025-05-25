@@ -156,3 +156,24 @@ h1 {
 .messages .error {
   background-color: #f44336;
 }
+/* Main container for the dashboard */
+.parent {
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Section displaying user info */
+.div1 h2 {
+text-align: center;
+    color: #152d64;
+    font-size: 24px;
+    margin-bottom: 0;
+    margin-top: 0;
+    background-color: #d5d5d5;
+    padding: 15px;
+}
+
+.div1 span {
+  font-weight: bold;
+  color: #1d4c92; /* Slightly lighter shade */
+}

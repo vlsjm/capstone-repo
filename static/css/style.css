@@ -48,11 +48,12 @@ h1 {
   padding: 20px;
 }
 
-h2 {
-  text-align: center;
-  color: #152d64;
-  font-size: 24px;
-  margin-bottom: 20px;
+.h2title {
+    text-align: center;
+    color: #152d64;
+    font-size: 40px;
+    margin-top: auto;
+    margin-bottom: 0;
 }
 
 table {
@@ -86,65 +87,81 @@ tbody tr:hover {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  margin-bottom: 20px;
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  max-width: 98%;
+  margin-bottom: 5px;
   margin-left: auto;
-  margin-right: auto;
 }
-
-.search-input {
-  flex: 1;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  outline: none;
-}
-
-#filterStatus {
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: white;
-  cursor: pointer;
-  margin-left: 10px;
-}
-
 .request-controls button {
   background-color: #152d64;
   color: white;
   border: none;
   padding: 10px 15px;
   font-size: 16px;
-  border-radius: 5px;
+  border-radius: 10px;
   cursor: pointer;
   transition: 0.3s ease;
   margin-left: 10px;
 }
+
+.stat-button {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-right: auto;
+}
+
+.stat-button a,
+.stat-button button {
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  text-decoration: none;
+  margin-left: 10px;
+  color: white;
+  border: none;
+}
+
+/* Back button - Dark Blue */
+.btn-back {
+  background-color: #152d64;
+}
+
+/* Approve button - Green */
+.btn-approve {
+  background-color: #28a745;
+}
+.btn-reviewed{
+  background-color: rgb(182, 182, 10);
+}
+
+/* Reject button - Red */
+.btn-reject {
+  background-color: #dc3545;
+}
+
+
+
+
 span{
   font-weight: bolder;
 }
 
 /* Main container for the dashboard */
 .parent {
-  padding: 30px;
   flex-direction: column;
   gap: 30px;
-  
 }
 
 /* Section displaying user info */
 .div1 h2 {
-  text-align: center;
-  color: #152d64;
-  font-size: 24px;
-  margin-bottom: 0;
-  margin-top: 0;
+text-align: center;
+    color: #152d64;
+    font-size: 24px;
+    margin-bottom: 0;
+    margin-top: 0;
+    background-color: #d5d5d5;
+    padding: 15px;
 }
 
 .div1 span {
@@ -203,17 +220,17 @@ span{
 }
 
 h3 {
-  color: #152d64;
-  font-size: 1.5rem;
-  margin-bottom: 0;
-  margin-top: 0;
+     color: #152d64;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    margin-top: 15px;
 }
 
 /* General Layout Enhancements */
 .content {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 5px;
   margin-top: 0;
 }
 
@@ -223,6 +240,31 @@ h3 {
   margin-top: 0%;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.details-p {
+  background-color: #fff;
+  padding: 20px;
+  margin-top: 0%;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.details-p p {
+  background-color: #f9f9f9;
+  padding: 12px 16px;
+  border-left: 4px solid #152d64;
+  border-radius: 6px;
+  font-size: 16px;
+  margin: 10px 0;
+  color: #333;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Highlight the span inside each p */
+.details-p p span {
+  font-weight: 600;
+  color: #152d64;
+  display: inline-block;
+  min-width: 130px;
 }
 
 .modal {
@@ -396,7 +438,13 @@ h3 {
   cursor: pointer;
   font-size: 16px;
   transition: background-color 0.3s ease;
-  margin-left: 290px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 5px;
+  margin-right: auto;
+  text-decoration: none;
+
 }
 
 .add-btn:hover {
@@ -408,8 +456,7 @@ h3 {
   gap: 10px; /* space between buttons */
   align-items: center;
 }
-
-.edit-btn {
+.edit-btn{
   background-color: #152d64;
   color: white;
   border: none;
@@ -418,10 +465,12 @@ h3 {
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.3s ease;
+  text-decoration: none;
 }
 .edit-btn:hover{
   background-color: #1759ca;
 }
+
 .del-btn {
   background-color: #c21300;
   color: white;
@@ -435,6 +484,21 @@ h3 {
 .del-btn:hover {
   background-color: #eb1a03;
 }
+.filter-btn {
+  background-color: #152d64;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.filter-btn:hover {
+  background-color: #1759ca;
+}
+
 
 
 @media (max-width: 768px) {

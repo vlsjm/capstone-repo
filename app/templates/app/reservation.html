@@ -4,72 +4,165 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Your Reservations</title>
+  <title>Reservations</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 </head>
 <body>
   {% include 'app/navbar.html' %}
 
-  <div class="content">
-    <h2>Your Reservations</h2>
+  <div class="parent">
+    <div class="div1">
+      <h2>Reservations</h2>
+    </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Reserver</th> <!-- Full name + role + department -->
-          <th>Item</th>
-          <th>Quantity</th>
-          <th>Purpose</th>
-          <th>Needed Date</th> <!-- NEW -->
-          <th>Reservation Date</th> <!-- when the reservation was made-->
-          <th>Return Date</th>
-          <th>Approved Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for reservation in reservations %}
-        <tr class="reservation-row">
-          <td>
-            {% with reservation.user.first_name as first_name %}
-            {% with reservation.user.last_name as last_name %}
-              {% if first_name or last_name %}
-                {{ first_name }} {{ last_name }}
-              {% else %}
-                {{ reservation.user.username }}
-              {% endif %}
-            {% endwith %}
-            {% endwith %}
-            <br/>
-            <small>
-              {{ reservation.user.userprofile.get_role_display }}<br/>
-              Dept: {{ reservation.user.userprofile.department }}
-            </small>
-          </td>
-          <td>{{ reservation.item.property_name }}</td>
-          <td>{{ reservation.quantity }}</td>
-          <td>{{ reservation.purpose }}</td>
-          <td>{{ reservation.needed_date|date:"M d, Y" }}</td> <!-- NEW -->
-          <td>{{ reservation.reservation_date|date:"M d, Y H:i" }}</td>
-          <td>{{ reservation.return_date|date:"M d, Y" }}</td>
-          <td>
-            {% if reservation.approved_date %}
-              {{ reservation.approved_date|date:"M d, Y H:i" }}
-            {% else %}
-              -
-            {% endif %}
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="8">No reservations found.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <main class="content">
+      <div class="request-controls">
+        <div class="button-group">
+          <button onclick="filterStatus('all')" class="filter-btn">All</button>
+          <button onclick="filterStatus('pending')" class="filter-btn">Pending</button>
+          <button onclick="filterStatus('approved')" class="filter-btn">Approved</button>
+          <button onclick="filterStatus('rejected')" class="filter-btn">Rejected</button>
+        </div>
+      </div>
+
+      <!-- Pending Reservations Table -->
+      <div class="status-table" data-status="pending">
+        <h3>Pending Reservations</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Reserver</th>
+              <th>Reserved Item</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Reservation Date</th>
+              <th>Approved Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for reservation in pending_reservations %}
+            <tr>
+              <td>
+                {% with reservation.user.first_name as first_name %}
+                {% with reservation.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ reservation.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br/>
+                <small>{{ reservation.user.userprofile.get_role_display }}<br/>Dept: {{ reservation.user.userprofile.department }}</small>
+              </td>
+              <td>{{ reservation.item.property_name }}</td>
+              <td>{{ reservation.quantity }}</td>
+              <td>{{ reservation.get_status_display }}</td>
+              <td>{{ reservation.reservation_date|date:"M d, Y H:i" }}</td>
+              <td>{% if reservation.approved_date %}{{ reservation.approved_date|date:"M d, Y H:i" }}{% else %}-{% endif %}</td>
+              <td><a href="{% url 'reservation_detail' reservation.id %}" class="edit-btn">Details</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">No pending reservations found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Approved Reservations Table -->
+      <div class="status-table" data-status="approved">
+        <h3>Approved Reservations</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Reserver</th>
+              <th>Reserved Item</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Reservation Date</th>
+              <th>Approved Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for reservation in approved_reservations %}
+            <tr>
+              <td>
+                {% with reservation.user.first_name as first_name %}
+                {% with reservation.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ reservation.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br/>
+                <small>{{ reservation.user.userprofile.get_role_display }}<br/>Dept: {{ reservation.user.userprofile.department }}</small>
+              </td>
+              <td>{{ reservation.item.property_name }}</td>
+              <td>{{ reservation.quantity }}</td>
+              <td>{{ reservation.get_status_display }}</td>
+              <td>{{ reservation.reservation_date|date:"M d, Y H:i" }}</td>
+              <td>{% if reservation.approved_date %}{{ reservation.approved_date|date:"M d, Y H:i" }}{% else %}-{% endif %}</td>
+              <td><a href="{% url 'reservation_detail' reservation.id %}" class="edit-btn">Details</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">No approved reservations found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Rejected Reservations Table -->
+      <div class="status-table" data-status="rejected">
+        <h3>Rejected Reservations</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Reserver</th>
+              <th>Reserved Item</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Reservation Date</th>
+              <th>Approved Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for reservation in rejected_reservations %}
+            <tr>
+              <td>
+                {% with reservation.user.first_name as first_name %}
+                {% with reservation.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ reservation.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br/>
+                <small>{{ reservation.user.userprofile.get_role_display }}<br/>Dept: {{ reservation.user.userprofile.department }}</small>
+              </td>
+              <td>{{ reservation.item.property_name }}</td>
+              <td>{{ reservation.quantity }}</td>
+              <td>{{ reservation.get_status_display }}</td>
+              <td>{{ reservation.reservation_date|date:"M d, Y H:i" }}</td>
+              <td>{% if reservation.approved_date %}{{ reservation.approved_date|date:"M d, Y H:i" }}{% else %}-{% endif %}</td>
+              <td><a href="{% url 'reservation_detail' reservation.id %}" class="edit-btn">Details</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">No rejected reservations found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </main>
   </div>
+
+  <script src="{% static 'scripts/filterStatus.js' %}"></script>
 </body>
 </html>

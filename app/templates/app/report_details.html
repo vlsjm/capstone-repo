@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Damage Report Details</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+  />
+</head>
+<body>
+  {% include 'app/navbar.html' %}
+  <div class="content">
+    <div class="details-p">
+      <h2 class="h2title">Damage Report Details</h2>
+
+      <p><span>Reporter:</span>
+        {% with report_obj.user.first_name as first_name %}
+        {% with report_obj.user.last_name as last_name %}
+          {% if first_name or last_name %}
+            {{ first_name }} {{ last_name }}
+          {% else %}
+            {{ report_obj.user.username }}
+          {% endif %}
+        {% endwith %}
+        {% endwith %}
+      </p>
+
+      <p><span>Department:</span> {{ report_obj.user.userprofile.department }}</p>
+      <p><span>Item:</span> {{ report_obj.item.property_name }}</p>
+      <p><span>Description:</span> {{ report_obj.description }}</p>
+      <p><span>Status:</span> {{ report_obj.get_status_display }}</p>
+      <p><span>Reported Date:</span> {{ report_obj.report_date|date:"M d, Y H:i" }}</p>
+
+      <form method="post" class="stat-button">
+        {% csrf_token %}
+        <button type="submit" name="action" value="reviewed" class="btn-reviewed">Mark as Reviewed</button>
+        <button type="submit" name="action" value="resolved" class="btn-approve">Mark as Resolved</button>
+        <a href="{% url 'user_damage_reports' %}" class="btn-back">← Back to Reports</a>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

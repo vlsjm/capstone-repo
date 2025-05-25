@@ -13,6 +13,78 @@ from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport
 from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 
+from django.utils import timezone
+
+def reservation_detail(request, pk):
+    reservation = get_object_or_404(Reservation, pk=pk)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'approve':
+            reservation.status = 'approved'
+            reservation.approved_date = timezone.now()
+        elif action == 'reject':
+            reservation.status = 'rejected'
+            reservation.approved_date = timezone.now()
+        reservation.save()
+        return redirect('user_reservations')  # Change if your list URL name differs
+
+    return render(request, 'app/reservation_detail.html', {'reservation': reservation})
+
+
+def damage_report_detail(request, pk):
+    report_obj = get_object_or_404(DamageReport, pk=pk)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'reviewed':
+            report_obj.status = 'reviewed'
+        elif action == 'resolved':
+            report_obj.status = 'resolved'
+        report_obj.save()
+        return redirect('user_damage_reports')
+
+    return render(request, 'app/report_details.html', {'report_obj': report_obj})
+
+def borrow_request_details(request, pk):
+    request_obj = get_object_or_404(BorrowRequest, pk=pk)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'approve':
+            request_obj.status = 'approved'
+            request_obj.approved_date = timezone.now()
+        elif action == 'decline':
+            request_obj.status = 'declined'
+            request_obj.approved_date = timezone.now()
+        elif action == 'return':
+            request_obj.status = 'returned'
+            request_obj.actual_return_date = timezone.now().date()
+        elif action == 'overdue':
+            request_obj.status = 'overdue'
+        request_obj.save()
+        return redirect('user_borrow_requests')
+
+    return render(request, 'app/borrow_request_details.html', {'borrow_obj': request_obj})
+
+
+def request_detail(request, pk):
+    request_obj = get_object_or_404(SupplyRequest, pk=pk)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'approve':
+            request_obj.status = 'approved'
+        elif action == 'rejected':
+            request_obj.status = 'rejected'
+        request_obj.approved_date = timezone.now()
+        request_obj.save()
+        return redirect('user_supply_requests')  # replace 'request_list' with your URL name for the list view
+
+    return render(request, 'app/request_details.html', {'request_obj': request_obj})
+
+
 
 def create_user(request):
     if request.method == 'POST':
@@ -95,16 +167,42 @@ class UserBorrowRequestListView(ListView):
     context_object_name = 'borrow_requests'
 
     def get_queryset(self):
-        return BorrowRequest.objects.select_related('user', 'property').order_by('-borrow_date')
+        return BorrowRequest.objects \
+            .select_related('user', 'user__userprofile', 'property') \
+            .order_by('-borrow_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        all_requests = self.get_queryset()
+
+        context['pending_requests'] = all_requests.filter(status='pending')  # <-- added pending
+        context['approved_requests'] = all_requests.filter(status='approved')
+        context['returned_requests'] = all_requests.filter(status='returned')
+        context['overdue_requests'] = all_requests.filter(status='overdue')
+        context['declined_requests'] = all_requests.filter(status='declined')
+
+        return context
+
 
 
 class UserSupplyRequestListView(ListView):
     model = SupplyRequest
     template_name = 'app/requests.html'
-    context_object_name = 'requests'
+    context_object_name = 'requests'  # overall, but we will add filtered lists
     
     def get_queryset(self):
-        return SupplyRequest.objects.select_related('user', 'supply').order_by('-request_date')
+        return SupplyRequest.objects.select_related('user', 'user__userprofile', 'supply').order_by('-request_date')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        all_requests = self.get_queryset()
+        
+        context['pending_requests'] = all_requests.filter(status='pending')
+        context['approved_requests'] = all_requests.filter(status='approved')
+        context['rejected_requests'] = all_requests.filter(status='rejected')
+        
+        return context
+
 
 
 class UserDamageReportListView(ListView):
@@ -113,16 +211,37 @@ class UserDamageReportListView(ListView):
     context_object_name = 'damage_reports'
     
     def get_queryset(self):
-        return DamageReport.objects.select_related('user', 'item').order_by('-report_date')
+        return DamageReport.objects.select_related('user', 'user__userprofile', 'item').order_by('-report_date')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        all_reports = self.get_queryset()
+
+        context['pending_reports'] = all_reports.filter(status='pending')
+        context['reviewed_reports'] = all_reports.filter(status='reviewed')
+        context['resolved_reports'] = all_reports.filter(status='resolved')
+
+        return context
 
 
 class UserReservationListView(ListView):
     model = Reservation
     template_name = 'app/reservation.html'
-    context_object_name = 'reservations'
+    context_object_name = 'reservations'  # all reservations
 
     def get_queryset(self):
-        return Reservation.objects.select_related('user', 'item').order_by('-reservation_date')
+        return Reservation.objects.select_related(
+            'user', 'user__userprofile', 'item'
+        ).order_by('-reservation_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        all_reservations = self.get_queryset()
+        context['pending_reservations'] = all_reservations.filter(status='pending')
+        context['approved_reservations'] = all_reservations.filter(status='approved')
+        context['rejected_reservations'] = all_reservations.filter(status='rejected')
+        return context
+
 
 
 class SupplyListView(ListView):
