@@ -13,7 +13,11 @@ from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport
 from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 
+from datetime import timedelta
+import json
 from django.utils import timezone
+from django.utils.timezone import now
+
 
 def reservation_detail(request, pk):
     reservation = get_object_or_404(Reservation, pk=pk)
@@ -128,27 +132,187 @@ class DashboardPageView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # Supply Status Counts
+        supply_status_counts = [
+            Supply.objects.filter(status__iexact='available').count(),
+            Supply.objects.filter(status__iexact='low_stock').count(),
+            Supply.objects.filter(status__iexact='out_of_stock').count(),
+        ]
+
+        # Property Condition Counts
+        property_condition_choices = [
+            'In good condition',
+            'Needing repair',
+            'Unserviceable',
+            'Obsolete',
+            'No longer needed',
+            'Not used since purchased',
+        ]
+        property_condition_counts = [
+            Property.objects.filter(condition=condition).count()
+            for condition in property_condition_choices
+        ]
+
+        # Request Status Counts (SupplyRequest)
+        request_status_choices = ['pending', 'approved', 'rejected']
+        request_status_counts = [
+            SupplyRequest.objects.filter(status__iexact=status).count()
+            for status in request_status_choices
+        ]
+
+        # Damage Report Status Counts
+        damage_status_choices = ['pending', 'reviewed', 'resolved']
+        damage_status_counts = [
+            DamageReport.objects.filter(status__iexact=status).count()
+            for status in damage_status_choices
+        ]
+
+        # Borrow Request Trends (last 6 months)
+        now_date = now().date()
+        borrow_trends_data = []
+
+        for i in reversed(range(6)):
+            start_date = now_date.replace(day=1) - timedelta(days=30*i)
+            if i == 0:
+                end_date = now_date
+            else:
+                end_date = now_date.replace(day=1) - timedelta(days=30*(i-1))
+
+            count = BorrowRequest.objects.filter(
+                borrow_date__date__gte=start_date,
+                borrow_date__date__lt=end_date
+            ).count()
+
+            month_str = start_date.strftime('%b %Y')
+
+            borrow_trends_data.append({
+                'month': month_str,
+                'count': count
+            })
+
+        # Property Categories Counts
+        try:
+            categories = [choice[0] for choice in Property.CATEGORY_CHOICES]
+            property_categories_data = []
+            for category in categories:
+                count = Property.objects.filter(category=category).count()
+                if count > 0:
+                    property_categories_data.append({
+                        'category': category,
+                        'count': count
+                    })
+        except AttributeError:
+            property_categories_data = []
+
+        # User Activity by Role
+        try:
+            user_roles = [choice[0] for choice in UserProfile.ROLE_CHOICES]
+            user_activity_data = []
+            for role in user_roles:
+                try:
+                    count = ActivityLog.objects.filter(
+                        user__userprofile__role=role
+                    ).count()
+                except:
+                    count = UserProfile.objects.filter(role=role).count()
+
+                if count > 0:
+                    user_activity_data.append({
+                        'role': role.replace('_', ' ').title(),
+                        'count': count
+                    })
+        except (AttributeError, NameError):
+            user_activity_data = []
+
+        # Recent Requests for Preview Table
+        recent_supply_requests = SupplyRequest.objects.select_related(
+            'user', 'supply'
+        ).order_by('-request_date')[:10]
+
+        recent_borrow_requests = BorrowRequest.objects.select_related(
+            'user', 'property'
+        ).order_by('-borrow_date')[:10]
+
+        recent_reservations = Reservation.objects.select_related(
+            'user', 'item'
+        ).order_by('-reservation_date')[:10]
+
+        # Combine and sort all recent requests
+        all_recent_requests = []
+        
+        for req in recent_supply_requests:
+            all_recent_requests.append({
+                'type': 'Supply Request',
+                'user': req.user.username,
+                'item': req.supply.supply_name,
+                'quantity': req.quantity,
+                'status': req.get_status_display(),
+                'date': req.request_date,
+                'purpose': req.purpose[:50] + '...' if len(req.purpose) > 50 else req.purpose
+            })
+        
+        for req in recent_borrow_requests:
+            all_recent_requests.append({
+                'type': 'Borrow Request',
+                'user': req.user.username,
+                'item': req.property.property_name,
+                'quantity': req.quantity,
+                'status': req.get_status_display(),
+                'date': req.borrow_date,
+                'purpose': req.purpose[:50] + '...' if len(req.purpose) > 50 else req.purpose
+            })
+        
+        for req in recent_reservations:
+            all_recent_requests.append({
+                'type': 'Reservation',
+                'user': req.user.username,
+                'item': req.item.property_name,
+                'quantity': req.quantity,
+                'status': req.get_status_display(),
+                'date': req.reservation_date,
+                'purpose': req.purpose[:50] + '...' if len(req.purpose) > 50 else req.purpose
+            })
+            
+        all_recent_requests.sort(key=lambda x: x['date'], reverse=True)
+        recent_requests_preview = all_recent_requests[:5]
+
         context.update({
-            'supply_available': Supply.objects.filter(status__iexact='available').count(),
-            'supply_low_stock': Supply.objects.filter(status__iexact='low_stock').count(),
-            'supply_out_of_stock': Supply.objects.filter(status__iexact='out_of_stock').count(),
+            # supply status summary
+            'supply_available': supply_status_counts[0],
+            'supply_low_stock': supply_status_counts[1],
+            'supply_out_of_stock': supply_status_counts[2],
 
-            'property_in_good_condition': Property.objects.filter(condition='In good condition').count(),
-            'property_needing_repair': Property.objects.filter(condition='Needing repair').count(),
-            'property_unserviceable': Property.objects.filter(condition='Unserviceable').count(),
-            'property_obsolete': Property.objects.filter(condition='Obsolete').count(),
-            'property_no_longer_needed': Property.objects.filter(condition='No longer needed').count(),
-            'property_not_used_since_purchased': Property.objects.filter(condition='Not used since purchased').count(),
+            # property condition summary
+            'property_in_good_condition': property_condition_counts[0],
+            'property_needing_repair': property_condition_counts[1],
+            'property_unserviceable': property_condition_counts[2],
+            'property_obsolete': property_condition_counts[3],
+            'property_no_longer_needed': property_condition_counts[4],
+            'property_not_used_since_purchased': property_condition_counts[5],
 
+            # request status summary
+            'request_status_pending': request_status_counts[0],
+            'request_status_approved': request_status_counts[1],
+            'request_status_rejected': request_status_counts[2],
+
+            # damage status summary
+            'damage_status_pending': damage_status_counts[0],
+            'damage_status_reviewed': damage_status_counts[1],
+            'damage_status_resolved': damage_status_counts[2],
+
+            # JSON serialized data for charts
+            'borrow_trends_data': json.dumps(borrow_trends_data),
+            'property_categories_counts': json.dumps(property_categories_data),
+            'user_activity_by_role': json.dumps(user_activity_data),
+
+            # total counts for cards
             'supply_count': Supply.objects.count(),
             'property_count': Property.objects.count(),
             'pending_requests': SupplyRequest.objects.filter(status__iexact='pending').count(),
             'damage_reports': DamageReport.objects.filter(status__iexact='pending').count(),
-
-            'low_stock_supplies': Supply.objects.filter(status__iexact='low_stock')[:10],
-            'recent_supply_requests': SupplyRequest.objects.order_by('-request_date')[:10],
-            'active_borrows': SupplyRequest.objects.filter(status__iexact='approved').order_by('-request_date')[:10],
-            'damage_reports_list': DamageReport.objects.order_by('-report_date')[:10],
+            
+            # Recent requests for preview table
+            'recent_requests_preview': recent_requests_preview,
         })
 
         return context
