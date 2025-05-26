@@ -243,6 +243,7 @@ h3 {
   flex-direction: column;
   gap: 5px;
   margin-top: 0;
+  
 }
 
 .div2 {
@@ -510,6 +511,23 @@ h3 {
   background-color: #1759ca;
 }
 
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 5px rgba(21, 45, 100, 0.3);
+}
 
 
 @media (max-width: 768px) {

@@ -45,12 +45,21 @@
         {% endif %}
       </p>
 
+      {% if reservation.status == 'pending' %}
       <form method="post" class="stat-button">
         {% csrf_token %}
+        <textarea name="remarks" placeholder="Enter remarks or comments here..." required></textarea>
+        <a href="{% url 'user_reservations' %}" class="btn-back">← Back to Reservations</a>
         <button type="submit" name="action" value="approve" class="btn-approve">Approve</button>
         <button type="submit" name="action" value="reject" class="btn-reject">Reject</button>
-        <a href="{% url 'user_reservations' %}" class="btn-back">← Back to Reservations</a>
       </form>
+      {% else %}
+      <p><strong>Remarks:</strong> {{ reservation.remarks }}</p>
+      <form class="stat-button">
+
+      <a href="{% url 'user_reservations' %}" class="btn-back">← Back to Reservations</a>
+      </form>
+      {% endif %}
     </div>
   </div>
 </body>

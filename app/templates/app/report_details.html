@@ -33,12 +33,30 @@
       <p><span>Status:</span> {{ report_obj.get_status_display }}</p>
       <p><span>Reported Date:</span> {{ report_obj.report_date|date:"M d, Y H:i" }}</p>
 
-      <form method="post" class="stat-button">
-        {% csrf_token %}
-        <button type="submit" name="action" value="reviewed" class="btn-reviewed">Mark as Reviewed</button>
-        <button type="submit" name="action" value="resolved" class="btn-approve">Mark as Resolved</button>
-        <a href="{% url 'user_damage_reports' %}" class="btn-back">← Back to Reports</a>
-      </form>
+ {% if report_obj.status == 'pending' %}
+  <form method="post" class="stat-button">
+    {% csrf_token %}
+    <textarea name="remarks" placeholder="Enter remarks or comments here..." required></textarea>
+    <a href="{% url 'user_damage_reports' %}" class="btn-back">← Back to Reports</a>
+    <button type="submit" name="action" value="reviewed" class="btn-reviewed">Mark as Reviewed</button>
+  </form>
+
+{% elif report_obj.status == 'reviewed' %}
+  <form method="post" class="stat-button">
+    {% csrf_token %}
+    <textarea name="remarks" placeholder="Enter remarks or comments here..." required></textarea>
+    <a href="{% url 'user_damage_reports' %}" class="btn-back">← Back to Reports</a>
+    <button type="submit" name="action" value="resolved" class="btn-approve">Mark as Resolved</button>
+  </form>
+
+{% else %}
+  <p><strong>Remarks:</strong> {{ report_obj.remarks }}</p>
+  <form class="stat-button">
+
+  <a href="{% url 'user_damage_reports' %}" class="btn-back">← Back to Reports</a>
+  </form>
+{% endif %}
+
     </div>
   </div>
 </body>

@@ -40,14 +40,34 @@
         {% endif %}
       </p>
 
-      <form method="post" class="stat-button">
-        {% csrf_token %}
-        <button type="submit" name="action" value="approve" class="btn-approve">Approve</button>
-        <button type="submit" name="action" value="decline" class="btn-reject">Decline</button>
-        <button type="submit" name="action" value="return" class="btn-approve">Mark as Returned</button>
-        <button type="submit" name="action" value="overdue" class="btn-reject">Mark as Overdue</button>
+      {% if borrow_obj.status == 'pending' %}
+        <form method="post" class="stat-button">
+          {% csrf_token %}
+          <textarea name="remarks" placeholder="Enter remarks or comments here..." required></textarea>
+          <button type="submit" name="action" value="approve" class="btn-approve">Approve</button>
+          <button type="submit" name="action" value="decline" class="btn-reject">Decline</button>
+          <a href="{% url 'user_borrow_requests' %}" class="btn-back">← Back to Borrow Requests</a>
+        </form>
+
+      {% elif borrow_obj.status == 'approved' %}
+        <form method="post" class="stat-button">
+          {% csrf_token %}
+          <textarea name="remarks" placeholder="Enter remarks or comments here..." required></textarea>
+          <button type="submit" name="action" value="return" class="btn-approve">Mark as Returned</button>
+          <button type="submit" name="action" value="overdue" class="btn-reject">Mark as Overdue</button>
+          <a href="{% url 'user_borrow_requests' %}" class="btn-back">← Back to Borrow Requests</a>
+        </form>
+
+      {% elif borrow_obj.status in 'declined overdue returned' %}
+        {% if borrow_obj.remarks %}
+          <p><strong>Remarks:</strong> {{ borrow_obj.remarks }}</p>
+          <form class="stat-button">
+
+        {% endif %}
         <a href="{% url 'user_borrow_requests' %}" class="btn-back">← Back to Borrow Requests</a>
-      </form>
+          </form>
+      {% endif %}
+
     </div>
   </div>
 </body>

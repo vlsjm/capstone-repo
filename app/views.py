@@ -9,7 +9,7 @@ from django.views.generic import TemplateView, ListView
 
 from django.views import View
 from django.contrib.auth import login, authenticate
-from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport, Reservation, ActivityLog, UserProfile
+from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport, Reservation, ActivityLog, UserProfile, Notification
 from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -18,75 +18,192 @@ import json
 from django.utils import timezone
 from django.utils.timezone import now
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+
+@login_required
+@require_POST
+def mark_all_notifications_as_read(request):
+    try:
+        data = json.loads(request.body)
+        ids = data.get('notification_ids', [])
+        Notification.objects.filter(id__in=ids, user=request.user, is_read=False).update(is_read=True)
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+@require_POST
+def clear_all_notifications(request):
+    try:
+        Notification.objects.filter(user=request.user).delete()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+@require_POST
+def mark_notification_as_read_ajax(request):
+    notification_id = request.POST.get('notification_id')
+    if not notification_id:
+        return JsonResponse({'error': 'No notification ID provided'}, status=400)
+
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+    notification.is_read = True
+    notification.save()
+    return JsonResponse({'success': True})
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
+from .models import Reservation, DamageReport, BorrowRequest, SupplyRequest, Notification
 
 def reservation_detail(request, pk):
     reservation = get_object_or_404(Reservation, pk=pk)
-
     if request.method == 'POST':
         action = request.POST.get('action')
+        remarks = request.POST.get('remarks')
+        reservation.remarks = remarks
         if action == 'approve':
             reservation.status = 'approved'
             reservation.approved_date = timezone.now()
+            Notification.objects.create(
+                user=reservation.user,
+                message=f"Your reservation for {reservation.item.property_name} has been approved.",
+                remarks=remarks
+            )
         elif action == 'reject':
             reservation.status = 'rejected'
             reservation.approved_date = timezone.now()
+            Notification.objects.create(
+                user=reservation.user,
+                message=f"Your reservation for {reservation.item.property_name} has been rejected.",
+                remarks=remarks
+            )
         reservation.save()
-        return redirect('user_reservations')  # Change if your list URL name differs
-
+        return redirect('user_reservations')
     return render(request, 'app/reservation_detail.html', {'reservation': reservation})
 
 
 def damage_report_detail(request, pk):
     report_obj = get_object_or_404(DamageReport, pk=pk)
-
     if request.method == 'POST':
         action = request.POST.get('action')
+        remarks = request.POST.get('remarks')
+        report_obj.remarks = remarks
         if action == 'reviewed':
             report_obj.status = 'reviewed'
+            Notification.objects.create(
+                user=report_obj.user,
+                message=f"Your damage report for {report_obj.item.property_name} has been reviewed.",
+                remarks=remarks
+            )
         elif action == 'resolved':
             report_obj.status = 'resolved'
+            Notification.objects.create(
+                user=report_obj.user,
+                message=f"Your damage report for {report_obj.item.property_name} has been resolved.",
+                remarks=remarks
+            )
         report_obj.save()
         return redirect('user_damage_reports')
-
     return render(request, 'app/report_details.html', {'report_obj': report_obj})
+
 
 def borrow_request_details(request, pk):
     request_obj = get_object_or_404(BorrowRequest, pk=pk)
-
     if request.method == 'POST':
         action = request.POST.get('action')
+        remarks = request.POST.get('remarks')
+        request_obj.remarks = remarks
 
         if action == 'approve':
             request_obj.status = 'approved'
             request_obj.approved_date = timezone.now()
+            Notification.objects.create(
+                user=request_obj.user,
+                message=f"Your borrow request for {request_obj.property.property_name} has been approved.",
+                remarks=remarks
+            )
         elif action == 'decline':
             request_obj.status = 'declined'
             request_obj.approved_date = timezone.now()
+            Notification.objects.create(
+                user=request_obj.user,
+                message=f"Your borrow request for {request_obj.property.property_name} has been declined.",
+                remarks=remarks
+            )
         elif action == 'return':
             request_obj.status = 'returned'
             request_obj.actual_return_date = timezone.now().date()
+            Notification.objects.create(
+                user=request_obj.user,
+                message=f"Your borrow request for {request_obj.property.property_name} has been marked as returned.",
+                remarks=remarks
+            )
         elif action == 'overdue':
             request_obj.status = 'overdue'
+            Notification.objects.create(
+                user=request_obj.user,
+                message=f"Your borrow request for {request_obj.property.property_name} is overdue.",
+                remarks=remarks
+            )
         request_obj.save()
         return redirect('user_borrow_requests')
-
     return render(request, 'app/borrow_request_details.html', {'borrow_obj': request_obj})
+
+
+def borrow_request_status_update(request, pk):
+    request_obj = get_object_or_404(BorrowRequest, pk=pk)
+    status = request.POST.get('status')
+    remarks = request.POST.get('remarks')  # optional if you want to use it here
+
+    if status == 'returned':
+        request_obj.status = 'returned'
+        request_obj.actual_return_date = timezone.now().date()
+        Notification.objects.create(
+            user=request_obj.user,
+            message=f"Your borrow request for {request_obj.property.property_name} has been marked as returned.",
+            remarks=remarks
+        )
+    elif status == 'overdue':
+        request_obj.status = 'overdue'
+        Notification.objects.create(
+            user=request_obj.user,
+            message=f"Your borrow request for {request_obj.property.property_name} is overdue.",
+            remarks=remarks
+        )
+    request_obj.save()
+    return redirect('user_borrow_requests')
 
 
 def request_detail(request, pk):
     request_obj = get_object_or_404(SupplyRequest, pk=pk)
-
     if request.method == 'POST':
         action = request.POST.get('action')
+        remarks = request.POST.get('remarks')
+        request_obj.remarks = remarks
         if action == 'approve':
             request_obj.status = 'approved'
+            Notification.objects.create(
+                user=request_obj.user,
+                message=f"Your supply request for {request_obj.supply.supply_name} has been approved.",
+                remarks=remarks
+            )
         elif action == 'rejected':
             request_obj.status = 'rejected'
+            Notification.objects.create(
+                user=request_obj.user,
+                message=f"Your supply request for {request_obj.supply.supply_name} has been rejected.",
+                remarks=remarks
+            )
         request_obj.approved_date = timezone.now()
         request_obj.save()
-        return redirect('user_supply_requests')  # replace 'request_list' with your URL name for the list view
-
+        return redirect('user_supply_requests')
     return render(request, 'app/request_details.html', {'request_obj': request_obj})
+
+
 
 
 

@@ -23,7 +23,12 @@ from .views import (
     request_detail,
     borrow_request_details,  # ✅ NEW
     damage_report_detail,
-    reservation_detail
+    reservation_detail,
+    mark_notification_as_read_ajax,
+    mark_all_notifications_as_read,
+    clear_all_notifications
+
+
 )
 
 urlpatterns = [
@@ -58,5 +63,9 @@ urlpatterns = [
     path('borrow-requests/<int:pk>/', borrow_request_details, name='borrow_request_details'),  # ✅ NEW
     path('reports/<int:pk>/', damage_report_detail, name='damage_report_detail'),
     path('reservations/<int:pk>/', reservation_detail, name='reservation_detail'),
+
+    path('notifications/mark-as-read/', mark_notification_as_read_ajax, name='mark_notification_as_read_ajax'),
+    path('notifications/mark-all-read/', mark_all_notifications_as_read, name='mark_all_notifications_as_read'),
+    path('notifications/clear-all/', clear_all_notifications, name='clear_all_notifications'),
 
 ]
