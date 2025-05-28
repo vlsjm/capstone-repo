@@ -53,6 +53,14 @@ class Supply(models.Model):
 
     def __str__(self):
         return self.supply_name
+    
+    class Meta:
+        permissions = [
+            ("view_admin_dashboard", "Can view  admin dashboard"),
+            ("view_checkout_page", "Can view checkout page"),
+            ("view_user_dashboard", "Can view user dashboard"), #user side permissions
+            ("view_user_module", "Can view user module"),
+        ]
 
 class Property(models.Model):
     CATEGORY_CHOICES = [

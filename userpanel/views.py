@@ -7,12 +7,13 @@ from django.contrib.auth.models import User
 from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm, SupplyRequest, BorrowRequest, Reservation
 from django.contrib.auth.views import LoginView
 from app.models import UserProfile, Notification
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 
 
-class UserBorrowView( TemplateView):
+class UserBorrowView( PermissionRequiredMixin, TemplateView):
     template_name = 'userpanel/user_borrow.html'
+    permission_required = 'app.view_user_module'
 
     def get(self, request):
         form = BorrowForm()
@@ -30,8 +31,9 @@ class UserBorrowView( TemplateView):
         return render(request, self.template_name, {'form': form})
 
 
-class UserRequestView(TemplateView):
+class UserRequestView(PermissionRequiredMixin, TemplateView):
     template_name = 'userpanel/user_request.html'
+    permission_required = 'app.view_user_module'
 
     def get(self, request):
         form = SupplyRequestForm()
@@ -48,8 +50,9 @@ class UserRequestView(TemplateView):
         return render(request, self.template_name, {'form': form})
 
 
-class UserReserveView(TemplateView):
+class UserReserveView(PermissionRequiredMixin, TemplateView):
     template_name = 'userpanel/user_reserve.html'
+    permission_required = 'app.view_user_module'
 
     def get(self, request):
         form = ReservationForm()
@@ -66,8 +69,9 @@ class UserReserveView(TemplateView):
         return render(request, self.template_name, {'form': form})
 
 
-class UserReportView(TemplateView):
+class UserReportView(PermissionRequiredMixin, TemplateView):
     template_name = 'userpanel/user_report.html'
+    permission_required = 'app.view_user_module'
 
     def get(self, request):
         form = DamageReportForm()
@@ -110,8 +114,9 @@ class UserLoginView(LoginView):
         return super().form_valid(form)
 
 
-class UserDashboardView(LoginRequiredMixin, TemplateView):
+class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
     template_name = 'userpanel/user_dashboard.html'
+    permission_required = 'app.view_user_module'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
