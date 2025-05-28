@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="{% static 'css/userStyle.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+</head>
+<body>
+  {% block content %}
+  {% include 'userpanel/user_navbar.html' %}
+
+  <div class="parent">
+    <div class="div1">
+      <h2>Hello, <span>{{ request.user.username }}</span></h2>
+    </div>
+
+    <!-- Notification Bell -->
+    <div class="notification-container" id="notificationBell" aria-label="Notifications" tabindex="0" role="button">
+      <span class="bell-icon" title="Notifications">🔔</span>
+      {% if unread_count > 0 %}
+      <span class="notification-count" id="notificationCount">{{ unread_count }}</span>
+      {% endif %}
+
+      <div class="notifications-dropdown" id="notificationsDropdown" role="list" aria-live="polite" aria-relevant="additions">
+        <div class="notification-actions">
+          <button id="markAllReadBtn" type="button">Mark all read</button>
+          <button id="clearAllBtn" type="button">Clear all</button>
+        </div>
+
+        <div id="notificationsContainer">
+  {% if notifications %}
+    {% for notification in notifications %}
+      <div class="notification-item {% if not notification.is_read %}unread{% endif %}" tabindex="0" data-id="{{ notification.id }}">
+        <span>{{ notification.message }}</span>
+        <div class="notification-remarks">Remarks: <span>{{ notification.remarks }}</span></div>
+        <span class="notification-timestamp">{{ notification.timestamp|date:"M d, Y H:i" }}</span>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="notification-item no-notifications" id="noNotificationsMsg">No notifications.</div>
+  {% endif %}
+</div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔽 Recent Requests Preview Table -->
+  <div class="requests-preview">
+    <h3><i class="fas fa-clock"></i> Recent Requests</h3>
+    {% if recent_requests_preview %}
+    <div style="overflow-x: auto">
+      <table class="requests-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th class="purpose-col">Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for request in recent_requests_preview %}
+          <tr>
+            <td class="request-type">{{ request.type }}</td>
+            <td>{{ request.item|truncatechars:30 }}</td>
+            <td>{{ request.quantity }}</td>
+            <td>
+              <span class="status-badge status-{{ request.status|lower|cut:' ' }}">
+                {{ request.status }}
+              </span>
+            </td>
+            <td>{{ request.date|date:"M d, Y" }}</td>
+            <td class="purpose-col">{{ request.purpose|truncatechars:40 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="no-requests">
+      <i class="fas fa-inbox fa-3x" style="color: #dee2e6; margin-bottom: 15px"></i>
+      <p>No recent requests found.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  {% endblock content %}
+  <script src="{% static 'scripts/notificationBell.js' %}"></script>
+</body>
+</html>

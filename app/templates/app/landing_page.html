@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Welcome</title>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}" />
+    <style>
+      .landing-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+      .landing-btn {
+        padding: 10px 20px;
+        margin: 10px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="landing-container">
+      <h1>Welcome to Resource Hive</h1>
+      <a href="{% url 'login_admin' %}">
+        <button class="landing-btn">Login as Admin</button>
+      </a>
+      <a href="{% url 'login_user' %}">
+        <button class="landing-btn">Login as User</button>
+      </a>
+    </div>
+  </body>
+</html>

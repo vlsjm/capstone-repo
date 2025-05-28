@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reservation Details</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+  />
+</head>
+<body>
+  {% include 'app/navbar.html' %}
+
+  <div class="content">
+    <div class="details-p">
+      <h2 class="h2title">Reservation Details</h2>
+
+      <p><span>Reserver:</span> 
+        {% with reservation.user.first_name as first_name %}
+        {% with reservation.user.last_name as last_name %}
+          {% if first_name or last_name %}
+            {{ first_name }} {{ last_name }}
+          {% else %}
+            {{ reservation.user.username }}
+          {% endif %}
+        {% endwith %}
+        {% endwith %}
+      </p>
+      <p><span>Department:</span> {{ reservation.user.userprofile.department }}</p>
+      <p><span>Item:</span> {{ reservation.item.property_name }}</p>
+      <p><span>Quantity:</span> {{ reservation.quantity }}</p>
+      <p><span>Purpose:</span> {{ reservation.purpose }}</p>
+      <p><span>Needed Date:</span> {{ reservation.needed_date|date:"M d, Y" }}</p>
+      <p><span>Reservation Date:</span> {{ reservation.reservation_date|date:"M d, Y H:i" }}</p>
+      <p><span>Return Date:</span> {{ reservation.return_date|date:"M d, Y" }}</p>
+      <p><span>Status:</span> {{ reservation.get_status_display }}</p>
+      <p><span>Approved Date:</span> 
+        {% if reservation.approved_date %}
+          {{ reservation.approved_date|date:"M d, Y H:i" }}
+        {% else %}
+          -
+        {% endif %}
+      </p>
+
+      {% if reservation.status == 'pending' %}
+      <form method="post" class="stat-button">
+        {% csrf_token %}
+        <textarea name="remarks" placeholder="Enter remarks or comments here..." required></textarea>
+        <a href="{% url 'user_reservations' %}" class="btn-back">← Back to Reservations</a>
+        <button type="submit" name="action" value="approve" class="btn-approve">Approve</button>
+        <button type="submit" name="action" value="reject" class="btn-reject">Reject</button>
+      </form>
+      {% else %}
+      <p><strong>Remarks:</strong> {{ reservation.remarks }}</p>
+      <form class="stat-button">
+
+      <a href="{% url 'user_reservations' %}" class="btn-back">← Back to Reservations</a>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

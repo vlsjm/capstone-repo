@@ -11,9 +11,25 @@
     {% block content %}
     <div class="auth-container">
       <h2>Login</h2>
-      <form action="{% url 'login' %}" method="post">
+
+      {% if form.non_field_errors %}
+      <ul class="errorlist">
+        {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <form action="{% url 'login_admin' %}" method="post">
         {% csrf_token %}
         <div class="form-group">
+          {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
           <label for="id_username">Username:</label>
           <input
             type="text"

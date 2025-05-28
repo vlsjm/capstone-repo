@@ -1,0 +1,38 @@
+<nav class="sidebar">
+    <h1>Resource Hive</h1>
+    <ul>
+      <li>
+        <a href="{% url 'user_dashboard' %}">
+        🏠 Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'user_request' %}">
+         📤 Make a request
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'user_borrow' %}">
+        🤝 Borrow
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'user_reserve' %}">
+        📅 Reserve
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'user_report' %}">
+        ⚠️ Report
+        </a>
+      </li>
+      <li>
+        <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+          {% csrf_token %}
+        </form>
+        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+        🚪 Logout
+        </a>
+      </li>
+    </ul>
+</nav>

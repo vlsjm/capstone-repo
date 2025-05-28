@@ -2,48 +2,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Damage Reports</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+  />
 </head>
 <body>
-    {% include 'app/navbar.html' %}
-    
-    {% block content %}
-    <div class="content">
-        <h2>Reports</h2>    
+  {% include 'app/navbar.html' %}
 
-        <div class="report-list">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Report ID</th>
-                        <th>User</th>
-                        <th>Item</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for report in reports %}
-                    <tr>
-                        <td>{{ report.id }}</td>
-                        <td>{{ report.user.username }}</td>
-                        <td>{{ report.item.property_name }}</td>
-                        <td>{{ report.status|title }}</td>
-                        <td>{{ report.report_date }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5">No reports found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+  <div class="parent">
+    <div class="div1">
+      <h2>Damage Reports</h2>
     </div>
-    {% endblock content %}
+
+    <main class="content">
+      <div class="request-controls">
+        <div class="button-group">
+          <button onclick="filterStatus('all')" class="filter-btn">All</button>
+          <button onclick="filterStatus('pending')" class="filter-btn">Pending</button>
+          <button onclick="filterStatus('reviewed')" class="filter-btn">Reviewed</button>
+          <button onclick="filterStatus('resolved')" class="filter-btn">Resolved</button>
+        </div>
+      </div>
+
+      <!-- Pending Reports Table -->
+      <div class="status-table" data-status="pending">
+        <h3>Pending Reports</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Reporter</th>
+              <th>Item</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Report Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for report in pending_reports %}
+            <tr>
+              <td>
+                {% with report.user.first_name as first_name %}
+                {% with report.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ report.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br />
+                <small>
+                  {{ report.user.userprofile.get_role_display }}<br />
+                  Dept: {{ report.user.userprofile.department }}
+                </small>
+              </td>
+              <td>{{ report.item.property_name }}</td>
+              <td>{{ report.description }}</td>
+              <td>{{ report.get_status_display }}</td>
+              <td>{{ report.report_date|date:"M d, Y H:i" }}</td>
+              <td>
+                <a href="{% url 'damage_report_detail' report.id %}" class="edit-btn">Details</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6">No pending reports found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Reviewed Reports Table -->
+      <div class="status-table" data-status="reviewed">
+        <h3>Reviewed Reports</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Reporter</th>
+              <th>Item</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Report Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for report in reviewed_reports %}
+            <tr>
+              <td>
+                {% with report.user.first_name as first_name %}
+                {% with report.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ report.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br />
+                <small>
+                  {{ report.user.userprofile.get_role_display }}<br />
+                  Dept: {{ report.user.userprofile.department }}
+                </small>
+              </td>
+              <td>{{ report.item.property_name }}</td>
+              <td>{{ report.description }}</td>
+              <td>{{ report.get_status_display }}</td>
+              <td>{{ report.report_date|date:"M d, Y H:i" }}</td>
+              <td>
+                <a href="{% url 'damage_report_detail' report.id %}" class="edit-btn">Details</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6">No reviewed reports found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Resolved Reports Table -->
+      <div class="status-table" data-status="resolved">
+        <h3>Resolved Reports</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Reporter</th>
+              <th>Item</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Report Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for report in resolved_reports %}
+            <tr>
+              <td>
+                {% with report.user.first_name as first_name %}
+                {% with report.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ report.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <br />
+                <small>
+                  {{ report.user.userprofile.get_role_display }}<br />
+                  Dept: {{ report.user.userprofile.department }}
+                </small>
+              </td>
+              <td>{{ report.item.property_name }}</td>
+              <td>{{ report.description }}</td>
+              <td>{{ report.get_status_display }}</td>
+              <td>{{ report.report_date|date:"M d, Y H:i" }}</td>
+              <td>
+                <a href="{% url 'damage_report_detail' report.id %}" class="edit-btn">Details</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6">No resolved reports found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script src="{% static 'scripts/filterStatus.js' %}"></script>
 </body>
 </html>
