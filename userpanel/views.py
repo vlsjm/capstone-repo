@@ -103,7 +103,7 @@ class UserLoginView(LoginView):
                 messages.error(self.request, 'Access denied. Please use the admin login.')
                 return self.form_invalid(form)
             
-            if profile.role not in ['faculty', 'csg_officer']:
+            if profile.role not in ['USER']:
                 messages.error(self.request, 'Access denied. Invalid user role.')
                 return self.form_invalid(form)
 
@@ -120,15 +120,16 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
 
-        # Notifications
-        user_notifications = Notification.objects.filter(user=self.request.user).order_by('-timestamp')
+        # Notifications for the current user
+        user_notifications = Notification.objects.filter(user=user).order_by('-timestamp')
         unread_notifications = user_notifications.filter(is_read=False)
 
-        # Recent Requests
-        recent_supply_requests = SupplyRequest.objects.select_related('user', 'supply').order_by('-request_date')[:10]
-        recent_borrow_requests = BorrowRequest.objects.select_related('user', 'property').order_by('-borrow_date')[:10]
-        recent_reservations = Reservation.objects.select_related('user', 'item').order_by('-reservation_date')[:10]
+        # Only fetch recent requests made by the current user
+        recent_supply_requests = SupplyRequest.objects.filter(user=user).select_related('supply').order_by('-request_date')[:10]
+        recent_borrow_requests = BorrowRequest.objects.filter(user=user).select_related('property').order_by('-borrow_date')[:10]
+        recent_reservations = Reservation.objects.filter(user=user).select_related('item').order_by('-reservation_date')[:10]
 
         all_recent_requests = []
 
@@ -168,7 +169,6 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
         all_recent_requests.sort(key=lambda x: x['date'], reverse=True)
         recent_requests_preview = all_recent_requests[:5]
 
-        # Add to context
         context.update({
             'notifications': user_notifications,
             'unread_count': unread_notifications.count(),
@@ -176,5 +176,3 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
         })
 
         return context
-
-        

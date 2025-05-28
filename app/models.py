@@ -24,9 +24,8 @@ class ActivityLog(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     ROLE_CHOICES = [
-        ('admin', 'Admin'),
-        ('faculty', 'Faculty'),
-        ('csg_officer', 'CSG Officer'),
+        ('ADMIN', 'ADMIN'),
+        ('USER', 'USER'),
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     department = models.CharField(max_length=255, blank=True, null=True)

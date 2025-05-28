@@ -19,22 +19,19 @@
       <h1>Reserve Item</h1>
 
       {% if messages %}
-        <ul class="messages">
-          {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-          {% endfor %}
-        </ul>
+      <ul class="messages">
+        {% for message in messages %}
+        <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
       {% endif %}
 
-    <form method="post" action="{% url 'user_reserve' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
+      <form method="post" action="{% url 'user_reserve' %}">
+        {% csrf_token %} {{ form.as_p }}
         <button type="submit" class="btn-submit">Submit Reservation</button>
       </form>
     </main>
 
-    {% block extra_scripts %}
-    <!-- Optional: Add JS here -->
-    {% endblock %}
+    {% block extra_scripts %} {% endblock %}
   </body>
 </html>

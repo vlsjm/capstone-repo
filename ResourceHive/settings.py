@@ -22,6 +22,9 @@ LOGIN_URL = '/login_user/'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 3600
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # testing lang muna papalitan ng SMTP settings
+
+
 # Application definition
 
 INSTALLED_APPS = [

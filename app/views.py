@@ -1,6 +1,6 @@
 from collections import defaultdict
 from django.contrib import messages
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -207,14 +207,11 @@ def request_detail(request, pk):
         return redirect('user_supply_requests')
     return render(request, 'app/request_details.html', {'request_obj': request_obj})
 
-
-
-
-
 def create_user(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
+            # Create the user
             user = User.objects.create_user(
                 username=form.cleaned_data['username'],
                 first_name=form.cleaned_data['first_name'],
@@ -222,20 +219,34 @@ def create_user(request):
                 email=form.cleaned_data['email'],
                 password=form.cleaned_data['password'],
             )
+
+            # Create user profile
+            role = form.cleaned_data['role']
             UserProfile.objects.create(
                 user=user,
-                role=form.cleaned_data['role'],
+                role=role,
                 department=form.cleaned_data['department'],
                 phone=form.cleaned_data['phone'],
             )
-            return redirect('manage_users')  # Redirect after POST
+
+            # Assign to group based on role (e.g., ADMIN or USER)
+            group_name = role.upper()  # Ensures case-insensitive match
+            try:
+                group = Group.objects.get(name=group_name)
+                user.groups.add(group)
+            except Group.DoesNotExist:
+                messages.warning(request, f"Group '{group_name}' does not exist. User created without group.")
+
+            messages.success(request, f"User '{user.username}' created successfully.")
+            return redirect('manage_users')
+        else:
+            messages.error(request, 'Please correct the errors in the form.')
+
     else:
         form = UserRegistrationForm()
-    # Optional: if POST failed, re-render form with errors
+
     users = UserProfile.objects.select_related('user').all()
     return render(request, 'app/manage_users.html', {'form': form, 'users': users})
-
-
 
 class UserProfileListView(PermissionRequiredMixin, ListView):
     model = UserProfile
@@ -755,7 +766,7 @@ class AdminLoginView(LoginView):
         user = form.get_user()
         try:
             profile = UserProfile.objects.get(user=user)
-            if profile.role != 'admin':
+            if profile.role != 'ADMIN':
                 messages.error(self.request, 'Access denied. Admin credentials required.')
                 return self.form_invalid(form)
 
