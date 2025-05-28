@@ -22,6 +22,10 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.decorators import permission_required
+
+
 @login_required
 @require_POST
 def mark_all_notifications_as_read(request):
@@ -233,9 +237,10 @@ def create_user(request):
 
 
 
-class UserProfileListView(ListView):
+class UserProfileListView(PermissionRequiredMixin, ListView):
     model = UserProfile
     template_name = 'app/manage_users.html'
+    permission_required = 'app.view_user_profile'
     context_object_name = 'users'
 
     def get_context_data(self, **kwargs):
@@ -243,8 +248,9 @@ class UserProfileListView(ListView):
         context['form'] = UserRegistrationForm()  
         return context
 
-class DashboardPageView(TemplateView):
+class DashboardPageView(PermissionRequiredMixin,TemplateView):
     template_name = 'app/dashboard.html'
+    permission_required = 'app.view_admin_dashboard'  
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -354,7 +360,6 @@ class DashboardPageView(TemplateView):
             'user', 'item'
         ).order_by('-reservation_date')[:10]
 
-        # Combine and sort all recent requests
         all_recent_requests = []
         
         for req in recent_supply_requests:
@@ -435,16 +440,20 @@ class DashboardPageView(TemplateView):
         return context
 
 
-class ActivityPageView(ListView):
+class ActivityPageView(PermissionRequiredMixin, ListView):
     model = ActivityLog
     template_name = 'app/activity.html'
+    permission_required = 'app.view_activity_log'
+    permission_denied_message = "You do not have permission to view the activity log."
     context_object_name = 'activitylog_list'
     ordering = ['-timestamp']
 
 
-class UserBorrowRequestListView(ListView):
+
+class UserBorrowRequestListView(PermissionRequiredMixin, ListView):
     model = BorrowRequest
     template_name = 'app/borrow.html'
+    permission_required = 'app.view_borrow_request'
     context_object_name = 'borrow_requests'
 
     def get_queryset(self):
@@ -464,12 +473,11 @@ class UserBorrowRequestListView(ListView):
 
         return context
 
-
-
-class UserSupplyRequestListView(ListView):
+class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
     model = SupplyRequest
     template_name = 'app/requests.html'
-    context_object_name = 'requests'  # overall, but we will add filtered lists
+    permission_required = 'app.view_supply_request'
+    context_object_name = 'requests'  
     
     def get_queryset(self):
         return SupplyRequest.objects.select_related('user', 'user__userprofile', 'supply').order_by('-request_date')
@@ -486,9 +494,10 @@ class UserSupplyRequestListView(ListView):
 
 
 
-class UserDamageReportListView(ListView):
+class UserDamageReportListView(PermissionRequiredMixin, ListView):
     model = DamageReport
     template_name = 'app/reports.html'
+    permission_required = 'app.view_damage_report'
     context_object_name = 'damage_reports'
     
     def get_queryset(self):
@@ -505,9 +514,10 @@ class UserDamageReportListView(ListView):
         return context
 
 
-class UserReservationListView(ListView):
+class UserReservationListView(PermissionRequiredMixin, ListView):
     model = Reservation
     template_name = 'app/reservation.html'
+    permission_required = 'app.view_reservation'
     context_object_name = 'reservations'  # all reservations
 
     def get_queryset(self):
@@ -525,9 +535,10 @@ class UserReservationListView(ListView):
 
 
 
-class SupplyListView(ListView):
+class SupplyListView(PermissionRequiredMixin, ListView):
     model = Supply
     template_name = 'app/supply.html'
+    permission_required = 'app.view_supply'
     context_object_name = 'supplies'
 
     def get_context_data(self, **kwargs):
@@ -535,7 +546,7 @@ class SupplyListView(ListView):
         context['form'] = SupplyForm()
         return context
 
-
+@permission_required('app.view_supply')
 def add_supply(request):
     if request.method == 'POST':
         form = SupplyForm(request.POST)
@@ -621,10 +632,11 @@ def delete_supply(request, pk):
     return redirect('supply_list')
 
 
-class PropertyListView(ListView):
+class PropertyListView(PermissionRequiredMixin, ListView):
     model = Property
     template_name = 'app/property.html'
     context_object_name = 'properties'
+    permission_required = 'app.view_property'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -726,36 +738,15 @@ def delete_property(request, pk):
     return redirect('property_list')
 
 
-class CheckOutPageView(TemplateView):
+class CheckOutPageView(PermissionRequiredMixin, TemplateView):
     template_name = 'app/checkout.html'
-
+    permission_required = 'app.view_checkout_page'  # Adjust permission as needed
 
 class LandingPageView(TemplateView):
     template_name = "app/landing_page.html"
 
-
-    
-# class AdminLoginView(LoginView):
-#     template_name = 'registration/admin_login.html'
-#     success_url = reverse_lazy('dashboard')  
-    
-#     def form_valid(self, form):
-#         user = form.get_user()
-        
-#         try:
-#             profile = UserProfile.objects.get(user=user)
-#             if profile.role != 'admin':
-#                 messages.error(self.request, 'Access denied. Admin credentials required.')
-#                 return self.form_invalid(form)
-#         except UserProfile.DoesNotExist:
-#             messages.error(self.request, 'Access denied. Admin credentials required.')
-#             return self.form_invalid(form)
-        
-#         # If user is admin, proceed with normal login
-#         return super().form_valid(form)
-
 class AdminLoginView(LoginView):
-    template_name = 'registration/admin_login.html'
+    template_name = 'registration/login.html'
 
     def get_success_url(self):
         return reverse_lazy('dashboard')
