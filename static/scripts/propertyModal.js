@@ -37,9 +37,10 @@ document.querySelectorAll('.edit-btn').forEach(button => {
     document.getElementById('edit_quantity').value = this.dataset.quantity;
     document.getElementById('edit_location').value = this.dataset.location;
 
-    // Set selected options for condition and category
+    // Set selected options for condition, category, and availability
     document.getElementById('edit_condition').value = this.dataset.condition;
     document.getElementById('edit_category').value = this.dataset.category;
+    document.getElementById('edit_availability').value = this.dataset.availability;
 
     document.getElementById('editPropertyModal').style.display = 'block';
   });

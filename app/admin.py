@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Supply, Property, SupplyRequest, Reservation, DamageReport, BorrowRequest, UserProfile, ActivityLog, Notification
+from .models import Supply, Property, SupplyRequest, Reservation, DamageReport, BorrowRequest, UserProfile, ActivityLog, Notification, SupplyQuantity
 admin.site.register(Supply)
 admin.site.register(Property)
 admin.site.register(SupplyRequest)
@@ -9,5 +9,5 @@ admin.site.register(BorrowRequest)
 admin.site.register(UserProfile)
 admin.site.register(ActivityLog)  
 admin.site.register(Notification)  
-
+admin.site.register(SupplyQuantity)
 

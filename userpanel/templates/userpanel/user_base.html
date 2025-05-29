@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ResourceHive{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/userStyle.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* Success message modal style */
+        .success-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-width: 280px;
+            max-width: 400px;
+        }
+
+        .success-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .success-message i {
+            font-size: 2.5em;
+            color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .success-text {
+            font-size: 1.25em;
+            color: #333;
+            margin: 0;
+        }
+
+        /* Form validation messages style */
+        .form-top-errors {
+            list-style: none;
+            margin: 0 0 20px 0;
+            padding: 0;
+        }
+
+        .form-top-errors li {
+            background-color: #fff3e0;
+            color: #333;
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        /* Hide field-level error messages since they're shown at the top */
+        .errorlist:not(.form-top-errors) {
+            display: none;
+        }
+
+
+        /* Error state styling */
+        .error input,
+        .error select,
+        .error textarea {
+            border-color: #ffab91;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -48%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        .success-container {
+            animation: fadeIn 0.2s ease-out;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% include 'userpanel/user_navbar.html' %}
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+            <div class="success-container">
+                <div class="success-message">
+                    <i class="fas fa-check"></i>
+                    <p class="success-text">{{ message }}</p>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <div class="content-wrapper">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        // Auto-hide success messages after 2 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const successMessage = document.querySelector('.success-container');
+            if (successMessage) {
+                setTimeout(function() {
+                    successMessage.style.opacity = '0';
+                    successMessage.style.transition = 'opacity 0.3s ease-out';
+                    setTimeout(function() {
+                        successMessage.remove();
+                    }, 300);
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

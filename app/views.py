@@ -9,7 +9,7 @@ from django.views.generic import TemplateView, ListView
 
 from django.views import View
 from django.contrib.auth import login, authenticate
-from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport, Reservation, ActivityLog, UserProfile, Notification
+from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport, Reservation, ActivityLog, UserProfile, Notification, SupplyQuantity
 from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -24,6 +24,8 @@ from django.contrib.auth.decorators import login_required
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required
+
+from django.db import models
 
 
 @login_required
@@ -255,11 +257,22 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # Notifications
+        user_notifications = Notification.objects.filter(user=self.request.user).order_by('-timestamp')
+        unread_notifications = user_notifications.filter(is_read=False)
+
         # Supply Status Counts
         supply_status_counts = [
-            Supply.objects.filter(status__iexact='available').count(),
-            Supply.objects.filter(status__iexact='low_stock').count(),
-            Supply.objects.filter(status__iexact='out_of_stock').count(),
+            Supply.objects.filter(
+                quantity_info__current_quantity__gt=models.F('quantity_info__minimum_threshold')
+            ).count(),  # available
+            Supply.objects.filter(
+                quantity_info__current_quantity__gt=0,
+                quantity_info__current_quantity__lte=models.F('quantity_info__minimum_threshold')
+            ).count(),  # low_stock
+            Supply.objects.filter(
+                quantity_info__current_quantity=0
+            ).count(),  # out_of_stock
         ]
 
         # Property Condition Counts
@@ -399,6 +412,10 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
         recent_requests_preview = all_recent_requests[:5]
 
         context.update({
+            # Notifications
+            'notifications': user_notifications,
+            'unread_count': unread_notifications.count(),
+
             # supply status summary
             'supply_available': supply_status_counts[0],
             'supply_low_stock': supply_status_counts[1],
@@ -457,6 +474,8 @@ class UserBorrowRequestListView(PermissionRequiredMixin, ListView):
     context_object_name = 'borrow_requests'
 
     def get_queryset(self):
+        # Check for overdue items before getting the queryset
+        BorrowRequest.check_overdue_items()
         return BorrowRequest.objects \
             .select_related('user', 'user__userprofile', 'property') \
             .order_by('-borrow_date')
@@ -464,13 +483,12 @@ class UserBorrowRequestListView(PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         all_requests = self.get_queryset()
-
-        context['pending_requests'] = all_requests.filter(status='pending')  # <-- added pending
+        
+        context['pending_requests'] = all_requests.filter(status='pending')
         context['approved_requests'] = all_requests.filter(status='approved')
         context['returned_requests'] = all_requests.filter(status='returned')
         context['overdue_requests'] = all_requests.filter(status='overdue')
         context['declined_requests'] = all_requests.filter(status='declined')
-
         return context
 
 class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
@@ -541,6 +559,9 @@ class SupplyListView(PermissionRequiredMixin, ListView):
     permission_required = 'app.view_supply'
     context_object_name = 'supplies'
 
+    def get_queryset(self):
+        return Supply.objects.select_related('quantity_info').order_by('supply_name')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = SupplyForm()
@@ -579,25 +600,34 @@ def edit_supply(request):
                 changes.append(f"{label} changed from '{old}' to '{new}'")
 
         check_change('Supply Name', supply.supply_name, request.POST.get('supply_name'))
-        check_change('Quantity', supply.quantity, request.POST.get('quantity'))
+        try:
+            check_change('Current Quantity', supply.quantity_info.current_quantity, request.POST.get('current_quantity'))
+            check_change('Minimum Threshold', supply.quantity_info.minimum_threshold, request.POST.get('minimum_threshold'))
+        except SupplyQuantity.DoesNotExist:
+            pass
         check_change('Date Received', supply.date_received, request.POST.get('date_received'))
         check_change('Barcode', supply.barcode, request.POST.get('barcode'))
         check_change('Category', supply.category, request.POST.get('category'))
-        check_change('Status', supply.status, request.POST.get('status'))
-
-        new_available = request.POST.get('available_for_request') == 'on'
-        if supply.available_for_request != new_available:
-            changes.append(f"Available For Request changed from '{supply.available_for_request}' to '{new_available}'")
 
         supply.supply_name = request.POST.get('supply_name')
-        supply.quantity = request.POST.get('quantity')
         supply.date_received = request.POST.get('date_received')
         supply.barcode = request.POST.get('barcode')
         supply.category = request.POST.get('category')
-        supply.status = request.POST.get('status')
-        supply.available_for_request = new_available
         supply._logged_in_user = request.user
         supply.save()
+
+        # Update or create SupplyQuantity
+        quantity_info, created = SupplyQuantity.objects.get_or_create(
+            supply=supply,
+            defaults={
+                'current_quantity': request.POST.get('current_quantity'),
+                'minimum_threshold': request.POST.get('minimum_threshold')
+            }
+        )
+        if not created:
+            quantity_info.current_quantity = request.POST.get('current_quantity')
+            quantity_info.minimum_threshold = request.POST.get('minimum_threshold')
+            quantity_info.save()
 
         description = f"Supply '{supply.supply_name}' updated: " + ", ".join(changes) if changes else f"Supply '{supply.supply_name}' was updated but no changes detected."
 

@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
-from datetime import date
+from datetime import date, datetime
+from django.utils import timezone
 
 
 class ActivityLog(models.Model):
@@ -35,6 +36,15 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.username
 
+class SupplyQuantity(models.Model):
+    supply = models.OneToOneField('Supply', on_delete=models.CASCADE, related_name='quantity_info')
+    current_quantity = models.PositiveIntegerField(default=0)
+    minimum_threshold = models.PositiveIntegerField(default=10)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Quantity for {self.supply.supply_name}: {self.current_quantity}"
+
 class Supply(models.Model):
     STATUS_CHOICES = [
         ('low_stock', 'Low Stock'),
@@ -43,16 +53,38 @@ class Supply(models.Model):
     ]
 
     supply_name = models.CharField(max_length=255)
-    quantity = models.PositiveIntegerField(default=0)
     date_received = models.DateField()
     barcode = models.CharField(max_length=100, unique=True)
     category = models.CharField(max_length=100)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
     available_for_request = models.BooleanField(default=True)
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.supply_name
+
+    @property
+    def status(self):
+        try:
+            quantity_info = self.quantity_info
+            if quantity_info.current_quantity == 0:
+                return 'out_of_stock'
+            elif quantity_info.current_quantity <= quantity_info.minimum_threshold:
+                return 'low_stock'
+            else:
+                return 'available'
+        except SupplyQuantity.DoesNotExist:
+            return 'out_of_stock'
+
+    @property
+    def get_status_display(self):
+        status_dict = dict(self.STATUS_CHOICES)
+        return status_dict.get(self.status, 'Unknown')
+    
+    def save(self, *args, **kwargs):
+        # Update available_for_request based on status
+        current_status = self.status
+        self.available_for_request = (current_status == 'available')
+        super().save(*args, **kwargs)
     
     class Meta:
         permissions = [
@@ -80,6 +112,11 @@ class Property(models.Model):
         ('Not used since purchased', 'Not used since purchased'),
     ]
 
+    AVAILABILITY_CHOICES = [
+        ('available', 'Available'),
+        ('not_available', 'Not Available'),
+    ]
+
     property_name = models.CharField(max_length=100, null=True, blank=True)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
@@ -93,10 +130,14 @@ class Property(models.Model):
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)], null=True, blank=True)
     location = models.CharField(max_length=255, null=True, blank=True)
     condition = models.CharField(max_length=100, choices=CONDITION_CHOICES, blank=True, null=True)
+    availability = models.CharField(max_length=20, choices=AVAILABILITY_CHOICES, default='available')
 
     def __str__(self):
         return f"{self.property_name} - {self.barcode}"
 
+    def update_availability(self, is_available):
+        self.availability = 'available' if is_available else 'not_available'
+        self.save()
 
 class SupplyRequest(models.Model):
     STATUS_CHOICES = [
@@ -114,10 +155,57 @@ class SupplyRequest(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     remarks = models.TextField(blank=True, null=True)
 
-
     def __str__(self):
         return f"Request by {self.user.username} for {self.supply.supply_name}"
 
+    def save(self, *args, **kwargs):
+        # Check if this is a new supply request
+        is_new = self.pk is None
+        
+        # Get the old instance if it exists
+        try:
+            old_instance = SupplyRequest.objects.get(pk=self.pk)
+            old_status = old_instance.status
+        except SupplyRequest.DoesNotExist:
+            old_status = None
+
+        # Save the supply request
+        super().save(*args, **kwargs)
+
+        # If this is a new supply request, notify admin users
+        if is_new:
+            admin_users = User.objects.filter(userprofile__role='admin')
+            for admin_user in admin_users:
+                Notification.objects.create(
+                    user=admin_user,
+                    message=f"New supply request submitted for {self.supply.supply_name} by {self.user.username}",
+                    remarks=f"Quantity: {self.quantity}, Purpose: {self.purpose}"
+                )
+
+        # Update supply quantity when request is approved
+        if old_status != self.status and self.status == 'approved':
+            try:
+                quantity_info = self.supply.quantity_info
+                if quantity_info.current_quantity >= self.quantity:
+                    quantity_info.current_quantity -= self.quantity
+                    quantity_info.save()
+                    
+                    # Save the supply to update available_for_request
+                    self.supply.save()
+                    
+                    # Create notification for low stock if needed
+                    if quantity_info.current_quantity <= quantity_info.minimum_threshold:
+                        # Get all admin users to notify about low stock
+                        admin_users = User.objects.filter(userprofile__role='admin')
+                        
+                        for admin_user in admin_users:
+                            Notification.objects.create(
+                                user=admin_user,
+                                message=f"Supply '{self.supply.supply_name}' is running low on stock (Current: {quantity_info.current_quantity}, Minimum: {quantity_info.minimum_threshold})",
+                                remarks="Please restock soon."
+                            )
+            except SupplyQuantity.DoesNotExist:
+                pass
 
 class Reservation(models.Model):
     STATUS_CHOICES = [
@@ -134,16 +222,28 @@ class Reservation(models.Model):
     return_date = models.DateField()
     approved_date = models.DateTimeField(null=True, blank=True)
     purpose = models.TextField()
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='pending'
-    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     remarks = models.TextField(blank=True, null=True)
-
 
     def __str__(self):
         return f"Reservation by {self.user.username} for {self.item.property_name}"
+
+    def save(self, *args, **kwargs):
+        # Check if this is a new reservation
+        is_new = self.pk is None
+        
+        # Save the reservation
+        super().save(*args, **kwargs)
+        
+        # If this is a new reservation, notify admin users
+        if is_new:
+            admin_users = User.objects.filter(userprofile__role='admin')
+            for admin_user in admin_users:
+                Notification.objects.create(
+                    user=admin_user,
+                    message=f"New reservation submitted for {self.item.property_name} by {self.user.username}",
+                    remarks=f"Quantity: {self.quantity}, Needed Date: {self.needed_date}, Return Date: {self.return_date}, Purpose: {self.purpose}"
+                )
 
 class DamageReport(models.Model):
     STATUS_CHOICES = [
@@ -161,6 +261,23 @@ class DamageReport(models.Model):
 
     def __str__(self):
         return f"Damage Report for {self.item.property_name}"
+
+    def save(self, *args, **kwargs):
+        # Check if this is a new damage report
+        is_new = self.pk is None
+        
+        # Save the damage report
+        super().save(*args, **kwargs)
+        
+        # If this is a new damage report, notify admin users
+        if is_new:
+            admin_users = User.objects.filter(userprofile__role='admin')
+            for admin_user in admin_users:
+                Notification.objects.create(
+                    user=admin_user,
+                    message=f"New damage report submitted for {self.item.property_name} by {self.user.username}",
+                    remarks=f"Description: {self.description}"
+                )
 
 class BorrowRequest(models.Model):
     STATUS_CHOICES = [
@@ -182,7 +299,70 @@ class BorrowRequest(models.Model):
     purpose = models.TextField()
 
     def __str__(self):
-        return f"Borrow request by {self.user.username} for {self.property.property_name}"
+        return f"Request by {self.user.username} for {self.property.property_name}"
+
+    def save(self, *args, **kwargs):
+        # Check if this is a new borrow request
+        is_new = self.pk is None
+        
+        # Get the old instance if it exists
+        try:
+            old_instance = BorrowRequest.objects.get(pk=self.pk)
+            old_status = old_instance.status
+        except BorrowRequest.DoesNotExist:
+            old_status = None
+
+        # Save the borrow request
+        super().save(*args, **kwargs)
+
+        # If this is a new borrow request, notify admin users
+        if is_new:
+            admin_users = User.objects.filter(userprofile__role='admin')
+            for admin_user in admin_users:
+                Notification.objects.create(
+                    user=admin_user,
+                    message=f"New borrow request submitted for {self.property.property_name} by {self.user.username}",
+                    remarks=f"Quantity: {self.quantity}, Return Date: {self.return_date}, Purpose: {self.purpose}"
+                )
+
+        # Update property availability when request is approved
+        if old_status != self.status and self.status == 'approved':
+            self.property.update_availability(False)  # Set property as not available
+        elif old_status != self.status and self.status in ['returned', 'declined'] and not BorrowRequest.objects.filter(
+            property=self.property,
+            status='approved'
+        ).exclude(pk=self.pk).exists():
+            self.property.update_availability(True)  # Set property as available if no other active borrows
+
+    @classmethod
+    def check_overdue_items(cls):
+        """Check and update status for overdue items"""
+        today = date.today()
+        overdue_requests = cls.objects.filter(
+            status='approved',
+            return_date__lt=today,
+            actual_return_date__isnull=True
+        )
+        
+        for request in overdue_requests:
+            request.status = 'overdue'
+            request.save()
+            
+            # Create notification for the user
+            Notification.objects.create(
+                user=request.user,
+                message=f"Your borrowed item '{request.property.property_name}' is overdue. Please return it as soon as possible.",
+                remarks=f"Due date was: {request.return_date}"
+            )
+            
+            # Create notification for admin users
+            admin_users = User.objects.filter(userprofile__role='admin')
+            for admin_user in admin_users:
+                Notification.objects.create(
+                    user=admin_user,
+                    message=f"Borrowed item '{request.property.property_name}' by {request.user.username} is overdue.",
+                    remarks=f"Due date was: {request.return_date}"
+                )
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

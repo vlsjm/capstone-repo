@@ -1,40 +1,24 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Report Issue</title>
-    <link rel="stylesheet" href="{% static 'css/userStyle.css' %}" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-  </head>
-  <body>
-    {% include 'userpanel/user_navbar.html' %}
+{% extends 'userpanel/user_base.html' %}
 
-    <main class="request-form-container">
-      <h1>Report Issue</h1>
+{% block title %}Damage Report{% endblock %}
 
-      {% if messages %}
-        <ul class="messages">
-          {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-
+{% block content %}
+<main class="request-form-container">
+    <h1>Damage Report</h1>
+    {% if form.errors %}
+    <ul class="errorlist form-top-errors">
+        {% for field in form %}
+            {% for error in field.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+{% endif %}
     <form method="post" action="{% url 'user_report' %}">
         {% csrf_token %}
+
         {{ form.as_p }}
         <button type="submit" class="btn-submit">Submit Report</button>
-      </form>
-    </main>
-
-    {% block extra_scripts %}
-    <!-- Optional: Add JS here -->
-    {% endblock %}
-  </body>
-</html>
+    </form>
+</main>
+{% endblock %}

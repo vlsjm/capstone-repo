@@ -1,35 +1,24 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Borrow Request</title>
-  <link rel="stylesheet" href="{% static 'css/userStyle.css' %}" />
-  <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-    />
-</head>
-<body>
-  {% include 'userpanel/user_navbar.html' %}
+{% extends 'userpanel/user_base.html' %}
 
-  <main class="request-form-container">
+{% block title %}Borrow Request{% endblock %}
+
+{% block content %}
+<main class="request-form-container">
     <h1>Borrow Request</h1>
-
-    {% if messages %}
-      <ul class="messages">
-        {% for message in messages %}
-          <li class="{{ message.tags }}">{{ message }}</li>
+    {% if form.errors %}
+    <ul class="errorlist form-top-errors">
+        {% for field in form %}
+            {% for error in field.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
         {% endfor %}
-      </ul>
-    {% endif %}
-
+    </ul>
+{% endif %}
     <form method="post" action="{% url 'user_borrow' %}">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn-submit">Submit Request</button>
+        {% csrf_token %}
+
+        {{ form.as_p }}
+        <button type="submit" class="btn-submit">Submit Request</button>
     </form>
-  </main>
-</body>
-</html>
+</main>
+{% endblock %}
