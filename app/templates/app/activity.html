@@ -13,12 +13,12 @@
     {% block content %}
     {% include 'app/navbar.html' %}
 
-    <div class="content">
-        <h2 class="h2title">Activity Logs</h2>
+    <div class="actlog-page">
+        <h2 class="actlog-title">Activity Logs</h2>
 
-        <div class="filter-section">
-            <form method="get" class="filter-form">
-                <div>
+        <div class="actlog-filter-section">
+            <form method="get" class="actlog-filter-form">
+                <div class="actlog-filter-group">
                     <label for="user">User:</label>
                     <select name="user" id="user">
                         <option value="">All Users</option>
@@ -29,7 +29,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div>
+                <div class="actlog-filter-group">
                     <label for="action">Action:</label>
                     <select name="action" id="action">
                         <option value="">All Actions</option>
@@ -40,7 +40,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div>
+                <div class="actlog-filter-group">
                     <label for="model">Model:</label>
                     <select name="model" id="model">
                         <option value="">All Models</option>
@@ -51,77 +51,67 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div>
+                <div class="actlog-filter-group">
                     <label for="start_date">Start Date:</label>
                     <input type="date" name="start_date" id="start_date" value="{{ request.GET.start_date }}">
                 </div>
-                <div>
+                <div class="actlog-filter-group">
                     <label for="end_date">End Date:</label>
                     <input type="date" name="end_date" id="end_date" value="{{ request.GET.end_date }}">
                 </div>
-                <div>
-                    <button type="submit">Apply Filters</button>
-                    <a href="{% url 'activity' %}" class="btn btn-secondary">Reset</a>
+                <div class="actlog-filter-buttons">
+                    <button type="submit" class="actlog-filter-submit">Apply Filters</button>
+                    <a href="{% url 'activity' %}" class="actlog-filter-reset">Reset</a>
                 </div>
             </form>
         </div>
 
-        <table class="activity-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>
-                        <a href="?{% if request.GET.sort == 'user' %}-{% endif %}user" class="sort-link">
-                            User {% if request.GET.sort == 'user' %}↓{% elif request.GET.sort == '-user' %}↑{% endif %}
-                        </a>
-                    </th>
-                    <th>
-                        <a href="?{% if request.GET.sort == 'action' %}-{% endif %}action" class="sort-link">
-                            Action {% if request.GET.sort == 'action' %}↓{% elif request.GET.sort == '-action' %}↑{% endif %}
-                        </a>
-                    </th>
-                    <th>Description</th>
-                    <th>
-                        <a href="?{% if request.GET.sort == 'timestamp' %}-{% endif %}timestamp" class="sort-link">
-                            Timestamp {% if request.GET.sort == 'timestamp' %}↓{% elif request.GET.sort == '-timestamp' %}↑{% endif %}
-                        </a>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for log in activitylog_list %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ log.user.username }}</td>
-                    <td>{{ log.get_action_display }}</td>
-                    <td>{{ log.description }}</td>
-                    <td>{{ log.timestamp|date:"M d, Y - h:i A" }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center">No activity logs available.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="actlog-table-container">
+            <table class="actlog-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Description</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in activitylog_list %}
+                    <tr>
+                        <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
+                        <td>{{ log.user.username }}</td>
+                        <td>{{ log.get_action_display }}</td>
+                        <td>{{ log.description }}</td>
+                        <td>{{ log.timestamp|date:"M d, Y - h:i A" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="actlog-empty">No activity logs available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
 
-        {% if is_paginated %}
-        <div class="pagination">
-            {% if page_obj.has_previous %}
-                <a href="?page=1">&laquo; First</a>
-                <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
-            {% endif %}
+            {% if is_paginated %}
+            <div class="actlog-pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
 
-            <span class="current">
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-            </span>
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
 
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">Next</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                {% endif %}
+            </div>
             {% endif %}
         </div>
-        {% endif %}
     </div>
     {% endblock content %}
 </body>

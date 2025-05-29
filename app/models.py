@@ -132,6 +132,31 @@ class Supply(models.Model):
         # Update available_for_request based on status
         current_status = self.status
         self.available_for_request = (current_status == 'available')
+
+        # Track changes if this is an existing object
+        if self.pk:
+            old_obj = Supply.objects.get(pk=self.pk)
+            fields_to_track = ['supply_name', 'category', 'subcategory', 'description', 'barcode', 'date_received', 'expiration_date']
+            
+            for field in fields_to_track:
+                old_value = getattr(old_obj, field)
+                new_value = getattr(self, field)
+                
+                # Convert values to strings for comparison, handling None and empty values
+                old_str = str(old_value) if old_value not in [None, ''] else ''
+                new_str = str(new_value) if new_value not in [None, ''] else ''
+                
+                # Only create history entry if the values are actually different
+                if old_str != new_str:
+                    SupplyHistory.objects.create(
+                        supply=self,
+                        user=kwargs.pop('user', None) if 'user' in kwargs else None,
+                        action='update',
+                        field_name=field,
+                        old_value=old_str if old_str else None,
+                        new_value=new_str if new_str else None
+                    )
+
         super().save(*args, **kwargs)
     
     @property
@@ -241,6 +266,34 @@ class Property(models.Model):
         self.availability = 'available' if is_available else 'not_available'
         self.save()
 
+    def save(self, *args, **kwargs):
+        # Track changes if this is an existing object
+        if self.pk:
+            old_obj = Property.objects.get(pk=self.pk)
+            fields_to_track = ['property_name', 'category', 'description', 'barcode', 'unit_of_measure', 
+                             'unit_value', 'quantity', 'location', 'condition', 'availability']
+            
+            for field in fields_to_track:
+                old_value = getattr(old_obj, field)
+                new_value = getattr(self, field)
+                
+                # Convert values to strings for comparison, handling None and empty values
+                old_str = str(old_value) if old_value not in [None, ''] else ''
+                new_str = str(new_value) if new_value not in [None, ''] else ''
+                
+                # Only create history entry if the values are actually different
+                if old_str != new_str:
+                    PropertyHistory.objects.create(
+                        property=self,
+                        user=kwargs.pop('user', None) if 'user' in kwargs else None,
+                        action='update',
+                        field_name=field,
+                        old_value=old_str if old_str else None,
+                        new_value=new_str if new_str else None
+                    )
+
+        super().save(*args, **kwargs)
+
 class SupplyRequest(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -319,7 +372,7 @@ class Reservation(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    item = models.ForeignKey('Property', on_delete=models.CASCADE)
+    item = models.ForeignKey(Property, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     reservation_date = models.DateTimeField(auto_now_add=True)  # when the reservation was made
     needed_date = models.DateField(null=True, blank=True)
@@ -572,4 +625,34 @@ class Notification(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Notification for {self.user.username}: {self.message}"
+        return f"{self.user.username} - {self.message[:50]}"
+
+class SupplyHistory(models.Model):
+    supply = models.ForeignKey(Supply, on_delete=models.CASCADE, related_name='history')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    action = models.CharField(max_length=50)  # e.g., "quantity_update", "status_change", etc.
+    field_name = models.CharField(max_length=100)  # The field that was changed
+    old_value = models.TextField(null=True, blank=True)
+    new_value = models.TextField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.supply.supply_name} - {self.action} by {self.user.username} at {self.timestamp}"
+
+class PropertyHistory(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='history')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    action = models.CharField(max_length=50)  # e.g., "condition_update", "availability_change", etc.
+    field_name = models.CharField(max_length=100)  # The field that was changed
+    old_value = models.TextField(null=True, blank=True)
+    new_value = models.TextField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.property.property_name} - {self.action} by {self.user.username} at {self.timestamp}"

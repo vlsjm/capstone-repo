@@ -43,6 +43,207 @@ h1 {
 .sidebar ul li a:hover {
   color: #fbff00;
 }
+
+/* Activity Log Page Styles */
+.actlog-page {
+    padding: 20px;
+    margin-left: 270px;
+    background-color: #f5f6fa;
+    min-height: 100vh;
+}
+
+.actlog-title {
+    color: #152d64;
+    margin-bottom: 30px;
+    font-size: 32px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.actlog-filter-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.actlog-filter-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    align-items: end;
+}
+
+.actlog-filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.actlog-filter-group label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #152d64;
+}
+
+.actlog-filter-group select,
+.actlog-filter-group input[type="date"] {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.actlog-filter-group select:focus,
+.actlog-filter-group input[type="date"]:focus {
+    border-color: #152d64;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.2);
+}
+
+.actlog-filter-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.actlog-filter-submit {
+    background-color: #152d64;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.actlog-filter-reset {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    text-decoration: none;
+}
+
+.actlog-filter-submit:hover {
+    background-color: #1a3a7d;
+}
+
+.actlog-filter-reset:hover {
+    background-color: #7f8c8d;
+}
+
+.actlog-table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.actlog-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.actlog-table th {
+    background-color: #152d64;
+    padding: 12px 15px;
+    text-align: center;
+    font-weight: 600;
+    color: white;
+    border-bottom: 2px solid #ddd;
+}
+
+.actlog-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    color: #34495e;
+}
+
+.actlog-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.actlog-sort-link {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.actlog-sort-link:hover {
+    color: #fbff00;
+}
+
+.actlog-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.actlog-pagination a {
+    color: #152d64;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid #152d64;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.actlog-pagination a:hover {
+    background-color: #152d64;
+    color: white;
+}
+
+.actlog-pagination .current {
+    background-color: #152d64;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.actlog-empty {
+    text-align: center;
+    padding: 40px;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+/* Responsive adjustments for activity page */
+@media (max-width: 768px) {
+    .actlog-page {
+        margin-left: 0;
+        padding: 10px;
+    }
+
+    .actlog-filter-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .actlog-table-container {
+        overflow-x: auto;
+    }
+    
+    .actlog-filter-buttons {
+        flex-direction: column;
+    }
+    
+    .actlog-pagination {
+        flex-wrap: wrap;
+    }
+}
+
 .content {
   margin-left: 270px;
   padding: 20px;
@@ -1197,31 +1398,33 @@ textarea:focus {
 }
 
 .pagination {
-    margin: 20px 0;
-    text-align: center;
-}
-
-.pagination a,
-.pagination .current {
-    padding: 6px 12px;
-    margin: 0 2px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    margin-top: 20px;
 }
 
 .pagination a {
     color: #152d64;
-    background-color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid #152d64;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.pagination a:hover {
+    background-color: #152d64;
+    color: white;
 }
 
 .pagination .current {
     background-color: #152d64;
     color: white;
-    border-color: #152d64;
-}
-
-.pagination a:hover {
-    background-color: #f8f9fa;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
 }

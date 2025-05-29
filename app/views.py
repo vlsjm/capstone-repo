@@ -9,7 +9,7 @@ from django.views.generic import TemplateView, ListView
 
 from django.views import View
 from django.contrib.auth import login, authenticate
-from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport, Reservation, ActivityLog, UserProfile, Notification, SupplyQuantity
+from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport, Reservation, ActivityLog, UserProfile, Notification, SupplyQuantity, SupplyHistory, PropertyHistory
 from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -26,6 +26,8 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required
 
 from django.db import models
+
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 
 @login_required
@@ -485,47 +487,47 @@ class ActivityPageView(PermissionRequiredMixin, ListView):
     permission_required = 'app.view_activity_log'
     permission_denied_message = "You do not have permission to view the activity log."
     context_object_name = 'activitylog_list'
-    paginate_by = 50
+    paginate_by = 10
 
     def get_queryset(self):
-        queryset = ActivityLog.objects.all()
+        queryset = ActivityLog.objects.all().order_by('-timestamp')
         
-        # Filter by user
-        user_id = self.request.GET.get('user')
-        if user_id:
-            queryset = queryset.filter(user_id=user_id)
-        
-        # Filter by action
-        action = self.request.GET.get('action')
-        if action:
-            queryset = queryset.filter(action=action)
-        
-        # Filter by model
-        model_name = self.request.GET.get('model')
-        if model_name:
-            queryset = queryset.filter(model_name=model_name)
-        
-        # Filter by date range
+        # Apply filters
+        user_filter = self.request.GET.get('user')
+        action_filter = self.request.GET.get('action')
+        model_filter = self.request.GET.get('model')
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
+
+        if user_filter:
+            queryset = queryset.filter(user_id=user_filter)
+        if action_filter:
+            queryset = queryset.filter(action=action_filter)
+        if model_filter:
+            queryset = queryset.filter(model_name=model_filter)
         if start_date:
-            queryset = queryset.filter(timestamp__gte=start_date)
+            queryset = queryset.filter(timestamp__date__gte=start_date)
         if end_date:
-            queryset = queryset.filter(timestamp__lte=end_date)
-        
-        # Sorting
-        sort_by = self.request.GET.get('sort', '-timestamp')
-        if sort_by not in ['-timestamp', 'timestamp', 'user', 'action', 'model_name']:
-            sort_by = '-timestamp'
-        queryset = queryset.order_by(sort_by)
-        
+            queryset = queryset.filter(timestamp__date__lte=end_date)
+
+        # Filter by category if specified
+        category = self.request.GET.get('category')
+        if category:
+            queryset = queryset.filter(model_name=category)
+
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['users'] = User.objects.all()
         context['actions'] = dict(ActivityLog.ACTION_CHOICES)
+        
+        # Get all unique models for filtering
         context['models'] = ActivityLog.objects.values_list('model_name', flat=True).distinct()
+        
+        # Get current category for highlighting in template
+        context['current_category'] = self.request.GET.get('category', '')
+        
         return context
 
 
@@ -535,6 +537,7 @@ class UserBorrowRequestListView(PermissionRequiredMixin, ListView):
     template_name = 'app/borrow.html'
     permission_required = 'app.view_borrow_request'
     context_object_name = 'borrow_requests'
+    paginate_by = 10
 
     def get_queryset(self):
         # Check for overdue items before getting the queryset
@@ -558,7 +561,8 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
     model = SupplyRequest
     template_name = 'app/requests.html'
     permission_required = 'app.view_supply_request'
-    context_object_name = 'requests'  
+    context_object_name = 'requests'
+    paginate_by = 10
     
     def get_queryset(self):
         return SupplyRequest.objects.select_related('user', 'user__userprofile', 'supply').order_by('-request_date')
@@ -580,6 +584,7 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
     template_name = 'app/reports.html'
     permission_required = 'app.view_damage_report'
     context_object_name = 'damage_reports'
+    paginate_by = 10
     
     def get_queryset(self):
         return DamageReport.objects.select_related('user', 'user__userprofile', 'item').order_by('-report_date')
@@ -600,6 +605,7 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
     template_name = 'app/reservation.html'
     permission_required = 'app.view_reservation'
     context_object_name = 'reservations'  # all reservations
+    paginate_by = 10
 
     def get_queryset(self):
         return Reservation.objects.select_related(
@@ -621,6 +627,7 @@ class SupplyListView(PermissionRequiredMixin, ListView):
     template_name = 'app/supply.html'
     permission_required = 'app.view_supply'
     context_object_name = 'supplies'
+    paginate_by = None  # Disable default pagination as we'll handle it per category
 
     def get_queryset(self):
         return Supply.objects.select_related('quantity_info').order_by('supply_name')
@@ -630,9 +637,12 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         context['form'] = SupplyForm()
         context['today'] = date.today()
         
+        # Get all supplies
+        supplies = self.get_queryset()
+        
         # Group supplies by category
         grouped = defaultdict(list)
-        for supply in context['supplies']:
+        for supply in supplies:
             category = supply.get_category_display() or 'Uncategorized'
             grouped[category].append(supply)
             
@@ -641,8 +651,21 @@ class SupplyListView(PermissionRequiredMixin, ListView):
                 days_until = (supply.expiration_date - date.today()).days
                 supply.days_until_expiration = days_until
         
+        # Create paginated groups
+        paginated_groups = {}
+        for category, category_supplies in grouped.items():
+            page_number = self.request.GET.get(f'page_{category}', 1)
+            paginator = Paginator(category_supplies, 10)  # 10 items per category per page
+            
+            try:
+                paginated_groups[category] = paginator.page(page_number)
+            except PageNotAnInteger:
+                paginated_groups[category] = paginator.page(1)
+            except EmptyPage:
+                paginated_groups[category] = paginator.page(paginator.num_pages)
+        
         # Convert to regular dict and sort categories
-        context['grouped_supplies'] = dict(sorted(grouped.items()))
+        context['grouped_supplies'] = paginated_groups
         return context
 
 @permission_required('app.view_supply')
@@ -667,113 +690,75 @@ def add_supply(request):
     return redirect('supply_list')
 
 
-@csrf_exempt
+@login_required
 def edit_supply(request):
     if request.method == 'POST':
         supply_id = request.POST.get('id')
         supply = get_object_or_404(Supply, id=supply_id)
-        old_supply = Supply.objects.get(id=supply_id)
-
-        def check_change(label, old, new):
-            if old != new:
-                return f"{label} changed from '{old}' to '{new}'"
-            return None
-
-        changes = []
         
-        # Check for changes in each field
-        name_change = check_change("Supply name", old_supply.supply_name, request.POST.get('supply_name'))
-        if name_change:
-            changes.append(name_change)
-            supply.supply_name = request.POST.get('supply_name')
+        # Store old values for activity log
+        old_values = {
+            'supply_name': supply.supply_name,
+            'description': supply.description,
+            'current_quantity': supply.quantity_info.current_quantity if supply.quantity_info else 0,
+            'minimum_threshold': supply.quantity_info.minimum_threshold if supply.quantity_info else 0,
+            'category': supply.category,
+            'subcategory': supply.subcategory,
+            'barcode': supply.barcode,
+            'date_received': supply.date_received,
+            'expiration_date': supply.expiration_date
+        }
 
-        # Handle category changes with display names
-        old_category = dict(Supply.CATEGORY_CHOICES).get(old_supply.category, old_supply.category)
-        new_category = dict(Supply.CATEGORY_CHOICES).get(request.POST.get('category'))
-        category_change = check_change("Category", old_category, new_category)
-        if category_change:
-            changes.append(category_change)
-            supply.category = request.POST.get('category')
-
-        # Handle subcategory changes with display names
-        old_subcategory = dict(Supply.SUBCATEGORY_CHOICES).get(old_supply.subcategory, old_supply.subcategory)
-        new_subcategory = dict(Supply.SUBCATEGORY_CHOICES).get(request.POST.get('subcategory'))
-        subcategory_change = check_change("Sub Category", old_subcategory, new_subcategory)
-        if subcategory_change:
-            changes.append(subcategory_change)
-            supply.subcategory = request.POST.get('subcategory')
-
-        description_change = check_change("Description", old_supply.description, request.POST.get('description'))
-        if description_change:
-            changes.append(description_change)
-            supply.description = request.POST.get('description')
-
-        barcode_change = check_change("Barcode", old_supply.barcode, request.POST.get('barcode'))
-        if barcode_change:
-            changes.append(barcode_change)
-            supply.barcode = request.POST.get('barcode')
-
-        date_received = request.POST.get('date_received')
-        if date_received:
-            date_change = check_change("Date Received", old_supply.date_received.strftime('%Y-%m-%d'), date_received)
-            if date_change:
-                changes.append(date_change)
-                supply.date_received = date_received
-
-        expiration_date = request.POST.get('expiration_date')
-        if expiration_date:
-            old_expiration = old_supply.expiration_date.strftime('%Y-%m-%d') if old_supply.expiration_date else 'None'
-            expiration_change = check_change("Expiration Date", old_expiration, expiration_date)
-            if expiration_change:
-                changes.append(expiration_change)
-                supply.expiration_date = expiration_date
-        else:
-            supply.expiration_date = None
-
-        # Handle quantity changes
-        try:
-            quantity_info = supply.quantity_info
-            old_quantity = quantity_info.current_quantity
-            old_threshold = quantity_info.minimum_threshold
-            new_quantity = int(request.POST.get('current_quantity'))
-            new_threshold = int(request.POST.get('minimum_threshold'))
-
-            quantity_change = check_change("Current quantity", old_quantity, new_quantity)
-            if quantity_change:
-                changes.append(quantity_change)
-                quantity_info.current_quantity = new_quantity
-
-            threshold_change = check_change("Minimum threshold", old_threshold, new_threshold)
-            if threshold_change:
-                changes.append(threshold_change)
-                quantity_info.minimum_threshold = new_threshold
-
-            quantity_info.save()
-        except SupplyQuantity.DoesNotExist:
-            # Create new quantity info if it doesn't exist
-            SupplyQuantity.objects.create(
-                supply=supply,
-                current_quantity=int(request.POST.get('current_quantity')),
-                minimum_threshold=int(request.POST.get('minimum_threshold'))
+        # Update supply fields
+        supply.supply_name = request.POST.get('supply_name')
+        supply.description = request.POST.get('description')
+        supply.category = request.POST.get('category')
+        supply.subcategory = request.POST.get('subcategory')
+        supply.barcode = request.POST.get('barcode')
+        supply.date_received = request.POST.get('date_received')
+        supply.expiration_date = request.POST.get('expiration_date') or None
+        
+        # Update quantity info
+        current_quantity = int(request.POST.get('current_quantity', 0))
+        minimum_threshold = int(request.POST.get('minimum_threshold', 0))
+        
+        if not supply.quantity_info:
+            supply.quantity_info = SupplyQuantity.objects.create(
+                current_quantity=current_quantity,
+                minimum_threshold=minimum_threshold
             )
-            changes.append("Added new quantity information")
-
-        if changes:
-            supply.save()
-            # Create activity log
-            ActivityLog.objects.create(
-                user=request.user,
-                action='update',
-                model_name='Supply',
-                object_repr=supply.supply_name,
-                description=", ".join(changes)
-            )
-            messages.success(request, 'Supply updated successfully')
         else:
-            messages.info(request, 'No changes were made')
+            supply.quantity_info.current_quantity = current_quantity
+            supply.quantity_info.minimum_threshold = minimum_threshold
+            supply.quantity_info.save()
+        
+        supply.save()
 
+        # Create activity log for the update
+        new_values = {
+            'supply_name': supply.supply_name,
+            'description': supply.description,
+            'current_quantity': current_quantity,
+            'minimum_threshold': minimum_threshold,
+            'category': supply.category,
+            'subcategory': supply.subcategory,
+            'barcode': supply.barcode,
+            'date_received': supply.date_received,
+            'expiration_date': supply.expiration_date
+        }
+
+        # Log changes for each field that was modified
+        for field, new_value in new_values.items():
+            if str(new_value) != str(old_values[field]):
+                ActivityLog.objects.create(
+                    user=request.user,
+                    action='UPDATE',
+                    model_name='Supply',
+                    description=f'Updated {field} from "{old_values[field]}" to "{new_value}" for supply: {supply.supply_name}'
+                )
+
+        messages.success(request, 'Supply updated successfully!')
         return redirect('supply_list')
-
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
@@ -801,16 +786,34 @@ class PropertyListView(PermissionRequiredMixin, ListView):
     template_name = 'app/property.html'
     context_object_name = 'properties'
     permission_required = 'app.view_property'
+    paginate_by = None  # Disable default pagination as we'll handle it per category
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = PropertyForm()
 
+        # Get all properties
+        properties = Property.objects.all()
+        
+        # Group properties by category
         grouped = defaultdict(list)
-        for prop in context['properties']:
+        for prop in properties:
             grouped[prop.get_category_display()].append(prop)
 
-        context['grouped_properties'] = dict(grouped)
+        # Create paginated groups
+        paginated_groups = {}
+        for category, category_properties in grouped.items():
+            page_number = self.request.GET.get(f'page_{category}', 1)
+            paginator = Paginator(category_properties, 10)  # 10 items per category per page
+            
+            try:
+                paginated_groups[category] = paginator.page(page_number)
+            except PageNotAnInteger:
+                paginated_groups[category] = paginator.page(1)
+            except EmptyPage:
+                paginated_groups[category] = paginator.page(paginator.num_pages)
+
+        context['grouped_properties'] = paginated_groups
         return context
 
 
@@ -836,50 +839,67 @@ def add_property(request):
     return redirect('property_list')
 
 
-@csrf_exempt
+@login_required
 def edit_property(request):
     if request.method == 'POST':
-        prop = get_object_or_404(Property, pk=request.POST.get('id'))
-        changes = []
+        property_id = request.POST.get('id')
+        property_obj = get_object_or_404(Property, id=property_id)
 
-        def check_change(label, old, new):
-            if str(old) != str(new):
-                changes.append(f"{label} changed from '{old}' to '{new}'")
+        # Store old values for activity log
+        old_values = {
+            'property_name': property_obj.property_name,
+            'description': property_obj.description,
+            'barcode': property_obj.barcode,
+            'unit_of_measure': property_obj.unit_of_measure,
+            'unit_value': property_obj.unit_value,
+            'quantity': property_obj.quantity,
+            'location': property_obj.location,
+            'condition': property_obj.condition,
+            'category': property_obj.category,
+            'availability': property_obj.availability
+        }
 
-        check_change('Property Name', prop.property_name, request.POST.get('property_name'))
-        check_change('Description', prop.description, request.POST.get('description'))
-        check_change('Barcode', prop.barcode, request.POST.get('barcode'))
-        check_change('Unit of Measure', prop.unit_of_measure, request.POST.get('unit_of_measure'))
-        check_change('Unit Value', prop.unit_value, request.POST.get('unit_value'))
-        check_change('Quantity', prop.quantity, request.POST.get('quantity'))
-        check_change('Location', prop.location, request.POST.get('location'))
-        check_change('Condition', prop.condition, request.POST.get('condition'))
-        check_change('Category', prop.category, request.POST.get('category'))
+        # Update property fields
+        property_obj.property_name = request.POST.get('property_name')
+        property_obj.description = request.POST.get('description')
+        property_obj.barcode = request.POST.get('barcode')
+        property_obj.unit_of_measure = request.POST.get('unit_of_measure')
+        property_obj.unit_value = request.POST.get('unit_value')
+        property_obj.quantity = request.POST.get('quantity')
+        property_obj.location = request.POST.get('location')
+        property_obj.condition = request.POST.get('condition')
+        property_obj.category = request.POST.get('category')
+        property_obj.availability = request.POST.get('availability')
+        
+        property_obj.save()
 
-        prop.property_name = request.POST.get('property_name')
-        prop.description = request.POST.get('description')
-        prop.barcode = request.POST.get('barcode')
-        prop.unit_of_measure = request.POST.get('unit_of_measure')
-        prop.unit_value = request.POST.get('unit_value')
-        prop.quantity = request.POST.get('quantity')
-        prop.location = request.POST.get('location')
-        prop.condition = request.POST.get('condition')
-        prop.category = request.POST.get('category')
-        prop._logged_in_user = request.user
-        prop.save()
+        # Create activity log for the update
+        new_values = {
+            'property_name': property_obj.property_name,
+            'description': property_obj.description,
+            'barcode': property_obj.barcode,
+            'unit_of_measure': property_obj.unit_of_measure,
+            'unit_value': property_obj.unit_value,
+            'quantity': property_obj.quantity,
+            'location': property_obj.location,
+            'condition': property_obj.condition,
+            'category': property_obj.category,
+            'availability': property_obj.availability
+        }
 
-        description = f"Property '{prop.property_name}' updated: " + ", ".join(changes) if changes else f"Property '{prop.property_name}' was updated but no changes detected."
+        # Log changes for each field that was modified
+        for field, new_value in new_values.items():
+            if str(new_value) != str(old_values[field]):
+                ActivityLog.objects.create(
+                    user=request.user,
+                    action='UPDATE',
+                    model_name='Property',
+                    description=f'Updated {field} from "{old_values[field]}" to "{new_value}" for property: {property_obj.property_name}'
+                )
 
-        ActivityLog.objects.create(
-            user=request.user,
-            action='update',
-            model_name='Property',
-            object_repr=str(prop),
-            description=description
-        )
-
-        messages.success(request, 'Property updated successfully.')
-    return redirect('property_list')
+        messages.success(request, 'Property updated successfully!')
+        return redirect('property_list')
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 def delete_property(request, pk):
@@ -915,7 +935,7 @@ class LandingPageView(TemplateView):
         return context
 
 class AdminLoginView(LoginView):
-    template_name = 'app/login.html'
+    template_name = 'registration/login.html'
     authentication_form = AuthenticationForm
     next_page = reverse_lazy('dashboard')
 
@@ -1067,3 +1087,39 @@ def reject_borrow_request(request, request_id):
 
     messages.success(request, 'Borrow request rejected successfully.')
     return redirect('borrow_requests')
+
+@login_required
+def get_supply_history(request, supply_id):
+    supply = get_object_or_404(Supply, id=supply_id)
+    history = supply.history.all()
+    
+    history_data = []
+    for entry in history:
+        history_data.append({
+            'date': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'action': entry.action,
+            'field': entry.field_name,
+            'previous_value': entry.old_value or 'N/A',
+            'new_value': entry.new_value or 'N/A',
+            'changed_by': entry.user.username if entry.user else 'System'
+        })
+    
+    return JsonResponse({'history': history_data})
+
+@login_required
+def get_property_history(request, property_id):
+    property_obj = get_object_or_404(Property, id=property_id)
+    history = property_obj.history.all()
+    
+    history_data = []
+    for entry in history:
+        history_data.append({
+            'date': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'action': entry.action,
+            'field': entry.field_name,
+            'previous_value': entry.old_value or 'N/A',
+            'new_value': entry.new_value or 'N/A',
+            'changed_by': entry.user.username if entry.user else 'System'
+        })
+    
+    return JsonResponse({'history': history_data})

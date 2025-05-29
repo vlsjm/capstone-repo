@@ -34,6 +34,8 @@ from .views import (
     approve_borrow_request,
     reject_supply_request,
     reject_borrow_request,
+    get_supply_history,
+    get_property_history,
 )
 
 urlpatterns = [
@@ -79,4 +81,7 @@ urlpatterns = [
     path('mark-notification-read/', mark_notification_as_read_ajax, name='mark_notification_read'),
     path('mark-all-notifications-read/', mark_all_notifications_as_read, name='mark_all_notifications_read'),
     path('clear-all-notifications/', clear_all_notifications, name='clear_all_notifications'),
+
+    path('api/supply/<int:supply_id>/history/', get_supply_history, name='supply_history'),
+    path('api/property/<int:property_id>/history/', get_property_history, name='property_history'),
 ]

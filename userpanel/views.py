@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm, SupplyRequest, BorrowRequest, Reservation, DamageReport
 from django.contrib.auth.views import LoginView
-from app.models import UserProfile, Notification, Property
+from app.models import UserProfile, Notification, Property, ActivityLog
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import JsonResponse
 from django.utils import timezone
@@ -30,6 +30,16 @@ class UserBorrowView( PermissionRequiredMixin, TemplateView):
             borrow_request.user = request.user
             borrow_request.status = 'pending'  # default status
             borrow_request.save()
+
+            # Log the borrow request activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='request',
+                model_name='BorrowRequest',
+                object_repr=str(borrow_request.property.property_name),
+                description=f"Requested to borrow {borrow_request.quantity} units of {borrow_request.property.property_name}"
+            )
+
             messages.success(request, 'Borrow request submitted successfully.')
             return redirect('user_borrow')
         return render(request, self.template_name, {'form': form})
@@ -49,6 +59,16 @@ class UserRequestView(PermissionRequiredMixin, TemplateView):
             supply_request = form.save(commit=False)
             supply_request.user = request.user
             supply_request.save()
+
+            # Log the supply request activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='request',
+                model_name='SupplyRequest',
+                object_repr=str(supply_request.supply.supply_name),
+                description=f"Requested {supply_request.quantity} units of {supply_request.supply.supply_name}"
+            )
+
             messages.success(request, 'Supply request submitted successfully.')
             return redirect('user_request')
         return render(request, self.template_name, {'form': form})
@@ -68,6 +88,16 @@ class UserReserveView(PermissionRequiredMixin, TemplateView):
             reservation = form.save(commit=False)
             reservation.user = request.user
             reservation.save()
+
+            # Log the reservation activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='request',
+                model_name='Reservation',
+                object_repr=str(reservation.item.property_name),
+                description=f"Reserved {reservation.quantity} units of {reservation.item.property_name} from {reservation.needed_date} to {reservation.return_date}"
+            )
+
             messages.success(request, 'Reservation submitted successfully.')
             return redirect('user_reserve')
         return render(request, self.template_name, {'form': form})
@@ -87,6 +117,16 @@ class UserReportView(PermissionRequiredMixin, TemplateView):
             report = form.save(commit=False)
             report.user = request.user
             report.save()
+
+            # Log the damage report activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='report',
+                model_name='DamageReport',
+                object_repr=str(report.item.property_name),
+                description=f"Reported damage for {report.item.property_name}: {report.description[:100]}..."
+            )
+
             messages.success(request, 'Damage report submitted successfully.')
             return redirect('user_report')
         return render(request, self.template_name, {'form': form})
@@ -110,6 +150,15 @@ class UserLoginView(LoginView):
             if profile.role not in ['faculty', 'csg_officer']:
                 messages.error(self.request, 'Access denied. Invalid user role.')
                 return self.form_invalid(form)
+
+            # Log successful login
+            ActivityLog.log_activity(
+                user=user,
+                action='login',
+                model_name='User',
+                object_repr=user.username,
+                description=f"User {user.username} logged in to user panel"
+            )
 
         except UserProfile.DoesNotExist:
             messages.error(self.request, 'User profile not found.')

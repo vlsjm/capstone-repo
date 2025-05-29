@@ -1,0 +1,17 @@
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?{% for key, value in request.GET.items %}{% if key != 'page_'|add:category %}{{ key }}={{ value }}&{% endif %}{% endfor %}page_{{ category }}=1{% if not forloop.last %}&{% endif %}">&laquo; First</a>
+        <a href="?{% for key, value in request.GET.items %}{% if key != 'page_'|add:category %}{{ key }}={{ value }}&{% endif %}{% endfor %}page_{{ category }}={{ page_obj.previous_page_number }}{% if not forloop.last %}&{% endif %}">Previous</a>
+    {% endif %}
+
+    <span class="current">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+
+    {% if page_obj.has_next %}
+        <a href="?{% for key, value in request.GET.items %}{% if key != 'page_'|add:category %}{{ key }}={{ value }}&{% endif %}{% endfor %}page_{{ category }}={{ page_obj.next_page_number }}{% if not forloop.last %}&{% endif %}">Next</a>
+        <a href="?{% for key, value in request.GET.items %}{% if key != 'page_'|add:category %}{{ key }}={{ value }}&{% endif %}{% endfor %}page_{{ category }}={{ page_obj.paginator.num_pages }}{% if not forloop.last %}&{% endif %}">Last &raquo;</a>
+    {% endif %}
+</div>
+{% endif %} 
