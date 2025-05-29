@@ -14,7 +14,7 @@
 
     <div class="parent">
       <div class="div1">
-        <h2 >Supplies</span></h2>
+        <h2>Supplies</h2>
       </div>
 
   <div class="content">
@@ -27,7 +27,8 @@
         <tr>
           <th>No.</th>
           <th>Supply Name</th>
-          <th>Quantity</th>
+          <th>Current Quantity</th>
+          <th>Min. Threshold</th>
           <th>Date Received</th>
           <th>Barcode</th>
           <th>Category</th>
@@ -42,7 +43,8 @@
         <tr>
           <td>{{ forloop.counter }}</td>
           <td>{{ supply.supply_name }}</td>
-          <td>{{ supply.quantity }}</td>
+          <td>{{ supply.quantity_info.current_quantity }}</td>
+          <td>{{ supply.quantity_info.minimum_threshold }}</td>
           <td>{{ supply.date_received }}</td>
           <td>{{ supply.barcode }}</td>
           <td>{{ supply.category }}</td>
@@ -55,12 +57,11 @@
               <button class="edit-btn" 
               data-id="{{ supply.id }}"
               data-name="{{ supply.supply_name }}"
-              data-quantity="{{ supply.quantity }}"
+              data-current-quantity="{{ supply.quantity_info.current_quantity }}"
+              data-minimum-threshold="{{ supply.quantity_info.minimum_threshold }}"
               data-date="{{ supply.date_received|date:'Y-m-d' }}"
               data-barcode="{{ supply.barcode }}"
-              data-category="{{ supply.category }}"
-              data-status="{{ supply.status }}"
-              data-available="{{ supply.available_for_request }}">
+              data-category="{{ supply.category }}">
               Edit
             </button>
 
@@ -74,7 +75,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="9">No supplies available.</td></tr>
+        <tr><td colspan="11">No supplies available.</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -104,8 +105,11 @@
         <label>Supply Name</label>
         <input type="text" name="supply_name" id="edit_name" required />
 
-        <label>Quantity</label>
-        <input type="number" name="quantity" id="edit_quantity" required />
+        <label>Current Quantity</label>
+        <input type="number" name="current_quantity" id="edit_current_quantity" required min="0" />
+
+        <label>Minimum Threshold</label>
+        <input type="number" name="minimum_threshold" id="edit_minimum_threshold" required min="0" />
 
         <label>Date Received</label>
         <input type="date" name="date_received" id="edit_date" required />
@@ -115,20 +119,6 @@
 
         <label>Category</label>
         <input type="text" name="category" id="edit_category" required />
-
-        <label>Status</label>
-        <select name="status" id="edit_status" required>
-          <option value="low_stock">Low Stock</option>
-          <option value="out_of_stock">Out of Stock</option>
-          <option value="available">Available</option>
-        </select>
-
-        <label>Available for Request</label>
-        <select name="available_for_request" id="edit_available">
-          <option value="True">Yes</option>
-          <option value="False">No</option>
-        </select>
-
 
         <button type="submit" class="submit-btn">Update</button>
       </form>

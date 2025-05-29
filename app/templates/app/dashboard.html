@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/userStyle.css' %}" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
@@ -19,6 +20,7 @@
         border-radius: 10px;
         padding: 20px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-left: auto;
       }
 
       .requests-preview h3 {
@@ -119,6 +121,36 @@
       <div class="div1">
         <h2>Hello, <span>{{ request.user.username }}</span></h2>
       </div>
+
+      <!-- Notification Bell -->
+      <div class="notification-container" id="notificationBell" aria-label="Notifications" tabindex="0" role="button">
+        <span class="bell-icon" title="Notifications">🔔</span>
+        {% if unread_count > 0 %}
+        <span class="notification-count" id="notificationCount">{{ unread_count }}</span>
+        {% endif %}
+
+        <div class="notifications-dropdown" id="notificationsDropdown" role="list" aria-live="polite" aria-relevant="additions">
+          <div class="notification-actions">
+            <button id="markAllReadBtn" type="button">Mark all read</button>
+            <button id="clearAllBtn" type="button">Clear all</button>
+          </div>
+
+          <div id="notificationsContainer">
+            {% if notifications %}
+              {% for notification in notifications %}
+                <div class="notification-item {% if not notification.is_read %}unread{% endif %}" tabindex="0" data-id="{{ notification.id }}">
+                  <span>{{ notification.message }}</span>
+                  <div class="notification-remarks">Remarks: <span>{{ notification.remarks }}</span></div>
+                  <span class="notification-timestamp">{{ notification.timestamp|date:"M d, Y H:i" }}</span>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="notification-item no-notifications" id="noNotificationsMsg">No notifications.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
       <div class="content">
         <div class="div2">
           <div class="dashboard-content">
@@ -284,6 +316,7 @@
     </script>
 
     <script src="{% static 'scripts/charts.js' %}"></script>
+    <script src="{% static 'scripts/notificationBell.js' %}"></script>
     {% endblock content %}
   </body>
 </html>

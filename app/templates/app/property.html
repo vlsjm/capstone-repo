@@ -37,6 +37,7 @@
                 <th>Quantity</th>
                 <th>Location</th>
                 <th>Condition</th>
+                <th>Availability</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -52,6 +53,7 @@
                 <td>{{ property.quantity|default:"N/A" }}</td>
                 <td>{{ property.location|default:"N/A" }}</td>
                 <td>{{ property.get_condition_display|default:"N/A" }}</td>
+                <td>{{ property.get_availability_display }}</td>
                 <td>
                   <!-- Edit Button -->
                    <div class="button-group">
@@ -65,7 +67,8 @@
                     data-quantity="{{ property.quantity }}"
                     data-location="{{ property.location }}"
                     data-condition="{{ property.condition }}"
-                    data-category="{{ property.category }}">
+                    data-category="{{ property.category }}"
+                    data-availability="{{ property.availability }}">
                     Edit
                   </button>
 
@@ -79,7 +82,7 @@
               </tr>
               {% empty %}
               <tr>
-                <td colspan="10">No properties available in this category.</td>
+                <td colspan="11">No properties available in this category.</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -161,6 +164,12 @@
         <option value="Communication Equipment">Communication Equipment</option>
         <option value="Other Machinery and Equipment">Other Machinery and Equipment</option>
         <option value="Furniture and Fixtures">Furniture and Fixtures</option>
+      </select>
+
+      <label>Availability</label>
+      <select name="availability" id="edit_availability">
+        <option value="available">Available</option>
+        <option value="not_available">Not Available</option>
       </select>
 
       <button type="submit" class="submit-btn">Update</button>
