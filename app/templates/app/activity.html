@@ -5,23 +5,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activity</title>
+    <title>Activity Logs</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
-    {% block content %} {% include 'app/navbar.html' %}
+    {% block content %}
+    {% include 'app/navbar.html' %}
 
     <div class="content">
-            <h2 class="h2title">Activity Logs</h2>
-        <table class="table table-bordered table-hover">
-            <thead class="thead-dark">
+        <h2 class="h2title">Activity Logs</h2>
+
+        <div class="filter-section">
+            <form method="get" class="filter-form">
+                <div>
+                    <label for="user">User:</label>
+                    <select name="user" id="user">
+                        <option value="">All Users</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}" {% if request.GET.user|add:"0" == user.id %}selected{% endif %}>
+                                {{ user.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="action">Action:</label>
+                    <select name="action" id="action">
+                        <option value="">All Actions</option>
+                        {% for action_value, action_label in actions.items %}
+                            <option value="{{ action_value }}" {% if request.GET.action == action_value %}selected{% endif %}>
+                                {{ action_label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="model">Model:</label>
+                    <select name="model" id="model">
+                        <option value="">All Models</option>
+                        {% for model in models %}
+                            <option value="{{ model }}" {% if request.GET.model == model %}selected{% endif %}>
+                                {{ model }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="start_date">Start Date:</label>
+                    <input type="date" name="start_date" id="start_date" value="{{ request.GET.start_date }}">
+                </div>
+                <div>
+                    <label for="end_date">End Date:</label>
+                    <input type="date" name="end_date" id="end_date" value="{{ request.GET.end_date }}">
+                </div>
+                <div>
+                    <button type="submit">Apply Filters</button>
+                    <a href="{% url 'activity' %}" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <table class="activity-table">
+            <thead>
                 <tr>
                     <th>#</th>
-                    <th>User</th>
-                    <th>Action</th>
+                    <th>
+                        <a href="?{% if request.GET.sort == 'user' %}-{% endif %}user" class="sort-link">
+                            User {% if request.GET.sort == 'user' %}↓{% elif request.GET.sort == '-user' %}↑{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if request.GET.sort == 'action' %}-{% endif %}action" class="sort-link">
+                            Action {% if request.GET.sort == 'action' %}↓{% elif request.GET.sort == '-action' %}↑{% endif %}
+                        </a>
+                    </th>
                     <th>Description</th>
-                    <th>Timestamp</th>
+                    <th>
+                        <a href="?{% if request.GET.sort == 'timestamp' %}-{% endif %}timestamp" class="sort-link">
+                            Timestamp {% if request.GET.sort == 'timestamp' %}↓{% elif request.GET.sort == '-timestamp' %}↑{% endif %}
+                        </a>
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -29,7 +93,7 @@
                 <tr>
                     <td>{{ forloop.counter }}</td>
                     <td>{{ log.user.username }}</td>
-                    <td>{{ log.action }}</td>
+                    <td>{{ log.get_action_display }}</td>
                     <td>{{ log.description }}</td>
                     <td>{{ log.timestamp|date:"M d, Y - h:i A" }}</td>
                 </tr>
@@ -40,8 +104,25 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        {% if is_paginated %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; First</a>
+                <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
-</div>
     {% endblock content %}
 </body>
 </html>

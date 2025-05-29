@@ -50,15 +50,13 @@ h1 {
   padding: 30px;
   border-radius: 12px;
   width: 60%;
-  max-width: 9700px;
+  max-width: 800px;
   max-height: 85vh;
   overflow-y: auto;
   position: relative;
-
-  /* ✅ Add this line to push content beside the sidebar */
-  margin-left: 350px; /* 250px sidebar + a little gap */
+  margin-left: 350px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
-
 
 /* Header title */
 .request-form-container h1 {
@@ -72,10 +70,8 @@ h1 {
 
 /* Form layout (grid like modal) */
 .request-form-container form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px 30px;
-  align-items: start;
+  display: block;
+  width: 100%;
 }
 
 /* Style for Django form.as_p paragraphs */
@@ -116,46 +112,167 @@ h1 {
 
 /* Submit button (matches modal style) */
 .btn-submit {
-  grid-column: 1 / -1;
   background-color: #152d64;
   color: white;
-  padding: 15px 25px;
+  padding: 0.875rem 1.75rem;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  width: 100%;
+  max-width: 200px;
   margin-top: 20px;
-  transition: background-color 0.3s ease;
 }
 
 .btn-submit:hover {
   background-color: #0f224a;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(21, 45, 100, 0.15);
 }
 
-/* Optional: messages styling */
+.btn-submit:active {
+  transform: translateY(0);
+}
+
+/* Messages and Error Styles */
 .messages {
-  grid-column: 1 / -1;
-  list-style-type: none;
+  list-style: none;
   padding: 0;
-  margin-bottom: 15px;
+  margin: 0 0 20px 0;
+  width: 100%;
 }
 
 .messages li {
-  padding: 10px;
-  margin-bottom: 5px;
-  border-radius: 5px;
-  color: white;
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.messages li::before {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 1.1rem;
 }
 
 .messages .success {
-  background-color: #4CAF50;
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.messages .success::before {
+  content: "\f00c";  /* FontAwesome checkmark */
 }
 
 .messages .error {
-  background-color: #f44336;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }
+
+.messages .error::before {
+  content: "\f071";  /* FontAwesome exclamation triangle */
+}
+
+.messages .warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.messages .warning::before {
+  content: "\f06a";  /* FontAwesome exclamation circle */
+}
+
+.messages .info {
+  background-color: #cce5ff;
+  color: #004085;
+  border: 1px solid #b8daff;
+}
+
+.messages .info::before {
+  content: "\f05a";  /* FontAwesome info circle */
+}
+
+/* Form Error Styles */
+.errorlist {
+  list-style: none;
+  padding: 12px 15px;
+  margin: 8px 0;
+  background-color: #fff8f8;
+  border-left: 4px solid #dc3545;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #dc3545;
+}
+
+.errorlist li {
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.errorlist li::before {
+  content: "\f071";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 0.9rem;
+}
+
+/* Form-level errors */
+.form-errors {
+  margin-bottom: 20px;
+}
+
+.form-errors ul {
+  list-style: none;
+  padding: 15px 20px;
+  margin: 0;
+  background-color: #fff8f8;
+  border: 1px solid #ffd7d7;
+  border-left: 4px solid #dc3545;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.1);
+}
+
+.form-errors li {
+  color: #dc3545;
+  margin: 8px 0;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-errors li::before {
+  content: "\f071";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+/* Field-specific error highlight */
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+  border-color: #dc3545;
+  background-color: #fff8f8;
+}
+
+.form-group input.error:focus,
+.form-group select.error:focus,
+.form-group textarea.error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
 /* Main container for the dashboard */
 .parent {
   flex-direction: column;
@@ -249,7 +366,7 @@ text-align: center;
 }
 
 .notification-item.unread {
-    font-weight: 700;
+    font-weight: 520;
     background-color: #e9f5ff; /* light subtle blue for unread */
 }
 
@@ -332,11 +449,12 @@ text-align: center;
       }
 
       .status-badge {
-        padding: 4px 8px;
+        padding: 6px 12px;
         border-radius: 12px;
-        font-size: 0.8em;
+        font-size: 0.85em;
         font-weight: 500;
         text-transform: capitalize;
+        display: inline-block;
       }
 
       .status-pending {
@@ -365,6 +483,31 @@ text-align: center;
         color: #721c24;
       }
 
+      .status-reviewed {
+        background-color: #e2e3e5;
+        color: #383d41;
+      }
+
+      .status-active {
+        background-color: #cce5ff;
+        color: #004085;
+      }
+
+      .status-completed {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .status-cancelled {
+        background-color: #e2e3e5;
+        color: #383d41;
+      }
+
+      .status-inprogress {
+        background-color: #cce5ff;
+        color: #004085;
+      }
+
       .request-type {
         font-weight: 500;
         color: #495057;
@@ -386,6 +529,262 @@ text-align: center;
 }
 .notification-remarks span {
   color: #1d4c92;
+}
+
+/* Reservation Form and Calendar Styles */
+.form-container {
+    margin-top: 20px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.calendar-container {
+    margin: 20px 0;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#calendar {
+    height: 600px;
+    margin-bottom: 20px;
+}
+
+.fc-day-available {
+    background-color: #e8f5e9 !important;
+    cursor: pointer;
+}
+
+.fc-day-unavailable {
+    background-color: #ffebee !important;
+    cursor: not-allowed;
+}
+
+.fc-day-today {
+    background-color: #e3f2fd !important;
+}
+
+.availability-legend {
+    margin: 10px 0;
+    padding: 10px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.legend-available {
+    background-color: #e8f5e9;
+}
+
+.legend-unavailable {
+    background-color: #ffebee;
+}
+
+.availability-info {
+    margin: 15px 0;
+    padding: 15px;
+    background: #e3f2fd;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 15px;
+    border: 1px solid #bbdefb;
+}
+
+/* Form Group Styles */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #152d64;
+  font-size: 0.95rem;
+}
+
+.form-group select,
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e0e4e8;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  color: #333;
+  background-color: #fff;
+}
+
+.form-group select:focus,
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+}
+
+/* Date Input Styles */
+input[type="date"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e0e4e8;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #333;
+  background-color: #fff;
+}
+
+input[type="date"]:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .request-form-container {
+    padding: 1rem;
+    margin: 1rem;
+    margin-left: 270px;
+    width: calc(100% - 290px);
+  }
+}
+
+/* History Section Styles */
+.history-section {
+  margin: 20px 20px 20px 270px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+  gap: 20px;
+}
+
+.history-table-container {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.history-table-container h3 {
+  color: #152d64;
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.history-table-container h3 i {
+  color: #152d64;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.history-table th,
+.history-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e0e4e8;
+}
+
+.history-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #152d64;
+}
+
+.history-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.no-history {
+  text-align: center;
+  padding: 30px;
+  color: #6c757d;
+}
+
+.no-history i {
+  font-size: 2em;
+  color: #dee2e6;
+  margin-bottom: 10px;
+}
+
+.no-history p {
+  margin: 0;
+  font-style: italic;
+}
+
+/* Status badge colors - reusing existing ones and adding new ones */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .history-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .history-section {
+    margin: 20px 10px 20px 270px;
+  }
+  
+  .history-table-container {
+    padding: 15px;
+  }
+  
+  .history-table th,
+  .history-table td {
+    padding: 8px;
+  }
+}
+
+.status-low_stock {
+  background-color: #fff3cd;  /* Light yellow background */
+  color: #856404;            /* Dark yellow/brown text */
+  border: 1px solid #ffeeba; /* Light yellow border */
+  /* ... other styles ... */
+}
+
+.status-out_of_stock {
+  background-color: #f8d7da;  /* Light red background */
+  color: #721c24;            /* Dark red text */
+  border: 1px solid #f5c6cb; /* Light red border */
+  /* ... other styles ... */
 }
 
 

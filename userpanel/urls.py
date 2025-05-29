@@ -7,6 +7,7 @@ from .views import (
     UserLoginView,
     UserBorrowView,
 )
+from . import views
 
 urlpatterns = [
     path('user_dashboard/', UserDashboardView.as_view(), name='user_dashboard'),
@@ -15,5 +16,5 @@ urlpatterns = [
     path('user_report/', UserReportView.as_view(), name='user_report'),
     path('login/user/', UserLoginView.as_view(), name='login_user'),  
     path('user_borrow/', UserBorrowView.as_view(), name='user_borrow'),
-
+    path('get-item-availability/', views.get_item_availability, name='get_item_availability'),
 ]

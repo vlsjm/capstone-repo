@@ -67,15 +67,33 @@ class SupplyForm(forms.ModelForm):
 
     class Meta:
         model = Supply
-        fields = ['supply_name', 'date_received', 'barcode', 'category']
+        fields = [
+            'supply_name',
+            'category',
+            'subcategory',
+            'description',
+            'barcode',
+            'date_received',
+            'expiration_date'
+        ]
         widgets = {
             'date_received': forms.DateInput(attrs={'type': 'date'}),
+            'expiration_date': forms.DateInput(attrs={'type': 'date', 'required': False}),
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'category': forms.Select(choices=Supply.CATEGORY_CHOICES),
+            'subcategory': forms.Select(choices=Supply.SUBCATEGORY_CHOICES),
+        }
+        help_texts = {
+            'expiration_date': 'Optional. Leave empty if the supply does not expire.',
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.required = True
+        # Make description and expiration_date optional
+        self.fields['description'].required = False
+        self.fields['expiration_date'].required = False
         
         if self.instance.pk:
             try:

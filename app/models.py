@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from django.utils import timezone
 
 
@@ -10,6 +10,15 @@ class ActivityLog(models.Model):
         ('create', 'Created'),
         ('update', 'Updated'),
         ('delete', 'Deleted'),
+        ('login', 'Logged In'),
+        ('logout', 'Logged Out'),
+        ('view', 'Viewed'),
+        ('request', 'Requested'),
+        ('approve', 'Approved'),
+        ('reject', 'Rejected'),
+        ('borrow', 'Borrowed'),
+        ('return', 'Returned'),
+        ('report', 'Reported'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -19,8 +28,21 @@ class ActivityLog(models.Model):
     description = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['-timestamp']
+
     def __str__(self):
         return f"{self.user} {self.get_action_display()} {self.model_name} - {self.object_repr}"
+
+    @classmethod
+    def log_activity(cls, user, action, model_name, object_repr, description=None):
+        return cls.objects.create(
+            user=user,
+            action=action,
+            model_name=model_name,
+            object_repr=object_repr,
+            description=description
+        )
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -52,11 +74,37 @@ class Supply(models.Model):
         ('available', 'Available'),
     ]
 
+    CATEGORY_CHOICES = [
+        ('office_supplies', 'Office Supplies Expenses'),
+        ('textbooks', 'Textbooks and Instructional Materials Expenses'),
+        ('other_supplies', 'Other Supplies & Materials Expenses'),
+    ]
+
+    SUBCATEGORY_CHOICES = [
+        ('common_office', 'COMMON OFFICE SUPPLIES AND MATERIALS'),
+        ('filing', 'FILING SUPPLIES AND MATERIALS'),
+        ('ribbons', 'RIBBONS, INKS, TONERS AND CARTRIDGES'),
+        ('paper', 'PAPER PRODUCTS'),
+        ('university_activity', 'OTHER UNIVERSITY ACTIVITY 1 (CSG Activity)'),
+        ('printed_journals', 'PRINTED JOURNALS'),
+        ('common_cleaning', 'COMMON CLEANING SUPPLIES AND MATERIALS'),
+        ('other_supplies', 'OTHER SUPPLIES AND MATERIALS'),
+        ('electrical', 'ELECTRICAL, LIGHTING FIXTURES, TOOLS AND ACCESSORIES'),
+        ('kitchen', 'KITCHEN SUPPLIES AND MATERIALS'),
+        ('common_office_supplies', 'COMMON OFFICE SUPPLIES'),
+        ('cleaning_supplies', 'CLEANING SUPPLIES AND MATERIALS'),
+        ('covid_supplies', 'COVID RECOVERY SUPPLIES'),
+        ('electrical_supplies', 'ELECTRICAL SUPPLIES AND MATERIALS'),
+    ]
+
     supply_name = models.CharField(max_length=255)
-    date_received = models.DateField()
+    category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, null=True, blank=True)
+    subcategory = models.CharField(max_length=100, choices=SUBCATEGORY_CHOICES, null=True, blank=True)
+    description = models.TextField(blank=True, null=True)
     barcode = models.CharField(max_length=100, unique=True)
-    category = models.CharField(max_length=100)
     available_for_request = models.BooleanField(default=True)
+    date_received = models.DateField()
+    expiration_date = models.DateField(null=True, blank=True)
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -86,6 +134,60 @@ class Supply(models.Model):
         self.available_for_request = (current_status == 'available')
         super().save(*args, **kwargs)
     
+    @property
+    def is_expired(self):
+        if self.expiration_date:
+            return self.expiration_date < date.today()
+        return False
+
+    @property
+    def is_nearly_expired(self):
+        if self.expiration_date:
+            days_until_expiration = (self.expiration_date - date.today()).days
+            return 0 <= days_until_expiration <= 30
+        return False
+
+    @classmethod
+    def check_expiring_supplies(cls):
+        """
+        Check and create notifications for supplies that are expiring soon or have expired.
+        This should be run periodically (e.g., daily) using a scheduled task.
+        """
+        today = date.today()
+        
+        # Find supplies that will expire in 30 days
+        expiring_soon = cls.objects.filter(
+            expiration_date__isnull=False,
+            expiration_date=today + timedelta(days=30)
+        )
+        
+        # Find supplies that just expired today
+        expired_today = cls.objects.filter(
+            expiration_date__isnull=False,
+            expiration_date=today
+        )
+        
+        # Get all admin users
+        admin_users = User.objects.filter(userprofile__role='admin')
+        
+        # Create notifications for supplies expiring soon
+        for supply in expiring_soon:
+            for admin_user in admin_users:
+                Notification.objects.create(
+                    user=admin_user,
+                    message=f"Supply '{supply.supply_name}' will expire in 30 days",
+                    remarks=f"Expiration date: {supply.expiration_date}"
+                )
+        
+        # Create notifications for supplies that expired today
+        for supply in expired_today:
+            for admin_user in admin_users:
+                Notification.objects.create(
+                    user=admin_user,
+                    message=f"Supply '{supply.supply_name}' has expired today",
+                    remarks=f"Please remove from inventory or take appropriate action."
+                )
+
     class Meta:
         permissions = [
             ("view_admin_dashboard", "Can view  admin dashboard"),
@@ -212,6 +314,8 @@ class Reservation(models.Model):
         ('pending', 'Pending'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
+        ('active', 'Active'),  # When the reservation period has started
+        ('completed', 'Completed'),  # When the reservation period has ended
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -232,6 +336,13 @@ class Reservation(models.Model):
         # Check if this is a new reservation
         is_new = self.pk is None
         
+        # Get the old instance if it exists
+        try:
+            old_instance = Reservation.objects.get(pk=self.pk)
+            old_status = old_instance.status
+        except Reservation.DoesNotExist:
+            old_status = None
+
         # Save the reservation
         super().save(*args, **kwargs)
         
@@ -244,6 +355,95 @@ class Reservation(models.Model):
                     message=f"New reservation submitted for {self.item.property_name} by {self.user.username}",
                     remarks=f"Quantity: {self.quantity}, Needed Date: {self.needed_date}, Return Date: {self.return_date}, Purpose: {self.purpose}"
                 )
+
+        # Handle status changes
+        if old_status != self.status:
+            # When a reservation becomes active
+            if self.status == 'active' and old_status in ['approved', None]:
+                # Decrease the item's quantity
+                self.item.quantity -= self.quantity
+                self.item.save()
+                
+                # Notify the user
+                Notification.objects.create(
+                    user=self.user,
+                    message=f"Your reservation for {self.item.property_name} is now active.",
+                    remarks=f"Please collect your items. Return date: {self.return_date}"
+                )
+            
+            # When a reservation is completed
+            elif self.status == 'completed' and old_status == 'active':
+                # Increase the item's quantity
+                self.item.quantity += self.quantity
+                self.item.save()
+                
+                # Notify the user
+                Notification.objects.create(
+                    user=self.user,
+                    message=f"Your reservation for {self.item.property_name} has been completed.",
+                    remarks="Thank you for returning the items on time."
+                )
+            
+            # When a reservation is approved
+            elif self.status == 'approved' and old_status in ['pending', None]:
+                # Notify the user
+                Notification.objects.create(
+                    user=self.user,
+                    message=f"Your reservation for {self.item.property_name} has been approved.",
+                    remarks=self.remarks if self.remarks else None
+                )
+            
+            # When a reservation is rejected
+            elif self.status == 'rejected' and old_status in ['pending', None]:
+                # Notify the user
+                Notification.objects.create(
+                    user=self.user,
+                    message=f"Your reservation for {self.item.property_name} has been rejected.",
+                    remarks=self.remarks if self.remarks else None
+                )
+
+    @classmethod
+    def check_and_update_reservations(cls):
+        """
+        Check and update reservation statuses based on dates.
+        This should be run periodically (e.g., daily) using a scheduled task.
+        """
+        today = timezone.now().date()
+        
+        # Update approved reservations to active when needed_date is reached
+        approved_to_active = cls.objects.filter(
+            status='approved',
+            needed_date__lte=today,
+            return_date__gte=today
+        )
+        for reservation in approved_to_active:
+            reservation.status = 'active'
+            reservation.save()
+        
+        # Update active reservations to completed when return_date is passed
+        active_to_completed = cls.objects.filter(
+            status='active',
+            return_date__lt=today
+        )
+        for reservation in active_to_completed:
+            reservation.status = 'completed'
+            reservation.save()
+
+    @classmethod
+    def get_active_reservations(cls, item, date=None):
+        """
+        Get all active reservations for an item on a specific date.
+        If no date is provided, uses the current date.
+        """
+        if date is None:
+            date = timezone.now().date()
+        
+        return cls.objects.filter(
+            item=item,
+            status__in=['approved', 'active'],
+            needed_date__lte=date,
+            return_date__gte=date
+        )
 
 class DamageReport(models.Model):
     STATUS_CHOICES = [

@@ -31,63 +31,183 @@
         </div>
 
         <div id="notificationsContainer">
-  {% if notifications %}
-    {% for notification in notifications %}
-      <div class="notification-item {% if not notification.is_read %}unread{% endif %}" tabindex="0" data-id="{{ notification.id }}">
-        <span>{{ notification.message }}</span>
-        <div class="notification-remarks">Remarks: <span>{{ notification.remarks }}</span></div>
-        <span class="notification-timestamp">{{ notification.timestamp|date:"M d, Y H:i" }}</span>
-      </div>
-    {% endfor %}
-  {% else %}
-    <div class="notification-item no-notifications" id="noNotificationsMsg">No notifications.</div>
-  {% endif %}
-</div>
-
+          {% if notifications %}
+            {% for notification in notifications %}
+              <div class="notification-item {% if not notification.is_read %}unread{% endif %}" tabindex="0" data-id="{{ notification.id }}">
+                <span>{{ notification.message }}</span>
+                <div class="notification-remarks">Remarks: <span>{{ notification.remarks }}</span></div>
+                <span class="notification-timestamp">{{ notification.timestamp|date:"M d, Y H:i" }}</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="notification-item no-notifications" id="noNotificationsMsg">No notifications.</div>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- 🔽 Recent Requests Preview Table -->
-  <div class="requests-preview">
-    <h3><i class="fas fa-clock"></i> Recent Requests</h3>
-    {% if recent_requests_preview %}
-    <div style="overflow-x: auto">
-      <table class="requests-table">
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Item</th>
-            <th>Qty</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th class="purpose-col">Purpose</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for request in recent_requests_preview %}
-          <tr>
-            <td class="request-type">{{ request.type }}</td>
-            <td>{{ request.item|truncatechars:30 }}</td>
-            <td>{{ request.quantity }}</td>
-            <td>
-              <span class="status-badge status-{{ request.status|lower|cut:' ' }}">
-                {{ request.status }}
-              </span>
-            </td>
-            <td>{{ request.date|date:"M d, Y" }}</td>
-            <td class="purpose-col">{{ request.purpose|truncatechars:40 }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <!-- History Tables Section -->
+  <div class="history-section">
+    <!-- Request History -->
+    <div class="history-table-container">
+      <h3><i class="fas fa-file-alt"></i> Request History</h3>
+      {% if request_history %}
+      <div class="table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for request in request_history %}
+            <tr>
+              <td>{{ request.item|truncatechars:30 }}</td>
+              <td>{{ request.quantity }}</td>
+              <td>
+                <span class="status-badge status-{{ request.status|lower|cut:' ' }}">
+                  {{ request.status }}
+                </span>
+              </td>
+              <td>{{ request.date|date:"M d, Y" }}</td>
+              <td>{{ request.purpose|truncatechars:40 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="no-history">
+        <i class="fas fa-inbox"></i>
+        <p>No request history found.</p>
+      </div>
+      {% endif %}
     </div>
-    {% else %}
-    <div class="no-requests">
-      <i class="fas fa-inbox fa-3x" style="color: #dee2e6; margin-bottom: 15px"></i>
-      <p>No recent requests found.</p>
+
+    <!-- Borrow History -->
+    <div class="history-table-container">
+      <h3><i class="fas fa-hand-holding"></i> Borrow History</h3>
+      {% if borrow_history %}
+      <div class="table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Status</th>
+              <th>Borrow Date</th>
+              <th>Return Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for borrow in borrow_history %}
+            <tr>
+              <td>{{ borrow.item|truncatechars:30 }}</td>
+              <td>{{ borrow.quantity }}</td>
+              <td>
+                <span class="status-badge status-{{ borrow.status|lower|cut:' ' }}">
+                  {{ borrow.status }}
+                </span>
+              </td>
+              <td>{{ borrow.borrow_date|date:"M d, Y" }}</td>
+              <td>{{ borrow.return_date|date:"M d, Y" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="no-history">
+        <i class="fas fa-inbox"></i>
+        <p>No borrow history found.</p>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
+
+    <!-- Reservation History -->
+    <div class="history-table-container">
+      <h3><i class="fas fa-calendar-alt"></i> Reservation History</h3>
+      {% if reservation_history %}
+      <div class="table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Status</th>
+              <th>Needed Date</th>
+              <th>Return Date</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for reservation in reservation_history %}
+            <tr>
+              <td>{{ reservation.item|truncatechars:30 }}</td>
+              <td>{{ reservation.quantity }}</td>
+              <td>
+                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}">
+                  {{ reservation.status }}
+                </span>
+              </td>
+              <td>{{ reservation.needed_date|date:"M d, Y" }}</td>
+              <td>{{ reservation.return_date|date:"M d, Y" }}</td>
+              <td>{{ reservation.purpose|truncatechars:40 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="no-history">
+        <i class="fas fa-inbox"></i>
+        <p>No reservation history found.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Damage Report History -->
+    <div class="history-table-container">
+      <h3><i class="fas fa-exclamation-triangle"></i> Damage Report History</h3>
+      {% if damage_history %}
+      <div class="table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Status</th>
+              <th>Report Date</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for report in damage_history %}
+            <tr>
+              <td>{{ report.item|truncatechars:30 }}</td>
+              <td>
+                <span class="status-badge status-{{ report.status|lower|cut:' ' }}">
+                  {{ report.status }}
+                </span>
+              </td>
+              <td>{{ report.date|date:"M d, Y" }}</td>
+              <td>{{ report.description|truncatechars:50 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="no-history">
+        <i class="fas fa-inbox"></i>
+        <p>No damage report history found.</p>
+      </div>
+      {% endif %}
+    </div>
   </div>
 
   {% endblock content %}

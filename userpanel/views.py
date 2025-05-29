@@ -4,10 +4,14 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm, SupplyRequest, BorrowRequest, Reservation
+from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm, SupplyRequest, BorrowRequest, Reservation, DamageReport
 from django.contrib.auth.views import LoginView
-from app.models import UserProfile, Notification
+from app.models import UserProfile, Notification, Property
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.http import JsonResponse
+from django.utils import timezone
+from datetime import timedelta
+import json
 
 
 
@@ -120,61 +124,118 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
 
         # Notifications
-        user_notifications = Notification.objects.filter(user=self.request.user).order_by('-timestamp')
+        user_notifications = Notification.objects.filter(user=user).order_by('-timestamp')
         unread_notifications = user_notifications.filter(is_read=False)
 
-        # Recent Requests
-        recent_supply_requests = SupplyRequest.objects.select_related('user', 'supply').order_by('-request_date')[:10]
-        recent_borrow_requests = BorrowRequest.objects.select_related('user', 'property').order_by('-borrow_date')[:10]
-        recent_reservations = Reservation.objects.select_related('user', 'item').order_by('-reservation_date')[:10]
+        # Request History
+        request_history = SupplyRequest.objects.filter(user=user).order_by('-request_date')
+        request_history_data = [{
+            'item': req.supply.supply_name,
+            'quantity': req.quantity,
+            'status': req.get_status_display(),
+            'date': req.request_date,
+            'purpose': req.purpose
+        } for req in request_history]
 
-        all_recent_requests = []
+        # Borrow History
+        borrow_history = BorrowRequest.objects.filter(user=user).order_by('-borrow_date')
+        borrow_history_data = [{
+            'item': borrow.property.property_name,
+            'quantity': borrow.quantity,
+            'status': borrow.get_status_display(),
+            'borrow_date': borrow.borrow_date,
+            'return_date': borrow.return_date
+        } for borrow in borrow_history]
 
-        for req in recent_supply_requests:
-            all_recent_requests.append({
-                'type': 'Supply Request',
-                'user': req.user.username,
-                'item': req.supply.supply_name,
-                'quantity': req.quantity,
-                'status': req.get_status_display(),
-                'date': req.request_date,
-                'purpose': req.purpose[:50] + '...' if len(req.purpose) > 50 else req.purpose
-            })
+        # Reservation History
+        reservation_history = Reservation.objects.filter(user=user).order_by('-reservation_date')
+        reservation_history_data = [{
+            'item': res.item.property_name,
+            'quantity': res.quantity,
+            'status': res.get_status_display(),
+            'needed_date': res.needed_date,
+            'return_date': res.return_date,
+            'purpose': res.purpose
+        } for res in reservation_history]
 
-        for req in recent_borrow_requests:
-            all_recent_requests.append({
-                'type': 'Borrow Request',
-                'user': req.user.username,
-                'item': req.property.property_name,
-                'quantity': req.quantity,
-                'status': req.get_status_display(),
-                'date': req.borrow_date,
-                'purpose': req.purpose[:50] + '...' if len(req.purpose) > 50 else req.purpose
-            })
-
-        for req in recent_reservations:
-            all_recent_requests.append({
-                'type': 'Reservation',
-                'user': req.user.username,
-                'item': req.item.property_name,
-                'quantity': req.quantity,
-                'status': req.get_status_display(),
-                'date': req.reservation_date,
-                'purpose': req.purpose[:50] + '...' if len(req.purpose) > 50 else req.purpose
-            })
-
-        all_recent_requests.sort(key=lambda x: x['date'], reverse=True)
-        recent_requests_preview = all_recent_requests[:5]
+        # Damage Report History
+        damage_history = DamageReport.objects.filter(user=user).order_by('-report_date')
+        damage_history_data = [{
+            'item': report.item.property_name,
+            'status': report.get_status_display(),
+            'date': report.report_date,
+            'description': report.description
+        } for report in damage_history]
 
         # Add to context
         context.update({
             'notifications': user_notifications,
             'unread_count': unread_notifications.count(),
-            'recent_requests_preview': recent_requests_preview,
+            'request_history': request_history_data,
+            'borrow_history': borrow_history_data,
+            'reservation_history': reservation_history_data,
+            'damage_history': damage_history_data,
         })
 
         return context
+
+
+def get_item_availability(request):
+    """API endpoint to get item availability data for the calendar"""
+    item_id = request.GET.get('item_id')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    if not all([item_id, start_date, end_date]):
+        return JsonResponse({'error': 'Missing required parameters'}, status=400)
+    
+    try:
+        item = Property.objects.get(id=item_id)
+        start_date = timezone.datetime.strptime(start_date, '%Y-%m-%d').date()
+        end_date = timezone.datetime.strptime(end_date, '%Y-%m-%d').date()
+        
+        # Get all approved reservations for this item in the date range
+        reservations = Reservation.objects.filter(
+            item=item,
+            status__in=['approved', 'active'],
+            needed_date__lte=end_date,
+            return_date__gte=start_date
+        )
+        
+        # Create a day-by-day availability map
+        availability_map = {}
+        current_date = start_date
+        while current_date <= end_date:
+            # Get reservations active on this date
+            date_reservations = reservations.filter(
+                needed_date__lte=current_date,
+                return_date__gte=current_date
+            )
+            
+            # Calculate total quantity reserved for this date
+            total_reserved = sum(r.quantity for r in date_reservations)
+            available_quantity = item.quantity - total_reserved
+            
+            availability_map[current_date.isoformat()] = {
+                'available': available_quantity > 0,
+                'quantity': available_quantity,
+                'total_quantity': item.quantity,
+                'reserved_quantity': total_reserved
+            }
+            
+            current_date += timedelta(days=1)
+        
+        return JsonResponse({
+            'item_name': item.property_name,
+            'availability': availability_map
+        })
+        
+    except Property.DoesNotExist:
+        return JsonResponse({'error': 'Item not found'}, status=404)
+    except ValueError as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
         

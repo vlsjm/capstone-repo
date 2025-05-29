@@ -100,13 +100,57 @@ class ReservationForm(forms.ModelForm):
             'required': 'Return date is required.',
         }
     )
+    quantity = forms.IntegerField(
+        min_value=1,
+        widget=forms.NumberInput(attrs={'min': 1}),
+        error_messages={
+            'required': 'Quantity is required.',
+            'min_value': 'Quantity must be at least 1.',
+        }
+    )
 
     class Meta:
         model = Reservation
         fields = ['item', 'quantity', 'needed_date', 'return_date', 'purpose']
         widgets = {
-            'quantity': forms.NumberInput(attrs={'min': 1}),
+            'purpose': forms.Textarea(attrs={'rows': 3}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        item = cleaned_data.get('item')
+        quantity = cleaned_data.get('quantity')
+        needed_date = cleaned_data.get('needed_date')
+        return_date = cleaned_data.get('return_date')
+
+        if all([item, quantity, needed_date, return_date]):
+            # Check if the requested quantity is available for the item
+            if quantity > item.quantity:
+                raise forms.ValidationError(f"Only {item.quantity} units available for {item.property_name}")
+
+            # Check for overlapping approved reservations
+            overlapping_reservations = Reservation.objects.filter(
+                item=item,
+                status='approved',
+                needed_date__lte=return_date,
+                return_date__gte=needed_date
+            ).exclude(pk=self.instance.pk if self.instance else None)
+
+            # Calculate total quantity reserved for the overlapping period
+            total_reserved = sum(r.quantity for r in overlapping_reservations)
+            available_quantity = item.quantity - total_reserved
+
+            if quantity > available_quantity:
+                if available_quantity <= 0:
+                    raise forms.ValidationError(
+                        f"This item is fully booked during the requested period ({needed_date} to {return_date})"
+                    )
+                else:
+                    raise forms.ValidationError(
+                        f"Only {available_quantity} units available during the requested period ({needed_date} to {return_date})"
+                    )
+
+        return cleaned_data
 
     def clean_needed_date(self):
         needed_date = self.cleaned_data.get('needed_date')

@@ -13,7 +13,7 @@ from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport
 from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 
-from datetime import timedelta
+from datetime import timedelta, date
 import json
 from django.utils import timezone
 from django.utils.timezone import now
@@ -71,14 +71,34 @@ def reservation_detail(request, pk):
         action = request.POST.get('action')
         remarks = request.POST.get('remarks')
         reservation.remarks = remarks
+        
         if action == 'approve':
-            reservation.status = 'approved'
-            reservation.approved_date = timezone.now()
-            Notification.objects.create(
-                user=reservation.user,
-                message=f"Your reservation for {reservation.item.property_name} has been approved.",
-                remarks=remarks
-            )
+            # Check for overlapping reservations
+            overlapping_reservations = Reservation.objects.filter(
+                item=reservation.item,
+                status__in=['approved', 'active'],
+                needed_date__lte=reservation.return_date,
+                return_date__gte=reservation.needed_date
+            ).exclude(pk=reservation.pk)
+            
+            # Calculate total quantity reserved for the overlapping period
+            total_reserved = sum(r.quantity for r in overlapping_reservations)
+            available_quantity = reservation.item.quantity - total_reserved
+            
+            if available_quantity >= reservation.quantity:
+                reservation.status = 'approved'
+                reservation.approved_date = timezone.now()
+                Notification.objects.create(
+                    user=reservation.user,
+                    message=f"Your reservation for {reservation.item.property_name} has been approved.",
+                    remarks=remarks
+                )
+                reservation.save()
+                messages.success(request, 'Reservation approved successfully.')
+            else:
+                messages.error(request, f'Cannot approve reservation. Only {available_quantity} items available for the requested period.')
+                return render(request, 'app/reservation_detail.html', {'reservation': reservation})
+                
         elif action == 'reject':
             reservation.status = 'rejected'
             reservation.approved_date = timezone.now()
@@ -87,7 +107,9 @@ def reservation_detail(request, pk):
                 message=f"Your reservation for {reservation.item.property_name} has been rejected.",
                 remarks=remarks
             )
-        reservation.save()
+            reservation.save()
+            messages.success(request, 'Reservation rejected successfully.')
+            
         return redirect('user_reservations')
     return render(request, 'app/reservation_detail.html', {'reservation': reservation})
 
@@ -463,7 +485,48 @@ class ActivityPageView(PermissionRequiredMixin, ListView):
     permission_required = 'app.view_activity_log'
     permission_denied_message = "You do not have permission to view the activity log."
     context_object_name = 'activitylog_list'
-    ordering = ['-timestamp']
+    paginate_by = 50
+
+    def get_queryset(self):
+        queryset = ActivityLog.objects.all()
+        
+        # Filter by user
+        user_id = self.request.GET.get('user')
+        if user_id:
+            queryset = queryset.filter(user_id=user_id)
+        
+        # Filter by action
+        action = self.request.GET.get('action')
+        if action:
+            queryset = queryset.filter(action=action)
+        
+        # Filter by model
+        model_name = self.request.GET.get('model')
+        if model_name:
+            queryset = queryset.filter(model_name=model_name)
+        
+        # Filter by date range
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        if start_date:
+            queryset = queryset.filter(timestamp__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(timestamp__lte=end_date)
+        
+        # Sorting
+        sort_by = self.request.GET.get('sort', '-timestamp')
+        if sort_by not in ['-timestamp', 'timestamp', 'user', 'action', 'model_name']:
+            sort_by = '-timestamp'
+        queryset = queryset.order_by(sort_by)
+        
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['users'] = User.objects.all()
+        context['actions'] = dict(ActivityLog.ACTION_CHOICES)
+        context['models'] = ActivityLog.objects.values_list('model_name', flat=True).distinct()
+        return context
 
 
 
@@ -565,6 +628,21 @@ class SupplyListView(PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = SupplyForm()
+        context['today'] = date.today()
+        
+        # Group supplies by category
+        grouped = defaultdict(list)
+        for supply in context['supplies']:
+            category = supply.get_category_display() or 'Uncategorized'
+            grouped[category].append(supply)
+            
+            # Calculate days until expiration for debugging
+            if supply.expiration_date:
+                days_until = (supply.expiration_date - date.today()).days
+                supply.days_until_expiration = days_until
+        
+        # Convert to regular dict and sort categories
+        context['grouped_supplies'] = dict(sorted(grouped.items()))
         return context
 
 @permission_required('app.view_supply')
@@ -592,55 +670,111 @@ def add_supply(request):
 @csrf_exempt
 def edit_supply(request):
     if request.method == 'POST':
-        supply = get_object_or_404(Supply, pk=request.POST.get('id'))
-        changes = []
+        supply_id = request.POST.get('id')
+        supply = get_object_or_404(Supply, id=supply_id)
+        old_supply = Supply.objects.get(id=supply_id)
 
         def check_change(label, old, new):
-            if str(old) != str(new):
-                changes.append(f"{label} changed from '{old}' to '{new}'")
+            if old != new:
+                return f"{label} changed from '{old}' to '{new}'"
+            return None
 
-        check_change('Supply Name', supply.supply_name, request.POST.get('supply_name'))
+        changes = []
+        
+        # Check for changes in each field
+        name_change = check_change("Supply name", old_supply.supply_name, request.POST.get('supply_name'))
+        if name_change:
+            changes.append(name_change)
+            supply.supply_name = request.POST.get('supply_name')
+
+        # Handle category changes with display names
+        old_category = dict(Supply.CATEGORY_CHOICES).get(old_supply.category, old_supply.category)
+        new_category = dict(Supply.CATEGORY_CHOICES).get(request.POST.get('category'))
+        category_change = check_change("Category", old_category, new_category)
+        if category_change:
+            changes.append(category_change)
+            supply.category = request.POST.get('category')
+
+        # Handle subcategory changes with display names
+        old_subcategory = dict(Supply.SUBCATEGORY_CHOICES).get(old_supply.subcategory, old_supply.subcategory)
+        new_subcategory = dict(Supply.SUBCATEGORY_CHOICES).get(request.POST.get('subcategory'))
+        subcategory_change = check_change("Sub Category", old_subcategory, new_subcategory)
+        if subcategory_change:
+            changes.append(subcategory_change)
+            supply.subcategory = request.POST.get('subcategory')
+
+        description_change = check_change("Description", old_supply.description, request.POST.get('description'))
+        if description_change:
+            changes.append(description_change)
+            supply.description = request.POST.get('description')
+
+        barcode_change = check_change("Barcode", old_supply.barcode, request.POST.get('barcode'))
+        if barcode_change:
+            changes.append(barcode_change)
+            supply.barcode = request.POST.get('barcode')
+
+        date_received = request.POST.get('date_received')
+        if date_received:
+            date_change = check_change("Date Received", old_supply.date_received.strftime('%Y-%m-%d'), date_received)
+            if date_change:
+                changes.append(date_change)
+                supply.date_received = date_received
+
+        expiration_date = request.POST.get('expiration_date')
+        if expiration_date:
+            old_expiration = old_supply.expiration_date.strftime('%Y-%m-%d') if old_supply.expiration_date else 'None'
+            expiration_change = check_change("Expiration Date", old_expiration, expiration_date)
+            if expiration_change:
+                changes.append(expiration_change)
+                supply.expiration_date = expiration_date
+        else:
+            supply.expiration_date = None
+
+        # Handle quantity changes
         try:
-            check_change('Current Quantity', supply.quantity_info.current_quantity, request.POST.get('current_quantity'))
-            check_change('Minimum Threshold', supply.quantity_info.minimum_threshold, request.POST.get('minimum_threshold'))
-        except SupplyQuantity.DoesNotExist:
-            pass
-        check_change('Date Received', supply.date_received, request.POST.get('date_received'))
-        check_change('Barcode', supply.barcode, request.POST.get('barcode'))
-        check_change('Category', supply.category, request.POST.get('category'))
+            quantity_info = supply.quantity_info
+            old_quantity = quantity_info.current_quantity
+            old_threshold = quantity_info.minimum_threshold
+            new_quantity = int(request.POST.get('current_quantity'))
+            new_threshold = int(request.POST.get('minimum_threshold'))
 
-        supply.supply_name = request.POST.get('supply_name')
-        supply.date_received = request.POST.get('date_received')
-        supply.barcode = request.POST.get('barcode')
-        supply.category = request.POST.get('category')
-        supply._logged_in_user = request.user
-        supply.save()
+            quantity_change = check_change("Current quantity", old_quantity, new_quantity)
+            if quantity_change:
+                changes.append(quantity_change)
+                quantity_info.current_quantity = new_quantity
 
-        # Update or create SupplyQuantity
-        quantity_info, created = SupplyQuantity.objects.get_or_create(
-            supply=supply,
-            defaults={
-                'current_quantity': request.POST.get('current_quantity'),
-                'minimum_threshold': request.POST.get('minimum_threshold')
-            }
-        )
-        if not created:
-            quantity_info.current_quantity = request.POST.get('current_quantity')
-            quantity_info.minimum_threshold = request.POST.get('minimum_threshold')
+            threshold_change = check_change("Minimum threshold", old_threshold, new_threshold)
+            if threshold_change:
+                changes.append(threshold_change)
+                quantity_info.minimum_threshold = new_threshold
+
             quantity_info.save()
+        except SupplyQuantity.DoesNotExist:
+            # Create new quantity info if it doesn't exist
+            SupplyQuantity.objects.create(
+                supply=supply,
+                current_quantity=int(request.POST.get('current_quantity')),
+                minimum_threshold=int(request.POST.get('minimum_threshold'))
+            )
+            changes.append("Added new quantity information")
 
-        description = f"Supply '{supply.supply_name}' updated: " + ", ".join(changes) if changes else f"Supply '{supply.supply_name}' was updated but no changes detected."
+        if changes:
+            supply.save()
+            # Create activity log
+            ActivityLog.objects.create(
+                user=request.user,
+                action='update',
+                model_name='Supply',
+                object_repr=supply.supply_name,
+                description=", ".join(changes)
+            )
+            messages.success(request, 'Supply updated successfully')
+        else:
+            messages.info(request, 'No changes were made')
 
-        ActivityLog.objects.create(
-            user=request.user,
-            action='update',
-            model_name='Supply',
-            object_repr=str(supply),
-            description=description
-        )
+        return redirect('supply_list')
 
-        messages.success(request, 'Supply updated successfully.')
-    return redirect('supply_list')
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 def delete_supply(request, pk):
@@ -773,24 +907,163 @@ class CheckOutPageView(PermissionRequiredMixin, TemplateView):
     permission_required = 'app.view_checkout_page'  # Adjust permission as needed
 
 class LandingPageView(TemplateView):
+    """View for the landing page that provides login options for both admin and regular users."""
     template_name = "app/landing_page.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
 
 class AdminLoginView(LoginView):
-    template_name = 'registration/login.html'
-
-    def get_success_url(self):
-        return reverse_lazy('dashboard')
+    template_name = 'app/login.html'
+    authentication_form = AuthenticationForm
+    next_page = reverse_lazy('dashboard')
 
     def form_valid(self, form):
-        user = form.get_user()
-        try:
-            profile = UserProfile.objects.get(user=user)
-            if profile.role != 'admin':
-                messages.error(self.request, 'Access denied. Admin credentials required.')
-                return self.form_invalid(form)
+        response = super().form_valid(form)
+        ActivityLog.log_activity(
+            user=self.request.user,
+            action='login',
+            model_name='User',
+            object_repr=self.request.user.username,
+            description=f"User {self.request.user.username} logged in"
+        )
+        return response
 
-        except UserProfile.DoesNotExist:
-            messages.error(self.request, 'Access denied. Admin credentials required.')
-            return self.form_invalid(form)
+def logout_view(request):
+    if request.user.is_authenticated:
+        username = request.user.username
+        ActivityLog.log_activity(
+            user=request.user,
+            action='logout',
+            model_name='User',
+            object_repr=username,
+            description=f"User {username} logged out"
+        )
+    return LogoutView.as_view()(request)
 
-        return super().form_valid(form)
+@login_required
+def create_supply_request(request):
+    if request.method == 'POST':
+        supply_id = request.POST.get('supply_id')
+        quantity = request.POST.get('quantity')
+        purpose = request.POST.get('purpose')
+        
+        supply = get_object_or_404(Supply, id=supply_id)
+        supply_request = SupplyRequest.objects.create(
+            user=request.user,
+            supply=supply,
+            quantity=quantity,
+            purpose=purpose,
+            status='pending'
+        )
+
+        ActivityLog.log_activity(
+            user=request.user,
+            action='request',
+            model_name='Supply',
+            object_repr=supply.supply_name,
+            description=f"Requested {quantity} units of {supply.supply_name} for {purpose}"
+        )
+
+        messages.success(request, 'Supply request created successfully.')
+        return redirect('user_supply_requests')
+
+@login_required
+def create_borrow_request(request):
+    if request.method == 'POST':
+        property_id = request.POST.get('property_id')
+        quantity = request.POST.get('quantity')
+        borrow_date = request.POST.get('borrow_date')
+        return_date = request.POST.get('return_date')
+        purpose = request.POST.get('purpose')
+        
+        property_item = get_object_or_404(Property, id=property_id)
+        borrow_request = BorrowRequest.objects.create(
+            user=request.user,
+            property=property_item,
+            quantity=quantity,
+            borrow_date=borrow_date,
+            return_date=return_date,
+            purpose=purpose,
+            status='pending'
+        )
+
+        ActivityLog.log_activity(
+            user=request.user,
+            action='request',
+            model_name='Property',
+            object_repr=property_item.property_name,
+            description=f"Requested to borrow {quantity} units of {property_item.property_name} from {borrow_date} to {return_date} for {purpose}"
+        )
+
+        messages.success(request, 'Borrow request created successfully.')
+        return redirect('user_borrow_requests')
+
+@login_required
+def approve_supply_request(request, request_id):
+    supply_request = get_object_or_404(SupplyRequest, id=request_id)
+    supply_request.status = 'approved'
+    supply_request.save()
+
+    ActivityLog.log_activity(
+        user=request.user,
+        action='approve',
+        model_name='SupplyRequest',
+        object_repr=f"Request #{request_id}",
+        description=f"Approved supply request for {supply_request.quantity} units of {supply_request.supply.supply_name}"
+    )
+
+    messages.success(request, 'Supply request approved successfully.')
+    return redirect('supply_requests')
+
+@login_required
+def approve_borrow_request(request, request_id):
+    borrow_request = get_object_or_404(BorrowRequest, id=request_id)
+    borrow_request.status = 'approved'
+    borrow_request.save()
+
+    ActivityLog.log_activity(
+        user=request.user,
+        action='approve',
+        model_name='BorrowRequest',
+        object_repr=f"Request #{request_id}",
+        description=f"Approved borrow request for {borrow_request.quantity} units of {borrow_request.property.property_name}"
+    )
+
+    messages.success(request, 'Borrow request approved successfully.')
+    return redirect('borrow_requests')
+
+@login_required
+def reject_supply_request(request, request_id):
+    supply_request = get_object_or_404(SupplyRequest, id=request_id)
+    supply_request.status = 'rejected'
+    supply_request.save()
+
+    ActivityLog.log_activity(
+        user=request.user,
+        action='reject',
+        model_name='SupplyRequest',
+        object_repr=f"Request #{request_id}",
+        description=f"Rejected supply request for {supply_request.quantity} units of {supply_request.supply.supply_name}"
+    )
+
+    messages.success(request, 'Supply request rejected successfully.')
+    return redirect('supply_requests')
+
+@login_required
+def reject_borrow_request(request, request_id):
+    borrow_request = get_object_or_404(BorrowRequest, id=request_id)
+    borrow_request.status = 'rejected'
+    borrow_request.save()
+
+    ActivityLog.log_activity(
+        user=request.user,
+        action='reject',
+        model_name='BorrowRequest',
+        object_repr=f"Request #{request_id}",
+        description=f"Rejected borrow request for {borrow_request.quantity} units of {borrow_request.property.property_name}"
+    )
+
+    messages.success(request, 'Borrow request rejected successfully.')
+    return redirect('borrow_requests')

@@ -42,6 +42,17 @@
         border-bottom: 1px solid #ddd;
       }
 
+      /* Add specific style for status and date columns */
+      .requests-table td:nth-child(5),
+      .requests-table td:nth-child(6) {
+        text-align: center;
+      }
+
+      .requests-table th:nth-child(5),
+      .requests-table th:nth-child(6) {
+        text-align: center;
+      }
+
       .requests-table th {
         background-color: #f8f9fa;
         font-weight: 600;
@@ -58,6 +69,9 @@
         font-size: 0.8em;
         font-weight: 500;
         text-transform: capitalize;
+        display: inline-block;
+        min-width: 80px;
+        text-align: center;
       }
 
       .status-pending {
@@ -213,6 +227,17 @@
                         <span
                           class="status-badge status-{{ request.status|lower|cut:' ' }}"
                         >
+                          {% if request.status == 'Pending' %}
+                            <i class="fas fa-clock"></i>
+                          {% elif request.status == 'Approved' %}
+                            <i class="fas fa-check-circle"></i>
+                          {% elif request.status == 'Rejected' or request.status == 'Declined' %}
+                            <i class="fas fa-times-circle"></i>
+                          {% elif request.status == 'Returned' %}
+                            <i class="fas fa-undo"></i>
+                          {% elif request.status == 'Overdue' %}
+                            <i class="fas fa-exclamation-circle"></i>
+                          {% endif %}
                           {{ request.status }}
                         </span>
                       </td>

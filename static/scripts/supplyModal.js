@@ -20,9 +20,12 @@ document.querySelectorAll(".edit-btn").forEach(button => {
     document.getElementById("edit_name").value = button.dataset.name;
     document.getElementById("edit_current_quantity").value = button.dataset.currentQuantity;
     document.getElementById("edit_minimum_threshold").value = button.dataset.minimumThreshold;
-    document.getElementById("edit_date").value = button.dataset.date;
-    document.getElementById("edit_barcode").value = button.dataset.barcode;
     document.getElementById("edit_category").value = button.dataset.category;
+    document.getElementById("edit_subcategory").value = button.dataset.subcategory;
+    document.getElementById("edit_description").value = button.dataset.description || '';
+    document.getElementById("edit_date").value = button.dataset.date;
+    document.getElementById("edit_expiration_date").value = button.dataset.expirationDate || '';
+    document.getElementById("edit_barcode").value = button.dataset.barcode;
     editModal.style.display = "block";
   });
 });
