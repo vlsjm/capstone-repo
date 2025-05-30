@@ -269,8 +269,6 @@ def create_user(request):
     users = UserProfile.objects.select_related('user').all()
     return render(request, 'app/manage_users.html', {'form': form, 'users': users})
 
-
-
 class UserProfileListView(PermissionRequiredMixin, ListView):
     model = UserProfile
     template_name = 'app/manage_users.html'
