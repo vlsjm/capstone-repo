@@ -20,7 +20,7 @@ LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login_user/'  
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_COOKIE_AGE = 3600
+SESSION_COOKIE_AGE = 3600 # 1 hour mag expire na yung session
 
 # Application definition
 

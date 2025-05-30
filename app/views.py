@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, ListView
 
@@ -28,6 +29,8 @@ from django.contrib.auth.decorators import permission_required
 from django.db import models
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
+
 
 
 @login_required
@@ -937,21 +940,22 @@ class LandingPageView(TemplateView):
         context = super().get_context_data(**kwargs)
         return context
 
-class AdminLoginView(LoginView):
+#meow   
+class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
-    authentication_form = AuthenticationForm
-    next_page = reverse_lazy('dashboard')
 
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        ActivityLog.log_activity(
-            user=self.request.user,
-            action='login',
-            model_name='User',
-            object_repr=self.request.user.username,
-            description=f"User {self.request.user.username} logged in"
-        )
-        return response
+    def get_success_url(self):
+        user = self.request.user
+        if user.groups.filter(name='ADMIN').exists():
+            return reverse('dashboard') 
+        return reverse('user_dashboard')
+
+def dashboard(request):
+    return render(request, 'app/dashboard.html')
+
+def user_dashboard(request):
+    return render(request, 'userpanel/user_dashboard.html')
+
 
 def logout_view(request):
     if request.user.is_authenticated:

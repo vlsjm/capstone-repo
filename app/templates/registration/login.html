@@ -20,7 +20,7 @@
       </ul>
       {% endif %}
 
-      <form action="{% url 'login_admin' %}" method="post">
+      <form action="{% url 'login' %}" method="post">
         {% csrf_token %}
         <div class="form-group">
           {% if messages %}

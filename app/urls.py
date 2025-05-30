@@ -2,7 +2,7 @@ from django.urls import path
 from django.contrib.auth.views import LogoutView
 from .views import (
     LandingPageView,
-    AdminLoginView,
+    # AdminLoginView,
     DashboardPageView,
     UserBorrowRequestListView,
     UserSupplyRequestListView,
@@ -36,11 +36,13 @@ from .views import (
     reject_borrow_request,
     get_supply_history,
     get_property_history,
+    CustomLoginView
 )
 
 urlpatterns = [
     path('', LandingPageView.as_view(), name='landing'),
-    path('login/admin/', AdminLoginView.as_view(), name='login_admin'),
+    # path('login/admin/', AdminLoginView.as_view(), name='login_admin'),
+    path('accounts/login/', CustomLoginView.as_view(), name='login'),
     path('logout/', logout_view, name='logout'),
 
     path('dashboard/', DashboardPageView.as_view(), name='dashboard'),
