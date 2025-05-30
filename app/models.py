@@ -62,10 +62,55 @@ class SupplyQuantity(models.Model):
     supply = models.OneToOneField('Supply', on_delete=models.CASCADE, related_name='quantity_info')
     current_quantity = models.PositiveIntegerField(default=0)
     minimum_threshold = models.PositiveIntegerField(default=10)
+    original_quantity = models.PositiveIntegerField(null=True, blank=True)
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Quantity for {self.supply.supply_name}: {self.current_quantity}"
+
+    def save(self, *args, **kwargs):
+        # Get the user from kwargs
+        user = kwargs.pop('user', None)
+        skip_history = kwargs.pop('skip_history', False)  # Add skip_history parameter
+        
+        # Check if this is a new quantity record
+        is_new = self.pk is None
+
+        if is_new:
+            # For new supplies, set the original quantity
+            self.original_quantity = self.current_quantity
+            super().save(*args, **kwargs)  # Save first to get the ID
+            
+            # Only create history if not skipped
+            if not skip_history:
+                SupplyHistory.objects.create(
+                    supply=self.supply,
+                    user=user,
+                    action='create',
+                    field_name='initial_quantity',
+                    old_value=None,
+                    new_value=str(self.current_quantity),
+                    remarks=f"Initial quantity set to {self.current_quantity}"
+                )
+        else:
+            # For existing supplies, track quantity changes
+            if not skip_history:
+                old_obj = SupplyQuantity.objects.get(pk=self.pk)
+                if old_obj.current_quantity != self.current_quantity:
+                    change = self.current_quantity - old_obj.current_quantity
+                    remarks = f"Quantity {'increased' if change > 0 else 'decreased'} by {abs(change)}"
+                    
+                    SupplyHistory.objects.create(
+                        supply=self.supply,
+                        user=user,
+                        action='update',
+                        field_name='quantity',
+                        old_value=str(old_obj.current_quantity),
+                        new_value=str(self.current_quantity),
+                        remarks=remarks
+                    )
+
+            super().save(*args, **kwargs)
 
 class Supply(models.Model):
     STATUS_CHOICES = [
@@ -129,12 +174,25 @@ class Supply(models.Model):
         return status_dict.get(self.status, 'Unknown')
     
     def save(self, *args, **kwargs):
-        # Update available_for_request based on status
-        current_status = self.status
-        self.available_for_request = (current_status == 'available')
+        # Update available_for_request based on quantity
+        try:
+            quantity_info = self.quantity_info
+            self.available_for_request = (quantity_info.current_quantity > 0)
+        except SupplyQuantity.DoesNotExist:
+            # For new supplies, we'll set this after creating SupplyQuantity
+            pass
 
-        # Track changes if this is an existing object
-        if self.pk:
+        # Get the user from kwargs
+        user = kwargs.pop('user', None)
+
+        # Check if this is a new supply (being created)
+        is_new = self.pk is None
+
+        if is_new:
+            # For new supplies, save first to get the ID
+            super().save(*args, **kwargs)
+        else:
+            # For existing supplies, track changes
             old_obj = Supply.objects.get(pk=self.pk)
             fields_to_track = ['supply_name', 'category', 'subcategory', 'description', 'barcode', 'date_received', 'expiration_date']
             
@@ -150,7 +208,7 @@ class Supply(models.Model):
                 if old_str != new_str:
                     SupplyHistory.objects.create(
                         supply=self,
-                        user=kwargs.pop('user', None) if 'user' in kwargs else None,
+                        user=user,
                         action='update',
                         field_name=field,
                         old_value=old_str if old_str else None,
@@ -255,6 +313,7 @@ class Property(models.Model):
         validators=[MinValueValidator(0)]
     )
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)], null=True, blank=True)
+    original_quantity = models.PositiveIntegerField(null=True, blank=True)
     location = models.CharField(max_length=255, null=True, blank=True)
     condition = models.CharField(max_length=100, choices=CONDITION_CHOICES, blank=True, null=True)
     availability = models.CharField(max_length=20, choices=AVAILABILITY_CHOICES, default='available')
@@ -262,13 +321,43 @@ class Property(models.Model):
     def __str__(self):
         return f"{self.property_name} - {self.barcode}"
 
-    def update_availability(self, is_available):
-        self.availability = 'available' if is_available else 'not_available'
-        self.save()
+    def update_availability(self):
+        """Update availability based on quantity"""
+        is_available = self.quantity > 0
+        if is_available and self.availability == 'not_available':
+            self.availability = 'available'
+            self.save()
+        elif not is_available and self.availability == 'available':
+            self.availability = 'not_available'
+            self.save()
 
     def save(self, *args, **kwargs):
-        # Track changes if this is an existing object
-        if self.pk:
+        # Get the user from kwargs
+        user = kwargs.pop('user', None)
+
+        # Check if this is a new property (being created)
+        is_new = self.pk is None
+
+        if is_new:
+            # For new properties, set the original quantity
+            self.original_quantity = self.quantity
+            # Set initial availability based on quantity
+            self.availability = 'available' if self.quantity > 0 else 'not_available'
+            # Save first to get the ID
+            super().save(*args, **kwargs)
+            # Create a history entry for the initial quantity
+            if self.quantity is not None:
+                PropertyHistory.objects.create(
+                    property=self,
+                    user=user,
+                    action='create',
+                    field_name='initial_quantity',
+                    old_value=None,
+                    new_value=str(self.quantity),
+                    remarks=f"Initial quantity set to {self.quantity}"
+                )
+        else:
+            # For existing properties, track changes
             old_obj = Property.objects.get(pk=self.pk)
             fields_to_track = ['property_name', 'category', 'description', 'barcode', 'unit_of_measure', 
                              'unit_value', 'quantity', 'location', 'condition', 'availability']
@@ -283,16 +372,29 @@ class Property(models.Model):
                 
                 # Only create history entry if the values are actually different
                 if old_str != new_str:
+                    remarks = None
+                    if field == 'quantity':
+                        change = (new_value or 0) - (old_value or 0)
+                        if change > 0:
+                            remarks = f"Quantity increased by {abs(change)}"
+                        else:
+                            remarks = f"Quantity decreased by {abs(change)}"
+
                     PropertyHistory.objects.create(
                         property=self,
-                        user=kwargs.pop('user', None) if 'user' in kwargs else None,
+                        user=user,
                         action='update',
                         field_name=field,
                         old_value=old_str if old_str else None,
-                        new_value=new_str if new_str else None
+                        new_value=new_str if new_str else None,
+                        remarks=remarks
                     )
 
-        super().save(*args, **kwargs)
+            super().save(*args, **kwargs)
+            
+            # Update availability based on quantity after save
+            if old_obj.quantity != self.quantity:
+                self.update_availability()
 
 class SupplyRequest(models.Model):
     STATUS_CHOICES = [
@@ -557,65 +659,73 @@ class BorrowRequest(models.Model):
     def save(self, *args, **kwargs):
         # Check if this is a new borrow request
         is_new = self.pk is None
-        
-        # Get the old instance if it exists
-        try:
+
+        if is_new:
+            super().save(*args, **kwargs)
+        else:
+            # Get the old instance
             old_instance = BorrowRequest.objects.get(pk=self.pk)
             old_status = old_instance.status
-        except BorrowRequest.DoesNotExist:
-            old_status = None
+            super().save(*args, **kwargs)
 
-        # Save the borrow request
-        super().save(*args, **kwargs)
+            # Handle status changes
+            if old_status != self.status:
+                if self.status == 'approved':
+                    # Decrease the property's quantity
+                    self.property.quantity -= self.quantity
+                    self.property.save()
+                    
+                    # Update property availability based on new quantity
+                    self.property.update_availability()
 
-        # If this is a new borrow request, notify admin users
-        if is_new:
-            admin_users = User.objects.filter(userprofile__role='admin')
-            for admin_user in admin_users:
-                Notification.objects.create(
-                    user=admin_user,
-                    message=f"New borrow request submitted for {self.property.property_name} by {self.user.username}",
-                    remarks=f"Quantity: {self.quantity}, Return Date: {self.return_date}, Purpose: {self.purpose}"
-                )
+                    # Notify the user
+                    Notification.objects.create(
+                        user=self.user,
+                        message=f"Your borrow request for {self.property.property_name} has been approved.",
+                        remarks=self.remarks if self.remarks else None
+                    )
 
-        # Update property availability when request is approved
-        if old_status != self.status and self.status == 'approved':
-            self.property.update_availability(False)  # Set property as not available
-        elif old_status != self.status and self.status in ['returned', 'declined'] and not BorrowRequest.objects.filter(
-            property=self.property,
-            status='approved'
-        ).exclude(pk=self.pk).exists():
-            self.property.update_availability(True)  # Set property as available if no other active borrows
+                if self.status == 'returned' and old_status in ['approved', 'overdue']:
+                    # Increase the property's quantity
+                    self.property.quantity += self.quantity
+                    self.property.save()
+                    
+                    # Update property availability based on new quantity
+                    self.property.update_availability()
+
+                    # Notify the user
+                    Notification.objects.create(
+                        user=self.user,
+                        message=f"Your borrowed {self.property.property_name} has been marked as returned.",
+                        remarks=self.remarks if self.remarks else None
+                    )
+
+                if self.status == 'declined' and old_status == 'pending':
+                    # Notify the user
+                    Notification.objects.create(
+                        user=self.user,
+                        message=f"Your borrow request for {self.property.property_name} has been declined.",
+                        remarks=self.remarks if self.remarks else None
+                    )
+
+                if self.status == 'overdue' and old_status == 'approved':
+                    # Notify the user
+                    Notification.objects.create(
+                        user=self.user,
+                        message=f"Your borrow request for {self.property.property_name} is overdue.",
+                        remarks=self.remarks if self.remarks else None
+                    )
 
     @classmethod
     def check_overdue_items(cls):
-        """Check and update status for overdue items"""
-        today = date.today()
+        today = timezone.now().date()
         overdue_requests = cls.objects.filter(
             status='approved',
-            return_date__lt=today,
-            actual_return_date__isnull=True
+            return_date__lt=today
         )
-        
         for request in overdue_requests:
             request.status = 'overdue'
             request.save()
-            
-            # Create notification for the user
-            Notification.objects.create(
-                user=request.user,
-                message=f"Your borrowed item '{request.property.property_name}' is overdue. Please return it as soon as possible.",
-                remarks=f"Due date was: {request.return_date}"
-            )
-            
-            # Create notification for admin users
-            admin_users = User.objects.filter(userprofile__role='admin')
-            for admin_user in admin_users:
-                Notification.objects.create(
-                    user=admin_user,
-                    message=f"Borrowed item '{request.property.property_name}' by {request.user.username} is overdue.",
-                    remarks=f"Due date was: {request.return_date}"
-                )
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -634,6 +744,7 @@ class SupplyHistory(models.Model):
     field_name = models.CharField(max_length=100)  # The field that was changed
     old_value = models.TextField(null=True, blank=True)
     new_value = models.TextField(null=True, blank=True)
+    remarks = models.TextField(null=True, blank=True)  # For additional context about the change
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -649,6 +760,7 @@ class PropertyHistory(models.Model):
     field_name = models.CharField(max_length=100)  # The field that was changed
     old_value = models.TextField(null=True, blank=True)
     new_value = models.TextField(null=True, blank=True)
+    remarks = models.TextField(null=True, blank=True)  # For additional context about the change
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -30,17 +30,6 @@
                     </select>
                 </div>
                 <div class="actlog-filter-group">
-                    <label for="action">Action:</label>
-                    <select name="action" id="action">
-                        <option value="">All Actions</option>
-                        {% for action_value, action_label in actions.items %}
-                            <option value="{{ action_value }}" {% if request.GET.action == action_value %}selected{% endif %}>
-                                {{ action_label }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="actlog-filter-group">
                     <label for="model">Model:</label>
                     <select name="model" id="model">
                         <option value="">All Models</option>

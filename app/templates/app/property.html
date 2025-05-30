@@ -339,21 +339,42 @@
   <div class="history-modal-content">
     <span class="close" id="closeHistoryModalBtn">&times;</span>
     <h3>Property History</h3>
-    <div id="historyContent">
+    
+    <!-- Original Data Table -->
+    <div id="originalDataContent">
+      <h4>Original Data</h4>
       <table class="history-table">
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Action</th>
-            <th>Previous Value</th>
-            <th>New Value</th>
-            <th>Changed By</th>
+            <th>Field</th>
+            <th>Original Value</th>
           </tr>
         </thead>
-        <tbody id="historyTableBody">
-          <!-- History data will be populated here -->
+        <tbody id="originalDataTableBody">
+          <!-- Original data will be populated here -->
         </tbody>
       </table>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <h4>Change History</h4>
+      <div id="historyContent">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Action</th>
+              <th>Field</th>
+              <th>Previous Value</th>
+              <th>New Value</th>
+              <th>Changed By</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <!-- History data will be populated here -->
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -361,8 +382,8 @@
     <script src="{% static 'scripts/propertyModal.js' %}"></script>
 
     <script>
-      // Auto-hide success messages after 2 seconds
       document.addEventListener('DOMContentLoaded', function() {
+        // Auto-hide success messages after 2 seconds
         const successMessage = document.querySelector('.success-container');
         if (successMessage) {
           setTimeout(function() {
@@ -379,42 +400,78 @@
         const historyBtns = document.querySelectorAll('.history-btn');
         const closeHistoryModalBtn = document.getElementById('closeHistoryModalBtn');
 
+        if (!historyModal || !historyBtns.length || !closeHistoryModalBtn) {
+          console.error('Missing required elements:', {
+            historyModal: !!historyModal,
+            historyBtns: historyBtns.length,
+            closeHistoryModalBtn: !!closeHistoryModalBtn
+          });
+          return;
+        }
+
         historyBtns.forEach(btn => {
           btn.addEventListener('click', function() {
-            const propertyId = this.getAttribute('data-id');
+            const propertyId = this.dataset.id;
             historyModal.style.display = 'block';
             
-            // Fetch history data from the backend
-            fetch(`/api/property/${propertyId}/history/`)
+            // Clear existing content
+            const originalDataTableBody = document.getElementById('originalDataTableBody');
+            const historyTableBody = document.getElementById('historyTableBody');
+            
+            originalDataTableBody.innerHTML = '<tr><td colspan="2">Loading...</td></tr>';
+            historyTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+            
+            // Fetch history data
+            fetch(`/get_property_history/${propertyId}/`)
               .then(response => response.json())
               .then(data => {
-                // Populate the history table
-                const tbody = document.getElementById('historyTableBody');
-                if (data.history && data.history.length > 0) {
-                  tbody.innerHTML = data.history.map(item => `
-                    <tr>
-                      <td>${item.date}</td>
-                      <td>${item.action} - ${item.field}</td>
-                      <td>${item.previous_value}</td>
-                      <td>${item.new_value}</td>
-                      <td>${item.changed_by}</td>
-                    </tr>
-                  `).join('');
-                } else {
-                  tbody.innerHTML = `
-                    <tr>
-                      <td colspan="5" class="text-center">No history or changes yet.</td>
-                    </tr>
+                // Populate original data table
+                originalDataTableBody.innerHTML = '';
+                const originalData = data.original_data;
+                const fieldLabels = {
+                  'property_name': 'Property Name',
+                  'description': 'Description',
+                  'category': 'Category',
+                  'barcode': 'Barcode',
+                  'unit_of_measure': 'Unit of Measure',
+                  'unit_value': 'Unit Value',
+                  'original_quantity': 'Original Quantity',
+                  'location': 'Location',
+                  'condition': 'Condition'
+                };
+                
+                for (const [field, value] of Object.entries(originalData)) {
+                  const row = document.createElement('tr');
+                  row.innerHTML = `
+                    <td><strong>${fieldLabels[field] || field}</strong></td>
+                    <td>${value}</td>
                   `;
+                  originalDataTableBody.appendChild(row);
+                }
+
+                // Populate history table
+                historyTableBody.innerHTML = '';
+                if (data.history.length === 0) {
+                  historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No changes have been made to this property yet.</td></tr>';
+                } else {
+                  data.history.forEach(entry => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                      <td>${entry.date}</td>
+                      <td>${entry.action}</td>
+                      <td>${entry.field_name}</td>
+                      <td>${entry.old_value}</td>
+                      <td>${entry.new_value}</td>
+                      <td>${entry.user}</td>
+                    `;
+                    historyTableBody.appendChild(row);
+                  });
                 }
               })
               .catch(error => {
                 console.error('Error fetching history:', error);
-                document.getElementById('historyTableBody').innerHTML = `
-                  <tr>
-                    <td colspan="5" class="text-center">Error loading history data</td>
-                  </tr>
-                `;
+                originalDataTableBody.innerHTML = '<tr><td colspan="2">Error loading original data</td></tr>';
+                historyTableBody.innerHTML = '<tr><td colspan="6">Error loading history data</td></tr>';
               });
           });
         });

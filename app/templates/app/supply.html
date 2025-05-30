@@ -7,20 +7,68 @@
   <title>Supply List</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  {% csrf_token %}
   <style>
-    .history-btn {
-      background-color: #152d64;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 12px;
-      cursor: pointer;
-      margin: 0 2px;
-      transition: background-color 0.3s;
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
     }
 
-    .history-btn:hover {
-      background-color: #1e3d8a;
+    .modal-content {
+      background-color: white;
+      margin: 3% auto;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 900px;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 25px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #888;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    .close:hover {
+      color: #152d64;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #152d64;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
     }
 
     /* History Modal Styles */
@@ -67,23 +115,12 @@
     .history-table tr:hover {
       background-color: #f5f5f5;
     }
-
-    .close {
-      color: #152d64;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .close:hover {
-      color: #1e3d8a;
-    }
   </style>
 </head>
 <body>
   {% include 'app/navbar.html' %}
   {% block content %}
+    {% csrf_token %}
 
     {% if messages %}
       {% for message in messages %}
@@ -302,34 +339,93 @@
     </div>
   </div>
 
-  <script src="{% static 'scripts/supplyModal.js' %}"></script>
-
   <!-- History Modal -->
   <div id="historyModal" class="history-modal">
     <div class="history-modal-content">
       <span class="close" id="closeHistoryModalBtn">&times;</span>
       <h3>Supply History</h3>
-      <div id="historyContent">
+      
+      <!-- Original Data Table -->
+      <div id="originalDataContent">
+        <h4>Original Data</h4>
         <table class="history-table">
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Action</th>
-              <th>Previous Value</th>
-              <th>New Value</th>
-              <th>Changed By</th>
+              <th>Field</th>
+              <th>Original Value</th>
             </tr>
           </thead>
-          <tbody id="historyTableBody">
-            <!-- History data will be populated here -->
+          <tbody id="originalDataTableBody">
+            <!-- Original data will be populated here -->
           </tbody>
         </table>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <h4>Change History</h4>
+        <div id="historyContent">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Action</th>
+                <th>Field</th>
+                <th>Previous Value</th>
+                <th>New Value</th>
+                <th>Changed By</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <!-- History data will be populated here -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Auto-hide success messages after 2 seconds
+    // Add Supply Modal
+    const modal = document.getElementById("addSupplyModal");
+    const openBtn = document.getElementById("openModalBtn");
+    const closeBtn = document.getElementById("closeModalBtn");
+
+    openBtn.onclick = () => modal.style.display = "block";
+    closeBtn.onclick = () => modal.style.display = "none";
+    window.onclick = (event) => {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    };
+
+    // Edit Supply Modal
+    const editModal = document.getElementById("editSupplyModal");
+    const closeEditBtn = document.getElementById("closeEditModalBtn");
+
+    document.querySelectorAll(".edit-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        document.getElementById("edit_id").value = button.dataset.id;
+        document.getElementById("edit_name").value = button.dataset.name;
+        document.getElementById("edit_current_quantity").value = button.dataset.currentQuantity;
+        document.getElementById("edit_minimum_threshold").value = button.dataset.minimumThreshold;
+        document.getElementById("edit_category").value = button.dataset.category;
+        document.getElementById("edit_subcategory").value = button.dataset.subcategory;
+        document.getElementById("edit_description").value = button.dataset.description || '';
+        document.getElementById("edit_date").value = button.dataset.date;
+        document.getElementById("edit_expiration_date").value = button.dataset.expirationDate || '';
+        document.getElementById("edit_barcode").value = button.dataset.barcode;
+        editModal.style.display = "block";
+      });
+    });
+
+    closeEditBtn.onclick = () => editModal.style.display = "none";
+    window.addEventListener("click", event => {
+      if (event.target === editModal) {
+        editModal.style.display = "none";
+      }
+    });
+
+    // Auto-hide success messages
     document.addEventListener('DOMContentLoaded', function() {
       const successMessage = document.querySelector('.success-container');
       if (successMessage) {
@@ -347,42 +443,77 @@
       const historyBtns = document.querySelectorAll('.history-btn');
       const closeHistoryModalBtn = document.getElementById('closeHistoryModalBtn');
 
+      if (!historyModal || !historyBtns.length || !closeHistoryModalBtn) {
+        console.error('Missing required elements:', {
+          historyModal: !!historyModal,
+          historyBtns: historyBtns.length,
+          closeHistoryModalBtn: !!closeHistoryModalBtn
+        });
+        return;
+      }
+
       historyBtns.forEach(btn => {
         btn.addEventListener('click', function() {
-          const supplyId = this.getAttribute('data-id');
+          const supplyId = this.dataset.id;
           historyModal.style.display = 'block';
           
-          // Fetch history data from the backend
-          fetch(`/api/supply/${supplyId}/history/`)
+          // Clear existing content
+          const originalDataTableBody = document.getElementById('originalDataTableBody');
+          const historyTableBody = document.getElementById('historyTableBody');
+          
+          originalDataTableBody.innerHTML = '<tr><td colspan="2">Loading...</td></tr>';
+          historyTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+          
+          // Fetch history data
+          fetch(`/get_supply_history/${supplyId}/`)
             .then(response => response.json())
             .then(data => {
-              // Populate the history table
-              const tbody = document.getElementById('historyTableBody');
-              if (data.history && data.history.length > 0) {
-                tbody.innerHTML = data.history.map(item => `
-                  <tr>
-                    <td>${item.date}</td>
-                    <td>${item.action} - ${item.field}</td>
-                    <td>${item.previous_value}</td>
-                    <td>${item.new_value}</td>
-                    <td>${item.changed_by}</td>
-                  </tr>
-                `).join('');
-              } else {
-                tbody.innerHTML = `
-                  <tr>
-                    <td colspan="5" class="text-center">No history or changes yet.</td>
-                  </tr>
+              // Populate original data table
+              originalDataTableBody.innerHTML = '';
+              const originalData = data.original_data;
+              const fieldLabels = {
+                'supply_name': 'Supply Name',
+                'description': 'Description',
+                'category': 'Category',
+                'subcategory': 'Subcategory',
+                'barcode': 'Barcode',
+                'date_received': 'Date Received',
+                'expiration_date': 'Expiration Date',
+                'original_quantity': 'Original Quantity'
+              };
+              
+              for (const [field, value] of Object.entries(originalData)) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                  <td><strong>${fieldLabels[field] || field}</strong></td>
+                  <td>${value}</td>
                 `;
+                originalDataTableBody.appendChild(row);
+              }
+
+              // Populate history table
+              historyTableBody.innerHTML = '';
+              if (data.history.length === 0) {
+                historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No changes have been made to this supply yet.</td></tr>';
+              } else {
+                data.history.forEach(entry => {
+                  const row = document.createElement('tr');
+                  row.innerHTML = `
+                    <td>${entry.date}</td>
+                    <td>${entry.action}</td>
+                    <td>${entry.field_name}</td>
+                    <td>${entry.old_value}</td>
+                    <td>${entry.new_value}</td>
+                    <td>${entry.user}</td>
+                  `;
+                  historyTableBody.appendChild(row);
+                });
               }
             })
             .catch(error => {
               console.error('Error fetching history:', error);
-              document.getElementById('historyTableBody').innerHTML = `
-                <tr>
-                  <td colspan="5" class="text-center">Error loading history data</td>
-                </tr>
-              `;
+              originalDataTableBody.innerHTML = '<tr><td colspan="2">Error loading original data</td></tr>';
+              historyTableBody.innerHTML = '<tr><td colspan="6">Error loading history data</td></tr>';
             });
         });
       });
@@ -398,7 +529,7 @@
       });
     });
   </script>
-
+  <script src="{% static 'scripts/supplyModal.js' %}"></script>
   {% endblock %}
 </body>
 </html>

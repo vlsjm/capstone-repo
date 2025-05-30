@@ -494,15 +494,12 @@ class ActivityPageView(PermissionRequiredMixin, ListView):
         
         # Apply filters
         user_filter = self.request.GET.get('user')
-        action_filter = self.request.GET.get('action')
         model_filter = self.request.GET.get('model')
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
 
         if user_filter:
             queryset = queryset.filter(user_id=user_filter)
-        if action_filter:
-            queryset = queryset.filter(action=action_filter)
         if model_filter:
             queryset = queryset.filter(model_name=model_filter)
         if start_date:
@@ -520,10 +517,10 @@ class ActivityPageView(PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['users'] = User.objects.all()
-        context['actions'] = dict(ActivityLog.ACTION_CHOICES)
         
-        # Get all unique models for filtering
-        context['models'] = ActivityLog.objects.values_list('model_name', flat=True).distinct()
+        # Get all unique models and sort them
+        models = ActivityLog.objects.values_list('model_name', flat=True).distinct()
+        context['models'] = sorted(set(models))  # Convert to set to ensure uniqueness and sort
         
         # Get current category for highlighting in template
         context['current_category'] = self.request.GET.get('category', '')
@@ -673,20 +670,39 @@ def add_supply(request):
     if request.method == 'POST':
         form = SupplyForm(request.POST)
         if form.is_valid():
-            supply = form.save(commit=False)
-            supply._logged_in_user = request.user
-            supply.save()
+            try:
+                # First save the supply
+                supply = form.save(commit=False)
+                supply._logged_in_user = request.user
+                supply.save(user=request.user)
 
-            ActivityLog.objects.create(
-                user=request.user,
-                action='create',
-                model_name='Supply',
-                object_repr=str(supply),
-                description=f"Supply '{supply.supply_name}' was added."
-            )
-            messages.success(request, 'Supply added successfully.')
+                # Create and save quantity info
+                quantity_info = SupplyQuantity.objects.create(
+                    supply=supply,
+                    current_quantity=form.cleaned_data['current_quantity'],
+                    minimum_threshold=form.cleaned_data['minimum_threshold'],
+                    original_quantity=form.cleaned_data['current_quantity']
+                )
+
+                # Update available_for_request based on quantity
+                supply.available_for_request = (quantity_info.current_quantity > 0)
+                supply.save(user=request.user)
+
+                # Create activity log
+                ActivityLog.log_activity(
+                    user=request.user,
+                    action='create',
+                    model_name='Supply',
+                    object_repr=str(supply),
+                    description=f"Added new supply '{supply.supply_name}' with initial quantity {form.cleaned_data['current_quantity']}"
+                )
+                messages.success(request, 'Supply added successfully.')
+            except Exception as e:
+                if 'supply' in locals() and supply.pk:
+                    supply.delete()
+                messages.error(request, f'Error adding supply: {str(e)}')
         else:
-            messages.error(request, 'Please correct the errors below.')
+            messages.error(request, f'Errors: {form.errors}')
     return redirect('supply_list')
 
 
@@ -696,69 +712,73 @@ def edit_supply(request):
         supply_id = request.POST.get('id')
         supply = get_object_or_404(Supply, id=supply_id)
         
-        # Store old values for activity log
-        old_values = {
-            'supply_name': supply.supply_name,
-            'description': supply.description,
-            'current_quantity': supply.quantity_info.current_quantity if supply.quantity_info else 0,
-            'minimum_threshold': supply.quantity_info.minimum_threshold if supply.quantity_info else 0,
-            'category': supply.category,
-            'subcategory': supply.subcategory,
-            'barcode': supply.barcode,
-            'date_received': supply.date_received,
-            'expiration_date': supply.expiration_date
-        }
+        try:
+            # Store old values for activity log
+            old_values = {
+                'supply_name': supply.supply_name,
+                'description': supply.description,
+                'category': supply.category,
+                'subcategory': supply.subcategory,
+                'barcode': supply.barcode,
+                'date_received': supply.date_received,
+                'expiration_date': supply.expiration_date,
+                'current_quantity': supply.quantity_info.current_quantity if supply.quantity_info else 0,
+                'minimum_threshold': supply.quantity_info.minimum_threshold if supply.quantity_info else 0
+            }
 
-        # Update supply fields
-        supply.supply_name = request.POST.get('supply_name')
-        supply.description = request.POST.get('description')
-        supply.category = request.POST.get('category')
-        supply.subcategory = request.POST.get('subcategory')
-        supply.barcode = request.POST.get('barcode')
-        supply.date_received = request.POST.get('date_received')
-        supply.expiration_date = request.POST.get('expiration_date') or None
-        
-        # Update quantity info
-        current_quantity = int(request.POST.get('current_quantity', 0))
-        minimum_threshold = int(request.POST.get('minimum_threshold', 0))
-        
-        if not supply.quantity_info:
-            supply.quantity_info = SupplyQuantity.objects.create(
-                current_quantity=current_quantity,
-                minimum_threshold=minimum_threshold
-            )
-        else:
-            supply.quantity_info.current_quantity = current_quantity
-            supply.quantity_info.minimum_threshold = minimum_threshold
-            supply.quantity_info.save()
-        
-        supply.save()
+            # Update supply fields
+            supply.supply_name = request.POST.get('supply_name')
+            supply.description = request.POST.get('description')
+            supply.category = request.POST.get('category')
+            supply.subcategory = request.POST.get('subcategory')
+            supply.barcode = request.POST.get('barcode')
+            supply.date_received = request.POST.get('date_received')
+            supply.expiration_date = request.POST.get('expiration_date') or None
+            
+            # Update quantity info
+            current_quantity = int(request.POST.get('current_quantity', 0))
+            minimum_threshold = int(request.POST.get('minimum_threshold', 0))
+            
+            if not supply.quantity_info:
+                # Create new quantity info
+                quantity_info = SupplyQuantity(
+                    supply=supply,
+                    current_quantity=current_quantity,
+                    minimum_threshold=minimum_threshold
+                )
+                quantity_info.save(user=request.user)
+            else:
+                supply.quantity_info.current_quantity = current_quantity
+                supply.quantity_info.minimum_threshold = minimum_threshold
+                supply.quantity_info.save(user=request.user)
+            
+            # Save supply with user information
+            supply.save(user=request.user)
 
-        # Create activity log for the update
-        new_values = {
-            'supply_name': supply.supply_name,
-            'description': supply.description,
-            'current_quantity': current_quantity,
-            'minimum_threshold': minimum_threshold,
-            'category': supply.category,
-            'subcategory': supply.subcategory,
-            'barcode': supply.barcode,
-            'date_received': supply.date_received,
-            'expiration_date': supply.expiration_date
-        }
+            # Create activity log for the update
+            changes = []
+            for field, old_value in old_values.items():
+                if field in ['current_quantity', 'minimum_threshold']:
+                    new_value = current_quantity if field == 'current_quantity' else minimum_threshold
+                else:
+                    new_value = getattr(supply, field)
+                if str(old_value) != str(new_value):
+                    changes.append(f"{field}: {old_value} → {new_value}")
 
-        # Log changes for each field that was modified
-        for field, new_value in new_values.items():
-            if str(new_value) != str(old_values[field]):
-                ActivityLog.objects.create(
+            if changes:
+                ActivityLog.log_activity(
                     user=request.user,
-                    action='UPDATE',
+                    action='update',
                     model_name='Supply',
-                    description=f'Updated {field} from "{old_values[field]}" to "{new_value}" for supply: {supply.supply_name}'
+                    object_repr=str(supply),
+                    description=f"Updated supply '{supply.supply_name}'. Changes: {', '.join(changes)}"
                 )
 
-        messages.success(request, 'Supply updated successfully!')
-        return redirect('supply_list')
+            messages.success(request, 'Supply updated successfully!')
+            return redirect('supply_list')
+        except Exception as e:
+            messages.error(request, f'Error updating supply: {str(e)}')
+            return redirect('supply_list')
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
@@ -821,19 +841,27 @@ def add_property(request):
     if request.method == 'POST':
         form = PropertyForm(request.POST)
         if form.is_valid():
-            prop = form.save(commit=False)
-            prop._logged_in_user = request.user
-            prop.save()
+            try:
+                # First save the property
+                prop = form.save(commit=False)
+                prop._logged_in_user = request.user
+                prop.original_quantity = form.cleaned_data['quantity']  # Set original quantity
+                prop.save(user=request.user)  # Pass the user to save method
 
-            ActivityLog.objects.create(
-                user=request.user,
-                action='create',
-                model_name='Property',
-                object_repr=str(prop),
-                description=f"Property '{prop.property_name}' was added."
-            )
-
-            messages.success(request, 'Property added successfully.')
+                # Create activity log using log_activity method
+                ActivityLog.log_activity(
+                    user=request.user,
+                    action='create',
+                    model_name='Property',
+                    object_repr=str(prop),
+                    description=f"Added new property '{prop.property_name}' with initial quantity {form.cleaned_data['quantity']}"
+                )
+                messages.success(request, 'Property added successfully.')
+            except Exception as e:
+                # If anything goes wrong, delete the property to maintain data consistency
+                if 'prop' in locals() and prop.pk:
+                    prop.delete()
+                messages.error(request, f'Error adding property: {str(e)}')
         else:
             messages.error(request, f'Errors: {form.errors}')
     return redirect('property_list')
@@ -845,59 +873,55 @@ def edit_property(request):
         property_id = request.POST.get('id')
         property_obj = get_object_or_404(Property, id=property_id)
 
-        # Store old values for activity log
-        old_values = {
-            'property_name': property_obj.property_name,
-            'description': property_obj.description,
-            'barcode': property_obj.barcode,
-            'unit_of_measure': property_obj.unit_of_measure,
-            'unit_value': property_obj.unit_value,
-            'quantity': property_obj.quantity,
-            'location': property_obj.location,
-            'condition': property_obj.condition,
-            'category': property_obj.category,
-            'availability': property_obj.availability
-        }
+        try:
+            # Store old values for activity log
+            old_values = {
+                'property_name': property_obj.property_name,
+                'description': property_obj.description,
+                'barcode': property_obj.barcode,
+                'unit_of_measure': property_obj.unit_of_measure,
+                'unit_value': property_obj.unit_value,
+                'quantity': property_obj.quantity,
+                'location': property_obj.location,
+                'condition': property_obj.condition,
+                'category': property_obj.category,
+                'availability': property_obj.availability
+            }
 
-        # Update property fields
-        property_obj.property_name = request.POST.get('property_name')
-        property_obj.description = request.POST.get('description')
-        property_obj.barcode = request.POST.get('barcode')
-        property_obj.unit_of_measure = request.POST.get('unit_of_measure')
-        property_obj.unit_value = request.POST.get('unit_value')
-        property_obj.quantity = request.POST.get('quantity')
-        property_obj.location = request.POST.get('location')
-        property_obj.condition = request.POST.get('condition')
-        property_obj.category = request.POST.get('category')
-        property_obj.availability = request.POST.get('availability')
-        
-        property_obj.save()
+            # Update property fields
+            property_obj.property_name = request.POST.get('property_name')
+            property_obj.description = request.POST.get('description')
+            property_obj.barcode = request.POST.get('barcode')
+            property_obj.unit_of_measure = request.POST.get('unit_of_measure')
+            property_obj.unit_value = request.POST.get('unit_value')
+            property_obj.quantity = int(request.POST.get('quantity', 0))
+            property_obj.location = request.POST.get('location')
+            property_obj.condition = request.POST.get('condition')
+            property_obj.category = request.POST.get('category')
+            property_obj.availability = request.POST.get('availability')
+            
+            # Save property with user information
+            property_obj.save(user=request.user)
 
-        # Create activity log for the update
-        new_values = {
-            'property_name': property_obj.property_name,
-            'description': property_obj.description,
-            'barcode': property_obj.barcode,
-            'unit_of_measure': property_obj.unit_of_measure,
-            'unit_value': property_obj.unit_value,
-            'quantity': property_obj.quantity,
-            'location': property_obj.location,
-            'condition': property_obj.condition,
-            'category': property_obj.category,
-            'availability': property_obj.availability
-        }
+            # Create activity log for the update
+            changes = []
+            for field, old_value in old_values.items():
+                new_value = getattr(property_obj, field)
+                if str(old_value) != str(new_value):
+                    changes.append(f"{field}: {old_value} → {new_value}")
 
-        # Log changes for each field that was modified
-        for field, new_value in new_values.items():
-            if str(new_value) != str(old_values[field]):
-                ActivityLog.objects.create(
+            if changes:
+                ActivityLog.log_activity(
                     user=request.user,
-                    action='UPDATE',
+                    action='update',
                     model_name='Property',
-                    description=f'Updated {field} from "{old_values[field]}" to "{new_value}" for property: {property_obj.property_name}'
+                    object_repr=str(property_obj),
+                    description=f"Updated property '{property_obj.property_name}'. Changes: {', '.join(changes)}"
                 )
 
-        messages.success(request, 'Property updated successfully!')
+            messages.success(request, 'Property updated successfully!')
+        except Exception as e:
+            messages.error(request, f'Error updating property: {str(e)}')
         return redirect('property_list')
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
@@ -1091,35 +1115,68 @@ def reject_borrow_request(request, request_id):
 @login_required
 def get_supply_history(request, supply_id):
     supply = get_object_or_404(Supply, id=supply_id)
-    history = supply.history.all()
+    history = supply.history.all().order_by('-timestamp')
+    
+    # Get original data
+    original_data = {
+        'supply_name': supply.supply_name,
+        'description': supply.description,
+        'category': supply.get_category_display(),
+        'subcategory': supply.get_subcategory_display(),
+        'barcode': supply.barcode,
+        'date_received': supply.date_received.strftime('%Y-%m-%d') if supply.date_received else 'N/A',
+        'expiration_date': supply.expiration_date.strftime('%Y-%m-d') if supply.expiration_date else 'N/A',
+        'original_quantity': supply.quantity_info.original_quantity if supply.quantity_info else 'N/A',
+    }
     
     history_data = []
     for entry in history:
         history_data.append({
             'date': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
             'action': entry.action,
-            'field': entry.field_name,
-            'previous_value': entry.old_value or 'N/A',
-            'new_value': entry.new_value or 'N/A',
-            'changed_by': entry.user.username if entry.user else 'System'
+            'field_name': entry.field_name,
+            'old_value': entry.old_value if entry.old_value is not None else '-',
+            'new_value': entry.new_value if entry.new_value is not None else '-',
+            'user': entry.user.username if entry.user else 'System',
+            'remarks': entry.remarks if entry.remarks else ''
         })
     
-    return JsonResponse({'history': history_data})
+    return JsonResponse({
+        'original_data': original_data,
+        'history': history_data
+    })
 
 @login_required
 def get_property_history(request, property_id):
     property_obj = get_object_or_404(Property, id=property_id)
-    history = property_obj.history.all()
+    history = property_obj.history.all().order_by('-timestamp')
+    
+    # Get original data
+    original_data = {
+        'property_name': property_obj.property_name,
+        'description': property_obj.description,
+        'category': property_obj.get_category_display(),
+        'barcode': property_obj.barcode,
+        'unit_of_measure': property_obj.unit_of_measure,
+        'unit_value': property_obj.unit_value,
+        'original_quantity': property_obj.original_quantity,
+        'location': property_obj.location,
+        'condition': property_obj.get_condition_display(),
+    }
     
     history_data = []
     for entry in history:
         history_data.append({
             'date': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
             'action': entry.action,
-            'field': entry.field_name,
-            'previous_value': entry.old_value or 'N/A',
-            'new_value': entry.new_value or 'N/A',
-            'changed_by': entry.user.username if entry.user else 'System'
+            'field_name': entry.field_name,
+            'old_value': entry.old_value if entry.old_value is not None else '-',
+            'new_value': entry.new_value if entry.new_value is not None else '-',
+            'user': entry.user.username if entry.user else 'System',
+            'remarks': entry.remarks if entry.remarks else ''
         })
     
-    return JsonResponse({'history': history_data})
+    return JsonResponse({
+        'original_data': original_data,
+        'history': history_data
+    })

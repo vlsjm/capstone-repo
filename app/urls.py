@@ -84,4 +84,7 @@ urlpatterns = [
 
     path('api/supply/<int:supply_id>/history/', get_supply_history, name='supply_history'),
     path('api/property/<int:property_id>/history/', get_property_history, name='property_history'),
+
+    path('get_supply_history/<int:supply_id>/', get_supply_history, name='get_supply_history'),
+    path('get_property_history/<int:property_id>/', get_property_history, name='get_property_history'),
 ]

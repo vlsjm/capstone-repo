@@ -104,20 +104,23 @@ class SupplyForm(forms.ModelForm):
                 pass
 
     def save(self, commit=True):
-        supply = super().save(commit=True)
+        supply = super().save(commit=False)  # Always use commit=False here
         
-        quantity_info, created = SupplyQuantity.objects.get_or_create(
-            supply=supply,
-            defaults={
-                'current_quantity': self.cleaned_data['current_quantity'],
-                'minimum_threshold': self.cleaned_data['minimum_threshold']
-            }
-        )
-        
-        if not created:
-            quantity_info.current_quantity = self.cleaned_data['current_quantity']
-            quantity_info.minimum_threshold = self.cleaned_data['minimum_threshold']
-            quantity_info.save()
+        if commit:
+            supply.save()
+            # Only create/update quantity info if we're committing
+            quantity_info, created = SupplyQuantity.objects.get_or_create(
+                supply=supply,
+                defaults={
+                    'current_quantity': self.cleaned_data['current_quantity'],
+                    'minimum_threshold': self.cleaned_data['minimum_threshold']
+                }
+            )
+            
+            if not created:
+                quantity_info.current_quantity = self.cleaned_data['current_quantity']
+                quantity_info.minimum_threshold = self.cleaned_data['minimum_threshold']
+                quantity_info.save()
         
         return supply
 

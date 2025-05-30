@@ -787,4 +787,42 @@ input[type="date"]:focus {
   /* ... other styles ... */
 }
 
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
 
+.alert-error {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.error-message {
+  margin: 5px 0;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group.has-error input,
+.form-group.has-error select,
+.form-group.has-error textarea {
+  border-color: #dc3545;
+}
+
+.field-error {
+  color: #dc3545;
+  font-size: 0.875rem;
+  display: block;
+  margin-top: 5px;
+}
+
+.help-text {
+  color: #6c757d;
+  display: block;
+  margin-top: 5px;
+}
