@@ -659,6 +659,38 @@ input[type="date"]:focus {
   box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
 }
 
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.pagination a {
+    color: #152d64;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid #152d64;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.pagination a:hover {
+    background-color: #152d64;
+    color: white;
+}
+
+.pagination .current {
+    background-color: #152d64;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .request-form-container {

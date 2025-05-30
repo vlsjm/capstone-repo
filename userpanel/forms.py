@@ -26,6 +26,7 @@ class BorrowForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Only show properties that are available
         self.fields['property'].queryset = Property.objects.filter(availability='available')
+        self.fields['property'].widget.attrs.update({'class': 'select2'})
     
     def clean_return_date(self):
         return_date = self.cleaned_data.get('return_date')
@@ -57,6 +58,8 @@ class SupplyRequestForm(forms.ModelForm):
             available_for_request=True,
             quantity_info__current_quantity__gt=0
         )
+        self.fields['supply'].widget.attrs.update({'class': 'select2'})
+        self.fields['supply'].widget.attrs.update({'class': 'select2'})
     
     def clean_quantity(self):
         quantity = self.cleaned_data.get('quantity')
@@ -113,6 +116,7 @@ class ReservationForm(forms.ModelForm):
         model = Reservation
         fields = ['item', 'quantity', 'needed_date', 'return_date', 'purpose']
         widgets = {
+            'item': forms.Select(attrs={'class': 'select2'}),
             'purpose': forms.Textarea(attrs={'rows': 3}),
         }
 
