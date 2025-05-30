@@ -9,6 +9,7 @@ h1 {
   margin-top: 20px;
   color: #fbff00;
 }
+
 .sidebar {
   width: 250px;
   height: 100%;
@@ -1428,3 +1429,4 @@ textarea:focus {
     border-radius: 4px;
     font-weight: 500;
 }
+

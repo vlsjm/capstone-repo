@@ -747,9 +747,9 @@ input[type="date"]:focus {
 }
 
 .history-table th {
-  background-color: #f8f9fa;
+  background-color: #152d64;
   font-weight: 600;
-  color: #152d64;
+  color: #f8f9fa; 
 }
 
 .history-table tbody tr:hover {
@@ -806,17 +806,15 @@ input[type="date"]:focus {
 }
 
 .status-low_stock {
-  background-color: #fff3cd;  /* Light yellow background */
-  color: #856404;            /* Dark yellow/brown text */
-  border: 1px solid #ffeeba; /* Light yellow border */
-  /* ... other styles ... */
+  background-color: #fff3cd;  
+  color: #856404;            
+  border: 1px solid #ffeeba; 
 }
 
 .status-out_of_stock {
-  background-color: #f8d7da;  /* Light red background */
-  color: #721c24;            /* Dark red text */
-  border: 1px solid #f5c6cb; /* Light red border */
-  /* ... other styles ... */
+  background-color: #f8d7da; 
+  color: #721c24;           
+  border: 1px solid #f5c6cb; 
 }
 
 

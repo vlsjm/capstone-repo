@@ -54,9 +54,9 @@
       }
 
       .requests-table th {
-        background-color: #f8f9fa;
+        background-color: #152d64;
         font-weight: 600;
-        color: #555;
+        color: #f8f9fa;
       }
 
       .requests-table tbody tr:hover {
@@ -137,29 +137,54 @@
       </div>
 
       <!-- Notification Bell -->
-      <div class="notification-container" id="notificationBell" aria-label="Notifications" tabindex="0" role="button">
+      <div
+        class="notification-container"
+        id="notificationBell"
+        aria-label="Notifications"
+        tabindex="0"
+        role="button"
+      >
         <span class="bell-icon" title="Notifications">🔔</span>
         {% if unread_count > 0 %}
-        <span class="notification-count" id="notificationCount">{{ unread_count }}</span>
+        <span class="notification-count" id="notificationCount"
+          >{{ unread_count }}</span
+        >
         {% endif %}
 
-        <div class="notifications-dropdown" id="notificationsDropdown" role="list" aria-live="polite" aria-relevant="additions">
+        <div
+          class="notifications-dropdown"
+          id="notificationsDropdown"
+          role="list"
+          aria-live="polite"
+          aria-relevant="additions"
+        >
           <div class="notification-actions">
             <button id="markAllReadBtn" type="button">Mark all read</button>
             <button id="clearAllBtn" type="button">Clear all</button>
           </div>
 
           <div id="notificationsContainer">
-            {% if notifications %}
-              {% for notification in notifications %}
-                <div class="notification-item {% if not notification.is_read %}unread{% endif %}" tabindex="0" data-id="{{ notification.id }}">
-                  <span>{{ notification.message }}</span>
-                  <div class="notification-remarks">Remarks: <span>{{ notification.remarks }}</span></div>
-                  <span class="notification-timestamp">{{ notification.timestamp|date:"M d, Y H:i" }}</span>
-                </div>
-              {% endfor %}
-            {% else %}
-              <div class="notification-item no-notifications" id="noNotificationsMsg">No notifications.</div>
+            {% if notifications %} {% for notification in notifications %}
+            <div
+              class="notification-item {% if not notification.is_read %}unread{% endif %}"
+              tabindex="0"
+              data-id="{{ notification.id }}"
+            >
+              <span>{{ notification.message }}</span>
+              <div class="notification-remarks">
+                Remarks: <span>{{ notification.remarks }}</span>
+              </div>
+              <span class="notification-timestamp"
+                >{{ notification.timestamp|date:"M d, Y H:i" }}</span
+              >
+            </div>
+            {% endfor %} {% else %}
+            <div
+              class="notification-item no-notifications"
+              id="noNotificationsMsg"
+            >
+              No notifications.
+            </div>
             {% endif %}
           </div>
         </div>
@@ -228,17 +253,18 @@
                           class="status-badge status-{{ request.status|lower|cut:' ' }}"
                         >
                           {% if request.status == 'Pending' %}
-                            <i class="fas fa-clock"></i>
+                          <i class="fas fa-clock"></i>
                           {% elif request.status == 'Approved' %}
-                            <i class="fas fa-check-circle"></i>
+                          <i class="fas fa-check-circle"></i>
+                          <!-- prettier-ignore -->
                           {% elif request.status == 'Rejected' or request.status == 'Declined' %}
-                            <i class="fas fa-times-circle"></i>
+                          <!-- prettier-ignore -->
+                          <i class="fas fa-times-circle"></i>
                           {% elif request.status == 'Returned' %}
-                            <i class="fas fa-undo"></i>
+                          <i class="fas fa-undo"></i>
                           {% elif request.status == 'Overdue' %}
-                            <i class="fas fa-exclamation-circle"></i>
-                          {% endif %}
-                          {{ request.status }}
+                          <i class="fas fa-exclamation-circle"></i>
+                          {% endif %} {{ request.status }}
                         </span>
                       </td>
                       <td>{{ request.date|date:"M d, Y" }}</td>
