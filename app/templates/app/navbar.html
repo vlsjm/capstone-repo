@@ -22,9 +22,7 @@
       </a>
     </li>
     <li>
-      <a href="{% url 'activity' %}">
-        <i class="fas fa-tasks"></i> Activity
-      </a>
+      <a href="{% url 'activity' %}"> <i class="fas fa-tasks"></i> Activity </a>
     </li>
     <li>
       <a href="{% url 'user_supply_requests' %}">
@@ -52,10 +50,18 @@
       </a>
     </li>
     <li class="logout-button">
-      <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none">
+      <form
+        id="logout-form"
+        action="{% url 'logout' %}"
+        method="post"
+        style="display: none"
+      >
         {% csrf_token %}
       </form>
-      <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+      <a
+        href="#"
+        onclick="event.preventDefault(); if (confirm('Are you sure you want to log out?')) { document.getElementById('logout-form').submit(); }"
+      >
         <i class="fas fa-sign-out-alt"></i> Logout
       </a>
     </li>

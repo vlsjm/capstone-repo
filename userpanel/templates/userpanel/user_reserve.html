@@ -1,40 +1,107 @@
+{% extends 'userpanel/user_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reserve Supplies</title>
-    <link rel="stylesheet" href="{% static 'css/userStyle.css' %}" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-  </head>
-  <body>
-    {% include 'userpanel/user_navbar.html' %}
 
-    <main class="request-form-container">
-      <h1>Reserve Item</h1>
+{% block title %}Make Reservation{% endblock %}
 
-      {% if messages %}
-        <ul class="messages">
-          {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-          {% endfor %}
+{% block content %}
+<main class="request-form-container">
+    <h1>Make Reservation</h1>
+    
+    {% if form.non_field_errors %}
+    <div class="form-errors">
+        <ul>
+            {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
         </ul>
-      {% endif %}
+    </div>
+    {% endif %}
 
-    <form method="post" action="{% url 'user_reserve' %}">
+    <form method="post" action="{% url 'user_reserve' %}" id="reservationForm">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn-submit">Submit Reservation</button>
-      </form>
-    </main>
+        
+        <div class="form-group">
+            {{ form.item.label_tag }}
+            {{ form.item }}
+            {% if form.item.errors %}
+            <ul class="errorlist">
+                {% for error in form.item.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
 
-    {% block extra_scripts %}
-    <!-- Optional: Add JS here -->
-    {% endblock %}
-  </body>
-</html>
+        <div class="form-group">
+            {{ form.quantity.label_tag }}
+            {{ form.quantity }}
+            {% if form.quantity.errors %}
+            <ul class="errorlist">
+                {% for error in form.quantity.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.needed_date.label_tag }}
+            {{ form.needed_date }}
+            {% if form.needed_date.errors %}
+            <ul class="errorlist">
+                {% for error in form.needed_date.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.return_date.label_tag }}
+            {{ form.return_date }}
+            {% if form.return_date.errors %}
+            <ul class="errorlist">
+                {% for error in form.return_date.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.purpose.label_tag }}
+            {{ form.purpose }}
+            {% if form.purpose.errors %}
+            <ul class="errorlist">
+                {% for error in form.purpose.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn-submit">Submit Reservation</button>
+    </form>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('reservationForm');
+    const neededDateInput = document.querySelector('#id_needed_date');
+    const returnDateInput = document.querySelector('#id_return_date');
+
+    // Set min date to today
+    const today = new Date().toISOString().split('T')[0];
+    neededDateInput.min = today;
+    returnDateInput.min = today;
+
+    // Update return date min when needed date changes
+    neededDateInput.addEventListener('change', function() {
+        returnDateInput.min = this.value;
+        if (returnDateInput.value && returnDateInput.value < this.value) {
+            returnDateInput.value = this.value;
+        }
+    });
+});
+</script>
+{% endblock %}

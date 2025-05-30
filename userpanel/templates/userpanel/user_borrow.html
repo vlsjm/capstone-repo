@@ -1,35 +1,42 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Borrow Request</title>
-  <link rel="stylesheet" href="{% static 'css/userStyle.css' %}" />
-  <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-    />
-</head>
-<body>
-  {% include 'userpanel/user_navbar.html' %}
+{% extends 'userpanel/user_base.html' %}
 
-  <main class="request-form-container">
+{% block title %}Borrow Request{% endblock %}
+
+{% block content %}
+
+<main class="request-form-container">
     <h1>Borrow Request</h1>
-
-    {% if messages %}
-      <ul class="messages">
-        {% for message in messages %}
-          <li class="{{ message.tags }}">{{ message }}</li>
+    
+    {% if form.errors %}
+    <div class="alert alert-error">
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                <p class="error-message">{{ error }}</p>
+            {% endfor %}
         {% endfor %}
-      </ul>
+    </div>
     {% endif %}
 
     <form method="post" action="{% url 'user_borrow' %}">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn-submit">Submit Request</button>
+        {% csrf_token %}
+        
+        {% for field in form %}
+        <div class="form-group {% if field.errors %}has-error{% endif %}">
+            {{ field.label_tag }}
+            {{ field }}
+            {% if field.errors %}
+                {% for error in field.errors %}
+                    <span class="field-error">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn-submit">Submit Request</button>
     </form>
-  </main>
-</body>
-</html>
+</main>
+
+{% endblock %}

@@ -64,10 +64,23 @@
               </td>
               <td>{{ report.item.property_name }}</td>
               <td>{{ report.description }}</td>
-              <td>{{ report.get_status_display }}</td>
+              <td>
+                <span class="status-badge status-{{ report.status|lower|cut:' ' }}">
+                  {% if report.status == 'pending' %}
+                    <i class="fas fa-clock"></i>
+                  {% elif report.status == 'reviewed' %}
+                    <i class="fas fa-eye"></i>
+                  {% elif report.status == 'resolved' %}
+                    <i class="fas fa-check-circle"></i>
+                  {% endif %}
+                  {{ report.get_status_display }}
+                </span>
+              </td>
               <td>{{ report.report_date|date:"M d, Y H:i" }}</td>
               <td>
-                <a href="{% url 'damage_report_detail' report.id %}" class="edit-btn">Details</a>
+                <a href="{% url 'damage_report_detail' report.id %}" class="details-btn" title="View Details">
+                  <i class="fas fa-info-circle"></i>
+                </a>
               </td>
             </tr>
             {% empty %}
@@ -77,6 +90,7 @@
             {% endfor %}
           </tbody>
         </table>
+        {% include 'app/includes/pagination.html' %}
       </div>
 
       <!-- Reviewed Reports Table -->
@@ -114,10 +128,23 @@
               </td>
               <td>{{ report.item.property_name }}</td>
               <td>{{ report.description }}</td>
-              <td>{{ report.get_status_display }}</td>
+              <td>
+                <span class="status-badge status-{{ report.status|lower|cut:' ' }}">
+                  {% if report.status == 'pending' %}
+                    <i class="fas fa-clock"></i>
+                  {% elif report.status == 'reviewed' %}
+                    <i class="fas fa-eye"></i>
+                  {% elif report.status == 'resolved' %}
+                    <i class="fas fa-check-circle"></i>
+                  {% endif %}
+                  {{ report.get_status_display }}
+                </span>
+              </td>
               <td>{{ report.report_date|date:"M d, Y H:i" }}</td>
               <td>
-                <a href="{% url 'damage_report_detail' report.id %}" class="edit-btn">Details</a>
+                <a href="{% url 'damage_report_detail' report.id %}" class="details-btn" title="View Details">
+                  <i class="fas fa-info-circle"></i>
+                </a>
               </td>
             </tr>
             {% empty %}
@@ -127,6 +154,7 @@
             {% endfor %}
           </tbody>
         </table>
+        {% include 'app/includes/pagination.html' %}
       </div>
 
       <!-- Resolved Reports Table -->
@@ -164,10 +192,23 @@
               </td>
               <td>{{ report.item.property_name }}</td>
               <td>{{ report.description }}</td>
-              <td>{{ report.get_status_display }}</td>
+              <td>
+                <span class="status-badge status-{{ report.status|lower|cut:' ' }}">
+                  {% if report.status == 'pending' %}
+                    <i class="fas fa-clock"></i>
+                  {% elif report.status == 'reviewed' %}
+                    <i class="fas fa-eye"></i>
+                  {% elif report.status == 'resolved' %}
+                    <i class="fas fa-check-circle"></i>
+                  {% endif %}
+                  {{ report.get_status_display }}
+                </span>
+              </td>
               <td>{{ report.report_date|date:"M d, Y H:i" }}</td>
               <td>
-                <a href="{% url 'damage_report_detail' report.id %}" class="edit-btn">Details</a>
+                <a href="{% url 'damage_report_detail' report.id %}" class="details-btn" title="View Details">
+                  <i class="fas fa-info-circle"></i>
+                </a>
               </td>
             </tr>
             {% empty %}
@@ -177,6 +218,7 @@
             {% endfor %}
           </tbody>
         </table>
+        {% include 'app/includes/pagination.html' %}
       </div>
     </main>
   </div>

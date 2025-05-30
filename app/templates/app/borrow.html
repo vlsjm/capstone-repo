@@ -62,17 +62,37 @@
               </td>
               <td>{{ request.property.property_name }}</td>
               <td>{{ request.quantity }}</td>
-              <td>{{ request.get_status_display }}</td>
+              <td>
+                <span class="status-badge status-{{ request.status|lower|cut:' ' }}">
+                  {% if request.status == 'pending' %}
+                    <i class="fas fa-clock"></i>
+                  {% elif request.status == 'approved' %}
+                    <i class="fas fa-check-circle"></i>
+                  {% elif request.status == 'returned' %}
+                    <i class="fas fa-undo"></i>
+                  {% elif request.status == 'overdue' %}
+                    <i class="fas fa-exclamation-circle"></i>
+                  {% elif request.status == 'declined' %}
+                    <i class="fas fa-times-circle"></i>
+                  {% endif %}
+                  {{ request.get_status_display }}
+                </span>
+              </td>
               <td>{{ request.borrow_date|date:"M d, Y H:i" }}</td>
               <td>{{ request.return_date|date:"M d, Y" }}</td>
               <td>{% if request.actual_return_date %}{{ request.actual_return_date|date:"M d, Y" }}{% else %}-{% endif %}</td>
-              <td><a href="{% url 'borrow_request_details' request.id %}" class="edit-btn">Details</a></td>
+              <td>
+                <a href="{% url 'borrow_request_details' request.id %}" class="details-btn" title="View Details">
+                  <i class="fas fa-info-circle"></i>
+                </a>
+              </td>
             </tr>
             {% empty %}
             <tr><td colspan="8">No pending requests found.</td></tr>
             {% endfor %}
           </tbody>
         </table>
+        {% include 'app/includes/pagination.html' %}
       </div>
 
       <!-- Existing Approved Requests Table -->
@@ -109,17 +129,37 @@
               </td>
               <td>{{ request.property.property_name }}</td>
               <td>{{ request.quantity }}</td>
-              <td>{{ request.get_status_display }}</td>
+              <td>
+                <span class="status-badge status-{{ request.status|lower|cut:' ' }}">
+                  {% if request.status == 'pending' %}
+                    <i class="fas fa-clock"></i>
+                  {% elif request.status == 'approved' %}
+                    <i class="fas fa-check-circle"></i>
+                  {% elif request.status == 'returned' %}
+                    <i class="fas fa-undo"></i>
+                  {% elif request.status == 'overdue' %}
+                    <i class="fas fa-exclamation-circle"></i>
+                  {% elif request.status == 'declined' %}
+                    <i class="fas fa-times-circle"></i>
+                  {% endif %}
+                  {{ request.get_status_display }}
+                </span>
+              </td>
               <td>{{ request.borrow_date|date:"M d, Y H:i" }}</td>
               <td>{{ request.return_date|date:"M d, Y" }}</td>
               <td>{% if request.actual_return_date %}{{ request.actual_return_date|date:"M d, Y" }}{% else %}-{% endif %}</td>
-              <td><a href="{% url 'borrow_request_details' request.id %}" class="edit-btn">Details</a></td>
+              <td>
+                <a href="{% url 'borrow_request_details' request.id %}" class="details-btn" title="View Details">
+                  <i class="fas fa-info-circle"></i>
+                </a>
+              </td>
             </tr>
             {% empty %}
             <tr><td colspan="8">No approved requests found.</td></tr>
             {% endfor %}
           </tbody>
         </table>
+        {% include 'app/includes/pagination.html' %}
       </div>
 
       <!-- Returned Requests Table -->
@@ -156,17 +196,37 @@
               </td>
               <td>{{ request.property.property_name }}</td>
               <td>{{ request.quantity }}</td>
-              <td>{{ request.get_status_display }}</td>
+              <td>
+                <span class="status-badge status-{{ request.status|lower|cut:' ' }}">
+                  {% if request.status == 'pending' %}
+                    <i class="fas fa-clock"></i>
+                  {% elif request.status == 'approved' %}
+                    <i class="fas fa-check-circle"></i>
+                  {% elif request.status == 'returned' %}
+                    <i class="fas fa-undo"></i>
+                  {% elif request.status == 'overdue' %}
+                    <i class="fas fa-exclamation-circle"></i>
+                  {% elif request.status == 'declined' %}
+                    <i class="fas fa-times-circle"></i>
+                  {% endif %}
+                  {{ request.get_status_display }}
+                </span>
+              </td>
               <td>{{ request.borrow_date|date:"M d, Y H:i" }}</td>
               <td>{{ request.return_date|date:"M d, Y" }}</td>
               <td>{{ request.actual_return_date|date:"M d, Y" }}</td>
-              <td><a href="{% url 'borrow_request_details' request.id %}" class="edit-btn">Details</a></td>
+              <td>
+                <a href="{% url 'borrow_request_details' request.id %}" class="details-btn" title="View Details">
+                  <i class="fas fa-info-circle"></i>
+                </a>
+              </td>
             </tr>
             {% empty %}
             <tr><td colspan="8">No returned requests found.</td></tr>
             {% endfor %}
           </tbody>
         </table>
+        {% include 'app/includes/pagination.html' %}
       </div>
 
       <!-- Overdue Requests Table -->
@@ -203,17 +263,37 @@
               </td>
               <td>{{ request.property.property_name }}</td>
               <td>{{ request.quantity }}</td>
-              <td>{{ request.get_status_display }}</td>
+              <td>
+                <span class="status-badge status-{{ request.status|lower|cut:' ' }}">
+                  {% if request.status == 'pending' %}
+                    <i class="fas fa-clock"></i>
+                  {% elif request.status == 'approved' %}
+                    <i class="fas fa-check-circle"></i>
+                  {% elif request.status == 'returned' %}
+                    <i class="fas fa-undo"></i>
+                  {% elif request.status == 'overdue' %}
+                    <i class="fas fa-exclamation-circle"></i>
+                  {% elif request.status == 'declined' %}
+                    <i class="fas fa-times-circle"></i>
+                  {% endif %}
+                  {{ request.get_status_display }}
+                </span>
+              </td>
               <td>{{ request.borrow_date|date:"M d, Y H:i" }}</td>
               <td>{{ request.return_date|date:"M d, Y" }}</td>
               <td>{{ request.actual_return_date|date:"M d, Y" }}</td>
-              <td><a href="{% url 'borrow_request_details' request.id %}" class="edit-btn">Details</a></td>
+              <td>
+                <a href="{% url 'borrow_request_details' request.id %}" class="details-btn" title="View Details">
+                  <i class="fas fa-info-circle"></i>
+                </a>
+              </td>
             </tr>
             {% empty %}
             <tr><td colspan="8">No overdue requests found.</td></tr>
             {% endfor %}
           </tbody>
         </table>
+        {% include 'app/includes/pagination.html' %}
       </div>
 
       <!-- Declined Requests Table -->
@@ -250,17 +330,37 @@
               </td>
               <td>{{ request.property.property_name }}</td>
               <td>{{ request.quantity }}</td>
-              <td>{{ request.get_status_display }}</td>
+              <td>
+                <span class="status-badge status-{{ request.status|lower|cut:' ' }}">
+                  {% if request.status == 'pending' %}
+                    <i class="fas fa-clock"></i>
+                  {% elif request.status == 'approved' %}
+                    <i class="fas fa-check-circle"></i>
+                  {% elif request.status == 'returned' %}
+                    <i class="fas fa-undo"></i>
+                  {% elif request.status == 'overdue' %}
+                    <i class="fas fa-exclamation-circle"></i>
+                  {% elif request.status == 'declined' %}
+                    <i class="fas fa-times-circle"></i>
+                  {% endif %}
+                  {{ request.get_status_display }}
+                </span>
+              </td>
               <td>{{ request.borrow_date|date:"M d, Y H:i" }}</td>
               <td>{{ request.return_date|date:"M d, Y" }}</td>
               <td>{% if request.actual_return_date %}{{ request.actual_return_date|date:"M d, Y" }}{% else %}-{% endif %}</td>
-              <td><a href="{% url 'borrow_request_details' request.id %}" class="edit-btn">Details</a></td>
+              <td>
+                <a href="{% url 'borrow_request_details' request.id %}" class="details-btn" title="View Details">
+                  <i class="fas fa-info-circle"></i>
+                </a>
+              </td>
             </tr>
             {% empty %}
             <tr><td colspan="8">No declined requests found.</td></tr>
             {% endfor %}
           </tbody>
         </table>
+        {% include 'app/includes/pagination.html' %}
       </div>
     </main>
   </div>

@@ -5,43 +5,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activity</title>
+    <title>Activity Logs</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
-    {% block content %} {% include 'app/navbar.html' %}
+    {% block content %}
+    {% include 'app/navbar.html' %}
 
-    <div class="content">
-            <h2 class="h2title">Activity Logs</h2>
-        <table class="table table-bordered table-hover">
-            <thead class="thead-dark">
-                <tr>
-                    <th>#</th>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>Description</th>
-                    <th>Timestamp</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for log in activitylog_list %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ log.user.username }}</td>
-                    <td>{{ log.action }}</td>
-                    <td>{{ log.description }}</td>
-                    <td>{{ log.timestamp|date:"M d, Y - h:i A" }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center">No activity logs available.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="actlog-page">
+        <h2 class="actlog-title">Activity Logs</h2>
+
+        <div class="actlog-filter-section">
+            <form method="get" class="actlog-filter-form">
+                <div class="actlog-filter-group">
+                    <label for="user">User:</label>
+                    <select name="user" id="user">
+                        <option value="">All Users</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}" {% if request.GET.user|add:"0" == user.id %}selected{% endif %}>
+                                {{ user.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="actlog-filter-group">
+                    <label for="model">Model:</label>
+                    <select name="model" id="model">
+                        <option value="">All Models</option>
+                        {% for model in models %}
+                            <option value="{{ model }}" {% if request.GET.model == model %}selected{% endif %}>
+                                {{ model }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="actlog-filter-group">
+                    <label for="start_date">Start Date:</label>
+                    <input type="date" name="start_date" id="start_date" value="{{ request.GET.start_date }}">
+                </div>
+                <div class="actlog-filter-group">
+                    <label for="end_date">End Date:</label>
+                    <input type="date" name="end_date" id="end_date" value="{{ request.GET.end_date }}">
+                </div>
+                <div class="actlog-filter-buttons">
+                    <button type="submit" class="actlog-filter-submit">Apply Filters</button>
+                    <a href="{% url 'activity' %}" class="actlog-filter-reset">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="actlog-table-container">
+            <table class="actlog-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Description</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in activitylog_list %}
+                    <tr>
+                        <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
+                        <td>{{ log.user.username }}</td>
+                        <td>{{ log.get_action_display }}</td>
+                        <td>{{ log.description }}</td>
+                        <td>{{ log.timestamp|date:"M d, Y - h:i A" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="actlog-empty">No activity logs available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if is_paginated %}
+            <div class="actlog-pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
     </div>
-</div>
     {% endblock content %}
 </body>
 </html>

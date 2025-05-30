@@ -7,9 +7,145 @@
     <title>Property List</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <style>
+      /* Success message modal style */
+      .success-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        min-width: 280px;
+        max-width: 400px;
+      }
+
+      .success-message {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .success-message i {
+        font-size: 2.5em;
+        color: #4CAF50;
+        background: rgba(76, 175, 80, 0.1);
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+      }
+
+      .success-text {
+        font-size: 1.25em;
+        color: #333;
+        margin: 0;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translate(-50%, -48%); }
+        to { opacity: 1; transform: translate(-50%, -50%); }
+      }
+
+      .success-container {
+        animation: fadeIn 0.2s ease-out;
+      }
+
+      .history-btn {
+        background-color: #152d64;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        cursor: pointer;
+        margin: 0 2px;
+        transition: background-color 0.3s;
+      }
+
+      .history-btn:hover {
+        background-color: #1e3d8a;
+      }
+
+      /* History Modal Styles */
+      .history-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .history-modal-content {
+        background-color: #fff;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 800px;
+        border-radius: 8px;
+        position: relative;
+      }
+
+      .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+
+      .history-table th {
+        background-color: #152d64;
+        color: white;
+        padding: 12px;
+        text-align: left;
+      }
+
+      .history-table td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .history-table tr:hover {
+        background-color: #f5f5f5;
+      }
+
+      .close {
+        color: #152d64;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .close:hover {
+        color: #1e3d8a;
+      }
+    </style>
   </head>
   <body>
     {% include 'app/navbar.html' %}
+
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags == 'success' %}
+        <div class="success-container">
+          <div class="success-message">
+            <i class="fas fa-check"></i>
+            <p class="success-text">{{ message }}</p>
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
 
     {% block content %}
     <div class="parent">
@@ -23,7 +159,7 @@
     </div>
 
       {% if grouped_properties %}
-        {% for category, properties_in_category in grouped_properties.items %}
+        {% for category, page_obj in grouped_properties.items %}
           <h3>{{ category }}</h3>
           <table border="1">
             <thead>
@@ -37,13 +173,14 @@
                 <th>Quantity</th>
                 <th>Location</th>
                 <th>Condition</th>
+                <th>Availability</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {% for property in properties_in_category %}
+              {% for property in page_obj %}
               <tr>
-                <td>{{ forloop.counter }}</td>
+                <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
                 <td>{{ property.property_name|default:"N/A" }}</td>
                 <td>{{ property.description|default:"N/A" }}</td>
                 <td>{{ property.barcode|default:"N/A" }}</td>
@@ -52,6 +189,16 @@
                 <td>{{ property.quantity|default:"N/A" }}</td>
                 <td>{{ property.location|default:"N/A" }}</td>
                 <td>{{ property.get_condition_display|default:"N/A" }}</td>
+                <td>
+                  <span class="status-badge {% if property.availability == 'available' %}status-approved{% else %}status-rejected{% endif %}">
+                    {% if property.availability == 'available' %}
+                      <i class="fas fa-check-circle"></i>
+                    {% else %}
+                      <i class="fas fa-times-circle"></i>
+                    {% endif %}
+                    {{ property.get_availability_display }}
+                  </span>
+                </td>
                 <td>
                   <!-- Edit Button -->
                    <div class="button-group">
@@ -65,25 +212,38 @@
                     data-quantity="{{ property.quantity }}"
                     data-location="{{ property.location }}"
                     data-condition="{{ property.condition }}"
-                    data-category="{{ property.category }}">
-                    Edit
+                    data-category="{{ property.category }}"
+                    data-availability="{{ property.availability }}"
+                    title="Edit">
+                    <i class="fas fa-edit"></i>
+                  </button>
+
+                  <button class="history-btn" 
+                    data-id="{{ property.id }}"
+                    title="View History">
+                    <i class="fas fa-history"></i>
                   </button>
 
                   <!-- Delete Button -->
                   <form method="POST" action="{% url 'delete_property' property.id %}">
                     {% csrf_token %}
-                    <button type="submit" class="del-btn" onclick="return confirm('Are you sure you want to delete this property?');">Delete</button>
+                    <button type="submit" class="del-btn" onclick="return confirm('Are you sure you want to delete this property?');" title="Delete">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
                   </form>
                   </div>
                 </td>
               </tr>
               {% empty %}
               <tr>
-                <td colspan="10">No properties available in this category.</td>
+                <td colspan="11">No properties available in this category.</td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
+          {% with category=category %}
+            {% include 'app/includes/pagination.html' %}
+          {% endwith %}
         {% endfor %}
       {% else %}
         <p>No properties available.</p>
@@ -163,13 +323,171 @@
         <option value="Furniture and Fixtures">Furniture and Fixtures</option>
       </select>
 
+      <label>Availability</label>
+      <select name="availability" id="edit_availability">
+        <option value="available">Available</option>
+        <option value="not_available">Not Available</option>
+      </select>
+
       <button type="submit" class="submit-btn">Update</button>
     </form>
   </div>
 </div>
 
+<!-- History Modal -->
+<div id="historyModal" class="history-modal">
+  <div class="history-modal-content">
+    <span class="close" id="closeHistoryModalBtn">&times;</span>
+    <h3>Property History</h3>
+    
+    <!-- Original Data Table -->
+    <div id="originalDataContent">
+      <h4>Original Data</h4>
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Original Value</th>
+          </tr>
+        </thead>
+        <tbody id="originalDataTableBody">
+          <!-- Original data will be populated here -->
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <h4>Change History</h4>
+      <div id="historyContent">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Action</th>
+              <th>Field</th>
+              <th>Previous Value</th>
+              <th>New Value</th>
+              <th>Changed By</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <!-- History data will be populated here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
     <script src="{% static 'scripts/propertyModal.js' %}"></script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Auto-hide success messages after 2 seconds
+        const successMessage = document.querySelector('.success-container');
+        if (successMessage) {
+          setTimeout(function() {
+            successMessage.style.opacity = '0';
+            successMessage.style.transition = 'opacity 0.3s ease-out';
+            setTimeout(function() {
+              successMessage.remove();
+            }, 300);
+          }, 2000);
+        }
+
+        // History Modal functionality
+        const historyModal = document.getElementById('historyModal');
+        const historyBtns = document.querySelectorAll('.history-btn');
+        const closeHistoryModalBtn = document.getElementById('closeHistoryModalBtn');
+
+        if (!historyModal || !historyBtns.length || !closeHistoryModalBtn) {
+          console.error('Missing required elements:', {
+            historyModal: !!historyModal,
+            historyBtns: historyBtns.length,
+            closeHistoryModalBtn: !!closeHistoryModalBtn
+          });
+          return;
+        }
+
+        historyBtns.forEach(btn => {
+          btn.addEventListener('click', function() {
+            const propertyId = this.dataset.id;
+            historyModal.style.display = 'block';
+            
+            // Clear existing content
+            const originalDataTableBody = document.getElementById('originalDataTableBody');
+            const historyTableBody = document.getElementById('historyTableBody');
+            
+            originalDataTableBody.innerHTML = '<tr><td colspan="2">Loading...</td></tr>';
+            historyTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+            
+            // Fetch history data
+            fetch(`/get_property_history/${propertyId}/`)
+              .then(response => response.json())
+              .then(data => {
+                // Populate original data table
+                originalDataTableBody.innerHTML = '';
+                const originalData = data.original_data;
+                const fieldLabels = {
+                  'property_name': 'Property Name',
+                  'description': 'Description',
+                  'category': 'Category',
+                  'barcode': 'Barcode',
+                  'unit_of_measure': 'Unit of Measure',
+                  'unit_value': 'Unit Value',
+                  'original_quantity': 'Original Quantity',
+                  'location': 'Location',
+                  'condition': 'Condition'
+                };
+                
+                for (const [field, value] of Object.entries(originalData)) {
+                  const row = document.createElement('tr');
+                  row.innerHTML = `
+                    <td><strong>${fieldLabels[field] || field}</strong></td>
+                    <td>${value}</td>
+                  `;
+                  originalDataTableBody.appendChild(row);
+                }
+
+                // Populate history table
+                historyTableBody.innerHTML = '';
+                if (data.history.length === 0) {
+                  historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No changes have been made to this property yet.</td></tr>';
+                } else {
+                  data.history.forEach(entry => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                      <td>${entry.date}</td>
+                      <td>${entry.action}</td>
+                      <td>${entry.field_name}</td>
+                      <td>${entry.old_value}</td>
+                      <td>${entry.new_value}</td>
+                      <td>${entry.user}</td>
+                    `;
+                    historyTableBody.appendChild(row);
+                  });
+                }
+              })
+              .catch(error => {
+                console.error('Error fetching history:', error);
+                originalDataTableBody.innerHTML = '<tr><td colspan="2">Error loading original data</td></tr>';
+                historyTableBody.innerHTML = '<tr><td colspan="6">Error loading history data</td></tr>';
+              });
+          });
+        });
+
+        closeHistoryModalBtn.addEventListener('click', function() {
+          historyModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+          if (event.target == historyModal) {
+            historyModal.style.display = 'none';
+          }
+        });
+      });
+    </script>
+
     {% endblock %}
   </body>
 </html>

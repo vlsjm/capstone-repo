@@ -43,6 +43,207 @@ h1 {
 .sidebar ul li a:hover {
   color: #fbff00;
 }
+
+/* Activity Log Page Styles */
+.actlog-page {
+    padding: 20px;
+    margin-left: 270px;
+    background-color: #f5f6fa;
+    min-height: 100vh;
+}
+
+.actlog-title {
+    color: #152d64;
+    margin-bottom: 30px;
+    font-size: 32px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.actlog-filter-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.actlog-filter-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    align-items: end;
+}
+
+.actlog-filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.actlog-filter-group label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #152d64;
+}
+
+.actlog-filter-group select,
+.actlog-filter-group input[type="date"] {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.actlog-filter-group select:focus,
+.actlog-filter-group input[type="date"]:focus {
+    border-color: #152d64;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.2);
+}
+
+.actlog-filter-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.actlog-filter-submit {
+    background-color: #152d64;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.actlog-filter-reset {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    text-decoration: none;
+}
+
+.actlog-filter-submit:hover {
+    background-color: #1a3a7d;
+}
+
+.actlog-filter-reset:hover {
+    background-color: #7f8c8d;
+}
+
+.actlog-table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.actlog-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.actlog-table th {
+    background-color: #152d64;
+    padding: 12px 15px;
+    text-align: center;
+    font-weight: 600;
+    color: white;
+    border-bottom: 2px solid #ddd;
+}
+
+.actlog-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    color: #34495e;
+}
+
+.actlog-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.actlog-sort-link {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.actlog-sort-link:hover {
+    color: #fbff00;
+}
+
+.actlog-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.actlog-pagination a {
+    color: #152d64;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid #152d64;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.actlog-pagination a:hover {
+    background-color: #152d64;
+    color: white;
+}
+
+.actlog-pagination .current {
+    background-color: #152d64;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.actlog-empty {
+    text-align: center;
+    padding: 40px;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+/* Responsive adjustments for activity page */
+@media (max-width: 768px) {
+    .actlog-page {
+        margin-left: 0;
+        padding: 10px;
+    }
+
+    .actlog-filter-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .actlog-table-container {
+        overflow-x: auto;
+    }
+    
+    .actlog-filter-buttons {
+        flex-direction: column;
+    }
+    
+    .actlog-pagination {
+        flex-wrap: wrap;
+    }
+}
+
 .content {
   margin-left: 270px;
   padding: 20px;
@@ -64,7 +265,7 @@ table {
 }
 
 th, td {
-  padding: 12px;
+  padding: 8px 12px;
   text-align: center;
   border: 1px solid #ddd;
 }
@@ -465,37 +666,42 @@ h3 {
 
 .button-group {
   display: flex;
-  gap: 10px; /* space between buttons */
-  align-items: center;
+  gap: 8px;
+  justify-content: center;
 }
-.edit-btn{
-  background-color: #152d64;
-  color: white;
+
+.edit-btn, .del-btn {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
   border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-  text-decoration: none;
+  transition: all 0.3s ease;
 }
-.edit-btn:hover{
-  background-color: #1759ca;
+
+.edit-btn {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.edit-btn:hover {
+  background-color: #ffb300;
+  transform: translateY(-2px);
 }
 
 .del-btn {
-  background-color: #c21300;
+  background-color: #dc3545;
   color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
 }
+
 .del-btn:hover {
-  background-color: #eb1a03;
+  background-color: #c82333;
+  transform: translateY(-2px);
 }
+
 .filter-btn {
   background-color: #152d64;
   color: white;
@@ -542,4 +748,755 @@ textarea:focus {
   .div6 {
     flex: 0 0 200px;  /* Adjust sidebar width for smaller screens */
   }
+}
+
+/* Messages and Error Styles */
+.messages {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+  width: 100%;
+}
+
+.messages li {
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.messages li::before {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+
+.messages .success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.messages .success::before {
+  content: "\f00c";  /* FontAwesome checkmark */
+}
+
+.messages .error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.messages .error::before {
+  content: "\f071";  /* FontAwesome exclamation triangle */
+}
+
+.messages .warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.messages .warning::before {
+  content: "\f06a";  /* FontAwesome exclamation circle */
+}
+
+.messages .info {
+  background-color: #cce5ff;
+  color: #004085;
+  border: 1px solid #b8daff;
+}
+
+.messages .info::before {
+  content: "\f05a";  /* FontAwesome info circle */
+}
+
+/* Form Error Styles */
+.errorlist {
+  list-style: none;
+  padding: 12px 15px;
+  margin: 8px 0;
+  background-color: #fff8f8;
+  border-left: 4px solid #dc3545;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #dc3545;
+}
+
+.errorlist li {
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.errorlist li::before {
+  content: "\f071";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 0.9rem;
+}
+
+/* Form-level errors */
+.form-errors {
+  margin-bottom: 20px;
+}
+
+.form-errors ul {
+  list-style: none;
+  padding: 15px 20px;
+  margin: 0;
+  background-color: #fff8f8;
+  border: 1px solid #ffd7d7;
+  border-left: 4px solid #dc3545;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.1);
+}
+
+.form-errors li {
+  color: #dc3545;
+  margin: 8px 0;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-errors li::before {
+  content: "\f071";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+/* Field-specific error highlight */
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+  border-color: #dc3545;
+  background-color: #fff8f8;
+}
+
+.form-group input.error:focus,
+.form-group select.error:focus,
+.form-group textarea.error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+/* Supply Category Sections */
+.category-section {
+    margin-bottom: 2rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.category-title {
+    padding: 1rem;
+    margin: 0;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    color: #495057;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.category-section table {
+    margin: 0;
+    border-radius: 0;
+}
+
+.category-section table thead th {
+    background: #f1f3f5;
+}
+
+/* Ensure consistent spacing between categories */
+.category-section + .category-section {
+    margin-top: 2rem;
+}
+
+/* Status Badge Base Styles */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 15px;
+  font-size: 0.85em;
+  font-weight: 500;
+  text-transform: capitalize;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: fit-content;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.status-badge i {
+  font-size: 0.9em;
+}
+
+/* Status Colors */
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.status-approved {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-rejected,
+.status-declined {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.status-returned {
+  background-color: #cce5ff;
+  color: #004085;
+  border: 1px solid #b8daff;
+}
+
+.status-overdue {
+  background-color: #f5c6cb;
+  color: #721c24;
+  border: 1px solid #f1b0b7;
+}
+
+.status-active {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.status-completed {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-reviewed {
+  background-color: #e2e3e5;
+  color: #383d41;
+  border: 1px solid #d6d8db;
+}
+
+.status-resolved {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* Supply Status Colors */
+.status-low_stock {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.status-out_of_stock {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.status-available {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* Hover effect for all status badges */
+.status-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+/* Property Availability Badges */
+.availability-available {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.availability-not-available {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Reservation Statuses */
+.status-active {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.status-completed {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* Damage Report Statuses */
+.status-reviewed {
+  background-color: #e2e3e5;
+  color: #383d41;
+  border: 1px solid #d6d8db;
+}
+
+.status-resolved {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* Hover effects for both status and availability badges */
+.status-available:hover,
+.status-out-of-stock:hover,
+.status-low-stock:hover,
+.availability-available:hover,
+.availability-not-available:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+/* Success Message Modal Styles */
+.success-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  min-width: 280px;
+  max-width: 400px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.success-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.success-message i {
+  font-size: 2.5em;
+  color: #4CAF50;
+  background: rgba(76, 175, 80, 0.1);
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.success-text {
+  font-size: 1.25em;
+  color: #333;
+  margin: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -48%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* Expiration Status Styles */
+.expiration-badge {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.expired {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef5350;
+}
+
+.nearly-expired {
+  background-color: #fff3e0;
+  color: #ef6c00;
+  border: 1px solid #ff9800;
+}
+
+.not-expired {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #4caf50;
+}
+
+/* Form Help Text */
+.help-text {
+  display: block;
+  color: #666;
+  font-size: 0.85em;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+/* Form Group Layout */
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: bold;
+  color: #152d64;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 5px rgba(21, 45, 100, 0.3);
+}
+
+/* Edit Modal Form Layout - For both Supply and Property */
+#editSupplyModal .modal-content form,
+#editPropertyModal .modal-content form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 20px;
+  padding: 10px 0;
+}
+
+#editSupplyModal .form-group,
+#editPropertyModal .form-group {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+#editSupplyModal .form-group label,
+#editPropertyModal .form-group label {
+  margin-bottom: 4px;
+  font-weight: bold;
+  color: #152d64;
+  font-size: 14px;
+}
+
+#editSupplyModal .form-group input,
+#editSupplyModal .form-group select,
+#editSupplyModal .form-group textarea,
+#editPropertyModal .form-group input,
+#editPropertyModal .form-group select,
+#editPropertyModal .form-group textarea {
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#editSupplyModal textarea,
+#editPropertyModal textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+#editSupplyModal .modal-content,
+#editPropertyModal .modal-content {
+  padding: 20px;
+}
+
+#editSupplyModal button[type="submit"],
+#editPropertyModal button[type="submit"] {
+  margin-top: 10px;
+  grid-column: 1 / -1;
+}
+
+/* Form field focus states */
+#editSupplyModal .form-group input:focus,
+#editSupplyModal .form-group select:focus,
+#editSupplyModal .form-group textarea:focus,
+#editPropertyModal .form-group input:focus,
+#editPropertyModal .form-group select:focus,
+#editPropertyModal .form-group textarea:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 5px rgba(21, 45, 100, 0.3);
+}
+
+/* Help text styling */
+.helptext {
+  margin-top: 10px;
+  margin-left: 7px;
+  font-style: italic;
+  color: #5b0606;
+  display: block;
+  font-size: 0.9em;
+}
+
+/* Details Button Style */
+.details-btn {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #17a2b8;
+  color: white;
+  text-decoration: none;
+}
+
+.details-btn:hover {
+  background-color: #138496;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.details-btn i {
+  font-size: 1.2em;
+}
+
+/* Activity Page Styles */
+.filter-section {
+    margin: 20px 0;
+    padding: 15px 20px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.filter-form > div {
+    flex: 1;
+    min-width: 200px;
+    margin-bottom: 0;
+}
+
+.filter-form label {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.filter-form select, 
+.filter-form input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+}
+
+.filter-form button,
+.filter-form .btn-secondary {
+    padding: 6px 15px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    height: 32px;
+    min-width: 100px;
+}
+
+.filter-form button {
+    background-color: #152d64;
+    color: white;
+}
+
+.filter-form .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-form button:hover {
+    background-color: #1a3a7d;
+}
+
+.filter-form .btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.activity-table th {
+    background-color: #152d64;
+    color: white;
+    padding: 10px 15px;
+    text-align: left;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.activity-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.activity-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.activity-table .sort-link {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.pagination a {
+    color: #152d64;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid #152d64;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.pagination a:hover {
+    background-color: #152d64;
+    color: white;
+}
+
+.pagination .current {
+    background-color: #152d64;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* Supply History Button Styles */
+.history-btn {
+  background-color: #152d64;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  margin: 0 2px;
+  transition: background-color 0.3s;
+}
+
+.history-btn:hover {
+  background-color: #1e3d8a;
+}
+/* History Modal Styles */
+.history-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.history-modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 800px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.history-table th {
+  background-color: #152d64;
+  color: white;
+  padding: 12px;
+  text-align: left;
+}
+
+.history-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.history-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.close {
+  color: #152d64;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #1e3d8a;
 }
