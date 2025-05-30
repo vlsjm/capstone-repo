@@ -2,7 +2,6 @@ from django import forms
 from django.utils import timezone
 from app.models import SupplyRequest, Reservation, DamageReport, BorrowRequest, Supply, Property
 from datetime import date
-from django.db import models
 
 class BorrowForm(forms.ModelForm):
     error_css_class = 'error'
@@ -27,6 +26,7 @@ class BorrowForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Only show properties that are available
         self.fields['property'].queryset = Property.objects.filter(availability='available')
+        self.fields['property'].widget.attrs.update({'class': 'select2'})
     
     def clean_return_date(self):
         return_date = self.cleaned_data.get('return_date')
@@ -34,26 +34,6 @@ class BorrowForm(forms.ModelForm):
         if return_date and return_date < today:
             raise forms.ValidationError("Return date cannot be in the past.")
         return return_date
-
-    def clean_quantity(self):
-        quantity = self.cleaned_data.get('quantity')
-        property_item = self.cleaned_data.get('property')
-        
-        if property_item and quantity:
-            if quantity > property_item.quantity:
-                raise forms.ValidationError(f"Not enough stock available. Only {property_item.quantity} units available for {property_item.property_name}.")
-            
-            # Check for existing approved borrows
-            total_borrowed = BorrowRequest.objects.filter(
-                property=property_item,
-                status='approved'
-            ).aggregate(total=models.Sum('quantity'))['total'] or 0
-            
-            available_quantity = property_item.quantity - total_borrowed
-            if quantity > available_quantity:
-                raise forms.ValidationError(f"Not enough available stock. Only {available_quantity} units currently available for borrowing.")
-        
-        return quantity
 
     class Meta:
         model = BorrowRequest
@@ -78,6 +58,8 @@ class SupplyRequestForm(forms.ModelForm):
             available_for_request=True,
             quantity_info__current_quantity__gt=0
         )
+        self.fields['supply'].widget.attrs.update({'class': 'select2'})
+        self.fields['supply'].widget.attrs.update({'class': 'select2'})
     
     def clean_quantity(self):
         quantity = self.cleaned_data.get('quantity')
@@ -134,6 +116,7 @@ class ReservationForm(forms.ModelForm):
         model = Reservation
         fields = ['item', 'quantity', 'needed_date', 'return_date', 'purpose']
         widgets = {
+            'item': forms.Select(attrs={'class': 'select2'}),
             'purpose': forms.Textarea(attrs={'rows': 3}),
         }
 

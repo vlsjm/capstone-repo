@@ -12,6 +12,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta
 import json
+from django.core.paginator import Paginator
 
 
 
@@ -143,11 +144,11 @@ class UserLoginView(LoginView):
 
         try:
             profile = UserProfile.objects.get(user=user)
-            if profile.role == 'admin':
+            if profile.role == 'ADMIN':
                 messages.error(self.request, 'Access denied. Please use the admin login.')
                 return self.form_invalid(form)
             
-            if profile.role not in ['faculty', 'csg_officer']:
+            if profile.role not in ['ADMIN', 'USER']:
                 messages.error(self.request, 'Access denied. Invalid user role.')
                 return self.form_invalid(form)
 
@@ -175,58 +176,86 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        # Notifications
-        user_notifications = Notification.objects.filter(user=user).order_by('-timestamp')
-        unread_notifications = user_notifications.filter(is_read=False)
+        # Pagination size
+        per_page = 5
 
-        # Request History
-        request_history = SupplyRequest.objects.filter(user=user).order_by('-request_date')
-        request_history_data = [{
-            'item': req.supply.supply_name,
-            'quantity': req.quantity,
-            'status': req.get_status_display(),
-            'date': req.request_date,
-            'purpose': req.purpose
-        } for req in request_history]
+        # Get page numbers from GET params (default 1)
+        request_page = self.request.GET.get('request_page', 1)
+        borrow_page = self.request.GET.get('borrow_page', 1)
+        reservation_page = self.request.GET.get('reservation_page', 1)
+        damage_page = self.request.GET.get('damage_page', 1)
 
-        # Borrow History
-        borrow_history = BorrowRequest.objects.filter(user=user).order_by('-borrow_date')
-        borrow_history_data = [{
-            'item': borrow.property.property_name,
-            'quantity': borrow.quantity,
-            'status': borrow.get_status_display(),
-            'borrow_date': borrow.borrow_date,
-            'return_date': borrow.return_date
-        } for borrow in borrow_history]
+        # Querysets ordered by date descending
+        request_history_qs = SupplyRequest.objects.filter(user=user).order_by('-request_date')
+        borrow_history_qs = BorrowRequest.objects.filter(user=user).order_by('-borrow_date')
+        reservation_history_qs = Reservation.objects.filter(user=user).order_by('-reservation_date')
+        damage_history_qs = DamageReport.objects.filter(user=user).order_by('-report_date')
 
-        # Reservation History
-        reservation_history = Reservation.objects.filter(user=user).order_by('-reservation_date')
-        reservation_history_data = [{
-            'item': res.item.property_name,
-            'quantity': res.quantity,
-            'status': res.get_status_display(),
-            'needed_date': res.needed_date,
-            'return_date': res.return_date,
-            'purpose': res.purpose
-        } for res in reservation_history]
+        # Paginators
+        request_paginator = Paginator(request_history_qs, per_page)
+        borrow_paginator = Paginator(borrow_history_qs, per_page)
+        reservation_paginator = Paginator(reservation_history_qs, per_page)
+        damage_paginator = Paginator(damage_history_qs, per_page)
 
-        # Damage Report History
-        damage_history = DamageReport.objects.filter(user=user).order_by('-report_date')
-        damage_history_data = [{
-            'item': report.item.property_name,
-            'status': report.get_status_display(),
-            'date': report.report_date,
-            'description': report.description
-        } for report in damage_history]
+        # Get the page objects
+        request_history_page = request_paginator.get_page(request_page)
+        borrow_history_page = borrow_paginator.get_page(borrow_page)
+        reservation_history_page = reservation_paginator.get_page(reservation_page)
+        damage_history_page = damage_paginator.get_page(damage_page)
 
-        # Add to context
+        # Convert page object items to dicts
+        def request_to_dict(req):
+            return {
+                'item': req.supply.supply_name,
+                'quantity': req.quantity,
+                'status': req.get_status_display(),
+                'date': req.request_date,
+                'purpose': req.purpose,
+            }
+
+        def borrow_to_dict(borrow):
+            return {
+                'item': borrow.property.property_name,
+                'quantity': borrow.quantity,
+                'status': borrow.get_status_display(),
+                'borrow_date': borrow.borrow_date,
+                'return_date': borrow.return_date,
+            }
+
+        def reservation_to_dict(res):
+            return {
+                'item': res.item.property_name,
+                'quantity': res.quantity,
+                'status': res.get_status_display(),
+                'needed_date': res.needed_date,
+                'return_date': res.return_date,
+                'purpose': res.purpose,
+            }
+
+        def damage_to_dict(report):
+            return {
+                'item': report.item.property_name,
+                'status': report.get_status_display(),
+                'date': report.report_date,
+                'description': report.description,
+            }
+
         context.update({
-            'notifications': user_notifications,
-            'unread_count': unread_notifications.count(),
-            'request_history': request_history_data,
-            'borrow_history': borrow_history_data,
-            'reservation_history': reservation_history_data,
-            'damage_history': damage_history_data,
+            'notifications': Notification.objects.filter(user=user).order_by('-timestamp'),
+            'unread_count': Notification.objects.filter(user=user, is_read=False).count(),
+
+            # Pass paginated page objects (converted to dict)
+            'request_history': [request_to_dict(r) for r in request_history_page],
+            'request_history_page': request_history_page,
+
+            'borrow_history': [borrow_to_dict(b) for b in borrow_history_page],
+            'borrow_history_page': borrow_history_page,
+
+            'reservation_history': [reservation_to_dict(r) for r in reservation_history_page],
+            'reservation_history_page': reservation_history_page,
+
+            'damage_history': [damage_to_dict(d) for d in damage_history_page],
+            'damage_history_page': damage_history_page,
         })
 
         return context
@@ -286,5 +315,3 @@ def get_item_availability(request):
         return JsonResponse({'error': 'Item not found'}, status=404)
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
-
-        

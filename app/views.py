@@ -1,9 +1,9 @@
 from collections import defaultdict
 from django.contrib import messages
-from django.contrib.auth.models import User
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, ListView
 
@@ -237,6 +237,7 @@ def request_detail(request, pk):
 
 
 
+#user create user 
 def create_user(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
@@ -248,16 +249,23 @@ def create_user(request):
                 email=form.cleaned_data['email'],
                 password=form.cleaned_data['password'],
             )
+            role = form.cleaned_data['role']  
+
+            try:
+                group = Group.objects.get(name=role)
+                user.groups.add(group)
+            except Group.DoesNotExist:
+                pass  
+
             UserProfile.objects.create(
                 user=user,
-                role=form.cleaned_data['role'],
+                role=role,
                 department=form.cleaned_data['department'],
                 phone=form.cleaned_data['phone'],
             )
-            return redirect('manage_users')  # Redirect after POST
+            return redirect('manage_users')
     else:
         form = UserRegistrationForm()
-    # Optional: if POST failed, re-render form with errors
     users = UserProfile.objects.select_related('user').all()
     return render(request, 'app/manage_users.html', {'form': form, 'users': users})
 
@@ -958,21 +966,23 @@ class LandingPageView(TemplateView):
         context = super().get_context_data(**kwargs)
         return context
 
-class AdminLoginView(LoginView):
+#meow   
+class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
-    authentication_form = AuthenticationForm
-    next_page = reverse_lazy('dashboard')
 
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        ActivityLog.log_activity(
-            user=self.request.user,
-            action='login',
-            model_name='User',
-            object_repr=self.request.user.username,
-            description=f"User {self.request.user.username} logged in"
-        )
-        return response
+    def get_success_url(self):
+        user = self.request.user
+        if user.groups.filter(name='ADMIN').exists():
+            return reverse('dashboard') 
+        return reverse('user_dashboard')
+
+def dashboard(request):
+    return render(request, 'app/dashboard.html')
+
+def user_dashboard(request):
+    return render(request, 'userpanel/user_dashboard.html')
+
+
 
 def logout_view(request):
     if request.user.is_authenticated:
