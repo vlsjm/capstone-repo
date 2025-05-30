@@ -143,11 +143,11 @@ class UserLoginView(LoginView):
 
         try:
             profile = UserProfile.objects.get(user=user)
-            if profile.role == 'admin':
+            if profile.role == 'ADMIN':
                 messages.error(self.request, 'Access denied. Please use the admin login.')
                 return self.form_invalid(form)
             
-            if profile.role not in ['faculty', 'csg_officer']:
+            if profile.role not in ['ADMIN', 'USER']:
                 messages.error(self.request, 'Access denied. Invalid user role.')
                 return self.form_invalid(form)
 
