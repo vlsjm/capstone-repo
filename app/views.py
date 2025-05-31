@@ -31,6 +31,122 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.utils import timezone
 from datetime import timedelta
 
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
+import logging
+import os
+
+# Create a logger
+logger = logging.getLogger(__name__)
+
+
+def verify_email_settings():
+    """Verify email settings are properly configured"""
+    logger.info("Verifying email settings...")
+    logger.info(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
+    logger.info(f"EMAIL_HOST: {settings.EMAIL_HOST}")
+    logger.info(f"EMAIL_PORT: {settings.EMAIL_PORT}")
+    logger.info(f"EMAIL_USE_TLS: {settings.EMAIL_USE_TLS}")
+    logger.info(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
+    logger.info(f"EMAIL_HOST_PASSWORD is set: {'Yes' if settings.EMAIL_HOST_PASSWORD else 'No'}")
+    
+    # Check if .env file exists and is readable
+    env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+    logger.info(f".env file exists: {'Yes' if os.path.exists(env_path) else 'No'}")
+
+#user create user 
+def create_user(request):
+    if request.method == 'POST':
+        logger.info("Starting user creation process...")
+        # Verify email settings before proceeding
+        verify_email_settings()
+        
+        form = UserRegistrationForm(request.POST)
+        logger.info("Checking form validity...")
+        if form.is_valid():
+            logger.info("Form is valid, proceeding with user creation...")
+            try:
+                # Create user
+                initial_password = form.cleaned_data['password1']
+                logger.info(f"Creating user with email: {form.cleaned_data['email']}")
+                user = User.objects.create_user(
+                    username=form.cleaned_data['username'],
+                    first_name=form.cleaned_data['first_name'],
+                    last_name=form.cleaned_data['last_name'],
+                    email=form.cleaned_data['email'],
+                    password=initial_password,
+                )
+                role = form.cleaned_data['role']  
+                logger.info(f"User created successfully with role: {role}")
+
+                # Add user to group
+                try:
+                    group = Group.objects.get(name=role)
+                    user.groups.add(group)
+                    logger.info(f"Added user to group: {role}")
+                except Group.DoesNotExist:
+                    logger.warning(f"Group {role} does not exist")
+                    messages.warning(request, f'Group {role} does not exist. User created without group assignment.')
+
+                # Create user profile
+                profile = UserProfile.objects.create(
+                    user=user,
+                    role=role,
+                    department=form.cleaned_data['department'],
+                    phone=form.cleaned_data['phone'],
+                )
+                logger.info("User profile created successfully")
+
+                # Send welcome email
+                try:
+                    context = {
+                        'user': user,
+                        'user_profile': profile,
+                        'initial_password': initial_password,
+                    }
+                    html_message = render_to_string('app/email/account_created.html', context)
+                    plain_message = strip_tags(html_message)
+                    
+                    logger.info(f"Attempting to send welcome email to {user.email}...")
+                    send_mail(
+                        subject='Welcome to ResourceHive - Your Account Has Been Created',
+                        message=plain_message,
+                        from_email=settings.EMAIL_HOST_USER,
+                        recipient_list=[user.email],
+                        html_message=html_message,
+                        fail_silently=False,
+                    )
+                    logger.info("Welcome email sent successfully!")
+                    messages.success(request, f'Account created successfully for {user.username} and welcome email sent.')
+                except Exception as e:
+                    logger.error(f"Failed to send welcome email: {str(e)}")
+                    messages.warning(request, f'Account created successfully but failed to send welcome email. Error: {str(e)}')
+
+                # Log the activity
+                ActivityLog.log_activity(
+                    user=request.user,
+                    action='create',
+                    model_name='User',
+                    object_repr=user.username,
+                    description=f"Created new user account for {user.username} with role {role}"
+                )
+
+                return redirect('manage_users')
+                
+            except Exception as e:
+                logger.error(f"Error in user creation process: {str(e)}")
+                messages.error(request, f'Error creating account: {str(e)}')
+                return redirect('manage_users')
+        else:
+            logger.error(f"Form validation failed. Errors: {form.errors}")
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = UserRegistrationForm()
+    users = UserProfile.objects.select_related('user').all()
+    return render(request, 'app/manage_users.html', {'form': form, 'users': users})
+
 
 @login_required
 @require_POST
@@ -235,41 +351,6 @@ def request_detail(request, pk):
         return redirect('user_supply_requests')
     return render(request, 'app/request_details.html', {'request_obj': request_obj})
 
-
-
-
-
-#user create user 
-def create_user(request):
-    if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            user = User.objects.create_user(
-                username=form.cleaned_data['username'],
-                first_name=form.cleaned_data['first_name'],
-                last_name=form.cleaned_data['last_name'],
-                email=form.cleaned_data['email'],
-                password=form.cleaned_data['password'],
-            )
-            role = form.cleaned_data['role']  
-
-            try:
-                group = Group.objects.get(name=role)
-                user.groups.add(group)
-            except Group.DoesNotExist:
-                pass  
-
-            UserProfile.objects.create(
-                user=user,
-                role=role,
-                department=form.cleaned_data['department'],
-                phone=form.cleaned_data['phone'],
-            )
-            return redirect('manage_users')
-    else:
-        form = UserRegistrationForm()
-    users = UserProfile.objects.select_related('user').all()
-    return render(request, 'app/manage_users.html', {'form': form, 'users': users})
 
 class UserProfileListView(PermissionRequiredMixin, ListView):
     model = UserProfile

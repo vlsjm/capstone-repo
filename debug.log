@@ -1,0 +1,157 @@
+Verifying email settings...
+EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST: smtp.gmail.com
+EMAIL_PORT: 587
+EMAIL_USE_TLS: True
+EMAIL_HOST_USER: None
+EMAIL_HOST_PASSWORD is set: No
+.env file exists: Yes
+Attempting to send email to joshuabarnido27@gmail.com...
+Failed to send email: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. d9443c01a7336-23506d19bfesm36936755ad.253 - gsmtp', 'webmaster@localhost')
+Verifying email settings...
+EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST: smtp.gmail.com
+EMAIL_PORT: 587
+EMAIL_USE_TLS: True
+EMAIL_HOST_USER: None
+EMAIL_HOST_PASSWORD is set: No
+.env file exists: Yes
+Verifying email settings...
+EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST: smtp.gmail.com
+EMAIL_PORT: 587
+EMAIL_USE_TLS: True
+EMAIL_HOST_USER: None
+EMAIL_HOST_PASSWORD is set: No
+.env file exists: Yes
+Verifying email settings...
+EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST: smtp.gmail.com
+EMAIL_PORT: 587
+EMAIL_USE_TLS: True
+EMAIL_HOST_USER: None
+EMAIL_HOST_PASSWORD is set: No
+.env file exists: Yes
+Attempting to send email to joshuabarnido27@gmail.com...
+Failed to send email: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. d2e1a72fcca58-747afff72bcsm3984587b3a.166 - gsmtp', 'webmaster@localhost')
+Verifying email settings...
+EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST: smtp.gmail.com
+EMAIL_PORT: 587
+EMAIL_USE_TLS: True
+EMAIL_HOST_USER: rrdelacruz710@gmail.com
+EMAIL_HOST_PASSWORD is set: Yes
+.env file exists: Yes
+Verifying email settings...
+EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST: smtp.gmail.com
+EMAIL_PORT: 587
+EMAIL_USE_TLS: True
+EMAIL_HOST_USER: rrdelacruz710@gmail.com
+EMAIL_HOST_PASSWORD is set: Yes
+.env file exists: Yes
+Attempting to send email to bc.rr.delacruz@cvsu.edu.ph...
+Email sent successfully!
+Verifying email settings...
+EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST: smtp.gmail.com
+EMAIL_PORT: 587
+EMAIL_USE_TLS: True
+EMAIL_HOST_USER: rrdelacruz710@gmail.com
+EMAIL_HOST_PASSWORD is set: Yes
+.env file exists: Yes
+Verifying email settings...
+EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST: smtp.gmail.com
+EMAIL_PORT: 587
+EMAIL_USE_TLS: True
+EMAIL_HOST_USER: rrdelacruz710@gmail.com
+EMAIL_HOST_PASSWORD is set: Yes
+.env file exists: Yes
+Verifying email settings...
+EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST: smtp.gmail.com
+EMAIL_PORT: 587
+EMAIL_USE_TLS: True
+EMAIL_HOST_USER: rrdelacruz710@gmail.com
+EMAIL_HOST_PASSWORD is set: Yes
+.env file exists: Yes
+Attempting to send email to joshuabarnido27@gmail.com...
+Email sent successfully!
+Verifying email settings...
+EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST: smtp.gmail.com
+EMAIL_PORT: 587
+EMAIL_USE_TLS: True
+EMAIL_HOST_USER: rrdelacruz710@gmail.com
+EMAIL_HOST_PASSWORD is set: Yes
+.env file exists: Yes
+Verifying email settings...
+EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST: smtp.gmail.com
+EMAIL_PORT: 587
+EMAIL_USE_TLS: True
+EMAIL_HOST_USER: rrdelacruz710@gmail.com
+EMAIL_HOST_PASSWORD is set: Yes
+.env file exists: Yes
+Attempting to send email to rrdelacruz32@gmail.com...
+Email sent successfully!
+INFO 2025-05-31 18:20:17,610 autoreload 8124 468 Watching for file changes with StatReloader
+INFO 2025-05-31 18:21:28,432 basehttp 8124 11588 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 18:21:30,861 basehttp 8124 11588 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 18:21:35,611 basehttp 8124 6752 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 18:21:35,785 basehttp 8124 6752 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-05-31 18:21:35,880 basehttp 8124 6752 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-05-31 18:21:38,121 basehttp 8124 6752 "GET /manage-users/ HTTP/1.1" 200 8283
+INFO 2025-05-31 18:22:11,095 basehttp 8124 10848 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-05-31 18:22:11,192 basehttp 8124 10848 "GET /manage-users/ HTTP/1.1" 200 8518
+INFO 2025-05-31 18:24:17,075 autoreload 8124 468 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-05-31 18:24:20,760 autoreload 10664 6336 Watching for file changes with StatReloader
+INFO 2025-05-31 18:24:31,988 basehttp 10664 3196 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 18:24:33,809 basehttp 10664 3196 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 18:24:37,829 basehttp 10664 3196 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 18:24:38,002 basehttp 10664 3196 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-05-31 18:24:39,880 basehttp 10664 3196 "GET /manage-users/ HTTP/1.1" 200 8518
+INFO 2025-05-31 18:25:07,007 basehttp 10664 3500 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-05-31 18:25:07,064 basehttp 10664 3500 "GET /manage-users/ HTTP/1.1" 200 8752
+INFO 2025-05-31 18:27:30,217 autoreload 10664 6336 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-05-31 18:27:32,878 autoreload 9168 504 Watching for file changes with StatReloader
+INFO 2025-05-31 18:28:05,727 autoreload 9168 504 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-05-31 18:28:09,267 autoreload 4056 11900 Watching for file changes with StatReloader
+INFO 2025-05-31 18:28:30,186 basehttp 4056 11840 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 18:28:31,538 basehttp 4056 11840 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 18:28:35,973 basehttp 4056 8488 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 18:28:36,140 basehttp 4056 8488 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-05-31 18:28:38,353 basehttp 4056 8488 "GET /manage-users/ HTTP/1.1" 200 8734
+INFO 2025-05-31 18:29:06,830 views 4056 8988 Starting user creation process...
+INFO 2025-05-31 18:29:06,831 views 4056 8988 Verifying email settings...
+INFO 2025-05-31 18:29:06,832 views 4056 8988 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-05-31 18:29:06,833 views 4056 8988 EMAIL_HOST: smtp.gmail.com
+INFO 2025-05-31 18:29:06,834 views 4056 8988 EMAIL_PORT: 587
+INFO 2025-05-31 18:29:06,835 views 4056 8988 EMAIL_USE_TLS: True
+INFO 2025-05-31 18:29:06,845 views 4056 8988 EMAIL_HOST_USER: rrdelacruz710@gmail.com
+INFO 2025-05-31 18:29:06,846 views 4056 8988 EMAIL_HOST_PASSWORD is set: Yes
+INFO 2025-05-31 18:29:06,850 views 4056 8988 .env file exists: Yes
+INFO 2025-05-31 18:29:06,858 views 4056 8988 Checking form validity...
+INFO 2025-05-31 18:29:07,167 views 4056 8988 Form is valid, proceeding with user creation...
+INFO 2025-05-31 18:29:07,169 views 4056 8988 Creating user with email: rrdelacruz710@gmail.com
+INFO 2025-05-31 18:29:10,193 views 4056 8988 User created successfully with role: USER
+INFO 2025-05-31 18:29:10,442 views 4056 8988 Added user to group: USER
+INFO 2025-05-31 18:29:10,664 views 4056 8988 User profile created successfully
+INFO 2025-05-31 18:29:10,682 views 4056 8988 Attempting to send welcome email to rrdelacruz710@gmail.com...
+INFO 2025-05-31 18:29:19,118 views 4056 8988 Welcome email sent successfully!
+INFO 2025-05-31 18:29:19,639 basehttp 4056 8988 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-05-31 18:29:19,727 basehttp 4056 8988 "GET /manage-users/ HTTP/1.1" 200 9200
+INFO 2025-05-31 18:30:21,426 basehttp 4056 11216 "GET /property/ HTTP/1.1" 200 55972
+INFO 2025-05-31 18:30:31,421 basehttp 4056 4116 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 18:30:31,480 basehttp 4056 4116 "GET /property/ HTTP/1.1" 200 56243
+INFO 2025-05-31 18:30:40,780 basehttp 4056 10064 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 18:30:40,847 basehttp 4056 10064 "GET /property/ HTTP/1.1" 200 56233
+INFO 2025-05-31 18:30:43,918 basehttp 4056 6460 "GET /manage-users/ HTTP/1.1" 200 8957
+INFO 2025-05-31 18:31:00,547 basehttp 4056 4484 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-05-31 18:31:00,567 basehttp 4056 4484 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 18:31:01,590 basehttp 4056 4484 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 18:31:11,767 basehttp 4056 11116 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 18:31:11,893 basehttp 4056 11116 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 3933
+INFO 2025-05-31 18:31:18,428 basehttp 4056 4100 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-05-31 18:31:18,442 basehttp 4056 4100 "GET / HTTP/1.1" 200 767
