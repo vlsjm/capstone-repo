@@ -1,0 +1,351 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #152d64 0%, #3b5ca9 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .auth-container {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        height: 70%;
+        max-height: 90%;
+      }
+
+      .page-title {
+        color: #152d64;
+        font-size: 30px;
+        font-weight: 750;
+        margin-bottom: 40px;
+        letter-spacing: -0.5px;
+      }
+
+      .user-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        box-shadow: 0 4px 12px rgba(30, 144, 255, 0.3);
+      }
+
+      .user-icon svg {
+        width: 28px;
+        height: 28px;
+        fill: white;
+      }
+
+      .sign-in-title {
+        color: #333;
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 30px;
+        letter-spacing: -0.5px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
+
+      .form-group label {
+        display: block;
+        color: #666;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .inputAut {
+        width: 100%;
+        padding: 15px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+      }
+
+      .inputAut:focus {
+        outline: none;
+        border-color: #1e90ff;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
+      }
+
+      .login-btn {
+        width: 100%;
+        padding: 16px;
+        background: #152d64;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .login-btn:hover {
+        background: #1c7ed6;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 144, 255, 0.4);
+      }
+
+      .login-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #666;
+        font-size: 14px;
+      }
+
+      .remember-me input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #1e90ff;
+      }
+
+      .forgot-password {
+        color: #152d64;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .forgot-password:hover {
+        color: #1c7ed6;
+      }
+
+      .clear-btn {
+        width: 100%;
+        padding: 12px;
+        background: #f8f9fa;
+        color: #666;
+        border: 2px solid #e1e5e9;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+      }
+
+      .clear-btn:hover {
+        background: #e9ecef;
+        border-color: #ced4da;
+      }
+
+      .register-link {
+        color: #666;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .register-link a {
+        color: #152d64;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+      }
+
+      .register-link a:hover {
+        color: #1c7ed6;
+      }
+
+      .errorlist {
+        background: #fee;
+        border: 1px solid #fcc;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 15px;
+        list-style: none;
+      }
+
+      .errorlist li {
+        color: #c33;
+        font-size: 14px;
+      }
+
+      .messages {
+        margin-bottom: 20px;
+        list-style: none;
+      }
+
+      .messages li {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+
+      .messages .error {
+        background: #fee;
+        border: 1px solid #fcc;
+        color: #c33;
+      }
+
+      .messages .success {
+        background: #efe;
+        border: 1px solid #cfc;
+        color: #363;
+      }
+
+      .messages .info {
+        background: #eef;
+        border: 1px solid #ccf;
+        color: #336;
+      }
+
+      @media (max-width: 480px) {
+        .auth-container {
+          padding: 30px 20px;
+          margin: 20px;
+        }
+
+        .page-title {
+          font-size: 20px;
+          margin-bottom: 30px;
+        }
+
+        .sign-in-title {
+          font-size: 24px;
+        }
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      integrity="sha512-dYmO19PlUClFgW2WwRM9e+Q3qKlfKKo6oP9DXYjFNsDJi3JtM2RTPJ1TxkY2H7LQmR6k1zz0KbZrp3lRtbd+tw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body class="body-login">
+    {% block content %}
+    <div class="auth-container">
+      <h1 class="page-title">Welcome back!</h1>
+
+      <div class="user-icon">
+        <!-- <svg viewBox="0 0 24 24">
+          <path
+            d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+          />
+        </svg> -->
+        <i
+          class="fas fa-user-circle"
+          style="font-size: 70px; color: #152d64"
+        ></i>
+      </div>
+
+      <h2 class="sign-in-title">Sign In to Resource Hive</h2>
+
+      {% if form.non_field_errors %}
+      <ul class="errorlist">
+        {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <form action="{% url 'login' %}" method="post">
+        {% csrf_token %} {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+          <li class="{{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="id_username">Username</label>
+          <input
+            type="text"
+            id="id_username"
+            name="username"
+            class="inputAut"
+            placeholder="Enter your username"
+          />
+          {% for error in form.username.errors %}
+          <ul class="errorlist">
+            <li>{{ error }}</li>
+          </ul>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          <label for="id_password">Password</label>
+          <input
+            type="password"
+            id="id_password"
+            name="password"
+            class="inputAut"
+            placeholder="Enter your password"
+          />
+          {% for error in form.password.errors %}
+          <ul class="errorlist">
+            <li>{{ error }}</li>
+          </ul>
+          {% endfor %}
+        </div>
+
+        <div class="login-options">
+          <label class="remember-me">
+            <input type="checkbox" name="remember_me" />
+            <span>Remember Me</span>
+          </label>
+          <!-- <a href="#" class="forgot-password">Forgot Password</a>tago muna di pa namna nagana -->
+        </div>
+
+        <button type="submit" class="login-btn">Login</button>
+        <button type="reset" class="clear-btn">Clear</button>
+      </form>
+
+      <p class="register-link">
+        Don't have an account?
+        <a href="{% url 'register' %}">Register</a>
+      </p>
+    </div>
+    {% endblock content %}
+  </body>
+</html>

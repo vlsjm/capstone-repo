@@ -155,3 +155,695 @@ INFO 2025-05-31 18:31:11,767 basehttp 4056 11116 "POST /accounts/login/ HTTP/1.1
 INFO 2025-05-31 18:31:11,893 basehttp 4056 11116 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 3933
 INFO 2025-05-31 18:31:18,428 basehttp 4056 4100 "POST /accounts/logout/ HTTP/1.1" 302 0
 INFO 2025-05-31 18:31:18,442 basehttp 4056 4100 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 23:25:21,894 autoreload 13544 10288 Watching for file changes with StatReloader
+INFO 2025-05-31 23:27:16,952 autoreload 7384 10324 Watching for file changes with StatReloader
+INFO 2025-05-31 23:27:21,374 basehttp 7384 6068 "GET / HTTP/1.1" 200 767
+WARNING 2025-05-31 23:27:21,456 basehttp 7384 6068 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:27:24,821 basehttp 7384 6068 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 23:27:26,891 basehttp 7384 6068 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:27:27,009 basehttp 7384 6068 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 60932
+INFO 2025-05-31 23:27:30,723 basehttp 7384 6068 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:27:30,727 basehttp 7384 6068 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 23:27:31,654 basehttp 7384 6068 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 23:27:36,908 basehttp 7384 6068 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:27:37,061 basehttp 7384 6068 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-05-31 23:27:37,173 basehttp 7384 6068 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 23:27:41,901 basehttp 7384 6068 "GET /supplies/ HTTP/1.1" 200 59078
+INFO 2025-05-31 23:27:43,860 basehttp 7384 6068 "GET /manage-users/ HTTP/1.1" 200 8957
+INFO 2025-05-31 23:28:08,684 views 7384 6456 Starting user creation process...
+INFO 2025-05-31 23:28:08,685 views 7384 6456 Verifying email settings...
+INFO 2025-05-31 23:28:08,685 views 7384 6456 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-05-31 23:28:08,686 views 7384 6456 EMAIL_HOST: smtp.gmail.com
+INFO 2025-05-31 23:28:08,686 views 7384 6456 EMAIL_PORT: 587
+INFO 2025-05-31 23:28:08,687 views 7384 6456 EMAIL_USE_TLS: True
+INFO 2025-05-31 23:28:08,687 views 7384 6456 EMAIL_HOST_USER: None
+INFO 2025-05-31 23:28:08,688 views 7384 6456 EMAIL_HOST_PASSWORD is set: No
+INFO 2025-05-31 23:28:08,689 views 7384 6456 .env file exists: No
+INFO 2025-05-31 23:28:08,690 views 7384 6456 Checking form validity...
+INFO 2025-05-31 23:28:08,740 views 7384 6456 Form is valid, proceeding with user creation...
+INFO 2025-05-31 23:28:08,741 views 7384 6456 Creating user with email: johnmarkgvales@gmail.com
+INFO 2025-05-31 23:28:09,350 views 7384 6456 User created successfully with role: USER
+INFO 2025-05-31 23:28:09,356 views 7384 6456 Added user to group: USER
+INFO 2025-05-31 23:28:09,360 views 7384 6456 User profile created successfully
+INFO 2025-05-31 23:28:09,377 views 7384 6456 Attempting to send welcome email to johnmarkgvales@gmail.com...
+ERROR 2025-05-31 23:28:12,122 views 7384 6456 Failed to send welcome email: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. d2e1a72fcca58-747afff71eesm4717247b3a.159 - gsmtp', 'webmaster@localhost')
+INFO 2025-05-31 23:28:12,129 basehttp 7384 6456 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:28:12,151 basehttp 7384 6456 "GET /manage-users/ HTTP/1.1" 200 9672
+INFO 2025-05-31 23:30:08,854 autoreload 3604 2276 Watching for file changes with StatReloader
+INFO 2025-05-31 23:30:09,263 basehttp 3604 2416 "GET / HTTP/1.1" 200 767
+WARNING 2025-05-31 23:30:09,313 basehttp 3604 2416 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:30:18,191 basehttp 3604 2416 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 23:30:19,346 basehttp 3604 2416 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 23:30:26,084 basehttp 3604 2416 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:30:26,147 basehttp 3604 2416 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-05-31 23:30:26,175 basehttp 3604 2416 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-05-31 23:30:29,715 basehttp 3604 2416 "GET /manage-users/ HTTP/1.1" 200 9182
+INFO 2025-05-31 23:32:04,973 autoreload 8640 3496 Watching for file changes with StatReloader
+INFO 2025-05-31 23:32:33,816 views 8640 2508 Starting user creation process...
+INFO 2025-05-31 23:32:33,816 views 8640 2508 Verifying email settings...
+INFO 2025-05-31 23:32:33,817 views 8640 2508 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-05-31 23:32:33,817 views 8640 2508 EMAIL_HOST: smtp.gmail.com
+INFO 2025-05-31 23:32:33,817 views 8640 2508 EMAIL_PORT: 587
+INFO 2025-05-31 23:32:33,817 views 8640 2508 EMAIL_USE_TLS: True
+INFO 2025-05-31 23:32:33,818 views 8640 2508 EMAIL_HOST_USER: None
+INFO 2025-05-31 23:32:33,818 views 8640 2508 EMAIL_HOST_PASSWORD is set: No
+INFO 2025-05-31 23:32:33,818 views 8640 2508 .env file exists: No
+INFO 2025-05-31 23:32:33,819 views 8640 2508 Checking form validity...
+INFO 2025-05-31 23:32:33,864 views 8640 2508 Form is valid, proceeding with user creation...
+INFO 2025-05-31 23:32:33,865 views 8640 2508 Creating user with email: johnmarkgvales@gmail.com
+INFO 2025-05-31 23:32:34,459 views 8640 2508 User created successfully with role: USER
+INFO 2025-05-31 23:32:34,467 views 8640 2508 Added user to group: USER
+INFO 2025-05-31 23:32:34,470 views 8640 2508 User profile created successfully
+INFO 2025-05-31 23:32:34,496 views 8640 2508 Attempting to send welcome email to johnmarkgvales@gmail.com...
+ERROR 2025-05-31 23:32:37,441 views 8640 2508 Failed to send welcome email: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. d9443c01a7336-23506cd91f5sm44194215ad.135 - gsmtp', 'webmaster@localhost')
+INFO 2025-05-31 23:32:37,466 basehttp 8640 2508 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:32:37,503 basehttp 8640 2508 "GET /manage-users/ HTTP/1.1" 200 9906
+INFO 2025-05-31 23:32:37,519 basehttp 8640 2508 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-05-31 23:33:54,982 basehttp 8640 2508 "GET /manage-users/ HTTP/1.1" 200 9416
+INFO 2025-05-31 23:33:54,995 basehttp 8640 2508 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-05-31 23:34:01,229 basehttp 8640 2508 "GET /property/ HTTP/1.1" 200 55972
+INFO 2025-05-31 23:34:01,249 basehttp 8640 2508 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-05-31 23:39:32,017 basehttp 8640 10920 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-05-31 23:39:32,036 basehttp 8640 10920 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-05-31 23:43:40,512 autoreload 5720 396 Watching for file changes with StatReloader
+INFO 2025-05-31 23:44:16,722 basehttp 5720 4016 "GET / HTTP/1.1" 200 767
+WARNING 2025-05-31 23:44:16,799 basehttp 5720 4016 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:44:17,693 basehttp 5720 4016 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 23:44:21,130 basehttp 5720 4016 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:44:21,199 basehttp 5720 4016 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 60932
+INFO 2025-05-31 23:44:21,215 basehttp 5720 4016 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-05-31 23:54:26,254 basehttp 5720 9412 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:54:26,260 basehttp 5720 9412 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 23:54:27,097 basehttp 5720 9412 "GET /accounts/login/ HTTP/1.1" 200 7068
+INFO 2025-05-31 23:54:49,623 basehttp 5720 7208 "GET /accounts/login/ HTTP/1.1" 200 7072
+INFO 2025-05-31 23:55:00,157 basehttp 5720 17184 "GET /accounts/login/ HTTP/1.1" 200 7072
+INFO 2025-05-31 23:55:36,316 basehttp 5720 14112 "GET /accounts/login/ HTTP/1.1" 200 7161
+INFO 2025-05-31 23:55:36,963 basehttp 5720 14112 "GET /accounts/login/ HTTP/1.1" 200 7161
+INFO 2025-05-31 23:55:37,179 basehttp 5720 14112 "GET /accounts/login/ HTTP/1.1" 200 7161
+INFO 2025-05-31 23:55:44,912 basehttp 5720 328 "GET /accounts/login/ HTTP/1.1" 200 7162
+INFO 2025-05-31 23:55:45,436 basehttp 5720 328 "GET /accounts/login/ HTTP/1.1" 200 7162
+INFO 2025-05-31 23:56:16,033 basehttp 5720 9356 "GET /accounts/login/ HTTP/1.1" 200 7271
+INFO 2025-05-31 23:56:16,629 basehttp 5720 9356 "GET /accounts/login/ HTTP/1.1" 200 7271
+INFO 2025-05-31 23:56:17,212 basehttp 5720 9356 "GET /accounts/login/ HTTP/1.1" 200 7271
+INFO 2025-05-31 23:56:31,981 basehttp 5720 9356 "GET /accounts/login/ HTTP/1.1" 200 7271
+INFO 2025-05-31 23:56:32,173 basehttp 5720 9356 "GET /accounts/login/ HTTP/1.1" 200 7271
+INFO 2025-05-31 23:57:31,965 basehttp 5720 11452 "GET /accounts/login/ HTTP/1.1" 200 7578
+INFO 2025-05-31 23:57:32,328 basehttp 5720 11452 "GET /accounts/login/ HTTP/1.1" 200 7578
+INFO 2025-05-31 23:57:32,488 basehttp 5720 11452 "GET /accounts/login/ HTTP/1.1" 200 7578
+INFO 2025-05-31 23:57:32,669 basehttp 5720 11452 "GET /accounts/login/ HTTP/1.1" 200 7578
+INFO 2025-05-31 23:58:16,345 basehttp 5720 5268 "GET /accounts/login/ HTTP/1.1" 200 7578
+INFO 2025-05-31 23:58:16,544 basehttp 5720 5268 "GET /accounts/login/ HTTP/1.1" 200 7578
+INFO 2025-05-31 23:58:16,686 basehttp 5720 5268 "GET /accounts/login/ HTTP/1.1" 200 7578
+INFO 2025-05-31 23:58:16,878 basehttp 5720 5268 "GET /accounts/login/ HTTP/1.1" 200 7578
+INFO 2025-05-31 23:58:17,046 basehttp 5720 5268 "GET /accounts/login/ HTTP/1.1" 200 7578
+INFO 2025-05-31 23:58:17,256 basehttp 5720 5268 "GET /accounts/login/ HTTP/1.1" 200 7578
+INFO 2025-05-31 23:58:19,571 basehttp 5720 5268 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:58:19,618 basehttp 5720 5268 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-05-31 23:58:19,643 basehttp 5720 5268 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-05-31 23:58:23,027 basehttp 5720 5268 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:58:23,032 basehttp 5720 5268 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 23:58:23,829 basehttp 5720 5268 "GET /accounts/login/ HTTP/1.1" 200 7578
+ERROR 2025-05-31 23:58:28,490 log 5720 5268 Internal Server Error: /accounts/register/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\accounts\views.py", line 12, in get
+    return render(request, self.template_name, {
+        'user_form':    UserRegistrationForm(),
+        'profile_form': UserProfileForm()
+    })
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 56, in render
+    result = self.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'login_admin' not found. 'login_admin' is not a valid view function or pattern name.
+ERROR 2025-05-31 23:58:28,499 basehttp 5720 5268 "GET /accounts/register/ HTTP/1.1" 500 147858
+INFO 2025-05-31 23:58:29,829 basehttp 5720 1480 "GET /accounts/login/ HTTP/1.1" 200 7578
+INFO 2025-05-31 23:59:59,062 basehttp 5720 14044 "GET /accounts/login/ HTTP/1.1" 200 7594
+INFO 2025-05-31 23:59:59,440 basehttp 5720 14044 "GET /accounts/login/ HTTP/1.1" 200 7594
+INFO 2025-05-31 23:59:59,748 basehttp 5720 14044 "GET /accounts/login/ HTTP/1.1" 200 7594
+INFO 2025-05-31 23:59:59,916 basehttp 5720 14044 "GET /accounts/login/ HTTP/1.1" 200 7594
+INFO 2025-06-01 00:00:39,151 basehttp 5720 14840 "GET /accounts/login/ HTTP/1.1" 200 7627
+INFO 2025-06-01 00:00:45,292 basehttp 5720 17100 "GET /accounts/login/ HTTP/1.1" 200 7627
+INFO 2025-06-01 00:01:22,425 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7598
+INFO 2025-06-01 00:02:01,986 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7598
+INFO 2025-06-01 00:02:33,346 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7598
+INFO 2025-06-01 00:03:15,189 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7598
+INFO 2025-06-01 00:04:13,348 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7598
+INFO 2025-06-01 00:04:14,394 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7598
+INFO 2025-06-01 00:04:14,538 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7598
+INFO 2025-06-01 00:04:33,845 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7598
+INFO 2025-06-01 00:04:44,550 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7598
+INFO 2025-06-01 00:04:49,380 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7599
+INFO 2025-06-01 00:04:56,045 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7598
+INFO 2025-06-01 00:04:56,771 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7598
+INFO 2025-06-01 00:05:05,138 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7598
+INFO 2025-06-01 00:05:24,104 basehttp 5720 2788 "POST /accounts/login/ HTTP/1.1" 200 7772
+INFO 2025-06-01 00:05:59,145 basehttp 5720 2788 "POST /accounts/login/ HTTP/1.1" 200 7797
+INFO 2025-06-01 00:06:33,216 basehttp 5720 2788 "POST /accounts/login/ HTTP/1.1" 200 7818
+INFO 2025-06-01 00:06:41,912 basehttp 5720 2788 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:06:41,958 basehttp 5720 2788 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-06-01 00:06:41,977 basehttp 5720 2788 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 00:06:46,718 basehttp 5720 2788 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:06:46,724 basehttp 5720 2788 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 00:06:47,588 basehttp 5720 2788 "GET /accounts/login/ HTTP/1.1" 200 7644
+INFO 2025-06-01 00:07:20,478 autoreload 5720 396 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 00:07:21,517 autoreload 4392 11148 Watching for file changes with StatReloader
+INFO 2025-06-01 00:07:23,526 basehttp 4392 16764 "GET /accounts/login/ HTTP/1.1" 200 7644
+INFO 2025-06-01 00:07:27,997 basehttp 4392 16764 "GET / HTTP/1.1" 200 7644
+INFO 2025-06-01 00:07:30,730 basehttp 4392 16764 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:07:33,261 basehttp 4392 16764 "GET / HTTP/1.1" 200 7644
+INFO 2025-06-01 00:07:42,333 autoreload 4392 11148 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 00:07:43,206 autoreload 16748 10372 Watching for file changes with StatReloader
+INFO 2025-06-01 00:08:28,163 autoreload 16748 10372 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 00:08:29,067 autoreload 5856 17324 Watching for file changes with StatReloader
+INFO 2025-06-01 00:08:29,563 basehttp 5856 10908 "GET / HTTP/1.1" 200 7644
+INFO 2025-06-01 00:08:29,856 basehttp 5856 10908 "GET / HTTP/1.1" 200 7644
+INFO 2025-06-01 00:08:30,010 basehttp 5856 10908 "GET / HTTP/1.1" 200 7644
+INFO 2025-06-01 00:08:30,167 basehttp 5856 10908 "GET / HTTP/1.1" 200 7644
+INFO 2025-06-01 00:08:30,321 basehttp 5856 10908 "GET / HTTP/1.1" 200 7644
+INFO 2025-06-01 00:08:31,919 basehttp 5856 10908 "POST /accounts/login/ HTTP/1.1" 302 0
+WARNING 2025-06-01 00:08:38,007 log 5856 10908 Forbidden (CSRF token from POST incorrect.): /accounts/login/
+WARNING 2025-06-01 00:08:38,010 basehttp 5856 10908 "POST /accounts/login/ HTTP/1.1" 403 2503
+INFO 2025-06-01 00:08:50,720 autoreload 5856 17324 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 00:08:51,634 autoreload 15520 8012 Watching for file changes with StatReloader
+INFO 2025-06-01 00:10:06,997 autoreload 15520 8012 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 00:10:07,806 autoreload 5788 16216 Watching for file changes with StatReloader
+INFO 2025-06-01 00:10:15,710 basehttp 5788 16544 "GET / HTTP/1.1" 200 7644
+ERROR 2025-06-01 00:10:38,389 log 5788 16544 Internal Server Error: /accounts/register/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\accounts\views.py", line 12, in get
+    return render(request, self.template_name, {
+        'user_form':    UserRegistrationForm(),
+        'profile_form': UserProfileForm()
+    })
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 56, in render
+    result = self.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'login_admin' not found. 'login_admin' is not a valid view function or pattern name.
+ERROR 2025-06-01 00:10:38,394 basehttp 5788 16544 "GET /accounts/register/ HTTP/1.1" 500 147984
+INFO 2025-06-01 00:10:40,483 basehttp 5788 16544 "GET / HTTP/1.1" 200 7644
+ERROR 2025-06-01 00:11:44,695 log 5788 11884 Internal Server Error: /
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 56, in render
+    result = self.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'accounts/register' not found. 'accounts/register' is not a valid view function or pattern name.
+ERROR 2025-06-01 00:11:44,698 basehttp 5788 11884 "GET / HTTP/1.1" 500 135205
+ERROR 2025-06-01 00:11:44,808 log 5788 11884 Internal Server Error: /
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 56, in render
+    result = self.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'accounts/register' not found. 'accounts/register' is not a valid view function or pattern name.
+ERROR 2025-06-01 00:11:44,810 basehttp 5788 11884 "GET / HTTP/1.1" 500 135205
+INFO 2025-06-01 00:13:10,948 basehttp 5788 11884 "GET / HTTP/1.1" 200 1292
+INFO 2025-06-01 00:13:11,218 basehttp 5788 11884 "GET / HTTP/1.1" 200 1292
+ERROR 2025-06-01 00:13:12,753 log 5788 11884 Internal Server Error: /accounts/register/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\accounts\views.py", line 12, in get
+    return render(request, self.template_name, {
+        'user_form':    UserRegistrationForm(),
+        'profile_form': UserProfileForm()
+    })
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 56, in render
+    result = self.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'login_admin' not found. 'login_admin' is not a valid view function or pattern name.
+ERROR 2025-06-01 00:13:12,756 basehttp 5788 11884 "GET /accounts/register/ HTTP/1.1" 500 147984
+INFO 2025-06-01 00:14:02,362 basehttp 5788 5504 "GET / HTTP/1.1" 200 1292
+ERROR 2025-06-01 00:14:03,335 log 5788 5504 Internal Server Error: /accounts/register/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\accounts\views.py", line 12, in get
+    return render(request, self.template_name, {
+        'user_form':    UserRegistrationForm(),
+        'profile_form': UserProfileForm()
+    })
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 56, in render
+    result = self.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'login_admin' not found. 'login_admin' is not a valid view function or pattern name.
+ERROR 2025-06-01 00:14:03,337 basehttp 5788 5504 "GET /accounts/register/ HTTP/1.1" 500 147984
+INFO 2025-06-01 00:14:19,850 basehttp 5788 5504 "GET / HTTP/1.1" 200 1292
+INFO 2025-06-01 00:14:24,567 basehttp 5788 5504 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:14:24,607 basehttp 5788 5504 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-06-01 00:14:24,626 basehttp 5788 5504 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 00:14:28,963 basehttp 5788 5504 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:14:28,967 basehttp 5788 5504 "GET / HTTP/1.1" 200 1292
+ERROR 2025-06-01 00:14:30,051 log 5788 5504 Internal Server Error: /accounts/register/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\accounts\views.py", line 12, in get
+    return render(request, self.template_name, {
+        'user_form':    UserRegistrationForm(),
+        'profile_form': UserProfileForm()
+    })
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 56, in render
+    result = self.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'login_admin' not found. 'login_admin' is not a valid view function or pattern name.
+ERROR 2025-06-01 00:14:30,054 basehttp 5788 5504 "GET /accounts/register/ HTTP/1.1" 500 147843
+INFO 2025-06-01 00:15:08,877 basehttp 5788 5504 "GET /accounts/register/ HTTP/1.1" 200 2669
+INFO 2025-06-01 00:15:15,348 basehttp 5788 5504 "GET / HTTP/1.1" 200 1292
+INFO 2025-06-01 00:15:17,257 basehttp 5788 5504 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:15:17,291 basehttp 5788 5504 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-06-01 00:15:27,531 basehttp 5788 14296 "GET /my-reservations/ HTTP/1.1" 200 14416
+INFO 2025-06-01 00:16:41,562 basehttp 5788 14296 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:16:41,568 basehttp 5788 14296 "GET / HTTP/1.1" 200 7652
+INFO 2025-06-01 00:16:42,710 basehttp 5788 14296 "GET /accounts/register/ HTTP/1.1" 200 2669
+INFO 2025-06-01 00:16:44,885 basehttp 5788 14296 "GET /accounts/login/ HTTP/1.1" 200 7652
+INFO 2025-06-01 00:16:47,023 basehttp 5788 14296 "GET /accounts/register/ HTTP/1.1" 200 2669
+INFO 2025-06-01 00:16:48,494 basehttp 5788 14296 "GET /accounts/login/ HTTP/1.1" 200 7652
+INFO 2025-06-01 00:16:52,836 basehttp 5788 14296 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:16:52,874 basehttp 5788 14296 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-06-01 00:16:57,622 basehttp 5788 14296 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:16:57,629 basehttp 5788 14296 "GET / HTTP/1.1" 200 7652
+INFO 2025-06-01 00:17:15,153 basehttp 5788 14296 "GET /accounts/register/ HTTP/1.1" 200 2669
+INFO 2025-06-01 00:17:17,359 basehttp 5788 14296 "GET / HTTP/1.1" 200 7652
+INFO 2025-06-01 00:17:19,329 basehttp 5788 14296 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:17:19,363 basehttp 5788 14296 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-06-01 00:17:22,464 basehttp 5788 14296 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:17:22,469 basehttp 5788 14296 "GET / HTTP/1.1" 200 7652
+INFO 2025-06-01 00:17:24,994 basehttp 5788 14296 "GET / HTTP/1.1" 200 7652
+INFO 2025-06-01 00:17:25,168 basehttp 5788 14296 "GET / HTTP/1.1" 200 7652
+INFO 2025-06-01 00:17:27,245 basehttp 5788 14296 "GET /accounts/register/ HTTP/1.1" 200 2669
+INFO 2025-06-01 00:17:29,886 basehttp 5788 14296 "GET /accounts/login/ HTTP/1.1" 200 7652
+INFO 2025-06-01 00:17:37,122 basehttp 5788 14296 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:17:37,193 basehttp 5788 14296 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 60932
+INFO 2025-06-01 00:17:39,722 basehttp 5788 14296 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:17:39,727 basehttp 5788 14296 "GET / HTTP/1.1" 200 7652
+INFO 2025-06-01 00:17:42,838 basehttp 5788 14296 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:17:42,856 basehttp 5788 14296 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 8669
+INFO 2025-06-01 00:17:50,474 basehttp 5788 14296 "GET /userpanel/user_request/ HTTP/1.1" 200 6128
+INFO 2025-06-01 00:17:54,677 basehttp 5788 14296 "POST /userpanel/user_request/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:17:54,695 basehttp 5788 14296 "GET /userpanel/user_request/ HTTP/1.1" 200 6416
+INFO 2025-06-01 00:17:55,852 basehttp 5788 14296 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6603
+INFO 2025-06-01 00:18:03,116 basehttp 5788 14296 "POST /userpanel/user_borrow/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:18:03,130 basehttp 5788 14296 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6891
+INFO 2025-06-01 00:18:05,529 basehttp 5788 14296 "GET /userpanel/user_reserve/ HTTP/1.1" 200 7690
+INFO 2025-06-01 00:18:14,303 basehttp 5788 14296 "POST /userpanel/user_reserve/ HTTP/1.1" 200 7899
+INFO 2025-06-01 00:18:17,529 basehttp 5788 14296 "POST /userpanel/user_reserve/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:18:17,543 basehttp 5788 14296 "GET /userpanel/user_reserve/ HTTP/1.1" 200 7975
+INFO 2025-06-01 00:18:20,645 basehttp 5788 14296 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 10834
+INFO 2025-06-01 00:18:22,348 basehttp 5788 14296 "GET /userpanel/user_report/ HTTP/1.1" 200 6193
+INFO 2025-06-01 00:18:24,565 basehttp 5788 14296 "POST /userpanel/user_report/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:18:24,586 basehttp 5788 14296 "GET /userpanel/user_report/ HTTP/1.1" 200 6480
+INFO 2025-06-01 00:18:25,608 basehttp 5788 14296 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 11184
+INFO 2025-06-01 00:18:36,775 basehttp 5788 14296 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:18:36,780 basehttp 5788 14296 "GET / HTTP/1.1" 200 7652
+INFO 2025-06-01 00:18:42,489 basehttp 5788 14296 "GET /userpanel/user_dashboard/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:18:42,497 basehttp 5788 14296 "GET /login_user/?next=/userpanel/user_dashboard/ HTTP/1.1" 200 7652
+INFO 2025-06-01 00:18:42,984 basehttp 5788 14296 "GET /userpanel/user_report/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:18:42,989 basehttp 5788 14296 "GET /login_user/?next=/userpanel/user_report/ HTTP/1.1" 200 7652
+INFO 2025-06-01 00:18:43,193 basehttp 5788 14296 "GET /userpanel/user_report/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:18:43,199 basehttp 5788 14296 "GET /login_user/?next=/userpanel/user_report/ HTTP/1.1" 200 7652
+INFO 2025-06-01 00:18:43,462 basehttp 5788 14296 "GET /userpanel/user_dashboard/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:18:43,471 basehttp 5788 14296 "GET /login_user/?next=/userpanel/user_dashboard/ HTTP/1.1" 200 7652
+INFO 2025-06-01 00:18:49,334 basehttp 5788 14296 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:18:49,370 basehttp 5788 14296 "GET /dashboard/ HTTP/1.1" 200 32139
+INFO 2025-06-01 00:18:55,787 basehttp 5788 1760 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:18:55,794 basehttp 5788 1760 "GET / HTTP/1.1" 200 7652
+INFO 2025-06-01 00:19:47,278 basehttp 5788 1760 "GET / HTTP/1.1" 200 7655
+INFO 2025-06-01 00:20:02,484 basehttp 5788 1760 "POST /accounts/login/ HTTP/1.1" 200 7829
+INFO 2025-06-01 00:24:16,103 basehttp 5788 7432 "POST /accounts/login/ HTTP/1.1" 200 7829
+INFO 2025-06-01 00:24:58,459 basehttp 5788 7432 "POST /accounts/login/ HTTP/1.1" 200 7829
+INFO 2025-06-01 00:25:15,515 basehttp 5788 7432 "POST /accounts/login/ HTTP/1.1" 200 7846
+INFO 2025-06-01 00:56:53,052 basehttp 5788 13868 "POST /accounts/login/ HTTP/1.1" 200 10384
+INFO 2025-06-01 00:56:53,173 basehttp 5788 13868 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 31127
+INFO 2025-06-01 00:59:00,806 basehttp 5788 4780 "POST /accounts/login/ HTTP/1.1" 200 10224
+INFO 2025-06-01 00:59:00,825 basehttp 5788 4780 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 01:00:40,099 basehttp 5788 16376 "POST /accounts/login/ HTTP/1.1" 200 10559
+WARNING 2025-06-01 01:00:40,126 basehttp 5788 16376 "GET /static/images/your-image.png HTTP/1.1" 404 1877
+INFO 2025-06-01 01:01:03,937 basehttp 5788 13116 "POST /accounts/login/ HTTP/1.1" 200 10565
+INFO 2025-06-01 01:01:03,951 basehttp 5788 13116 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 01:01:36,569 basehttp 5788 13116 "POST /accounts/login/ HTTP/1.1" 200 10565
+INFO 2025-06-01 01:02:25,925 basehttp 5788 13116 "POST /accounts/login/ HTTP/1.1" 200 10600
+INFO 2025-06-01 01:02:25,938 basehttp 5788 13116 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 01:03:01,754 basehttp 5788 13116 "POST /accounts/login/ HTTP/1.1" 200 10617
+INFO 2025-06-01 01:03:26,124 basehttp 5788 13116 "POST /accounts/login/ HTTP/1.1" 200 10617
+INFO 2025-06-01 01:04:06,839 basehttp 5788 13116 "POST /accounts/login/ HTTP/1.1" 200 10617
+INFO 2025-06-01 01:04:06,851 basehttp 5788 13116 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 01:04:28,393 basehttp 5788 13116 "POST /accounts/login/ HTTP/1.1" 200 10641
+INFO 2025-06-01 01:06:48,302 basehttp 5788 13116 "POST /accounts/login/ HTTP/1.1" 200 10682
+INFO 2025-06-01 01:06:48,315 basehttp 5788 13116 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 01:07:52,887 basehttp 5788 13116 "POST /accounts/login/ HTTP/1.1" 200 10682
+INFO 2025-06-01 01:08:23,287 basehttp 5788 13116 "POST /accounts/login/ HTTP/1.1" 200 10685
+INFO 2025-06-01 01:08:48,860 basehttp 5788 13116 "POST /accounts/login/ HTTP/1.1" 200 10701
+INFO 2025-06-01 01:08:48,873 basehttp 5788 13116 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 01:09:09,830 basehttp 5788 13116 "POST /accounts/login/ HTTP/1.1" 200 10709
+INFO 2025-06-01 01:09:31,983 basehttp 5788 6184 "POST /accounts/login/ HTTP/1.1" 200 10701
+INFO 2025-06-01 01:10:41,513 basehttp 5788 9376 "POST /accounts/login/ HTTP/1.1" 200 10701
+INFO 2025-06-01 01:10:41,527 basehttp 5788 9376 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 01:12:07,416 basehttp 5788 9376 "POST /accounts/login/ HTTP/1.1" 200 10701
+INFO 2025-06-01 01:12:42,910 basehttp 5788 9376 "POST /accounts/login/ HTTP/1.1" 200 10701
+INFO 2025-06-01 01:14:00,719 basehttp 5788 9376 "POST /accounts/login/ HTTP/1.1" 200 10725
+INFO 2025-06-01 01:14:00,732 basehttp 5788 9376 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 01:14:10,965 basehttp 5788 9376 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:14:11,033 basehttp 5788 9376 "GET /dashboard/ HTTP/1.1" 200 32139
+INFO 2025-06-01 01:14:11,056 basehttp 5788 14760 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-01 01:14:11,056 basehttp 5788 9376 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 01:14:17,263 basehttp 5788 14760 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:14:17,272 basehttp 5788 14760 "GET / HTTP/1.1" 200 10527
+INFO 2025-06-01 01:15:42,107 basehttp 5788 1544 "GET / HTTP/1.1" 200 10527
+INFO 2025-06-01 01:15:43,177 basehttp 5788 1544 "GET / HTTP/1.1" 200 10527
+INFO 2025-06-01 01:15:43,543 basehttp 5788 1544 "GET / HTTP/1.1" 200 10527
+INFO 2025-06-01 01:15:44,023 basehttp 5788 1544 "GET / HTTP/1.1" 200 10527
+INFO 2025-06-01 01:15:44,192 basehttp 5788 1544 "GET / HTTP/1.1" 200 10527
+INFO 2025-06-01 01:15:44,359 basehttp 5788 1544 "GET / HTTP/1.1" 200 10527
+INFO 2025-06-01 01:16:04,414 basehttp 5788 4240 "GET / HTTP/1.1" 200 10504
+INFO 2025-06-01 01:16:04,554 basehttp 5788 4240 "GET / HTTP/1.1" 200 10504
+INFO 2025-06-01 01:16:04,721 basehttp 5788 4240 "GET / HTTP/1.1" 200 10504
+INFO 2025-06-01 01:16:04,891 basehttp 5788 4240 "GET / HTTP/1.1" 200 10504
+INFO 2025-06-01 01:16:05,052 basehttp 5788 4240 "GET / HTTP/1.1" 200 10504
+INFO 2025-06-01 01:16:05,176 basehttp 5788 4240 "GET / HTTP/1.1" 200 10504
+INFO 2025-06-01 01:16:05,354 basehttp 5788 4240 "GET / HTTP/1.1" 200 10504
+INFO 2025-06-01 01:16:41,835 basehttp 5788 4240 "GET / HTTP/1.1" 200 10506
+INFO 2025-06-01 01:16:41,850 basehttp 5788 4240 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 01:16:43,699 basehttp 5788 4240 "GET / HTTP/1.1" 200 10506
+INFO 2025-06-01 01:17:00,882 basehttp 5788 4240 "GET / HTTP/1.1" 200 10531
+INFO 2025-06-01 01:17:24,099 basehttp 5788 4240 "GET / HTTP/1.1" 200 10531
+INFO 2025-06-01 01:17:24,883 basehttp 5788 4240 "GET / HTTP/1.1" 200 10531
+INFO 2025-06-01 01:17:25,050 basehttp 5788 4240 "GET / HTTP/1.1" 200 10531
+INFO 2025-06-01 01:17:25,213 basehttp 5788 4240 "GET / HTTP/1.1" 200 10531
+INFO 2025-06-01 01:17:40,472 basehttp 5788 4240 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:17:51,119 basehttp 5788 4240 "GET / HTTP/1.1" 200 10530
+INFO 2025-06-01 01:17:51,453 basehttp 5788 4240 "GET / HTTP/1.1" 200 10530
+INFO 2025-06-01 01:17:51,725 basehttp 5788 4240 "GET / HTTP/1.1" 200 10530
+INFO 2025-06-01 01:17:51,875 basehttp 5788 4240 "GET / HTTP/1.1" 200 10530
+INFO 2025-06-01 01:18:04,551 basehttp 5788 4240 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:18:05,070 basehttp 5788 4240 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:18:05,251 basehttp 5788 4240 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:18:19,909 basehttp 5788 4240 "GET / HTTP/1.1" 200 10507
+INFO 2025-06-01 01:18:20,125 basehttp 5788 4240 "GET / HTTP/1.1" 200 10507
+INFO 2025-06-01 01:18:20,502 basehttp 5788 4240 "GET / HTTP/1.1" 200 10507
+INFO 2025-06-01 01:18:27,299 basehttp 5788 15964 "GET / HTTP/1.1" 200 10531
+INFO 2025-06-01 01:19:40,098 basehttp 5788 9840 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:19:40,112 basehttp 5788 9840 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 01:19:47,627 basehttp 5788 8780 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:19:47,817 basehttp 5788 8780 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:19:56,547 basehttp 5788 660 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:19:57,352 basehttp 5788 660 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:20:04,073 basehttp 5788 10812 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:20:04,423 basehttp 5788 10812 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:20:13,551 basehttp 5788 16564 "GET / HTTP/1.1" 200 10530
+INFO 2025-06-01 01:20:23,286 basehttp 5788 12848 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:20:23,432 basehttp 5788 12848 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:20:23,583 basehttp 5788 12848 "GET / HTTP/1.1" 200 10529
+INFO 2025-06-01 01:21:16,864 basehttp 5788 7196 "GET / HTTP/1.1" 200 10532
+INFO 2025-06-01 01:21:17,194 basehttp 5788 7196 "GET / HTTP/1.1" 200 10532
+INFO 2025-06-01 01:21:17,387 basehttp 5788 7196 "GET / HTTP/1.1" 200 10532
+INFO 2025-06-01 01:22:29,005 basehttp 5788 16952 "GET / HTTP/1.1" 200 9774
+INFO 2025-06-01 01:22:29,526 basehttp 5788 16952 "GET / HTTP/1.1" 200 9774
+INFO 2025-06-01 01:22:29,804 basehttp 5788 16952 "GET / HTTP/1.1" 200 9774
+INFO 2025-06-01 01:22:29,997 basehttp 5788 16952 "GET / HTTP/1.1" 200 9774
+INFO 2025-06-01 01:22:51,665 basehttp 5788 16952 "GET / HTTP/1.1" 200 9258
+INFO 2025-06-01 01:22:51,677 basehttp 5788 16952 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 01:22:59,095 basehttp 5788 16952 "GET / HTTP/1.1" 200 9258
+INFO 2025-06-01 01:22:59,254 basehttp 5788 16952 "GET / HTTP/1.1" 200 9258
+INFO 2025-06-01 01:23:23,932 basehttp 5788 16952 "GET / HTTP/1.1" 200 9163
+INFO 2025-06-01 01:23:24,159 basehttp 5788 16952 "GET / HTTP/1.1" 200 9163
+INFO 2025-06-01 01:23:24,311 basehttp 5788 16952 "GET / HTTP/1.1" 200 9163
+INFO 2025-06-01 01:23:24,479 basehttp 5788 16952 "GET / HTTP/1.1" 200 9163
+INFO 2025-06-01 01:23:44,202 basehttp 5788 12524 "GET / HTTP/1.1" 200 9163
+INFO 2025-06-01 01:23:44,366 basehttp 5788 12524 "GET / HTTP/1.1" 200 9163
+INFO 2025-06-01 01:23:44,536 basehttp 5788 12524 "GET / HTTP/1.1" 200 9163
+INFO 2025-06-01 01:24:37,306 basehttp 5788 4652 "GET / HTTP/1.1" 200 9163
+INFO 2025-06-01 01:24:37,936 basehttp 5788 4652 "GET / HTTP/1.1" 200 9163
+INFO 2025-06-01 01:24:38,096 basehttp 5788 4652 "GET / HTTP/1.1" 200 9163
+INFO 2025-06-01 01:24:42,390 basehttp 5788 1280 "GET /accounts/register/ HTTP/1.1" 200 2669
+INFO 2025-06-01 01:24:43,757 basehttp 5788 1280 "GET / HTTP/1.1" 200 9163
+INFO 2025-06-01 01:24:49,943 basehttp 5788 1280 "GET /accounts/register/ HTTP/1.1" 200 2669
+INFO 2025-06-01 01:24:51,320 basehttp 5788 13104 "GET / HTTP/1.1" 200 9163
+INFO 2025-06-01 01:28:52,405 basehttp 5788 6204 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:28:52,478 basehttp 5788 6204 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 60932
+INFO 2025-06-01 01:28:54,988 basehttp 5788 6204 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:28:54,994 basehttp 5788 6204 "GET / HTTP/1.1" 200 9163
+INFO 2025-06-01 01:28:55,016 basehttp 5788 6204 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
