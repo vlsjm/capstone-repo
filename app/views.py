@@ -10,8 +10,8 @@ from django.core.exceptions import ValidationError
 
 from django.views import View
 from django.contrib.auth import login, authenticate
-from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport, Reservation, ActivityLog, UserProfile, Notification, SupplyQuantity, SupplyHistory, PropertyHistory
-from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm
+from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport, Reservation, ActivityLog, UserProfile, Notification, SupplyQuantity, SupplyHistory, PropertyHistory, Department
+from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm
 from django.contrib.auth.forms import AuthenticationForm
 
 from datetime import timedelta, date
@@ -146,8 +146,32 @@ def create_user(request):
     else:
         form = UserRegistrationForm()
     users = UserProfile.objects.select_related('user').all()
-    return render(request, 'app/manage_users.html', {'form': form, 'users': users})
+    departments = Department.objects.all()
+    return render(request, 'app/manage_users.html', {'form': form, 'users': users, 'departments': departments, })
 
+def create_department(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        if name:
+            Department.objects.create(name=name)
+            messages.success(request, "Department added.")
+    return redirect('manage_users')
+def edit_department(request, dept_id):
+    if request.method == 'POST':
+        department = get_object_or_404(Department, id=dept_id)
+        new_name = request.POST.get('name')
+        if new_name:
+            department.name = new_name
+            department.save()
+            return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
+
+def delete_department(request, dept_id):
+    if request.method == 'POST':
+        department = get_object_or_404(Department, id=dept_id)
+        department.delete()
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
 
 @login_required
 @require_POST
@@ -376,7 +400,8 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = UserRegistrationForm()  
+        context['form'] = UserRegistrationForm()
+        context['departments'] = Department.objects.all() 
         return context
 
 class DashboardPageView(PermissionRequiredMixin,TemplateView):

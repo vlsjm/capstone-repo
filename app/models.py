@@ -44,6 +44,12 @@ class ActivityLog(models.Model):
             description=description
         )
 
+class Department(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     ROLE_CHOICES = [
@@ -51,11 +57,12 @@ class UserProfile(models.Model):
         ('USER', 'USER'),
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    department = models.CharField(max_length=255, blank=True, null=True)
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
 
     def __str__(self):
         return self.user.username
+    
 
 class SupplyQuantity(models.Model):
     supply = models.OneToOneField('Supply', on_delete=models.CASCADE, related_name='quantity_info')

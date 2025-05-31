@@ -1721,3 +1721,1320 @@ INFO 2025-06-01 02:22:43,025 basehttp 5292 7628 "GET / HTTP/1.1" 200 9162
 INFO 2025-06-01 02:22:51,147 basehttp 5292 7628 "POST /accounts/login/ HTTP/1.1" 302 0
 INFO 2025-06-01 02:23:34,808 basehttp 5292 5576 "GET / HTTP/1.1" 200 9162
 INFO 2025-06-01 02:23:46,357 basehttp 5292 5576 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:30:29,668 autoreload 14580 1472 Watching for file changes with StatReloader
+INFO 2025-06-01 02:30:35,690 basehttp 14580 16696 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:30:35,769 basehttp 14580 16696 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-06-01 02:30:35,865 basehttp 14580 16696 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:30:36,005 basehttp 14580 16696 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:30:36,167 basehttp 14580 16696 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:30:37,864 basehttp 14580 16696 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:32:27,885 autoreload 14580 1472 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 02:32:28,708 autoreload 9552 17284 Watching for file changes with StatReloader
+INFO 2025-06-01 02:32:48,361 autoreload 9552 17284 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 02:32:49,173 autoreload 16728 15172 Watching for file changes with StatReloader
+WARNING 2025-06-01 02:32:54,488 log 16728 15796 Forbidden (CSRF token from POST incorrect.): /accounts/login/
+WARNING 2025-06-01 02:32:54,489 basehttp 16728 15796 "POST /accounts/login/ HTTP/1.1" 403 2503
+INFO 2025-06-01 02:32:55,793 basehttp 16728 15796 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:32:57,217 basehttp 16728 15796 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:32:57,230 basehttp 16728 15796 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 02:32:57,402 basehttp 16728 15796 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:32:59,578 basehttp 16728 15796 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:32:59,641 basehttp 16728 15796 "GET /dashboard/ HTTP/1.1" 200 32811
+INFO 2025-06-01 02:33:02,650 basehttp 16728 15796 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:33:02,654 basehttp 16728 15796 "GET / HTTP/1.1" 200 9162
+ERROR 2025-06-01 02:33:03,859 log 16728 15796 Internal Server Error: /accounts/register/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\accounts\views.py", line 12, in get
+    return render(request, self.template_name, {
+        'user_form':    UserRegistrationForm(),
+        'profile_form': UserProfileForm()
+    })
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 56, in render
+    result = self.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'login_admin' not found. 'login_admin' is not a valid view function or pattern name.
+ERROR 2025-06-01 02:33:03,865 basehttp 16728 15796 "GET /accounts/register/ HTTP/1.1" 500 148149
+INFO 2025-06-01 02:33:05,854 basehttp 16728 15796 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:33:22,844 basehttp 16728 15796 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:33:22,860 basehttp 16728 15796 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 02:33:23,035 basehttp 16728 15796 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:33:23,888 basehttp 16728 15796 "GET /accounts/register/ HTTP/1.1" 200 2669
+INFO 2025-06-01 02:33:25,017 basehttp 16728 15796 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:33:26,049 basehttp 16728 15796 "GET /accounts/register/ HTTP/1.1" 200 2669
+INFO 2025-06-01 02:33:27,161 basehttp 16728 15796 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:33:37,740 basehttp 16728 15796 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:33:37,775 basehttp 16728 15796 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 62412
+INFO 2025-06-01 02:33:52,959 basehttp 16728 15796 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 62412
+INFO 2025-06-01 02:34:00,493 basehttp 16728 15796 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:34:00,511 basehttp 16728 15796 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:01,542 basehttp 16728 15796 "GET /admin HTTP/1.1" 301 0
+INFO 2025-06-01 02:34:01,563 basehttp 16728 17000 "GET /admin/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:34:01,640 basehttp 16728 17000 "GET /admin/login/?next=/admin/ HTTP/1.1" 200 3701
+INFO 2025-06-01 02:34:01,662 basehttp 16728 17000 "GET /static/admin/css/base.css HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:01,665 basehttp 16728 11700 "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:01,666 basehttp 16728 13488 "GET /static/admin/js/theme.js HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:01,673 basehttp 16728 13488 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:01,674 basehttp 16728 17000 "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:01,678 basehttp 16728 17000 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:01,731 basehttp 16728 11700 "GET /static/admin/css/login.css HTTP/1.1" 200 951
+INFO 2025-06-01 02:34:09,245 basehttp 16728 11700 "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:34:09,302 basehttp 16728 11700 "GET /admin/ HTTP/1.1" 200 17566
+INFO 2025-06-01 02:34:09,334 basehttp 16728 11700 "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+INFO 2025-06-01 02:34:09,339 basehttp 16728 11700 "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:09,340 basehttp 16728 17000 "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:12,786 basehttp 16728 17000 "GET /admin/app/userprofile/ HTTP/1.1" 200 18903
+INFO 2025-06-01 02:34:12,810 basehttp 16728 13488 "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:12,812 basehttp 16728 11700 "GET /static/admin/css/changelists.css HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:12,814 basehttp 16728 15376 "GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:12,817 basehttp 16728 11828 "GET /static/admin/js/core.js HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:12,818 basehttp 16728 13488 "GET /static/admin/js/actions.js HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:12,819 basehttp 16728 11700 "GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:12,820 basehttp 16728 15376 "GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:12,821 basehttp 16728 7616 "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:12,821 basehttp 16728 11828 "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:12,827 basehttp 16728 11828 "GET /static/admin/js/filters.js HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:12,847 basehttp 16728 17000 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:34:12,860 basehttp 16728 17000 "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:18,913 basehttp 16728 17000 "GET /admin/app/userprofile/1/change/ HTTP/1.1" 200 17870
+INFO 2025-06-01 02:34:18,927 basehttp 16728 17000 "GET /static/admin/css/forms.css HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:18,933 basehttp 16728 7616 "GET /static/admin/css/widgets.css HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:18,934 basehttp 16728 11828 "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:18,938 basehttp 16728 17000 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:34:18,938 basehttp 16728 11828 "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:18,942 basehttp 16728 11828 "GET /static/admin/js/change_form.js HTTP/1.1" 304 0
+WARNING 2025-06-01 02:34:29,190 log 16728 11828 Forbidden (CSRF token from POST incorrect.): /accounts/logout/
+WARNING 2025-06-01 02:34:29,191 basehttp 16728 11828 "POST /accounts/logout/ HTTP/1.1" 403 2503
+WARNING 2025-06-01 02:34:31,582 log 16728 11828 Forbidden (CSRF token from POST incorrect.): /accounts/logout/
+WARNING 2025-06-01 02:34:31,583 basehttp 16728 11828 "POST /accounts/logout/ HTTP/1.1" 403 2503
+INFO 2025-06-01 02:34:33,631 basehttp 16728 11828 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 22605
+INFO 2025-06-01 02:34:34,066 basehttp 16728 11828 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:34:41,435 basehttp 16728 11828 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:34:41,470 basehttp 16728 11828 "GET /dashboard/ HTTP/1.1" 200 32811
+INFO 2025-06-01 02:34:43,839 basehttp 16728 11828 "GET /manage-users/ HTTP/1.1" 200 9430
+INFO 2025-06-01 02:34:50,890 basehttp 16728 11828 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:34:50,895 basehttp 16728 11828 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:34:50,916 basehttp 16728 11828 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 02:34:55,097 basehttp 16728 11828 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:34:55,129 basehttp 16728 11828 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 62412
+INFO 2025-06-01 02:35:35,747 autoreload 16728 15172 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-01 02:35:36,779 autoreload 10360 17096 Watching for file changes with StatReloader
+INFO 2025-06-01 02:35:44,080 autoreload 10360 17096 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-01 02:35:44,982 autoreload 16148 6688 Watching for file changes with StatReloader
+INFO 2025-06-01 02:36:22,977 autoreload 5832 14744 Watching for file changes with StatReloader
+INFO 2025-06-01 02:36:34,476 basehttp 5832 12352 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:36:34,554 basehttp 5832 12352 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+WARNING 2025-06-01 02:36:34,587 basehttp 5832 12352 "GET /favicon.ico HTTP/1.1" 404 13236
+INFO 2025-06-01 02:36:38,122 basehttp 5832 12352 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:36:38,188 basehttp 5832 12352 "GET /dashboard/ HTTP/1.1" 200 32811
+INFO 2025-06-01 02:36:38,203 basehttp 5832 8344 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-01 02:36:38,204 basehttp 5832 12352 "GET /static/css/style.css HTTP/1.1" 200 28371
+ERROR 2025-06-01 02:36:39,222 log 5832 12352 Internal Server Error: /manage-users/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: app_userprofile.department_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 56, in render
+    result = self.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 199, in render
+    len_values = len(values)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 366, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1935, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1622, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: app_userprofile.department_id
+ERROR 2025-06-01 02:36:39,232 basehttp 5832 12352 "GET /manage-users/ HTTP/1.1" 500 182964
+INFO 2025-06-01 02:38:10,237 autoreload 5832 14744 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-01 02:38:11,204 autoreload 7164 1280 Watching for file changes with StatReloader
+INFO 2025-06-01 02:38:11,787 basehttp 7164 4700 "GET /manage-users/ HTTP/1.1" 200 9430
+WARNING 2025-06-01 02:38:46,271 log 7164 16340 Forbidden (CSRF token from POST incorrect.): /admin/app/userprofile/1/change/
+WARNING 2025-06-01 02:38:46,272 basehttp 7164 16340 "POST /admin/app/userprofile/1/change/ HTTP/1.1" 403 2503
+WARNING 2025-06-01 02:38:48,606 log 7164 16340 Forbidden (CSRF token from POST incorrect.): /admin/app/userprofile/1/change/
+WARNING 2025-06-01 02:38:48,607 basehttp 7164 16340 "POST /admin/app/userprofile/1/change/ HTTP/1.1" 403 2503
+INFO 2025-06-01 02:38:51,465 basehttp 7164 16340 "GET /admin/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:38:51,511 basehttp 7164 16340 "GET /admin/login/?next=/admin/ HTTP/1.1" 200 3701
+INFO 2025-06-01 02:38:56,997 basehttp 7164 16340 "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:38:57,019 basehttp 7164 16340 "GET /admin/ HTTP/1.1" 200 17566
+INFO 2025-06-01 02:38:59,585 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 18903
+INFO 2025-06-01 02:38:59,618 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:01,379 basehttp 7164 16340 "GET /admin/app/userprofile/1/change/ HTTP/1.1" 200 17870
+INFO 2025-06-01 02:39:01,395 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:05,038 basehttp 7164 16340 "POST /admin/app/userprofile/1/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:05,070 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19110
+INFO 2025-06-01 02:39:05,089 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:05,102 basehttp 7164 16340 "GET /static/admin/img/icon-yes.svg HTTP/1.1" 304 0
+INFO 2025-06-01 02:39:06,375 basehttp 7164 16340 "GET /admin/app/userprofile/6/change/ HTTP/1.1" 200 17885
+INFO 2025-06-01 02:39:06,394 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:08,164 basehttp 7164 16340 "POST /admin/app/userprofile/6/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:08,194 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19115
+INFO 2025-06-01 02:39:08,211 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:10,822 basehttp 7164 16340 "GET /admin/app/userprofile/25/change/ HTTP/1.1" 200 17868
+INFO 2025-06-01 02:39:10,840 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:12,435 basehttp 7164 16340 "POST /admin/app/userprofile/25/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:12,465 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19110
+INFO 2025-06-01 02:39:12,484 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:13,452 basehttp 7164 16340 "GET /admin/app/userprofile/24/change/ HTTP/1.1" 200 17878
+INFO 2025-06-01 02:39:13,470 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:14,956 basehttp 7164 16340 "POST /admin/app/userprofile/24/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:14,989 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19113
+INFO 2025-06-01 02:39:15,008 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:16,038 basehttp 7164 16340 "GET /admin/app/userprofile/23/change/ HTTP/1.1" 200 17866
+INFO 2025-06-01 02:39:16,056 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:17,883 basehttp 7164 16340 "POST /admin/app/userprofile/23/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:17,911 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19109
+INFO 2025-06-01 02:39:17,931 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:19,206 basehttp 7164 16340 "GET /admin/app/userprofile/22/change/ HTTP/1.1" 200 17875
+INFO 2025-06-01 02:39:19,225 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:20,864 basehttp 7164 16340 "POST /admin/app/userprofile/22/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:20,892 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19112
+INFO 2025-06-01 02:39:20,912 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:22,046 basehttp 7164 16340 "GET /admin/app/userprofile/21/change/ HTTP/1.1" 200 17878
+INFO 2025-06-01 02:39:22,062 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:23,498 basehttp 7164 16340 "POST /admin/app/userprofile/21/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:23,528 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19113
+INFO 2025-06-01 02:39:23,548 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:24,478 basehttp 7164 16340 "GET /admin/app/userprofile/20/change/ HTTP/1.1" 200 17875
+INFO 2025-06-01 02:39:24,494 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:25,988 basehttp 7164 16340 "POST /admin/app/userprofile/20/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:26,021 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19112
+INFO 2025-06-01 02:39:26,042 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:27,785 basehttp 7164 16340 "GET /admin/app/userprofile/19/change/ HTTP/1.1" 200 17875
+INFO 2025-06-01 02:39:27,804 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:29,132 basehttp 7164 16340 "POST /admin/app/userprofile/19/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:29,163 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19112
+INFO 2025-06-01 02:39:29,183 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:30,815 basehttp 7164 16340 "GET /admin/app/userprofile/19/change/ HTTP/1.1" 200 17875
+INFO 2025-06-01 02:39:30,832 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:33,502 basehttp 7164 16340 "POST /admin/app/userprofile/19/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:33,533 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19112
+INFO 2025-06-01 02:39:33,560 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:35,351 basehttp 7164 16340 "GET /admin/app/userprofile/15/change/ HTTP/1.1" 200 17871
+INFO 2025-06-01 02:39:35,368 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:37,178 basehttp 7164 16340 "POST /admin/app/userprofile/15/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:37,206 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19111
+INFO 2025-06-01 02:39:37,226 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:39,519 basehttp 7164 16340 "GET /admin/app/userprofile/14/change/ HTTP/1.1" 200 17872
+INFO 2025-06-01 02:39:39,537 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:41,495 basehttp 7164 16340 "POST /admin/app/userprofile/14/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:41,527 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19111
+INFO 2025-06-01 02:39:41,546 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:42,792 basehttp 7164 16340 "GET /admin/app/userprofile/13/change/ HTTP/1.1" 200 17877
+INFO 2025-06-01 02:39:42,810 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:44,341 basehttp 7164 16340 "POST /admin/app/userprofile/13/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:44,372 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19113
+INFO 2025-06-01 02:39:44,392 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:46,960 basehttp 7164 16340 "GET /admin/app/userprofile/12/change/ HTTP/1.1" 200 17878
+INFO 2025-06-01 02:39:46,977 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:48,348 basehttp 7164 16340 "POST /admin/app/userprofile/12/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:48,377 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19113
+INFO 2025-06-01 02:39:48,397 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:49,193 basehttp 7164 16340 "GET /admin/app/userprofile/12/change/ HTTP/1.1" 200 17878
+INFO 2025-06-01 02:39:49,208 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:51,177 basehttp 7164 16340 "POST /admin/app/userprofile/12/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:51,212 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19113
+INFO 2025-06-01 02:39:51,232 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:54,093 basehttp 7164 16340 "GET /admin/app/userprofile/10/change/ HTTP/1.1" 200 17872
+INFO 2025-06-01 02:39:54,111 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:55,631 basehttp 7164 16340 "POST /admin/app/userprofile/10/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:55,662 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19111
+INFO 2025-06-01 02:39:55,681 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:58,142 basehttp 7164 16340 "GET /admin/app/userprofile/10/change/ HTTP/1.1" 200 17872
+INFO 2025-06-01 02:39:58,160 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:39:59,500 basehttp 7164 16340 "POST /admin/app/userprofile/10/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:39:59,534 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19111
+INFO 2025-06-01 02:39:59,552 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:40:03,904 basehttp 7164 16340 "GET /admin/app/userprofile/8/change/ HTTP/1.1" 200 17879
+INFO 2025-06-01 02:40:03,922 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:40:05,667 basehttp 7164 16340 "POST /admin/app/userprofile/8/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:40:05,725 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19113
+INFO 2025-06-01 02:40:05,750 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:40:07,561 basehttp 7164 16340 "GET /admin/app/userprofile/5/change/ HTTP/1.1" 200 17873
+INFO 2025-06-01 02:40:07,580 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:40:09,254 basehttp 7164 16340 "POST /admin/app/userprofile/5/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:40:09,284 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19111
+INFO 2025-06-01 02:40:09,305 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:40:10,714 basehttp 7164 16340 "GET /admin/app/userprofile/6/change/ HTTP/1.1" 200 17885
+INFO 2025-06-01 02:40:10,736 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:40:12,522 basehttp 7164 16340 "POST /admin/app/userprofile/6/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:40:12,552 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19115
+INFO 2025-06-01 02:40:12,573 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:40:16,809 basehttp 7164 16340 "GET /admin/app/userprofile/4/change/ HTTP/1.1" 200 17873
+INFO 2025-06-01 02:40:16,826 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:40:18,730 basehttp 7164 16340 "POST /admin/app/userprofile/4/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:40:18,783 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19111
+INFO 2025-06-01 02:40:18,811 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:40:20,307 basehttp 7164 16340 "GET /admin/app/userprofile/1/change/ HTTP/1.1" 200 17870
+INFO 2025-06-01 02:40:20,324 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:40:21,840 basehttp 7164 16340 "POST /admin/app/userprofile/1/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:40:21,872 basehttp 7164 16340 "GET /admin/app/userprofile/ HTTP/1.1" 200 19110
+INFO 2025-06-01 02:40:21,892 basehttp 7164 16340 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:40:32,791 autoreload 7164 1280 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-01 02:40:33,748 autoreload 10448 4860 Watching for file changes with StatReloader
+INFO 2025-06-01 02:40:58,650 autoreload 1044 12076 Watching for file changes with StatReloader
+INFO 2025-06-01 02:41:03,777 basehttp 1044 16316 "GET /admin/app/userprofile/ HTTP/1.1" 200 18903
+INFO 2025-06-01 02:41:03,800 basehttp 1044 16316 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:41:04,599 basehttp 1044 16316 "GET /admin/app/userprofile/ HTTP/1.1" 200 18903
+INFO 2025-06-01 02:41:04,625 basehttp 1044 16316 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:41:06,167 basehttp 1044 16316 "GET /admin/app/userprofile/25/change/ HTTP/1.1" 200 18007
+INFO 2025-06-01 02:41:06,186 basehttp 1044 16316 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:41:07,872 basehttp 1044 16316 "GET /admin/app/userprofile/ HTTP/1.1" 200 18903
+INFO 2025-06-01 02:41:07,892 basehttp 1044 16316 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 02:41:12,018 basehttp 1044 10464 "GET /manage-users/ HTTP/1.1" 200 9430
+INFO 2025-06-01 02:41:12,409 basehttp 1044 10464 "GET /manage-users/ HTTP/1.1" 200 9430
+INFO 2025-06-01 02:41:12,718 basehttp 1044 10464 "GET /manage-users/ HTTP/1.1" 200 9430
+INFO 2025-06-01 02:45:29,574 basehttp 1044 17276 "GET /property/ HTTP/1.1" 200 66870
+INFO 2025-06-01 02:45:29,584 basehttp 1044 17276 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 02:45:50,947 basehttp 1044 7996 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:45:50,969 basehttp 1044 7996 "GET /property/ HTTP/1.1" 200 67132
+INFO 2025-06-01 02:46:01,428 basehttp 1044 12976 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:46:01,449 basehttp 1044 12976 "GET /property/ HTTP/1.1" 200 67137
+INFO 2025-06-01 02:52:15,111 basehttp 1044 1728 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 22605
+INFO 2025-06-01 02:52:15,511 basehttp 1044 1728 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 22605
+INFO 2025-06-01 02:52:15,663 basehttp 1044 1728 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 22605
+INFO 2025-06-01 02:52:15,822 basehttp 1044 1728 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 22605
+INFO 2025-06-01 02:52:18,950 basehttp 1044 14412 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 02:52:18,968 basehttp 1044 14412 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 02:52:21,332 basehttp 1044 14412 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 02:52:21,381 basehttp 1044 14412 "GET /dashboard/ HTTP/1.1" 200 32811
+INFO 2025-06-01 02:52:21,400 basehttp 1044 14412 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 02:52:24,039 basehttp 1044 14412 "GET /manage-users/ HTTP/1.1" 200 34911
+WARNING 2025-06-01 02:52:24,066 basehttp 1044 14412 "GET /static/scripts/modals.js HTTP/1.1" 404 1865
+INFO 2025-06-01 02:56:13,799 autoreload 1044 12076 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-01 02:56:14,929 autoreload 7116 14836 Watching for file changes with StatReloader
+INFO 2025-06-01 02:59:44,135 autoreload 7116 14836 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 02:59:44,979 autoreload 15280 16320 Watching for file changes with StatReloader
+INFO 2025-06-01 03:00:08,556 autoreload 15280 16320 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 03:00:09,450 autoreload 14256 13616 Watching for file changes with StatReloader
+INFO 2025-06-01 03:00:21,943 autoreload 14256 13616 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 03:00:22,792 autoreload 17340 8388 Watching for file changes with StatReloader
+INFO 2025-06-01 03:00:44,386 autoreload 17340 8388 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 03:00:45,255 autoreload 2960 16544 Watching for file changes with StatReloader
+INFO 2025-06-01 03:01:16,981 autoreload 2960 16544 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 03:01:17,743 autoreload 1660 2816 Watching for file changes with StatReloader
+INFO 2025-06-01 03:03:08,007 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12495
+INFO 2025-06-01 03:03:08,443 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12495
+INFO 2025-06-01 03:03:08,640 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12495
+INFO 2025-06-01 03:03:12,346 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12495
+INFO 2025-06-01 03:03:12,499 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12495
+INFO 2025-06-01 03:04:20,421 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+INFO 2025-06-01 03:04:20,574 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+INFO 2025-06-01 03:04:20,731 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+INFO 2025-06-01 03:05:22,024 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+INFO 2025-06-01 03:05:22,181 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:06:09,672 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:06:37,904 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:06:37,932 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:06:38,092 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:06:38,111 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:06:38,255 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:06:38,276 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:06:38,427 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:06:38,446 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:06:38,577 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:06:38,598 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:06:38,755 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:06:38,774 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:06:38,905 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:06:38,925 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:06:39,069 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:06:39,088 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:06:41,070 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:06:41,090 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:06:41,240 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:06:41,262 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:06:41,406 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:06:41,429 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:08:45,473 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:08:45,502 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:08:45,655 basehttp 1660 4528 "GET /manage-users/ HTTP/1.1" 200 12463
+WARNING 2025-06-01 03:08:45,680 basehttp 1660 4528 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:09:03,127 basehttp 1660 3192 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:09:03,137 basehttp 1660 3192 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 03:09:03,149 basehttp 1660 3192 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 03:09:05,502 basehttp 1660 3192 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:09:05,569 basehttp 1660 3192 "GET /dashboard/ HTTP/1.1" 200 32811
+INFO 2025-06-01 03:09:05,579 basehttp 1660 3192 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 03:09:05,579 basehttp 1660 15156 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:09:06,684 basehttp 1660 15156 "GET /manage-users/ HTTP/1.1" 200 12463
+INFO 2025-06-01 03:09:56,635 basehttp 1660 15156 "GET /manage-users/ HTTP/1.1" 200 12485
+INFO 2025-06-01 03:09:57,019 basehttp 1660 15156 "GET /manage-users/ HTTP/1.1" 200 12485
+INFO 2025-06-01 03:13:06,602 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 12485
+INFO 2025-06-01 03:13:06,807 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 12485
+INFO 2025-06-01 03:15:09,139 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 12485
+INFO 2025-06-01 03:15:09,153 basehttp 1660 11984 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 03:15:09,302 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 12485
+INFO 2025-06-01 03:15:09,456 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 12485
+WARNING 2025-06-01 03:15:18,615 basehttp 1660 11984 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 13624
+INFO 2025-06-01 03:18:04,768 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 13161
+INFO 2025-06-01 03:18:04,915 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 13161
+INFO 2025-06-01 03:18:05,082 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 13161
+INFO 2025-06-01 03:18:17,049 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 13161
+INFO 2025-06-01 03:18:17,266 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 13161
+INFO 2025-06-01 03:18:17,413 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 13161
+INFO 2025-06-01 03:18:18,854 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 13161
+INFO 2025-06-01 03:18:19,006 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 13161
+INFO 2025-06-01 03:18:19,192 basehttp 1660 11984 "GET /manage-users/ HTTP/1.1" 200 13161
+INFO 2025-06-01 03:19:27,173 autoreload 1660 2816 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-01 03:19:28,038 autoreload 1712 8252 Watching for file changes with StatReloader
+INFO 2025-06-01 03:19:51,737 autoreload 1712 8252 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 03:19:52,652 autoreload 6200 12732 Watching for file changes with StatReloader
+INFO 2025-06-01 03:20:04,234 autoreload 6200 12732 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 03:20:05,158 autoreload 7560 11444 Watching for file changes with StatReloader
+INFO 2025-06-01 03:20:23,818 autoreload 7560 11444 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 03:20:24,596 autoreload 16900 7696 Watching for file changes with StatReloader
+INFO 2025-06-01 03:20:26,995 autoreload 16900 7696 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 03:20:27,842 autoreload 16080 17024 Watching for file changes with StatReloader
+INFO 2025-06-01 03:21:14,274 basehttp 16080 5608 "GET /manage-users/ HTTP/1.1" 200 13161
+INFO 2025-06-01 03:21:14,730 basehttp 16080 5608 "GET /manage-users/ HTTP/1.1" 200 13161
+INFO 2025-06-01 03:21:14,912 basehttp 16080 5608 "GET /manage-users/ HTTP/1.1" 200 13161
+WARNING 2025-06-01 03:21:32,274 log 16080 5608 Forbidden (CSRF cookie not set.): /accounts/logout/
+WARNING 2025-06-01 03:21:32,275 basehttp 16080 5608 "POST /accounts/logout/ HTTP/1.1" 403 2855
+WARNING 2025-06-01 03:21:34,858 log 16080 5608 Forbidden (CSRF cookie not set.): /accounts/logout/
+WARNING 2025-06-01 03:21:34,859 basehttp 16080 5608 "POST /accounts/logout/ HTTP/1.1" 403 2855
+INFO 2025-06-01 03:21:38,554 basehttp 16080 5608 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 03:21:38,619 basehttp 16080 5608 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-06-01 03:21:40,721 basehttp 16080 5608 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:21:40,782 basehttp 16080 5608 "GET /dashboard/ HTTP/1.1" 200 32811
+INFO 2025-06-01 03:21:40,807 basehttp 16080 6508 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-01 03:21:40,808 basehttp 16080 5608 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-01 03:21:40,832 basehttp 16080 14168 "GET /static/scripts/charts.js HTTP/1.1" 200 12760
+INFO 2025-06-01 03:21:40,837 basehttp 16080 1912 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 5573
+INFO 2025-06-01 03:21:43,698 basehttp 16080 1912 "GET /manage-users/ HTTP/1.1" 200 13161
+INFO 2025-06-01 03:21:43,719 basehttp 16080 1912 "GET /static/scripts/accountModal.js HTTP/1.1" 200 2194
+ERROR 2025-06-01 03:21:58,411 log 16080 1912 Internal Server Error: /create-department/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 159, in create_department
+    return redirect('registered_users')
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\shortcuts.py", line 51, in redirect
+    resolve_url(to, *args, **kwargs),
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\shortcuts.py", line 184, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'registered_users' not found. 'registered_users' is not a valid view function or pattern name.
+ERROR 2025-06-01 03:21:58,416 basehttp 16080 1912 "POST /create-department/ HTTP/1.1" 500 91362
+INFO 2025-06-01 03:22:02,613 basehttp 16080 1912 "GET /manage-users/ HTTP/1.1" 200 13372
+ERROR 2025-06-01 03:22:15,217 log 16080 1912 Internal Server Error: /create-department/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 159, in create_department
+    return redirect('registered_users')
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\shortcuts.py", line 51, in redirect
+    resolve_url(to, *args, **kwargs),
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\shortcuts.py", line 184, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'registered_users' not found. 'registered_users' is not a valid view function or pattern name.
+ERROR 2025-06-01 03:22:15,219 basehttp 16080 1912 "POST /create-department/ HTTP/1.1" 500 91363
+INFO 2025-06-01 03:23:06,846 autoreload 16080 17024 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 03:23:07,817 autoreload 15396 8384 Watching for file changes with StatReloader
+INFO 2025-06-01 03:23:09,641 basehttp 15396 13248 "POST /create-department/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:23:09,683 basehttp 15396 13248 "GET /manage-users/ HTTP/1.1" 200 13563
+INFO 2025-06-01 03:23:09,697 basehttp 15396 13248 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:23:13,389 basehttp 15396 13248 "POST /create-department/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:23:13,421 basehttp 15396 13248 "GET /manage-users/ HTTP/1.1" 200 13391
+INFO 2025-06-01 03:23:31,458 basehttp 15396 13248 "GET /admin/auth/group/add/ HTTP/1.1" 200 21380
+INFO 2025-06-01 03:23:31,512 basehttp 15396 13176 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 03:23:31,653 basehttp 15396 13248 "GET /static/admin/css/base.css HTTP/1.1" 200 22154
+INFO 2025-06-01 03:23:31,713 basehttp 15396 11188 "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2808
+INFO 2025-06-01 03:23:31,720 basehttp 15396 9924 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+INFO 2025-06-01 03:23:31,725 basehttp 15396 10460 "GET /static/admin/css/forms.css HTTP/1.1" 200 8525
+INFO 2025-06-01 03:23:31,725 basehttp 15396 13176 "GET /static/admin/css/responsive.css HTTP/1.1" 200 16632
+INFO 2025-06-01 03:23:31,725 basehttp 15396 5472 "GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+INFO 2025-06-01 03:23:31,736 basehttp 15396 11188 "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+INFO 2025-06-01 03:23:31,752 basehttp 15396 11188 "GET /static/admin/css/widgets.css HTTP/1.1" 200 11991
+INFO 2025-06-01 03:23:31,758 basehttp 15396 9924 "GET /static/admin/js/core.js HTTP/1.1" 200 6208
+INFO 2025-06-01 03:23:31,759 basehttp 15396 10460 "GET /static/admin/js/SelectBox.js HTTP/1.1" 200 4530
+INFO 2025-06-01 03:23:31,763 basehttp 15396 5472 "GET /static/admin/js/actions.js HTTP/1.1" 200 8076
+INFO 2025-06-01 03:23:31,767 basehttp 15396 13176 "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9777
+INFO 2025-06-01 03:23:31,785 basehttp 15396 11188 "GET /static/admin/js/SelectFilter2.js HTTP/1.1" 200 15709
+INFO 2025-06-01 03:23:31,787 basehttp 15396 13248 "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+INFO 2025-06-01 03:23:31,790 basehttp 15396 10460 "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+INFO 2025-06-01 03:23:31,792 basehttp 15396 13176 "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+INFO 2025-06-01 03:23:31,792 basehttp 15396 9924 "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+INFO 2025-06-01 03:23:31,823 basehttp 15396 9924 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+INFO 2025-06-01 03:23:31,844 basehttp 15396 9924 "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+INFO 2025-06-01 03:23:31,885 basehttp 15396 5472 "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+INFO 2025-06-01 03:23:31,924 basehttp 15396 5472 "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+INFO 2025-06-01 03:23:31,967 basehttp 15396 5472 "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+INFO 2025-06-01 03:23:31,973 basehttp 15396 9924 "GET /static/admin/img/selector-icons.svg HTTP/1.1" 200 3291
+INFO 2025-06-01 03:23:58,254 autoreload 15396 8384 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\admin.py changed, reloading.
+INFO 2025-06-01 03:23:59,225 autoreload 16452 10740 Watching for file changes with StatReloader
+INFO 2025-06-01 03:24:00,763 basehttp 16452 11892 "GET /admin/auth/group/add/ HTTP/1.1" 200 21810
+INFO 2025-06-01 03:24:00,784 basehttp 16452 11892 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 03:24:02,432 basehttp 16452 11892 "GET /admin/app/department/ HTTP/1.1" 200 14809
+INFO 2025-06-01 03:24:02,450 basehttp 16452 15724 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 03:24:02,515 basehttp 16452 11892 "GET /static/admin/css/changelists.css HTTP/1.1" 200 6878
+INFO 2025-06-01 03:24:02,535 basehttp 16452 15724 "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+INFO 2025-06-01 03:24:02,542 basehttp 16452 11892 "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+INFO 2025-06-01 03:27:38,725 autoreload 16452 10740 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 03:27:39,596 autoreload 16828 9824 Watching for file changes with StatReloader
+INFO 2025-06-01 03:28:00,268 autoreload 16828 9824 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 03:28:01,148 autoreload 6948 10408 Watching for file changes with StatReloader
+INFO 2025-06-01 03:29:38,715 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15196
+INFO 2025-06-01 03:29:38,791 basehttp 6948 10348 "GET /static/scripts/accountModal.js HTTP/1.1" 200 2670
+INFO 2025-06-01 03:29:38,852 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15196
+INFO 2025-06-01 03:29:38,995 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15196
+INFO 2025-06-01 03:29:39,329 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15196
+ERROR 2025-06-01 03:29:43,681 log 6948 10348 Internal Server Error: /create-department/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: app_department.name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 155, in create_department
+    Department.objects.create(name=name)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1169, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1210, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1854, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1881, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: app_department.name
+ERROR 2025-06-01 03:29:43,688 basehttp 6948 10348 "POST /create-department/ HTTP/1.1" 500 160703
+INFO 2025-06-01 03:29:48,735 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15196
+INFO 2025-06-01 03:29:51,629 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15196
+INFO 2025-06-01 03:29:51,643 basehttp 6948 10348 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:29:51,802 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15196
+INFO 2025-06-01 03:29:56,874 basehttp 6948 10348 "GET /admin/app/department/ HTTP/1.1" 200 14809
+INFO 2025-06-01 03:29:56,889 basehttp 6948 10348 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 03:29:57,018 basehttp 6948 10348 "GET /admin/app/department/ HTTP/1.1" 200 14809
+INFO 2025-06-01 03:29:57,034 basehttp 6948 10348 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 03:30:01,902 basehttp 6948 10348 "GET /admin/app/department/ HTTP/1.1" 200 14809
+INFO 2025-06-01 03:30:01,919 basehttp 6948 10348 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 03:30:07,303 basehttp 6948 10348 "POST /admin/app/department/ HTTP/1.1" 200 13651
+INFO 2025-06-01 03:30:07,351 basehttp 6948 10348 "GET /static/admin/js/cancel.js HTTP/1.1" 200 884
+INFO 2025-06-01 03:30:08,257 basehttp 6948 10348 "POST /admin/app/department/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:30:08,273 basehttp 6948 10348 "GET /admin/app/department/ HTTP/1.1" 200 13671
+INFO 2025-06-01 03:30:08,292 basehttp 6948 10348 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 03:30:08,317 basehttp 6948 10348 "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+INFO 2025-06-01 03:30:10,730 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15196
+INFO 2025-06-01 03:30:10,743 basehttp 6948 10348 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:30:10,889 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15196
+INFO 2025-06-01 03:30:13,518 basehttp 6948 10348 "POST /create-department/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:30:13,541 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15394
+INFO 2025-06-01 03:31:21,944 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:31:21,955 basehttp 6948 10348 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:31:22,213 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15052
+ERROR 2025-06-01 03:31:25,305 log 6948 10348 Internal Server Error: /create-department/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: app_department.name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 155, in create_department
+    Department.objects.create(name=name)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1169, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1210, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1854, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1881, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: app_department.name
+ERROR 2025-06-01 03:31:25,311 basehttp 6948 10348 "POST /create-department/ HTTP/1.1" 500 160703
+INFO 2025-06-01 03:31:30,236 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:31:35,726 basehttp 6948 10348 "POST /create-department/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:31:35,755 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15250
+INFO 2025-06-01 03:31:35,770 basehttp 6948 10348 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:31:57,221 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:31:57,234 basehttp 6948 10348 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:31:57,382 basehttp 6948 10348 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:32:00,074 basehttp 6948 3828 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:32:00,083 basehttp 6948 3828 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 03:32:00,347 basehttp 6948 3828 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:32:00,495 basehttp 6948 3828 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:32:01,251 basehttp 6948 3828 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:32:04,263 basehttp 6948 3828 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:32:04,424 basehttp 6948 3828 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:32:04,603 basehttp 6948 3828 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:32:08,943 basehttp 6948 3828 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:32:08,949 basehttp 6948 3828 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 03:32:08,957 basehttp 6948 3828 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 03:32:10,777 basehttp 6948 3828 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:32:10,814 basehttp 6948 3828 "GET /dashboard/ HTTP/1.1" 200 32811
+INFO 2025-06-01 03:32:14,888 basehttp 6948 3828 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:32:32,623 basehttp 6948 3828 "GET /manage-users/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:32:32,636 basehttp 6948 3828 "GET /login_user/?next=/manage-users/ HTTP/1.1" 200 9162
+INFO 2025-06-01 03:32:32,644 basehttp 6948 3828 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-06-01 03:32:32,791 basehttp 6948 3828 "GET /login_user/?next=/manage-users/ HTTP/1.1" 200 9162
+INFO 2025-06-01 03:32:34,552 basehttp 6948 3828 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:32:34,591 basehttp 6948 3828 "GET /dashboard/ HTTP/1.1" 200 32811
+INFO 2025-06-01 03:32:34,605 basehttp 6948 13976 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-01 03:32:34,605 basehttp 6948 1644 "GET /static/scripts/charts.js HTTP/1.1" 200 12760
+INFO 2025-06-01 03:32:34,606 basehttp 6948 3828 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-01 03:32:34,606 basehttp 6948 7464 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 5573
+INFO 2025-06-01 03:32:36,143 basehttp 6948 7464 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:32:36,154 basehttp 6948 7464 "GET /static/scripts/accountModal.js HTTP/1.1" 200 2670
+INFO 2025-06-01 03:32:39,907 basehttp 6948 7464 "POST /create-department/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:32:39,937 basehttp 6948 7464 "GET /manage-users/ HTTP/1.1" 200 15250
+INFO 2025-06-01 03:32:43,522 basehttp 6948 7464 "POST /create-department/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:32:43,547 basehttp 6948 7464 "GET /manage-users/ HTTP/1.1" 200 15250
+INFO 2025-06-01 03:35:51,276 autoreload 6948 10408 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 03:35:52,208 autoreload 13612 13420 Watching for file changes with StatReloader
+INFO 2025-06-01 03:35:56,741 basehttp 13612 10036 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:35:56,754 basehttp 13612 10036 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:36:36,741 basehttp 13612 10036 "GET /admin/app/department/ HTTP/1.1" 200 15578
+INFO 2025-06-01 03:36:36,761 basehttp 13612 10036 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 03:39:59,190 basehttp 13612 12156 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:39:59,198 basehttp 13612 12156 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:39:59,499 basehttp 13612 12156 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:39:59,684 basehttp 13612 12156 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:40:08,106 basehttp 13612 12156 "GET /manage-users/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:40:08,113 basehttp 13612 12156 "GET /login_user/?next=/manage-users/ HTTP/1.1" 200 9162
+INFO 2025-06-01 03:40:08,169 basehttp 13612 12156 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-06-01 03:40:08,291 basehttp 13612 12156 "GET /login_user/?next=/manage-users/ HTTP/1.1" 200 9162
+INFO 2025-06-01 03:40:10,136 basehttp 13612 12156 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 03:40:10,174 basehttp 13612 12156 "GET /dashboard/ HTTP/1.1" 200 32811
+INFO 2025-06-01 03:40:10,189 basehttp 13612 12156 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-01 03:40:10,189 basehttp 13612 2124 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-01 03:40:10,190 basehttp 13612 7696 "GET /static/scripts/charts.js HTTP/1.1" 200 12760
+INFO 2025-06-01 03:40:10,190 basehttp 13612 9544 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 5573
+INFO 2025-06-01 03:40:12,785 basehttp 13612 9544 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:40:12,794 basehttp 13612 9544 "GET /static/scripts/accountModal.js HTTP/1.1" 200 2670
+INFO 2025-06-01 03:40:22,788 basehttp 13612 9544 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:46:04,152 basehttp 13612 5808 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:46:04,167 basehttp 13612 5808 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 03:46:04,169 basehttp 13612 11228 "GET /static/scripts/accountModal.js HTTP/1.1" 200 989
+INFO 2025-06-01 03:46:04,351 basehttp 13612 11228 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:46:04,575 basehttp 13612 11228 "GET /manage-users/ HTTP/1.1" 200 15052
+INFO 2025-06-01 03:46:04,588 basehttp 13612 11228 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:47:21,988 basehttp 13612 11228 "GET /manage-users/ HTTP/1.1" 200 15115
+INFO 2025-06-01 03:47:22,007 basehttp 13612 5808 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:47:22,034 basehttp 13612 11228 "GET /static/scripts/departmentModal.js HTTP/1.1" 200 3593
+INFO 2025-06-01 03:47:22,105 basehttp 13612 11228 "GET /manage-users/ HTTP/1.1" 200 15115
+INFO 2025-06-01 03:48:23,460 basehttp 13612 16544 "GET /manage-users/ HTTP/1.1" 200 15115
+INFO 2025-06-01 03:48:23,495 basehttp 13612 16544 "GET /static/scripts/accountModal.js HTTP/1.1" 200 648
+INFO 2025-06-01 03:48:23,499 basehttp 13612 14340 "GET /static/scripts/departmentModal.js HTTP/1.1" 200 5347
+INFO 2025-06-01 03:48:23,608 basehttp 13612 14340 "GET /manage-users/ HTTP/1.1" 200 15115
+INFO 2025-06-01 03:48:23,620 basehttp 13612 14340 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+ERROR 2025-06-01 03:48:29,503 log 13612 14340 Internal Server Error: /create-department/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: app_department.name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 156, in create_department
+    Department.objects.create(name=name)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1169, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1210, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1854, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1881, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: app_department.name
+ERROR 2025-06-01 03:48:29,510 basehttp 13612 14340 "POST /create-department/ HTTP/1.1" 500 160865
+INFO 2025-06-01 03:48:32,137 basehttp 13612 14340 "GET /manage-users/ HTTP/1.1" 200 15115
+ERROR 2025-06-01 03:48:45,180 log 13612 14340 Internal Server Error: /create-department/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: app_department.name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 156, in create_department
+    Department.objects.create(name=name)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1169, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1210, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1854, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1881, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: app_department.name
+ERROR 2025-06-01 03:48:45,184 basehttp 13612 14340 "POST /create-department/ HTTP/1.1" 500 160865
+INFO 2025-06-01 03:49:49,666 basehttp 13612 14340 "GET /manage-users/ HTTP/1.1" 200 15706
+INFO 2025-06-01 03:49:51,456 basehttp 13612 14340 "GET /manage-users/ HTTP/1.1" 200 15706
+INFO 2025-06-01 03:49:51,468 basehttp 13612 14340 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:49:51,473 basehttp 13612 14340 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:49:51,611 basehttp 13612 14340 "GET /manage-users/ HTTP/1.1" 200 15706
+INFO 2025-06-01 03:52:54,810 basehttp 13612 13588 "GET /manage-users/ HTTP/1.1" 200 18915
+INFO 2025-06-01 03:52:54,824 basehttp 13612 15756 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:52:54,824 basehttp 13612 13588 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:53:33,666 basehttp 13612 13588 "GET /manage-users/ HTTP/1.1" 200 15706
+INFO 2025-06-01 03:53:33,679 basehttp 13612 13588 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:53:33,683 basehttp 13612 13588 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:53:33,797 basehttp 13612 13588 "GET /manage-users/ HTTP/1.1" 200 15706
+INFO 2025-06-01 03:54:24,270 autoreload 12156 9764 Watching for file changes with StatReloader
+INFO 2025-06-01 03:54:26,225 basehttp 12156 16600 "GET /manage-users/ HTTP/1.1" 200 15706
+INFO 2025-06-01 03:54:26,253 basehttp 12156 16600 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:54:26,253 basehttp 12156 11844 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:54:39,647 basehttp 12156 11844 "GET /manage-users/ HTTP/1.1" 200 15115
+INFO 2025-06-01 03:54:39,827 basehttp 12156 11844 "GET /manage-users/ HTTP/1.1" 200 15115
+INFO 2025-06-01 03:57:06,693 basehttp 12156 7148 "GET /manage-users/ HTTP/1.1" 200 15398
+INFO 2025-06-01 03:57:06,707 basehttp 12156 7148 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:57:06,711 basehttp 12156 7148 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:57:11,494 basehttp 12156 7148 "GET /manage-users/ HTTP/1.1" 200 15398
+INFO 2025-06-01 03:57:11,675 basehttp 12156 7148 "GET /manage-users/ HTTP/1.1" 200 15398
+INFO 2025-06-01 03:58:07,735 basehttp 12156 7148 "GET /manage-users/ HTTP/1.1" 200 21386
+INFO 2025-06-01 03:58:07,748 basehttp 12156 7148 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:58:07,749 basehttp 12156 15324 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:59:33,281 basehttp 12156 15324 "GET /manage-users/ HTTP/1.1" 200 15509
+INFO 2025-06-01 03:59:33,294 basehttp 12156 15324 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:59:33,298 basehttp 12156 15324 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 03:59:33,598 basehttp 12156 15324 "GET /manage-users/ HTTP/1.1" 200 15509
+INFO 2025-06-01 03:59:48,354 basehttp 12156 15324 "GET /manage-users/ HTTP/1.1" 200 15496
+INFO 2025-06-01 03:59:48,680 basehttp 12156 15324 "GET /manage-users/ HTTP/1.1" 200 15496
+INFO 2025-06-01 04:00:01,225 basehttp 12156 15324 "GET /manage-users/ HTTP/1.1" 200 15115
+INFO 2025-06-01 04:00:01,463 basehttp 12156 15324 "GET /manage-users/ HTTP/1.1" 200 15115
+INFO 2025-06-01 04:01:36,415 basehttp 12156 15324 "GET /manage-users/ HTTP/1.1" 200 15108
+INFO 2025-06-01 04:01:36,427 basehttp 12156 15324 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 04:01:36,431 basehttp 12156 15324 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 04:01:36,865 basehttp 12156 15324 "GET /manage-users/ HTTP/1.1" 200 15108
+INFO 2025-06-01 04:03:22,270 autoreload 12156 9764 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 04:03:23,212 autoreload 12320 14716 Watching for file changes with StatReloader
+INFO 2025-06-01 04:03:25,435 autoreload 12320 14716 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 04:03:26,285 autoreload 4628 14828 Watching for file changes with StatReloader
+INFO 2025-06-01 04:03:29,550 basehttp 4628 1580 "GET /manage-users/ HTTP/1.1" 200 17204
+INFO 2025-06-01 04:03:29,563 basehttp 4628 2768 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 04:03:29,563 basehttp 4628 1580 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 04:03:47,592 basehttp 4628 1580 "POST /delete-department/5/ HTTP/1.1" 302 0
+INFO 2025-06-01 04:03:47,616 basehttp 4628 1580 "GET /manage-users/ HTTP/1.1" 200 16883
+INFO 2025-06-01 04:03:54,274 basehttp 4628 1580 "POST /edit-department/2/ HTTP/1.1" 302 0
+INFO 2025-06-01 04:03:54,321 basehttp 4628 1580 "GET /manage-users/ HTTP/1.1" 200 16886
+INFO 2025-06-01 04:04:06,377 autoreload 4628 14828 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 04:04:07,314 autoreload 4488 1864 Watching for file changes with StatReloader
+INFO 2025-06-01 04:06:55,964 autoreload 4488 1864 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 04:06:56,969 autoreload 8292 17188 Watching for file changes with StatReloader
+INFO 2025-06-01 04:08:02,304 autoreload 8292 17188 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 04:08:03,184 autoreload 7384 15052 Watching for file changes with StatReloader
+INFO 2025-06-01 04:08:03,495 basehttp 7384 14892 "GET /manage-users/ HTTP/1.1" 200 16686
+INFO 2025-06-01 04:08:03,513 basehttp 7384 14892 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 04:08:03,516 basehttp 7384 14892 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 04:08:07,705 basehttp 7384 14892 "POST /delete-department/2/ HTTP/1.1" 200 17
+INFO 2025-06-01 04:08:10,591 basehttp 7384 14892 "POST /delete-department/4/ HTTP/1.1" 200 17
+INFO 2025-06-01 04:08:23,688 basehttp 7384 14892 "POST /edit-department/3/ HTTP/1.1" 200 17
+ERROR 2025-06-01 04:08:27,279 log 7384 14892 Internal Server Error: /create-department/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: app_department.name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 156, in create_department
+    Department.objects.create(name=name)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1169, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\base.py", line 1210, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1854, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1881, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: app_department.name
+ERROR 2025-06-01 04:08:27,286 basehttp 7384 14892 "POST /create-department/ HTTP/1.1" 500 160772
+INFO 2025-06-01 04:08:28,309 basehttp 7384 14892 "GET /manage-users/ HTTP/1.1" 200 15632
+INFO 2025-06-01 04:08:36,517 basehttp 7384 14892 "POST /create-department/ HTTP/1.1" 302 0
+INFO 2025-06-01 04:08:36,542 basehttp 7384 14892 "GET /manage-users/ HTTP/1.1" 200 16354
+INFO 2025-06-01 04:10:21,690 autoreload 7384 15052 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-01 04:10:22,672 autoreload 3520 13336 Watching for file changes with StatReloader
+INFO 2025-06-01 04:11:35,314 basehttp 3520 10780 "GET /manage-users/ HTTP/1.1" 200 16852
+INFO 2025-06-01 04:11:35,330 basehttp 3520 10780 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 04:11:35,331 basehttp 3520 8432 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 04:11:35,594 basehttp 3520 8432 "GET /manage-users/ HTTP/1.1" 200 16852
+INFO 2025-06-01 04:11:35,772 basehttp 3520 8432 "GET /manage-users/ HTTP/1.1" 200 16852
+INFO 2025-06-01 04:12:27,081 basehttp 3520 6436 "GET /manage-users/ HTTP/1.1" 200 17273
+INFO 2025-06-01 04:12:27,204 basehttp 3520 6436 "GET /manage-users/ HTTP/1.1" 200 17273
+INFO 2025-06-01 04:12:27,377 basehttp 3520 6436 "GET /manage-users/ HTTP/1.1" 200 17273
+INFO 2025-06-01 04:12:54,568 views 3520 6436 Starting user creation process...
+INFO 2025-06-01 04:12:54,568 views 3520 6436 Verifying email settings...
+INFO 2025-06-01 04:12:54,569 views 3520 6436 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-06-01 04:12:54,569 views 3520 6436 EMAIL_HOST: smtp.gmail.com
+INFO 2025-06-01 04:12:54,569 views 3520 6436 EMAIL_PORT: 587
+INFO 2025-06-01 04:12:54,570 views 3520 6436 EMAIL_USE_TLS: True
+INFO 2025-06-01 04:12:54,570 views 3520 6436 EMAIL_HOST_USER: None
+INFO 2025-06-01 04:12:54,570 views 3520 6436 EMAIL_HOST_PASSWORD is set: No
+INFO 2025-06-01 04:12:54,570 views 3520 6436 .env file exists: No
+INFO 2025-06-01 04:12:54,571 views 3520 6436 Checking form validity...
+INFO 2025-06-01 04:12:54,613 views 3520 6436 Form is valid, proceeding with user creation...
+ERROR 2025-06-01 04:12:54,613 views 3520 6436 Error in user creation process: 'password1'
+INFO 2025-06-01 04:12:54,614 basehttp 3520 6436 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-06-01 04:12:54,641 basehttp 3520 6436 "GET /manage-users/ HTTP/1.1" 200 17497
+INFO 2025-06-01 04:12:54,654 basehttp 3520 6436 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 04:13:26,864 views 3520 6436 Starting user creation process...
+INFO 2025-06-01 04:13:26,864 views 3520 6436 Verifying email settings...
+INFO 2025-06-01 04:13:26,864 views 3520 6436 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-06-01 04:13:26,865 views 3520 6436 EMAIL_HOST: smtp.gmail.com
+INFO 2025-06-01 04:13:26,865 views 3520 6436 EMAIL_PORT: 587
+INFO 2025-06-01 04:13:26,865 views 3520 6436 EMAIL_USE_TLS: True
+INFO 2025-06-01 04:13:26,866 views 3520 6436 EMAIL_HOST_USER: None
+INFO 2025-06-01 04:13:26,866 views 3520 6436 EMAIL_HOST_PASSWORD is set: No
+INFO 2025-06-01 04:13:26,866 views 3520 6436 .env file exists: No
+INFO 2025-06-01 04:13:26,867 views 3520 6436 Checking form validity...
+INFO 2025-06-01 04:13:26,870 views 3520 6436 Form is valid, proceeding with user creation...
+ERROR 2025-06-01 04:13:26,870 views 3520 6436 Error in user creation process: 'password1'
+INFO 2025-06-01 04:13:26,872 basehttp 3520 6436 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-06-01 04:13:26,909 basehttp 3520 6436 "GET /manage-users/ HTTP/1.1" 200 17497
+INFO 2025-06-01 04:13:30,942 basehttp 3520 6436 "GET /manage-users/ HTTP/1.1" 200 17273
+INFO 2025-06-01 04:13:31,183 basehttp 3520 6436 "GET /manage-users/ HTTP/1.1" 200 17273
+INFO 2025-06-01 04:15:44,647 autoreload 3520 13336 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-01 04:15:45,526 autoreload 15864 6952 Watching for file changes with StatReloader
+INFO 2025-06-01 04:16:09,251 autoreload 15864 6952 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-01 04:16:10,229 autoreload 11196 15420 Watching for file changes with StatReloader
+INFO 2025-06-01 04:16:13,419 basehttp 11196 16920 "GET /manage-users/ HTTP/1.1" 200 17255
+INFO 2025-06-01 04:16:13,434 basehttp 11196 16608 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 04:16:13,434 basehttp 11196 16920 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 04:16:13,556 basehttp 11196 16920 "GET /manage-users/ HTTP/1.1" 200 17255
+INFO 2025-06-01 04:16:37,413 views 11196 16920 Starting user creation process...
+INFO 2025-06-01 04:16:37,413 views 11196 16920 Verifying email settings...
+INFO 2025-06-01 04:16:37,413 views 11196 16920 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-06-01 04:16:37,414 views 11196 16920 EMAIL_HOST: smtp.gmail.com
+INFO 2025-06-01 04:16:37,414 views 11196 16920 EMAIL_PORT: 587
+INFO 2025-06-01 04:16:37,414 views 11196 16920 EMAIL_USE_TLS: True
+INFO 2025-06-01 04:16:37,414 views 11196 16920 EMAIL_HOST_USER: None
+INFO 2025-06-01 04:16:37,414 views 11196 16920 EMAIL_HOST_PASSWORD is set: No
+INFO 2025-06-01 04:16:37,415 views 11196 16920 .env file exists: No
+INFO 2025-06-01 04:16:37,415 views 11196 16920 Checking form validity...
+INFO 2025-06-01 04:16:37,456 views 11196 16920 Form is valid, proceeding with user creation...
+INFO 2025-06-01 04:16:37,456 views 11196 16920 Creating user with email: johnmarkgvales@gmail.com
+INFO 2025-06-01 04:16:38,138 views 11196 16920 User created successfully with role: USER
+INFO 2025-06-01 04:16:38,143 views 11196 16920 Added user to group: USER
+INFO 2025-06-01 04:16:38,148 views 11196 16920 User profile created successfully
+INFO 2025-06-01 04:16:38,169 views 11196 16920 Attempting to send welcome email to johnmarkgvales@gmail.com...
+ERROR 2025-06-01 04:16:40,997 views 11196 16920 Failed to send welcome email: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. d9443c01a7336-23506d21f57sm46370555ad.249 - gsmtp', 'webmaster@localhost')
+INFO 2025-06-01 04:16:41,019 basehttp 11196 16920 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-06-01 04:16:41,044 basehttp 11196 16920 "GET /manage-users/ HTTP/1.1" 200 18052
+INFO 2025-06-01 04:17:50,228 views 11196 16920 Starting user creation process...
+INFO 2025-06-01 04:17:50,228 views 11196 16920 Verifying email settings...
+INFO 2025-06-01 04:17:50,229 views 11196 16920 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-06-01 04:17:50,229 views 11196 16920 EMAIL_HOST: smtp.gmail.com
+INFO 2025-06-01 04:17:50,229 views 11196 16920 EMAIL_PORT: 587
+INFO 2025-06-01 04:17:50,229 views 11196 16920 EMAIL_USE_TLS: True
+INFO 2025-06-01 04:17:50,230 views 11196 16920 EMAIL_HOST_USER: None
+INFO 2025-06-01 04:17:50,230 views 11196 16920 EMAIL_HOST_PASSWORD is set: No
+INFO 2025-06-01 04:17:50,230 views 11196 16920 .env file exists: No
+INFO 2025-06-01 04:17:50,231 views 11196 16920 Checking form validity...
+INFO 2025-06-01 04:17:50,234 views 11196 16920 Form is valid, proceeding with user creation...
+INFO 2025-06-01 04:17:50,235 views 11196 16920 Creating user with email: jmmvls73@gmail.com
+INFO 2025-06-01 04:17:50,913 views 11196 16920 User created successfully with role: ADMIN
+INFO 2025-06-01 04:17:50,917 views 11196 16920 Added user to group: ADMIN
+INFO 2025-06-01 04:17:50,921 views 11196 16920 User profile created successfully
+INFO 2025-06-01 04:17:50,921 views 11196 16920 Attempting to send welcome email to jmmvls73@gmail.com...
+ERROR 2025-06-01 04:17:52,964 views 11196 16920 Failed to send welcome email: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. 98e67ed59e1d1-3124e2e9474sm3058702a91.29 - gsmtp', 'webmaster@localhost')
+INFO 2025-06-01 04:17:52,972 basehttp 11196 16920 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-06-01 04:17:52,999 basehttp 11196 16920 "GET /manage-users/ HTTP/1.1" 200 18346
+INFO 2025-06-01 04:18:26,526 views 11196 12712 Starting user creation process...
+INFO 2025-06-01 04:18:26,526 views 11196 12712 Verifying email settings...
+INFO 2025-06-01 04:18:26,526 views 11196 12712 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-06-01 04:18:26,526 views 11196 12712 EMAIL_HOST: smtp.gmail.com
+INFO 2025-06-01 04:18:26,527 views 11196 12712 EMAIL_PORT: 587
+INFO 2025-06-01 04:18:26,527 views 11196 12712 EMAIL_USE_TLS: True
+INFO 2025-06-01 04:18:26,527 views 11196 12712 EMAIL_HOST_USER: None
+INFO 2025-06-01 04:18:26,527 views 11196 12712 EMAIL_HOST_PASSWORD is set: No
+INFO 2025-06-01 04:18:26,527 views 11196 12712 .env file exists: No
+INFO 2025-06-01 04:18:26,528 views 11196 12712 Checking form validity...
+INFO 2025-06-01 04:18:26,531 views 11196 12712 Form is valid, proceeding with user creation...
+INFO 2025-06-01 04:18:26,532 views 11196 12712 Creating user with email: johnmarkgvales@gmail.com
+INFO 2025-06-01 04:18:27,190 views 11196 12712 User created successfully with role: USER
+INFO 2025-06-01 04:18:27,194 views 11196 12712 Added user to group: USER
+INFO 2025-06-01 04:18:27,197 views 11196 12712 User profile created successfully
+INFO 2025-06-01 04:18:27,198 views 11196 12712 Attempting to send welcome email to johnmarkgvales@gmail.com...
+ERROR 2025-06-01 04:18:29,794 views 11196 12712 Failed to send welcome email: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. d9443c01a7336-23506d16e04sm46115765ad.212 - gsmtp', 'webmaster@localhost')
+INFO 2025-06-01 04:18:29,803 basehttp 11196 12712 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-06-01 04:18:29,831 basehttp 11196 12712 "GET /manage-users/ HTTP/1.1" 200 18644
+INFO 2025-06-01 04:18:36,050 basehttp 11196 12712 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 04:18:36,057 basehttp 11196 12712 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 04:18:36,082 basehttp 11196 12712 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-01 04:18:41,046 basehttp 11196 12712 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 04:18:41,073 basehttp 11196 12712 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 3937
+INFO 2025-06-01 04:18:43,683 basehttp 11196 12712 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 04:18:45,814 basehttp 11196 12712 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 3937
+INFO 2025-06-01 04:18:46,770 basehttp 11196 12712 "GET / HTTP/1.1" 200 9162
+WARNING 2025-06-01 04:18:47,403 basehttp 11196 12712 "GET /manage-users/ HTTP/1.1" 403 135
+INFO 2025-06-01 04:18:48,347 basehttp 11196 12712 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 04:18:48,917 basehttp 11196 12712 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 3937
+INFO 2025-06-01 04:18:50,092 basehttp 11196 12712 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 04:18:50,888 basehttp 11196 12712 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 3937
+INFO 2025-06-01 04:18:52,629 basehttp 11196 12712 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 04:18:52,633 basehttp 11196 12712 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 04:18:53,451 basehttp 11196 12712 "GET /userpanel/user_dashboard/ HTTP/1.1" 302 0
+INFO 2025-06-01 04:18:53,465 basehttp 11196 12712 "GET /login_user/?next=/userpanel/user_dashboard/ HTTP/1.1" 200 9162
+INFO 2025-06-01 04:18:53,958 basehttp 11196 12712 "GET / HTTP/1.1" 200 9162

@@ -1,8 +1,7 @@
 from django.urls import path
+from . import views 
 from django.contrib.auth.views import LogoutView
 from .views import (
-    LandingPageView,
-    # AdminLoginView,
     DashboardPageView,
     UserBorrowRequestListView,
     UserSupplyRequestListView,
@@ -36,13 +35,14 @@ from .views import (
     reject_borrow_request,
     get_supply_history,
     get_property_history,
-    CustomLoginView
+    CustomLoginView,
+    create_department
 )
 
 urlpatterns = [
-    # path('', LandingPageView.as_view(), name='landing'),
-    # path('login/admin/', AdminLoginView.as_view(), name='login_admin'),
     path('', CustomLoginView.as_view(), name='login'),
+    path('accounts/login/', CustomLoginView.as_view(), name='login'),
+
     path('logout/', logout_view, name='logout'),
 
     path('dashboard/', DashboardPageView.as_view(), name='dashboard'),
@@ -62,6 +62,9 @@ urlpatterns = [
 
     path('manage-users/', UserProfileListView.as_view(), name='manage_users'),
     path('create-user/', create_user, name='create_user'),
+    path('create-department/', views.create_department, name='create_department'),
+    path('edit-department/<int:dept_id>/', views.edit_department, name='edit_department'),
+    path('delete-department/<int:dept_id>/', views.delete_department, name='delete_department'),
 
     path('my-borrow-requests/', UserBorrowRequestListView.as_view(), name='user_borrow_requests'),
     path('my-supply-requests/', UserSupplyRequestListView.as_view(), name='user_supply_requests'),

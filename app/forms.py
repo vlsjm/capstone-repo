@@ -1,8 +1,21 @@
 from django import forms
 from .models import Property, Supply, SupplyQuantity
 from django.contrib.auth.models import User
-from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation
+from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation, Department
 from datetime import date
+
+class DepartmentForm(forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter department name',
+                'maxlength': 100
+            })
+        }
+
 
 class UserRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
@@ -12,7 +25,11 @@ class UserRegistrationForm(forms.ModelForm):
     password1 = forms.CharField(widget=forms.PasswordInput, label='Password')
     password2 = forms.CharField(widget=forms.PasswordInput, label='Confirm Password')
     role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES)
-    department = forms.CharField(required=False)
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'department-select form-control'})
+    )
     phone = forms.CharField(required=False)
 
     class Meta:

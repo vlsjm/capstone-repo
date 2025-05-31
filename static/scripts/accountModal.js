@@ -1,34 +1,19 @@
- const modal = document.getElementById("createAccountModal");
-    const openBtn = document.getElementById("openModalBtn");
-    const closeBtn = document.getElementById("closeModalBtn");
+document.addEventListener('DOMContentLoaded', () => {
+  const createAccountModal = document.getElementById('createAccountModal');
+  const openModalBtn = document.getElementById('openModalBtn');
+  const closeModalBtn = document.getElementById('closeModalBtn');
 
-    openBtn.onclick = function() {
-      modal.style.display = "block";
+  openModalBtn.addEventListener('click', () => {
+    createAccountModal.style.display = 'block';
+  });
+
+  closeModalBtn.addEventListener('click', () => {
+    createAccountModal.style.display = 'none';
+  });
+
+  window.addEventListener('click', (event) => {
+    if (event.target === createAccountModal) {
+      createAccountModal.style.display = 'none';
     }
-
-    closeBtn.onclick = function() {
-      modal.style.display = "none";
-    }
-
-    window.onclick = function(event) {
-      if (event.target == modal) {
-        modal.style.display = "none";
-      }
-    }
-
-    function filterRole(role) {
-      const rows = document.querySelectorAll('.user-row');
-      rows.forEach(row => {
-        if (role === 'all' || row.dataset.role === role) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
-      });
-
-      // Highlight active button
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      event.target.classList.add('active');
-    }
+  });
+});
