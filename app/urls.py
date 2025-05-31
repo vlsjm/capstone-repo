@@ -40,9 +40,9 @@ from .views import (
 )
 
 urlpatterns = [
-    path('', LandingPageView.as_view(), name='landing'),
+    # path('', LandingPageView.as_view(), name='landing'),
     # path('login/admin/', AdminLoginView.as_view(), name='login_admin'),
-    path('accounts/login/', CustomLoginView.as_view(), name='login'),
+    path('', CustomLoginView.as_view(), name='login'),
     path('logout/', logout_view, name='logout'),
 
     path('dashboard/', DashboardPageView.as_view(), name='dashboard'),

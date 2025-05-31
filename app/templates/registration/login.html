@@ -5,62 +5,429 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
-    <link rel="stylesheet" href="{% static 'css/auth.css' %}" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: #f5f7fa;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+
+      .login-container {
+        display: flex;
+        background: white;
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .illustration-section {
+        flex: 1;
+        background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+      }
+
+      .illustration {
+        max-width: 90%;
+        max-height: 70vh;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+      }
+
+      .form-section {
+        background-color: #152d64;
+        flex: 1;
+        padding: 60px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .form-wrapper {
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .form-header {
+        margin-bottom: 40px;
+      }
+
+      .sign-in-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 8px;
+      }
+
+      .create-account-link {
+        color: #97bfff;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .create-account-link:hover {
+        color: #7092db;
+      }
+
+      .divider {
+        display: flex;
+        align-items: center;
+        margin: 30px 0;
+
+        font-size: 14px;
+      }
+
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #e5e7eb;
+      }
+
+      .divider span {
+        padding: 0 20px;
+        background: #152d64;
+        color: #ffffff;
+      }
+
+      .or-text {
+        color: #ffffff;
+      }
+
+      .form-group {
+        margin-bottom: 24px;
+        position: relative;
+      }
+
+      .form-group label {
+        display: block;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .input-wrapper {
+        position: relative;
+      }
+
+      .inputAut {
+        width: 100%;
+        padding: 16px 50px 16px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #f9fafb;
+        color: #1f2937;
+      }
+
+      .inputAut::placeholder {
+        color: #9ca3af;
+      }
+
+      .inputAut:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .input-icon {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        width: 20px;
+        height: 20px;
+      }
+
+      .form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+      }
+
+      .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #374151;
+        font-size: 14px;
+      }
+
+      .remember-me input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #97bfff;
+        border-radius: 4px;
+      }
+
+      .forgot-password {
+        color: #97bfff;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .forgot-password:hover {
+        color: #7092db;
+      }
+
+      .login-btn {
+        width: 100%;
+        padding: 16px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+      }
+
+      .login-btn:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      }
+
+      .clear-btn {
+        width: 100%;
+        padding: 14px;
+        background: transparent;
+        color: #e2e5eb;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+      }
+
+      .clear-btn:hover {
+        background: #f9fafb;
+        border-color: #d1d5db;
+        color: #152d64;
+      }
+
+      .register-link {
+        color: #ffffff;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .register-link a {
+        color: #97bfff;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+      }
+
+      .register-link a:hover {
+        color: #2563eb;
+      }
+
+      .errorlist {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 16px;
+        list-style: none;
+      }
+
+      .errorlist li {
+        color: #dc2626;
+        font-size: 14px;
+      }
+
+      .messages {
+        margin-bottom: 20px;
+        list-style: none;
+      }
+
+      .messages li {
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+
+      .messages .error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+      }
+
+      .messages .success {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+      }
+
+      .messages .info {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1d4ed8;
+      }
+
+      @media (max-width: 768px) {
+        .login-container {
+          flex-direction: column;
+        }
+
+        .illustration-section {
+          min-height: 40vh;
+          padding: 30px;
+        }
+
+        .form-section {
+          padding: 40px 30px;
+          min-height: 60vh;
+        }
+
+        .sign-in-title {
+          font-size: 28px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .form-section {
+          padding: 30px 20px;
+        }
+
+        .sign-in-title {
+          font-size: 24px;
+        }
+
+        .illustration-section {
+          min-height: 35vh;
+        }
+      }
+    </style>
   </head>
-  <body class="body-login">
+  <body>
     {% block content %}
-    <div class="auth-container">
-      <h2>Login</h2>
+    <div class="login-container">
+      <!-- Left side -->
+      <div class="illustration-section">
+        <img
+          src="{% static 'images/resourcehivelogo.png' %}"
+          alt="Login Illustration"
+          class="illustration"
+        />
+      </div>
 
-      {% if form.non_field_errors %}
-      <ul class="errorlist">
-        {% for error in form.non_field_errors %}
-        <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
+      <!-- Right side -->
+      <div class="form-section">
+        <div class="form-wrapper">
+          <div class="form-header">
+            <h1 class="sign-in-title">Sign in to Resource Hive</h1>
+            <span class="or-text"
+              >or
+              <a href="{% url 'register' %}" class="create-account-link"
+                >create an account</a
+              ></span
+            >
+          </div>
 
-      <form action="{% url 'login' %}" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-          {% if messages %}
-          <ul class="messages">
-            {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
+          {% if form.non_field_errors %}
+          <ul class="errorlist">
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
             {% endfor %}
           </ul>
           {% endif %}
-          <label for="id_username">Username:</label>
-          <input
-            type="text"
-            id="id_username"
-            name="username"
-            class="inputAut"
-          />
-          {% for error in form.username.errors %}
-          <ul class="errorlist">
-            <li>{{ error }}</li>
-          </ul>
-          {% endfor %}
+
+          <form action="{% url 'login' %}" method="post">
+            {% csrf_token %} {% if messages %}
+            <ul class="messages">
+              {% for message in messages %}
+              <li class="{{ message.tags }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+
+            <div class="divider">
+              <span>or</span>
+            </div>
+
+            <div class="form-group">
+              <label for="id_username">Username</label>
+              <div class="input-wrapper">
+                <input
+                  type="text"
+                  id="id_username"
+                  name="username"
+                  class="inputAut"
+                  placeholder="Enter your username"
+                />
+              </div>
+              {% for error in form.username.errors %}
+              <ul class="errorlist">
+                <li>{{ error }}</li>
+              </ul>
+              {% endfor %}
+            </div>
+
+            <div class="form-group">
+              <label for="id_password">Password</label>
+              <div class="input-wrapper">
+                <input
+                  type="password"
+                  id="id_password"
+                  name="password"
+                  class="inputAut"
+                  placeholder="Enter your password"
+                />
+              </div>
+              {% for error in form.password.errors %}
+              <ul class="errorlist">
+                <li>{{ error }}</li>
+              </ul>
+              {% endfor %}
+            </div>
+
+            <div class="form-options">
+              <label class="remember-me">
+                <input type="checkbox" name="remember_me" />
+                <span class="or-text">Remember me</span>
+              </label>
+              <a href="#" class="forgot-password">Forgotten your password?</a>
+            </div>
+
+            <button type="submit" class="login-btn">Sign in</button>
+            <button type="reset" class="clear-btn">Clear</button>
+          </form>
+
+          <p class="register-link">
+            Don't have an account? <a href="{% url 'register' %}">Register</a>
+          </p>
         </div>
-        <div class="form-group">
-          <label for="id_password">Password:</label>
-          <input
-            type="password"
-            id="id_password"
-            name="password"
-            class="inputAut"
-          />
-          {% for error in form.password.errors %}
-          <ul class="errorlist">
-            <li>{{ error }}</li>
-          </ul>
-          {% endfor %}
-        </div>
-        <button type="submit" class="login-btn">Login</button>
-        <button type="reset" class="clear-btn">Clear</button>
-      </form>
-      <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+      </div>
     </div>
     {% endblock content %}
   </body>
