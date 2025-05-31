@@ -190,138 +190,144 @@
         </div>
       </div>
 
-      <div class="content">
-        <div class="div2">
-          <div class="dashboard-content">
-            <div class="dashboard-summary">
-              <div class="summary-card">
-                <div class="card-icon">📦</div>
-                <div class="card-data">
-                  <h3>{{ supply_count }}</h3>
-                  <p>Total Supplies</p>
-                </div>
-              </div>
-              <div class="summary-card">
-                <div class="card-icon">🏢</div>
-                <div class="card-data">
-                  <h3>{{ property_count }}</h3>
-                  <p>Total Properties</p>
-                </div>
-              </div>
-              <div class="summary-card">
-                <div class="card-icon">⏳</div>
-                <div class="card-data">
-                  <h3>{{ pending_requests }}</h3>
-                  <p>Pending Requests</p>
-                </div>
-              </div>
-              <div class="summary-card">
-                <div class="card-icon">⚠️</div>
-                <div class="card-data">
-                  <h3>{{ damage_reports }}</h3>
-                  <p>Damage Reports</p>
-                </div>
+      <div class="content
+      <div class="div2">
+        <div class="dashboard-content">
+          <div class="dashboard-summary">
+            <div class="summary-card">
+              <div class="card-icon">📦</div>
+              <div class="card-data">
+                <h3>{{ supply_count }}</h3>
+                <p>Total Supplies</p>
               </div>
             </div>
+            <div class="summary-card">
+              <div class="card-icon">🏢</div>
+              <div class="card-data">
+                <h3>{{ property_count }}</h3>
+                <p>Total Properties</p>
+              </div>
+            </div>
+            <div class="summary-card">
+              <div class="card-icon">⏳</div>
+              <div class="card-data">
+                <h3>{{ pending_requests }}</h3>
+                <p>Pending Requests</p>
+              </div>
+            </div>
+            <div class="summary-card">
+              <div class="card-icon">⚠️</div>
+              <div class="card-data">
+                <h3>{{ damage_reports }}</h3>
+                <p>Damage Reports</p>
+              </div>
+            </div>
+            <div class="summary-card">
+              <div class="card-icon">⏰</div>
+              <div class="card-data">
+                <h3>{{ near_expiry_count }}</h3>
+                <p>Near Expiry Items</p>
+              </div>
+            </div>
+          </div>
 
-            <!-- Recent Requests Preview Table -->
-            <div class="requests-preview">
-              <h3><i class="fas fa-clock"></i> Recent Requests</h3>
-              {% if recent_requests_preview %}
-              <div style="overflow-x: auto">
-                <table class="requests-table">
-                  <thead>
-                    <tr>
-                      <th>Type</th>
-                      <th>User</th>
-                      <th>Item</th>
-                      <th>Qty</th>
-                      <th>Status</th>
-                      <th>Date</th>
-                      <th class="purpose-col">Purpose</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for request in recent_requests_preview %}
-                    <tr>
-                      <td class="request-type">{{ request.type }}</td>
-                      <td>{{ request.user }}</td>
-                      <td>{{ request.item|truncatechars:30 }}</td>
-                      <td>{{ request.quantity }}</td>
-                      <td>
-                        <span
-                          class="status-badge status-{{ request.status|lower|cut:' ' }}"
-                        >
-                          {% if request.status == 'Pending' %}
-                          <i class="fas fa-clock"></i>
-                          {% elif request.status == 'Approved' %}
-                          <i class="fas fa-check-circle"></i>
-                          <!-- prettier-ignore -->
-                          {% elif request.status == 'Rejected' or request.status == 'Declined' %}
-                          <!-- prettier-ignore -->
-                          <i class="fas fa-times-circle"></i>
-                          {% elif request.status == 'Returned' %}
-                          <i class="fas fa-undo"></i>
-                          {% elif request.status == 'Overdue' %}
-                          <i class="fas fa-exclamation-circle"></i>
-                          {% endif %} {{ request.status }}
-                        </span>
-                      </td>
-                      <td>{{ request.date|date:"M d, Y" }}</td>
-                      <td class="purpose-col">
-                        {{ request.purpose|truncatechars:40 }}
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-              {% else %}
-              <div class="no-requests">
-                <i
-                  class="fas fa-inbox fa-3x"
-                  style="color: #dee2e6; margin-bottom: 15px"
-                ></i>
-                <p>No recent requests found.</p>
-              </div>
-              {% endif %}
+          <!-- Recent Requests Preview Table -->
+          <div class="requests-preview">
+            <h3><i class="fas fa-clock"></i> Recent Requests</h3>
+            {% if recent_requests_preview %}
+            <div style="overflow-x: auto">
+              <table class="requests-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>User</th>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th class="purpose-col">Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for request in recent_requests_preview %}
+                  <tr>
+                    <td class="request-type">{{ request.type }}</td>
+                    <td>{{ request.user }}</td>
+                    <td>{{ request.item|truncatechars:30 }}</td>
+                    <td>{{ request.quantity }}</td>
+                    <td>
+                      <span
+                        class="status-badge status-{{ request.status|lower|cut:' ' }}"
+                      >
+                        {% if request.status == 'Pending' %}
+                        <i class="fas fa-clock"></i>
+                        {% elif request.status == 'Approved' %}
+                        <i class="fas fa-check-circle"></i>
+                        <!-- prettier-ignore -->
+                        {% elif request.status == 'Rejected' or request.status == 'Declined' %}
+                        <!-- prettier-ignore -->
+                        <i class="fas fa-times-circle"></i>
+                        {% elif request.status == 'Returned' %}
+                        <i class="fas fa-undo"></i>
+                        {% elif request.status == 'Overdue' %}
+                        <i class="fas fa-exclamation-circle"></i>
+                        {% endif %} {{ request.status }}
+                      </span>
+                    </td>
+                    <td>{{ request.date|date:"M d, Y" }}</td>
+                    <td class="purpose-col">
+                      {{ request.purpose|truncatechars:40 }}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <div class="no-requests">
+              <i
+                class="fas fa-inbox fa-3x"
+                style="color: #dee2e6; margin-bottom: 15px"
+              ></i>
+              <p>No recent requests found.</p>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Charts Grid -->
+          <div class="dashboard-charts">
+            <div class="chart-container">
+              <h3>Supply Status</h3>
+              <canvas id="supplyStatusChart"></canvas>
+            </div>
+            <div class="chart-container">
+              <h3>Property Condition</h3>
+              <canvas id="propertyConditionChart"></canvas>
             </div>
 
-            <!-- Charts Grid -->
-            <div class="dashboard-charts">
-              <div class="chart-container">
-                <h3>Supply Status</h3>
-                <canvas id="supplyStatusChart"></canvas>
-              </div>
-              <div class="chart-container">
-                <h3>Property Condition</h3>
-                <canvas id="propertyConditionChart"></canvas>
-              </div>
+            <div class="chart-container">
+              <h3>Request Status Breakdown</h3>
+              <canvas id="requestStatusChart"></canvas>
+            </div>
 
-              <div class="chart-container">
-                <h3>Request Status Breakdown</h3>
-                <canvas id="requestStatusChart"></canvas>
-              </div>
+            <div class="chart-container">
+              <h3>Damage Report Status</h3>
+              <canvas id="damageStatusChart"></canvas>
+            </div>
 
-              <div class="chart-container">
-                <h3>Damage Report Status</h3>
-                <canvas id="damageStatusChart"></canvas>
-              </div>
+            <div class="chart-container">
+              <h3>Borrow Request Trends</h3>
+              <canvas id="borrowTrendsChart"></canvas>
+            </div>
 
-              <div class="chart-container">
-                <h3>Borrow Request Trends</h3>
-                <canvas id="borrowTrendsChart"></canvas>
-              </div>
+            <div class="chart-container">
+              <h3>Property Categories</h3>
+              <canvas id="propertyCategoriesChart"></canvas>
+            </div>
 
-              <div class="chart-container">
-                <h3>Property Categories</h3>
-                <canvas id="propertyCategoriesChart"></canvas>
-              </div>
-
-              <div class="chart-container wide-chart">
-                <h3>User Activity by Role</h3>
-                <canvas id="userActivityChart"></canvas>
-              </div>
+            <div class="chart-container wide-chart">
+              <h3>User Activity by Role</h3>
+              <canvas id="userActivityChart"></canvas>
             </div>
           </div>
         </div>

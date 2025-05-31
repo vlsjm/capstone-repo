@@ -373,7 +373,7 @@ text-align: center;
 /* Dashboard Summary Cards */
 .dashboard-summary {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 20px;
 }
 
@@ -398,6 +398,7 @@ text-align: center;
   font-size: 1.5rem;
   color: #333;
   margin-bottom: 5px;
+  text-align: center;
 }
 
 .card-data p {
