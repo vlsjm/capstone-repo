@@ -27,7 +27,7 @@ class BorrowForm(forms.ModelForm):
         # Only show properties that are available
         self.fields['property'].queryset = Property.objects.filter(availability='available')
         self.fields['property'].widget.attrs.update({'class': 'select2'})
-    
+
     def clean_return_date(self):
         return_date = self.cleaned_data.get('return_date')
         today = date.today()
@@ -35,13 +35,23 @@ class BorrowForm(forms.ModelForm):
             raise forms.ValidationError("Return date cannot be in the past.")
         return return_date
 
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        property_obj = self.cleaned_data.get('property')
+        
+        if property_obj and quantity:
+            available_quantity = property_obj.quantity or 0
+            if quantity > available_quantity:
+                raise forms.ValidationError(f"Only {available_quantity} units available.")
+        
+        return quantity
+
     class Meta:
         model = BorrowRequest
         fields = ['property', 'quantity', 'return_date', 'purpose']
         widgets = {
             'quantity': forms.NumberInput(attrs={'min': 1}),
         }
-
 class SupplyRequestForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
