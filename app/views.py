@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, ListView
+from django.core.exceptions import ValidationError
 
 from django.views import View
 from django.contrib.auth import login, authenticate
@@ -266,38 +267,53 @@ def borrow_request_details(request, pk):
         remarks = request.POST.get('remarks')
         request_obj.remarks = remarks
 
-        if action == 'approve':
-            request_obj.status = 'approved'
-            request_obj.approved_date = timezone.now()
-            Notification.objects.create(
-                user=request_obj.user,
-                message=f"Your borrow request for {request_obj.property.property_name} has been approved.",
-                remarks=remarks
-            )
-        elif action == 'decline':
-            request_obj.status = 'declined'
-            request_obj.approved_date = timezone.now()
-            Notification.objects.create(
-                user=request_obj.user,
-                message=f"Your borrow request for {request_obj.property.property_name} has been declined.",
-                remarks=remarks
-            )
-        elif action == 'return':
-            request_obj.status = 'returned'
-            request_obj.actual_return_date = timezone.now().date()
-            Notification.objects.create(
-                user=request_obj.user,
-                message=f"Your borrow request for {request_obj.property.property_name} has been marked as returned.",
-                remarks=remarks
-            )
-        elif action == 'overdue':
-            request_obj.status = 'overdue'
-            Notification.objects.create(
-                user=request_obj.user,
-                message=f"Your borrow request for {request_obj.property.property_name} is overdue.",
-                remarks=remarks
-            )
-        request_obj.save()
+        try:
+            if action == 'approve':
+                request_obj.status = 'approved'
+                request_obj.approved_date = timezone.now()
+                request_obj.save()  # This will trigger validation
+                messages.success(request, 'Borrow request approved successfully.')
+                Notification.objects.create(
+                    user=request_obj.user,
+                    message=f"Your borrow request for {request_obj.property.property_name} has been approved.",
+                    remarks=remarks
+                )
+            elif action == 'decline':
+                request_obj.status = 'declined'
+                request_obj.approved_date = timezone.now()
+                request_obj.save()
+                messages.success(request, 'Borrow request declined successfully.')
+                Notification.objects.create(
+                    user=request_obj.user,
+                    message=f"Your borrow request for {request_obj.property.property_name} has been declined.",
+                    remarks=remarks
+                )
+            elif action == 'return':
+                request_obj.status = 'returned'
+                request_obj.actual_return_date = timezone.now().date()
+                request_obj.save()
+                messages.success(request, 'Borrow request marked as returned successfully.')
+                Notification.objects.create(
+                    user=request_obj.user,
+                    message=f"Your borrow request for {request_obj.property.property_name} has been marked as returned.",
+                    remarks=remarks
+                )
+            elif action == 'overdue':
+                request_obj.status = 'overdue'
+                request_obj.save()
+                messages.warning(request, 'Borrow request marked as overdue.')
+                Notification.objects.create(
+                    user=request_obj.user,
+                    message=f"Your borrow request for {request_obj.property.property_name} is overdue.",
+                    remarks=remarks
+                )
+        except ValidationError as e:
+            if 'quantity' in e.message_dict:
+                messages.error(request, e.message_dict['quantity'][0])
+            else:
+                messages.error(request, "An error occurred while processing the request.")
+            return render(request, 'app/borrow_request_details.html', {'borrow_obj': request_obj})
+            
         return redirect('user_borrow_requests')
     return render(request, 'app/borrow_request_details.html', {'borrow_obj': request_obj})
 
@@ -780,8 +796,7 @@ def add_supply(request):
                 quantity_info = SupplyQuantity.objects.create(
                     supply=supply,
                     current_quantity=form.cleaned_data['current_quantity'],
-                    minimum_threshold=form.cleaned_data['minimum_threshold'],
-                    original_quantity=form.cleaned_data['current_quantity']
+                    minimum_threshold=form.cleaned_data['minimum_threshold']
                 )
 
                 # Update available_for_request based on quantity
@@ -944,8 +959,12 @@ def add_property(request):
             try:
                 # First save the property
                 prop = form.save(commit=False)
+                
+                # Set initial quantity equal to overall_quantity for new properties
+                if not prop.pk:
+                    prop.quantity = form.cleaned_data['overall_quantity']
+                
                 prop._logged_in_user = request.user
-                prop.original_quantity = form.cleaned_data['quantity']  # Set original quantity
                 prop.save(user=request.user)  # Pass the user to save method
 
                 # Create activity log using log_activity method
@@ -954,7 +973,7 @@ def add_property(request):
                     action='create',
                     model_name='Property',
                     object_repr=str(prop),
-                    description=f"Added new property '{prop.property_name}' with initial quantity {form.cleaned_data['quantity']}"
+                    description=f"Added new property '{prop.property_name}' with property number {prop.property_number}, overall quantity {prop.overall_quantity}, and initial quantity {prop.quantity}"
                 )
                 messages.success(request, 'Property added successfully.')
             except Exception as e:
@@ -962,8 +981,14 @@ def add_property(request):
                 if 'prop' in locals() and prop.pk:
                     prop.delete()
                 messages.error(request, f'Error adding property: {str(e)}')
+                return redirect('property_list')
         else:
-            messages.error(request, f'Errors: {form.errors}')
+            # Add form errors to messages
+            error_messages = []
+            for field, errors in form.errors.items():
+                for error in errors:
+                    error_messages.append(f"{field}: {error}")
+            messages.error(request, f'Please correct the following errors: {", ".join(error_messages)}')
     return redirect('property_list')
 
 
@@ -976,11 +1001,13 @@ def edit_property(request):
         try:
             # Store old values for activity log
             old_values = {
+                'property_number': property_obj.property_number,
                 'property_name': property_obj.property_name,
                 'description': property_obj.description,
                 'barcode': property_obj.barcode,
                 'unit_of_measure': property_obj.unit_of_measure,
                 'unit_value': property_obj.unit_value,
+                'overall_quantity': property_obj.overall_quantity,
                 'quantity': property_obj.quantity,
                 'location': property_obj.location,
                 'condition': property_obj.condition,
@@ -989,16 +1016,27 @@ def edit_property(request):
             }
 
             # Update property fields
+            property_obj.property_number = request.POST.get('property_number')
             property_obj.property_name = request.POST.get('property_name')
             property_obj.description = request.POST.get('description')
             property_obj.barcode = request.POST.get('barcode')
             property_obj.unit_of_measure = request.POST.get('unit_of_measure')
             property_obj.unit_value = request.POST.get('unit_value')
-            property_obj.quantity = int(request.POST.get('quantity', 0))
+            property_obj.overall_quantity = int(request.POST.get('overall_quantity', 0))
             property_obj.location = request.POST.get('location')
-            property_obj.condition = request.POST.get('condition')
             property_obj.category = request.POST.get('category')
-            property_obj.availability = request.POST.get('availability')
+            
+            # Handle condition and availability
+            new_condition = request.POST.get('condition')
+            property_obj.condition = new_condition
+            
+            # Set availability based on condition
+            unavailable_conditions = ['Needing repair', 'Unserviceable', 'No longer needed', 'Obsolete']
+            if new_condition in unavailable_conditions:
+                property_obj.availability = 'not_available'
+            else:
+                # Only use the submitted availability if condition allows it
+                property_obj.availability = request.POST.get('availability')
             
             # Save property with user information
             property_obj.save(user=request.user)
@@ -1008,7 +1046,12 @@ def edit_property(request):
             for field, old_value in old_values.items():
                 new_value = getattr(property_obj, field)
                 if str(old_value) != str(new_value):
-                    changes.append(f"{field}: {old_value} → {new_value}")
+                    if field == 'overall_quantity':
+                        changes.append(f"overall quantity: {old_value} → {new_value} (current quantity updated accordingly)")
+                    elif field == 'condition' and new_value in unavailable_conditions:
+                        changes.append(f"condition: {old_value} → {new_value} (automatically set availability to Not Available)")
+                    else:
+                        changes.append(f"{field.replace('_', ' ')}: {old_value} → {new_value}")
 
             if changes:
                 ActivityLog.log_activity(
@@ -1096,13 +1139,17 @@ def create_supply_request(request):
         purpose = request.POST.get('purpose')
         
         supply = get_object_or_404(Supply, id=supply_id)
-        supply_request = SupplyRequest.objects.create(
+        
+        # Create the supply request object
+        supply_request = SupplyRequest(
             user=request.user,
             supply=supply,
             quantity=quantity,
             purpose=purpose,
             status='pending'
         )
+        # Save to trigger the model's save method which handles notifications
+        supply_request.save()
 
         ActivityLog.log_activity(
             user=request.user,
@@ -1219,18 +1266,6 @@ def get_supply_history(request, supply_id):
     supply = get_object_or_404(Supply, id=supply_id)
     history = supply.history.all().order_by('-timestamp')
     
-    # Get original data
-    original_data = {
-        'supply_name': supply.supply_name,
-        'description': supply.description,
-        'category': supply.get_category_display(),
-        'subcategory': supply.get_subcategory_display(),
-        'barcode': supply.barcode,
-        'date_received': supply.date_received.strftime('%Y-%m-%d') if supply.date_received else 'N/A',
-        'expiration_date': supply.expiration_date.strftime('%Y-%m-d') if supply.expiration_date else 'N/A',
-        'original_quantity': supply.quantity_info.original_quantity if supply.quantity_info else 'N/A',
-    }
-    
     history_data = []
     for entry in history:
         history_data.append({
@@ -1244,7 +1279,6 @@ def get_supply_history(request, supply_id):
         })
     
     return JsonResponse({
-        'original_data': original_data,
         'history': history_data
     })
 
@@ -1253,19 +1287,6 @@ def get_property_history(request, property_id):
     property_obj = get_object_or_404(Property, id=property_id)
     history = property_obj.history.all().order_by('-timestamp')
     
-    # Get original data
-    original_data = {
-        'property_name': property_obj.property_name,
-        'description': property_obj.description,
-        'category': property_obj.get_category_display(),
-        'barcode': property_obj.barcode,
-        'unit_of_measure': property_obj.unit_of_measure,
-        'unit_value': property_obj.unit_value,
-        'original_quantity': property_obj.original_quantity,
-        'location': property_obj.location,
-        'condition': property_obj.get_condition_display(),
-    }
-    
     history_data = []
     for entry in history:
         history_data.append({
@@ -1279,6 +1300,5 @@ def get_property_history(request, property_id):
         })
     
     return JsonResponse({
-        'original_data': original_data,
         'history': history_data
     })

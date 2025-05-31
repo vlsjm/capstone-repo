@@ -10,7 +10,8 @@ class BorrowForm(forms.ModelForm):
     return_date = forms.DateField(
         widget=forms.DateInput(attrs={
             'type': 'date',
-            'id': 'id_return_date'
+            'id': 'id_return_date',
+            'min': date.today().isoformat()  # Set minimum date to today
         }),
         label="Expected Return Date",
         error_messages={
@@ -27,6 +28,8 @@ class BorrowForm(forms.ModelForm):
         # Only show properties that are available
         self.fields['property'].queryset = Property.objects.filter(availability='available')
         self.fields['property'].widget.attrs.update({'class': 'select2'})
+        # Update the min date attribute dynamically
+        self.fields['return_date'].widget.attrs['min'] = date.today().isoformat()
 
     def clean_return_date(self):
         return_date = self.cleaned_data.get('return_date')
@@ -39,10 +42,17 @@ class BorrowForm(forms.ModelForm):
         quantity = self.cleaned_data.get('quantity')
         property_obj = self.cleaned_data.get('property')
         
-        if property_obj and quantity:
-            available_quantity = property_obj.quantity or 0
-            if quantity > available_quantity:
-                raise forms.ValidationError(f"Only {available_quantity} units available.")
+        if not property_obj:
+            raise forms.ValidationError("Please select a property to borrow.")
+            
+        if not quantity or quantity < 1:
+            raise forms.ValidationError("Please enter a valid quantity (minimum 1).")
+        
+        available_quantity = property_obj.quantity if property_obj.quantity is not None else 0
+        if available_quantity == 0:
+            raise forms.ValidationError("This item is currently not available for borrowing.")
+        if quantity > available_quantity:
+            raise forms.ValidationError(f"Cannot borrow more than available quantity. Only {available_quantity} units available.")
         
         return quantity
 
@@ -52,6 +62,7 @@ class BorrowForm(forms.ModelForm):
         widgets = {
             'quantity': forms.NumberInput(attrs={'min': 1}),
         }
+
 class SupplyRequestForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
@@ -96,7 +107,8 @@ class ReservationForm(forms.ModelForm):
     needed_date = forms.DateField(
         widget=forms.DateInput(attrs={
             'type': 'date',
-            'id': 'id_needed_date'
+            'id': 'id_needed_date',
+            'min': date.today().isoformat()  # Set minimum date to today
         }),
         label="Needed date",
         error_messages={
@@ -106,7 +118,8 @@ class ReservationForm(forms.ModelForm):
     return_date = forms.DateField(
         widget=forms.DateInput(attrs={
             'type': 'date',
-            'id': 'id_return_date'
+            'id': 'id_return_date',
+            'min': date.today().isoformat()  # Set minimum date to today
         }),
         label="Return date",
         error_messages={
@@ -122,13 +135,12 @@ class ReservationForm(forms.ModelForm):
         }
     )
 
-    class Meta:
-        model = Reservation
-        fields = ['item', 'quantity', 'needed_date', 'return_date', 'purpose']
-        widgets = {
-            'item': forms.Select(attrs={'class': 'select2'}),
-            'purpose': forms.Textarea(attrs={'rows': 3}),
-        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Update the min date attributes dynamically
+        today = date.today().isoformat()
+        self.fields['needed_date'].widget.attrs['min'] = today
+        self.fields['return_date'].widget.attrs['min'] = today
 
     def clean(self):
         cleaned_data = super().clean()
@@ -185,6 +197,14 @@ class ReservationForm(forms.ModelForm):
             raise forms.ValidationError("Return date must be after the needed date.")
             
         return return_date
+
+    class Meta:
+        model = Reservation
+        fields = ['item', 'quantity', 'needed_date', 'return_date', 'purpose']
+        widgets = {
+            'item': forms.Select(attrs={'class': 'select2'}),
+            'purpose': forms.Textarea(attrs={'rows': 3}),
+        }
 
 class DamageReportForm(forms.ModelForm):
     error_css_class = 'error'

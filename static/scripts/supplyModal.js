@@ -69,40 +69,13 @@ document.addEventListener('DOMContentLoaded', function() {
       const supplyId = this.dataset.id;
       historyModal.style.display = 'block';
       
-      // Clear existing content
-      const originalDataTableBody = document.getElementById('originalDataTableBody');
       const historyTableBody = document.getElementById('historyTableBody');
-      
-      originalDataTableBody.innerHTML = '<tr><td colspan="2">Loading...</td></tr>';
       historyTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
       
       // Fetch history data
       fetch(`/get_supply_history/${supplyId}/`)
         .then(response => response.json())
         .then(data => {
-          // Populate original data table
-          originalDataTableBody.innerHTML = '';
-          const originalData = data.original_data;
-          const fieldLabels = {
-            'supply_name': 'Supply Name',
-            'description': 'Description',
-            'category': 'Category',
-            'subcategory': 'Subcategory',
-            'barcode': 'Barcode',
-            'date_received': 'Date Received',
-            'expiration_date': 'Expiration Date',
-            'original_quantity': 'Original Quantity'
-          };
-          
-          for (const [field, value] of Object.entries(originalData)) {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td><strong>${fieldLabels[field] || field}</strong></td>
-              <td>${value}</td>
-            `;
-            originalDataTableBody.appendChild(row);
-          }
-
           // Populate history table
           historyTableBody.innerHTML = '';
           if (data.history.length === 0) {
@@ -124,7 +97,6 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
           console.error('Error fetching history:', error);
-          originalDataTableBody.innerHTML = '<tr><td colspan="2">Error loading original data</td></tr>';
           historyTableBody.innerHTML = '<tr><td colspan="6">Error loading history data</td></tr>';
         });
     });

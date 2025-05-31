@@ -209,11 +209,11 @@
             {% for supply in page_obj %}
             <tr>
               <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
-              <td>{{ supply.supply_name|default:"N/A" }}</td>
-              <td>{{ supply.description|default:"N/A" }}</td>
-              <td><strong>{{ supply.get_subcategory_display|default:"N/A" }}</strong></td>
-              <td>{{ supply.quantity_info.current_quantity|default:"N/A" }}</td>
-              <td>{{ supply.quantity_info.minimum_threshold|default:"N/A" }}</td>
+              <td>{{ supply.supply_name|default:"----" }}</td>
+              <td>{{ supply.description|default:"----" }}</td>
+              <td><strong>{{ supply.get_subcategory_display|default:"----" }}</strong></td>
+              <td>{{ supply.quantity_info.current_quantity|default:"----" }}</td>
+              <td>{{ supply.quantity_info.minimum_threshold|default:"----" }}</td>
               <td>
                 <span class="status-badge status-{{ supply.status }}">
                   {% if supply.status == 'available' %}
@@ -227,8 +227,8 @@
                 </span>
               </td>
               <td>{{ supply.available_for_request|yesno:"Yes,No" }}</td>
-              <td>{{ supply.barcode|default:"N/A" }}</td>
-              <td>{{ supply.date_received|default:"N/A" }}</td>
+              <td>{{ supply.barcode|default:"----" }}</td>
+              <td>{{ supply.date_received|default:"----" }}</td>
               <td>
                 {% if supply.expiration_date %}
                   <div class="expiration-badge 
@@ -247,7 +247,7 @@
                   N/A
                 {% endif %}
               </td>
-              <td>{{ supply.last_updated|default:"N/A" }}</td>
+              <td>{{ supply.last_updated|default:"----" }}</td>
               <td>
                 <div class="button-group">
                   <button class="edit-btn" 
@@ -383,41 +383,22 @@
       <span class="close" id="closeHistoryModalBtn">&times;</span>
       <h3>Supply History</h3>
       
-      <!-- Original Data Table -->
-      <div id="originalDataContent">
-        <h4>Original Data</h4>
+      <div id="historyContent">
         <table class="history-table">
           <thead>
             <tr>
+              <th>Date</th>
+              <th>Action</th>
               <th>Field</th>
-              <th>Original Value</th>
+              <th>Previous Value</th>
+              <th>New Value</th>
+              <th>Changed By</th>
             </tr>
           </thead>
-          <tbody id="originalDataTableBody">
-            <!-- Original data will be populated here -->
+          <tbody id="historyTableBody">
+            <!-- History data will be populated here -->
           </tbody>
         </table>
-      </div>
-
-      <div style="margin-top: 20px;">
-        <h4>Change History</h4>
-        <div id="historyContent">
-          <table class="history-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Action</th>
-                <th>Field</th>
-                <th>Previous Value</th>
-                <th>New Value</th>
-                <th>Changed By</th>
-              </tr>
-            </thead>
-            <tbody id="historyTableBody">
-              <!-- History data will be populated here -->
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
   </div>
@@ -495,41 +476,12 @@
           const supplyId = this.dataset.id;
           historyModal.style.display = 'block';
           
-          // Clear existing content
-          const originalDataTableBody = document.getElementById('originalDataTableBody');
-          const historyTableBody = document.getElementById('historyTableBody');
-          
-          originalDataTableBody.innerHTML = '<tr><td colspan="2">Loading...</td></tr>';
-          historyTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
-          
           // Fetch history data
           fetch(`/get_supply_history/${supplyId}/`)
             .then(response => response.json())
             .then(data => {
-              // Populate original data table
-              originalDataTableBody.innerHTML = '';
-              const originalData = data.original_data;
-              const fieldLabels = {
-                'supply_name': 'Supply Name',
-                'description': 'Description',
-                'category': 'Category',
-                'subcategory': 'Subcategory',
-                'barcode': 'Barcode',
-                'date_received': 'Date Received',
-                'expiration_date': 'Expiration Date',
-                'original_quantity': 'Original Quantity'
-              };
-              
-              for (const [field, value] of Object.entries(originalData)) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                  <td><strong>${fieldLabels[field] || field}</strong></td>
-                  <td>${value}</td>
-                `;
-                originalDataTableBody.appendChild(row);
-              }
-
               // Populate history table
+              const historyTableBody = document.getElementById('historyTableBody');
               historyTableBody.innerHTML = '';
               if (data.history.length === 0) {
                 historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No changes have been made to this supply yet.</td></tr>';
@@ -550,7 +502,6 @@
             })
             .catch(error => {
               console.error('Error fetching history:', error);
-              originalDataTableBody.innerHTML = '<tr><td colspan="2">Error loading original data</td></tr>';
               historyTableBody.innerHTML = '<tr><td colspan="6">Error loading history data</td></tr>';
             });
         });

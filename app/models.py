@@ -61,7 +61,6 @@ class SupplyQuantity(models.Model):
     supply = models.OneToOneField('Supply', on_delete=models.CASCADE, related_name='quantity_info')
     current_quantity = models.PositiveIntegerField(default=0)
     minimum_threshold = models.PositiveIntegerField(default=10)
-    original_quantity = models.PositiveIntegerField(null=True, blank=True)
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -76,8 +75,6 @@ class SupplyQuantity(models.Model):
         is_new = self.pk is None
 
         if is_new:
-            # For new supplies, set the original quantity
-            self.original_quantity = self.current_quantity
             super().save(*args, **kwargs)  # Save first to get the ID
             
             # Only create history if not skipped
@@ -250,7 +247,7 @@ class Supply(models.Model):
         )
         
         # Get all admin users
-        admin_users = User.objects.filter(userprofile__role='admin')
+        admin_users = User.objects.filter(userprofile__role='ADMIN')
         
         # Create notifications for supplies expiring soon
         for supply in expiring_soon:
@@ -301,7 +298,8 @@ class Property(models.Model):
         ('not_available', 'Not Available'),
     ]
 
-    property_name = models.CharField(max_length=100, null=True, blank=True)
+    property_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    property_name = models.CharField(max_length=100)  # Make this required
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     barcode = models.CharField(max_length=150, unique=True, null=True, blank=True)
@@ -311,89 +309,111 @@ class Property(models.Model):
         blank=True, null=True,
         validators=[MinValueValidator(0)]
     )
-    quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)], null=True, blank=True)
-    original_quantity = models.PositiveIntegerField(null=True, blank=True)
+    overall_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)  # Set default to 0
+    quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)  # Set default to 0
     location = models.CharField(max_length=255, null=True, blank=True)
-    condition = models.CharField(max_length=100, choices=CONDITION_CHOICES, blank=True, null=True)
+    condition = models.CharField(max_length=100, choices=CONDITION_CHOICES, default='In good condition')  # Set default
     availability = models.CharField(max_length=20, choices=AVAILABILITY_CHOICES, default='available')
 
     def __str__(self):
-        return f"{self.property_name} - {self.barcode}"
+        return f"{self.property_name} - {self.barcode if self.barcode else 'No Barcode'}"
 
     def update_availability(self):
-        """Update availability based on quantity"""
-        is_available = self.quantity > 0
-        if is_available and self.availability == 'not_available':
-            self.availability = 'available'
-            self.save()
-        elif not is_available and self.availability == 'available':
-            self.availability = 'not_available'
-            self.save()
+        """Update availability based on condition and quantity"""
+        unavailable_conditions = ['Needing repair', 'Unserviceable', 'Obsolete', 'No longer needed']
+        
+        # First check condition
+        if self.condition in unavailable_conditions:
+            if self.availability != 'not_available':
+                self.availability = 'not_available'
+                self.save(update_fields=['availability'])
+        else:
+            # Then check quantity (handle None as 0)
+            current_quantity = self.quantity or 0
+            if current_quantity == 0 and self.availability != 'not_available':
+                self.availability = 'not_available'
+                self.save(update_fields=['availability'])
+            elif current_quantity > 0 and self.availability != 'available':
+                self.availability = 'available'
+                self.save(update_fields=['availability'])
 
     def save(self, *args, **kwargs):
         # Get the user from kwargs
         user = kwargs.pop('user', None)
-
-        # Check if this is a new property (being created)
+        
+        # If this is a new property or overall_quantity has changed
+        if not self.pk or (self.pk and Property.objects.get(pk=self.pk).overall_quantity != self.overall_quantity):
+            # Set the current quantity equal to overall_quantity if it's a new property
+            # or if overall_quantity has been updated
+            self.quantity = self.overall_quantity
+        
+        # Check if this is a new property
         is_new = self.pk is None
 
         if is_new:
-            # For new properties, set the original quantity
-            self.original_quantity = self.quantity
-            # Set initial availability based on quantity
-            self.availability = 'available' if self.quantity > 0 else 'not_available'
-            # Save first to get the ID
+            # Set initial availability based on condition and quantity
+            unavailable_conditions = ['Needing repair', 'Unserviceable', 'Obsolete', 'No longer needed']
+            if self.condition in unavailable_conditions:
+                self.availability = 'not_available'
+            else:
+                self.availability = 'available' if self.quantity >= 1 else 'not_available'
             super().save(*args, **kwargs)
-            # Create a history entry for the initial quantity
-            if self.quantity is not None:
+            
+            # Create history entry for new property
+            if user:
                 PropertyHistory.objects.create(
                     property=self,
                     user=user,
                     action='create',
-                    field_name='initial_quantity',
-                    old_value=None,
-                    new_value=str(self.quantity),
-                    remarks=f"Initial quantity set to {self.quantity}"
+                    field_name='initial_creation',
+                    new_value='Property created'
                 )
         else:
             # For existing properties, track changes
             old_obj = Property.objects.get(pk=self.pk)
-            fields_to_track = ['property_name', 'category', 'description', 'barcode', 'unit_of_measure', 
-                             'unit_value', 'quantity', 'location', 'condition', 'availability']
+            fields_to_track = ['property_number', 'property_name', 'category', 'description', 'barcode', 
+                             'unit_of_measure', 'unit_value', 'overall_quantity', 'quantity', 
+                             'location', 'condition', 'availability']
             
             for field in fields_to_track:
                 old_value = getattr(old_obj, field)
                 new_value = getattr(self, field)
                 
-                # Convert values to strings for comparison, handling None and empty values
-                old_str = str(old_value) if old_value not in [None, ''] else ''
-                new_str = str(new_value) if new_value not in [None, ''] else ''
-                
-                # Only create history entry if the values are actually different
-                if old_str != new_str:
+                if old_value != new_value:
+                    # Add specific remarks for quantity changes
                     remarks = None
-                    if field == 'quantity':
+                    if field in ['quantity', 'overall_quantity']:
                         change = (new_value or 0) - (old_value or 0)
                         if change > 0:
-                            remarks = f"Quantity increased by {abs(change)}"
+                            remarks = f"{field.replace('_', ' ').title()} increased by {abs(change)}"
                         else:
-                            remarks = f"Quantity decreased by {abs(change)}"
+                            remarks = f"{field.replace('_', ' ').title()} decreased by {abs(change)}"
 
                     PropertyHistory.objects.create(
                         property=self,
                         user=user,
                         action='update',
                         field_name=field,
-                        old_value=old_str if old_str else None,
-                        new_value=new_str if new_str else None,
+                        old_value=str(old_value) if old_value is not None else None,
+                        new_value=str(new_value) if new_value is not None else None,
                         remarks=remarks
                     )
-
+            
             super().save(*args, **kwargs)
             
-            # Update availability based on quantity after save
-            if old_obj.quantity != self.quantity:
+            # Update availability based on condition and quantity changes
+            if old_obj.condition != self.condition or old_obj.quantity != self.quantity:
                 self.update_availability()
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        
+        # Ensure overall_quantity is not less than current quantity
+        if self.overall_quantity is not None and self.quantity is not None:
+            if self.overall_quantity < self.quantity:
+                raise ValidationError({
+                    'overall_quantity': 'Overall quantity cannot be less than current quantity.'
+                })
 
 class SupplyRequest(models.Model):
     STATUS_CHOICES = [
@@ -430,7 +450,7 @@ class SupplyRequest(models.Model):
 
         # If this is a new supply request, notify admin users
         if is_new:
-            admin_users = User.objects.filter(userprofile__role='admin')
+            admin_users = User.objects.filter(userprofile__role='ADMIN')
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
@@ -452,7 +472,7 @@ class SupplyRequest(models.Model):
                     # Create notification for low stock if needed
                     if quantity_info.current_quantity <= quantity_info.minimum_threshold:
                         # Get all admin users to notify about low stock
-                        admin_users = User.objects.filter(userprofile__role='admin')
+                        admin_users = User.objects.filter(userprofile__role='ADMIN')
                         
                         for admin_user in admin_users:
                             Notification.objects.create(
@@ -502,7 +522,7 @@ class Reservation(models.Model):
         
         # If this is a new reservation, notify admin users
         if is_new:
-            admin_users = User.objects.filter(userprofile__role='admin')
+            admin_users = User.objects.filter(userprofile__role='ADMIN')
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
@@ -625,7 +645,7 @@ class DamageReport(models.Model):
         
         # If this is a new damage report, notify admin users
         if is_new:
-            admin_users = User.objects.filter(userprofile__role='admin')
+            admin_users = User.objects.filter(userprofile__role='ADMIN')
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
@@ -652,15 +672,64 @@ class BorrowRequest(models.Model):
     actual_return_date = models.DateField(null=True, blank=True)
     purpose = models.TextField()
 
-    def __str__(self):
-        return f"Request by {self.user.username} for {self.property.property_name}"
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        
+        # Check if quantity is available for new requests
+        if not self.pk:
+            if self.quantity is None:
+                raise ValidationError({
+                    'quantity': 'Quantity is required.'
+                })
+            
+            if self.property is None:
+                raise ValidationError({
+                    'property': 'Property is required.'
+                })
+
+            available_quantity = self.property.quantity if self.property.quantity is not None else 0
+            if available_quantity == 0:
+                raise ValidationError({
+                    'quantity': 'This item is currently not available for borrowing.'
+                })
+            if self.quantity > available_quantity:
+                raise ValidationError({
+                    'quantity': f'Cannot borrow more than available quantity. Available: {available_quantity}'
+                })
+        
+        # For existing requests being updated
+        if self.pk:
+            old_request = BorrowRequest.objects.get(pk=self.pk)
+            if self.status != old_request.status and self.status == 'approved':
+                if self.quantity is None:
+                    raise ValidationError({
+                        'quantity': 'Quantity is required.'
+                    })
+                
+                available_quantity = self.property.quantity if self.property.quantity is not None else 0
+                if self.quantity > available_quantity:
+                    raise ValidationError({
+                        'quantity': f'Cannot approve request. Available quantity ({available_quantity}) is less than requested quantity ({self.quantity})'
+                    })
 
     def save(self, *args, **kwargs):
+        # Run validation
+        self.clean()
+        
         # Check if this is a new borrow request
         is_new = self.pk is None
 
         if is_new:
             super().save(*args, **kwargs)
+            
+            # Notify admin users about new request
+            admin_users = User.objects.filter(userprofile__role='ADMIN')
+            for admin_user in admin_users:
+                Notification.objects.create(
+                    user=admin_user,
+                    message=f"New borrow request for {self.property.property_name} by {self.user.username}",
+                    remarks=f"Quantity: {self.quantity}, Return Date: {self.return_date}"
+                )
         else:
             # Get the old instance
             old_instance = BorrowRequest.objects.get(pk=self.pk)
@@ -673,9 +742,6 @@ class BorrowRequest(models.Model):
                     # Decrease the property's quantity
                     self.property.quantity -= self.quantity
                     self.property.save()
-                    
-                    # Update property availability based on new quantity
-                    self.property.update_availability()
 
                     # Notify the user
                     Notification.objects.create(
@@ -684,13 +750,13 @@ class BorrowRequest(models.Model):
                         remarks=self.remarks if self.remarks else None
                     )
 
-                if self.status == 'returned' and old_status in ['approved', 'overdue']:
+                elif self.status == 'returned' and old_status in ['approved', 'overdue']:
                     # Increase the property's quantity
                     self.property.quantity += self.quantity
                     self.property.save()
                     
-                    # Update property availability based on new quantity
-                    self.property.update_availability()
+                    # Set actual return date
+                    self.actual_return_date = timezone.now().date()
 
                     # Notify the user
                     Notification.objects.create(
@@ -699,7 +765,7 @@ class BorrowRequest(models.Model):
                         remarks=self.remarks if self.remarks else None
                     )
 
-                if self.status == 'declined' and old_status == 'pending':
+                elif self.status == 'declined' and old_status == 'pending':
                     # Notify the user
                     Notification.objects.create(
                         user=self.user,
@@ -707,13 +773,21 @@ class BorrowRequest(models.Model):
                         remarks=self.remarks if self.remarks else None
                     )
 
-                if self.status == 'overdue' and old_status == 'approved':
-                    # Notify the user
+                elif self.status == 'overdue' and old_status == 'approved':
+                    # Notify the user and admin
                     Notification.objects.create(
                         user=self.user,
                         message=f"Your borrow request for {self.property.property_name} is overdue.",
-                        remarks=self.remarks if self.remarks else None
+                        remarks=f"Please return the item(s) as soon as possible. Return date was: {self.return_date}"
                     )
+                    
+                    admin_users = User.objects.filter(userprofile__role='ADMIN')
+                    for admin_user in admin_users:
+                        Notification.objects.create(
+                            user=admin_user,
+                            message=f"Borrow request for {self.property.property_name} by {self.user.username} is overdue",
+                            remarks=f"Return date was: {self.return_date}"
+                        )
 
     @classmethod
     def check_overdue_items(cls):

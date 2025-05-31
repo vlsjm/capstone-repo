@@ -155,3 +155,1554 @@ INFO 2025-05-31 18:31:11,767 basehttp 4056 11116 "POST /accounts/login/ HTTP/1.1
 INFO 2025-05-31 18:31:11,893 basehttp 4056 11116 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 3933
 INFO 2025-05-31 18:31:18,428 basehttp 4056 4100 "POST /accounts/logout/ HTTP/1.1" 302 0
 INFO 2025-05-31 18:31:18,442 basehttp 4056 4100 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 18:55:23,241 autoreload 5832 296 Watching for file changes with StatReloader
+INFO 2025-05-31 18:55:31,716 basehttp 5832 6524 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 18:55:33,191 basehttp 5832 6524 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 18:55:38,176 basehttp 5832 6524 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 18:55:38,438 basehttp 5832 6524 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-05-31 18:55:38,532 basehttp 5832 6524 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-05-31 18:55:40,731 basehttp 5832 1592 "GET /manage-users/ HTTP/1.1" 200 8957
+INFO 2025-05-31 18:56:14,611 views 5832 8516 Starting user creation process...
+INFO 2025-05-31 18:56:14,612 views 5832 8516 Verifying email settings...
+INFO 2025-05-31 18:56:14,613 views 5832 8516 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-05-31 18:56:14,613 views 5832 8516 EMAIL_HOST: smtp.gmail.com
+INFO 2025-05-31 18:56:14,614 views 5832 8516 EMAIL_PORT: 587
+INFO 2025-05-31 18:56:14,614 views 5832 8516 EMAIL_USE_TLS: True
+INFO 2025-05-31 18:56:14,615 views 5832 8516 EMAIL_HOST_USER: rrdelacruz710@gmail.com
+INFO 2025-05-31 18:56:14,615 views 5832 8516 EMAIL_HOST_PASSWORD is set: Yes
+INFO 2025-05-31 18:56:14,616 views 5832 8516 .env file exists: Yes
+INFO 2025-05-31 18:56:14,617 views 5832 8516 Checking form validity...
+INFO 2025-05-31 18:56:14,813 views 5832 8516 Form is valid, proceeding with user creation...
+INFO 2025-05-31 18:56:14,814 views 5832 8516 Creating user with email: rrdelacruz32@gmail.com
+INFO 2025-05-31 18:56:17,973 views 5832 8516 User created successfully with role: USER
+INFO 2025-05-31 18:56:18,643 views 5832 8516 Added user to group: USER
+INFO 2025-05-31 18:56:18,891 views 5832 8516 User profile created successfully
+INFO 2025-05-31 18:56:18,942 views 5832 8516 Attempting to send welcome email to rrdelacruz32@gmail.com...
+INFO 2025-05-31 18:56:22,735 views 5832 8516 Welcome email sent successfully!
+INFO 2025-05-31 18:56:23,021 basehttp 5832 8516 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-05-31 18:56:23,079 basehttp 5832 8516 "GET /manage-users/ HTTP/1.1" 200 9435
+INFO 2025-05-31 20:59:06,543 autoreload 2388 580 Watching for file changes with StatReloader
+INFO 2025-05-31 20:59:19,420 basehttp 2388 5148 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 20:59:22,730 basehttp 2388 3832 "GET /static/css/auth.css HTTP/1.1" 304 0
+WARNING 2025-05-31 20:59:25,769 basehttp 2388 3832 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 21:09:31,107 autoreload 8536 12180 Watching for file changes with StatReloader
+INFO 2025-05-31 21:09:39,251 basehttp 8536 5548 "GET / HTTP/1.1" 200 767
+WARNING 2025-05-31 21:09:49,229 basehttp 8536 2024 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 21:09:51,287 basehttp 8536 2024 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 21:10:00,203 basehttp 8536 2988 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:10:00,948 basehttp 8536 2988 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-05-31 21:10:01,141 basehttp 8536 2988 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-05-31 21:10:01,168 basehttp 8536 2988 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-05-31 21:10:08,391 basehttp 8536 10864 "GET /property/ HTTP/1.1" 200 54117
+INFO 2025-05-31 21:10:08,520 basehttp 8536 10864 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-05-31 21:10:10,185 basehttp 8536 3804 "GET /get_property_history/11/ HTTP/1.1" 200 6411
+INFO 2025-05-31 21:10:25,872 basehttp 8536 10900 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:10:25,957 basehttp 8536 10900 "GET /property/ HTTP/1.1" 200 54378
+INFO 2025-05-31 21:10:27,990 basehttp 8536 10900 "GET /get_property_history/11/ HTTP/1.1" 200 6581
+INFO 2025-05-31 21:10:31,826 basehttp 8536 3776 "GET /supplies/ HTTP/1.1" 200 57136
+INFO 2025-05-31 21:10:32,072 basehttp 8536 3776 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4387
+INFO 2025-05-31 21:10:33,249 basehttp 8536 3776 "GET /get_supply_history/27/ HTTP/1.1" 200 2036
+INFO 2025-05-31 21:10:40,702 basehttp 8536 5192 "GET /my-borrow-requests/ HTTP/1.1" 200 35060
+INFO 2025-05-31 21:10:40,820 basehttp 8536 5192 "GET /static/scripts/filterStatus.js HTTP/1.1" 304 0
+INFO 2025-05-31 21:10:41,458 basehttp 8536 5192 "GET /activity/ HTTP/1.1" 200 11671
+INFO 2025-05-31 21:10:46,333 basehttp 8536 1312 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-05-31 21:10:51,624 autoreload 8536 12180 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-05-31 21:10:54,235 autoreload 2552 6428 Watching for file changes with StatReloader
+INFO 2025-05-31 21:12:06,880 autoreload 2552 6428 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py changed, reloading.
+INFO 2025-05-31 21:12:11,774 autoreload 9648 4948 Watching for file changes with StatReloader
+INFO 2025-05-31 21:12:30,849 autoreload 9648 4948 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-05-31 21:12:34,093 autoreload 2360 6608 Watching for file changes with StatReloader
+INFO 2025-05-31 21:14:28,832 autoreload 2360 6608 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-05-31 21:14:32,128 autoreload 5792 2424 Watching for file changes with StatReloader
+INFO 2025-05-31 21:14:35,221 basehttp 5792 4340 "GET /manage-users/ HTTP/1.1" 200 9188
+INFO 2025-05-31 21:18:46,259 views 5792 592 Starting user creation process...
+INFO 2025-05-31 21:18:46,270 views 5792 592 Verifying email settings...
+INFO 2025-05-31 21:18:46,271 views 5792 592 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-05-31 21:18:46,271 views 5792 592 EMAIL_HOST: smtp.gmail.com
+INFO 2025-05-31 21:18:46,272 views 5792 592 EMAIL_PORT: 587
+INFO 2025-05-31 21:18:46,273 views 5792 592 EMAIL_USE_TLS: True
+INFO 2025-05-31 21:18:46,319 views 5792 592 EMAIL_HOST_USER: rrdelacruz710@gmail.com
+INFO 2025-05-31 21:18:46,338 views 5792 592 EMAIL_HOST_PASSWORD is set: Yes
+INFO 2025-05-31 21:18:46,339 views 5792 592 .env file exists: Yes
+INFO 2025-05-31 21:18:46,340 views 5792 592 Checking form validity...
+INFO 2025-05-31 21:18:46,563 views 5792 592 Form is valid, proceeding with user creation...
+INFO 2025-05-31 21:18:46,564 views 5792 592 Creating user with email: estanquestephenkyle@gmail.com
+INFO 2025-05-31 21:18:49,317 views 5792 592 User created successfully with role: USER
+INFO 2025-05-31 21:18:49,453 views 5792 592 Added user to group: USER
+INFO 2025-05-31 21:18:49,558 views 5792 592 User profile created successfully
+INFO 2025-05-31 21:18:49,733 views 5792 592 Attempting to send welcome email to estanquestephenkyle@gmail.com...
+INFO 2025-05-31 21:18:54,589 views 5792 592 Welcome email sent successfully!
+INFO 2025-05-31 21:18:54,789 basehttp 5792 592 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:18:54,864 basehttp 5792 592 "GET /manage-users/ HTTP/1.1" 200 9674
+INFO 2025-05-31 21:19:21,444 basehttp 5792 1784 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-05-31 21:21:10,623 basehttp 5792 3052 "GET /property/ HTTP/1.1" 200 54117
+INFO 2025-05-31 21:21:12,328 basehttp 5792 7364 "GET /get_property_history/11/ HTTP/1.1" 200 6581
+INFO 2025-05-31 21:26:55,501 basehttp 5792 11496 "GET /supplies/ HTTP/1.1" 200 57136
+INFO 2025-05-31 21:26:55,580 basehttp 5792 11496 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-05-31 21:27:05,552 basehttp 5792 11968 "GET /property/ HTTP/1.1" 200 54117
+INFO 2025-05-31 21:46:41,837 autoreload 5312 5736 Watching for file changes with StatReloader
+INFO 2025-05-31 21:46:47,351 basehttp 5312 3120 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 21:46:49,550 basehttp 5312 6464 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 21:46:53,732 basehttp 5312 6464 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:46:53,950 basehttp 5312 6464 "GET /dashboard/ HTTP/1.1" 200 32231
+INFO 2025-05-31 21:46:56,318 basehttp 5312 6464 "GET /property/ HTTP/1.1" 200 59474
+INFO 2025-05-31 21:47:56,771 basehttp 5312 6384 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:47:56,875 basehttp 5312 6384 "GET /property/ HTTP/1.1" 200 59502
+INFO 2025-05-31 21:48:05,743 basehttp 5312 6412 "GET /property/?page_ICT%20Equipment=2& HTTP/1.1" 200 41480
+INFO 2025-05-31 21:48:07,846 basehttp 5312 6412 "GET /property/?page_ICT%20Equipment=1& HTTP/1.1" 200 59474
+INFO 2025-05-31 21:48:29,698 autoreload 5312 5736 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-05-31 21:48:31,326 autoreload 9380 4976 Watching for file changes with StatReloader
+INFO 2025-05-31 21:50:05,240 autoreload 9380 4976 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-05-31 21:50:08,212 autoreload 7244 7344 Watching for file changes with StatReloader
+INFO 2025-05-31 21:50:38,727 autoreload 7244 7344 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-05-31 21:50:41,137 autoreload 4264 10160 Watching for file changes with StatReloader
+INFO 2025-05-31 21:51:02,981 basehttp 4264 800 "GET /property/?page_ICT%20Equipment=1& HTTP/1.1" 200 59411
+INFO 2025-05-31 21:51:04,121 basehttp 4264 800 "GET /property/?page_ICT%20Equipment=1& HTTP/1.1" 200 59411
+INFO 2025-05-31 21:51:04,428 basehttp 4264 8972 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+INFO 2025-05-31 21:51:04,440 basehttp 4264 800 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-05-31 21:51:06,176 basehttp 4264 800 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 21:51:18,982 basehttp 4264 212 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:51:19,078 basehttp 4264 212 "GET /property/ HTTP/1.1" 200 61928
+INFO 2025-05-31 21:51:38,414 basehttp 4264 9468 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:51:38,429 basehttp 4264 9468 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 21:51:39,448 basehttp 4264 9864 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 21:51:48,825 basehttp 4264 9864 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:51:49,136 basehttp 4264 9864 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 60932
+INFO 2025-05-31 21:51:54,408 basehttp 4264 10620 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6651
+INFO 2025-05-31 21:52:11,152 basehttp 4264 6512 "POST /userpanel/user_borrow/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:52:11,187 basehttp 4264 6512 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6939
+INFO 2025-05-31 21:52:14,822 basehttp 4264 6512 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:52:14,837 basehttp 4264 6512 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 21:52:15,809 basehttp 4264 6512 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 21:52:20,855 basehttp 4264 6512 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:52:20,987 basehttp 4264 6512 "GET /dashboard/ HTTP/1.1" 200 32223
+INFO 2025-05-31 21:52:24,111 basehttp 4264 6512 "GET /property/ HTTP/1.1" 200 61669
+INFO 2025-05-31 21:52:33,927 basehttp 4264 11272 "GET /my-borrow-requests/ HTTP/1.1" 200 35958
+INFO 2025-05-31 21:52:36,517 basehttp 4264 11272 "GET /borrow-request/34/ HTTP/1.1" 200 3276
+INFO 2025-05-31 21:52:40,964 basehttp 4264 220 "POST /borrow-request/34/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:52:41,243 basehttp 4264 220 "GET /my-borrow-requests/ HTTP/1.1" 200 35967
+INFO 2025-05-31 21:52:44,412 basehttp 4264 220 "GET /property/ HTTP/1.1" 200 61669
+INFO 2025-05-31 21:52:50,599 basehttp 4264 4396 "GET /my-borrow-requests/ HTTP/1.1" 200 35967
+INFO 2025-05-31 21:52:53,380 basehttp 4264 4396 "GET /borrow-request/34/ HTTP/1.1" 200 3187
+INFO 2025-05-31 21:52:57,657 basehttp 4264 4396 "POST /borrow-request/34/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:52:57,743 basehttp 4264 4396 "GET /my-borrow-requests/ HTTP/1.1" 200 35970
+INFO 2025-05-31 21:53:00,218 basehttp 4264 9920 "GET /property/ HTTP/1.1" 200 61669
+INFO 2025-05-31 21:53:09,880 autoreload 4264 10160 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-05-31 21:53:11,560 autoreload 10124 10068 Watching for file changes with StatReloader
+INFO 2025-05-31 21:54:46,699 basehttp 10124 728 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 21:54:46,911 basehttp 10124 728 "GET /property/ HTTP/1.1" 200 61930
+INFO 2025-05-31 21:56:06,177 autoreload 10124 10068 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-05-31 21:56:09,148 autoreload 3272 3176 Watching for file changes with StatReloader
+INFO 2025-05-31 21:56:39,241 basehttp 3272 3248 "GET /property/ HTTP/1.1" 200 61669
+INFO 2025-05-31 21:56:40,475 basehttp 3272 10504 "GET /property/ HTTP/1.1" 200 61669
+INFO 2025-05-31 21:56:40,661 basehttp 3272 10504 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 21:56:40,683 basehttp 3272 3476 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 21:56:44,638 basehttp 3272 3476 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 21:56:55,385 basehttp 3272 5496 "GET /property/ HTTP/1.1" 200 61669
+INFO 2025-05-31 21:56:55,454 basehttp 3272 5496 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 21:56:55,456 basehttp 3272 4628 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 21:56:55,776 basehttp 3272 4628 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 21:56:56,257 basehttp 3272 4628 "GET /property/ HTTP/1.1" 200 61669
+INFO 2025-05-31 21:56:56,331 basehttp 3272 4628 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 21:56:56,335 basehttp 3272 5496 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+INFO 2025-05-31 21:56:56,487 basehttp 3272 4628 "GET /property/ HTTP/1.1" 200 61669
+INFO 2025-05-31 21:56:56,725 basehttp 3272 4628 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 21:56:56,737 basehttp 3272 5496 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+INFO 2025-05-31 21:56:56,940 basehttp 3272 2772 "GET /property/ HTTP/1.1" 200 61669
+INFO 2025-05-31 21:56:57,044 basehttp 3272 5496 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+INFO 2025-05-31 21:56:57,045 basehttp 3272 2772 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-05-31 21:56:57,393 basehttp 3272 2772 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 21:57:01,107 basehttp 3272 9236 "GET /get_property_history/31/ HTTP/1.1" 200 1040
+ERROR 2025-05-31 22:01:58,934 log 3272 7528 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+        (
+    ...<2 lines>...
+        )
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 962, in do_if
+    nodelist = parser.parse(("elif", "else", "endif"))
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 489, in parse
+    raise self.error(token, e)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 705, in __init__
+    filter_func = parser.find_filter(filter_name)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 615, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'add_class'
+ERROR 2025-05-31 22:01:59,032 log 3272 2524 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+        (
+    ...<2 lines>...
+        )
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 962, in do_if
+    nodelist = parser.parse(("elif", "else", "endif"))
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 489, in parse
+    raise self.error(token, e)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 705, in __init__
+    filter_func = parser.find_filter(filter_name)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 615, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'add_class'
+ERROR 2025-05-31 22:01:59,045 log 3272 10928 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+        (
+    ...<2 lines>...
+        )
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\defaulttags.py", line 962, in do_if
+    nodelist = parser.parse(("elif", "else", "endif"))
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 489, in parse
+    raise self.error(token, e)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 705, in __init__
+    filter_func = parser.find_filter(filter_name)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 615, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'add_class'
+INFO 2025-05-31 22:01:59,157 basehttp 3272 7528 - Broken pipe from ('127.0.0.1', 58136)
+ERROR 2025-05-31 22:01:59,174 basehttp 3272 10928 "GET /property/ HTTP/1.1" 500 241842
+INFO 2025-05-31 22:01:59,175 basehttp 3272 2524 - Broken pipe from ('127.0.0.1', 58135)
+WARNING 2025-05-31 22:02:01,992 basehttp 3272 5700 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 22:04:10,261 autoreload 3272 3176 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-05-31 22:04:14,740 autoreload 10432 5624 Watching for file changes with StatReloader
+INFO 2025-05-31 22:04:16,078 basehttp 10432 2652 "GET /property/ HTTP/1.1" 200 61669
+INFO 2025-05-31 22:04:37,103 basehttp 10432 9436 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:04:37,172 basehttp 10432 9436 "GET /property/ HTTP/1.1" 200 61930
+INFO 2025-05-31 22:07:52,451 basehttp 10432 4520 "GET /property/ HTTP/1.1" 200 61557
+INFO 2025-05-31 22:07:53,909 basehttp 10432 4520 "GET /property/ HTTP/1.1" 200 61557
+INFO 2025-05-31 22:07:54,078 basehttp 10432 4520 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 22:07:54,093 basehttp 10432 11244 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 22:07:54,333 basehttp 10432 11244 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 22:07:55,463 basehttp 10432 11244 "GET /get_property_history/31/ HTTP/1.1" 200 1555
+INFO 2025-05-31 22:09:56,741 basehttp 10432 9020 "GET /property/ HTTP/1.1" 200 61474
+INFO 2025-05-31 22:09:59,840 basehttp 10432 9020 "GET /property/ HTTP/1.1" 200 61474
+INFO 2025-05-31 22:09:59,923 basehttp 10432 10036 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+INFO 2025-05-31 22:09:59,924 basehttp 10432 9020 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-05-31 22:10:00,171 basehttp 10432 9020 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 22:10:16,609 basehttp 10432 4868 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:10:16,676 basehttp 10432 4868 "GET /property/ HTTP/1.1" 200 61735
+INFO 2025-05-31 22:18:35,733 basehttp 10432 8516 "GET /property/ HTTP/1.1" 200 48515
+INFO 2025-05-31 22:18:37,057 basehttp 10432 8516 "GET /property/ HTTP/1.1" 200 48515
+INFO 2025-05-31 22:18:37,136 basehttp 10432 8516 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 22:18:37,146 basehttp 10432 10264 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 22:18:37,400 basehttp 10432 10264 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 22:18:37,936 basehttp 10432 10264 "GET /property/ HTTP/1.1" 200 48515
+INFO 2025-05-31 22:18:38,000 basehttp 10432 10264 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 22:18:38,003 basehttp 10432 8516 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 22:18:38,295 basehttp 10432 10264 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 22:19:00,669 basehttp 10432 9892 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:19:00,762 basehttp 10432 9892 "GET /property/ HTTP/1.1" 200 46518
+INFO 2025-05-31 22:24:21,899 basehttp 10432 6636 "GET /property/ HTTP/1.1" 200 63749
+INFO 2025-05-31 22:24:30,718 basehttp 10432 10004 "GET /property/ HTTP/1.1" 200 63749
+INFO 2025-05-31 22:24:32,303 basehttp 10432 10004 "GET /property/ HTTP/1.1" 200 63749
+INFO 2025-05-31 22:24:32,365 basehttp 10432 10004 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 22:24:32,384 basehttp 10432 7144 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 22:24:33,101 basehttp 10432 6356 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 22:25:25,460 basehttp 10432 3568 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:25:25,564 basehttp 10432 3568 "GET /property/ HTTP/1.1" 200 64019
+INFO 2025-05-31 22:32:07,388 autoreload 10432 5624 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-05-31 22:32:10,138 autoreload 11900 8496 Watching for file changes with StatReloader
+INFO 2025-05-31 22:32:42,373 basehttp 11900 9620 "GET /property/ HTTP/1.1" 200 64043
+INFO 2025-05-31 22:32:42,550 basehttp 11900 9620 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 22:32:42,577 basehttp 11900 10920 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 22:32:42,926 basehttp 11900 10920 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 22:32:56,472 basehttp 11900 800 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:32:56,539 basehttp 11900 800 "GET /property/ HTTP/1.1" 200 64295
+INFO 2025-05-31 22:33:05,086 basehttp 11900 800 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:33:05,148 basehttp 11900 800 "GET /property/ HTTP/1.1" 200 64304
+INFO 2025-05-31 22:33:11,211 basehttp 11900 800 "GET /property/ HTTP/1.1" 200 64043
+INFO 2025-05-31 22:33:11,286 basehttp 11900 800 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 22:33:11,351 basehttp 11900 2784 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 22:33:11,692 basehttp 11900 2784 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 22:33:12,319 basehttp 11900 2784 "GET /property/ HTTP/1.1" 200 64043
+INFO 2025-05-31 22:33:12,426 basehttp 11900 2784 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 22:33:12,433 basehttp 11900 800 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 22:33:12,721 basehttp 11900 800 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 22:33:13,089 basehttp 11900 800 "GET /property/ HTTP/1.1" 200 64043
+INFO 2025-05-31 22:33:13,168 basehttp 11900 800 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 22:33:13,169 basehttp 11900 2784 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 22:33:13,408 basehttp 11900 2784 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 22:34:10,526 basehttp 11900 11440 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:34:10,594 basehttp 11900 11440 "GET /property/ HTTP/1.1" 200 64071
+INFO 2025-05-31 22:34:12,464 basehttp 11900 11440 "GET /property/ HTTP/1.1" 200 64043
+INFO 2025-05-31 22:34:13,789 basehttp 11900 10144 "GET /property/ HTTP/1.1" 200 64043
+INFO 2025-05-31 22:34:15,840 basehttp 11900 10144 "GET /property/ HTTP/1.1" 200 64043
+INFO 2025-05-31 22:34:18,164 basehttp 11900 10144 "GET /get_property_history/11/ HTTP/1.1" 200 6581
+INFO 2025-05-31 22:34:47,874 basehttp 11900 10964 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:34:47,949 basehttp 11900 10964 "GET /property/ HTTP/1.1" 200 64304
+INFO 2025-05-31 22:35:01,728 basehttp 11900 11660 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:35:01,792 basehttp 11900 11660 "GET /property/ HTTP/1.1" 200 64313
+INFO 2025-05-31 22:35:05,966 basehttp 11900 6956 "GET /get_property_history/11/ HTTP/1.1" 200 8255
+INFO 2025-05-31 22:35:14,798 basehttp 11900 1336 "GET /get_property_history/13/ HTTP/1.1" 200 795
+INFO 2025-05-31 22:35:19,265 basehttp 11900 1336 "GET /get_property_history/11/ HTTP/1.1" 200 8255
+INFO 2025-05-31 22:35:50,667 basehttp 11900 7052 "GET /get_property_history/25/ HTTP/1.1" 200 1058
+INFO 2025-05-31 22:36:00,321 basehttp 11900 10048 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:36:00,391 basehttp 11900 10048 "GET /property/ HTTP/1.1" 200 64080
+INFO 2025-05-31 22:36:05,548 basehttp 11900 10428 "GET /get_property_history/25/ HTTP/1.1" 200 1058
+INFO 2025-05-31 22:36:09,845 basehttp 11900 10428 "GET /get_property_history/26/ HTTP/1.1" 200 193
+INFO 2025-05-31 22:36:11,475 basehttp 11900 10428 "GET /get_property_history/23/ HTTP/1.1" 200 703
+INFO 2025-05-31 22:36:34,976 basehttp 11900 10052 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:36:35,044 basehttp 11900 10052 "GET /property/ HTTP/1.1" 200 64080
+INFO 2025-05-31 22:38:21,582 autoreload 11900 8496 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-05-31 22:38:29,824 autoreload 5632 2216 Watching for file changes with StatReloader
+INFO 2025-05-31 22:39:25,050 basehttp 5632 2016 "GET /property/ HTTP/1.1" 200 64440
+INFO 2025-05-31 22:39:26,752 basehttp 5632 2016 "GET /property/ HTTP/1.1" 200 64440
+INFO 2025-05-31 22:39:26,906 basehttp 5632 2016 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 22:39:26,909 basehttp 5632 5548 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 22:39:27,211 basehttp 5632 5548 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 22:39:28,419 basehttp 5632 5548 "GET /property/ HTTP/1.1" 200 64440
+INFO 2025-05-31 22:39:28,509 basehttp 5632 2016 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+INFO 2025-05-31 22:39:28,509 basehttp 5632 5548 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-05-31 22:39:28,771 basehttp 5632 5548 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 22:39:39,401 basehttp 5632 11148 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:39:39,514 basehttp 5632 11148 "GET /property/ HTTP/1.1" 200 64645
+INFO 2025-05-31 22:39:46,173 basehttp 5632 8372 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:39:46,307 basehttp 5632 8372 "GET /property/ HTTP/1.1" 200 64701
+INFO 2025-05-31 22:39:57,061 basehttp 5632 4944 "GET /get_property_history/11/ HTTP/1.1" 200 8919
+INFO 2025-05-31 22:40:02,652 basehttp 5632 4944 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:40:02,772 basehttp 5632 4944 "GET /property/ HTTP/1.1" 200 64468
+INFO 2025-05-31 22:40:07,528 basehttp 5632 11248 "GET /get_property_history/27/ HTTP/1.1" 200 195
+INFO 2025-05-31 22:40:12,362 basehttp 5632 11248 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:40:12,452 basehttp 5632 11248 "GET /property/ HTTP/1.1" 200 64468
+INFO 2025-05-31 22:40:29,430 basehttp 5632 3044 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:40:29,512 basehttp 5632 3044 "GET /property/ HTTP/1.1" 200 64468
+INFO 2025-05-31 22:40:34,761 basehttp 5632 3280 "GET /get_property_history/27/ HTTP/1.1" 200 195
+INFO 2025-05-31 22:48:03,881 basehttp 5632 6520 "GET /property/ HTTP/1.1" 200 64780
+INFO 2025-05-31 22:48:05,696 basehttp 5632 7680 "GET /property/ HTTP/1.1" 200 64780
+INFO 2025-05-31 22:48:06,089 basehttp 5632 7680 "GET /property/ HTTP/1.1" 200 64780
+INFO 2025-05-31 22:48:06,919 basehttp 5632 7680 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 22:48:07,267 basehttp 5632 9572 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 22:48:09,412 basehttp 5632 9572 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 22:48:19,104 basehttp 5632 9572 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:48:19,378 basehttp 5632 9572 "GET /property/ HTTP/1.1" 200 64985
+INFO 2025-05-31 22:48:29,421 basehttp 5632 7628 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:48:29,604 basehttp 5632 7628 "GET /property/ HTTP/1.1" 200 65041
+INFO 2025-05-31 22:48:37,695 basehttp 5632 8276 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:48:37,898 basehttp 5632 8276 "GET /property/ HTTP/1.1" 200 65033
+INFO 2025-05-31 22:48:42,150 basehttp 5632 8276 "GET /get_property_history/11/ HTTP/1.1" 200 9909
+INFO 2025-05-31 22:48:58,385 basehttp 5632 4264 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 22:48:58,451 basehttp 5632 4264 "GET /property/ HTTP/1.1" 200 64800
+INFO 2025-05-31 23:03:33,756 autoreload 9132 2672 Watching for file changes with StatReloader
+INFO 2025-05-31 23:03:42,573 basehttp 9132 1224 "GET / HTTP/1.1" 200 767
+WARNING 2025-05-31 23:03:50,695 basehttp 9132 1420 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:03:55,238 basehttp 9132 1420 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 23:04:10,414 basehttp 9132 9800 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:04:11,807 basehttp 9132 9800 "GET /dashboard/ HTTP/1.1" 200 32224
+INFO 2025-05-31 23:04:12,538 basehttp 9132 9800 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-05-31 23:04:23,199 basehttp 9132 1968 "GET /property/ HTTP/1.1" 200 64499
+INFO 2025-05-31 23:04:39,948 basehttp 9132 912 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:04:40,992 basehttp 9132 912 "GET /property/ HTTP/1.1" 200 64527
+INFO 2025-05-31 23:04:57,282 basehttp 9132 7828 "GET /property/ HTTP/1.1" 200 64499
+INFO 2025-05-31 23:04:58,593 basehttp 9132 5596 "GET /property/ HTTP/1.1" 200 64499
+INFO 2025-05-31 23:04:58,853 basehttp 9132 5596 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 23:04:58,904 basehttp 9132 9384 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 23:05:03,137 basehttp 9132 9384 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:05:14,007 basehttp 9132 5516 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:05:14,142 basehttp 9132 5516 "GET /property/ HTTP/1.1" 200 64527
+INFO 2025-05-31 23:05:20,332 basehttp 9132 7960 "GET /get_property_history/25/ HTTP/1.1" 200 1058
+INFO 2025-05-31 23:05:27,684 basehttp 9132 4056 "GET /get_property_history/23/ HTTP/1.1" 200 703
+INFO 2025-05-31 23:05:39,297 basehttp 9132 10864 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:05:39,401 basehttp 9132 10864 "GET /property/ HTTP/1.1" 200 64527
+INFO 2025-05-31 23:05:42,252 basehttp 9132 10864 "GET /get_property_history/25/ HTTP/1.1" 200 1058
+INFO 2025-05-31 23:05:44,681 basehttp 9132 3060 "GET /get_property_history/26/ HTTP/1.1" 200 193
+INFO 2025-05-31 23:05:46,911 basehttp 9132 3060 "GET /get_property_history/25/ HTTP/1.1" 200 1058
+INFO 2025-05-31 23:07:30,922 basehttp 9132 3052 "GET /property/ HTTP/1.1" 200 65494
+INFO 2025-05-31 23:07:32,312 basehttp 9132 3052 "GET /property/ HTTP/1.1" 200 65494
+INFO 2025-05-31 23:07:32,428 basehttp 9132 3052 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 23:07:32,517 basehttp 9132 7764 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 23:07:33,226 basehttp 9132 10992 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:07:40,404 basehttp 9132 5280 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:07:40,489 basehttp 9132 5280 "GET /property/ HTTP/1.1" 200 65522
+INFO 2025-05-31 23:07:49,847 autoreload 9132 2672 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-05-31 23:07:56,020 autoreload 9764 6276 Watching for file changes with StatReloader
+INFO 2025-05-31 23:08:00,726 basehttp 9764 8400 "GET /property/ HTTP/1.1" 200 64772
+INFO 2025-05-31 23:08:01,651 basehttp 9764 8400 "GET /property/ HTTP/1.1" 200 64772
+INFO 2025-05-31 23:08:01,955 basehttp 9764 8400 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 23:08:02,121 basehttp 9764 7528 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 23:08:04,586 basehttp 9764 12048 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:08:19,934 basehttp 9764 2744 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:08:20,089 basehttp 9764 2744 "GET /property/ HTTP/1.1" 200 64985
+INFO 2025-05-31 23:08:36,008 basehttp 9764 1832 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:08:36,101 basehttp 9764 1832 "GET /property/ HTTP/1.1" 200 65041
+INFO 2025-05-31 23:08:57,370 basehttp 9764 2888 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:08:57,569 basehttp 9764 2888 "GET /property/ HTTP/1.1" 200 64808
+INFO 2025-05-31 23:15:05,792 autoreload 9764 6276 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py changed, reloading.
+INFO 2025-05-31 23:15:17,314 autoreload 9160 11744 Watching for file changes with StatReloader
+INFO 2025-05-31 23:15:19,697 basehttp 9160 10812 "GET /property/ HTTP/1.1" 200 64780
+INFO 2025-05-31 23:15:20,534 basehttp 9160 10812 "GET /property/ HTTP/1.1" 200 64780
+INFO 2025-05-31 23:15:21,236 basehttp 9160 10812 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 23:15:21,496 basehttp 9160 7668 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 23:15:22,130 basehttp 9160 7668 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:15:32,210 basehttp 9160 11716 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:15:32,567 basehttp 9160 11716 "GET /property/ HTTP/1.1" 200 64808
+INFO 2025-05-31 23:15:40,384 basehttp 9160 168 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:15:40,588 basehttp 9160 168 "GET /property/ HTTP/1.1" 200 64808
+INFO 2025-05-31 23:15:47,004 basehttp 9160 7756 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:15:47,110 basehttp 9160 7756 "GET /property/ HTTP/1.1" 200 64808
+INFO 2025-05-31 23:15:50,835 autoreload 9160 11744 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py changed, reloading.
+INFO 2025-05-31 23:15:56,794 autoreload 3276 7040 Watching for file changes with StatReloader
+INFO 2025-05-31 23:16:40,514 autoreload 3276 7040 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py changed, reloading.
+INFO 2025-05-31 23:16:50,077 autoreload 5976 7176 Watching for file changes with StatReloader
+INFO 2025-05-31 23:17:06,912 basehttp 5976 7596 - Broken pipe from ('127.0.0.1', 59577)
+INFO 2025-05-31 23:17:07,114 basehttp 5976 2980 "GET /property/ HTTP/1.1" 200 64780
+INFO 2025-05-31 23:17:08,013 basehttp 5976 2980 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 23:17:08,134 basehttp 5976 4548 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 23:17:11,581 basehttp 5976 6512 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:17:19,888 basehttp 5976 6832 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:17:19,946 basehttp 5976 6832 "GET /property/ HTTP/1.1" 200 64985
+INFO 2025-05-31 23:17:29,540 basehttp 5976 372 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:17:29,613 basehttp 5976 372 "GET /property/ HTTP/1.1" 200 65033
+INFO 2025-05-31 23:17:38,383 basehttp 5976 11928 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:17:38,474 basehttp 5976 11928 "GET /property/ HTTP/1.1" 200 64985
+INFO 2025-05-31 23:17:44,960 basehttp 5976 9332 "GET /get_property_history/11/ HTTP/1.1" 200 12239
+INFO 2025-05-31 23:17:53,481 basehttp 5976 1920 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:17:53,623 basehttp 5976 1920 "GET /property/ HTTP/1.1" 200 64752
+INFO 2025-05-31 23:18:05,225 basehttp 5976 4396 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:18:05,293 basehttp 5976 4396 "GET /property/ HTTP/1.1" 200 65047
+INFO 2025-05-31 23:18:13,312 basehttp 5976 7624 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:18:13,483 basehttp 5976 7624 "GET /property/ HTTP/1.1" 200 64814
+INFO 2025-05-31 23:18:15,902 basehttp 5976 11764 "GET /property/ HTTP/1.1" 200 64786
+INFO 2025-05-31 23:18:16,226 basehttp 5976 11764 "GET /property/ HTTP/1.1" 200 64786
+INFO 2025-05-31 23:19:53,686 autoreload 5976 7176 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py changed, reloading.
+INFO 2025-05-31 23:20:10,149 autoreload 3332 1876 Watching for file changes with StatReloader
+INFO 2025-05-31 23:20:32,948 basehttp 3332 8968 "GET /property/ HTTP/1.1" 200 64786
+INFO 2025-05-31 23:20:34,734 basehttp 3332 8968 "GET /property/ HTTP/1.1" 200 64786
+INFO 2025-05-31 23:20:34,907 basehttp 3332 8968 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 23:20:34,914 basehttp 3332 3872 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 23:20:35,473 basehttp 3332 3872 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:20:40,025 basehttp 3332 10652 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:20:40,083 basehttp 3332 10652 "GET /property/ HTTP/1.1" 200 64814
+INFO 2025-05-31 23:21:13,984 basehttp 3332 12072 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:21:14,090 basehttp 3332 12072 "GET /property/ HTTP/1.1" 200 64985
+INFO 2025-05-31 23:21:31,166 basehttp 3332 7140 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:21:31,483 basehttp 3332 7140 "GET /property/ HTTP/1.1" 200 64752
+INFO 2025-05-31 23:21:45,268 basehttp 3332 7924 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:21:45,340 basehttp 3332 7924 "GET /property/ HTTP/1.1" 200 64752
+INFO 2025-05-31 23:21:57,255 basehttp 3332 10000 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:21:57,322 basehttp 3332 10000 "GET /property/ HTTP/1.1" 200 64985
+INFO 2025-05-31 23:22:36,647 basehttp 3332 5760 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:22:36,988 basehttp 3332 5760 "GET /property/ HTTP/1.1" 200 67303
+INFO 2025-05-31 23:22:50,318 basehttp 3332 2080 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:22:50,425 basehttp 3332 2080 "GET /property/ HTTP/1.1" 200 67255
+INFO 2025-05-31 23:23:07,894 basehttp 3332 5824 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:23:08,269 basehttp 3332 5824 "GET /property/ HTTP/1.1" 200 67305
+INFO 2025-05-31 23:25:03,952 autoreload 3332 1876 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py changed, reloading.
+INFO 2025-05-31 23:25:51,539 autoreload 2392 4400 Watching for file changes with StatReloader
+INFO 2025-05-31 23:34:21,529 basehttp 2392 1704 "GET /property/ HTTP/1.1" 200 67042
+INFO 2025-05-31 23:34:22,614 basehttp 2392 5660 "GET /property/ HTTP/1.1" 200 67042
+INFO 2025-05-31 23:34:23,202 basehttp 2392 5660 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 23:34:23,209 basehttp 2392 3960 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 23:34:24,160 basehttp 2392 5660 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:34:32,800 basehttp 2392 5660 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:34:32,900 basehttp 2392 5660 "GET /property/ HTTP/1.1" 200 67070
+INFO 2025-05-31 23:34:54,478 basehttp 2392 3744 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:34:54,628 basehttp 2392 3744 "GET /property/ HTTP/1.1" 200 67070
+INFO 2025-05-31 23:37:52,390 autoreload 2392 4400 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py changed, reloading.
+INFO 2025-05-31 23:38:00,658 autoreload 5804 4016 Watching for file changes with StatReloader
+INFO 2025-05-31 23:38:41,706 basehttp 5804 11432 "GET /property/ HTTP/1.1" 200 67042
+INFO 2025-05-31 23:38:42,426 basehttp 5804 11432 "GET /property/ HTTP/1.1" 200 67042
+INFO 2025-05-31 23:38:42,898 basehttp 5804 8020 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+INFO 2025-05-31 23:38:42,936 basehttp 5804 11432 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-05-31 23:38:44,200 basehttp 5804 11432 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:38:56,698 basehttp 5804 11432 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:38:56,874 basehttp 5804 11432 "GET /property/ HTTP/1.1" 200 67351
+INFO 2025-05-31 23:39:11,632 basehttp 5804 2748 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:39:11,899 basehttp 5804 2748 "GET /property/ HTTP/1.1" 200 67359
+INFO 2025-05-31 23:39:28,699 basehttp 5804 3540 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:39:28,932 basehttp 5804 3540 "GET /property/ HTTP/1.1" 200 67347
+INFO 2025-05-31 23:40:16,665 basehttp 5804 1184 "GET /get_property_history/11/ HTTP/1.1" 200 16635
+INFO 2025-05-31 23:40:55,021 basehttp 5804 4444 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:40:55,121 basehttp 5804 4444 "GET /property/ HTTP/1.1" 200 67114
+INFO 2025-05-31 23:41:09,062 basehttp 5804 7540 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:41:09,262 basehttp 5804 7540 "GET /property/ HTTP/1.1" 200 67114
+INFO 2025-05-31 23:41:15,037 basehttp 5804 5096 "GET /get_property_history/13/ HTTP/1.1" 200 3499
+INFO 2025-05-31 23:41:35,068 basehttp 5804 4944 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:41:35,157 basehttp 5804 4944 "GET /property/ HTTP/1.1" 200 67347
+INFO 2025-05-31 23:41:49,095 basehttp 5804 6112 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:41:49,292 basehttp 5804 6112 "GET /property/ HTTP/1.1" 200 67359
+INFO 2025-05-31 23:42:01,139 basehttp 5804 6980 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:42:01,238 basehttp 5804 6980 "GET /property/ HTTP/1.1" 200 67347
+INFO 2025-05-31 23:42:14,517 basehttp 5804 6428 "POST /delete-property/13/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:42:14,863 basehttp 5804 6428 "GET /property/ HTTP/1.1" 200 67267
+INFO 2025-05-31 23:42:22,140 basehttp 5804 6428 - Broken pipe from ('127.0.0.1', 60057)
+INFO 2025-05-31 23:42:24,013 basehttp 5804 2348 "GET /activity/ HTTP/1.1" 200 12578
+INFO 2025-05-31 23:42:31,012 basehttp 5804 2348 "GET /property/ HTTP/1.1" 200 66749
+INFO 2025-05-31 23:43:41,308 basehttp 5804 8672 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:43:41,427 basehttp 5804 8672 "GET /property/ HTTP/1.1" 200 67225
+INFO 2025-05-31 23:43:43,501 basehttp 5804 12112 "GET /property/?page_ICT%20Equipment=2& HTTP/1.1" 200 46470
+INFO 2025-05-31 23:43:49,589 basehttp 5804 12112 "GET /activity/ HTTP/1.1" 200 12504
+INFO 2025-05-31 23:43:55,579 basehttp 5804 11324 "GET /property/ HTTP/1.1" 200 66966
+INFO 2025-05-31 23:44:02,487 basehttp 5804 11324 "GET /property/?page_ICT%20Equipment=2& HTTP/1.1" 200 46470
+INFO 2025-05-31 23:44:04,037 basehttp 5804 6620 "GET /property/?page_ICT%20Equipment=1& HTTP/1.1" 200 66966
+INFO 2025-05-31 23:45:58,779 basehttp 5804 5112 "POST /delete-property/12/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:45:58,879 basehttp 5804 5112 "GET /property/ HTTP/1.1" 200 64967
+INFO 2025-05-31 23:46:10,908 basehttp 5804 7880 "GET /my-borrow-requests/ HTTP/1.1" 200 24078
+INFO 2025-05-31 23:46:19,545 basehttp 5804 4892 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:46:19,579 basehttp 5804 4892 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 23:46:20,868 basehttp 5804 4892 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 23:46:42,880 basehttp 5804 11220 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:46:43,734 basehttp 5804 11220 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 61450
+INFO 2025-05-31 23:46:54,717 basehttp 5804 5376 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6549
+INFO 2025-05-31 23:47:17,296 basehttp 5804 7504 "POST /userpanel/user_borrow/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:47:17,422 basehttp 5804 7504 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6837
+INFO 2025-05-31 23:47:42,905 basehttp 5804 8668 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:47:42,958 basehttp 5804 8668 "GET / HTTP/1.1" 200 767
+INFO 2025-05-31 23:47:44,400 basehttp 5804 8668 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-05-31 23:47:54,018 basehttp 5804 12252 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:47:54,731 basehttp 5804 12252 "GET /dashboard/ HTTP/1.1" 200 32165
+INFO 2025-05-31 23:47:59,878 basehttp 5804 11000 "GET /my-borrow-requests/ HTTP/1.1" 200 24976
+INFO 2025-05-31 23:48:04,620 basehttp 5804 11000 "GET /activity/ HTTP/1.1" 200 12321
+INFO 2025-05-31 23:48:28,330 basehttp 5804 7888 "GET /property/ HTTP/1.1" 200 64706
+INFO 2025-05-31 23:48:46,088 basehttp 5804 10456 "GET /property/?page_ICT%20Equipment=2& HTTP/1.1" 200 44210
+INFO 2025-05-31 23:48:55,086 basehttp 5804 10456 "GET /my-borrow-requests/ HTTP/1.1" 200 24976
+INFO 2025-05-31 23:48:58,829 basehttp 5804 2744 "GET /property/ HTTP/1.1" 200 64706
+INFO 2025-05-31 23:49:00,047 basehttp 5804 2744 "GET /property/?page_ICT%20Equipment=2& HTTP/1.1" 200 44210
+INFO 2025-05-31 23:49:07,417 basehttp 5804 9864 "GET /my-borrow-requests/ HTTP/1.1" 200 24976
+INFO 2025-05-31 23:49:08,592 basehttp 5804 9864 "GET /borrow-request/35/ HTTP/1.1" 200 3269
+INFO 2025-05-31 23:49:14,835 basehttp 5804 9864 "POST /borrow-request/35/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:49:14,943 basehttp 5804 9864 "GET /my-borrow-requests/ HTTP/1.1" 200 24985
+INFO 2025-05-31 23:49:17,654 basehttp 5804 2088 "GET /property/ HTTP/1.1" 200 64706
+INFO 2025-05-31 23:49:18,993 basehttp 5804 2088 "GET /property/?page_ICT%20Equipment=2& HTTP/1.1" 200 44210
+INFO 2025-05-31 23:49:27,233 basehttp 5804 10728 "GET /dashboard/ HTTP/1.1" 200 32223
+INFO 2025-05-31 23:49:28,355 basehttp 5804 10728 "GET /property/ HTTP/1.1" 200 64706
+INFO 2025-05-31 23:49:30,100 basehttp 5804 10728 "GET /supplies/ HTTP/1.1" 200 57136
+INFO 2025-05-31 23:49:30,846 basehttp 5804 10728 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-05-31 23:51:51,315 autoreload 5804 4016 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-05-31 23:51:58,856 autoreload 8688 6316 Watching for file changes with StatReloader
+INFO 2025-05-31 23:52:38,756 basehttp 8688 9960 "GET /property/ HTTP/1.1" 200 64697
+INFO 2025-05-31 23:52:50,681 basehttp 8688 8936 "GET /get_property_history/17/ HTTP/1.1" 200 381
+INFO 2025-05-31 23:56:39,976 basehttp 8688 10164 "GET /property/ HTTP/1.1" 200 64476
+INFO 2025-05-31 23:56:41,035 basehttp 8688 10164 "GET /property/ HTTP/1.1" 200 64476
+INFO 2025-05-31 23:56:41,538 basehttp 8688 10164 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 23:56:41,584 basehttp 8688 1920 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 23:56:42,015 basehttp 8688 10164 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:57:22,730 basehttp 8688 4316 "GET /property/ HTTP/1.1" 200 64380
+INFO 2025-05-31 23:57:23,833 basehttp 8688 4316 "GET /property/ HTTP/1.1" 200 64380
+INFO 2025-05-31 23:57:23,937 basehttp 8688 4316 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 23:57:24,239 basehttp 8688 5444 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 23:57:24,650 basehttp 8688 5444 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:57:40,630 basehttp 8688 5176 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:57:40,711 basehttp 8688 5176 "GET /property/ HTTP/1.1" 200 64593
+INFO 2025-05-31 23:57:49,194 basehttp 8688 5176 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:57:49,287 basehttp 8688 5176 "GET /property/ HTTP/1.1" 200 64360
+INFO 2025-05-31 23:57:58,459 basehttp 8688 5176 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:57:58,549 basehttp 8688 5176 "GET /property/ HTTP/1.1" 200 64360
+INFO 2025-05-31 23:58:10,994 basehttp 8688 9148 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:58:11,189 basehttp 8688 9148 "GET /property/ HTTP/1.1" 200 64360
+INFO 2025-05-31 23:58:17,676 basehttp 8688 9148 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:58:17,797 basehttp 8688 9148 "GET /property/ HTTP/1.1" 200 64360
+INFO 2025-05-31 23:58:23,364 basehttp 8688 2284 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:58:23,484 basehttp 8688 2284 "GET /property/ HTTP/1.1" 200 64360
+INFO 2025-05-31 23:58:34,495 basehttp 8688 8864 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:58:34,599 basehttp 8688 8864 "GET /property/ HTTP/1.1" 200 64360
+INFO 2025-05-31 23:58:53,513 basehttp 8688 7404 "GET /property/ HTTP/1.1" 200 64649
+INFO 2025-05-31 23:58:54,405 basehttp 8688 7404 "GET /property/ HTTP/1.1" 200 64649
+INFO 2025-05-31 23:58:54,473 basehttp 8688 7404 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 23:58:54,490 basehttp 8688 10540 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 23:58:55,088 basehttp 8688 10540 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:58:55,624 basehttp 8688 10540 "GET /property/ HTTP/1.1" 200 64649
+INFO 2025-05-31 23:58:55,729 basehttp 8688 10540 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-05-31 23:58:55,729 basehttp 8688 7404 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-05-31 23:58:56,327 basehttp 8688 10540 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-05-31 23:59:12,049 basehttp 8688 8840 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:59:12,148 basehttp 8688 8840 "GET /property/ HTTP/1.1" 200 64958
+INFO 2025-05-31 23:59:20,857 basehttp 8688 8840 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:59:20,917 basehttp 8688 8840 "GET /property/ HTTP/1.1" 200 64898
+INFO 2025-05-31 23:59:29,253 basehttp 8688 8840 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-05-31 23:59:29,337 basehttp 8688 8840 "GET /property/ HTTP/1.1" 200 64958
+INFO 2025-05-31 23:59:55,368 basehttp 8688 7380 - Broken pipe from ('127.0.0.1', 60279)
+INFO 2025-05-31 23:59:55,546 basehttp 8688 2088 "GET /my-borrow-requests/ HTTP/1.1" 200 24985
+INFO 2025-06-01 00:00:01,295 basehttp 8688 8692 "GET /supplies/ HTTP/1.1" 200 57136
+INFO 2025-06-01 00:00:01,828 basehttp 8688 8692 "GET /property/ HTTP/1.1" 200 64697
+INFO 2025-06-01 00:00:08,248 basehttp 8688 11364 "GET /my-supply-requests/ HTTP/1.1" 200 11425
+INFO 2025-06-01 00:00:08,948 basehttp 8688 11364 "GET /my-borrow-requests/ HTTP/1.1" 200 24985
+INFO 2025-06-01 00:00:11,767 basehttp 8688 4792 "GET /borrow-request/33/ HTTP/1.1" 200 3272
+INFO 2025-06-01 00:00:21,825 basehttp 8688 4792 "POST /borrow-request/33/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:00:21,898 basehttp 8688 4792 "GET /my-borrow-requests/ HTTP/1.1" 200 24994
+INFO 2025-06-01 00:00:23,682 basehttp 8688 4792 "GET /borrow-request/13/ HTTP/1.1" 200 3270
+INFO 2025-06-01 00:00:30,502 basehttp 8688 4200 "POST /borrow-request/13/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:00:30,641 basehttp 8688 4200 "GET /my-borrow-requests/ HTTP/1.1" 200 25085
+INFO 2025-06-01 00:00:34,011 basehttp 8688 4088 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:00:34,061 basehttp 8688 4088 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 00:00:35,659 basehttp 8688 4088 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:00:44,261 basehttp 8688 1616 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:00:44,721 basehttp 8688 1616 "GET /dashboard/ HTTP/1.1" 200 32281
+INFO 2025-06-01 00:00:46,874 basehttp 8688 11300 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:00:52,110 basehttp 8688 8980 "GET /dashboard/ HTTP/1.1" 200 32281
+INFO 2025-06-01 00:00:53,754 basehttp 8688 8980 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:01:09,970 basehttp 8688 10112 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:01:10,787 basehttp 8688 10112 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 64229
+INFO 2025-06-01 00:01:14,706 basehttp 8688 6968 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6549
+ERROR 2025-06-01 00:01:52,153 log 8688 9164 Internal Server Error: /userpanel/user_borrow/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\views.py", line 29, in post
+    if form.is_valid():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 201, in errors
+    self.full_clean()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 339, in full_clean
+    self._post_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\models.py", line 498, in _post_clean
+    self.instance.full_clean(exclude=exclude, validate_unique=False)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1654, in full_clean
+    self.clean()
+    ~~~~~~~~~~^^
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py", line 678, in clean
+    if not self.pk and self.quantity > self.property.quantity:
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: '>' not supported between instances of 'NoneType' and 'int'
+ERROR 2025-06-01 00:01:52,193 basehttp 8688 9164 "POST /userpanel/user_borrow/ HTTP/1.1" 500 107918
+INFO 2025-06-01 00:03:47,063 basehttp 8688 3736 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6549
+INFO 2025-06-01 00:03:51,474 basehttp 8688 3736 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:03:51,521 basehttp 8688 3736 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 00:03:52,714 basehttp 8688 3736 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:04:01,180 basehttp 8688 3736 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:04:01,485 basehttp 8688 3736 "GET /dashboard/ HTTP/1.1" 200 32281
+INFO 2025-06-01 00:04:06,159 basehttp 8688 3736 "GET /my-borrow-requests/ HTTP/1.1" 200 25085
+INFO 2025-06-01 00:04:08,131 basehttp 8688 3736 "GET /property/ HTTP/1.1" 200 64697
+INFO 2025-06-01 00:06:20,225 autoreload 8688 6316 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-01 00:06:28,258 autoreload 8776 8804 Watching for file changes with StatReloader
+INFO 2025-06-01 00:06:32,719 basehttp 8776 7044 "POST /delete-property/11/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:06:33,214 basehttp 8776 7044 "GET /property/ HTTP/1.1" 200 64828
+INFO 2025-06-01 00:07:21,499 basehttp 8776 5728 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:07:21,606 basehttp 8776 5728 "GET /property/ HTTP/1.1" 200 67156
+INFO 2025-06-01 00:07:30,080 basehttp 8776 5728 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:07:30,100 basehttp 8776 5728 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 00:07:31,351 basehttp 8776 5728 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:07:39,800 basehttp 8776 3832 - Broken pipe from ('127.0.0.1', 60446)
+INFO 2025-06-01 00:07:40,462 basehttp 8776 6348 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:07:40,755 basehttp 8776 6348 "GET /dashboard/ HTTP/1.1" 200 32406
+INFO 2025-06-01 00:07:44,562 basehttp 8776 2536 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:07:44,585 basehttp 8776 2536 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 00:07:46,010 basehttp 8776 2536 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:07:58,273 basehttp 8776 7740 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:07:58,469 basehttp 8776 7740 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 60470
+INFO 2025-06-01 00:08:01,706 basehttp 8776 5976 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6555
+INFO 2025-06-01 00:08:16,494 basehttp 8776 7196 "POST /userpanel/user_borrow/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:08:16,716 basehttp 8776 7196 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6843
+ERROR 2025-06-01 00:08:29,038 log 8776 4444 Internal Server Error: /userpanel/user_borrow/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\views.py", line 29, in post
+    if form.is_valid():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 201, in errors
+    self.full_clean()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 339, in full_clean
+    self._post_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\models.py", line 498, in _post_clean
+    self.instance.full_clean(exclude=exclude, validate_unique=False)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1654, in full_clean
+    self.clean()
+    ~~~~~~~~~~^^
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py", line 678, in clean
+    if not self.pk and self.quantity > self.property.quantity:
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: '>' not supported between instances of 'NoneType' and 'int'
+ERROR 2025-06-01 00:08:29,054 basehttp 8776 4444 "POST /userpanel/user_borrow/ HTTP/1.1" 500 107917
+INFO 2025-06-01 00:10:20,903 basehttp 8776 10652 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6555
+INFO 2025-06-01 00:10:23,928 basehttp 8776 10032 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:10:23,964 basehttp 8776 10032 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 00:10:24,997 basehttp 8776 10032 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:10:32,057 basehttp 8776 10032 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:10:32,163 basehttp 8776 10032 "GET /dashboard/ HTTP/1.1" 200 32350
+INFO 2025-06-01 00:10:35,279 basehttp 8776 10032 "GET /property/ HTTP/1.1" 200 66897
+INFO 2025-06-01 00:11:00,795 basehttp 8776 2080 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:11:00,905 basehttp 8776 2080 "GET /property/ HTTP/1.1" 200 69481
+INFO 2025-06-01 00:11:06,589 basehttp 8776 6280 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:11:06,792 basehttp 8776 6280 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 00:11:08,037 basehttp 8776 6280 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:11:16,453 basehttp 8776 6280 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:11:16,767 basehttp 8776 6280 "GET /dashboard/ HTTP/1.1" 200 32350
+INFO 2025-06-01 00:11:20,595 basehttp 8776 6280 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:11:20,706 basehttp 8776 6280 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 00:11:21,993 basehttp 8776 8592 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:11:36,858 basehttp 8776 8592 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:11:37,102 basehttp 8776 8592 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 60566
+INFO 2025-06-01 00:11:39,763 basehttp 8776 8592 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+ERROR 2025-06-01 00:11:52,316 log 8776 5280 Internal Server Error: /userpanel/user_borrow/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\views.py", line 29, in post
+    if form.is_valid():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 201, in errors
+    self.full_clean()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 339, in full_clean
+    self._post_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\models.py", line 498, in _post_clean
+    self.instance.full_clean(exclude=exclude, validate_unique=False)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1654, in full_clean
+    self.clean()
+    ~~~~~~~~~~^^
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py", line 678, in clean
+    if not self.pk and self.quantity > self.property.quantity:
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: '>' not supported between instances of 'NoneType' and 'int'
+ERROR 2025-06-01 00:11:52,325 basehttp 8776 5280 "POST /userpanel/user_borrow/ HTTP/1.1" 500 107918
+INFO 2025-06-01 00:12:03,383 basehttp 8776 11728 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:12:06,047 basehttp 8776 11728 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 60566
+INFO 2025-06-01 00:13:52,165 autoreload 8776 8804 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\forms.py changed, reloading.
+INFO 2025-06-01 00:13:59,924 autoreload 3144 6004 Watching for file changes with StatReloader
+INFO 2025-06-01 00:15:19,801 basehttp 3144 11700 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:15:19,886 basehttp 3144 11700 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+ERROR 2025-06-01 00:15:33,512 log 3144 5020 Internal Server Error: /userpanel/user_borrow/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\views.py", line 29, in post
+    if form.is_valid():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 201, in errors
+    self.full_clean()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 339, in full_clean
+    self._post_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\models.py", line 498, in _post_clean
+    self.instance.full_clean(exclude=exclude, validate_unique=False)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1654, in full_clean
+    self.clean()
+    ~~~~~~~~~~^^
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py", line 678, in clean
+    if not self.pk and self.quantity > self.property.quantity:
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: '>' not supported between instances of 'NoneType' and 'int'
+ERROR 2025-06-01 00:15:33,535 basehttp 3144 5020 "POST /userpanel/user_borrow/ HTTP/1.1" 500 107920
+INFO 2025-06-01 00:15:36,856 basehttp 3144 5020 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:15:37,997 basehttp 3144 11324 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:15:38,852 basehttp 3144 11324 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:15:39,207 basehttp 3144 11324 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-01 00:15:39,279 basehttp 3144 5996 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:15:39,559 basehttp 3144 5996 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-01 00:15:39,955 basehttp 3144 11324 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:15:40,106 basehttp 3144 11324 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+WARNING 2025-06-01 00:15:41,361 basehttp 3144 11324 "GET /favicon.ico HTTP/1.1" 404 13238
+ERROR 2025-06-01 00:15:53,154 log 3144 8228 Internal Server Error: /userpanel/user_borrow/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\views.py", line 29, in post
+    if form.is_valid():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 201, in errors
+    self.full_clean()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 339, in full_clean
+    self._post_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\models.py", line 498, in _post_clean
+    self.instance.full_clean(exclude=exclude, validate_unique=False)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1654, in full_clean
+    self.clean()
+    ~~~~~~~~~~^^
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py", line 678, in clean
+    if not self.pk and self.quantity > self.property.quantity:
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: '>' not supported between instances of 'NoneType' and 'int'
+ERROR 2025-06-01 00:15:53,161 basehttp 3144 8228 "POST /userpanel/user_borrow/ HTTP/1.1" 500 107918
+INFO 2025-06-01 00:16:28,381 basehttp 3144 9032 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 00:16:59,198 autoreload 3144 6004 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-01 00:17:11,169 autoreload 6312 11684 Watching for file changes with StatReloader
+INFO 2025-06-01 00:17:15,475 basehttp 6312 8440 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:17:25,607 basehttp 6312 8440 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:17:26,769 basehttp 6312 8440 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 60566
+INFO 2025-06-01 00:17:30,250 basehttp 6312 8440 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+ERROR 2025-06-01 00:17:43,047 log 6312 7044 Internal Server Error: /userpanel/user_borrow/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\views.py", line 29, in post
+    if form.is_valid():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 201, in errors
+    self.full_clean()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 339, in full_clean
+    self._post_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\models.py", line 498, in _post_clean
+    self.instance.full_clean(exclude=exclude, validate_unique=False)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1654, in full_clean
+    self.clean()
+    ~~~~~~~~~~^^
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py", line 684, in clean
+    if self.quantity > available_quantity:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: '>' not supported between instances of 'NoneType' and 'int'
+ERROR 2025-06-01 00:17:43,063 basehttp 6312 7044 "POST /userpanel/user_borrow/ HTTP/1.1" 500 108151
+INFO 2025-06-01 00:17:49,699 basehttp 6312 4540 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:19:43,831 autoreload 6312 11684 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-01 00:19:50,727 autoreload 12228 10180 Watching for file changes with StatReloader
+INFO 2025-06-01 00:22:43,055 basehttp 12228 7428 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:22:43,521 basehttp 12228 7428 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+WARNING 2025-06-01 00:22:44,628 basehttp 12228 11996 "GET /favicon.ico HTTP/1.1" 404 13238
+ERROR 2025-06-01 00:22:52,787 log 12228 11996 Internal Server Error: /userpanel/user_borrow/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\views.py", line 29, in post
+    if form.is_valid():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 201, in errors
+    self.full_clean()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 339, in full_clean
+    self._post_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\models.py", line 498, in _post_clean
+    self.instance.full_clean(exclude=exclude, validate_unique=False)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1654, in full_clean
+    self.clean()
+    ~~~~~~~~~~^^
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py", line 685, in clean
+    if self.quantity > available_quantity:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: '>' not supported between instances of 'NoneType' and 'int'
+ERROR 2025-06-01 00:22:52,810 basehttp 12228 11996 "POST /userpanel/user_borrow/ HTTP/1.1" 500 108151
+INFO 2025-06-01 00:25:47,998 autoreload 12228 10180 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-01 00:26:00,598 autoreload 10844 9244 Watching for file changes with StatReloader
+INFO 2025-06-01 00:26:37,262 basehttp 10844 10500 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:26:38,475 basehttp 10844 10500 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:26:38,853 basehttp 10844 10500 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+WARNING 2025-06-01 00:26:39,482 basehttp 10844 10500 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-06-01 00:26:40,701 basehttp 10844 10500 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:26:41,294 basehttp 10844 10500 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+WARNING 2025-06-01 00:26:42,624 basehttp 10844 10500 "GET /favicon.ico HTTP/1.1" 404 13238
+ERROR 2025-06-01 00:26:57,651 log 10844 8212 Internal Server Error: /userpanel/user_borrow/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\views.py", line 29, in post
+    if form.is_valid():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 201, in errors
+    self.full_clean()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 339, in full_clean
+    self._post_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\models.py", line 498, in _post_clean
+    self.instance.full_clean(exclude=exclude, validate_unique=False)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1654, in full_clean
+    self.clean()
+    ~~~~~~~~~~^^
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py", line 685, in clean
+    if self.quantity > available_quantity:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: '>' not supported between instances of 'NoneType' and 'int'
+ERROR 2025-06-01 00:26:57,670 basehttp 10844 8212 "POST /userpanel/user_borrow/ HTTP/1.1" 500 108159
+INFO 2025-06-01 00:27:06,998 basehttp 10844 11664 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:27:13,062 basehttp 10844 11664 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:27:13,115 basehttp 10844 11664 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 00:27:14,624 basehttp 10844 8556 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:27:21,293 basehttp 10844 8556 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:27:21,576 basehttp 10844 8556 "GET /dashboard/ HTTP/1.1" 200 32350
+INFO 2025-06-01 00:27:27,709 basehttp 10844 6688 "GET /property/ HTTP/1.1" 200 69149
+INFO 2025-06-01 00:27:49,942 basehttp 10844 8160 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:27:50,011 basehttp 10844 8160 "GET /property/ HTTP/1.1" 200 69410
+INFO 2025-06-01 00:28:01,226 basehttp 10844 11660 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:28:01,291 basehttp 10844 11660 "GET /property/ HTTP/1.1" 200 69422
+INFO 2025-06-01 00:28:11,220 basehttp 10844 2648 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:28:11,300 basehttp 10844 2648 "GET /property/ HTTP/1.1" 200 69410
+INFO 2025-06-01 00:28:19,185 basehttp 10844 5320 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:28:19,296 basehttp 10844 5320 "GET /property/ HTTP/1.1" 200 69360
+INFO 2025-06-01 00:28:30,029 basehttp 10844 6988 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:28:30,168 basehttp 10844 6988 "GET /property/ HTTP/1.1" 200 69410
+INFO 2025-06-01 00:28:37,438 basehttp 10844 12016 "GET /my-borrow-requests/ HTTP/1.1" 200 11456
+INFO 2025-06-01 00:28:43,254 basehttp 10844 12016 "GET /property/ HTTP/1.1" 200 69149
+INFO 2025-06-01 00:28:51,655 basehttp 10844 12236 "GET /my-borrow-requests/ HTTP/1.1" 200 11456
+INFO 2025-06-01 00:28:53,847 basehttp 10844 12236 "GET /borrow-request/36/ HTTP/1.1" 200 3275
+INFO 2025-06-01 00:29:07,721 basehttp 10844 10900 "POST /borrow-request/36/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:29:07,770 basehttp 10844 10900 "GET /my-borrow-requests/ HTTP/1.1" 200 11547
+INFO 2025-06-01 00:29:13,299 basehttp 10844 1592 "GET /property/ HTTP/1.1" 200 69149
+INFO 2025-06-01 00:29:26,582 basehttp 10844 6984 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:29:26,611 basehttp 10844 6984 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 00:29:28,017 basehttp 10844 6984 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:29:41,434 basehttp 10844 9240 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:29:41,757 basehttp 10844 9240 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 61502
+INFO 2025-06-01 00:29:45,160 basehttp 10844 4844 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+ERROR 2025-06-01 00:29:54,788 log 10844 11348 Internal Server Error: /userpanel/user_borrow/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\views.py", line 29, in post
+    if form.is_valid():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 201, in errors
+    self.full_clean()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 339, in full_clean
+    self._post_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\models.py", line 498, in _post_clean
+    self.instance.full_clean(exclude=exclude, validate_unique=False)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1654, in full_clean
+    self.clean()
+    ~~~~~~~~~~^^
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py", line 685, in clean
+    if self.quantity > available_quantity:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: '>' not supported between instances of 'NoneType' and 'int'
+ERROR 2025-06-01 00:29:54,798 basehttp 10844 11348 "POST /userpanel/user_borrow/ HTTP/1.1" 500 108161
+INFO 2025-06-01 00:30:04,021 basehttp 10844 11348 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6602
+INFO 2025-06-01 00:30:08,737 basehttp 10844 8636 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:30:08,755 basehttp 10844 8636 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 00:30:10,033 basehttp 10844 8636 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:30:17,299 basehttp 10844 8636 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:30:17,430 basehttp 10844 8636 "GET /dashboard/ HTTP/1.1" 200 32408
+INFO 2025-06-01 00:30:19,694 basehttp 10844 8636 "GET /property/ HTTP/1.1" 200 69149
+ERROR 2025-06-01 00:35:02,731 log 10844 12112 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 510, in parse
+    compile_func = self.tags[command]
+                   ~~~~~~~~~^^^^^^^^^
+KeyError: 'endblock'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 512, in parse
+    self.invalid_block_tag(token, command, parse_until)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 577, in invalid_block_tag
+    raise self.error(
+    ...<3 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 575: 'endblock'. Did you forget to register or load this tag?
+ERROR 2025-06-01 00:35:02,743 basehttp 10844 12112 "GET /property/ HTTP/1.1" 500 155844
+INFO 2025-06-01 00:35:09,129 basehttp 10844 2424 "GET /dashboard/ HTTP/1.1" 200 32408
+ERROR 2025-06-01 00:35:11,261 log 10844 11552 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 510, in parse
+    compile_func = self.tags[command]
+                   ~~~~~~~~~^^^^^^^^^
+KeyError: 'endblock'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 512, in parse
+    self.invalid_block_tag(token, command, parse_until)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\template\base.py", line 577, in invalid_block_tag
+    raise self.error(
+    ...<3 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 575: 'endblock'. Did you forget to register or load this tag?
+ERROR 2025-06-01 00:35:11,268 basehttp 10844 11552 "GET /property/ HTTP/1.1" 500 155707
+INFO 2025-06-01 00:36:32,014 basehttp 10844 4420 "GET /property/ HTTP/1.1" 200 52426
+INFO 2025-06-01 00:36:39,388 basehttp 10844 4040 "GET /property/ HTTP/1.1" 200 52426
+INFO 2025-06-01 00:36:46,433 basehttp 10844 2352 "GET /supplies/ HTTP/1.1" 200 57137
+INFO 2025-06-01 00:36:46,738 basehttp 10844 2352 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 00:37:12,416 basehttp 10844 892 "GET /get_supply_history/47/ HTTP/1.1" 200 708
+INFO 2025-06-01 00:37:24,684 basehttp 10844 10024 "POST /edit-supply/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:37:24,814 basehttp 10844 10024 "GET /supplies/ HTTP/1.1" 200 57401
+INFO 2025-06-01 00:37:30,887 basehttp 10844 4684 "GET /property/ HTTP/1.1" 200 52426
+INFO 2025-06-01 00:43:34,353 autoreload 3740 5356 Watching for file changes with StatReloader
+INFO 2025-06-01 00:43:51,678 basehttp 3740 4492 "GET /property/ HTTP/1.1" 200 52426
+WARNING 2025-06-01 00:44:15,232 basehttp 3740 9388 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-06-01 00:49:57,623 basehttp 3740 3892 "GET /property/ HTTP/1.1" 200 52426
+INFO 2025-06-01 00:50:01,089 basehttp 3740 3892 "GET /property/ HTTP/1.1" 200 52426
+INFO 2025-06-01 00:50:01,510 basehttp 3740 3892 "GET /static/css/style.css HTTP/1.1" 200 28083
+INFO 2025-06-01 00:50:01,542 basehttp 3740 11908 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-06-01 00:50:02,455 basehttp 3740 4608 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-06-01 00:50:03,695 basehttp 3740 4608 "GET /property/ HTTP/1.1" 200 52426
+INFO 2025-06-01 00:50:03,863 basehttp 3740 4608 "GET /static/css/style.css HTTP/1.1" 200 28083
+INFO 2025-06-01 00:50:03,904 basehttp 3740 4396 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-06-01 00:50:11,003 basehttp 3740 11424 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-06-01 00:51:08,400 basehttp 3740 10020 "GET /property/ HTTP/1.1" 200 52426
+INFO 2025-06-01 00:51:08,513 basehttp 3740 10020 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-01 00:51:10,416 basehttp 3740 10020 "GET /property/ HTTP/1.1" 200 52426
+INFO 2025-06-01 00:51:10,604 basehttp 3740 10020 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-01 00:51:10,679 basehttp 3740 3356 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-06-01 00:51:11,932 basehttp 3740 3356 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-06-01 00:51:50,509 basehttp 3740 10668 "GET /property/ HTTP/1.1" 200 69149
+INFO 2025-06-01 00:51:50,518 basehttp 3740 10668 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 00:51:51,615 basehttp 3740 10668 "GET /property/ HTTP/1.1" 200 69149
+INFO 2025-06-01 00:51:51,724 basehttp 3740 10668 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-01 00:51:51,741 basehttp 3740 12184 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+WARNING 2025-06-01 00:51:52,376 basehttp 3740 12184 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-06-01 00:52:17,130 basehttp 3740 4664 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:52:17,211 basehttp 3740 4664 "GET /property/ HTTP/1.1" 200 69409
+INFO 2025-06-01 00:52:17,310 basehttp 3740 4664 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 00:52:34,503 basehttp 3740 7568 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:52:34,587 basehttp 3740 7568 "GET /property/ HTTP/1.1" 200 69176
+INFO 2025-06-01 00:52:34,803 basehttp 3740 7568 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 00:52:49,099 basehttp 3740 9856 "POST /delete-property/18/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:52:49,179 basehttp 3740 9856 "GET /property/ HTTP/1.1" 200 67127
+INFO 2025-06-01 00:52:49,256 basehttp 3740 9856 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 00:53:04,333 basehttp 3740 6208 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:53:04,436 basehttp 3740 6208 "GET /property/ HTTP/1.1" 200 67079
+INFO 2025-06-01 00:53:04,538 basehttp 3740 6208 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 00:53:08,645 basehttp 3740 6208 "GET /get_property_history/16/ HTTP/1.1" 200 1713
+INFO 2025-06-01 00:53:30,890 basehttp 3740 11244 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:53:30,942 basehttp 3740 11244 "GET /property/ HTTP/1.1" 200 67127
+INFO 2025-06-01 00:53:31,223 basehttp 3740 11244 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 00:53:40,720 basehttp 3740 7688 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:53:40,730 basehttp 3740 7688 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 00:53:42,131 basehttp 3740 6656 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 00:53:58,517 basehttp 3740 920 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 00:53:59,353 basehttp 3740 920 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 61502
+INFO 2025-06-01 00:54:06,511 basehttp 3740 8240 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6547
+ERROR 2025-06-01 00:54:22,937 log 3740 11460 Internal Server Error: /userpanel/user_borrow/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\views.py", line 29, in post
+    if form.is_valid():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 201, in errors
+    self.full_clean()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\forms.py", line 339, in full_clean
+    self._post_clean()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\forms\models.py", line 498, in _post_clean
+    self.instance.full_clean(exclude=exclude, validate_unique=False)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1654, in full_clean
+    self.clean()
+    ~~~~~~~~~~^^
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py", line 685, in clean
+    if self.quantity > available_quantity:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: '>' not supported between instances of 'NoneType' and 'int'
+ERROR 2025-06-01 00:54:23,002 basehttp 3740 11460 "POST /userpanel/user_borrow/ HTTP/1.1" 500 108165
+INFO 2025-06-01 00:55:28,694 autoreload 3740 5356 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-01 00:55:44,592 autoreload 7944 3176 Watching for file changes with StatReloader
+INFO 2025-06-01 00:56:02,202 autoreload 7944 3176 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\forms.py changed, reloading.
+INFO 2025-06-01 00:56:14,828 autoreload 4040 980 Watching for file changes with StatReloader
+INFO 2025-06-01 00:56:41,501 basehttp 4040 12152 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6547
+INFO 2025-06-01 00:56:45,824 basehttp 4040 12152 "POST /userpanel/user_borrow/ HTTP/1.1" 200 7000
+INFO 2025-06-01 00:56:59,279 basehttp 4040 2080 "POST /userpanel/user_borrow/ HTTP/1.1" 200 6998
+INFO 2025-06-01 01:06:57,112 autoreload 6716 10160 Watching for file changes with StatReloader
+INFO 2025-06-01 01:07:04,418 basehttp 6716 6692 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6564
+INFO 2025-06-01 01:07:35,221 basehttp 6716 3332 "GET /userpanel/user_request/ HTTP/1.1" 200 6128
+INFO 2025-06-01 01:07:36,343 basehttp 6716 3332 "GET /userpanel/user_reserve/ HTTP/1.1" 200 7682
+INFO 2025-06-01 01:09:23,800 autoreload 6716 10160 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\forms.py changed, reloading.
+INFO 2025-06-01 01:09:31,703 autoreload 5984 11728 Watching for file changes with StatReloader
+INFO 2025-06-01 01:09:42,285 basehttp 5984 7680 "GET /userpanel/user_reserve/ HTTP/1.1" 200 7716
+INFO 2025-06-01 01:09:59,969 basehttp 5984 5564 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 61502
+INFO 2025-06-01 01:10:00,110 basehttp 5984 5564 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-01 01:12:14,906 autoreload 5984 11728 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\userpanel\views.py changed, reloading.
+INFO 2025-06-01 01:12:24,834 autoreload 8780 4676 Watching for file changes with StatReloader
+INFO 2025-06-01 01:12:32,744 autoreload 8780 4676 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 01:12:44,401 autoreload 1608 2556 Watching for file changes with StatReloader
+INFO 2025-06-01 01:13:27,165 basehttp 1608 9268 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6564
+INFO 2025-06-01 01:13:42,576 basehttp 1608 4356 "POST /userpanel/user_borrow/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:13:42,840 basehttp 1608 4356 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6852
+INFO 2025-06-01 01:13:47,139 basehttp 1608 4356 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:13:47,281 basehttp 1608 4356 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 01:13:48,729 basehttp 1608 3716 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 01:13:58,362 basehttp 1608 3716 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:13:59,233 basehttp 1608 3716 "GET /dashboard/ HTTP/1.1" 200 32333
+INFO 2025-06-01 01:13:59,679 basehttp 1608 3716 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 01:13:59,862 basehttp 1608 3716 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-01 01:14:09,400 basehttp 1608 7348 "GET /dashboard/ HTTP/1.1" 200 32333
+INFO 2025-06-01 01:14:11,123 basehttp 1608 7348 "GET /dashboard/ HTTP/1.1" 200 32333
+INFO 2025-06-01 01:14:11,729 basehttp 1608 10140 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-01 01:14:11,733 basehttp 1608 3996 "GET /static/scripts/charts.js HTTP/1.1" 200 12760
+INFO 2025-06-01 01:14:11,848 basehttp 1608 7348 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-01 01:14:11,850 basehttp 1608 11928 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 5573
+WARNING 2025-06-01 01:14:12,795 basehttp 1608 11928 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-06-01 01:14:13,256 basehttp 1608 11928 "GET /dashboard/ HTTP/1.1" 200 32333
+INFO 2025-06-01 01:14:13,395 basehttp 1608 11928 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-01 01:14:13,545 basehttp 1608 6744 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-01 01:14:13,555 basehttp 1608 3960 "GET /static/scripts/charts.js HTTP/1.1" 200 12760
+INFO 2025-06-01 01:14:13,576 basehttp 1608 11300 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 5573
+INFO 2025-06-01 01:14:17,024 basehttp 1608 11300 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:14:17,042 basehttp 1608 11300 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 01:14:18,229 basehttp 1608 9280 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 01:14:29,168 basehttp 1608 2912 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:14:29,404 basehttp 1608 2912 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 61496
+INFO 2025-06-01 01:14:31,334 basehttp 1608 2912 "GET /userpanel/user_request/ HTTP/1.1" 200 6128
+INFO 2025-06-01 01:14:39,755 basehttp 1608 11548 "POST /userpanel/user_request/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:14:39,838 basehttp 1608 11548 "GET /userpanel/user_request/ HTTP/1.1" 200 6416
+INFO 2025-06-01 01:14:44,725 basehttp 1608 3604 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:14:44,733 basehttp 1608 3604 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 01:14:45,914 basehttp 1608 3604 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 01:14:54,312 basehttp 1608 7248 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:14:54,615 basehttp 1608 7248 "GET /dashboard/ HTTP/1.1" 200 32273
+INFO 2025-06-01 01:15:00,693 basehttp 1608 10188 "GET /dashboard/ HTTP/1.1" 200 32273
+INFO 2025-06-01 01:15:00,815 basehttp 1608 10188 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-01 01:15:00,824 basehttp 1608 9520 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-01 01:15:00,828 basehttp 1608 5388 "GET /static/scripts/charts.js HTTP/1.1" 200 12760
+INFO 2025-06-01 01:15:00,836 basehttp 1608 8492 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 5573
+WARNING 2025-06-01 01:15:01,493 basehttp 1608 8492 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-06-01 01:20:47,484 autoreload 12080 8224 Watching for file changes with StatReloader
+INFO 2025-06-01 01:21:00,958 basehttp 12080 11244 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 01:21:08,063 basehttp 12080 10788 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 01:21:20,794 basehttp 12080 10788 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:21:21,464 basehttp 12080 10788 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 61493
+INFO 2025-06-01 01:21:24,670 basehttp 12080 10788 "GET /userpanel/user_reserve/ HTTP/1.1" 200 7716
+INFO 2025-06-01 01:21:26,260 basehttp 12080 6336 "GET /userpanel/user_request/ HTTP/1.1" 200 6128
+INFO 2025-06-01 01:21:26,970 basehttp 12080 6336 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6564
+INFO 2025-06-01 01:21:49,476 basehttp 12080 8180 "POST /userpanel/user_borrow/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:21:49,552 basehttp 12080 8180 "GET /userpanel/user_borrow/ HTTP/1.1" 200 6852
+INFO 2025-06-01 01:21:53,382 basehttp 12080 8180 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:21:53,396 basehttp 12080 8180 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 01:21:54,652 basehttp 12080 8180 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 01:22:01,303 basehttp 12080 11684 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:22:01,544 basehttp 12080 11684 "GET /dashboard/ HTTP/1.1" 200 32753
+INFO 2025-06-01 01:22:01,713 basehttp 12080 11684 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 01:22:27,883 basehttp 12080 2664 "GET /property/ HTTP/1.1" 200 66866
+INFO 2025-06-01 01:22:35,972 basehttp 12080 10672 "GET /my-borrow-requests/ HTTP/1.1" 200 13257
+INFO 2025-06-01 01:22:39,723 basehttp 12080 10672 "GET /borrow-request/38/ HTTP/1.1" 200 3270
+INFO 2025-06-01 01:22:48,015 basehttp 12080 10672 "POST /borrow-request/38/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:22:48,054 basehttp 12080 10672 "GET /my-borrow-requests/ HTTP/1.1" 200 13266
+INFO 2025-06-01 01:22:50,045 basehttp 12080 10672 "GET /property/ HTTP/1.1" 200 66866
+INFO 2025-06-01 01:22:55,744 basehttp 12080 10672 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:22:55,763 basehttp 12080 10672 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 01:22:56,893 basehttp 12080 5624 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 01:23:08,476 basehttp 12080 5624 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:23:08,675 basehttp 12080 5624 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 62412
+INFO 2025-06-01 01:23:28,616 basehttp 12080 220 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:23:28,709 basehttp 12080 220 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 01:26:17,441 autoreload 12080 8224 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 01:26:33,340 autoreload 600 6712 Watching for file changes with StatReloader
+INFO 2025-06-01 01:27:00,626 basehttp 600 2836 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 01:27:10,840 basehttp 600 4000 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:27:11,788 basehttp 600 4000 "GET /dashboard/ HTTP/1.1" 200 32811
+INFO 2025-06-01 01:27:11,942 basehttp 600 4000 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 01:27:14,570 basehttp 600 1968 "GET /my-borrow-requests/ HTTP/1.1" 200 13266
+INFO 2025-06-01 01:27:18,154 basehttp 600 1976 "GET /property/ HTTP/1.1" 200 66866
+INFO 2025-06-01 01:27:38,881 basehttp 600 10440 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:27:39,000 basehttp 600 10440 "GET /property/ HTTP/1.1" 200 67139
+INFO 2025-06-01 01:27:42,172 basehttp 600 10440 "GET /my-borrow-requests/ HTTP/1.1" 200 13266
+INFO 2025-06-01 01:27:43,849 basehttp 600 12044 "GET /borrow-request/37/ HTTP/1.1" 200 3279
+ERROR 2025-06-01 01:27:47,218 log 600 12044 Internal Server Error: /borrow-request/37/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py", line 273, in borrow_request_details
+    request_obj.save()  # This will trigger validation
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py", line 717, in save
+    self.clean()
+    ~~~~~~~~~~^^
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\models.py", line 711, in clean
+    raise ValidationError({
+        'quantity': f'Cannot approve request. Available quantity ({available_quantity}) is less than requested quantity ({self.quantity})'
+    })
+django.core.exceptions.ValidationError: {'quantity': ['Cannot approve request. Available quantity (0) is less than requested quantity (1)']}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py", line 309, in borrow_request_details
+    except ValidationError as e:
+           ^^^^^^^^^^^^^^^
+NameError: name 'ValidationError' is not defined
+ERROR 2025-06-01 01:27:47,394 basehttp 600 12044 "POST /borrow-request/37/ HTTP/1.1" 500 83034
+INFO 2025-06-01 01:28:21,728 basehttp 600 6492 "GET /borrow-request/37/ HTTP/1.1" 200 3279
+INFO 2025-06-01 01:28:24,726 basehttp 600 2284 "GET /my-borrow-requests/ HTTP/1.1" 200 13266
+INFO 2025-06-01 01:28:37,303 basehttp 600 956 "GET /my-borrow-requests/ HTTP/1.1" 200 13266
+INFO 2025-06-01 01:28:38,503 basehttp 600 1396 "GET /my-borrow-requests/ HTTP/1.1" 200 13266
+INFO 2025-06-01 01:28:39,079 basehttp 600 3360 "GET /static/scripts/filterStatus.js HTTP/1.1" 200 289
+INFO 2025-06-01 01:28:39,331 basehttp 600 1396 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-01 01:28:40,497 basehttp 600 1396 "GET /favicon.ico HTTP/1.1" 404 13238
+INFO 2025-06-01 01:28:42,291 basehttp 600 1396 "GET /borrow-request/37/ HTTP/1.1" 200 3279
+INFO 2025-06-01 01:28:43,078 autoreload 600 6712 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 01:28:48,942 autoreload 2248 9036 Watching for file changes with StatReloader
+INFO 2025-06-01 01:28:51,304 autoreload 2248 9036 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 01:29:00,423 autoreload 9156 2080 Watching for file changes with StatReloader
+INFO 2025-06-01 01:29:02,067 basehttp 9156 12236 "GET /borrow-request/37/ HTTP/1.1" 200 3279
+INFO 2025-06-01 01:29:09,352 basehttp 9156 11088 "GET /my-borrow-requests/ HTTP/1.1" 200 13266
+INFO 2025-06-01 01:29:11,068 basehttp 9156 11088 "GET /borrow-request/37/ HTTP/1.1" 200 3279
+INFO 2025-06-01 01:29:14,771 basehttp 9156 10924 "POST /borrow-request/37/ HTTP/1.1" 200 3421
+INFO 2025-06-01 01:29:32,360 basehttp 9156 10872 "GET /my-borrow-requests/ HTTP/1.1" 200 13266
+INFO 2025-06-01 01:29:44,233 basehttp 9156 10916 "GET /property/ HTTP/1.1" 200 66878
+INFO 2025-06-01 01:29:55,388 basehttp 9156 10768 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:29:55,480 basehttp 9156 10768 "GET /property/ HTTP/1.1" 200 67131
+INFO 2025-06-01 01:30:08,284 basehttp 9156 8292 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:30:08,297 basehttp 9156 8292 "GET / HTTP/1.1" 200 767
+INFO 2025-06-01 01:30:13,342 basehttp 9156 2464 "GET /accounts/login/ HTTP/1.1" 200 1292
+INFO 2025-06-01 01:30:19,551 basehttp 9156 2464 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 01:30:19,803 basehttp 9156 2464 "GET /dashboard/ HTTP/1.1" 200 32811
+INFO 2025-06-01 01:30:50,899 basehttp 9156 8692 "GET /activity/ HTTP/1.1" 200 12272

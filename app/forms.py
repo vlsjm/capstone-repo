@@ -42,24 +42,68 @@ class PropertyForm(forms.ModelForm):
     class Meta:
         model = Property
         fields = [
+            'property_number',
             'property_name',
             'category',
             'description',
             'barcode',
             'unit_of_measure',
             'unit_value',
+            'overall_quantity',
             'quantity',
             'location',
             'condition',
         ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
+            'property_number': forms.TextInput(attrs={'placeholder': 'Enter unique property number'}),
+            'overall_quantity': forms.NumberInput(attrs={'min': '0'}),
+            'quantity': forms.NumberInput(attrs={'min': '0'}),
         }
 
-    def init(self, args, **kwargs):
-        super().init(args, kwargs)
-        for field in self.fields.values():
-            field.required = True
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make only essential fields required
+        self.fields['property_number'].required = False
+        self.fields['property_name'].required = True
+        self.fields['overall_quantity'].required = True
+        
+        # Make other fields optional
+        self.fields['description'].required = True
+        self.fields['barcode'].required = True
+        self.fields['unit_of_measure'].required = True
+        self.fields['unit_value'].required = True
+        self.fields['location'].required = True
+        self.fields['condition'].required = True
+        self.fields['category'].required = True
+        
+        # Handle quantity field
+        if not self.instance.pk:  # If this is a new property
+            self.fields['quantity'].required = False
+            self.fields['quantity'].widget.attrs['disabled'] = True
+            self.fields['quantity'].widget.attrs['readonly'] = True
+        else:
+            self.fields['quantity'].required = True
+            self.fields['quantity'].widget.attrs['readonly'] = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        overall_quantity = cleaned_data.get('overall_quantity')
+        quantity = cleaned_data.get('quantity')
+
+        # For new properties, set quantity equal to overall_quantity
+        if not self.instance.pk:
+            cleaned_data['quantity'] = overall_quantity
+            return cleaned_data
+
+        # For existing properties, validate quantity
+        if overall_quantity is not None and quantity is not None:
+            if overall_quantity < quantity:
+                raise forms.ValidationError({
+                    'overall_quantity': 'Overall quantity cannot be less than current quantity.'
+                })
+        
+        return cleaned_data
 
 class SupplyForm(forms.ModelForm):
     current_quantity = forms.IntegerField(min_value=0)

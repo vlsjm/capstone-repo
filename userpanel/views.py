@@ -59,7 +59,8 @@ class UserRequestView(PermissionRequiredMixin, TemplateView):
         if form.is_valid():
             supply_request = form.save(commit=False)
             supply_request.user = request.user
-            supply_request.save()
+            supply_request.status = 'pending'  # Explicitly set status
+            supply_request.save()  # This will trigger the model's save method
 
             # Log the supply request activity
             ActivityLog.log_activity(

@@ -202,12 +202,14 @@
             <thead>
               <tr>
                 <th>No.</th>
+                <th>Property Number</th>
                 <th>Property Name</th>
                 <th>Description</th>
                 <th>Barcode</th>
                 <th>Unit of Measure</th>
                 <th>Unit Value</th>
-                <th>Quantity</th>
+                <th>Overall Qty</th>
+                <th>Current Qty</th>
                 <th>Location</th>
                 <th>Condition</th>
                 <th>Availability</th>
@@ -218,22 +220,30 @@
               {% for property in page_obj %}
               <tr>
                 <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
+                <td>{{ property.property_number|default:"N/A" }}</td>
                 <td>{{ property.property_name|default:"N/A" }}</td>
                 <td>{{ property.description|default:"N/A" }}</td>
                 <td>{{ property.barcode|default:"N/A" }}</td>
                 <td>{{ property.unit_of_measure|default:"N/A" }}</td>
                 <td>{{ property.unit_value|default:"N/A" }}</td>
+                <td>{{ property.overall_quantity|default:"N/A" }}</td>
                 <td>{{ property.quantity|default:"N/A" }}</td>
                 <td>{{ property.location|default:"N/A" }}</td>
                 <td>{{ property.get_condition_display|default:"N/A" }}</td>
                 <td>
-                  <span class="status-badge {% if property.availability == 'available' %}status-approved{% else %}status-rejected{% endif %}">
-                    {% if property.availability == 'available' %}
-                      <i class="fas fa-check-circle"></i>
-                    {% else %}
+                  <span class="status-badge {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' or property.availability == 'not_available' %}status-rejected{% else %}status-approved{% endif %}">
+                    {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' %}
                       <i class="fas fa-times-circle"></i>
+                      Not Available
+                    {% else %}
+                      {% if property.availability == 'available' %}
+                        <i class="fas fa-check-circle"></i>
+                        Available
+                      {% else %}
+                        <i class="fas fa-times-circle"></i>
+                        Not Available
+                      {% endif %}
                     {% endif %}
-                    {{ property.get_availability_display }}
                   </span>
                 </td>
                 <td>
@@ -241,11 +251,13 @@
                    <div class="button-group">
                   <button class="edit-btn" 
                     data-id="{{ property.id }}"
+                    data-property-number="{{ property.property_number }}"
                     data-name="{{ property.property_name }}"
                     data-description="{{ property.description }}"
                     data-barcode="{{ property.barcode }}"
                     data-unit="{{ property.unit_of_measure }}"
                     data-value="{{ property.unit_value }}"
+                    data-overall-quantity="{{ property.overall_quantity }}"
                     data-quantity="{{ property.quantity }}"
                     data-location="{{ property.location }}"
                     data-condition="{{ property.condition }}"
@@ -318,6 +330,9 @@
       {% csrf_token %}
       <input type="hidden" name="id" id="edit_id" />
 
+      <label>Property Number</label>
+      <input type="text" name="property_number" id="edit_property_number" class="type-box" />
+
       <label>Property Name</label>
       <input type="text" name="property_name" id="edit_property_name" class="type-box" />
 
@@ -333,8 +348,8 @@
       <label>Unit Value</label>
       <input type="number" step="any" name="unit_value" id="edit_unit_value" />
 
-      <label>Quantity</label>
-      <input type="number" name="quantity" id="edit_quantity" />
+      <label>Overall Quantity</label>
+      <input type="number" name="overall_quantity" id="edit_overall_quantity" min="0" />
 
       <label>Location</label>
       <input type="text" name="location" id="edit_location" />
@@ -377,41 +392,22 @@
     <span class="close" id="closeHistoryModalBtn">&times;</span>
     <h3>Property History</h3>
     
-    <!-- Original Data Table -->
-    <div id="originalDataContent">
-      <h4>Original Data</h4>
+    <div id="historyContent">
       <table class="history-table">
         <thead>
           <tr>
+            <th>Date</th>
+            <th>Action</th>
             <th>Field</th>
-            <th>Original Value</th>
+            <th>Previous Value</th>
+            <th>New Value</th>
+            <th>Changed By</th>
           </tr>
         </thead>
-        <tbody id="originalDataTableBody">
-          <!-- Original data will be populated here -->
+        <tbody id="historyTableBody">
+          <!-- History data will be populated here -->
         </tbody>
       </table>
-    </div>
-
-    <div style="margin-top: 20px;">
-      <h4>Change History</h4>
-      <div id="historyContent">
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Action</th>
-              <th>Field</th>
-              <th>Previous Value</th>
-              <th>New Value</th>
-              <th>Changed By</th>
-            </tr>
-          </thead>
-          <tbody id="historyTableBody">
-            <!-- History data will be populated here -->
-          </tbody>
-        </table>
-      </div>
     </div>
   </div>
 </div>
@@ -430,6 +426,96 @@
               successMessage.remove();
             }, 300);
           }, 2000);
+        }
+
+        // Edit button functionality
+        const editBtns = document.querySelectorAll('.edit-btn');
+        const editModal = document.getElementById('editPropertyModal');
+        const closeEditModalBtn = document.getElementById('closeEditModalBtn');
+        const editPropertyForm = document.getElementById('editPropertyForm');
+        const conditionSelect = document.getElementById('edit_condition');
+        const availabilitySelect = document.getElementById('edit_availability');
+
+        function updateAvailability() {
+            const unavailableConditions = [
+                'Needing repair',
+                'Unserviceable',
+                'No longer needed',
+                'Obsolete'
+            ];
+            
+            const condition = conditionSelect.value;
+            console.log('Current condition:', condition);
+            
+            if (unavailableConditions.includes(condition)) {
+                console.log('Setting to not available');
+                availabilitySelect.value = 'not_available';
+                availabilitySelect.disabled = true;
+            } else {
+                console.log('Enabling availability selection');
+                availabilitySelect.disabled = false;
+            }
+        }
+
+        editBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Get data from button attributes
+                document.getElementById('edit_id').value = this.dataset.id;
+                document.getElementById('edit_property_number').value = this.dataset.propertyNumber;
+                document.getElementById('edit_property_name').value = this.dataset.name;
+                document.getElementById('edit_description').value = this.dataset.description;
+                document.getElementById('edit_barcode').value = this.dataset.barcode;
+                document.getElementById('edit_unit_of_measure').value = this.dataset.unit;
+                document.getElementById('edit_unit_value').value = this.dataset.value;
+                document.getElementById('edit_overall_quantity').value = this.dataset.overallQuantity;
+                document.getElementById('edit_location').value = this.dataset.location;
+                document.getElementById('edit_condition').value = this.dataset.condition;
+                document.getElementById('edit_category').value = this.dataset.category;
+                document.getElementById('edit_availability').value = this.dataset.availability;
+
+                // Show the modal
+                editModal.style.display = 'block';
+                
+                // Update availability based on condition
+                setTimeout(updateAvailability, 100);
+            });
+        });
+
+        // Close modal when clicking the close button
+        if (closeEditModalBtn) {
+            closeEditModalBtn.addEventListener('click', function() {
+                editModal.style.display = 'none';
+            });
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target == editModal) {
+                editModal.style.display = 'none';
+            }
+        });
+
+        // Handle condition changes
+        if (conditionSelect) {
+            conditionSelect.addEventListener('change', updateAvailability);
+        }
+
+        // Handle form submission
+        if (editPropertyForm) {
+            editPropertyForm.addEventListener('submit', function(e) {
+                const condition = conditionSelect.value;
+                const unavailableConditions = [
+                    'Needing repair',
+                    'Unserviceable',
+                    'No longer needed',
+                    'Obsolete'
+                ];
+                
+                if (unavailableConditions.includes(condition)) {
+                    availabilitySelect.value = 'not_available';
+                    availabilitySelect.disabled = false; // Enable before submit to ensure value is sent
+                }
+            });
         }
 
         // History Modal functionality
@@ -452,40 +538,14 @@
             historyModal.style.display = 'block';
             
             // Clear existing content
-            const originalDataTableBody = document.getElementById('originalDataTableBody');
             const historyTableBody = document.getElementById('historyTableBody');
             
-            originalDataTableBody.innerHTML = '<tr><td colspan="2">Loading...</td></tr>';
             historyTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
             
             // Fetch history data
             fetch(`/get_property_history/${propertyId}/`)
               .then(response => response.json())
               .then(data => {
-                // Populate original data table
-                originalDataTableBody.innerHTML = '';
-                const originalData = data.original_data;
-                const fieldLabels = {
-                  'property_name': 'Property Name',
-                  'description': 'Description',
-                  'category': 'Category',
-                  'barcode': 'Barcode',
-                  'unit_of_measure': 'Unit of Measure',
-                  'unit_value': 'Unit Value',
-                  'original_quantity': 'Original Quantity',
-                  'location': 'Location',
-                  'condition': 'Condition'
-                };
-                
-                for (const [field, value] of Object.entries(originalData)) {
-                  const row = document.createElement('tr');
-                  row.innerHTML = `
-                    <td><strong>${fieldLabels[field] || field}</strong></td>
-                    <td>${value}</td>
-                  `;
-                  originalDataTableBody.appendChild(row);
-                }
-
                 // Populate history table
                 historyTableBody.innerHTML = '';
                 if (data.history.length === 0) {
@@ -507,7 +567,6 @@
               })
               .catch(error => {
                 console.error('Error fetching history:', error);
-                originalDataTableBody.innerHTML = '<tr><td colspan="2">Error loading original data</td></tr>';
                 historyTableBody.innerHTML = '<tr><td colspan="6">Error loading history data</td></tr>';
               });
           });
