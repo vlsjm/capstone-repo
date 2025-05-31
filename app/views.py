@@ -28,6 +28,8 @@ from django.contrib.auth.decorators import permission_required
 from django.db import models
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.utils import timezone
+from datetime import timedelta
 
 
 @login_required
@@ -287,9 +289,20 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        
+
         # Notifications
         user_notifications = Notification.objects.filter(user=self.request.user).order_by('-timestamp')
         unread_notifications = user_notifications.filter(is_read=False)
+
+
+        #expiry count
+        today = timezone.now().date()
+        seven_days_later = today + timedelta(days=7) #7 days before the expiry date para ma trigger
+        context['near_expiry_count'] = Supply.objects.filter(
+            expiration_date__range=(today, seven_days_later),
+            quantity_info__current_quantity__gt=0
+        ).count()
 
         # Supply Status Counts
         supply_status_counts = [
