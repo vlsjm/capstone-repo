@@ -4,7 +4,10 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm, SupplyRequest, BorrowRequest, Reservation, DamageReport
+from .forms import (
+    SupplyRequestForm, ReservationForm, DamageReportForm,
+    BorrowForm, SupplyRequest, BorrowRequest, Reservation,
+    DamageReport)
 from django.contrib.auth.views import LoginView
 from app.models import UserProfile, Notification, Property, ActivityLog
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin

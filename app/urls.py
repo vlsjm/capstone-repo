@@ -1,5 +1,6 @@
 from django.urls import path
 from django.contrib.auth.views import LogoutView
+from app import views
 from .views import (
     LandingPageView,
     # AdminLoginView,
@@ -19,7 +20,6 @@ from .views import (
     delete_property,
     edit_supply,
     delete_supply,
-    create_user,
     request_detail,
     borrow_request_details,
     damage_report_detail,
@@ -36,6 +36,8 @@ from .views import (
     reject_borrow_request,
     get_supply_history,
     get_property_history,
+    edit_department,
+    delete_department,
     CustomLoginView
 )
 
@@ -61,7 +63,11 @@ urlpatterns = [
     path('check-out/', CheckOutPageView.as_view(), name='checkout'),
 
     path('manage-users/', UserProfileListView.as_view(), name='manage_users'),
-    path('create-user/', create_user, name='create_user'),
+    path('edit-department/<int:pk>/', views.edit_department, name='edit_department'),
+    path('delete-department/<int:pk>/', views.delete_department, name='delete_department'),
+
+    # path('create-user/', create_user, name='create_user'),
+    # path('add-department/', views.add_department, name='add_department'),
 
     path('my-borrow-requests/', UserBorrowRequestListView.as_view(), name='user_borrow_requests'),
     path('my-supply-requests/', UserSupplyRequestListView.as_view(), name='user_supply_requests'),

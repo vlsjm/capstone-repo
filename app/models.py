@@ -44,6 +44,12 @@ class ActivityLog(models.Model):
             description=description
         )
 
+class Department(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     ROLE_CHOICES = [
@@ -51,12 +57,62 @@ class UserProfile(models.Model):
         ('USER', 'USER'),
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    department = models.CharField(max_length=255, blank=True, null=True)
+    department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
-
+    
+    # New fields for account disable/enable functionality
+    is_temporarily_disabled = models.BooleanField(default=False)
+    disable_date = models.DateTimeField(blank=True, null=True)
+    enable_date = models.DateTimeField(blank=True, null=True)
+    disable_reason = models.TextField(blank=True, null=True)
+    disabled_by = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='disabled_profiles'
+    )
+    
     def __str__(self):
         return self.user.username
-
+    
+    def get_role_display(self):
+        return dict(self.ROLE_CHOICES).get(self.role, self.role)
+    
+    @property
+    def is_account_active(self):
+        """Check if account should be active based on current date and disable/enable settings"""
+        if not self.is_temporarily_disabled:
+            return True
+        
+        now = timezone.now()
+        
+        # If enable_date is set and has passed, account should be active
+        if self.enable_date and now >= self.enable_date:
+            return True
+        
+        # If disable_date is set and hasn't passed yet, account is still active
+        if self.disable_date and now < self.disable_date:
+            return True
+            
+        return False
+    
+    def auto_enable_check(self):
+        """Automatically enable account if enable_date has passed"""
+        if self.is_temporarily_disabled and self.enable_date:
+            if timezone.now() >= self.enable_date:
+                self.is_temporarily_disabled = False
+                self.disable_date = None
+                self.enable_date = None
+                self.disable_reason = None
+                self.disabled_by = None
+                self.save()
+                # Also enable the associated User account
+                self.user.is_active = True
+                self.user.save()
+                return True
+        return False
+    
 class SupplyQuantity(models.Model):
     supply = models.OneToOneField('Supply', on_delete=models.CASCADE, related_name='quantity_info')
     current_quantity = models.PositiveIntegerField(default=0)

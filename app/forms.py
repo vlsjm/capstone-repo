@@ -1,7 +1,10 @@
 from django import forms
 from .models import Property, Supply, SupplyQuantity
 from django.contrib.auth.models import User
-from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation
+from .models import (
+    UserProfile, SupplyRequest, BorrowRequest,
+    DamageReport, Reservation, Department
+    )
 from datetime import date
 
 class UserRegistrationForm(forms.ModelForm):
@@ -12,7 +15,11 @@ class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
     confirm_password = forms.CharField(widget=forms.PasswordInput)
     role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES)
-    department = forms.CharField(required=False)
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'department-select form-control'})
+    )
     phone = forms.CharField(required=False)
 
     class Meta:
@@ -200,4 +207,12 @@ class ReservationForm(forms.ModelForm):
         fields = ['item', 'purpose']
         widgets = {
             'purpose': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class DepartmentForm(forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}), 
         }

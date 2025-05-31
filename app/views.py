@@ -9,8 +9,13 @@ from django.views.generic import TemplateView, ListView
 
 from django.views import View
 from django.contrib.auth import login, authenticate
-from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport, Reservation, ActivityLog, UserProfile, Notification, SupplyQuantity, SupplyHistory, PropertyHistory
-from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm
+
+from .models import (
+    Supply, Property, BorrowRequest, SupplyRequest, DamageReport,
+    Reservation, ActivityLog, UserProfile, Notification, SupplyQuantity,
+    SupplyHistory, PropertyHistory, Department)
+
+from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm
 from django.contrib.auth.forms import AuthenticationForm
 
 from datetime import timedelta, date
@@ -31,6 +36,9 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.utils import timezone
 from datetime import timedelta
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
+from .models import Reservation, DamageReport, BorrowRequest, SupplyRequest, Notification
 
 @login_required
 @require_POST
@@ -65,9 +73,7 @@ def mark_notification_as_read_ajax(request):
     return JsonResponse({'success': True})
 
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.utils import timezone
-from .models import Reservation, DamageReport, BorrowRequest, SupplyRequest, Notification
+
 
 def reservation_detail(request, pk):
     reservation = get_object_or_404(Reservation, pk=pk)
@@ -236,52 +242,78 @@ def request_detail(request, pk):
     return render(request, 'app/request_details.html', {'request_obj': request_obj})
 
 
-
-
-
-#user create user 
-def create_user(request):
-    if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            user = User.objects.create_user(
-                username=form.cleaned_data['username'],
-                first_name=form.cleaned_data['first_name'],
-                last_name=form.cleaned_data['last_name'],
-                email=form.cleaned_data['email'],
-                password=form.cleaned_data['password'],
-            )
-            role = form.cleaned_data['role']  
-
-            try:
-                group = Group.objects.get(name=role)
-                user.groups.add(group)
-            except Group.DoesNotExist:
-                pass  
-
-            UserProfile.objects.create(
-                user=user,
-                role=role,
-                department=form.cleaned_data['department'],
-                phone=form.cleaned_data['phone'],
-            )
-            return redirect('manage_users')
-    else:
-        form = UserRegistrationForm()
-    users = UserProfile.objects.select_related('user').all()
-    return render(request, 'app/manage_users.html', {'form': form, 'users': users})
-
 class UserProfileListView(PermissionRequiredMixin, ListView):
     model = UserProfile
     template_name = 'app/manage_users.html'
-    permission_required = 'app.view_user_profile'
     context_object_name = 'users'
+    permission_required = 'app.view_user_profile'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = UserRegistrationForm()  
+        context['user_form'] = UserRegistrationForm()
+        context['department_form'] = DepartmentForm()
+        context['departments'] = Department.objects.all()
         return context
 
+    def post(self, request, *args, **kwargs):
+        if 'username' in request.POST:  # Distinguish user form by field name
+            user_form = UserRegistrationForm(request.POST)
+            if user_form.is_valid():
+                user = User.objects.create_user(
+                    username=user_form.cleaned_data['username'],
+                    first_name=user_form.cleaned_data['first_name'],
+                    last_name=user_form.cleaned_data['last_name'],
+                    email=user_form.cleaned_data['email'],
+                    password=user_form.cleaned_data['password'],
+                )
+                role = user_form.cleaned_data['role']
+                try:
+                    group = Group.objects.get(name=role)
+                    user.groups.add(group)
+                except Group.DoesNotExist:
+                    pass
+
+                UserProfile.objects.create(
+                    user=user,
+                    role=role,
+                    department=user_form.cleaned_data['department'],
+                    phone=user_form.cleaned_data['phone'],
+                )
+                return redirect('manage_users')
+
+        elif 'name' in request.POST:  
+            department_form = DepartmentForm(request.POST)
+            if department_form.is_valid():
+                department_form.save()
+                return redirect('manage_users')
+            
+        users = UserProfile.objects.select_related('user').all()
+        departments = Department.objects.all()
+        return render(request, self.template_name, {
+            'users': users,
+            'user_form': UserRegistrationForm(request.POST or None),
+            'department_form': DepartmentForm(request.POST or None),
+            'departments': departments,  
+        })
+    
+@csrf_exempt
+def delete_department(request, pk):
+    if request.method == 'GET':
+        Department.objects.filter(pk=pk).delete()
+        return JsonResponse({'success': True})
+
+@csrf_exempt
+def edit_department(request, pk):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        dept = Department.objects.filter(pk=pk).first()
+        if dept:
+            dept.name = name
+            dept.save()
+            return JsonResponse({'success': True, 'name': name})
+    return JsonResponse({'success': False})
+
+    
 class DashboardPageView(PermissionRequiredMixin,TemplateView):
     template_name = 'app/dashboard.html'
     permission_required = 'app.view_admin_dashboard'  
@@ -1201,3 +1233,4 @@ def get_property_history(request, property_id):
         'original_data': original_data,
         'history': history_data
     })
+
