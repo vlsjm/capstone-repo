@@ -3038,3 +3038,1917 @@ INFO 2025-06-01 04:18:52,633 basehttp 11196 12712 "GET / HTTP/1.1" 200 9162
 INFO 2025-06-01 04:18:53,451 basehttp 11196 12712 "GET /userpanel/user_dashboard/ HTTP/1.1" 302 0
 INFO 2025-06-01 04:18:53,465 basehttp 11196 12712 "GET /login_user/?next=/userpanel/user_dashboard/ HTTP/1.1" 200 9162
 INFO 2025-06-01 04:18:53,958 basehttp 11196 12712 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 21:08:01,986 autoreload 11260 4684 Watching for file changes with StatReloader
+INFO 2025-06-01 21:08:05,185 basehttp 11260 14456 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 21:08:07,626 basehttp 11260 14456 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:08:07,821 basehttp 11260 14456 "GET /dashboard/ HTTP/1.1" 200 32811
+INFO 2025-06-01 21:08:13,542 basehttp 11260 14456 "GET /manage-users/ HTTP/1.1" 200 18156
+INFO 2025-06-01 21:08:13,757 basehttp 11260 14456 "GET /static/scripts/accountModal.js HTTP/1.1" 200 648
+INFO 2025-06-01 21:08:13,775 basehttp 11260 6476 "GET /static/scripts/departmentModal.js HTTP/1.1" 200 5347
+INFO 2025-06-01 21:08:15,775 basehttp 11260 6476 "GET /manage-users/ HTTP/1.1" 200 18156
+INFO 2025-06-01 21:08:16,288 basehttp 11260 6476 "GET /manage-users/ HTTP/1.1" 200 18156
+INFO 2025-06-01 21:08:16,461 basehttp 11260 6476 "GET /manage-users/ HTTP/1.1" 200 18156
+INFO 2025-06-01 21:08:16,606 basehttp 11260 6476 "GET /manage-users/ HTTP/1.1" 200 18156
+INFO 2025-06-01 21:08:16,625 basehttp 11260 14456 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 21:08:16,626 basehttp 11260 6476 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 21:10:44,889 autoreload 10876 14088 Watching for file changes with StatReloader
+INFO 2025-06-01 21:10:46,542 basehttp 10876 9744 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 21:10:48,880 basehttp 10876 9744 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:10:48,985 basehttp 10876 9744 "GET /dashboard/ HTTP/1.1" 200 32811
+INFO 2025-06-01 21:10:52,866 basehttp 10876 9744 "GET /admin/ HTTP/1.1" 200 18115
+INFO 2025-06-01 21:10:55,633 basehttp 10876 9744 "GET /admin/ HTTP/1.1" 200 18115
+INFO 2025-06-01 21:10:55,853 basehttp 10876 9744 "GET /admin/ HTTP/1.1" 200 18115
+ERROR 2025-06-01 21:10:57,044 log 10876 9744 Internal Server Error: /admin/app/propertyhistory/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\options.py", line 683, in get_field
+    return self.fields_map[field_name]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'action_checkbox'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\utils.py", line 290, in lookup_field
+    f = _get_non_gfk_field(opts, name)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\utils.py", line 330, in _get_non_gfk_field
+    field = opts.get_field(name)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\options.py", line 685, in get_field
+    raise FieldDoesNotExist(
+        "%s has no field named '%s'" % (self.object_name, field_name)
+    )
+django.core.exceptions.FieldDoesNotExist: PropertyHistory has no field named 'action_checkbox'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\base.py", line 45, in render
+    return super().render(context)
+           ~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\library.py", line 359, in render
+    _dict = self.func(*resolved_args, **resolved_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 354, in result_list
+    "results": list(results(cl)),
+               ~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 330, in results
+    yield ResultList(None, items_for_result(cl, res, None))
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 321, in __init__
+    super().__init__(*items)
+    ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 219, in items_for_result
+    f, attr, value = lookup_field(field_name, result, cl.model_admin)
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\utils.py", line 299, in lookup_field
+    value = attr(obj)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 1031, in action_checkbox
+    _("Select this object for an action - {}"), str(obj)
+                                                ~~~^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py", line 850, in __str__
+    return f"{self.property.property_name} - {self.action} by {self.user.username} at {self.timestamp}"
+                                                               ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'username'
+ERROR 2025-06-01 21:10:57,053 basehttp 10876 9744 "GET /admin/app/propertyhistory/ HTTP/1.1" 500 399803
+INFO 2025-06-01 21:12:32,229 autoreload 12364 6704 Watching for file changes with StatReloader
+ERROR 2025-06-01 21:12:34,872 log 12364 3560 Internal Server Error: /admin/app/propertyhistory/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\options.py", line 683, in get_field
+    return self.fields_map[field_name]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'action_checkbox'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\utils.py", line 290, in lookup_field
+    f = _get_non_gfk_field(opts, name)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\utils.py", line 330, in _get_non_gfk_field
+    field = opts.get_field(name)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\options.py", line 685, in get_field
+    raise FieldDoesNotExist(
+        "%s has no field named '%s'" % (self.object_name, field_name)
+    )
+django.core.exceptions.FieldDoesNotExist: PropertyHistory has no field named 'action_checkbox'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\base.py", line 45, in render
+    return super().render(context)
+           ~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\library.py", line 359, in render
+    _dict = self.func(*resolved_args, **resolved_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 354, in result_list
+    "results": list(results(cl)),
+               ~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 330, in results
+    yield ResultList(None, items_for_result(cl, res, None))
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 321, in __init__
+    super().__init__(*items)
+    ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 219, in items_for_result
+    f, attr, value = lookup_field(field_name, result, cl.model_admin)
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\utils.py", line 299, in lookup_field
+    value = attr(obj)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 1031, in action_checkbox
+    _("Select this object for an action - {}"), str(obj)
+                                                ~~~^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py", line 852, in __str__
+    return f"{self.property.property_name} - {self.action} by {self.user.username} at {self.timestamp}"
+                                                               ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'username'
+ERROR 2025-06-01 21:12:34,890 basehttp 12364 3560 "GET /admin/app/propertyhistory/ HTTP/1.1" 500 400114
+ERROR 2025-06-01 21:12:36,003 log 12364 3560 Internal Server Error: /admin/app/propertyhistory/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\options.py", line 683, in get_field
+    return self.fields_map[field_name]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'action_checkbox'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\utils.py", line 290, in lookup_field
+    f = _get_non_gfk_field(opts, name)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\utils.py", line 330, in _get_non_gfk_field
+    field = opts.get_field(name)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\options.py", line 685, in get_field
+    raise FieldDoesNotExist(
+        "%s has no field named '%s'" % (self.object_name, field_name)
+    )
+django.core.exceptions.FieldDoesNotExist: PropertyHistory has no field named 'action_checkbox'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\base.py", line 45, in render
+    return super().render(context)
+           ~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\library.py", line 359, in render
+    _dict = self.func(*resolved_args, **resolved_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 354, in result_list
+    "results": list(results(cl)),
+               ~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 330, in results
+    yield ResultList(None, items_for_result(cl, res, None))
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 321, in __init__
+    super().__init__(*items)
+    ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 219, in items_for_result
+    f, attr, value = lookup_field(field_name, result, cl.model_admin)
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\utils.py", line 299, in lookup_field
+    value = attr(obj)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 1031, in action_checkbox
+    _("Select this object for an action - {}"), str(obj)
+                                                ~~~^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py", line 852, in __str__
+    return f"{self.property.property_name} - {self.action} by {self.user.username} at {self.timestamp}"
+                                                               ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'username'
+ERROR 2025-06-01 21:12:36,012 basehttp 12364 3560 "GET /admin/app/propertyhistory/ HTTP/1.1" 500 400114
+INFO 2025-06-01 21:12:37,247 basehttp 12364 3560 "GET /admin/ HTTP/1.1" 200 18115
+INFO 2025-06-01 21:12:57,445 autoreload 12364 6704 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-01 21:12:58,807 autoreload 14096 4664 Watching for file changes with StatReloader
+INFO 2025-06-01 21:13:02,578 basehttp 14096 12320 "GET /admin/ HTTP/1.1" 200 18115
+INFO 2025-06-01 21:13:02,689 basehttp 14096 12320 "GET /admin/ HTTP/1.1" 200 18115
+INFO 2025-06-01 21:13:02,824 basehttp 14096 12320 "GET /admin/ HTTP/1.1" 200 18115
+INFO 2025-06-01 21:13:03,045 basehttp 14096 12320 "GET /admin/ HTTP/1.1" 200 18115
+INFO 2025-06-01 21:13:05,461 basehttp 14096 12320 "GET /admin/app/propertyhistory/ HTTP/1.1" 200 46542
+INFO 2025-06-01 21:13:05,500 basehttp 14096 12320 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+ERROR 2025-06-01 21:13:09,977 log 14096 12320 Internal Server Error: /admin/app/supplyhistory/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\options.py", line 683, in get_field
+    return self.fields_map[field_name]
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'action_checkbox'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\utils.py", line 290, in lookup_field
+    f = _get_non_gfk_field(opts, name)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\utils.py", line 330, in _get_non_gfk_field
+    field = opts.get_field(name)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\options.py", line 685, in get_field
+    raise FieldDoesNotExist(
+        "%s has no field named '%s'" % (self.object_name, field_name)
+    )
+django.core.exceptions.FieldDoesNotExist: SupplyHistory has no field named 'action_checkbox'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\base.py", line 45, in render
+    return super().render(context)
+           ~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\library.py", line 359, in render
+    _dict = self.func(*resolved_args, **resolved_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 354, in result_list
+    "results": list(results(cl)),
+               ~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 330, in results
+    yield ResultList(None, items_for_result(cl, res, None))
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 321, in __init__
+    super().__init__(*items)
+    ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\templatetags\admin_list.py", line 219, in items_for_result
+    f, attr, value = lookup_field(field_name, result, cl.model_admin)
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\utils.py", line 299, in lookup_field
+    value = attr(obj)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 1031, in action_checkbox
+    _("Select this object for an action - {}"), str(obj)
+                                                ~~~^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py", line 835, in __str__
+    return f"{self.supply.supply_name} - {self.action} by {self.user.username} at {self.timestamp}"
+                                                           ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'username'
+ERROR 2025-06-01 21:13:09,987 basehttp 14096 12320 "GET /admin/app/supplyhistory/ HTTP/1.1" 500 401158
+INFO 2025-06-01 21:13:11,915 basehttp 14096 12320 "GET /admin/app/propertyhistory/ HTTP/1.1" 200 46542
+INFO 2025-06-01 21:13:11,938 basehttp 14096 12320 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:13:32,898 autoreload 14096 4664 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-01 21:13:34,423 autoreload 12544 1636 Watching for file changes with StatReloader
+INFO 2025-06-01 21:13:44,973 autoreload 12544 1636 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-01 21:13:46,348 autoreload 2576 11096 Watching for file changes with StatReloader
+INFO 2025-06-01 21:13:46,850 basehttp 2576 10712 "GET /admin/app/propertyhistory/ HTTP/1.1" 200 46542
+INFO 2025-06-01 21:13:46,874 basehttp 2576 10712 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:13:47,341 basehttp 2576 10712 "GET /admin/app/propertyhistory/ HTTP/1.1" 200 46542
+INFO 2025-06-01 21:13:47,364 basehttp 2576 10712 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:13:48,782 basehttp 2576 10712 "GET /admin/app/supplyhistory/ HTTP/1.1" 200 31025
+INFO 2025-06-01 21:13:48,808 basehttp 2576 10712 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:13:50,270 basehttp 2576 10712 "GET /admin/app/supplyhistory/ HTTP/1.1" 200 31025
+INFO 2025-06-01 21:13:50,293 basehttp 2576 10712 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:13:51,957 basehttp 2576 10712 "GET /admin/app/propertyhistory/ HTTP/1.1" 200 46542
+INFO 2025-06-01 21:13:51,983 basehttp 2576 10712 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:13:54,190 basehttp 2576 10712 "GET /admin/app/department/ HTTP/1.1" 200 15066
+INFO 2025-06-01 21:13:54,225 basehttp 2576 10712 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:13:57,228 basehttp 2576 10712 "GET /admin/app/property/ HTTP/1.1" 200 19957
+INFO 2025-06-01 21:13:57,255 basehttp 2576 10712 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:14:03,167 basehttp 2576 10712 "POST /admin/app/property/ HTTP/1.1" 200 31342
+INFO 2025-06-01 21:14:03,190 basehttp 2576 10712 "GET /static/admin/js/cancel.js HTTP/1.1" 304 0
+INFO 2025-06-01 21:14:06,463 basehttp 2576 10712 "POST /admin/app/property/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:14:06,483 basehttp 2576 10712 "GET /admin/app/property/ HTTP/1.1" 200 13657
+INFO 2025-06-01 21:14:06,509 basehttp 2576 10712 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:14:06,525 basehttp 2576 10712 "GET /static/admin/img/icon-yes.svg HTTP/1.1" 304 0
+INFO 2025-06-01 21:15:14,999 autoreload 2576 11096 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-01 21:15:16,543 autoreload 12580 13872 Watching for file changes with StatReloader
+INFO 2025-06-01 21:15:36,593 autoreload 7592 2900 Watching for file changes with StatReloader
+INFO 2025-06-01 21:16:21,711 autoreload 7592 2900 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\admin.py changed, reloading.
+INFO 2025-06-01 21:16:23,081 autoreload 2172 2700 Watching for file changes with StatReloader
+INFO 2025-06-01 21:16:29,623 autoreload 2172 2700 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\admin.py changed, reloading.
+INFO 2025-06-01 21:16:30,901 autoreload 5888 6736 Watching for file changes with StatReloader
+INFO 2025-06-01 21:16:38,361 autoreload 5888 6736 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\admin.py changed, reloading.
+INFO 2025-06-01 21:16:39,537 autoreload 10952 7224 Watching for file changes with StatReloader
+ERROR 2025-06-01 21:16:44,276 log 10952 5520 Internal Server Error: /admin/app/property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: app_property.category_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 719, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 2163, in changelist_view
+    "selection_note": _("0 of %(cnt)s selected") % {"cnt": len(cl.result_list)},
+                                                           ~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 366, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1935, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1622, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: app_property.category_id
+ERROR 2025-06-01 21:16:44,284 basehttp 10952 5520 "GET /admin/app/property/ HTTP/1.1" 500 182186
+ERROR 2025-06-01 21:16:45,206 log 10952 5520 Internal Server Error: /admin/app/property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: app_property.category_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 719, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 2163, in changelist_view
+    "selection_note": _("0 of %(cnt)s selected") % {"cnt": len(cl.result_list)},
+                                                           ~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 366, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1935, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1622, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: app_property.category_id
+ERROR 2025-06-01 21:16:45,212 basehttp 10952 5520 "GET /admin/app/property/ HTTP/1.1" 500 182186
+ERROR 2025-06-01 21:19:18,324 log 10952 5520 Internal Server Error: /admin/app/property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: app_property.category_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 719, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 2163, in changelist_view
+    "selection_note": _("0 of %(cnt)s selected") % {"cnt": len(cl.result_list)},
+                                                           ~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 366, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1935, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1622, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: app_property.category_id
+ERROR 2025-06-01 21:19:18,328 basehttp 10952 5520 "GET /admin/app/property/ HTTP/1.1" 500 181920
+INFO 2025-06-01 21:19:19,167 basehttp 10952 5520 "GET /admin/app/department/ HTTP/1.1" 200 15533
+INFO 2025-06-01 21:19:19,201 basehttp 10952 5520 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+ERROR 2025-06-01 21:19:22,807 log 10952 5520 Internal Server Error: /admin/app/property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: app_property.category_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 719, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 2163, in changelist_view
+    "selection_note": _("0 of %(cnt)s selected") % {"cnt": len(cl.result_list)},
+                                                           ~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 366, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1935, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1622, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: app_property.category_id
+ERROR 2025-06-01 21:19:22,810 basehttp 10952 5520 "GET /admin/app/property/ HTTP/1.1" 500 182051
+INFO 2025-06-01 21:19:26,195 basehttp 10952 5520 "GET /admin/app/department/ HTTP/1.1" 200 15533
+INFO 2025-06-01 21:19:26,228 basehttp 10952 5520 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+ERROR 2025-06-01 21:20:00,755 log 10952 5520 Internal Server Error: /admin/app/propertycategory/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: app_propertycategory
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 719, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 2024, in changelist_view
+    cl = self.get_changelist_instance(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 867, in get_changelist_instance
+    return ChangeList(
+        request,
+    ...<12 lines>...
+        self.search_help_text,
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\views\main.py", line 146, in __init__
+    self.get_results(request)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\views\main.py", line 313, in get_results
+    result_count = paginator.count
+                   ^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\paginator.py", line 110, in count
+    return c()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 604, in count
+    return self.query.get_count(using=self.db)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 644, in get_count
+    return obj.get_aggregation(using, {"__count": Count("*")})["__count"]
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 626, in get_aggregation
+    result = compiler.execute_sql(SINGLE)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1622, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: app_propertycategory
+ERROR 2025-06-01 21:20:00,761 basehttp 10952 5520 "GET /admin/app/propertycategory/ HTTP/1.1" 500 201231
+INFO 2025-06-01 21:20:03,765 basehttp 10952 5520 "GET /admin/app/department/ HTTP/1.1" 200 15533
+INFO 2025-06-01 21:20:03,787 basehttp 10952 5520 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:20:36,966 autoreload 8184 5888 Watching for file changes with StatReloader
+INFO 2025-06-01 21:20:39,146 basehttp 8184 8332 "GET /admin/app/department/ HTTP/1.1" 200 15533
+INFO 2025-06-01 21:20:39,195 basehttp 8184 8332 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:20:41,613 basehttp 8184 8332 "GET /admin/app/property/ HTTP/1.1" 200 13984
+INFO 2025-06-01 21:20:41,643 basehttp 8184 8332 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:20:42,797 basehttp 8184 8332 "GET /admin/app/propertyhistory/ HTTP/1.1" 200 14038
+INFO 2025-06-01 21:20:42,825 basehttp 8184 8332 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:20:45,994 basehttp 8184 8332 "GET /admin/app/propertycategory/ HTTP/1.1" 200 14045
+INFO 2025-06-01 21:20:46,019 basehttp 8184 8332 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:20:49,598 basehttp 8184 8332 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 21:20:49,765 basehttp 8184 8332 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 21:20:49,890 basehttp 8184 8332 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 21:20:50,009 basehttp 8184 8332 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 21:20:50,141 basehttp 8184 8332 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 21:20:50,267 basehttp 8184 8332 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 21:20:50,392 basehttp 8184 8332 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 21:20:51,926 basehttp 8184 8332 "GET /property/ HTTP/1.1" 200 19180
+INFO 2025-06-01 21:21:21,629 basehttp 8184 8332 "GET /admin/app/propertycategory/ HTTP/1.1" 200 14045
+INFO 2025-06-01 21:21:21,656 basehttp 8184 8332 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:21:23,298 basehttp 8184 8332 "GET /admin/app/propertycategory/add/ HTTP/1.1" 200 14869
+INFO 2025-06-01 21:21:23,321 basehttp 8184 4140 "GET /static/admin/css/forms.css HTTP/1.1" 304 0
+INFO 2025-06-01 21:21:23,322 basehttp 8184 5792 "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 304 0
+INFO 2025-06-01 21:21:23,327 basehttp 8184 8332 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:21:23,327 basehttp 8184 5792 "GET /static/admin/css/widgets.css HTTP/1.1" 304 0
+INFO 2025-06-01 21:21:23,333 basehttp 8184 5792 "GET /static/admin/js/change_form.js HTTP/1.1" 304 0
+INFO 2025-06-01 21:21:31,092 basehttp 8184 5792 "POST /admin/app/propertycategory/add/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:21:31,116 basehttp 8184 5792 "GET /admin/app/propertycategory/ HTTP/1.1" 200 15562
+INFO 2025-06-01 21:21:31,141 basehttp 8184 5792 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:21:33,334 basehttp 8184 5792 "GET /admin/app/propertycategory/add/ HTTP/1.1" 200 14869
+INFO 2025-06-01 21:21:33,358 basehttp 8184 5792 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:21:37,773 basehttp 8184 5792 "POST /admin/app/propertycategory/add/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:21:37,798 basehttp 8184 5792 "GET /admin/app/propertycategory/add/ HTTP/1.1" 200 15129
+INFO 2025-06-01 21:21:37,831 basehttp 8184 5792 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:21:39,728 basehttp 8184 5792 "POST /admin/app/propertycategory/add/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:21:39,748 basehttp 8184 5792 "GET /admin/app/propertycategory/ HTTP/1.1" 200 16095
+INFO 2025-06-01 21:21:39,774 basehttp 8184 5792 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:21:49,353 basehttp 8184 5792 "GET /property/ HTTP/1.1" 200 19288
+INFO 2025-06-01 21:21:50,239 basehttp 8184 5792 "GET /property/ HTTP/1.1" 200 19288
+INFO 2025-06-01 21:21:50,464 basehttp 8184 5792 "GET /property/ HTTP/1.1" 200 19288
+INFO 2025-06-01 21:22:28,863 basehttp 8184 5792 "POST /add-property/ HTTP/1.1" 302 0
+ERROR 2025-06-01 21:22:28,915 log 8184 5792 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 961, in get_context_data
+    grouped[prop.get_category_display()].append(prop)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Property' object has no attribute 'get_category_display'
+ERROR 2025-06-01 21:22:28,922 basehttp 8184 5792 "GET /property/ HTTP/1.1" 500 91233
+INFO 2025-06-01 21:24:00,377 autoreload 8184 5888 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 21:24:01,836 autoreload 10532 10740 Watching for file changes with StatReloader
+INFO 2025-06-01 21:24:14,187 autoreload 10532 10740 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 21:24:15,267 autoreload 11712 8064 Watching for file changes with StatReloader
+INFO 2025-06-01 21:24:24,016 basehttp 11712 11468 "GET /property/ HTTP/1.1" 200 22518
+INFO 2025-06-01 21:25:03,411 basehttp 11712 11468 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:25:03,438 basehttp 11712 11468 "GET /property/ HTTP/1.1" 200 25446
+INFO 2025-06-01 21:29:55,759 autoreload 11712 8064 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 21:29:57,189 autoreload 11408 10492 Watching for file changes with StatReloader
+INFO 2025-06-01 21:32:49,934 autoreload 11408 10492 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 21:32:51,188 autoreload 14160 6388 Watching for file changes with StatReloader
+INFO 2025-06-01 21:35:20,733 autoreload 14160 6388 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 21:35:22,549 autoreload 8216 2400 Watching for file changes with StatReloader
+INFO 2025-06-01 21:36:39,664 autoreload 8216 2400 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 21:36:40,498 autoreload 14800 6736 Watching for file changes with StatReloader
+INFO 2025-06-01 21:37:11,116 autoreload 14800 6736 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 21:37:11,959 autoreload 1116 5868 Watching for file changes with StatReloader
+INFO 2025-06-01 21:37:58,752 autoreload 1116 5868 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-01 21:37:59,471 autoreload 11776 6400 Watching for file changes with StatReloader
+INFO 2025-06-01 21:38:33,763 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25961
+INFO 2025-06-01 21:38:33,837 basehttp 11776 8836 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-01 21:38:34,921 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25961
+INFO 2025-06-01 21:39:05,968 basehttp 11776 8836 "POST /add-category/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:39:05,987 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:39:10,848 basehttp 11776 8836 "GET /admin/app/propertycategory/ HTTP/1.1" 200 16146
+INFO 2025-06-01 21:39:10,887 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:40:23,660 basehttp 11776 8836 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:40:23,673 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 26025
+INFO 2025-06-01 21:40:23,688 basehttp 11776 8836 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 21:40:27,010 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:40:27,743 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:40:28,344 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:40:28,576 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:40:29,051 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:41:10,938 basehttp 11776 8836 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:41:10,954 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 26025
+INFO 2025-06-01 21:41:12,904 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:41:13,049 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:41:13,255 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:41:37,920 basehttp 11776 8836 "GET /supplies/ HTTP/1.1" 200 57142
+INFO 2025-06-01 21:41:39,269 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:41:39,285 basehttp 11776 8836 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 21:42:18,478 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:42:18,621 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:42:18,803 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:42:18,955 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:42:19,084 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:42:19,244 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:42:19,374 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:42:19,513 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:42:19,671 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:42:19,831 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:42:19,981 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:42:20,158 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 25997
+INFO 2025-06-01 21:42:55,678 basehttp 11776 8836 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:42:55,698 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29268
+INFO 2025-06-01 21:43:57,398 basehttp 11776 8836 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:43:57,414 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29037
+INFO 2025-06-01 21:43:57,428 basehttp 11776 8836 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 21:43:59,691 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:44:00,411 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:44:00,592 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:44:00,787 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:44:00,948 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:44:01,072 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:44:01,266 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:44:01,420 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:44:01,578 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:44:55,247 basehttp 11776 8836 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:44:55,264 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29037
+INFO 2025-06-01 21:45:00,817 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:45:01,043 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:45:41,010 basehttp 11776 8836 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:45:41,027 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29037
+INFO 2025-06-01 21:45:41,041 basehttp 11776 8836 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 21:45:43,675 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:45:43,830 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:45:44,013 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:45:44,253 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:45:44,475 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29009
+INFO 2025-06-01 21:45:53,010 basehttp 11776 8836 "POST /add-category/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:45:53,028 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29046
+INFO 2025-06-01 21:46:01,264 basehttp 11776 8836 "GET /admin/app/propertycategory/ HTTP/1.1" 200 16414
+INFO 2025-06-01 21:46:01,281 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:46:01,410 basehttp 11776 8836 "GET /admin/app/propertycategory/ HTTP/1.1" 200 16414
+INFO 2025-06-01 21:46:01,426 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:46:01,611 basehttp 11776 8836 "GET /admin/app/propertycategory/ HTTP/1.1" 200 16414
+INFO 2025-06-01 21:46:01,626 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:46:01,771 basehttp 11776 8836 "GET /admin/app/propertycategory/ HTTP/1.1" 200 16414
+INFO 2025-06-01 21:46:01,786 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:46:01,901 basehttp 11776 8836 "GET /admin/app/propertycategory/ HTTP/1.1" 200 16414
+INFO 2025-06-01 21:46:01,919 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:46:02,039 basehttp 11776 8836 "GET /admin/app/propertycategory/ HTTP/1.1" 200 16414
+INFO 2025-06-01 21:46:02,054 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:46:02,162 basehttp 11776 8836 "GET /admin/app/propertycategory/ HTTP/1.1" 200 16414
+INFO 2025-06-01 21:46:02,177 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:46:02,277 basehttp 11776 8836 "GET /admin/app/propertycategory/ HTTP/1.1" 200 16414
+INFO 2025-06-01 21:46:02,294 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:46:02,495 basehttp 11776 8836 "GET /admin/app/propertycategory/ HTTP/1.1" 200 16414
+INFO 2025-06-01 21:46:02,511 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:46:02,635 basehttp 11776 8836 "GET /admin/app/propertycategory/ HTTP/1.1" 200 16414
+INFO 2025-06-01 21:46:02,654 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:46:02,861 basehttp 11776 8836 "GET /admin/app/propertycategory/ HTTP/1.1" 200 16414
+INFO 2025-06-01 21:46:02,876 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:46:04,397 basehttp 11776 8836 "GET /admin/app/property/ HTTP/1.1" 200 15849
+INFO 2025-06-01 21:46:04,414 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:46:14,639 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29046
+INFO 2025-06-01 21:46:14,844 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 29046
+INFO 2025-06-01 21:46:45,315 basehttp 11776 8836 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:46:45,334 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 32299
+INFO 2025-06-01 21:47:07,318 basehttp 11776 8836 "POST /edit-property/ HTTP/1.1" 302 0
+ERROR 2025-06-01 21:47:07,418 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:47:07,421 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91655
+ERROR 2025-06-01 21:47:19,002 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:47:19,004 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91387
+ERROR 2025-06-01 21:47:20,632 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:47:20,633 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91518
+ERROR 2025-06-01 21:47:21,234 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:47:21,236 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91518
+ERROR 2025-06-01 21:47:21,849 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:47:21,851 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91518
+ERROR 2025-06-01 21:47:22,366 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:47:22,368 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91518
+ERROR 2025-06-01 21:47:22,623 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:47:22,625 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91387
+ERROR 2025-06-01 21:47:22,841 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:47:22,843 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91518
+ERROR 2025-06-01 21:47:23,831 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:47:23,832 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91655
+ERROR 2025-06-01 21:47:24,451 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:47:24,453 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91655
+ERROR 2025-06-01 21:47:27,616 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:47:27,618 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91358
+INFO 2025-06-01 21:48:01,914 basehttp 11776 8836 "GET /manage-users/ HTTP/1.1" 200 18367
+INFO 2025-06-01 21:48:01,927 basehttp 11776 12784 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 21:48:01,927 basehttp 11776 8836 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 21:48:02,069 basehttp 11776 8836 "GET /manage-users/ HTTP/1.1" 200 18156
+INFO 2025-06-01 21:48:02,251 basehttp 11776 8836 "GET /manage-users/ HTTP/1.1" 200 18156
+INFO 2025-06-01 21:48:02,502 basehttp 11776 8836 "GET /manage-users/ HTTP/1.1" 200 18156
+ERROR 2025-06-01 21:48:05,178 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:48:05,180 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91261
+INFO 2025-06-01 21:48:11,951 basehttp 11776 8836 "GET /admin/app/property/ HTTP/1.1" 200 16119
+INFO 2025-06-01 21:48:11,968 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:48:12,111 basehttp 11776 8836 "GET /admin/app/property/ HTTP/1.1" 200 16119
+INFO 2025-06-01 21:48:12,126 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:48:12,331 basehttp 11776 8836 "GET /admin/app/property/ HTTP/1.1" 200 16119
+INFO 2025-06-01 21:48:12,347 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:48:12,552 basehttp 11776 8836 "GET /admin/app/property/ HTTP/1.1" 200 16119
+INFO 2025-06-01 21:48:12,568 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:48:12,764 basehttp 11776 8836 "GET /admin/app/property/ HTTP/1.1" 200 16119
+INFO 2025-06-01 21:48:12,778 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:48:21,631 basehttp 11776 8836 "GET /admin/app/property/1/change/ HTTP/1.1" 200 24183
+INFO 2025-06-01 21:48:21,648 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:48:21,669 basehttp 11776 8836 "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+INFO 2025-06-01 21:48:34,284 basehttp 11776 8836 "POST /admin/app/property/1/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:48:34,301 basehttp 11776 8836 "GET /admin/app/property/ HTTP/1.1" 200 16332
+INFO 2025-06-01 21:48:34,318 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:48:37,595 basehttp 11776 8836 "GET /admin/app/property/4/change/ HTTP/1.1" 200 24155
+INFO 2025-06-01 21:48:37,612 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:48:45,333 basehttp 11776 8836 "POST /admin/app/property/4/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:48:45,350 basehttp 11776 8836 "GET /admin/app/property/ HTTP/1.1" 200 16325
+INFO 2025-06-01 21:48:45,371 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+WARNING 2025-06-01 21:48:49,114 log 11776 8836 Forbidden (CSRF token from POST incorrect.): /accounts/login/
+WARNING 2025-06-01 21:48:49,115 basehttp 11776 8836 "POST /accounts/login/ HTTP/1.1" 403 2503
+WARNING 2025-06-01 21:48:52,017 log 11776 8836 Forbidden (CSRF token from POST incorrect.): /accounts/login/
+WARNING 2025-06-01 21:48:52,018 basehttp 11776 8836 "POST /accounts/login/ HTTP/1.1" 403 2503
+WARNING 2025-06-01 21:48:59,822 basehttp 11776 8836 "GET /a HTTP/1.1" 404 14340
+INFO 2025-06-01 21:49:02,672 basehttp 11776 8836 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 21:49:05,160 basehttp 11776 8836 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:49:05,253 basehttp 11776 8836 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 21:49:09,548 basehttp 11776 8836 "GET /property/ HTTP/1.1" 200 32048
+INFO 2025-06-01 21:49:09,571 basehttp 11776 8836 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 21:49:24,453 basehttp 11776 8836 "POST /edit-property/ HTTP/1.1" 302 0
+ERROR 2025-06-01 21:49:24,478 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:49:24,480 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91452
+ERROR 2025-06-01 21:49:26,005 log 11776 8836 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 967, in get_context_data
+    grouped[prop.category.name].append(prop)
+            ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+ERROR 2025-06-01 21:49:26,007 basehttp 11776 8836 "GET /property/ HTTP/1.1" 500 91185
+INFO 2025-06-01 21:49:37,646 basehttp 11776 8836 "GET /admin/app/property/1/change/ HTTP/1.1" 200 24319
+INFO 2025-06-01 21:49:37,667 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:49:44,021 basehttp 11776 8836 "POST /admin/app/property/1/change/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:49:44,037 basehttp 11776 8836 "GET /admin/app/property/ HTTP/1.1" 200 16332
+INFO 2025-06-01 21:49:44,055 basehttp 11776 8836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 21:53:47,796 autoreload 11776 6400 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 21:53:48,682 autoreload 6964 1636 Watching for file changes with StatReloader
+INFO 2025-06-01 21:54:09,354 basehttp 6964 2160 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 21:54:14,755 basehttp 6964 2160 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 21:54:14,812 basehttp 6964 2160 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 21:54:46,114 basehttp 6964 2160 "GET /supplies/ HTTP/1.1" 200 57142
+INFO 2025-06-01 21:54:47,195 basehttp 6964 2160 "GET /property/ HTTP/1.1" 200 32048
+INFO 2025-06-01 21:54:47,218 basehttp 6964 2160 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 22:05:18,281 autoreload 6964 1636 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-01 22:05:19,239 autoreload 14240 10536 Watching for file changes with StatReloader
+INFO 2025-06-01 22:06:19,316 autoreload 14240 10536 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-01 22:06:20,067 autoreload 12280 11236 Watching for file changes with StatReloader
+INFO 2025-06-01 22:10:50,121 basehttp 12280 10036 "GET /property/ HTTP/1.1" 200 32659
+INFO 2025-06-01 22:10:50,141 basehttp 12280 10036 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 22:10:50,853 basehttp 12280 10036 "GET /property/ HTTP/1.1" 200 32659
+INFO 2025-06-01 22:10:51,061 basehttp 12280 10036 "GET /property/ HTTP/1.1" 200 32659
+INFO 2025-06-01 22:11:21,230 basehttp 12280 10036 "GET /property/ HTTP/1.1" 200 32659
+INFO 2025-06-01 22:11:21,364 basehttp 12280 10036 "GET /property/ HTTP/1.1" 200 32659
+INFO 2025-06-01 22:11:21,549 basehttp 12280 10036 "GET /property/ HTTP/1.1" 200 32659
+INFO 2025-06-01 22:11:33,387 basehttp 12280 12348 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-01 22:11:33,503 basehttp 12280 12348 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+WARNING 2025-06-01 22:11:33,532 basehttp 12280 12348 "GET /favicon.ico HTTP/1.1" 404 14370
+INFO 2025-06-01 22:11:36,080 basehttp 12280 12348 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 22:11:36,142 basehttp 12280 12348 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 22:11:36,172 basehttp 12280 12348 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-01 22:11:36,173 basehttp 12280 3512 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-01 22:11:36,183 basehttp 12280 12672 "GET /static/scripts/charts.js HTTP/1.1" 200 12760
+INFO 2025-06-01 22:11:36,186 basehttp 12280 8484 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 5573
+INFO 2025-06-01 22:11:39,144 basehttp 12280 8484 "GET /property/ HTTP/1.1" 200 32659
+INFO 2025-06-01 22:11:39,154 basehttp 12280 12672 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-01 22:11:39,157 basehttp 12280 8484 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+INFO 2025-06-01 22:14:12,176 basehttp 12280 10036 "GET /supplies/ HTTP/1.1" 200 57142
+INFO 2025-06-01 22:14:12,197 basehttp 12280 10036 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+INFO 2025-06-01 22:14:14,048 basehttp 12280 10036 "GET /property/ HTTP/1.1" 200 32659
+INFO 2025-06-01 22:18:04,772 autoreload 12280 11236 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-01 22:18:05,693 autoreload 6460 5116 Watching for file changes with StatReloader
+INFO 2025-06-01 22:18:06,329 basehttp 6460 4796 "GET /property/ HTTP/1.1" 200 32679
+INFO 2025-06-01 22:18:06,339 basehttp 6460 11784 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 22:18:06,339 basehttp 6460 4796 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 22:18:06,410 basehttp 6460 4796 "GET /property/ HTTP/1.1" 200 32679
+INFO 2025-06-01 22:18:06,523 basehttp 6460 4796 "GET /property/ HTTP/1.1" 200 32679
+INFO 2025-06-01 22:18:06,658 basehttp 6460 4796 "GET /property/ HTTP/1.1" 200 32679
+INFO 2025-06-01 22:18:06,776 basehttp 6460 4796 "GET /property/ HTTP/1.1" 200 32679
+INFO 2025-06-01 22:18:21,761 basehttp 6460 7956 "GET /property/ HTTP/1.1" 200 32679
+INFO 2025-06-01 22:18:21,778 basehttp 6460 7956 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 22:18:21,883 basehttp 6460 7956 "GET /property/ HTTP/1.1" 200 32679
+INFO 2025-06-01 22:18:22,092 basehttp 6460 7956 "GET /property/ HTTP/1.1" 200 32679
+INFO 2025-06-01 22:22:50,314 basehttp 6460 4796 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:22:50,322 basehttp 6460 4796 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 22:37:53,046 basehttp 6460 12428 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:53,061 basehttp 6460 5520 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 22:37:53,106 basehttp 6460 12428 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-01 22:37:53,167 basehttp 6460 12428 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:53,307 basehttp 6460 12428 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:53,461 basehttp 6460 12428 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:56,268 basehttp 6460 8564 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:56,279 basehttp 6460 8564 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 22:37:56,279 basehttp 6460 12932 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 22:37:56,279 basehttp 6460 14008 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 22:37:56,475 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:56,924 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:57,120 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:57,236 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:57,376 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:57,531 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:57,670 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:57,814 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:58,034 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:58,243 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:58,388 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:58,563 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:58,732 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:58,897 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:59,067 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:37:59,249 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32323
+INFO 2025-06-01 22:41:59,318 basehttp 6460 12428 "GET /property/ HTTP/1.1" 200 32306
+INFO 2025-06-01 22:41:59,479 basehttp 6460 12428 "GET /property/ HTTP/1.1" 200 32306
+INFO 2025-06-01 22:42:57,395 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32306
+INFO 2025-06-01 22:42:57,538 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32306
+INFO 2025-06-01 22:42:57,676 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32306
+INFO 2025-06-01 22:42:57,810 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32306
+INFO 2025-06-01 22:42:58,011 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32306
+INFO 2025-06-01 22:42:58,146 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32306
+INFO 2025-06-01 22:42:58,277 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32306
+INFO 2025-06-01 22:42:58,405 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32306
+INFO 2025-06-01 22:42:58,627 basehttp 6460 14008 "GET /property/ HTTP/1.1" 200 32306
+INFO 2025-06-01 22:43:07,936 basehttp 6460 12428 "GET /admin/app/property/ HTTP/1.1" 200 16119
+INFO 2025-06-01 22:43:07,958 basehttp 6460 12428 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 22:43:08,101 basehttp 6460 12428 "GET /admin/app/property/ HTTP/1.1" 200 16119
+INFO 2025-06-01 22:43:08,117 basehttp 6460 12428 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 22:43:08,912 basehttp 6460 12428 "GET /admin/app/property/ HTTP/1.1" 200 16119
+INFO 2025-06-01 22:43:08,928 basehttp 6460 12428 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 22:43:58,241 basehttp 6460 12428 "GET /admin/app/department/ HTTP/1.1" 200 15533
+INFO 2025-06-01 22:43:58,257 basehttp 6460 12428 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-01 22:53:12,647 basehttp 6460 10712 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 22:53:13,624 basehttp 6460 10712 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 22:53:13,637 basehttp 6460 10712 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 22:53:13,638 basehttp 6460 14944 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-01 22:53:13,638 basehttp 6460 14112 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-01 22:53:13,638 basehttp 6460 10464 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-01 22:53:13,765 basehttp 6460 10464 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 22:53:13,932 basehttp 6460 10464 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 22:53:17,826 basehttp 6460 10464 "GET /property/ HTTP/1.1" 200 32286
+INFO 2025-06-01 22:53:17,836 basehttp 6460 10464 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 22:53:17,836 basehttp 6460 14112 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 22:53:41,402 basehttp 6460 10464 "GET /property/ HTTP/1.1" 302 0
+INFO 2025-06-01 22:53:41,410 basehttp 6460 10464 "GET /login_user/?next=/property/ HTTP/1.1" 200 9162
+INFO 2025-06-01 22:53:41,420 basehttp 6460 10464 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-06-01 22:53:43,746 basehttp 6460 10464 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 22:53:43,776 basehttp 6460 10464 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 22:53:43,788 basehttp 6460 14112 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-01 22:53:43,789 basehttp 6460 14944 "GET /static/scripts/charts.js HTTP/1.1" 200 12760
+INFO 2025-06-01 22:53:43,789 basehttp 6460 10712 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 5573
+INFO 2025-06-01 22:53:43,789 basehttp 6460 10464 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-01 22:53:47,488 basehttp 6460 10712 "GET /property/ HTTP/1.1" 200 32286
+INFO 2025-06-01 22:53:47,498 basehttp 6460 10712 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+INFO 2025-06-01 22:53:47,499 basehttp 6460 10464 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-01 23:05:13,951 autoreload 6460 5116 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-01 23:05:14,889 autoreload 5248 6724 Watching for file changes with StatReloader
+INFO 2025-06-01 23:05:27,953 basehttp 5248 4624 "GET /property/ HTTP/1.1" 302 0
+INFO 2025-06-01 23:05:27,969 basehttp 5248 4624 "GET /login_user/?next=/property/ HTTP/1.1" 200 9162
+INFO 2025-06-01 23:05:28,035 basehttp 5248 4624 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-06-01 23:05:30,122 basehttp 5248 4624 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-01 23:05:30,181 basehttp 5248 4624 "GET /dashboard/ HTTP/1.1" 200 32633
+INFO 2025-06-01 23:05:30,206 basehttp 5248 4624 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 23:05:34,353 basehttp 5248 4624 "GET /manage-users/ HTTP/1.1" 200 18156
+INFO 2025-06-01 23:05:34,377 basehttp 5248 4624 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 23:05:34,377 basehttp 5248 3676 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 23:05:37,686 basehttp 5248 3676 "GET /property/ HTTP/1.1" 200 32517
+INFO 2025-06-01 23:05:37,709 basehttp 5248 3676 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 23:05:48,910 basehttp 5248 3676 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 23:05:48,932 basehttp 5248 3676 "GET /property/ HTTP/1.1" 200 32054
+INFO 2025-06-01 23:09:06,080 basehttp 5248 3676 "GET /supplies/ HTTP/1.1" 200 57142
+INFO 2025-06-01 23:09:06,101 basehttp 5248 3676 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 23:09:31,776 basehttp 5248 3676 "GET /property/ HTTP/1.1" 200 31793
+INFO 2025-06-01 23:09:47,735 basehttp 5248 3676 "GET /get_property_history/2/ HTTP/1.1" 200 183
+INFO 2025-06-01 23:10:02,778 basehttp 5248 3676 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 23:10:02,794 basehttp 5248 3676 "GET /property/ HTTP/1.1" 200 32778
+INFO 2025-06-01 23:21:11,227 basehttp 5248 9372 "GET /property/ HTTP/1.1" 200 33248
+INFO 2025-06-01 23:21:11,243 basehttp 5248 9372 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 23:21:11,244 basehttp 5248 12992 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 23:31:51,813 autoreload 5248 6724 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-01 23:31:52,710 autoreload 15092 14112 Watching for file changes with StatReloader
+INFO 2025-06-01 23:39:08,876 basehttp 15092 8696 "GET /property/ HTTP/1.1" 200 33145
+INFO 2025-06-01 23:39:08,892 basehttp 15092 2456 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 23:39:08,892 basehttp 15092 8696 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 23:39:09,154 basehttp 15092 2456 "GET /property/ HTTP/1.1" 200 33145
+INFO 2025-06-01 23:39:09,364 basehttp 15092 2456 "GET /property/ HTTP/1.1" 200 33145
+INFO 2025-06-01 23:39:09,866 basehttp 15092 2456 "GET /property/ HTTP/1.1" 200 33145
+INFO 2025-06-01 23:39:10,024 basehttp 15092 2456 "GET /property/ HTTP/1.1" 200 33145
+INFO 2025-06-01 23:39:35,927 basehttp 15092 2456 "GET /property/ HTTP/1.1" 200 33145
+INFO 2025-06-01 23:39:36,062 basehttp 15092 2456 "GET /property/ HTTP/1.1" 200 33145
+INFO 2025-06-01 23:39:36,999 basehttp 15092 2456 "GET /property/ HTTP/1.1" 200 33145
+INFO 2025-06-01 23:40:11,381 basehttp 15092 2456 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 23:40:11,403 basehttp 15092 2456 "GET /property/ HTTP/1.1" 200 33356
+INFO 2025-06-01 23:40:21,325 basehttp 15092 2456 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 23:40:21,343 basehttp 15092 2456 "GET /property/ HTTP/1.1" 200 33406
+INFO 2025-06-01 23:51:34,198 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 33526
+INFO 2025-06-01 23:51:34,680 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 33526
+INFO 2025-06-01 23:51:34,825 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 33526
+INFO 2025-06-01 23:51:35,037 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 33526
+INFO 2025-06-01 23:51:39,112 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 33526
+INFO 2025-06-01 23:51:39,327 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 33526
+INFO 2025-06-01 23:52:41,158 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 33946
+INFO 2025-06-01 23:52:41,170 basehttp 15092 14204 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-01 23:54:23,530 basehttp 15092 14204 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 23:54:23,550 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 36509
+INFO 2025-06-01 23:54:23,565 basehttp 15092 14204 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-01 23:55:21,168 basehttp 15092 14204 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 23:55:21,186 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 38799
+INFO 2025-06-01 23:57:53,506 basehttp 15092 14204 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 23:57:53,527 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 41083
+INFO 2025-06-01 23:58:38,999 basehttp 15092 14204 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 23:58:39,021 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 43371
+INFO 2025-06-01 23:59:34,580 basehttp 15092 14204 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-01 23:59:34,600 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 45677
+INFO 2025-06-02 00:01:00,938 basehttp 15092 14204 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:01:00,964 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 47992
+INFO 2025-06-02 00:03:11,829 basehttp 15092 14204 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:03:11,854 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 50323
+INFO 2025-06-02 00:04:28,334 basehttp 15092 14204 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:04:28,359 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 52616
+INFO 2025-06-02 00:05:20,861 basehttp 15092 14204 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:05:20,882 basehttp 15092 14204 "GET /property/ HTTP/1.1" 200 54930
+INFO 2025-06-02 00:06:11,640 basehttp 15092 14204 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:06:11,644 basehttp 15092 14204 "GET /property/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:06:11,650 basehttp 15092 14204 "GET /login_user/?next=/property/ HTTP/1.1" 200 9518
+INFO 2025-06-02 00:06:11,672 basehttp 15092 14204 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-02 00:07:49,836 autoreload 13736 9640 Watching for file changes with StatReloader
+INFO 2025-06-02 00:07:56,149 basehttp 13736 1856 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:07:59,912 basehttp 13736 1856 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:07:59,967 basehttp 13736 1856 "GET /dashboard/ HTTP/1.1" 200 32635
+INFO 2025-06-02 00:08:04,621 basehttp 13736 1856 "GET /property/ HTTP/1.1" 200 54671
+INFO 2025-06-02 00:08:04,642 basehttp 13736 1856 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 00:08:44,690 basehttp 13736 1856 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:08:44,716 basehttp 13736 1856 "GET /property/ HTTP/1.1" 200 55131
+INFO 2025-06-02 00:08:49,713 basehttp 13736 1856 "GET /property/?page_Test2=2& HTTP/1.1" 200 34184
+INFO 2025-06-02 00:08:53,822 basehttp 13736 1856 "GET /property/?page_Test2=1& HTTP/1.1" 200 54872
+INFO 2025-06-02 00:09:01,563 basehttp 13736 1856 "GET /get_property_history/1/ HTTP/1.1" 200 1492
+INFO 2025-06-02 00:09:06,360 basehttp 13736 1856 "GET /get_property_history/13/ HTTP/1.1" 200 183
+INFO 2025-06-02 00:09:12,823 basehttp 13736 1856 "GET /manage-users/ HTTP/1.1" 200 18156
+INFO 2025-06-02 00:09:12,837 basehttp 13736 1856 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 00:09:12,837 basehttp 13736 14380 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 00:10:03,930 views 13736 1856 Starting user creation process...
+INFO 2025-06-02 00:10:03,930 views 13736 1856 Verifying email settings...
+INFO 2025-06-02 00:10:03,931 views 13736 1856 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-06-02 00:10:03,931 views 13736 1856 EMAIL_HOST: smtp.gmail.com
+INFO 2025-06-02 00:10:03,931 views 13736 1856 EMAIL_PORT: 587
+INFO 2025-06-02 00:10:03,931 views 13736 1856 EMAIL_USE_TLS: True
+INFO 2025-06-02 00:10:03,931 views 13736 1856 EMAIL_HOST_USER: None
+INFO 2025-06-02 00:10:03,931 views 13736 1856 EMAIL_HOST_PASSWORD is set: No
+INFO 2025-06-02 00:10:03,932 views 13736 1856 .env file exists: No
+INFO 2025-06-02 00:10:03,932 views 13736 1856 Checking form validity...
+INFO 2025-06-02 00:10:03,975 views 13736 1856 Form is valid, proceeding with user creation...
+INFO 2025-06-02 00:10:03,975 views 13736 1856 Creating user with email: joshuabarnido27@gmail.com
+INFO 2025-06-02 00:10:04,584 views 13736 1856 User created successfully with role: ADMIN
+INFO 2025-06-02 00:10:04,589 views 13736 1856 Added user to group: ADMIN
+INFO 2025-06-02 00:10:04,594 views 13736 1856 User profile created successfully
+INFO 2025-06-02 00:10:04,621 views 13736 1856 Attempting to send welcome email to joshuabarnido27@gmail.com...
+ERROR 2025-06-02 00:10:06,192 views 13736 1856 Failed to send welcome email: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. 98e67ed59e1d1-3124e2d1226sm4192861a91.11 - gsmtp', 'webmaster@localhost')
+INFO 2025-06-02 00:10:06,204 basehttp 13736 1856 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:10:06,231 basehttp 13736 1856 "GET /manage-users/ HTTP/1.1" 200 18941
+INFO 2025-06-02 00:10:20,209 basehttp 13736 1856 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:10:20,214 basehttp 13736 1856 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:10:26,396 basehttp 13736 1856 "POST /accounts/login/ HTTP/1.1" 302 0
+WARNING 2025-06-02 00:10:26,411 basehttp 13736 1856 "GET /dashboard/ HTTP/1.1" 403 135
+INFO 2025-06-02 00:10:30,604 basehttp 13736 1856 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:10:37,269 basehttp 13736 1856 "POST /accounts/login/ HTTP/1.1" 302 0
+WARNING 2025-06-02 00:10:37,279 basehttp 13736 1856 "GET /dashboard/ HTTP/1.1" 403 135
+WARNING 2025-06-02 00:11:03,112 basehttp 13736 1856 "GET /dashboard/ HTTP/1.1" 403 135
+WARNING 2025-06-02 00:11:03,240 basehttp 13736 1856 "GET /dashboard/ HTTP/1.1" 403 135
+WARNING 2025-06-02 00:11:03,393 basehttp 13736 1856 "GET /dashboard/ HTTP/1.1" 403 135
+WARNING 2025-06-02 00:11:03,524 basehttp 13736 1856 "GET /dashboard/ HTTP/1.1" 403 135
+WARNING 2025-06-02 00:11:03,689 basehttp 13736 1856 "GET /dashboard/ HTTP/1.1" 403 135
+WARNING 2025-06-02 00:11:03,840 basehttp 13736 1856 "GET /dashboard/ HTTP/1.1" 403 135
+WARNING 2025-06-02 00:11:04,003 basehttp 13736 1856 "GET /dashboard/ HTTP/1.1" 403 135
+WARNING 2025-06-02 00:11:04,204 basehttp 13736 1856 "GET /dashboard/ HTTP/1.1" 403 135
+INFO 2025-06-02 00:11:07,938 basehttp 13736 1856 "GET /admin/app/department/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:11:07,974 basehttp 13736 1856 "GET /admin/login/?next=/admin/app/department/ HTTP/1.1" 200 3729
+INFO 2025-06-02 00:11:08,069 basehttp 13736 1856 "GET /admin/login/?next=/admin/app/department/ HTTP/1.1" 200 3729
+INFO 2025-06-02 00:11:08,278 basehttp 13736 1856 "GET /admin/login/?next=/admin/app/department/ HTTP/1.1" 200 3729
+INFO 2025-06-02 00:11:08,460 basehttp 13736 1856 "GET /admin/login/?next=/admin/app/department/ HTTP/1.1" 200 3729
+INFO 2025-06-02 00:11:10,644 basehttp 13736 1856 "POST /admin/login/?next=/admin/app/department/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:11:10,681 basehttp 13736 1856 "GET /admin/app/department/ HTTP/1.1" 200 15533
+INFO 2025-06-02 00:11:10,706 basehttp 13736 1856 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:11:16,258 basehttp 13736 1856 "GET /admin/app/userprofile/ HTTP/1.1" 200 20884
+INFO 2025-06-02 00:11:16,278 basehttp 13736 1856 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:11:18,727 basehttp 13736 1856 "GET /admin/app/userprofile/29/change/ HTTP/1.1" 200 20398
+INFO 2025-06-02 00:11:18,746 basehttp 13736 1856 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:11:21,025 basehttp 13736 1856 "POST /admin/app/userprofile/29/change/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:11:21,056 basehttp 13736 1856 "GET /admin/app/userprofile/ HTTP/1.1" 200 21093
+INFO 2025-06-02 00:11:21,076 basehttp 13736 1856 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:11:22,480 basehttp 13736 1856 "GET /admin/auth/group/ HTTP/1.1" 200 16097
+INFO 2025-06-02 00:11:22,497 basehttp 13736 1856 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:11:22,499 basehttp 13736 14380 "GET /static/admin/img/search.svg HTTP/1.1" 304 0
+INFO 2025-06-02 00:11:25,732 basehttp 13736 14380 "GET /admin/auth/user/ HTTP/1.1" 200 29700
+INFO 2025-06-02 00:11:25,751 basehttp 13736 14380 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:11:25,816 basehttp 13736 1856 "GET /static/admin/img/icon-no.svg HTTP/1.1" 200 560
+INFO 2025-06-02 00:11:25,836 basehttp 13736 14380 "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+INFO 2025-06-02 00:11:32,689 basehttp 13736 12728 "GET /admin/auth/user/29/change/ HTTP/1.1" 200 32817
+INFO 2025-06-02 00:11:32,709 basehttp 13736 5804 "GET /static/admin/js/SelectBox.js HTTP/1.1" 304 0
+INFO 2025-06-02 00:11:32,710 basehttp 13736 13636 "GET /static/admin/js/SelectFilter2.js HTTP/1.1" 304 0
+INFO 2025-06-02 00:11:32,712 basehttp 13736 12728 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:11:32,734 basehttp 13736 14256 "GET /static/admin/js/calendar.js HTTP/1.1" 200 9141
+INFO 2025-06-02 00:11:32,734 basehttp 13736 11704 "GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 200 19319
+INFO 2025-06-02 00:11:32,764 basehttp 13736 12728 "GET /static/admin/img/selector-icons.svg HTTP/1.1" 304 0
+INFO 2025-06-02 00:11:32,777 basehttp 13736 11704 "GET /static/admin/img/icon-calendar.svg HTTP/1.1" 200 1086
+INFO 2025-06-02 00:11:32,778 basehttp 13736 14256 "GET /static/admin/img/icon-clock.svg HTTP/1.1" 200 677
+INFO 2025-06-02 00:12:01,468 basehttp 13736 11764 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:12:02,150 basehttp 13736 11764 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:12:02,311 basehttp 13736 11764 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:12:02,447 basehttp 13736 11764 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:12:02,578 basehttp 13736 11764 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:12:02,701 basehttp 13736 11764 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:12:02,892 basehttp 13736 11764 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:12:15,853 basehttp 13736 11764 "POST /accounts/login/ HTTP/1.1" 302 0
+WARNING 2025-06-02 00:12:15,866 basehttp 13736 11764 "GET /dashboard/ HTTP/1.1" 403 135
+INFO 2025-06-02 00:12:17,949 basehttp 13736 11764 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:13:00,087 basehttp 13736 11764 "POST /accounts/login/ HTTP/1.1" 302 0
+WARNING 2025-06-02 00:13:00,094 basehttp 13736 11764 "GET /dashboard/ HTTP/1.1" 403 135
+INFO 2025-06-02 00:13:01,942 basehttp 13736 11764 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:14:13,759 basehttp 13736 3780 "POST /accounts/login/ HTTP/1.1" 302 0
+WARNING 2025-06-02 00:14:13,771 basehttp 13736 3780 "GET /dashboard/ HTTP/1.1" 403 135
+INFO 2025-06-02 00:14:27,230 basehttp 13736 14256 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:14:27,253 basehttp 13736 14256 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-02 00:14:36,499 basehttp 13736 5224 "POST /accounts/login/ HTTP/1.1" 302 0
+WARNING 2025-06-02 00:14:36,508 basehttp 13736 5224 "GET /dashboard/ HTTP/1.1" 403 135
+INFO 2025-06-02 00:14:38,550 basehttp 13736 5224 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:15:06,938 autoreload 14220 3600 Watching for file changes with StatReloader
+INFO 2025-06-02 00:15:15,376 basehttp 14220 3512 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:15:28,657 basehttp 14220 3512 "POST /accounts/login/ HTTP/1.1" 302 0
+WARNING 2025-06-02 00:15:28,668 basehttp 14220 3512 "GET /dashboard/ HTTP/1.1" 403 135
+INFO 2025-06-02 00:15:37,188 basehttp 14220 6084 "POST /accounts/login/ HTTP/1.1" 302 0
+WARNING 2025-06-02 00:15:37,197 basehttp 14220 6084 "GET /dashboard/ HTTP/1.1" 403 135
+INFO 2025-06-02 00:16:57,872 basehttp 14220 13336 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:17:01,018 basehttp 14220 13336 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:17:01,072 basehttp 14220 13336 "GET /dashboard/ HTTP/1.1" 200 32635
+INFO 2025-06-02 00:17:01,093 basehttp 14220 13336 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 00:18:28,402 basehttp 14220 6272 "GET /admin/auth/user/29/change/ HTTP/1.1" 200 32817
+INFO 2025-06-02 00:18:28,420 basehttp 14220 6272 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:18:37,969 basehttp 14220 7528 "GET /admin/auth/user/ HTTP/1.1" 200 29700
+INFO 2025-06-02 00:18:37,990 basehttp 14220 7528 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:18:42,249 basehttp 14220 7528 "GET /admin/auth/user/1/change/ HTTP/1.1" 200 32764
+INFO 2025-06-02 00:18:42,266 basehttp 14220 7528 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:19:05,535 basehttp 14220 7528 "POST /admin/auth/user/1/change/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:19:05,543 basehttp 14220 7528 "GET /admin/auth/user/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:19:05,559 basehttp 14220 7528 "GET /admin/login/?next=/admin/auth/user/ HTTP/1.1" 200 3911
+INFO 2025-06-02 00:19:09,441 basehttp 14220 7528 "POST /admin/login/?next=/admin/auth/user/ HTTP/1.1" 200 3886
+INFO 2025-06-02 00:22:07,232 autoreload 12240 8376 Watching for file changes with StatReloader
+INFO 2025-06-02 00:22:11,777 basehttp 12240 3768 "POST /admin/login/?next=/admin/auth/user/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:22:11,846 basehttp 12240 3768 "GET /admin/auth/user/ HTTP/1.1" 200 30159
+INFO 2025-06-02 00:22:11,884 basehttp 12240 3768 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:22:17,306 basehttp 12240 3768 "GET /admin/auth/user/1/change/ HTTP/1.1" 200 32748
+INFO 2025-06-02 00:22:17,328 basehttp 12240 3768 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:22:29,269 basehttp 12240 3768 "POST /admin/auth/user/1/change/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:22:29,295 basehttp 12240 3768 "GET /admin/auth/user/ HTTP/1.1" 200 30352
+INFO 2025-06-02 00:22:29,312 basehttp 12240 3768 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:22:35,521 basehttp 12240 10480 "GET /admin/auth/user/29/change/ HTTP/1.1" 200 32817
+INFO 2025-06-02 00:22:35,550 basehttp 12240 10480 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:26:24,329 autoreload 12240 8376 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:26:25,234 autoreload 10428 10604 Watching for file changes with StatReloader
+INFO 2025-06-02 00:27:04,847 autoreload 10428 10604 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:27:05,707 autoreload 8492 14128 Watching for file changes with StatReloader
+INFO 2025-06-02 00:28:09,542 autoreload 8492 14128 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:28:10,266 autoreload 8680 14540 Watching for file changes with StatReloader
+INFO 2025-06-02 00:29:08,011 autoreload 8680 14540 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:29:08,739 autoreload 8068 5968 Watching for file changes with StatReloader
+INFO 2025-06-02 00:29:31,358 autoreload 8068 5968 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:29:32,170 autoreload 12332 3564 Watching for file changes with StatReloader
+INFO 2025-06-02 00:29:43,196 basehttp 12332 13732 "GET /manage-users/ HTTP/1.1" 200 18454
+INFO 2025-06-02 00:29:43,218 basehttp 12332 7384 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 00:29:43,218 basehttp 12332 13732 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 00:30:18,163 views 12332 14960 Starting user creation process...
+INFO 2025-06-02 00:30:18,163 views 12332 14960 Verifying email settings...
+INFO 2025-06-02 00:30:18,163 views 12332 14960 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-06-02 00:30:18,164 views 12332 14960 EMAIL_HOST: smtp.gmail.com
+INFO 2025-06-02 00:30:18,164 views 12332 14960 EMAIL_PORT: 587
+INFO 2025-06-02 00:30:18,164 views 12332 14960 EMAIL_USE_TLS: True
+INFO 2025-06-02 00:30:18,164 views 12332 14960 EMAIL_HOST_USER: None
+INFO 2025-06-02 00:30:18,165 views 12332 14960 EMAIL_HOST_PASSWORD is set: No
+INFO 2025-06-02 00:30:18,165 views 12332 14960 .env file exists: No
+INFO 2025-06-02 00:30:18,167 views 12332 14960 Checking form validity...
+INFO 2025-06-02 00:30:18,206 views 12332 14960 Form is valid, proceeding with user creation...
+INFO 2025-06-02 00:30:18,206 views 12332 14960 Creating user with email: johnmarkgvales@gmail.com
+ERROR 2025-06-02 00:30:18,207 views 12332 14960 Error in user creation process: UserManager.create_user() missing 1 required positional argument: 'username'
+INFO 2025-06-02 00:30:18,208 basehttp 12332 14960 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:30:18,245 basehttp 12332 14960 "GET /manage-users/ HTTP/1.1" 200 18743
+INFO 2025-06-02 00:30:56,201 views 12332 14864 Starting user creation process...
+INFO 2025-06-02 00:30:56,202 views 12332 14864 Verifying email settings...
+INFO 2025-06-02 00:30:56,202 views 12332 14864 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-06-02 00:30:56,203 views 12332 14864 EMAIL_HOST: smtp.gmail.com
+INFO 2025-06-02 00:30:56,203 views 12332 14864 EMAIL_PORT: 587
+INFO 2025-06-02 00:30:56,203 views 12332 14864 EMAIL_USE_TLS: True
+INFO 2025-06-02 00:30:56,204 views 12332 14864 EMAIL_HOST_USER: None
+INFO 2025-06-02 00:30:56,204 views 12332 14864 EMAIL_HOST_PASSWORD is set: No
+INFO 2025-06-02 00:30:56,204 views 12332 14864 .env file exists: No
+INFO 2025-06-02 00:30:56,205 views 12332 14864 Checking form validity...
+INFO 2025-06-02 00:30:56,210 views 12332 14864 Form is valid, proceeding with user creation...
+INFO 2025-06-02 00:30:56,210 views 12332 14864 Creating user with email: johnmarkgvales@gmail.com
+ERROR 2025-06-02 00:30:56,211 views 12332 14864 Error in user creation process: UserManager.create_user() missing 1 required positional argument: 'username'
+INFO 2025-06-02 00:30:56,212 basehttp 12332 14864 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:30:56,245 basehttp 12332 14864 "GET /manage-users/ HTTP/1.1" 200 18743
+INFO 2025-06-02 00:31:16,021 autoreload 12332 3564 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:31:16,845 autoreload 14080 14844 Watching for file changes with StatReloader
+INFO 2025-06-02 00:31:19,157 basehttp 14080 10436 "GET /manage-users/ HTTP/1.1" 200 18454
+INFO 2025-06-02 00:31:38,036 views 14080 13648 Starting user creation process...
+INFO 2025-06-02 00:31:38,036 views 14080 13648 Verifying email settings...
+INFO 2025-06-02 00:31:38,036 views 14080 13648 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-06-02 00:31:38,037 views 14080 13648 EMAIL_HOST: smtp.gmail.com
+INFO 2025-06-02 00:31:38,037 views 14080 13648 EMAIL_PORT: 587
+INFO 2025-06-02 00:31:38,037 views 14080 13648 EMAIL_USE_TLS: True
+INFO 2025-06-02 00:31:38,038 views 14080 13648 EMAIL_HOST_USER: None
+INFO 2025-06-02 00:31:38,038 views 14080 13648 EMAIL_HOST_PASSWORD is set: No
+INFO 2025-06-02 00:31:38,039 views 14080 13648 .env file exists: No
+INFO 2025-06-02 00:31:38,040 views 14080 13648 Checking form validity...
+INFO 2025-06-02 00:31:38,086 views 14080 13648 Form is valid, proceeding with user creation...
+INFO 2025-06-02 00:31:38,086 views 14080 13648 Creating user with email: johnmarkgvales@gmail.com
+INFO 2025-06-02 00:31:38,734 views 14080 13648 User created successfully with role: ADMIN
+INFO 2025-06-02 00:31:38,739 views 14080 13648 Added user to group: ADMIN
+INFO 2025-06-02 00:31:38,743 views 14080 13648 User profile created successfully
+INFO 2025-06-02 00:31:38,765 views 14080 13648 Attempting to send welcome email to johnmarkgvales@gmail.com...
+ERROR 2025-06-02 00:31:40,298 views 14080 13648 Failed to send welcome email: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. d9443c01a7336-23506bd9478sm57433555ad.77 - gsmtp', 'webmaster@localhost')
+INFO 2025-06-02 00:31:40,317 basehttp 14080 13648 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:31:40,348 basehttp 14080 13648 "GET /manage-users/ HTTP/1.1" 200 19237
+INFO 2025-06-02 00:31:47,198 basehttp 14080 3140 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:31:47,206 basehttp 14080 3140 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:31:47,228 basehttp 14080 3140 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-02 00:31:58,248 basehttp 14080 3764 "POST /accounts/login/ HTTP/1.1" 302 0
+WARNING 2025-06-02 00:31:58,257 basehttp 14080 3764 "GET /dashboard/ HTTP/1.1" 403 135
+INFO 2025-06-02 00:32:00,734 basehttp 14080 3764 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 00:32:03,032 basehttp 14080 3764 "GET /admin/auth/user/29/change/ HTTP/1.1" 200 30358
+INFO 2025-06-02 00:32:03,049 basehttp 14080 3764 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:32:05,662 basehttp 14080 11864 "GET /admin/auth/user/ HTTP/1.1" 200 28176
+INFO 2025-06-02 00:32:05,680 basehttp 14080 11864 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:32:13,703 basehttp 14080 9848 "GET /admin/auth/user/31/change/ HTTP/1.1" 200 30365
+INFO 2025-06-02 00:32:13,721 basehttp 14080 9848 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:33:37,258 autoreload 14080 14844 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-02 00:33:38,086 autoreload 13844 12056 Watching for file changes with StatReloader
+INFO 2025-06-02 00:34:13,815 autoreload 13844 12056 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:34:14,617 autoreload 7392 12764 Watching for file changes with StatReloader
+INFO 2025-06-02 00:34:28,116 basehttp 7392 5480 "GET /admin/auth/group/ HTTP/1.1" 200 13638
+INFO 2025-06-02 00:34:28,133 basehttp 7392 5480 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:34:29,779 basehttp 7392 5480 "GET /admin/auth/group/2/change/ HTTP/1.1" 200 20900
+INFO 2025-06-02 00:34:29,795 basehttp 7392 5480 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:35:21,110 autoreload 6648 4252 Watching for file changes with StatReloader
+INFO 2025-06-02 00:35:28,694 basehttp 6648 11676 "GET /admin/auth/group/2/change/ HTTP/1.1" 200 20968
+INFO 2025-06-02 00:35:28,712 basehttp 6648 11676 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:35:39,912 basehttp 6648 7872 "POST /admin/auth/group/2/change/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:35:39,939 basehttp 6648 7872 "GET /admin/auth/group/ HTTP/1.1" 200 13833
+INFO 2025-06-02 00:35:39,961 basehttp 6648 7872 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-02 00:35:48,080 basehttp 6648 13588 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:35:48,113 basehttp 6648 13588 "GET /dashboard/ HTTP/1.1" 200 13966
+INFO 2025-06-02 00:35:59,497 basehttp 6648 3000 "GET /property/ HTTP/1.1" 200 54872
+INFO 2025-06-02 00:35:59,523 basehttp 6648 7380 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 00:35:59,523 basehttp 6648 3000 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 00:36:02,397 basehttp 6648 3000 "GET /supplies/ HTTP/1.1" 200 57142
+INFO 2025-06-02 00:36:02,415 basehttp 6648 3000 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 00:36:04,318 basehttp 6648 10936 "GET /dashboard/ HTTP/1.1" 200 13966
+WARNING 2025-06-02 00:36:09,699 basehttp 6648 10936 "GET /my-damage-reports/ HTTP/1.1" 403 135
+INFO 2025-06-02 00:36:12,082 basehttp 6648 10936 "GET /dashboard/ HTTP/1.1" 200 13966
+WARNING 2025-06-02 00:36:14,310 basehttp 6648 2536 "GET /my-borrow-requests/ HTTP/1.1" 403 135
+INFO 2025-06-02 00:36:16,082 basehttp 6648 2536 "GET /dashboard/ HTTP/1.1" 200 13966
+WARNING 2025-06-02 00:36:22,417 basehttp 6648 2536 "GET /manage-users/ HTTP/1.1" 403 135
+INFO 2025-06-02 00:36:25,440 basehttp 6648 2136 "GET /dashboard/ HTTP/1.1" 200 13966
+INFO 2025-06-02 00:38:50,246 autoreload 6648 4252 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:38:51,108 autoreload 8476 5112 Watching for file changes with StatReloader
+INFO 2025-06-02 00:39:59,274 autoreload 8476 5112 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:40:00,104 autoreload 2432 10748 Watching for file changes with StatReloader
+INFO 2025-06-02 00:40:43,994 autoreload 2432 10748 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:40:44,736 autoreload 14936 5520 Watching for file changes with StatReloader
+INFO 2025-06-02 00:40:54,184 autoreload 14936 5520 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:40:54,968 autoreload 11328 10736 Watching for file changes with StatReloader
+INFO 2025-06-02 00:40:58,320 autoreload 11328 10736 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:40:59,133 autoreload 15104 8424 Watching for file changes with StatReloader
+INFO 2025-06-02 00:41:05,520 autoreload 15104 8424 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:41:06,407 autoreload 10296 13652 Watching for file changes with StatReloader
+INFO 2025-06-02 00:41:55,330 autoreload 10296 13652 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 00:41:56,180 autoreload 9756 12000 Watching for file changes with StatReloader
+INFO 2025-06-02 00:41:57,179 basehttp 9756 13728 "GET /dashboard/ HTTP/1.1" 200 13966
+INFO 2025-06-02 00:41:57,335 basehttp 9756 13728 "GET /dashboard/ HTTP/1.1" 200 13966
+INFO 2025-06-02 00:41:57,485 basehttp 9756 13728 "GET /dashboard/ HTTP/1.1" 200 13966
+INFO 2025-06-02 00:41:57,614 basehttp 9756 13728 "GET /dashboard/ HTTP/1.1" 200 13966
+INFO 2025-06-02 00:41:57,743 basehttp 9756 13728 "GET /dashboard/ HTTP/1.1" 200 13966
+INFO 2025-06-02 00:41:57,878 basehttp 9756 13728 "GET /dashboard/ HTTP/1.1" 200 13966
+INFO 2025-06-02 00:41:58,011 basehttp 9756 13728 "GET /dashboard/ HTTP/1.1" 200 13966
+INFO 2025-06-02 00:41:58,141 basehttp 9756 13728 "GET /dashboard/ HTTP/1.1" 200 13966
+INFO 2025-06-02 00:41:58,257 basehttp 9756 13728 "GET /dashboard/ HTTP/1.1" 200 13966
+INFO 2025-06-02 00:41:58,478 basehttp 9756 13728 "GET /dashboard/ HTTP/1.1" 200 13966
+INFO 2025-06-02 00:41:59,440 basehttp 9756 13728 "GET /property/ HTTP/1.1" 200 54872
+INFO 2025-06-02 00:42:29,815 basehttp 9756 5824 "GET /manage-users/ HTTP/1.1" 200 18750
+INFO 2025-06-02 00:42:50,143 basehttp 9756 10680 "GET /property/ HTTP/1.1" 200 54872
+INFO 2025-06-02 00:43:23,657 basehttp 9756 7392 "GET /dashboard/ HTTP/1.1" 200 13966
+INFO 2025-06-02 00:43:23,725 basehttp 9756 7392 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-02 00:43:24,461 basehttp 9756 12796 "GET /property/ HTTP/1.1" 200 54872
+INFO 2025-06-02 00:43:26,189 basehttp 9756 12796 "GET /supplies/ HTTP/1.1" 200 57142
+INFO 2025-06-02 00:43:27,253 basehttp 9756 12796 "GET /check-out/ HTTP/1.1" 200 2123
+INFO 2025-06-02 00:43:29,028 basehttp 9756 12796 "GET /supplies/ HTTP/1.1" 200 57142
+INFO 2025-06-02 00:43:34,906 basehttp 9756 7200 "GET /my-supply-requests/ HTTP/1.1" 200 12194
+INFO 2025-06-02 00:43:34,947 basehttp 9756 7200 "GET /static/scripts/filterStatus.js HTTP/1.1" 200 289
+INFO 2025-06-02 00:43:40,680 basehttp 9756 7200 "GET /request/36/ HTTP/1.1" 200 2747
+INFO 2025-06-02 00:43:42,190 basehttp 9756 7200 "GET /my-supply-requests/ HTTP/1.1" 200 12194
+INFO 2025-06-02 00:43:51,401 basehttp 9756 6940 "GET /request/41/ HTTP/1.1" 200 3134
+INFO 2025-06-02 00:43:55,471 basehttp 9756 8364 "POST /request/41/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:43:55,488 basehttp 9756 8364 "GET /my-supply-requests/ HTTP/1.1" 200 12302
+INFO 2025-06-02 00:43:57,076 basehttp 9756 8364 "GET /supplies/ HTTP/1.1" 200 57141
+INFO 2025-06-02 00:44:12,724 basehttp 9756 11028 "GET /get_supply_history/47/ HTTP/1.1" 200 879
+INFO 2025-06-02 00:44:39,687 basehttp 9756 9744 "GET /my-borrow-requests/ HTTP/1.1" 200 6255
+INFO 2025-06-02 00:44:40,586 basehttp 9756 9744 "GET /my-supply-requests/ HTTP/1.1" 200 12302
+INFO 2025-06-02 00:44:41,914 basehttp 9756 9744 "GET /my-borrow-requests/ HTTP/1.1" 200 6255
+INFO 2025-06-02 00:45:05,758 basehttp 9756 10264 "GET /property/ HTTP/1.1" 200 54872
+INFO 2025-06-02 00:45:32,561 basehttp 9756 11712 "GET /my-damage-reports/ HTTP/1.1" 200 4578
+INFO 2025-06-02 00:45:33,652 basehttp 9756 11712 "GET /my-reservations/ HTTP/1.1" 200 5982
+INFO 2025-06-02 00:45:35,460 basehttp 9756 9724 "GET /manage-users/ HTTP/1.1" 200 18750
+INFO 2025-06-02 00:45:41,475 basehttp 9756 9724 "GET /dashboard/ HTTP/1.1" 200 14441
+INFO 2025-06-02 00:55:40,156 basehttp 9756 6456 "GET /property/ HTTP/1.1" 200 54872
+INFO 2025-06-02 00:55:40,181 basehttp 9756 6456 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 00:55:43,308 basehttp 9756 6456 "GET /get_property_history/1/ HTTP/1.1" 200 1492
+INFO 2025-06-02 00:55:53,673 basehttp 9756 6456 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:55:53,702 basehttp 9756 6456 "GET /property/ HTTP/1.1" 200 55141
+INFO 2025-06-02 00:56:01,046 basehttp 9756 6456 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:56:01,083 basehttp 9756 6456 "GET /property/ HTTP/1.1" 200 55129
+INFO 2025-06-02 00:56:19,482 basehttp 9756 6456 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:56:19,506 basehttp 9756 6456 "GET /property/ HTTP/1.1" 200 55079
+INFO 2025-06-02 00:56:28,681 basehttp 9756 6456 "POST /edit-property/ HTTP/1.1" 302 0
+INFO 2025-06-02 00:56:28,705 basehttp 9756 6456 "GET /property/ HTTP/1.1" 200 55129

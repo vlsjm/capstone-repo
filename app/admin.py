@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import Supply, Property, SupplyRequest, Reservation, DamageReport, BorrowRequest, UserProfile, ActivityLog, Notification, SupplyQuantity, SupplyHistory, PropertyHistory, Department
+from .models import (
+    Supply, Property, SupplyRequest,
+    Reservation, DamageReport, BorrowRequest,
+    UserProfile, ActivityLog, Notification,
+    SupplyQuantity, SupplyHistory, PropertyHistory,
+    Department, PropertyCategory
+)
 
 admin.site.register(Supply)
 admin.site.register(Property)
@@ -14,4 +20,5 @@ admin.site.register(SupplyQuantity)
 admin.site.register(SupplyHistory)
 admin.site.register(PropertyHistory)
 admin.site.register(Department)
+admin.site.register(PropertyCategory)
 

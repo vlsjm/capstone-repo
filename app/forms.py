@@ -1,7 +1,7 @@
 from django import forms
 from .models import Property, Supply, SupplyQuantity
 from django.contrib.auth.models import User
-from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation, Department
+from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation, Department,PropertyCategory
 from datetime import date
 
 class DepartmentForm(forms.ModelForm):
@@ -74,52 +74,47 @@ class PropertyForm(forms.ModelForm):
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
             'property_number': forms.TextInput(attrs={'placeholder': 'Enter unique property number'}),
-            'overall_quantity': forms.NumberInput(attrs={'min': '0'}),
-            'quantity': forms.NumberInput(attrs={'min': '0'}),
+            'barcode': forms.TextInput(attrs={'placeholder': 'Enter barcode'}),
+            'unit_value': forms.NumberInput(attrs={'min': 0, 'step': '0.01'}),
+            'overall_quantity': forms.NumberInput(attrs={'min': 0}),
+            'quantity': forms.NumberInput(attrs={'min': 0, 'readonly': True}),
+            'category': forms.Select(attrs={'class': 'select2'}), 
+            'condition': forms.Select(attrs={'class': 'form-select'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Make only essential fields required
+
+        # Set required fields
+        for field in ['property_name', 'description', 'barcode', 'unit_of_measure', 
+                      'unit_value', 'overall_quantity', 'location', 'condition', 'category']:
+            self.fields[field].required = True
+
         self.fields['property_number'].required = False
-        self.fields['property_name'].required = True
-        self.fields['overall_quantity'].required = True
-        
-        # Make other fields optional
-        self.fields['description'].required = True
-        self.fields['barcode'].required = True
-        self.fields['unit_of_measure'].required = True
-        self.fields['unit_value'].required = True
-        self.fields['location'].required = True
-        self.fields['condition'].required = True
-        self.fields['category'].required = True
-        
-        # Handle quantity field
-        if not self.instance.pk:  # If this is a new property
+
+        # Handle quantity logic
+        if not self.instance.pk:
             self.fields['quantity'].required = False
             self.fields['quantity'].widget.attrs['disabled'] = True
-            self.fields['quantity'].widget.attrs['readonly'] = True
         else:
             self.fields['quantity'].required = True
             self.fields['quantity'].widget.attrs['readonly'] = True
+
+        # Optional: reorder categories or set placeholder
+        self.fields['category'].queryset = PropertyCategory.objects.all().order_by('name')
+        self.fields['category'].empty_label = "Select a category"
 
     def clean(self):
         cleaned_data = super().clean()
         overall_quantity = cleaned_data.get('overall_quantity')
         quantity = cleaned_data.get('quantity')
 
-        # For new properties, set quantity equal to overall_quantity
         if not self.instance.pk:
             cleaned_data['quantity'] = overall_quantity
-            return cleaned_data
+        elif overall_quantity is not None and quantity is not None:
+            if quantity > overall_quantity:
+                self.add_error('overall_quantity', 'Overall quantity cannot be less than current quantity.')
 
-        # For existing properties, validate quantity
-        if overall_quantity is not None and quantity is not None:
-            if overall_quantity < quantity:
-                raise forms.ValidationError({
-                    'overall_quantity': 'Overall quantity cannot be less than current quantity.'
-                })
-        
         return cleaned_data
 
 class SupplyForm(forms.ModelForm):

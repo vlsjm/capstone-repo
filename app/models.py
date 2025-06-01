@@ -280,17 +280,15 @@ class Supply(models.Model):
             ("view_checkout_page", "Can view checkout page"),
             ("view_user_dashboard", "Can view user dashboard"), #user side permissions
             ("view_user_module", "Can view user module"),
+            ("view_admin_module", "Can view admin module"),
         ]
+class PropertyCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class Property(models.Model):
-    CATEGORY_CHOICES = [
-        ('Office Equipment', 'Office Equipment'),
-        ('ICT Equipment', 'ICT Equipment'),
-        ('Communication Equipment', 'Communication Equipment'),
-        ('Other Machinery and Equipment', 'Other Machinery and Equipment'),
-        ('Furniture and Fixtures', 'Furniture and Fixtures'),
-    ]
-
     CONDITION_CHOICES = [
         ('In good condition', 'In good condition'),
         ('Needing repair', 'Needing repair'),
@@ -306,8 +304,8 @@ class Property(models.Model):
     ]
 
     property_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
-    property_name = models.CharField(max_length=100)  # Make this required
-    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, null=True, blank=True)
+    property_name = models.CharField(max_length=100)
+    category = models.ForeignKey(PropertyCategory, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     barcode = models.CharField(max_length=150, unique=True, null=True, blank=True)
     unit_of_measure = models.CharField(max_length=50, null=True, blank=True)
@@ -316,10 +314,10 @@ class Property(models.Model):
         blank=True, null=True,
         validators=[MinValueValidator(0)]
     )
-    overall_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)  # Set default to 0
-    quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)  # Set default to 0
+    overall_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
+    quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
     location = models.CharField(max_length=255, null=True, blank=True)
-    condition = models.CharField(max_length=100, choices=CONDITION_CHOICES, default='In good condition')  # Set default
+    condition = models.CharField(max_length=100, choices=CONDITION_CHOICES, default='In good condition')
     availability = models.CharField(max_length=20, choices=AVAILABILITY_CHOICES, default='available')
 
     def __str__(self):
@@ -830,8 +828,9 @@ class SupplyHistory(models.Model):
     class Meta:
         ordering = ['-timestamp']
 
-    def __str__(self):
-        return f"{self.supply.supply_name} - {self.action} by {self.user.username} at {self.timestamp}"
+def __str__(self):
+    user_display = self.user.username if self.user else "Unknown User"  
+    return f"{self.supply.supply_name} - {self.action} by {self.user.username} at {self.timestamp}"
 
 class PropertyHistory(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='history')
@@ -846,5 +845,6 @@ class PropertyHistory(models.Model):
     class Meta:
         ordering = ['-timestamp']
 
-    def __str__(self):
-        return f"{self.property.property_name} - {self.action} by {self.user.username} at {self.timestamp}"
+def __str__(self):
+    user_display = self.user.username if self.user else "Unknown User"  
+    return f"{self.property.property_name} - {self.action} by {self.user.username} at {self.timestamp}"

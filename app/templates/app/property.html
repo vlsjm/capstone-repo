@@ -5,9 +5,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Property List</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
+      /* Fix Select2 text weight */
+      .select2-container--default .select2-selection--single,
+      .select2-container--default .select2-results__option {
+        font-weight: normal !important;
+      }
+
+      /* Optional: also fix placeholder */
+      .select2-container--default .select2-selection__placeholder {
+        font-weight: normal !important;
+        color: #888; /* lighter placeholder color */
+      }
       /* Success message modal style */
       .success-container {
         position: fixed;
@@ -193,6 +207,9 @@
           <!-- Add Property Button -->
     <div class="add-property-container">
       <button id="openModalBtn" class="add-btn">+ Add Property</button>
+
+      <button id="openCategoryModalBtn" class="add-btn">+ Add Category</button>
+
     </div>
 
       {% if grouped_properties %}
@@ -261,7 +278,7 @@
                     data-quantity="{{ property.quantity }}"
                     data-location="{{ property.location }}"
                     data-condition="{{ property.condition }}"
-                    data-category="{{ property.category }}"
+                    data-category="{{ property.category.id }}"
                     data-availability="{{ property.availability }}"
                     title="Edit">
                     <i class="fas fa-edit"></i>
@@ -298,6 +315,20 @@
         <p>No properties available.</p>
       {% endif %}
     </div>
+
+    <div id="categoryModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close" id="closeCategoryModalBtn">&times;</span>
+      <h2>Add New Category</h2>
+      <form id="addCategoryForm" method="POST" action="{% url 'add_category' %}">
+        {% csrf_token %}
+        <label for="categoryName">Category Name:</label>
+        <input type="text" name="name" id="categoryName" required>
+
+        <button type="submit" class="submit-btn">Add Category</button>
+      </form>
+    </div>
+  </div>
 
     <!-- Add Property Modal -->
     <div id="addPropertyModal" class="modal">
@@ -365,14 +396,20 @@
         <option value="Not used since purchased">Not used since purchased</option>
       </select>
 
+      <!-- <label>Category</label>
+      <select id="edit_category" name="category">
+      <option value="">Select Category</option>
+      {% for category in categories %}
+      <option value="{{ category.id }}">{{ category.name }}</option>
+      {% endfor %}
+      </select> -->
+
       <label>Category</label>
-      <select name="category" id="edit_category">
+      <select id="edit_category" name="category" class="select2-edit" required>
         <option value="">Select Category</option>
-        <option value="Office Equipment">Office Equipment</option>
-        <option value="ICT Equipment">ICT Equipment</option>
-        <option value="Communication Equipment">Communication Equipment</option>
-        <option value="Other Machinery and Equipment">Other Machinery and Equipment</option>
-        <option value="Furniture and Fixtures">Furniture and Fixtures</option>
+        {% for category in categories %}
+        <option value="{{ category.id }}">{{ category.name }}</option>
+        {% endfor %}
       </select>
 
       <label>Availability</label>
@@ -413,6 +450,25 @@
 </div>
 
     <script src="{% static 'scripts/propertyModal.js' %}"></script>
+    <script src="{% static 'scripts/categoryModal.js' %}"></script>
+
+    <!-- Select2 CSS -->
+
+    <!-- jQuery (required) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+  $(document).ready(function() {
+    $('.select2').select2({
+      width: '100%',
+      placeholder: "Select a category",
+      allowClear: true
+    });
+  });
+    </script>
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {
@@ -475,6 +531,16 @@
 
                 // Show the modal
                 editModal.style.display = 'block';
+
+                if ($('#edit_category').hasClass("select2-hidden-accessible")) {
+                $('#edit_category').select2('destroy');
+                }
+                $('#edit_category').select2({
+                width: '100%',
+                placeholder: "Select a category",
+                allowClear: true,
+                dropdownParent: $('#editPropertyModal')
+    });
                 
                 // Update availability based on condition
                 setTimeout(updateAvailability, 100);

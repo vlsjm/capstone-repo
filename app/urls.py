@@ -36,7 +36,10 @@ from .views import (
     get_supply_history,
     get_property_history,
     CustomLoginView,
-    create_department
+    create_department,
+    add_property_category
+
+
 )
 
 urlpatterns = [
@@ -57,6 +60,8 @@ urlpatterns = [
     path('add-property/', add_property, name='add_property'),
     path('edit-property/', edit_property, name='edit_property'),
     path('delete-property/<int:pk>/', delete_property, name='delete_property'),
+
+    path('add-category/', add_property_category, name='add_category'),
 
     path('check-out/', CheckOutPageView.as_view(), name='checkout'),
 

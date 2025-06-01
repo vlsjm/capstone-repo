@@ -10,7 +10,13 @@ from django.core.exceptions import ValidationError
 
 from django.views import View
 from django.contrib.auth import login, authenticate
-from .models import Supply, Property, BorrowRequest, SupplyRequest, DamageReport, Reservation, ActivityLog, UserProfile, Notification, SupplyQuantity, SupplyHistory, PropertyHistory, Department
+from .models import(
+    Supply, Property, BorrowRequest,
+    SupplyRequest, DamageReport, Reservation,
+    ActivityLog, UserProfile, Notification,
+    SupplyQuantity, SupplyHistory, PropertyHistory,
+    Department, PropertyCategory
+)
 from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -78,10 +84,14 @@ def create_user(request):
                     last_name=form.cleaned_data['last_name'],
                     email=form.cleaned_data['email'],
                     password=initial_password,
-                )
+        )
+                user.is_staff = True
+
+                user.save()
+
                 role = form.cleaned_data['role']  
                 logger.info(f"User created successfully with role: {role}")
-
+            
                 # Add user to group
                 try:
                     group = Group.objects.get(name=role)
@@ -395,7 +405,7 @@ def request_detail(request, pk):
 class UserProfileListView(PermissionRequiredMixin, ListView):
     model = UserProfile
     template_name = 'app/manage_users.html'
-    permission_required = 'app.view_user_profile'
+    permission_required = 'app.view_admin_module'
     context_object_name = 'users'
 
     def get_context_data(self, **kwargs):
@@ -406,7 +416,7 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
 
 class DashboardPageView(PermissionRequiredMixin,TemplateView):
     template_name = 'app/dashboard.html'
-    permission_required = 'app.view_admin_dashboard'  
+    permission_required = 'app.view_admin_module'  
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -625,7 +635,7 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
 class ActivityPageView(PermissionRequiredMixin, ListView):
     model = ActivityLog
     template_name = 'app/activity.html'
-    permission_required = 'app.view_activity_log'
+    permission_required = 'app.view_admin_module'
     permission_denied_message = "You do not have permission to view the activity log."
     context_object_name = 'activitylog_list'
     paginate_by = 10
@@ -673,7 +683,7 @@ class ActivityPageView(PermissionRequiredMixin, ListView):
 class UserBorrowRequestListView(PermissionRequiredMixin, ListView):
     model = BorrowRequest
     template_name = 'app/borrow.html'
-    permission_required = 'app.view_borrow_request'
+    permission_required = 'app.view_admin_module'
     context_object_name = 'borrow_requests'
     paginate_by = 10
 
@@ -698,7 +708,7 @@ class UserBorrowRequestListView(PermissionRequiredMixin, ListView):
 class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
     model = SupplyRequest
     template_name = 'app/requests.html'
-    permission_required = 'app.view_supply_request'
+    permission_required = 'app.view_admin_module'
     context_object_name = 'requests'
     paginate_by = 10
     
@@ -720,7 +730,7 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
 class UserDamageReportListView(PermissionRequiredMixin, ListView):
     model = DamageReport
     template_name = 'app/reports.html'
-    permission_required = 'app.view_damage_report'
+    permission_required = 'app.view_admin_module'
     context_object_name = 'damage_reports'
     paginate_by = 10
     
@@ -741,7 +751,7 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
 class UserReservationListView(PermissionRequiredMixin, ListView):
     model = Reservation
     template_name = 'app/reservation.html'
-    permission_required = 'app.view_reservation'
+    permission_required = 'app.view_admin_module'
     context_object_name = 'reservations'  # all reservations
     paginate_by = 10
 
@@ -763,7 +773,7 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
 class SupplyListView(PermissionRequiredMixin, ListView):
     model = Supply
     template_name = 'app/supply.html'
-    permission_required = 'app.view_supply'
+    permission_required = 'app.view_admin_module'
     context_object_name = 'supplies'
     paginate_by = None  # Disable default pagination as we'll handle it per category
 
@@ -806,7 +816,7 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         context['grouped_supplies'] = paginated_groups
         return context
 
-@permission_required('app.view_supply')
+@permission_required('app.view_admin_module')
 def add_supply(request):
     if request.method == 'POST':
         form = SupplyForm(request.POST)
@@ -945,12 +955,13 @@ class PropertyListView(PermissionRequiredMixin, ListView):
     model = Property
     template_name = 'app/property.html'
     context_object_name = 'properties'
-    permission_required = 'app.view_property'
+    permission_required = 'app.view_admin_module'
     paginate_by = None  # Disable default pagination as we'll handle it per category
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = PropertyForm()
+        context['categories'] = PropertyCategory.objects.all()
 
         # Get all properties
         properties = Property.objects.all()
@@ -958,7 +969,7 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         # Group properties by category
         grouped = defaultdict(list)
         for prop in properties:
-            grouped[prop.get_category_display()].append(prop)
+            grouped[prop.category.name].append(prop)
 
         # Create paginated groups
         paginated_groups = {}
@@ -1040,43 +1051,66 @@ def edit_property(request):
                 'availability': property_obj.availability
             }
 
-            # Update property fields
+            # Update property fields from POST data
             property_obj.property_number = request.POST.get('property_number')
             property_obj.property_name = request.POST.get('property_name')
             property_obj.description = request.POST.get('description')
             property_obj.barcode = request.POST.get('barcode')
             property_obj.unit_of_measure = request.POST.get('unit_of_measure')
-            property_obj.unit_value = request.POST.get('unit_value')
-            property_obj.overall_quantity = int(request.POST.get('overall_quantity', 0))
+
+            # Convert unit_value to float safely
+            try:
+                property_obj.unit_value = float(request.POST.get('unit_value', 0))
+            except (TypeError, ValueError):
+                property_obj.unit_value = 0
+
+            # Convert overall_quantity to int safely
+            try:
+                property_obj.overall_quantity = int(request.POST.get('overall_quantity', 0))
+            except (TypeError, ValueError):
+                property_obj.overall_quantity = 0
+
             property_obj.location = request.POST.get('location')
-            property_obj.category = request.POST.get('category')
-            
+
+            # Handle ForeignKey category assignment
+            category_id = request.POST.get('category')
+            if category_id:
+                property_obj.category = get_object_or_404(PropertyCategory, id=category_id)
+            else:
+                property_obj.category = None  # or keep existing?
+
             # Handle condition and availability
             new_condition = request.POST.get('condition')
             property_obj.condition = new_condition
-            
-            # Set availability based on condition
+
             unavailable_conditions = ['Needing repair', 'Unserviceable', 'No longer needed', 'Obsolete']
             if new_condition in unavailable_conditions:
                 property_obj.availability = 'not_available'
             else:
-                # Only use the submitted availability if condition allows it
+                # Only use submitted availability if condition allows it
                 property_obj.availability = request.POST.get('availability')
-            
-            # Save property with user information
+
+            # Save the updated property, assuming your model's save method accepts user param
             property_obj.save(user=request.user)
 
-            # Create activity log for the update
+            # Create activity log for changes
             changes = []
             for field, old_value in old_values.items():
                 new_value = getattr(property_obj, field)
-                if str(old_value) != str(new_value):
-                    if field == 'overall_quantity':
-                        changes.append(f"overall quantity: {old_value} → {new_value} (current quantity updated accordingly)")
-                    elif field == 'condition' and new_value in unavailable_conditions:
-                        changes.append(f"condition: {old_value} → {new_value} (automatically set availability to Not Available)")
-                    else:
-                        changes.append(f"{field.replace('_', ' ')}: {old_value} → {new_value}")
+                # For category FK, compare by id or name for clarity
+                if field == 'category':
+                    old_val_repr = old_value.name if old_value else 'None'
+                    new_val_repr = new_value.name if new_value else 'None'
+                    if old_val_repr != new_val_repr:
+                        changes.append(f"category: {old_val_repr} → {new_val_repr}")
+                else:
+                    if str(old_value) != str(new_value):
+                        if field == 'overall_quantity':
+                            changes.append(f"overall quantity: {old_value} → {new_value} (current quantity updated accordingly)")
+                        elif field == 'condition' and new_value in unavailable_conditions:
+                            changes.append(f"condition: {old_value} → {new_value} (automatically set availability to Not Available)")
+                        else:
+                            changes.append(f"{field.replace('_', ' ')}: {old_value} → {new_value}")
 
             if changes:
                 ActivityLog.log_activity(
@@ -1088,11 +1122,13 @@ def edit_property(request):
                 )
 
             messages.success(request, 'Property updated successfully!')
+
         except Exception as e:
             messages.error(request, f'Error updating property: {str(e)}')
-        return redirect('property_list')
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
+        return redirect('property_list')
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def delete_property(request, pk):
     prop = get_object_or_404(Property, pk=pk)
@@ -1113,10 +1149,16 @@ def delete_property(request, pk):
         messages.success(request, 'Property deleted successfully.')
     return redirect('property_list')
 
+def add_property_category(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        if name:
+            PropertyCategory.objects.create(name=name)
+    return redirect('property_list') 
 
 class CheckOutPageView(PermissionRequiredMixin, TemplateView):
     template_name = 'app/checkout.html'
-    permission_required = 'app.view_checkout_page'  # Adjust permission as needed
+    permission_required = 'app.view_admin_module'  # Adjust permission as needed
 
 class LandingPageView(TemplateView):
     """View for the landing page that provides login options for both admin and regular users."""
