@@ -122,27 +122,7 @@ class SupplyForm(forms.ModelForm):
 
     class Meta:
         model = Supply
-        fields = [
-            'supply_name',
-            'category',
-            'subcategory',
-            'description',
-            'available_for_request',
-            'date_received',
-            'expiration_date',
-        ]
-        widgets = {
-            'date_received': forms.DateInput(attrs={'type': 'date'}),
-            'expiration_date': forms.DateInput(attrs={'type': 'date'}),
-            'description': forms.Textarea(attrs={'rows': 3}),
-            'category': forms.Select(attrs={'id': 'id_category'}),
-            'subcategory': forms.Select(attrs={'id': 'id_subcategory'}),
-            'available_for_request': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
-        help_texts = {
-            'expiration_date': 'Optional. Leave empty if the supply does not expire.',
-            'available_for_request': 'Check if this item should be available for staff requests',
-        }
+        fields = ['supply_name', 'category', 'subcategory', 'description', 'date_received', 'expiration_date']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -150,8 +130,12 @@ class SupplyForm(forms.ModelForm):
         # Description and expiration_date are optional
         self.fields['description'].required = False
         self.fields['expiration_date'].required = False
+        self.fields['subcategory'].required = False
 
-        # Load all subcategories (no filtering by category possible)
+        # Load all categories
+        self.fields['category'].queryset = SupplyCategory.objects.all().order_by('name')
+        
+        # Load all subcategories (will be filtered by JavaScript)
         self.fields['subcategory'].queryset = SupplySubcategory.objects.all().order_by('name')
 
         # If editing existing instance, load quantities if exists
@@ -188,6 +172,7 @@ class SupplyForm(forms.ModelForm):
             )
 
         return supply
+
 class SupplyRequestForm(forms.ModelForm):
     class Meta:
         model = SupplyRequest

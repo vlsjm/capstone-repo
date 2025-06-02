@@ -19,7 +19,8 @@ from .models import(
     SupplyRequest, DamageReport, Reservation,
     ActivityLog, UserProfile, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
-    Department, PropertyCategory, SupplySubcategory
+    Department, PropertyCategory, SupplySubcategory,
+    SupplyCategory
 )
 from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm, SupplyCategoryForm, SupplySubcategoryForm
 from django.contrib.auth.forms import AuthenticationForm
@@ -821,29 +822,37 @@ class SupplyListView(PermissionRequiredMixin, ListView):
             supplies_by_category[supply.category].append(supply)
         
         context['supplies_by_category'] = dict(supplies_by_category)
-        context['categories'] = SupplySubcategory.objects.all()
+        context['categories'] = SupplyCategory.objects.all()
+        context['subcategories'] = SupplySubcategory.objects.select_related('category').all()
         context['form'] = SupplyForm()
+        context['supply_list'] = Supply.objects.all()  # For modify quantity modal
         
         return context
     
 def get_subcategories(request):
-            category_id = request.GET.get('category_id')
-            subcategories = SupplySubcategory.objects.filter(category_id=category_id).values('id', 'name')
-            return JsonResponse({'subcategories': list(subcategories)})
-        
+    category_id = request.GET.get('category_id')
+    if category_id:
+        subcategories = SupplySubcategory.objects.filter(category_id=category_id).values('id', 'name')
+        return JsonResponse({'subcategories': list(subcategories)})
+    return JsonResponse({'subcategories': []})
+
 class AddSupplyCategoryView(View):
     def post(self, request):
         form = SupplyCategoryForm(request.POST)
         if form.is_valid():
-            form.save()
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+            category = form.save()
+            messages.success(request, 'Category added successfully.')
+        return redirect('supply_list')
 
 class AddSupplySubcategoryView(View):
     def post(self, request):
         form = SupplySubcategoryForm(request.POST)
         if form.is_valid():
-            form.save()
-        return redirect(request.META.get('HTTP_REFERER', '/'))   
+            subcategory = form.save()
+            messages.success(request, 'Subcategory added successfully.')
+        else:
+            messages.error(request, 'Error adding subcategory.')
+        return redirect('supply_list')   
 
 @permission_required('app.view_admin_module')
 def add_supply(request):

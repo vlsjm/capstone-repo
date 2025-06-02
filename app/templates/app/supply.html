@@ -511,442 +511,468 @@ tr.hidden {
     <div id="categoryModal" class="modal" style="display:none;">
       <div class="modal-content" style="height: 250px;">
         <span class="close" id="closeCategory">&times;</span>
-        <h2>Select or Add Category</h2>
-        <form id="categoryForm" method="post" action="{% url 'add_category_supply' %}">
-      {% csrf_token %}
-      {{ category_form.as_p }}
-      <button type="submit" class="submit-btn">Next</button>
-    </form>
-      </form>
-    </div>
-  </div>
-
-  <!-- Category Modal -->
-  <div id="categoryModal" class="modal" style="display:none;">
-    <div class="modal-content" style="height: 250px;">
-      <span class="close" id="closeCategory">&times;</span>
-      <h2>Add New Category</h2>
-      <form method="POST" action="{% url 'add_category' %}">
-        {% csrf_token %}
-        {{ category_form.as_p }}
-        <button type="submit" class="submit-btn">Add Category</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Subcategory Modal -->
-  <div id="subcategoryModal" class="modal" style="display:none;">
-    <div class="modal-content" style="height: 250px;">
-      <span class="close" id="closeSubcategory">&times;</span>
-      <h2>Add New Subcategory</h2>
-      <form method="POST" action="/add-subcategory/">
-        {% csrf_token %}
-        {{ subcategory_form.as_p }}
-        <button type="submit" class="submit-btn">Add Subcategory</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Add Supply Modal -->
-  <div id="addSupplyModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeModalBtn">&times;</span>
-      <h3>Add New Supply</h3>
-      <form method="POST" action="{% url 'add_supply' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="submit-btn">Submit</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Edit Supply Modal -->
-  <div id="editSupplyModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeEditModalBtn">&times;</span>
-      <h3>Edit Supply</h3>
-      <form method="POST" action="{% url 'edit_supply' %}">
-        {% csrf_token %}
-        <input type="hidden" name="id" id="edit_id" />
-        
-        <div class="form-group">
-          <label>Supply Name</label>
-          <input type="text" name="supply_name" id="edit_name" required />
-        </div>
-
-        <div class="form-group">
-          <label>Current Quantity</label>
-          <input type="number" name="current_quantity" id="edit_current_quantity" required min="0" />
-        </div>
-
-        <div class="form-group">
-          <label>Minimum Threshold</label>
-          <input type="number" name="minimum_threshold" id="edit_minimum_threshold" required min="0" />
-        </div>
-
-        <div class="form-group">
-          <label>Category</label>
-          <select name="category" id="edit_category" required>
-            {% for value, label in form.fields.category.choices %}
-              <option value="{{ value }}">{{ label }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Sub Category</label>
-          <select name="subcategory" id="edit_subcategory" required>
-            {% for value, label in form.fields.subcategory.choices %}
-              <option value="{{ value }}">{{ label }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Description</label>
-          <textarea name="description" id="edit_description" rows="3"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Date Received</label>
-          <input type="date" name="date_received" id="edit_date" required />
-        </div>
-
-        <div class="form-group">
-          <label>Expiration Date (Optional)</label>
-          <input type="date" name="expiration_date" id="edit_expiration_date" />
-          <small class="help-text">Leave empty if the supply does not expire.</small>
-        </div>
-
-        <button type="submit" class="submit-btn">Update</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modify Quantity Modal -->
-  <div id="modifyQuantityModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeModifyQuantityModalBtn">&times;</span>
-      <h3>Modify Supply Quantity</h3>
-
-      <form method="post" action="{% url 'modify_supply_quantity_generic' %}">
-        {% csrf_token %}
-
-        <!-- Action Selector -->
-        <label for="action_type">Action</label>
-        <select name="action_type" id="action_type" required class="type-box">
-          <option value="">Select Action</option>
-          <option value="add">Add</option>
-          <option value="remove">Remove</option>
-        </select>
-
-        <!-- Supply Dropdown (Searchable) -->
-        <label for="supply_id">Supply</label>
-        <select name="supply_id" id="supply_id" class="select2" required style="width: 100%;">
-          <option value="">Select Supply</option>
-          {% for supply in supply_list %}
-          <option value="{{ supply.pk }}">{{ supply.supply_name }} (Current Quantity: {{ supply.quantity_info.current_quantity }})</option>
-          {% endfor %}
-        </select>
-
-        <!-- Quantity -->
-        <label for="amount">Amount</label>
-        <input type="number" name="amount" id="amount" min="1" required class="type-box" />
-
-        <button type="submit" class="submit-btn">Submit</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- History Modal -->
-  <div id="historyModal" class="history-modal">
-    <div class="history-modal-content">
-      <span class="close" id="closeHistoryModalBtn">&times;</span>
-      <h3>Supply History</h3>
-      
-      <div id="historyContent">
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Action</th>
-              <th>Field</th>
-              <th>Previous Value</th>
-              <th>New Value</th>
-              <th>Changed By</th>
-            </tr>
-          </thead>
-          <tbody id="historyTableBody">
-            <!-- History data will be populated here -->
-          </tbody>
-        </table>
+        <h2>Add New Category</h2>
+        <form method="POST" action="{% url 'add_category_supply' %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="categoryName">Category Name:</label>
+            <input type="text" name="name" id="categoryName" required class="form-control">
+          </div>
+          <button type="submit" class="submit-btn">Add Category</button>
+        </form>
       </div>
     </div>
-  </div>
 
- 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initialize Select2 for the supply dropdown in modify modal
-      if ($('#supply_id').length) {
-        $('#supply_id').select2({
-          width: '100%',
-          placeholder: "Search for a supply...",
-          allowClear: true,
-          dropdownParent: $('#modifyQuantityModal')
-        });
-      }
+    <!-- Subcategory Modal -->
+    <div id="subcategoryModal" class="modal" style="display:none;">
+      <div class="modal-content" style="height: 250px;">
+        <span class="close" id="closeSubcategory">&times;</span>
+        <h2>Add New Subcategory</h2>
+        <form method="POST" action="{% url 'add_subcategory' %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="subcategoryName">Subcategory Name:</label>
+            <input type="text" name="name" id="subcategoryName" required class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="categorySelect">Category:</label>
+            <select name="category" id="categorySelect" required class="form-control">
+              <option value="">Select Category</option>
+              {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="submit-btn">Add Subcategory</button>
+        </form>
+      </div>
+    </div>
 
-      // Auto-hide success messages after 2 seconds
-      const successMessage = document.querySelector('.success-container');
-      if (successMessage) {
-        setTimeout(function() {
-          successMessage.style.opacity = '0';
-          successMessage.style.transition = 'opacity 0.3s ease-out';
-          setTimeout(function() {
-            successMessage.remove();
-          }, 300);
-        }, 2000);
-      }
+    <!-- Add Supply Modal -->
+    <div id="addSupplyModal" class="modal">
+      <div class="modal-content">
+        <span class="close" id="closeModalBtn">&times;</span>
+        <h3>Add New Supply</h3>
+        <form method="POST" action="{% url 'add_supply' %}">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit" class="submit-btn">Submit</button>
+        </form>
+      </div>
+    </div>
 
-      // category modals
-          const categoryModal = document.getElementById('categoryModal');
-          const subcategoryModal = document.getElementById('subcategoryModal');
-
-          // Get buttons that open modals
-          const openCategoryBtn = document.getElementById('openCategoryBtn');
-          const openSubcategoryBtn = document.getElementById('openSubcategoryBtn');
-
-          // Get <span> elements that close modals
-          const closeCategory = document.getElementById('closeCategory');
-          const closeSubcategory = document.getElementById('closeSubcategory');
-
-          // Open modals
-          openCategoryBtn.onclick = () => categoryModal.style.display = 'flex';
-          openSubcategoryBtn.onclick = () => subcategoryModal.style.display = 'flex';
-
-          // Close modals
-          closeCategory.onclick = () => categoryModal.style.display = 'none';
-          closeSubcategory.onclick = () => subcategoryModal.style.display = 'none';
-
-          // Close modal if clicking outside modal-content
-          window.onclick = (e) => {
-            if (e.target === categoryModal) categoryModal.style.display = 'none';
-            if (e.target === subcategoryModal) subcategoryModal.style.display = 'none';
-          };
-
-
-      // Modify Quantity Modal
-      const modifyQuantityModal = document.getElementById("modifyQuantityModal");
-      const openModifyQuantityModalBtn = document.getElementById("openModifyQuantityModalBtn");
-      const closeModifyQuantityModalBtn = document.getElementById("closeModifyQuantityModalBtn");
-
-      openModifyQuantityModalBtn.onclick = function() {
-        modifyQuantityModal.style.display = "block";
-      }
-
-      closeModifyQuantityModalBtn.onclick = function() {
-        modifyQuantityModal.style.display = "none";
-      }
-
-      // Close modals when clicking outside
-      window.onclick = function(event) {
-        if (event.target == addSupplyModal) {
-          addSupplyModal.style.display = "none";
-        } else if (event.target == editSupplyModal) {
-          editSupplyModal.style.display = "none";
-        } else if (event.target == modifyQuantityModal) {
-          modifyQuantityModal.style.display = "none";
-        } else if (event.target == historyModal) {
-          historyModal.style.display = "none";
-        }
-      }
-
-      // Edit Supply Modal
-      const editModal = document.getElementById("editSupplyModal");
-      const closeEditBtn = document.getElementById("closeEditModalBtn");
-
-      document.querySelectorAll(".edit-btn").forEach(button => {
-        button.addEventListener("click", () => {
-          document.getElementById("edit_id").value = button.dataset.id;
-          document.getElementById("edit_name").value = button.dataset.name;
-          document.getElementById("edit_current_quantity").value = button.dataset.currentQuantity;
-          document.getElementById("edit_minimum_threshold").value = button.dataset.minimumThreshold;
-          document.getElementById("edit_category").value = button.dataset.category;
-          document.getElementById("edit_subcategory").value = button.dataset.subcategory;
-          document.getElementById("edit_description").value = button.dataset.description || '';
-          document.getElementById("edit_date").value = button.dataset.date;
-          document.getElementById("edit_expiration_date").value = button.dataset.expirationDate || '';
-          editModal.style.display = "block";
-        });
-      });
-
-      closeEditBtn.onclick = () => editModal.style.display = "none";
-      window.addEventListener("click", event => {
-        if (event.target === editModal) {
-          editModal.style.display = "none";
-        }
-      });
-
-      // History Modal functionality
-      const historyModal = document.getElementById('historyModal');
-      const historyBtns = document.querySelectorAll('.history-btn');
-      const closeHistoryModalBtn = document.getElementById('closeHistoryModalBtn');
-
-      if (!historyModal || !historyBtns.length || !closeHistoryModalBtn) {
-        console.error('Missing required elements:', {
-          historyModal: !!historyModal,
-          historyBtns: historyBtns.length,
-          closeHistoryModalBtn: !!closeHistoryModalBtn
-        });
-        return;
-      }
-
-      historyBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-          const supplyId = this.dataset.id;
-          historyModal.style.display = 'block';
+    <!-- Edit Supply Modal -->
+    <div id="editSupplyModal" class="modal">
+      <div class="modal-content">
+        <span class="close" id="closeEditModalBtn">&times;</span>
+        <h3>Edit Supply</h3>
+        <form method="POST" action="{% url 'edit_supply' %}">
+          {% csrf_token %}
+          <input type="hidden" name="id" id="edit_id" />
           
-          // Fetch history data
-          fetch(`/get_supply_history/${supplyId}/`)
-            .then(response => response.json())
-            .then(data => {
-              // Populate history table
-              const historyTableBody = document.getElementById('historyTableBody');
-              historyTableBody.innerHTML = '';
-              if (data.history.length === 0) {
-                historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No changes have been made to this supply yet.</td></tr>';
-              } else {
-                data.history.forEach(entry => {
-                  const row = document.createElement('tr');
-                  row.innerHTML = `
-                    <td>${entry.date}</td>
-                    <td>${entry.action}</td>
-                    <td>${entry.field_name}</td>
-                    <td>${entry.old_value}</td>
-                    <td>${entry.new_value}</td>
-                    <td>${entry.user}</td>
-                  `;
-                  historyTableBody.appendChild(row);
-                });
-              }
-            })
-            .catch(error => {
-              console.error('Error fetching history:', error);
-              historyTableBody.innerHTML = '<tr><td colspan="6">Error loading history data</td></tr>';
-            });
-        });
-      });
+          <div class="form-group">
+            <label>Supply Name</label>
+            <input type="text" name="supply_name" id="edit_name" required />
+          </div>
 
-      closeHistoryModalBtn.addEventListener('click', function() {
-        historyModal.style.display = 'none';
-      });
+          <div class="form-group">
+            <label>Current Quantity</label>
+            <input type="number" name="current_quantity" id="edit_current_quantity" required min="0" />
+          </div>
 
-      window.addEventListener('click', function(event) {
-        if (event.target == historyModal) {
-          historyModal.style.display = 'none';
+          <div class="form-group">
+            <label>Minimum Threshold</label>
+            <input type="number" name="minimum_threshold" id="edit_minimum_threshold" required min="0" />
+          </div>
+
+          <div class="form-group">
+            <label>Category</label>
+            <select name="category" id="edit_category" required>
+              {% for value, label in form.fields.category.choices %}
+                <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Sub Category</label>
+            <select name="subcategory" id="edit_subcategory" required>
+              {% for value, label in form.fields.subcategory.choices %}
+                <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" id="edit_description" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Date Received</label>
+            <input type="date" name="date_received" id="edit_date" required />
+          </div>
+
+          <div class="form-group">
+            <label>Expiration Date (Optional)</label>
+            <input type="date" name="expiration_date" id="edit_expiration_date" />
+            <small class="help-text">Leave empty if the supply does not expire.</small>
+          </div>
+
+          <button type="submit" class="submit-btn">Update</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modify Quantity Modal -->
+    <div id="modifyQuantityModal" class="modal">
+      <div class="modal-content">
+        <span class="close" id="closeModifyQuantityModalBtn">&times;</span>
+        <h3>Modify Supply Quantity</h3>
+
+        <form method="post" action="{% url 'modify_supply_quantity_generic' %}">
+          {% csrf_token %}
+
+          <!-- Action Selector -->
+          <label for="action_type">Action</label>
+          <select name="action_type" id="action_type" required class="type-box">
+            <option value="">Select Action</option>
+            <option value="add">Add</option>
+            <option value="remove">Remove</option>
+          </select>
+
+          <!-- Supply Dropdown (Searchable) -->
+          <label for="supply_id">Supply</label>
+          <select name="supply_id" id="supply_id" class="select2" required style="width: 100%;">
+            <option value="">Select Supply</option>
+            {% for supply in supply_list %}
+            <option value="{{ supply.pk }}">{{ supply.supply_name }} (Current Quantity: {{ supply.quantity_info.current_quantity }})</option>
+            {% endfor %}
+          </select>
+
+          <!-- Quantity -->
+          <label for="amount">Amount</label>
+          <input type="number" name="amount" id="amount" min="1" required class="type-box" />
+
+          <button type="submit" class="submit-btn">Submit</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="history-modal">
+      <div class="history-modal-content">
+        <span class="close" id="closeHistoryModalBtn">&times;</span>
+        <h3>Supply History</h3>
+        
+        <div id="historyContent">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Action</th>
+                <th>Field</th>
+                <th>Previous Value</th>
+                <th>New Value</th>
+                <th>Changed By</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <!-- History data will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+   
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Select2 for the supply dropdown in modify modal
+        if ($('#supply_id').length) {
+          $('#supply_id').select2({
+            width: '100%',
+            placeholder: "Search for a supply...",
+            allowClear: true,
+            dropdownParent: $('#modifyQuantityModal')
+          });
         }
-      });
 
-      // Add search functionality
-      const searchInput = document.getElementById('searchInput');
-      const tables = document.getElementsByClassName('searchable-table');
-
-      searchInput.addEventListener('keyup', function() {
-        const searchTerm = this.value.toLowerCase();
-
-        for (let table of tables) {
-          const rows = table.getElementsByTagName('tr');
-
-          // Start from 1 to skip header row
-          for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            const cells = row.getElementsByTagName('td');
-            let found = false;
-
-            for (let cell of cells) {
-              if (cell.textContent.toLowerCase().includes(searchTerm)) {
-                found = true;
-                break;
-              }
-            }
-
-            if (found) {
-              row.classList.remove('hidden');
-            } else {
-              row.classList.add('hidden');
-            }
-          }
-
-          // Show/hide category headers based on whether any rows are visible
-          const categoryHeader = table.previousElementSibling;
-          const visibleRows = table.querySelectorAll('tr:not(.hidden)').length;
-          if (visibleRows <= 1) { // 1 accounts for the header row
-            categoryHeader.style.display = 'none';
-            table.style.display = 'none';
-          } else {
-            categoryHeader.style.display = 'block';
-            table.style.display = 'table';
-          }
+        // Auto-hide success messages after 2 seconds
+        const successMessage = document.querySelector('.success-container');
+        if (successMessage) {
+          setTimeout(function() {
+            successMessage.style.opacity = '0';
+            successMessage.style.transition = 'opacity 0.3s ease-out';
+            setTimeout(function() {
+              successMessage.remove();
+            }, 300);
+          }, 2000);
         }
-      });
-    });
 
-    function printBarcodes() {
-        // Create a new window for printing
-        let printWindow = window.open('', '_blank');
-        
-        // Get all barcodes
-        let barcodes = document.querySelectorAll('.barcode-container');
-        
-        // Create print content
-        let content = `
-            <html>
-            <head>
-                <title>Print Barcodes</title>
-                <link rel="stylesheet" href="{% static 'css/barcode.css' %}">
-                <style>
-                    body { margin: 0; padding: 20px; }
-                    .print-grid {
-                        display: grid;
-                        grid-template-columns: repeat(3, 1fr);
-                        gap: 20px;
-                        padding: 20px;
-                    }
-                    .barcode-container {
-                        background: white;
-                        padding: 15px;
-                        border: 1px solid #ddd;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="print-grid">
-        `;
-        
-        // Add each barcode to the content
-        barcodes.forEach(barcode => {
-            content += barcode.outerHTML;
-        });
-        
-        content += `
-                </div>
-            </body>
-            </html>
-        `;
-        
-        // Write content to new window and print
-        printWindow.document.write(content);
-        printWindow.document.close();
-        printWindow.onload = function() {
-            printWindow.print();
-            printWindow.onafterprint = function() {
-                printWindow.close();
+        // category modals
+            const categoryModal = document.getElementById('categoryModal');
+            const subcategoryModal = document.getElementById('subcategoryModal');
+
+            // Get buttons that open modals
+            const openCategoryBtn = document.getElementById('openCategoryBtn');
+            const openSubcategoryBtn = document.getElementById('openSubcategoryBtn');
+
+            // Get <span> elements that close modals
+            const closeCategory = document.getElementById('closeCategory');
+            const closeSubcategory = document.getElementById('closeSubcategory');
+
+            // Open modals
+            openCategoryBtn.onclick = () => categoryModal.style.display = 'flex';
+            openSubcategoryBtn.onclick = () => subcategoryModal.style.display = 'flex';
+
+            // Close modals
+            closeCategory.onclick = () => categoryModal.style.display = 'none';
+            closeSubcategory.onclick = () => subcategoryModal.style.display = 'none';
+
+            // Close modal if clicking outside modal-content
+            window.onclick = (e) => {
+              if (e.target === categoryModal) categoryModal.style.display = 'none';
+              if (e.target === subcategoryModal) subcategoryModal.style.display = 'none';
             };
-        };
-    }
-  </script>
-  <script src="{% static 'scripts/supplyModal.js' %}"></script>
-  {% endblock %}
+
+
+        // Modify Quantity Modal
+        const modifyQuantityModal = document.getElementById("modifyQuantityModal");
+        const openModifyQuantityModalBtn = document.getElementById("openModifyQuantityModalBtn");
+        const closeModifyQuantityModalBtn = document.getElementById("closeModifyQuantityModalBtn");
+
+        openModifyQuantityModalBtn.onclick = function() {
+          modifyQuantityModal.style.display = "block";
+        }
+
+        closeModifyQuantityModalBtn.onclick = function() {
+          modifyQuantityModal.style.display = "none";
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+          if (event.target == addSupplyModal) {
+            addSupplyModal.style.display = "none";
+          } else if (event.target == editSupplyModal) {
+            editSupplyModal.style.display = "none";
+          } else if (event.target == modifyQuantityModal) {
+            modifyQuantityModal.style.display = "none";
+          } else if (event.target == historyModal) {
+            historyModal.style.display = "none";
+          }
+        }
+
+        // Edit Supply Modal
+        const editModal = document.getElementById("editSupplyModal");
+        const closeEditBtn = document.getElementById("closeEditModalBtn");
+
+        document.querySelectorAll(".edit-btn").forEach(button => {
+          button.addEventListener("click", () => {
+            document.getElementById("edit_id").value = button.dataset.id;
+            document.getElementById("edit_name").value = button.dataset.name;
+            document.getElementById("edit_current_quantity").value = button.dataset.currentQuantity;
+            document.getElementById("edit_minimum_threshold").value = button.dataset.minimumThreshold;
+            document.getElementById("edit_category").value = button.dataset.category;
+            document.getElementById("edit_subcategory").value = button.dataset.subcategory;
+            document.getElementById("edit_description").value = button.dataset.description || '';
+            document.getElementById("edit_date").value = button.dataset.date;
+            document.getElementById("edit_expiration_date").value = button.dataset.expirationDate || '';
+            editModal.style.display = "block";
+          });
+        });
+
+        closeEditBtn.onclick = () => editModal.style.display = "none";
+        window.addEventListener("click", event => {
+          if (event.target === editModal) {
+            editModal.style.display = "none";
+          }
+        });
+
+        // History Modal functionality
+        const historyModal = document.getElementById('historyModal');
+        const historyBtns = document.querySelectorAll('.history-btn');
+        const closeHistoryModalBtn = document.getElementById('closeHistoryModalBtn');
+
+        if (!historyModal || !historyBtns.length || !closeHistoryModalBtn) {
+          console.error('Missing required elements:', {
+            historyModal: !!historyModal,
+            historyBtns: historyBtns.length,
+            closeHistoryModalBtn: !!closeHistoryModalBtn
+          });
+          return;
+        }
+
+        historyBtns.forEach(btn => {
+          btn.addEventListener('click', function() {
+            const supplyId = this.dataset.id;
+            historyModal.style.display = 'block';
+            
+            // Fetch history data
+            fetch(`/get_supply_history/${supplyId}/`)
+              .then(response => response.json())
+              .then(data => {
+                // Populate history table
+                const historyTableBody = document.getElementById('historyTableBody');
+                historyTableBody.innerHTML = '';
+                if (data.history.length === 0) {
+                  historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No changes have been made to this supply yet.</td></tr>';
+                } else {
+                  data.history.forEach(entry => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                      <td>${entry.date}</td>
+                      <td>${entry.action}</td>
+                      <td>${entry.field_name}</td>
+                      <td>${entry.old_value}</td>
+                      <td>${entry.new_value}</td>
+                      <td>${entry.user}</td>
+                    `;
+                    historyTableBody.appendChild(row);
+                  });
+                }
+              })
+              .catch(error => {
+                console.error('Error fetching history:', error);
+                historyTableBody.innerHTML = '<tr><td colspan="6">Error loading history data</td></tr>';
+              });
+          });
+        });
+
+        closeHistoryModalBtn.addEventListener('click', function() {
+          historyModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+          if (event.target == historyModal) {
+            historyModal.style.display = 'none';
+          }
+        });
+
+        // Add search functionality
+        const searchInput = document.getElementById('searchInput');
+        const tables = document.getElementsByClassName('searchable-table');
+
+        searchInput.addEventListener('keyup', function() {
+          const searchTerm = this.value.toLowerCase();
+
+          for (let table of tables) {
+            const rows = table.getElementsByTagName('tr');
+
+            // Start from 1 to skip header row
+            for (let i = 1; i < rows.length; i++) {
+              const row = rows[i];
+              const cells = row.getElementsByTagName('td');
+              let found = false;
+
+              for (let cell of cells) {
+                if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                  found = true;
+                  break;
+                }
+              }
+
+              if (found) {
+                row.classList.remove('hidden');
+              } else {
+                row.classList.add('hidden');
+              }
+            }
+
+            // Show/hide category headers based on whether any rows are visible
+            const categoryHeader = table.previousElementSibling;
+            const visibleRows = table.querySelectorAll('tr:not(.hidden)').length;
+            if (visibleRows <= 1) { // 1 accounts for the header row
+              categoryHeader.style.display = 'none';
+              table.style.display = 'none';
+            } else {
+              categoryHeader.style.display = 'block';
+              table.style.display = 'table';
+            }
+          }
+        });
+
+        // Add event listener for category change in add supply form
+        const categorySelect = document.querySelector('select[name="category"]');
+        const subcategorySelect = document.querySelector('select[name="subcategory"]');
+
+        if (categorySelect && subcategorySelect) {
+          categorySelect.addEventListener('change', function() {
+            const categoryId = this.value;
+            if (categoryId) {
+              fetch(`/get-subcategories/?category_id=${categoryId}`)
+                .then(response => response.json())
+                .then(data => {
+                  subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+                  data.subcategories.forEach(subcategory => {
+                    subcategorySelect.innerHTML += `<option value="${subcategory.id}">${subcategory.name}</option>`;
+                  });
+                  subcategorySelect.disabled = false;
+                })
+                .catch(error => console.error('Error:', error));
+            } else {
+              subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+              subcategorySelect.disabled = true;
+            }
+          });
+        }
+      });
+
+      function printBarcodes() {
+          // Create a new window for printing
+          let printWindow = window.open('', '_blank');
+          
+          // Get all barcodes
+          let barcodes = document.querySelectorAll('.barcode-container');
+          
+          // Create print content
+          let content = `
+              <html>
+              <head>
+                  <title>Print Barcodes</title>
+                  <link rel="stylesheet" href="{% static 'css/barcode.css' %}">
+                  <style>
+                      body { margin: 0; padding: 20px; }
+                      .print-grid {
+                          display: grid;
+                          grid-template-columns: repeat(3, 1fr);
+                          gap: 20px;
+                          padding: 20px;
+                      }
+                      .barcode-container {
+                          background: white;
+                          padding: 15px;
+                          border: 1px solid #ddd;
+                      }
+                  </style>
+              </head>
+              <body>
+                  <div class="print-grid">
+            `;
+            
+            // Add each barcode to the content
+            barcodes.forEach(barcode => {
+                content += barcode.outerHTML;
+            });
+            
+            content += `
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            // Write content to new window and print
+            printWindow.document.write(content);
+            printWindow.document.close();
+            printWindow.onload = function() {
+                printWindow.print();
+                printWindow.onafterprint = function() {
+                    printWindow.close();
+                };
+            };
+        }
+    </script>
+    <script src="{% static 'scripts/supplyModal.js' %}"></script>
+    {% endblock %}
 </body>
 </html>
