@@ -40,6 +40,9 @@ from .views import (
     add_property_category,
     modify_property_quantity_generic,
     modify_supply_quantity_generic,
+    AddSupplyCategoryView,
+    AddSupplySubcategoryView,
+    get_subcategories,
 
     
 
@@ -60,6 +63,13 @@ urlpatterns = [
     path('edit-supply/', edit_supply, name='edit_supply'),
     path('delete-supply/<int:pk>/', delete_supply, name='delete_supply'),
 
+    # path('add-category/', AddSupplyCategoryView.as_view(), name='add_supply_category'),
+    # path('add-subcategory/', AddSupplySubcategoryView.as_view(), name='add_supply_subcategory'),
+    path('get-subcategories/', views.get_subcategories, name='get_subcategories'),
+    path('add-supply-category/', AddSupplyCategoryView.as_view(), name='add_category_supply'),
+    path('add-subcategory/', AddSupplySubcategoryView.as_view(), name='add_subcategory'),
+    
+    
     path('property/', PropertyListView.as_view(), name='property_list'),
     path('add-property/', add_property, name='add_property'),
     path('edit-property/', edit_property, name='edit_property'),

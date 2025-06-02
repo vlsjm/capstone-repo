@@ -344,9 +344,13 @@ tr.hidden {
       <div class="button-container">
         <button id="openModalBtn" class="add-btn">+ Add Supply</button>
         <button id="openModifyQuantityModalBtn" class="add-btn">Modify Quantity</button>
+        <button id="openCategoryBtn" class="add-btn">Add Category</button>
+        <button id="openSubcategoryBtn"class="add-btn">Add Subcategory</button>
+        
       </div>
     </div>
 
+  
     {% if grouped_supplies %}
       {% for category, page_obj in grouped_supplies.items %}
         <h3>{{ category }}</h3>
@@ -458,6 +462,46 @@ tr.hidden {
       <p>No supplies available.</p>
     {% endif %}
   </div>
+
+<!-- Category Modal -->
+<div id="categoryModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" id="closeCategory">&times;</span>
+    <h2>Select or Add Category</h2>
+    <form id="categoryForm" method="post" action="{% url 'add_category_supply' %}">
+  {% csrf_token %}
+  {{ category_form.as_p }}
+  <button type="submit">Next</button>
+</form>
+    </form>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div id="categoryModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" id="closeCategory">&times;</span>
+    <h2>Add New Category</h2>
+    <form method="POST" action="{% url 'add_category' %}">
+      {% csrf_token %}
+      {{ category_form.as_p }}
+      <button type="submit">Add Category</button>
+    </form>
+  </div>
+</div>
+
+<!-- Subcategory Modal -->
+<div id="subcategoryModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" id="closeSubcategory">&times;</span>
+    <h2>Add New Subcategory</h2>
+    <form method="POST" action="/add-subcategory/">
+      {% csrf_token %}
+      {{ subcategory_form.as_p }}
+      <button type="submit">Add Subcategory</button>
+    </form>
+  </div>
+</div>
 
   <!-- Add Supply Modal -->
   <div id="addSupplyModal" class="modal">
@@ -601,6 +645,7 @@ tr.hidden {
     </div>
   </div>
 
+ 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Initialize Select2 for the supply dropdown in modify modal
@@ -624,6 +669,33 @@ tr.hidden {
           }, 300);
         }, 2000);
       }
+
+      // category modals
+          const categoryModal = document.getElementById('categoryModal');
+          const subcategoryModal = document.getElementById('subcategoryModal');
+
+          // Get buttons that open modals
+          const openCategoryBtn = document.getElementById('openCategoryBtn');
+          const openSubcategoryBtn = document.getElementById('openSubcategoryBtn');
+
+          // Get <span> elements that close modals
+          const closeCategory = document.getElementById('closeCategory');
+          const closeSubcategory = document.getElementById('closeSubcategory');
+
+          // Open modals
+          openCategoryBtn.onclick = () => categoryModal.style.display = 'flex';
+          openSubcategoryBtn.onclick = () => subcategoryModal.style.display = 'flex';
+
+          // Close modals
+          closeCategory.onclick = () => categoryModal.style.display = 'none';
+          closeSubcategory.onclick = () => subcategoryModal.style.display = 'none';
+
+          // Close modal if clicking outside modal-content
+          window.onclick = (e) => {
+            if (e.target === categoryModal) categoryModal.style.display = 'none';
+            if (e.target === subcategoryModal) subcategoryModal.style.display = 'none';
+          };
+
 
       // Modify Quantity Modal
       const modifyQuantityModal = document.getElementById("modifyQuantityModal");

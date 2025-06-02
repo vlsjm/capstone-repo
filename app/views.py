@@ -8,6 +8,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, ListView
 from django.core.exceptions import ValidationError
 
+from django.db.models import Count
+
+
+
 from django.views import View
 from django.contrib.auth import login, authenticate, logout
 from .models import(
@@ -15,12 +19,10 @@ from .models import(
     SupplyRequest, DamageReport, Reservation,
     ActivityLog, UserProfile, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
-    Department, PropertyCategory
+    Department, PropertyCategory, SupplySubcategory
 )
-from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm
+from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm, SupplyCategoryForm, SupplySubcategoryForm
 from django.contrib.auth.forms import AuthenticationForm
-
-
 from datetime import timedelta, date
 import json
 from django.utils import timezone
@@ -504,16 +506,21 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
 
         # Property Categories Counts
         try:
-            categories = [choice[0] for choice in Property.CATEGORY_CHOICES]
-            property_categories_data = []
-            for category in categories:
-                count = Property.objects.filter(category=category).count()
-                if count > 0:
-                    property_categories_data.append({
-                        'category': category,
-                        'count': count
-                    })
-        except AttributeError:
+            property_categories_data = list(
+                Property.objects.values('category__name')
+                .annotate(count=Count('id'))
+                .filter(count__gt=0)
+            )
+
+            # Rename keys to match expected structure
+            property_categories_data = [
+                {
+                    'category': item['category__name'],
+                    'count': item['count']
+                }
+                for item in property_categories_data
+            ]
+        except Exception:
             property_categories_data = []
 
         # User Activity by Role
@@ -779,27 +786,34 @@ class SupplyListView(PermissionRequiredMixin, ListView):
     paginate_by = None  # Disable default pagination as we'll handle it per category
 
     def get_queryset(self):
-        return Supply.objects.select_related('quantity_info').order_by('supply_name')
+        # Use select_related for category (ForeignKey) instead of quantity_info (assuming that's another FK)
+        return Supply.objects.select_related('category').order_by('supply_name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = SupplyForm()
         context['today'] = date.today()
-        context['supply_list'] = Supply.objects.select_related('quantity_info').all()
-        
-        # Get all supplies
+        context['category_form'] = SupplyCategoryForm()
+        context['subcategory_form'] = SupplySubcategoryForm()
+    
         supplies = self.get_queryset()
         
-        # Group supplies by category
+        # Group supplies by category name (handle null category)
         grouped = defaultdict(list)
         for supply in supplies:
-            category = supply.get_category_display() or 'Uncategorized'
-            grouped[category].append(supply)
-            
-            # Calculate days until expiration for debugging
+            category_name = supply.category.name if supply.category else 'Uncategorized'
+            grouped[category_name].append(supply)
+
+            # Add days_until_expiration attribute for each supply if expiration_date exists
             if supply.expiration_date:
                 days_until = (supply.expiration_date - date.today()).days
                 supply.days_until_expiration = days_until
+            else:
+                supply.days_until_expiration = None
+
+        context['supply_list'] = supplies
+        context['grouped_supplies'] = dict(grouped)  # convert defaultdict to dict for template use
+
         
         # Create paginated groups
         paginated_groups = {}
@@ -817,6 +831,25 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         # Convert to regular dict and sort categories
         context['grouped_supplies'] = paginated_groups
         return context
+    
+def get_subcategories(request):
+            category_id = request.GET.get('category_id')
+            subcategories = SupplySubcategory.objects.filter(category_id=category_id).values('id', 'name')
+            return JsonResponse({'subcategories': list(subcategories)})
+        
+class AddSupplyCategoryView(View):
+    def post(self, request):
+        form = SupplyCategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+class AddSupplySubcategoryView(View):
+    def post(self, request):
+        form = SupplySubcategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect(request.META.get('HTTP_REFERER', '/'))   
 
 @permission_required('app.view_admin_module')
 def add_supply(request):

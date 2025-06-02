@@ -4,7 +4,8 @@ from .models import (
     Reservation, DamageReport, BorrowRequest,
     UserProfile, ActivityLog, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
-    Department, PropertyCategory
+    Department, PropertyCategory,
+    SupplyCategory, SupplySubcategory
 )
 
 admin.site.register(Supply)
@@ -21,4 +22,6 @@ admin.site.register(SupplyHistory)
 admin.site.register(PropertyHistory)
 admin.site.register(Department)
 admin.site.register(PropertyCategory)
+admin.site.register(SupplyCategory)
+admin.site.register(SupplySubcategory)  
 

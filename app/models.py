@@ -115,6 +115,19 @@ class SupplyQuantity(models.Model):
 
             super().save(*args, **kwargs)
 
+class SupplyCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class SupplySubcategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    
+    def __str__(self):
+        return self.name
+    
+
 class Supply(models.Model):
     STATUS_CHOICES = [
         ('low_stock', 'Low Stock'),
@@ -122,32 +135,9 @@ class Supply(models.Model):
         ('available', 'Available'),
     ]
 
-    CATEGORY_CHOICES = [
-        ('office_supplies', 'Office Supplies Expenses'),
-        ('textbooks', 'Textbooks and Instructional Materials Expenses'),
-        ('other_supplies', 'Other Supplies & Materials Expenses'),
-    ]
-
-    SUBCATEGORY_CHOICES = [
-        ('common_office', 'COMMON OFFICE SUPPLIES AND MATERIALS'),
-        ('filing', 'FILING SUPPLIES AND MATERIALS'),
-        ('ribbons', 'RIBBONS, INKS, TONERS AND CARTRIDGES'),
-        ('paper', 'PAPER PRODUCTS'),
-        ('university_activity', 'OTHER UNIVERSITY ACTIVITY 1 (CSG Activity)'),
-        ('printed_journals', 'PRINTED JOURNALS'),
-        ('common_cleaning', 'COMMON CLEANING SUPPLIES AND MATERIALS'),
-        ('other_supplies', 'OTHER SUPPLIES AND MATERIALS'),
-        ('electrical', 'ELECTRICAL, LIGHTING FIXTURES, TOOLS AND ACCESSORIES'),
-        ('kitchen', 'KITCHEN SUPPLIES AND MATERIALS'),
-        ('common_office_supplies', 'COMMON OFFICE SUPPLIES'),
-        ('cleaning_supplies', 'CLEANING SUPPLIES AND MATERIALS'),
-        ('covid_supplies', 'COVID RECOVERY SUPPLIES'),
-        ('electrical_supplies', 'ELECTRICAL SUPPLIES AND MATERIALS'),
-    ]
-
     supply_name = models.CharField(max_length=255)
-    category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, null=True, blank=True)
-    subcategory = models.CharField(max_length=100, choices=SUBCATEGORY_CHOICES, null=True, blank=True)
+    category = models.ForeignKey(SupplyCategory, on_delete=models.SET_NULL, null=True, blank=True)
+    subcategory = models.ForeignKey(SupplySubcategory, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(blank=True, null=True)
     barcode = models.CharField(max_length=100, unique=True)
     available_for_request = models.BooleanField(default=True)

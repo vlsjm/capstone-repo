@@ -1,8 +1,9 @@
 from django import forms
 from .models import Property, Supply, SupplyQuantity
 from django.contrib.auth.models import User
-from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation, Department,PropertyCategory
+from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation, Department,PropertyCategory, SupplyCategory, SupplySubcategory
 from datetime import date
+from django.urls import reverse_lazy    
 
 class DepartmentForm(forms.ModelForm):
     class Meta:
@@ -118,7 +119,7 @@ class PropertyForm(forms.ModelForm):
         return cleaned_data
 
 class SupplyForm(forms.ModelForm):
-    current_quantity = forms.IntegerField(min_value=0)
+    current_quantity = forms.IntegerField(min_value=0, initial=0)
     minimum_threshold = forms.IntegerField(min_value=0, initial=10)
 
     class Meta:
@@ -129,57 +130,68 @@ class SupplyForm(forms.ModelForm):
             'subcategory',
             'description',
             'barcode',
+            'available_for_request',
             'date_received',
-            'expiration_date'
+            'expiration_date',
         ]
         widgets = {
             'date_received': forms.DateInput(attrs={'type': 'date'}),
-            'expiration_date': forms.DateInput(attrs={'type': 'date', 'required': False}),
+            'expiration_date': forms.DateInput(attrs={'type': 'date'}),
             'description': forms.Textarea(attrs={'rows': 3}),
-            'category': forms.Select(choices=Supply.CATEGORY_CHOICES),
-            'subcategory': forms.Select(choices=Supply.SUBCATEGORY_CHOICES),
+            'category': forms.Select(attrs={'id': 'id_category'}),
+            'subcategory': forms.Select(attrs={'id': 'id_subcategory'}),
+            'available_for_request': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         help_texts = {
+            'barcode': 'Unique identifier for the supply item',
             'expiration_date': 'Optional. Leave empty if the supply does not expire.',
+            'available_for_request': 'Check if this item should be available for staff requests',
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.required = True
-        # Make description and expiration_date optional
+
+        # Description and expiration_date are optional
         self.fields['description'].required = False
         self.fields['expiration_date'].required = False
-        
-        if self.instance.pk:
+
+        # Load all subcategories (no filtering by category possible)
+        self.fields['subcategory'].queryset = SupplySubcategory.objects.all().order_by('name')
+
+        # If editing existing instance, load quantities if exists
+        if self.instance and self.instance.pk:
             try:
-                quantity_info = self.instance.quantity_info
+                quantity_info = SupplyQuantity.objects.get(supply=self.instance)
                 self.fields['current_quantity'].initial = quantity_info.current_quantity
                 self.fields['minimum_threshold'].initial = quantity_info.minimum_threshold
             except SupplyQuantity.DoesNotExist:
                 pass
 
+    def clean(self):
+        cleaned_data = super().clean()
+        date_received = cleaned_data.get('date_received')
+        expiration_date = cleaned_data.get('expiration_date')
+
+        if date_received and expiration_date and expiration_date < date_received:
+            self.add_error('expiration_date', 'Expiration date cannot be before the receipt date')
+
+        return cleaned_data
+
     def save(self, commit=True):
-        supply = super().save(commit=False)  # Always use commit=False here
-        
+        supply = super().save(commit=False)
+
         if commit:
             supply.save()
-            # Only create/update quantity info if we're committing
-            quantity_info, created = SupplyQuantity.objects.get_or_create(
+            # Save or update SupplyQuantity info
+            SupplyQuantity.objects.update_or_create(
                 supply=supply,
                 defaults={
-                    'current_quantity': self.cleaned_data['current_quantity'],
-                    'minimum_threshold': self.cleaned_data['minimum_threshold']
+                    'current_quantity': self.cleaned_data.get('current_quantity', 0),
+                    'minimum_threshold': self.cleaned_data.get('minimum_threshold', 10),
                 }
             )
-            
-            if not created:
-                quantity_info.current_quantity = self.cleaned_data['current_quantity']
-                quantity_info.minimum_threshold = self.cleaned_data['minimum_threshold']
-                quantity_info.save()
-        
-        return supply
 
+        return supply
 class SupplyRequestForm(forms.ModelForm):
     class Meta:
         model = SupplyRequest
@@ -257,3 +269,14 @@ class ReservationForm(forms.ModelForm):
         widgets = {
             'purpose': forms.Textarea(attrs={'rows': 3}),
         }
+
+class SupplyCategoryForm(forms.ModelForm):
+    class Meta:
+        model = SupplyCategory
+        fields = ['name']
+
+class SupplySubcategoryForm(forms.ModelForm):
+    class Meta:
+        model = SupplySubcategory
+        fields = ['name']
+
