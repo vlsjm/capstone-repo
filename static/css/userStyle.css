@@ -696,7 +696,7 @@ input[type="date"]:focus {
   .request-form-container {
     padding: 1rem;
     margin: 1rem;
-    margin-left: 270px;
+    margin-left: 270px; 
     width: calc(100% - 290px);
   }
 }

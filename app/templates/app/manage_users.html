@@ -14,6 +14,10 @@
       href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
     <style>
       /* Fix Select2 text weight */
       .select2-container--default .select2-selection--single,
@@ -100,7 +104,7 @@
       }
 
       .add-btn {
-        background-color: #007bff;
+        background-color: #152d64;
         color: white;
         border: none;
         padding: 10px 20px;
@@ -233,11 +237,18 @@
       <div class="top-controls">
         <div class="search-container">
           <i class="fas fa-search search-icon"></i>
-          <input type="text" id="searchInput" class="search-input" placeholder="Search users...">
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search users..."
+          />
         </div>
         <div class="button-container">
           <button id="openModalBtn" class="add-btn">+ Create Account</button>
-          <button id="openDepartmentModalBtn" class="add-btn secondary">+ Add Department</button>
+          <button id="openDepartmentModalBtn" class="add-btn">
+            + Add Department
+          </button>
         </div>
       </div>
 
@@ -325,20 +336,22 @@
               <td>{{ dept.name }}</td>
 
               <td>
-                <button
-                  class="btn-edit"
-                  data-id="{{ dept.id }}"
-                  data-name="{{ dept.name }}"
-                >
-                  Edit
-                </button>
-                <button
-                  class="btn-delete"
-                  data-id="{{ dept.id }}"
-                  data-name="{{ dept.name }}"
-                >
-                  Delete
-                </button>
+                <div class="button-group">
+                  <button
+                    class="btn-edit edit-btn"
+                    data-id="{{ dept.id }}"
+                    data-name="{{ dept.name }}"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button
+                    class="btn-delete del-btn"
+                    data-id="{{ dept.id }}"
+                    data-name="{{ dept.name }}"
+                  >
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
               </td>
             </tr>
             {% endfor %}
@@ -400,19 +413,19 @@
         });
       });
 
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener("DOMContentLoaded", function () {
         // Add search functionality
-        const searchInput = document.getElementById('searchInput');
-        const table = document.querySelector('.searchable-table');
+        const searchInput = document.getElementById("searchInput");
+        const table = document.querySelector(".searchable-table");
 
-        searchInput.addEventListener('keyup', function() {
+        searchInput.addEventListener("keyup", function () {
           const searchTerm = this.value.toLowerCase();
-          const rows = table.getElementsByTagName('tr');
+          const rows = table.getElementsByTagName("tr");
 
           // Start from 1 to skip header row
           for (let i = 1; i < rows.length; i++) {
             const row = rows[i];
-            const cells = row.getElementsByTagName('td');
+            const cells = row.getElementsByTagName("td");
             let found = false;
 
             for (let cell of cells) {
@@ -423,9 +436,9 @@
             }
 
             if (found) {
-              row.classList.remove('hidden');
+              row.classList.remove("hidden");
             } else {
-              row.classList.add('hidden');
+              row.classList.add("hidden");
             }
           }
         });
