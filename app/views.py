@@ -1,7 +1,7 @@
 from collections import defaultdict
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -1473,3 +1473,21 @@ def modify_supply_quantity_generic(request):
         messages.error(request, "Supply quantity information not found.")
 
     return redirect('supply_list')
+
+class AdminPasswordChangeView(PasswordChangeView):
+    template_name = 'app/password_change.html'
+    success_url = reverse_lazy('password_change_done')
+
+    def get_template_names(self):
+        return [self.template_name]
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Your password was successfully updated!')
+        return response
+
+class AdminPasswordChangeDoneView(PasswordChangeDoneView):
+    template_name = 'app/password_change_done.html'
+
+    def get_template_names(self):
+        return [self.template_name]

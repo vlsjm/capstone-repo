@@ -2,19 +2,34 @@
   <h1>Resource Hive</h1>
   <ul>
     <li>
-      <a href="{% url 'user_dashboard' %}"> 🏠 Dashboard </a>
+      <a href="{% url 'user_dashboard' %}">
+        <i class="fas fa-home"></i> Dashboard
+      </a>
     </li>
     <li>
-      <a href="{% url 'user_request' %}"> 📤 Make a request </a>
+      <a href="{% url 'user_request' %}">
+        <i class="fas fa-tasks"></i> Make a request
+      </a>
     </li>
     <li>
-      <a href="{% url 'user_borrow' %}"> 🤝 Borrow </a>
+      <a href="{% url 'user_borrow' %}">
+        <i class="fas fa-handshake"></i> Borrow
+      </a>
     </li>
     <li>
-      <a href="{% url 'user_reserve' %}"> 📅 Reserve </a>
+      <a href="{% url 'user_reserve' %}">
+        <i class="fas fa-calendar-alt"></i> Reserve
+      </a>
     </li>
     <li>
-      <a href="{% url 'user_report' %}"> ⚠️ Report </a>
+      <a href="{% url 'user_report' %}">
+        <i class="fas fa-exclamation-triangle"></i> Report
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'user_password_change' %}">
+        <i class="fas fa-key"></i> Change Password
+      </a>
     </li>
     <li>
       <form

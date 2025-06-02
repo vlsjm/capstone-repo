@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm, SupplyRequest, BorrowRequest, Reservation, DamageReport
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordChangeDoneView
 from app.models import UserProfile, Notification, Property, ActivityLog
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import JsonResponse
@@ -316,3 +316,22 @@ def get_item_availability(request):
         return JsonResponse({'error': 'Item not found'}, status=404)
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+
+class UserPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+    template_name = 'registration/password_change_form.html'
+    success_url = reverse_lazy('user_password_change_done')
+
+    def get_template_names(self):
+        return ['userpanel/password_change_form.html']
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Your password was successfully updated!')
+        return response
+
+class UserPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
+    template_name = 'registration/password_change_done.html'
+
+    def get_template_names(self):
+        return ['userpanel/password_change_done.html']
