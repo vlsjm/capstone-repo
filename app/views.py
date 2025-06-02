@@ -1242,12 +1242,17 @@ def edit_category(request, category_id):
             return JsonResponse({"success": True})
     return JsonResponse({"success": False})
 
+@require_POST
 def delete_category(request, category_id):
-    if request.method == 'POST':
+    try:
         category = get_object_or_404(PropertyCategory, id=category_id)
         category.delete()
-        return JsonResponse({"success": True})
-    return JsonResponse({"success": False})
+        return JsonResponse({"success": True, "message": "Category deleted successfully"})
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "message": str(e)
+        }, status=500)
 
 #meow   
 class CustomLoginView(LoginView):

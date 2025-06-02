@@ -539,53 +539,42 @@
     </div>
   </div>
 
-    <!-- Edit Property Category Modal -->
-  <div id="editCategoryModal" class="modal" style="display: none">
-    <div class="modal-content">
-      <span class="close" id="closeEditCategoryModal">&times;</span>
-      <h3>Edit Property Category</h3>
-      <form method="POST" id="editCategoryForm">
-        {% csrf_token %}
-        <input type="hidden" id="editCategoryId" name="category_id" />
-        <div class="form-group">
-          <label for="editCategoryName">Category Name:</label>
-          <input
-            type="text"
-            id="editCategoryName"
-            name="name"
-            required
-            maxlength="100"
-            class="form-control"
-          />
-        </div>
-        <button
-        class="btn-editprop-cat"
-        data-id="{{ category.id }}"
-        data-name="{{ category.name }}"
-        type="button"
-      >
-        Edit
-      </button>
-      </form>
-    </div>
+<!-- Edit Property Category Modal -->
+<div id="editCategoryModal" class="modal" style="display: none">
+  <div class="modal-content">
+    <span class="close" id="closeEditCategoryModal">&times;</span>
+    <h3>Edit Property Category</h3>
+    <form method="POST" id="editCategoryForm" action="">
+      {% csrf_token %}
+      <input type="hidden" id="editCategoryId" name="category_id" />
+      <div class="form-group">
+        <label for="editCategoryName">Category Name:</label>
+        <input type="text" id="editCategoryName" name="name" required maxlength="100" class="form-control" />
+      </div>
+      <button type="submit" class="submit-btn">Update Category</button>
+    </form>
   </div>
+</div>
 
-  <!-- Delete Property Category Confirmation Modal -->
-  <div id="deleteCategoryModal" class="modal" style="display: none">
-    <div class="modal-content">
-      <span class="close" id="closeDeleteCategoryModal">&times;</span>
-      <h3>Delete Property Category</h3>
-      <p>
-        Are you sure you want to delete <strong id="deleteCategoryName"></strong>?
-      </p>
-      <form method="POST" id="deleteCategoryForm">
-        {% csrf_token %}
-        <button type="submit" class="btn-delete-confirm">Yes, Delete</button>
-      </form>
-    </div>
+<!-- Delete Confirmation Modal -->
+<div id="deleteCategoryModal" class="modal" style="display: none">
+  <div class="modal-content">
+    <span class="close" id="closeDeleteCategoryModal">&times;</span>
+    <h3>Delete Category</h3>
+    <p>Are you sure you want to delete "<span id="deleteCategoryName"></span>"?</p>
+    <form method="POST" id="deleteCategoryForm" action="">
+      {% csrf_token %}
+      <input type="hidden" id="deleteCategoryId" name="category_id" />
+      <button type="submit" class="confirm-delete-btn">Confirm Delete</button>
+      <button type="button" class="cancel-btn" id="cancelDelete">Cancel</button>
+    </form>
   </div>
+</div>
 
-
+<!-- Regular delete buttons in your table/list -->
+<button class="btn-deleteprop-cat" data-id="{{ category.id }}" data-name="{{ category.name }}">
+  Delete
+</button>
     <!-- Add Property Modal -->
     <div id="addPropertyModal" class="modal">
       <div class="modal-content">
@@ -1040,27 +1029,121 @@
       }
     </script>
 
-    <script>
-      document.querySelectorAll('.btn-editprop-cat').forEach(button => {
-  button.addEventListener('click', () => {
-    const categoryId = button.getAttribute('data-id');
-    const categoryName = button.getAttribute('data-name');
+  <script>
+// DOM Elements
+const editModal = document.getElementById('editCategoryModal');
+const deleteModal = document.getElementById('deleteCategoryModal');
 
-    // Populate modal inputs
-    document.getElementById('editCategoryId').value = categoryId;
-    document.getElementById('editCategoryName').value = categoryName;
-
-    // Show the modal
-    document.getElementById('editCategoryModal').style.display = 'block';
+// Generic Modal Handler
+function handleModal(modal, openButtons, closeButtons, populateCallback) {
+  // Open modal
+  openButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const categoryId = button.getAttribute('data-id');
+      const categoryName = button.getAttribute('data-name');
+      
+      if (populateCallback) {
+        populateCallback(categoryId, categoryName);
+      }
+      
+      modal.style.display = 'block';
+    });
   });
+
+  // Close modal
+  closeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+  });
+}
+
+// Edit Modal Setup
+handleModal(
+  editModal,
+  document.querySelectorAll('.btn-editprop-cat'),
+  [document.getElementById('closeEditCategoryModal')],
+  (id, name) => {
+    document.getElementById('editCategoryForm').action = `/categories/${id}/edit/`;
+    document.getElementById('editCategoryId').value = id;
+    document.getElementById('editCategoryName').value = name;
+  }
+);
+
+// Delete Modal Setup
+document.addEventListener('DOMContentLoaded', () => {
+  handleModal(
+    deleteModal,
+    document.querySelectorAll('.btn-deleteprop-cat'),
+    [
+      document.getElementById('closeDeleteCategoryModal'),
+      document.getElementById('cancelDelete')
+    ],
+    (id, name) => {
+      document.getElementById('deleteCategoryForm').action = `/categories/${id}/delete/`;
+      document.getElementById('deleteCategoryId').value = id;
+      document.getElementById('deleteCategoryName').textContent = name;
+    }
+  );
 });
 
-// Close modal example
-document.getElementById('closeEditCategoryModal').addEventListener('click', () => {
-  document.getElementById('editCategoryModal').style.display = 'none';
-});
+// Generic Form Submission Handler
+function handleFormSubmit(formId, successMessage, errorMessage) {
+  const form = document.getElementById(formId);
+  
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+          'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+        }
+      });
 
-    </script>
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(successMessage);
+        window.location.reload();
+      } else {
+        alert(data.message || errorMessage);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert(`${errorMessage}: ${error.message}`);
+    } finally {
+      const modal = form.closest('.modal');
+      if (modal) modal.style.display = 'none';
+    }
+  });
+}
+
+// Initialize form handlers
+handleFormSubmit(
+  'editCategoryForm',
+  'Category updated successfully!',
+  'Failed to update category'
+);
+
+handleFormSubmit(
+  'deleteCategoryForm',
+  'Category deleted successfully!',
+  'Failed to delete category'
+);
+
+// Close modals when clicking outside content
+window.addEventListener('click', (e) => {
+  if (e.target === editModal) editModal.style.display = 'none';
+  if (e.target === deleteModal) deleteModal.style.display = 'none';
+});
+</script>
 
     {% endblock %}
   </body>
