@@ -23,6 +23,37 @@
         font-weight: normal !important;
         color: #888; /* lighter placeholder color */
       }
+.btn-editprop-cat, .del-btn {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+      .btn-editprop-cat {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.btn-editprop-cat:hover {
+  background-color: #ffb300;
+  transform: translateY(-2px);
+}
+
+.del-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.del-btn:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+}
       
       /* Success message modal style */
       .success-container {
@@ -447,6 +478,8 @@
       </div>
     </div>
 
+<!-- 
+    category modal  -->
     <div id="categoryModal" class="modal" style="display: none;">
     <div class="modal-content">
       <span class="close" id="closeCategoryModalBtn">&times;</span>
@@ -458,8 +491,100 @@
 
         <button type="submit" class="submit-btn">Add Category</button>
       </form>
+
+      <hr />
+
+<h4>Existing Property Categories</h4>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Category Name</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for category in categories %}
+    <tr>
+      <td>{{ category.id }}</td>
+      <td>{{ category.name }}</td>
+
+      <td>
+        <div class="button-group">
+          <button
+            class="btn-editprop-cat "
+            data-id="{{ category.id }}"
+            data-name="{{ category.name }}"
+            type="button" 
+          >
+            <i class="fas fa-edit"></i>
+          </button>
+          <button
+            class="btn-delete del-btn"
+            data-id="{{ category.id }}"
+            data-name="{{ category.name }}"
+          >
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="3">No property categories found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
     </div>
   </div>
+
+    <!-- Edit Property Category Modal -->
+  <div id="editCategoryModal" class="modal" style="display: none">
+    <div class="modal-content">
+      <span class="close" id="closeEditCategoryModal">&times;</span>
+      <h3>Edit Property Category</h3>
+      <form method="POST" id="editCategoryForm">
+        {% csrf_token %}
+        <input type="hidden" id="editCategoryId" name="category_id" />
+        <div class="form-group">
+          <label for="editCategoryName">Category Name:</label>
+          <input
+            type="text"
+            id="editCategoryName"
+            name="name"
+            required
+            maxlength="100"
+            class="form-control"
+          />
+        </div>
+        <button
+        class="btn-editprop-cat"
+        data-id="{{ category.id }}"
+        data-name="{{ category.name }}"
+        type="button"
+      >
+        Edit
+      </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Property Category Confirmation Modal -->
+  <div id="deleteCategoryModal" class="modal" style="display: none">
+    <div class="modal-content">
+      <span class="close" id="closeDeleteCategoryModal">&times;</span>
+      <h3>Delete Property Category</h3>
+      <p>
+        Are you sure you want to delete <strong id="deleteCategoryName"></strong>?
+      </p>
+      <form method="POST" id="deleteCategoryForm">
+        {% csrf_token %}
+        <button type="submit" class="btn-delete-confirm">Yes, Delete</button>
+      </form>
+    </div>
+  </div>
+
 
     <!-- Add Property Modal -->
     <div id="addPropertyModal" class="modal">
@@ -913,6 +1038,28 @@
               };
           };
       }
+    </script>
+
+    <script>
+      document.querySelectorAll('.btn-editprop-cat').forEach(button => {
+  button.addEventListener('click', () => {
+    const categoryId = button.getAttribute('data-id');
+    const categoryName = button.getAttribute('data-name');
+
+    // Populate modal inputs
+    document.getElementById('editCategoryId').value = categoryId;
+    document.getElementById('editCategoryName').value = categoryName;
+
+    // Show the modal
+    document.getElementById('editCategoryModal').style.display = 'block';
+  });
+});
+
+// Close modal example
+document.getElementById('closeEditCategoryModal').addEventListener('click', () => {
+  document.getElementById('editCategoryModal').style.display = 'none';
+});
+
     </script>
 
     {% endblock %}

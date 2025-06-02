@@ -411,6 +411,24 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
     template_name = 'app/manage_users.html'
     permission_required = 'app.view_admin_module'
     context_object_name = 'users'
+    paginate_by = 10  # or any number of users per page
+    ordering = ['id']  # Descending order: newest first
+
+    def get_paginate_by(self, queryset):
+        return self.paginate_by
+
+    def paginate_queryset(self, queryset, page_size):
+        """
+        Override to use ?page_users instead of ?page
+        """
+        page = self.request.GET.get('page_users')  # Custom param
+        paginator = self.get_paginator(queryset, page_size)
+        try:
+            page_number = int(page)
+        except (TypeError, ValueError):
+            page_number = 1
+        page_obj = paginator.get_page(page_number)
+        return (paginator, page_obj, page_obj.object_list, page_obj.has_other_pages())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1213,6 +1231,23 @@ class LandingPageView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+def edit_category(request, category_id):
+    if request.method == 'POST':
+        category = get_object_or_404(PropertyCategory, id=category_id)
+        new_name = request.POST.get('name')
+        if new_name:
+            category.name = new_name
+            category.save()
+            return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
+
+def delete_category(request, category_id):
+    if request.method == 'POST':
+        category = get_object_or_404(PropertyCategory, id=category_id)
+        category.delete()
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
 
 #meow   
 class CustomLoginView(LoginView):
