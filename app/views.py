@@ -47,6 +47,7 @@ from django.utils.html import strip_tags
 from django.conf import settings
 import logging
 import os
+from .utils import generate_barcode
 
 # Create a logger
 logger = logging.getLogger(__name__)
@@ -783,53 +784,28 @@ class SupplyListView(PermissionRequiredMixin, ListView):
     template_name = 'app/supply.html'
     permission_required = 'app.view_admin_module'
     context_object_name = 'supplies'
-    paginate_by = None  # Disable default pagination as we'll handle it per category
+    paginate_by = None
 
     def get_queryset(self):
-        # Use select_related for category (ForeignKey) instead of quantity_info (assuming that's another FK)
-        return Supply.objects.select_related('category').order_by('supply_name')
+        return Supply.objects.select_related('category').all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = SupplyForm()
-        context['today'] = date.today()
-        context['category_form'] = SupplyCategoryForm()
-        context['subcategory_form'] = SupplySubcategoryForm()
-    
         supplies = self.get_queryset()
         
-        # Group supplies by category name (handle null category)
-        grouped = defaultdict(list)
+        # Generate barcodes for each supply
         for supply in supplies:
-            category_name = supply.category.name if supply.category else 'Uncategorized'
-            grouped[category_name].append(supply)
-
-            # Add days_until_expiration attribute for each supply if expiration_date exists
-            if supply.expiration_date:
-                days_until = (supply.expiration_date - date.today()).days
-                supply.days_until_expiration = days_until
-            else:
-                supply.days_until_expiration = None
-
-        context['supply_list'] = supplies
-        context['grouped_supplies'] = dict(grouped)  # convert defaultdict to dict for template use
-
-        
-        # Create paginated groups
-        paginated_groups = {}
-        for category, category_supplies in grouped.items():
-            page_number = self.request.GET.get(f'page_{category}', 1)
-            paginator = Paginator(category_supplies, 10)  # 10 items per category per page
+            supply.barcode = generate_barcode(f"SUP-{supply.id}")
             
-            try:
-                paginated_groups[category] = paginator.page(page_number)
-            except PageNotAnInteger:
-                paginated_groups[category] = paginator.page(1)
-            except EmptyPage:
-                paginated_groups[category] = paginator.page(paginator.num_pages)
+        # Group supplies by category
+        supplies_by_category = defaultdict(list)
+        for supply in supplies:
+            supplies_by_category[supply.category].append(supply)
         
-        # Convert to regular dict and sort categories
-        context['grouped_supplies'] = paginated_groups
+        context['supplies_by_category'] = dict(supplies_by_category)
+        context['categories'] = SupplySubcategory.objects.all()
+        context['form'] = SupplyForm()
+        
         return context
     
 def get_subcategories(request):
@@ -904,7 +880,6 @@ def edit_supply(request):
                 'description': supply.description,
                 'category': supply.category,
                 'subcategory': supply.subcategory,
-                'barcode': supply.barcode,
                 'date_received': supply.date_received,
                 'expiration_date': supply.expiration_date,
                 'current_quantity': supply.quantity_info.current_quantity if supply.quantity_info else 0,
@@ -916,7 +891,6 @@ def edit_supply(request):
             supply.description = request.POST.get('description')
             supply.category = request.POST.get('category')
             supply.subcategory = request.POST.get('subcategory')
-            supply.barcode = request.POST.get('barcode')
             supply.date_received = request.POST.get('date_received')
             supply.expiration_date = request.POST.get('expiration_date') or None
             
@@ -991,36 +965,27 @@ class PropertyListView(PermissionRequiredMixin, ListView):
     template_name = 'app/property.html'
     context_object_name = 'properties'
     permission_required = 'app.view_admin_module'
-    paginate_by = None  # Disable default pagination as we'll handle it per category
+    paginate_by = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = PropertyForm()
-        context['categories'] = PropertyCategory.objects.all()
-        context['property_list'] = Property.objects.all()
-
-        # Get all properties
         properties = Property.objects.all()
         
-        # Group properties by category
-        grouped = defaultdict(list)
+        # Generate barcodes for each property
         for prop in properties:
-            grouped[prop.category.name].append(prop)
-
-        # Create paginated groups
-        paginated_groups = {}
-        for category, category_properties in grouped.items():
-            page_number = self.request.GET.get(f'page_{category}', 1)
-            paginator = Paginator(category_properties, 10)  # 10 items per category per page
+            # Use property_number for barcode if available, otherwise use ID
+            barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+            prop.barcode = generate_barcode(barcode_number)
             
-            try:
-                paginated_groups[category] = paginator.page(page_number)
-            except PageNotAnInteger:
-                paginated_groups[category] = paginator.page(1)
-            except EmptyPage:
-                paginated_groups[category] = paginator.page(paginator.num_pages)
-
-        context['grouped_properties'] = paginated_groups
+        # Group properties by category
+        properties_by_category = defaultdict(list)
+        for prop in properties:
+            properties_by_category[prop.category].append(prop)
+        
+        context['properties_by_category'] = dict(properties_by_category)
+        context['categories'] = PropertyCategory.objects.all()
+        context['form'] = PropertyForm()
+        
         return context
     
 @require_POST
@@ -1081,13 +1046,18 @@ def add_property(request):
                 prop._logged_in_user = request.user
                 prop.save(user=request.user)  # Pass the user to save method
 
+                # Generate barcode based on property_number or ID
+                barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+                prop.barcode = generate_barcode(barcode_number)
+                prop.save(user=request.user)
+
                 # Create activity log using log_activity method
                 ActivityLog.log_activity(
                     user=request.user,
                     action='create',
                     model_name='Property',
                     object_repr=str(prop),
-                    description=f"Added new property '{prop.property_name}' with property number {prop.property_number}, overall quantity {prop.overall_quantity}, and initial quantity {prop.quantity}"
+                    description=f"Added new property '{prop.property_name}' with property number {prop.property_number or 'auto-generated'}, overall quantity {prop.overall_quantity}, and initial quantity {prop.quantity}"
                 )
                 messages.success(request, 'Property added successfully.')
             except Exception as e:
@@ -1118,7 +1088,6 @@ def edit_property(request):
                 'property_number': property_obj.property_number,
                 'property_name': property_obj.property_name,
                 'description': property_obj.description,
-                'barcode': property_obj.barcode,
                 'unit_of_measure': property_obj.unit_of_measure,
                 'unit_value': property_obj.unit_value,
                 'overall_quantity': property_obj.overall_quantity,
@@ -1133,7 +1102,6 @@ def edit_property(request):
             property_obj.property_number = request.POST.get('property_number')
             property_obj.property_name = request.POST.get('property_name')
             property_obj.description = request.POST.get('description')
-            property_obj.barcode = request.POST.get('barcode')
             property_obj.unit_of_measure = request.POST.get('unit_of_measure')
 
             # Convert unit_value to float safely

@@ -12,6 +12,7 @@
   <!-- Select2 JS -->
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/barcode.css' %}" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   {% csrf_token %}
   <style>
@@ -309,6 +310,46 @@ tr.hidden {
 tr.hidden {
   display: none;
 }
+
+/* Print Barcode Button */
+.print-barcodes-btn {
+    background-color: #152d64;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    margin: 10px 0;
+    transition: background-color 0.3s;
+}
+
+.print-barcodes-btn:hover {
+    background-color: #1e3d8a;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .barcode-container, .barcode-container * {
+        visibility: visible;
+    }
+    .barcode-container {
+        position: relative;
+        left: 0;
+        top: 0;
+    }
+    .print-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        padding: 20px;
+    }
+}
   </style>
 </head>
 <body>
@@ -334,174 +375,177 @@ tr.hidden {
         <h2>Supplies</h2>
       </div>
 
-  <div class="content">
-    <!-- Add search input above the buttons -->
-    <div class="top-controls">
-      <div class="search-container">
-        <i class="fas fa-search search-icon"></i>
-        <input type="text" id="searchInput" class="search-input" placeholder="Search supplies...">
-      </div>
-      <div class="button-container">
-        <button id="openModalBtn" class="add-btn">+ Add Supply</button>
-        <button id="openModifyQuantityModalBtn" class="add-btn">Modify Quantity</button>
-        <button id="openCategoryBtn" class="add-btn">Add Category</button>
-        <button id="openSubcategoryBtn"class="add-btn">Add Subcategory</button>
-        
+      <div class="content">
+        <!-- Add search input above the buttons -->
+        <div class="top-controls">
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search supplies...">
+          </div>
+          <div class="button-container">
+            <button onclick="printBarcodes()" class="print-barcodes-btn">
+              <i class="fas fa-print"></i> Print Barcodes
+            </button>
+            <button id="openModalBtn" class="add-btn">+ Add Supply</button>
+            <button id="openModifyQuantityModalBtn" class="add-btn">Modify Quantity</button>
+            <button id="openCategoryBtn" class="add-btn">Add Category</button>
+            <button id="openSubcategoryBtn"class="add-btn">Add Subcategory</button>
+          </div>
+        </div>
+
+        {% if supplies_by_category %}
+          {% for category, supplies in supplies_by_category.items %}
+            <h3>{{ category.name }}</h3>
+            <table border="1" class="searchable-table">
+              <thead>
+                <tr>
+                  <th>No.</th>
+                  <th>Supply Name</th>
+                  <th>Description</th>
+                  <th>Sub Category</th>
+                  <th>Current Quantity</th>
+                  <th>Min. Threshold</th>
+                  <th>Status</th>
+                  <th>Available</th>
+                  <th>Barcode</th>
+                  <th>Date Received</th>
+                  <th>Expiration Date</th>
+                  <th>Last Updated</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for supply in supplies %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ supply.supply_name|default:"----" }}</td>
+                  <td>{{ supply.description|default:"----" }}</td>
+                  <td><strong>{{ supply.get_subcategory_display|default:"----" }}</strong></td>
+                  <td>{{ supply.quantity_info.current_quantity|default:"----" }}</td>
+                  <td>{{ supply.quantity_info.minimum_threshold|default:"----" }}</td>
+                  <td>
+                    <span class="status-badge status-{{ supply.status }}">
+                      {% if supply.status == 'available' %}
+                        <i class="fas fa-check-circle"></i>
+                      {% elif supply.status == 'low_stock' %}
+                        <i class="fas fa-exclamation-circle"></i>
+                      {% elif supply.status == 'out_of_stock' %}
+                        <i class="fas fa-times-circle"></i>
+                      {% endif %}
+                      {{ supply.get_status_display }}
+                    </span>
+                  </td>
+                  <td>{{ supply.available_for_request|yesno:"Yes,No" }}</td>
+                  <td>
+                    <div class="barcode-container">
+                      <img src="{{ supply.barcode }}" alt="Barcode for {{ supply.supply_name }}" class="barcode-image">
+                    </div>
+                  </td>
+                  <td>{{ supply.date_received|default:"----" }}</td>
+                  <td>
+                    {% if supply.expiration_date %}
+                      <div class="expiration-badge 
+                        {% if supply.days_until_expiration < 0 %}expired
+                        {% elif supply.days_until_expiration <= 30 %}nearly-expired
+                        {% else %}not-expired{% endif %}">
+                        {% if supply.days_until_expiration < 0 %}
+                          <i class="fas fa-exclamation-triangle"></i> Expired
+                        {% elif supply.days_until_expiration <= 30 %}
+                          <i class="fas fa-clock"></i> Expires in {{ supply.days_until_expiration }} days
+                        {% else %}
+                          <i class="fas fa-check"></i> {{ supply.expiration_date|date:"M d, Y" }}
+                        {% endif %}
+                      </div>
+                    {% else %}
+                      N/A
+                    {% endif %}
+                  </td>
+                  <td>{{ supply.last_updated|default:"----" }}</td>
+                  <td>
+                    <div class="button-group">
+                      <button class="edit-btn" 
+                      data-id="{{ supply.id }}"
+                      data-name="{{ supply.supply_name }}"
+                      data-current-quantity="{{ supply.quantity_info.current_quantity }}"
+                      data-minimum-threshold="{{ supply.quantity_info.minimum_threshold }}"
+                      data-category="{{ supply.category }}"
+                      data-subcategory="{{ supply.subcategory }}"
+                      data-description="{{ supply.description }}"
+                      data-date="{{ supply.date_received|date:'Y-m-d' }}"
+                      data-expiration-date="{{ supply.expiration_date|date:'Y-m-d' }}"
+                      data-barcode="{{ supply.barcode }}"
+                      title="Edit">
+                        <i class="fas fa-edit"></i>
+                      </button>
+
+                      <button class="history-btn" 
+                      data-id="{{ supply.id }}"
+                      title="View History">
+                        <i class="fas fa-history"></i>
+                      </button>
+
+                      <form method="POST" action="{% url 'delete_supply' supply.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="del-btn" onclick="return confirm('Are you sure you want to delete this supply?');" title="Delete">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="12">No supplies available in this category.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% endfor %}
+        {% else %}
+          <p>No supplies available.</p>
+        {% endif %}
       </div>
     </div>
 
-  
-    {% if grouped_supplies %}
-      {% for category, page_obj in grouped_supplies.items %}
-        <h3>{{ category }}</h3>
-        <table border="1" class="searchable-table">
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th>Supply Name</th>
-              <th>Description</th>
-              <th>Sub Category</th>
-              <th>Current Quantity</th>
-              <th>Min. Threshold</th>
-              <th>Status</th>
-              <th>Available</th>
-              <th>Barcode</th>
-              <th>Date Received</th>
-              <th>Expiration Date</th>
-              <th>Last Updated</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for supply in page_obj %}
-            <tr>
-              <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
-              <td>{{ supply.supply_name|default:"----" }}</td>
-              <td>{{ supply.description|default:"----" }}</td>
-              <td><strong>{{ supply.get_subcategory_display|default:"----" }}</strong></td>
-              <td>{{ supply.quantity_info.current_quantity|default:"----" }}</td>
-              <td>{{ supply.quantity_info.minimum_threshold|default:"----" }}</td>
-              <td>
-                <span class="status-badge status-{{ supply.status }}">
-                  {% if supply.status == 'available' %}
-                    <i class="fas fa-check-circle"></i>
-                  {% elif supply.status == 'low_stock' %}
-                    <i class="fas fa-exclamation-circle"></i>
-                  {% elif supply.status == 'out_of_stock' %}
-                    <i class="fas fa-times-circle"></i>
-                  {% endif %}
-                  {{ supply.get_status_display }}
-                </span>
-              </td>
-              <td>{{ supply.available_for_request|yesno:"Yes,No" }}</td>
-              <td>{{ supply.barcode|default:"----" }}</td>
-              <td>{{ supply.date_received|default:"----" }}</td>
-              <td>
-                {% if supply.expiration_date %}
-                  <div class="expiration-badge 
-                    {% if supply.days_until_expiration < 0 %}expired
-                    {% elif supply.days_until_expiration <= 30 %}nearly-expired
-                    {% else %}not-expired{% endif %}">
-                    {% if supply.days_until_expiration < 0 %}
-                      <i class="fas fa-exclamation-triangle"></i> Expired
-                    {% elif supply.days_until_expiration <= 30 %}
-                      <i class="fas fa-clock"></i> Expires in {{ supply.days_until_expiration }} days
-                    {% else %}
-                      <i class="fas fa-check"></i> {{ supply.expiration_date|date:"M d, Y" }}
-                    {% endif %}
-                  </div>
-                {% else %}
-                  N/A
-                {% endif %}
-              </td>
-              <td>{{ supply.last_updated|default:"----" }}</td>
-              <td>
-                <div class="button-group">
-                  <button class="edit-btn" 
-                  data-id="{{ supply.id }}"
-                  data-name="{{ supply.supply_name }}"
-                  data-current-quantity="{{ supply.quantity_info.current_quantity }}"
-                  data-minimum-threshold="{{ supply.quantity_info.minimum_threshold }}"
-                  data-category="{{ supply.category }}"
-                  data-subcategory="{{ supply.subcategory }}"
-                  data-description="{{ supply.description }}"
-                  data-date="{{ supply.date_received|date:'Y-m-d' }}"
-                  data-expiration-date="{{ supply.expiration_date|date:'Y-m-d' }}"
-                  data-barcode="{{ supply.barcode }}"
-                  title="Edit">
-                    <i class="fas fa-edit"></i>
-                  </button>
-
-                  <button class="history-btn" 
-                  data-id="{{ supply.id }}"
-                  title="View History">
-                    <i class="fas fa-history"></i>
-                  </button>
-
-                  <form method="POST" action="{% url 'delete_supply' supply.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="del-btn" onclick="return confirm('Are you sure you want to delete this supply?');" title="Delete">
-                      <i class="fas fa-trash-alt"></i>
-                    </button>
-                  </form>
-                </div>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="12">No supplies available in this category.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% with category=category %}
-          {% include 'app/includes/pagination.html' %}
-        {% endwith %}
-      {% endfor %}
-    {% else %}
-      <p>No supplies available.</p>
-    {% endif %}
-  </div>
-
-<!-- Category Modal -->
-<div id="categoryModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <span class="close" id="closeCategory">&times;</span>
-    <h2>Select or Add Category</h2>
-    <form id="categoryForm" method="post" action="{% url 'add_category_supply' %}">
-  {% csrf_token %}
-  {{ category_form.as_p }}
-  <button type="submit">Next</button>
-</form>
-    </form>
-  </div>
-</div>
-
-<!-- Category Modal -->
-<div id="categoryModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <span class="close" id="closeCategory">&times;</span>
-    <h2>Add New Category</h2>
-    <form method="POST" action="{% url 'add_category' %}">
+    <!-- Category Modal -->
+    <div id="categoryModal" class="modal" style="display:none;">
+      <div class="modal-content" style="height: 250px;">
+        <span class="close" id="closeCategory">&times;</span>
+        <h2>Select or Add Category</h2>
+        <form id="categoryForm" method="post" action="{% url 'add_category_supply' %}">
       {% csrf_token %}
       {{ category_form.as_p }}
-      <button type="submit">Add Category</button>
+      <button type="submit" class="submit-btn">Next</button>
     </form>
+      </form>
+    </div>
   </div>
-</div>
 
-<!-- Subcategory Modal -->
-<div id="subcategoryModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <span class="close" id="closeSubcategory">&times;</span>
-    <h2>Add New Subcategory</h2>
-    <form method="POST" action="/add-subcategory/">
-      {% csrf_token %}
-      {{ subcategory_form.as_p }}
-      <button type="submit">Add Subcategory</button>
-    </form>
+  <!-- Category Modal -->
+  <div id="categoryModal" class="modal" style="display:none;">
+    <div class="modal-content" style="height: 250px;">
+      <span class="close" id="closeCategory">&times;</span>
+      <h2>Add New Category</h2>
+      <form method="POST" action="{% url 'add_category' %}">
+        {% csrf_token %}
+        {{ category_form.as_p }}
+        <button type="submit" class="submit-btn">Add Category</button>
+      </form>
+    </div>
   </div>
-</div>
+
+  <!-- Subcategory Modal -->
+  <div id="subcategoryModal" class="modal" style="display:none;">
+    <div class="modal-content" style="height: 250px;">
+      <span class="close" id="closeSubcategory">&times;</span>
+      <h2>Add New Subcategory</h2>
+      <form method="POST" action="/add-subcategory/">
+        {% csrf_token %}
+        {{ subcategory_form.as_p }}
+        <button type="submit" class="submit-btn">Add Subcategory</button>
+      </form>
+    </div>
+  </div>
 
   <!-- Add Supply Modal -->
   <div id="addSupplyModal" class="modal">
@@ -572,11 +616,6 @@ tr.hidden {
           <label>Expiration Date (Optional)</label>
           <input type="date" name="expiration_date" id="edit_expiration_date" />
           <small class="help-text">Leave empty if the supply does not expire.</small>
-        </div>
-
-        <div class="form-group">
-          <label>Barcode</label>
-          <input type="text" name="barcode" id="edit_barcode" required />
         </div>
 
         <button type="submit" class="submit-btn">Update</button>
@@ -738,7 +777,6 @@ tr.hidden {
           document.getElementById("edit_description").value = button.dataset.description || '';
           document.getElementById("edit_date").value = button.dataset.date;
           document.getElementById("edit_expiration_date").value = button.dataset.expirationDate || '';
-          document.getElementById("edit_barcode").value = button.dataset.barcode;
           editModal.style.display = "block";
         });
       });
@@ -853,6 +891,60 @@ tr.hidden {
         }
       });
     });
+
+    function printBarcodes() {
+        // Create a new window for printing
+        let printWindow = window.open('', '_blank');
+        
+        // Get all barcodes
+        let barcodes = document.querySelectorAll('.barcode-container');
+        
+        // Create print content
+        let content = `
+            <html>
+            <head>
+                <title>Print Barcodes</title>
+                <link rel="stylesheet" href="{% static 'css/barcode.css' %}">
+                <style>
+                    body { margin: 0; padding: 20px; }
+                    .print-grid {
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 20px;
+                        padding: 20px;
+                    }
+                    .barcode-container {
+                        background: white;
+                        padding: 15px;
+                        border: 1px solid #ddd;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-grid">
+        `;
+        
+        // Add each barcode to the content
+        barcodes.forEach(barcode => {
+            content += barcode.outerHTML;
+        });
+        
+        content += `
+                </div>
+            </body>
+            </html>
+        `;
+        
+        // Write content to new window and print
+        printWindow.document.write(content);
+        printWindow.document.close();
+        printWindow.onload = function() {
+            printWindow.print();
+            printWindow.onafterprint = function() {
+                printWindow.close();
+            };
+        };
+    }
   </script>
   <script src="{% static 'scripts/supplyModal.js' %}"></script>
   {% endblock %}

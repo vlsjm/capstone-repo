@@ -8191,3 +8191,765 @@ INFO 2025-06-02 21:16:06,133 basehttp 6736 15800 "POST /add-supply/ HTTP/1.1" 30
 INFO 2025-06-02 21:16:06,152 basehttp 6736 15800 "GET /supplies/ HTTP/1.1" 200 33063
 INFO 2025-06-02 21:16:09,336 basehttp 6736 15800 "GET /get_supply_history/5/ HTTP/1.1" 200 196
 INFO 2025-06-02 21:16:09,343 basehttp 6736 15800 "GET /get_supply_history/5/ HTTP/1.1" 200 196
+INFO 2025-06-02 21:28:31,007 autoreload 5260 7464 Watching for file changes with StatReloader
+INFO 2025-06-02 21:28:45,915 basehttp 5260 6612 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 21:28:48,224 basehttp 5260 3200 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+WARNING 2025-06-02 21:28:56,076 basehttp 5260 1844 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 21:29:07,121 basehttp 5260 5940 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 21:29:08,225 basehttp 5260 5940 "GET /dashboard/ HTTP/1.1" 200 29306
+INFO 2025-06-02 21:29:08,452 basehttp 5260 5940 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 21:29:08,458 basehttp 5260 5668 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-02 21:29:08,640 basehttp 5260 5668 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-02 21:29:08,808 basehttp 5260 5668 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-02 21:29:28,238 basehttp 5260 2844 "GET /property/ HTTP/1.1" 200 61743
+INFO 2025-06-02 21:29:28,388 basehttp 5260 2844 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 21:29:28,388 basehttp 5260 3432 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 21:29:28,469 basehttp 5260 3432 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 21:29:40,195 basehttp 5260 3432 "GET /supplies/ HTTP/1.1" 200 32806
+INFO 2025-06-02 21:29:40,297 basehttp 5260 3432 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 21:31:01,415 basehttp 5260 1388 "POST /add-supply-category/ HTTP/1.1" 302 0
+INFO 2025-06-02 21:31:01,495 basehttp 5260 1388 "GET /supplies/ HTTP/1.1" 200 32900
+INFO 2025-06-02 21:31:16,326 basehttp 5260 4544 "POST /add-subcategory/ HTTP/1.1" 302 0
+INFO 2025-06-02 21:31:16,426 basehttp 5260 4544 "GET /supplies/ HTTP/1.1" 200 33000
+INFO 2025-06-02 21:31:37,318 basehttp 5260 740 "GET /property/ HTTP/1.1" 200 61743
+INFO 2025-06-02 21:32:07,259 basehttp 5260 4244 "GET /supplies/ HTTP/1.1" 200 33000
+INFO 2025-06-02 21:38:41,382 basehttp 5260 5172 "GET /supplies/ HTTP/1.1" 200 36272
+INFO 2025-06-02 21:39:11,520 basehttp 5260 7532 "GET /supplies/ HTTP/1.1" 200 33000
+INFO 2025-06-02 21:41:01,337 basehttp 5260 6800 "GET /dashboard/ HTTP/1.1" 200 29306
+INFO 2025-06-02 21:41:09,956 basehttp 5260 5332 "GET /supplies/ HTTP/1.1" 200 33000
+INFO 2025-06-02 21:41:16,570 basehttp 5260 5332 "GET /dashboard/ HTTP/1.1" 200 29306
+INFO 2025-06-02 21:41:20,274 basehttp 5260 5808 "GET /supplies/ HTTP/1.1" 200 33000
+INFO 2025-06-02 21:41:44,911 basehttp 5260 6840 "GET /supplies/ HTTP/1.1" 200 34146
+INFO 2025-06-02 21:41:45,787 basehttp 5260 6840 "GET /supplies/ HTTP/1.1" 200 34146
+INFO 2025-06-02 21:41:46,251 basehttp 5260 6840 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 21:41:46,270 basehttp 5260 2844 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+WARNING 2025-06-02 21:41:46,760 basehttp 5260 2844 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 21:42:03,493 basehttp 5260 7612 "POST /add-category/ HTTP/1.1" 302 0
+INFO 2025-06-02 21:42:03,752 basehttp 5260 7612 "GET /property/ HTTP/1.1" 200 61829
+INFO 2025-06-02 21:42:26,366 basehttp 5260 3916 "GET /supplies/ HTTP/1.1" 200 34146
+INFO 2025-06-02 21:42:28,713 basehttp 5260 4500 "GET /property/ HTTP/1.1" 200 61829
+INFO 2025-06-02 21:42:32,887 basehttp 5260 4500 "GET /supplies/ HTTP/1.1" 200 34146
+ERROR 2025-06-02 21:42:51,684 log 5260 5916 Internal Server Error: /add-category/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: app_propertycategory.name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py", line 1234, in add_property_category
+    PropertyCategory.objects.create(name=name)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1169, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1210, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1854, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1881, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: app_propertycategory.name
+ERROR 2025-06-02 21:42:51,728 basehttp 5260 5916 "POST /add-category/ HTTP/1.1" 500 158148
+ERROR 2025-06-02 21:43:12,511 log 5260 464 Internal Server Error: /add-category/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: app_propertycategory.name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py", line 1234, in add_property_category
+    PropertyCategory.objects.create(name=name)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1169, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1210, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1854, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1881, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: app_propertycategory.name
+ERROR 2025-06-02 21:43:12,527 basehttp 5260 464 "POST /add-category/ HTTP/1.1" 500 158148
+INFO 2025-06-02 21:43:15,135 basehttp 5260 464 "GET /supplies/ HTTP/1.1" 200 33000
+INFO 2025-06-02 21:43:24,459 basehttp 5260 5808 "POST /add-supply-category/ HTTP/1.1" 302 0
+INFO 2025-06-02 21:43:24,565 basehttp 5260 5808 "GET /supplies/ HTTP/1.1" 200 33102
+WARNING 2025-06-02 21:43:38,791 basehttp 5260 1192 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15906
+INFO 2025-06-02 21:44:17,100 basehttp 5260 6528 "GET /property/ HTTP/1.1" 200 61829
+WARNING 2025-06-02 21:44:24,453 basehttp 5260 3544 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15906
+INFO 2025-06-02 21:44:24,485 basehttp 5260 3544 - Broken pipe from ('127.0.0.1', 65423)
+INFO 2025-06-02 21:47:52,481 basehttp 5260 7688 "GET /property/ HTTP/1.1" 200 61829
+INFO 2025-06-02 21:47:53,604 basehttp 5260 7688 "GET /supplies/ HTTP/1.1" 200 32493
+INFO 2025-06-02 21:48:25,436 basehttp 5260 4520 "POST /add-category/ HTTP/1.1" 302 0
+INFO 2025-06-02 21:48:25,536 basehttp 5260 4520 "GET /property/ HTTP/1.1" 200 61931
+INFO 2025-06-02 21:48:32,731 basehttp 5260 3632 "GET /supplies/ HTTP/1.1" 200 32493
+ERROR 2025-06-02 21:48:38,540 log 5260 3632 Internal Server Error: /add-category/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: app_propertycategory.name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py", line 1234, in add_property_category
+    PropertyCategory.objects.create(name=name)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1169, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1210, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1854, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1881, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: app_propertycategory.name
+ERROR 2025-06-02 21:48:38,552 basehttp 5260 3632 "POST /add-category/ HTTP/1.1" 500 158391
+ERROR 2025-06-02 21:49:03,708 log 5260 2488 Internal Server Error: /add-category/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: app_propertycategory.name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py", line 1234, in add_property_category
+    PropertyCategory.objects.create(name=name)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1169, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1210, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1854, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1881, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: app_propertycategory.name
+ERROR 2025-06-02 21:49:03,721 basehttp 5260 2488 "POST /add-category/ HTTP/1.1" 500 158391
+ERROR 2025-06-02 21:49:06,752 log 5260 2488 Internal Server Error: /add-category/
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: app_propertycategory.name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py", line 1234, in add_property_category
+    PropertyCategory.objects.create(name=name)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1169, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1210, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1854, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1881, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\rrdel\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: app_propertycategory.name
+ERROR 2025-06-02 21:49:06,767 basehttp 5260 2488 "POST /add-category/ HTTP/1.1" 500 158519
+WARNING 2025-06-02 21:49:07,175 basehttp 5260 2488 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 21:49:08,106 basehttp 5260 2488 "GET /supplies/ HTTP/1.1" 200 33140
+INFO 2025-06-02 21:49:14,139 basehttp 5260 7204 "GET /property/ HTTP/1.1" 200 61931
+INFO 2025-06-02 21:49:27,103 basehttp 5260 5196 "POST /add-category/ HTTP/1.1" 302 0
+INFO 2025-06-02 21:49:27,230 basehttp 5260 5196 "GET /property/ HTTP/1.1" 200 62027
+INFO 2025-06-02 21:49:36,257 basehttp 5260 5464 "GET /supplies/ HTTP/1.1" 200 33140
+INFO 2025-06-02 21:49:43,247 basehttp 5260 4400 "POST /add-supply-category/ HTTP/1.1" 302 0
+INFO 2025-06-02 21:49:43,319 basehttp 5260 4400 "GET /supplies/ HTTP/1.1" 200 33244
+INFO 2025-06-02 21:50:09,038 basehttp 5260 7484 "GET /supplies/ HTTP/1.1" 200 33263
+INFO 2025-06-02 21:50:19,600 basehttp 5260 5724 "GET /property/ HTTP/1.1" 200 62027
+INFO 2025-06-02 21:51:16,272 basehttp 5260 7752 "GET /supplies/ HTTP/1.1" 200 33263
+INFO 2025-06-02 21:52:48,337 basehttp 5260 8612 "GET /supplies/ HTTP/1.1" 200 33494
+INFO 2025-06-02 21:52:50,012 basehttp 5260 8612 "GET /supplies/ HTTP/1.1" 200 33494
+INFO 2025-06-02 21:53:00,693 basehttp 5260 7024 "GET /supplies/ HTTP/1.1" 200 33492
+INFO 2025-06-02 21:53:49,272 basehttp 5260 6228 "GET /supplies/ HTTP/1.1" 200 33579
+INFO 2025-06-02 21:54:11,394 basehttp 5260 8468 "GET /supplies/ HTTP/1.1" 200 33570
+INFO 2025-06-02 21:54:28,433 basehttp 5260 6624 "GET /supplies/ HTTP/1.1" 200 33518
+INFO 2025-06-02 21:54:40,175 basehttp 5260 4544 "GET /supplies/ HTTP/1.1" 200 33492
+INFO 2025-06-02 21:54:49,855 basehttp 5260 1052 "GET /supplies/ HTTP/1.1" 200 33270
+INFO 2025-06-02 21:55:07,037 basehttp 5260 956 "GET /supplies/ HTTP/1.1" 200 33269
+INFO 2025-06-02 21:55:07,157 basehttp 5260 956 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 21:55:07,161 basehttp 5260 8168 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+WARNING 2025-06-02 21:55:07,685 basehttp 5260 8168 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 21:55:07,843 basehttp 5260 8168 "GET /supplies/ HTTP/1.1" 200 33269
+INFO 2025-06-02 21:55:07,935 basehttp 5260 956 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+INFO 2025-06-02 21:55:07,941 basehttp 5260 8168 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 21:55:08,296 basehttp 5260 8856 "GET /supplies/ HTTP/1.1" 200 33269
+INFO 2025-06-02 21:55:08,736 basehttp 5260 8856 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 21:55:08,740 basehttp 5260 8168 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+WARNING 2025-06-02 21:55:09,136 basehttp 5260 8856 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 21:55:29,845 basehttp 5260 5240 "GET /supplies/ HTTP/1.1" 200 33263
+INFO 2025-06-02 21:57:19,409 basehttp 5260 4280 "GET /supplies/ HTTP/1.1" 200 33290
+INFO 2025-06-02 21:57:35,857 basehttp 5260 7068 "GET /supplies/ HTTP/1.1" 200 33263
+INFO 2025-06-02 21:57:59,629 basehttp 5260 1748 "GET /supplies/ HTTP/1.1" 200 33285
+INFO 2025-06-02 21:58:20,615 basehttp 5260 5192 "GET /supplies/ HTTP/1.1" 200 33285
+INFO 2025-06-02 21:58:29,359 basehttp 5260 4008 "GET /supplies/ HTTP/1.1" 200 33286
+INFO 2025-06-02 21:58:30,328 basehttp 5260 4008 "GET /supplies/ HTTP/1.1" 200 33286
+INFO 2025-06-02 21:58:39,208 basehttp 5260 2228 "GET /supplies/ HTTP/1.1" 200 33286
+INFO 2025-06-02 21:58:52,910 basehttp 5260 5012 "GET /supplies/ HTTP/1.1" 200 33286
+INFO 2025-06-02 21:59:49,581 basehttp 5260 4292 "GET /property/ HTTP/1.1" 200 62027
+INFO 2025-06-02 21:59:49,771 basehttp 5260 4292 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 21:59:50,002 basehttp 5260 276 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 21:59:50,022 basehttp 5260 7484 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 21:59:54,062 basehttp 5260 3500 "GET /supplies/ HTTP/1.1" 200 33312
+INFO 2025-06-02 22:00:42,009 basehttp 5260 7868 "GET /supplies/ HTTP/1.1" 200 33307
+INFO 2025-06-02 22:00:56,063 basehttp 5260 6520 "GET /supplies/ HTTP/1.1" 200 33306
+INFO 2025-06-02 22:01:08,542 basehttp 5260 6124 "GET /supplies/ HTTP/1.1" 200 33306
+INFO 2025-06-02 22:01:21,255 basehttp 5260 4172 "GET /supplies/ HTTP/1.1" 200 33306
+INFO 2025-06-02 22:01:33,572 basehttp 5260 1348 "GET /supplies/ HTTP/1.1" 200 33306
+INFO 2025-06-02 22:01:43,442 basehttp 5260 4408 "GET /supplies/ HTTP/1.1" 200 33306
+INFO 2025-06-02 22:02:21,387 basehttp 5260 1628 "GET /supplies/ HTTP/1.1" 200 33318
+INFO 2025-06-02 22:02:41,255 basehttp 5260 7708 "GET /supplies/ HTTP/1.1" 200 33318
+INFO 2025-06-02 22:03:05,784 basehttp 5260 3888 "GET /supplies/ HTTP/1.1" 200 33320
+INFO 2025-06-02 22:03:05,887 basehttp 5260 3888 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 22:03:05,894 basehttp 5260 8864 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+INFO 2025-06-02 22:03:06,023 basehttp 5260 8864 "GET /supplies/ HTTP/1.1" 200 33320
+INFO 2025-06-02 22:03:06,175 basehttp 5260 8864 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 22:03:06,179 basehttp 5260 3888 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+INFO 2025-06-02 22:03:06,557 basehttp 5260 8700 - Broken pipe from ('127.0.0.1', 49434)
+INFO 2025-06-02 22:03:06,677 basehttp 5260 3888 "GET /supplies/ HTTP/1.1" 200 33320
+INFO 2025-06-02 22:03:06,816 basehttp 5260 3888 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 22:03:06,816 basehttp 5260 8864 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+WARNING 2025-06-02 22:03:07,148 basehttp 5260 8864 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 22:03:31,154 basehttp 5260 1892 "GET /supplies/ HTTP/1.1" 200 33319
+INFO 2025-06-02 22:03:40,895 basehttp 5260 6948 "GET /supplies/ HTTP/1.1" 200 33319
+INFO 2025-06-02 22:03:57,022 basehttp 5260 1896 "GET /supplies/ HTTP/1.1" 200 33320
+INFO 2025-06-02 22:04:12,343 basehttp 5260 7792 "GET /supplies/ HTTP/1.1" 200 33318
+WARNING 2025-06-02 22:04:22,874 basehttp 5260 7776 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15906
+INFO 2025-06-02 22:04:22,982 basehttp 5260 7776 - Broken pipe from ('127.0.0.1', 49456)
+INFO 2025-06-02 22:04:59,918 basehttp 5260 1192 "GET /supplies/ HTTP/1.1" 200 33306
+INFO 2025-06-02 22:05:14,062 basehttp 5260 7792 "GET /supplies/ HTTP/1.1" 200 33319
+INFO 2025-06-02 22:05:27,249 basehttp 5260 7792 "GET /supplies/ HTTP/1.1" 200 33302
+INFO 2025-06-02 22:05:48,646 basehttp 5260 6068 "GET /supplies/ HTTP/1.1" 200 33319
+INFO 2025-06-02 22:06:01,045 basehttp 5260 1808 "GET /supplies/ HTTP/1.1" 200 33306
+WARNING 2025-06-02 22:06:10,413 basehttp 5260 4684 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15906
+INFO 2025-06-02 22:06:10,417 basehttp 5260 4684 - Broken pipe from ('127.0.0.1', 49498)
+INFO 2025-06-02 22:06:36,785 basehttp 5260 2444 "GET /supplies/ HTTP/1.1" 200 33372
+INFO 2025-06-02 22:06:45,105 basehttp 5260 4528 "GET /property/ HTTP/1.1" 200 62027
+INFO 2025-06-02 22:06:51,016 basehttp 5260 4528 "GET /supplies/ HTTP/1.1" 200 33372
+INFO 2025-06-02 22:07:10,356 basehttp 5260 1184 "GET /supplies/ HTTP/1.1" 200 33352
+INFO 2025-06-02 22:07:11,626 basehttp 5260 1184 "GET /supplies/ HTTP/1.1" 200 33352
+INFO 2025-06-02 22:07:27,230 basehttp 5260 1600 "GET /supplies/ HTTP/1.1" 200 33329
+INFO 2025-06-02 22:07:56,632 basehttp 5260 1676 "GET /property/ HTTP/1.1" 200 62027
+WARNING 2025-06-02 22:08:04,019 basehttp 5260 1184 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15906
+INFO 2025-06-02 22:08:04,020 basehttp 5260 1184 - Broken pipe from ('127.0.0.1', 49538)
+INFO 2025-06-02 22:09:24,931 basehttp 5260 4752 "GET /supplies/ HTTP/1.1" 200 33401
+INFO 2025-06-02 22:09:32,457 basehttp 5260 4752 "GET /property/ HTTP/1.1" 200 62027
+INFO 2025-06-02 22:09:36,622 basehttp 5260 4752 "GET /supplies/ HTTP/1.1" 200 33401
+INFO 2025-06-02 22:09:45,810 basehttp 5260 4752 "GET /property/ HTTP/1.1" 200 62027
+WARNING 2025-06-02 22:09:56,477 basehttp 5260 4752 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15906
+INFO 2025-06-02 22:10:44,975 basehttp 5260 3384 "GET /property/ HTTP/1.1" 200 62027
+WARNING 2025-06-02 22:10:46,154 basehttp 5260 3384 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15906
+INFO 2025-06-02 22:10:47,287 basehttp 5260 3384 "GET /supplies/ HTTP/1.1" 200 33611
+INFO 2025-06-02 22:10:47,382 basehttp 5260 7956 - Broken pipe from ('127.0.0.1', 49640)
+WARNING 2025-06-02 22:10:48,064 basehttp 5260 3384 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15906
+INFO 2025-06-02 22:10:53,876 basehttp 5260 9180 "GET /property/ HTTP/1.1" 200 62027
+WARNING 2025-06-02 22:10:54,287 basehttp 5260 9180 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15906
+INFO 2025-06-02 22:11:49,529 basehttp 5260 4932 "GET /supplies/ HTTP/1.1" 200 33742
+WARNING 2025-06-02 22:11:50,867 basehttp 5260 4932 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15906
+INFO 2025-06-02 22:12:25,125 basehttp 5260 8276 "GET /supplies/ HTTP/1.1" 200 33727
+WARNING 2025-06-02 22:12:26,051 basehttp 5260 8276 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15906
+INFO 2025-06-02 22:12:54,916 basehttp 5260 1104 "GET /supplies/ HTTP/1.1" 200 33372
+INFO 2025-06-02 22:13:06,022 basehttp 5260 7108 "GET /supplies/ HTTP/1.1" 200 33306
+INFO 2025-06-02 22:26:05,236 basehttp 5260 4296 "GET /supplies/ HTTP/1.1" 200 33286
+INFO 2025-06-02 22:28:20,617 basehttp 5260 8916 "GET /supplies/ HTTP/1.1" 200 35032
+INFO 2025-06-02 22:28:35,581 basehttp 5260 7060 "GET /supplies/ HTTP/1.1" 200 33286
+INFO 2025-06-02 22:29:10,933 basehttp 5260 1808 "GET /supplies/ HTTP/1.1" 302 0
+INFO 2025-06-02 22:29:11,020 basehttp 5260 1808 "GET /login_user/?next=/supplies/ HTTP/1.1" 200 9162
+INFO 2025-06-02 22:29:11,330 basehttp 5260 1808 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-02 22:29:17,736 basehttp 5260 1808 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 22:29:18,219 basehttp 5260 1808 "GET /dashboard/ HTTP/1.1" 200 29306
+INFO 2025-06-02 22:29:18,224 basehttp 5260 1808 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-02 22:29:18,320 basehttp 5260 9860 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-02 22:29:18,335 basehttp 5260 9904 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-02 22:29:23,531 basehttp 5260 9904 "GET /supplies/ HTTP/1.1" 200 33309
+INFO 2025-06-02 22:29:46,127 basehttp 5260 6612 "GET /supplies/ HTTP/1.1" 200 33332
+INFO 2025-06-02 22:30:16,399 basehttp 5260 9944 "GET /supplies/ HTTP/1.1" 200 33344
+INFO 2025-06-02 22:30:31,071 basehttp 5260 6700 "GET /supplies/ HTTP/1.1" 200 33332
+INFO 2025-06-02 22:30:48,098 basehttp 5260 8048 "GET /supplies/ HTTP/1.1" 200 33344
+INFO 2025-06-02 22:31:03,566 basehttp 5260 10048 "GET /supplies/ HTTP/1.1" 200 33345
+INFO 2025-06-02 22:31:29,274 basehttp 5260 9888 "GET /supplies/ HTTP/1.1" 200 33332
+INFO 2025-06-02 22:31:41,032 basehttp 5260 6344 "POST /add-supply-category/ HTTP/1.1" 302 0
+INFO 2025-06-02 22:31:41,095 basehttp 5260 6344 "GET /supplies/ HTTP/1.1" 200 33432
+INFO 2025-06-02 22:31:49,481 basehttp 5260 6612 "POST /add-subcategory/ HTTP/1.1" 302 0
+INFO 2025-06-02 22:31:49,566 basehttp 5260 6612 "GET /supplies/ HTTP/1.1" 200 33530
+INFO 2025-06-02 22:37:51,835 autoreload 3476 10160 Watching for file changes with StatReloader
+INFO 2025-06-02 22:41:48,067 autoreload 10044 5456 Watching for file changes with StatReloader
+INFO 2025-06-02 22:41:56,239 basehttp 10044 788 "GET /supplies/ HTTP/1.1" 200 27329
+INFO 2025-06-02 22:41:56,287 basehttp 10044 788 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 22:41:56,356 basehttp 10044 9296 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 22:41:56,446 basehttp 10044 3668 "GET /static/css/barcode.css HTTP/1.1" 200 893
+INFO 2025-06-02 22:41:58,272 basehttp 10044 9820 "GET /supplies/ HTTP/1.1" 200 27329
+INFO 2025-06-02 22:41:59,322 basehttp 10044 9820 "GET /property/ HTTP/1.1" 200 27166
+INFO 2025-06-02 22:41:59,493 basehttp 10044 9820 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 22:41:59,509 basehttp 10044 5548 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 22:41:59,518 basehttp 10044 7596 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 22:42:01,515 basehttp 10044 7596 "GET /property/ HTTP/1.1" 200 27166
+INFO 2025-06-02 22:42:28,045 basehttp 10044 920 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-02 22:42:28,286 basehttp 10044 920 "GET /property/ HTTP/1.1" 200 27425
+INFO 2025-06-02 22:45:14,471 basehttp 10044 956 - Broken pipe from ('127.0.0.1', 50361)
+INFO 2025-06-02 22:45:14,740 basehttp 10044 7868 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:45:15,143 basehttp 10044 7868 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-02 22:45:17,315 basehttp 10044 7868 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:45:17,952 basehttp 10044 6700 "GET /static/css/barcode.css HTTP/1.1" 200 893
+INFO 2025-06-02 22:45:18,044 basehttp 10044 4572 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+INFO 2025-06-02 22:45:18,061 basehttp 10044 7868 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 22:45:18,140 basehttp 10044 8152 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-02 22:45:18,211 basehttp 10044 9300 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+WARNING 2025-06-02 22:45:20,381 basehttp 10044 9300 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 22:46:50,112 basehttp 10044 10184 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:46:50,226 basehttp 10044 10184 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-02 22:46:51,440 basehttp 10044 10184 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:46:51,554 basehttp 10044 10184 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 22:46:51,570 basehttp 10044 1364 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+INFO 2025-06-02 22:46:51,573 basehttp 10044 8916 "GET /static/css/barcode.css HTTP/1.1" 200 893
+INFO 2025-06-02 22:46:51,582 basehttp 10044 9676 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+INFO 2025-06-02 22:46:51,580 basehttp 10044 7128 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+WARNING 2025-06-02 22:46:52,090 basehttp 10044 7128 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 22:46:52,956 basehttp 10044 7128 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:46:53,063 basehttp 10044 7128 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 22:46:53,074 basehttp 10044 9676 "GET /static/css/barcode.css HTTP/1.1" 200 893
+INFO 2025-06-02 22:46:53,077 basehttp 10044 8916 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+INFO 2025-06-02 22:46:53,078 basehttp 10044 1364 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+INFO 2025-06-02 22:46:53,080 basehttp 10044 10184 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+WARNING 2025-06-02 22:46:53,661 basehttp 10044 10184 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 22:47:19,135 basehttp 10044 8224 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:47:20,010 basehttp 10044 8224 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:47:20,205 basehttp 10044 8224 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 22:47:20,302 basehttp 10044 9760 "GET /static/css/barcode.css HTTP/1.1" 200 893
+INFO 2025-06-02 22:47:20,324 basehttp 10044 7788 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+INFO 2025-06-02 22:47:20,331 basehttp 10044 9060 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-02 22:47:20,396 basehttp 10044 4092 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+WARNING 2025-06-02 22:47:20,873 basehttp 10044 4092 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 22:47:22,826 basehttp 10044 4092 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:51:32,012 basehttp 10044 9752 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:51:32,152 basehttp 10044 9752 "GET /static/css/barcode.css HTTP/1.1" 200 938
+INFO 2025-06-02 22:51:33,899 basehttp 10044 9752 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:51:34,016 basehttp 10044 9752 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 22:51:34,203 basehttp 10044 740 "GET /static/css/barcode.css HTTP/1.1" 200 938
+INFO 2025-06-02 22:51:34,233 basehttp 10044 9292 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+INFO 2025-06-02 22:51:34,273 basehttp 10044 2308 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-02 22:51:34,402 basehttp 10044 8360 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+WARNING 2025-06-02 22:51:34,725 basehttp 10044 8360 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 22:53:48,798 basehttp 10044 100 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:53:49,103 basehttp 10044 100 "GET /static/css/barcode.css HTTP/1.1" 200 910
+INFO 2025-06-02 22:53:50,235 basehttp 10044 100 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:53:50,344 basehttp 10044 100 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 22:53:50,356 basehttp 10044 8 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+INFO 2025-06-02 22:53:50,369 basehttp 10044 8024 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-02 22:53:50,390 basehttp 10044 8452 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+INFO 2025-06-02 22:53:50,430 basehttp 10044 9580 "GET /static/css/barcode.css HTTP/1.1" 200 910
+WARNING 2025-06-02 22:53:50,986 basehttp 10044 9580 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 22:53:52,459 basehttp 10044 9580 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:53:52,559 basehttp 10044 9580 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 22:53:52,568 basehttp 10044 8452 "GET /static/css/barcode.css HTTP/1.1" 200 910
+INFO 2025-06-02 22:53:52,569 basehttp 10044 8 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-02 22:53:52,570 basehttp 10044 100 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+INFO 2025-06-02 22:53:52,572 basehttp 10044 8024 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+WARNING 2025-06-02 22:53:53,079 basehttp 10044 8024 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 22:55:21,170 basehttp 10044 9436 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:55:21,270 basehttp 10044 9436 "GET /static/css/barcode.css HTTP/1.1" 200 938
+INFO 2025-06-02 22:55:22,467 basehttp 10044 9436 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:55:22,569 basehttp 10044 9436 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 22:55:22,613 basehttp 10044 4140 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-02 22:55:22,620 basehttp 10044 6464 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+INFO 2025-06-02 22:55:22,628 basehttp 10044 1184 "GET /static/css/barcode.css HTTP/1.1" 200 938
+INFO 2025-06-02 22:55:22,655 basehttp 10044 8644 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+WARNING 2025-06-02 22:55:23,175 basehttp 10044 8644 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 22:56:45,798 basehttp 10044 6368 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:56:45,917 basehttp 10044 6368 "GET /static/css/barcode.css HTTP/1.1" 200 893
+INFO 2025-06-02 22:56:51,681 basehttp 10044 7300 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 22:56:51,774 basehttp 10044 7300 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-02 22:56:52,790 basehttp 10044 7300 "GET /supplies/ HTTP/1.1" 200 48507
+INFO 2025-06-02 22:56:52,913 basehttp 10044 7300 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-02 23:02:25,989 basehttp 10044 3840 "GET /supplies/ HTTP/1.1" 200 48507
+INFO 2025-06-02 23:02:26,085 basehttp 10044 3840 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-02 23:03:31,660 basehttp 10044 9120 "GET /supplies/ HTTP/1.1" 200 48507
+INFO 2025-06-02 23:03:31,779 basehttp 10044 9120 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-02 23:03:34,054 basehttp 10044 9120 "GET /supplies/ HTTP/1.1" 200 48507
+INFO 2025-06-02 23:03:35,251 basehttp 10044 9120 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 23:05:55,059 basehttp 10044 9436 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 23:05:55,178 basehttp 10044 9436 "GET /static/css/barcode.css HTTP/1.1" 200 893
+INFO 2025-06-02 23:05:56,526 basehttp 10044 9436 "GET /property/ HTTP/1.1" 200 200707
+INFO 2025-06-02 23:05:56,630 basehttp 10044 9436 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 23:05:56,808 basehttp 10044 8404 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+INFO 2025-06-02 23:05:56,838 basehttp 10044 7720 "GET /static/css/barcode.css HTTP/1.1" 200 893
+INFO 2025-06-02 23:05:56,845 basehttp 10044 2080 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-02 23:05:56,847 basehttp 10044 9656 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+WARNING 2025-06-02 23:05:57,410 basehttp 10044 9656 "GET /favicon.ico HTTP/1.1" 404 15795
+INFO 2025-06-02 23:09:49,335 basehttp 10044 9572 "GET /property/ HTTP/1.1" 200 203633
+INFO 2025-06-02 23:09:49,728 basehttp 10044 9572 "GET /static/css/barcode.css HTTP/1.1" 200 893
+INFO 2025-06-02 23:09:54,919 basehttp 10044 9572 "GET /property/ HTTP/1.1" 200 203633
+INFO 2025-06-02 23:09:58,650 basehttp 10044 9884 "GET /supplies/ HTTP/1.1" 200 51078
+INFO 2025-06-02 23:12:51,670 basehttp 10044 1184 "GET /supplies/ HTTP/1.1" 200 51943
+INFO 2025-06-02 23:12:52,669 basehttp 10044 5152 "GET /static/css/barcode.css HTTP/1.1" 200 893
+INFO 2025-06-02 23:12:58,254 basehttp 10044 9676 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-02 23:15:24,700 basehttp 10044 656 "GET /property/ HTTP/1.1" 200 205703
+INFO 2025-06-02 23:15:25,009 basehttp 10044 656 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-02 23:18:49,574 autoreload 10044 5456 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-02 23:19:29,174 autoreload 2644 8916 Watching for file changes with StatReloader
+INFO 2025-06-02 23:20:18,049 autoreload 2644 8916 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 23:20:58,555 autoreload 5332 7720 Watching for file changes with StatReloader
+INFO 2025-06-02 23:21:34,627 basehttp 5332 8820 "GET /supplies/ HTTP/1.1" 200 51410
+INFO 2025-06-02 23:21:36,048 basehttp 5332 8820 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-02 23:21:36,513 basehttp 5332 8820 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 23:22:20,461 basehttp 5332 7872 "GET /property/ HTTP/1.1" 200 205432
+INFO 2025-06-02 23:25:38,068 autoreload 5332 7720 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 23:25:53,512 autoreload 2080 6472 Watching for file changes with StatReloader
+INFO 2025-06-02 23:26:34,382 basehttp 2080 9268 "GET /property/ HTTP/1.1" 200 182220
+INFO 2025-06-02 23:26:34,561 basehttp 2080 9268 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-02 23:31:06,908 basehttp 2080 7284 "GET /property/ HTTP/1.1" 302 0
+INFO 2025-06-02 23:31:07,879 basehttp 2080 7284 "GET /login_user/?next=/property/ HTTP/1.1" 200 9162
+INFO 2025-06-02 23:31:08,637 basehttp 2080 7284 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-02 23:31:25,972 basehttp 2080 4964 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 23:31:26,591 basehttp 2080 4964 "GET /dashboard/ HTTP/1.1" 200 29306
+INFO 2025-06-02 23:31:26,885 basehttp 2080 4964 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-02 23:31:27,049 basehttp 2080 6828 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-02 23:31:27,237 basehttp 2080 3616 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-02 23:31:34,808 basehttp 2080 1104 "GET /property/ HTTP/1.1" 200 181305
+INFO 2025-06-02 23:31:34,972 basehttp 2080 1104 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-02 23:31:45,070 basehttp 2080 9628 "GET /supplies/ HTTP/1.1" 200 51286
+INFO 2025-06-02 23:31:53,042 basehttp 2080 4668 "GET /property/ HTTP/1.1" 200 181305

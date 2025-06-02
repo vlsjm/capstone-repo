@@ -64,7 +64,6 @@ class PropertyForm(forms.ModelForm):
             'property_name',
             'category',
             'description',
-            'barcode',
             'unit_of_measure',
             'unit_value',
             'overall_quantity',
@@ -75,7 +74,6 @@ class PropertyForm(forms.ModelForm):
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
             'property_number': forms.TextInput(attrs={'placeholder': 'Enter unique property number'}),
-            'barcode': forms.TextInput(attrs={'placeholder': 'Enter barcode'}),
             'unit_value': forms.NumberInput(attrs={'min': 0, 'step': '0.01'}),
             'overall_quantity': forms.NumberInput(attrs={'min': 0}),
             'quantity': forms.NumberInput(attrs={'min': 0, 'readonly': True}),
@@ -87,7 +85,7 @@ class PropertyForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Set required fields
-        for field in ['property_name', 'description', 'barcode', 'unit_of_measure', 
+        for field in ['property_name', 'description', 'unit_of_measure', 
                       'unit_value', 'overall_quantity', 'location', 'condition', 'category']:
             self.fields[field].required = True
 
@@ -129,7 +127,6 @@ class SupplyForm(forms.ModelForm):
             'category',
             'subcategory',
             'description',
-            'barcode',
             'available_for_request',
             'date_received',
             'expiration_date',
@@ -143,7 +140,6 @@ class SupplyForm(forms.ModelForm):
             'available_for_request': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         help_texts = {
-            'barcode': 'Unique identifier for the supply item',
             'expiration_date': 'Optional. Leave empty if the supply does not expire.',
             'available_for_request': 'Check if this item should be available for staff requests',
         }

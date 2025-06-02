@@ -1,0 +1,43 @@
+.barcode-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.barcode-image {
+    max-width: 150px;
+    height: 50px;
+    margin-bottom: 5px;
+}
+
+.barcode-number {
+    font-family: monospace;
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    margin-top: 4px;
+}
+
+/* Print styles */
+@media print {
+    .barcode-container {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        background-color: white !important;
+        box-shadow: none;
+    }
+    
+    .barcode-image {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+    
+    .barcode-number {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+} 
