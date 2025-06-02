@@ -45,3 +45,4 @@ document.querySelectorAll('.edit-btn').forEach(button => {
     document.getElementById('editPropertyModal').style.display = 'block';
   });
 });
+

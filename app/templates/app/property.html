@@ -207,10 +207,10 @@
           <!-- Add Property Button -->
     <div class="add-property-container">
       <button id="openModalBtn" class="add-btn">+ Add Property</button>
-
       <button id="openCategoryModalBtn" class="add-btn">+ Add Category</button>
-
+      <button id="openModifyQuantityModalBtn" class="add-btn">Modify Quantity</button>
     </div>
+
 
       {% if grouped_properties %}
         {% for category, page_obj in grouped_properties.items %}
@@ -396,14 +396,6 @@
         <option value="Not used since purchased">Not used since purchased</option>
       </select>
 
-      <!-- <label>Category</label>
-      <select id="edit_category" name="category">
-      <option value="">Select Category</option>
-      {% for category in categories %}
-      <option value="{{ category.id }}">{{ category.name }}</option>
-      {% endfor %}
-      </select> -->
-
       <label>Category</label>
       <select id="edit_category" name="category" class="select2-edit" required>
         <option value="">Select Category</option>
@@ -422,6 +414,44 @@
     </form>
   </div>
 </div>
+
+<!-- Modify Quantity Modal -->
+<div id="modifyQuantityModal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="closeModifyQuantityModalBtn">&times;</span>
+    <h3>Modify Property Quantity</h3>
+
+    <form method="post" action="{% url 'modify_property_quantity_generic' %}">
+      {% csrf_token %}
+
+      <!-- Action Selector -->
+      <label for="action_type">Action</label>
+      <select name="action_type" id="action_type" required class="type-box">
+        <option value="">Select Action</option>
+        <option value="add">Add</option>
+        <option value="remove">Remove</option>
+      </select>
+
+      <!-- Property Dropdown (Searchable) -->
+      <label for="property_id">Property</label>
+      <select name="property_id" id="property_id" class="type-box" required>
+      <option value="">Select Property</option>
+      {% for property in property_list %}
+      <!-- prettier ignore -->
+      <option value="{{ property.pk }}"> {{ property.property_number }} - {{ property.property_name }} </option>
+       <!-- prettier ignore -->
+      {% endfor %}
+      </select>
+
+      <!-- Quantity -->
+      <label for="amount">Amount</label>
+      <input type="number" name="amount" id="amount" min="1" required class="type-box" />
+
+      <button type="submit" class="submit-btn">Submit</button>
+    </form>
+  </div>
+</div>
+
 
 <!-- History Modal -->
 <div id="historyModal" class="history-modal">
@@ -448,19 +478,19 @@
     </div>
   </div>
 </div>
+{% block extra_scripts %}
 
-    <script src="{% static 'scripts/propertyModal.js' %}"></script>
-    <script src="{% static 'scripts/categoryModal.js' %}"></script>
+<!-- jQuery (required by Select2 and your scripts) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Select2 CSS -->
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
-    <!-- jQuery (required) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <!-- Select2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <script>
+<!-- Initialize Select2 -->
+<script>
   $(document).ready(function() {
     $('.select2').select2({
       width: '100%',
@@ -468,7 +498,15 @@
       allowClear: true
     });
   });
-    </script>
+</script>
+
+<!-- Your custom JS scripts -->
+<script src="{% static 'scripts/propertyModal.js' %}"></script>
+<script src="{% static 'scripts/categoryModal.js' %}"></script>
+<script src="{% static 'scripts/modifyQuantity.js' %}"></script>
+
+{% endblock %}
+
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {

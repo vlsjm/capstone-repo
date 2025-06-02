@@ -4952,3 +4952,853 @@ INFO 2025-06-02 00:56:19,482 basehttp 9756 6456 "POST /edit-property/ HTTP/1.1" 
 INFO 2025-06-02 00:56:19,506 basehttp 9756 6456 "GET /property/ HTTP/1.1" 200 55079
 INFO 2025-06-02 00:56:28,681 basehttp 9756 6456 "POST /edit-property/ HTTP/1.1" 302 0
 INFO 2025-06-02 00:56:28,705 basehttp 9756 6456 "GET /property/ HTTP/1.1" 200 55129
+INFO 2025-06-02 02:39:38,025 autoreload 6584 13336 Watching for file changes with StatReloader
+INFO 2025-06-02 02:39:40,821 basehttp 6584 11516 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 02:39:48,040 basehttp 6584 11516 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 02:39:48,222 basehttp 6584 11516 "GET /dashboard/ HTTP/1.1" 200 33196
+INFO 2025-06-02 02:39:48,251 basehttp 6584 11516 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 02:39:55,166 basehttp 6584 11516 "GET /check-out/ HTTP/1.1" 200 2123
+INFO 2025-06-02 02:39:56,162 basehttp 6584 11516 "GET /activity/ HTTP/1.1" 200 13478
+INFO 2025-06-02 02:39:58,374 basehttp 6584 11516 "GET /my-supply-requests/ HTTP/1.1" 200 12302
+INFO 2025-06-02 02:39:58,395 basehttp 6584 11516 "GET /static/scripts/filterStatus.js HTTP/1.1" 304 0
+INFO 2025-06-02 02:40:01,804 basehttp 6584 11516 "GET /my-supply-requests/ HTTP/1.1" 200 12302
+INFO 2025-06-02 02:40:02,534 basehttp 6584 11516 "GET /my-borrow-requests/ HTTP/1.1" 200 6255
+INFO 2025-06-02 02:40:03,662 basehttp 6584 11516 "GET /activity/ HTTP/1.1" 200 13478
+INFO 2025-06-02 02:40:05,321 basehttp 6584 11516 "GET /my-damage-reports/ HTTP/1.1" 200 4578
+INFO 2025-06-02 02:40:05,891 basehttp 6584 11516 "GET /my-reservations/ HTTP/1.1" 200 5982
+INFO 2025-06-02 02:40:07,029 basehttp 6584 11516 "GET /my-damage-reports/ HTTP/1.1" 200 4578
+INFO 2025-06-02 02:40:08,068 basehttp 6584 11516 "GET /manage-users/ HTTP/1.1" 200 18750
+INFO 2025-06-02 02:40:08,093 basehttp 6584 11516 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 02:40:08,094 basehttp 6584 8396 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 02:40:13,093 basehttp 6584 8396 "GET /dashboard/ HTTP/1.1" 200 33196
+INFO 2025-06-02 02:40:29,825 basehttp 6584 8396 "GET /property/ HTTP/1.1" 200 54868
+INFO 2025-06-02 02:40:29,848 basehttp 6584 11516 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 02:40:29,944 basehttp 6584 8396 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2000
+INFO 2025-06-02 02:42:34,525 autoreload 6584 13336 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 02:42:35,676 autoreload 3560 2684 Watching for file changes with StatReloader
+INFO 2025-06-02 02:42:53,517 autoreload 3560 2684 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 02:42:54,542 autoreload 6596 7692 Watching for file changes with StatReloader
+INFO 2025-06-02 02:43:02,207 autoreload 6596 7692 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 02:43:03,402 autoreload 2576 5288 Watching for file changes with StatReloader
+INFO 2025-06-02 02:43:09,371 basehttp 2576 2236 "GET /property/ HTTP/1.1" 200 54868
+INFO 2025-06-02 02:43:09,520 basehttp 2576 2236 "GET /property/ HTTP/1.1" 200 54868
+INFO 2025-06-02 02:43:09,720 basehttp 2576 2236 "GET /property/ HTTP/1.1" 200 54868
+INFO 2025-06-02 02:43:09,940 basehttp 2576 2236 "GET /property/ HTTP/1.1" 200 54868
+INFO 2025-06-02 02:43:11,915 basehttp 2576 2236 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-02 02:43:11,922 basehttp 2576 2236 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 02:43:17,837 basehttp 2576 2236 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 02:43:19,915 basehttp 2576 11760 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 02:43:26,754 basehttp 2576 11760 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 02:43:27,708 basehttp 2576 11760 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 02:45:31,404 autoreload 2576 5288 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 02:45:32,593 autoreload 13480 1216 Watching for file changes with StatReloader
+WARNING 2025-06-02 02:45:34,142 log 13480 9788 Forbidden (CSRF token from POST incorrect.): /accounts/login/
+WARNING 2025-06-02 02:45:34,144 basehttp 13480 9788 "POST /accounts/login/ HTTP/1.1" 403 2503
+INFO 2025-06-02 02:45:35,428 basehttp 13480 9788 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 02:45:36,410 basehttp 13480 9788 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 02:45:36,593 basehttp 13480 9788 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 02:45:36,752 basehttp 13480 9788 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 02:45:38,255 basehttp 13480 9788 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 02:45:38,394 basehttp 13480 9788 "GET /dashboard/ HTTP/1.1" 200 33196
+INFO 2025-06-02 02:45:40,974 basehttp 13480 9788 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 02:45:46,158 basehttp 13480 9788 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 02:45:46,165 basehttp 13480 9788 "GET /accounts/login/ HTTP/1.1" 200 9343
+INFO 2025-06-02 02:46:08,291 autoreload 13480 1216 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 02:46:09,363 autoreload 2780 11156 Watching for file changes with StatReloader
+INFO 2025-06-02 02:46:09,690 basehttp 2780 6988 "GET /accounts/login/ HTTP/1.1" 200 9162
+INFO 2025-06-02 02:46:18,133 basehttp 2780 12916 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 02:46:18,139 basehttp 2780 12916 "GET /accounts/login/ HTTP/1.1" 200 9361
+INFO 2025-06-02 02:46:27,164 autoreload 2780 11156 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 02:46:28,438 autoreload 5036 7816 Watching for file changes with StatReloader
+INFO 2025-06-02 02:46:57,342 autoreload 5036 7816 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 02:46:58,371 autoreload 2128 6140 Watching for file changes with StatReloader
+INFO 2025-06-02 02:47:40,130 basehttp 2128 13208 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 02:47:40,209 basehttp 2128 13208 "GET /dashboard/ HTTP/1.1" 200 33196
+INFO 2025-06-02 02:47:42,976 basehttp 2128 13208 "GET /manage-users/ HTTP/1.1" 200 18750
+INFO 2025-06-02 02:48:14,229 views 2128 13208 Starting user creation process...
+INFO 2025-06-02 02:48:14,230 views 2128 13208 Verifying email settings...
+INFO 2025-06-02 02:48:14,230 views 2128 13208 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-06-02 02:48:14,230 views 2128 13208 EMAIL_HOST: smtp.gmail.com
+INFO 2025-06-02 02:48:14,231 views 2128 13208 EMAIL_PORT: 587
+INFO 2025-06-02 02:48:14,231 views 2128 13208 EMAIL_USE_TLS: True
+INFO 2025-06-02 02:48:14,231 views 2128 13208 EMAIL_HOST_USER: None
+INFO 2025-06-02 02:48:14,231 views 2128 13208 EMAIL_HOST_PASSWORD is set: No
+INFO 2025-06-02 02:48:14,232 views 2128 13208 .env file exists: No
+INFO 2025-06-02 02:48:14,233 views 2128 13208 Checking form validity...
+INFO 2025-06-02 02:48:14,283 views 2128 13208 Form is valid, proceeding with user creation...
+INFO 2025-06-02 02:48:14,283 views 2128 13208 Creating user with email: johnmarkgvales@gmail.com
+INFO 2025-06-02 02:48:15,004 views 2128 13208 User created successfully with role: ADMIN
+INFO 2025-06-02 02:48:15,009 views 2128 13208 Added user to group: ADMIN
+INFO 2025-06-02 02:48:15,014 views 2128 13208 User profile created successfully
+INFO 2025-06-02 02:48:15,048 views 2128 13208 Attempting to send welcome email to johnmarkgvales@gmail.com...
+ERROR 2025-06-02 02:48:17,680 views 2128 13208 Failed to send welcome email: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. 41be03b00d2f7-b2eceb96fddsm4324755a12.52 - gsmtp', 'webmaster@localhost')
+INFO 2025-06-02 02:48:17,700 basehttp 2128 13208 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-06-02 02:48:17,732 basehttp 2128 13208 "GET /manage-users/ HTTP/1.1" 200 19531
+INFO 2025-06-02 02:48:25,054 basehttp 2128 13612 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-02 02:48:25,059 basehttp 2128 13612 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 02:48:31,977 basehttp 2128 13612 "POST /accounts/login/ HTTP/1.1" 200 9360
+INFO 2025-06-02 02:48:42,005 basehttp 2128 13612 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 02:48:42,036 basehttp 2128 13612 "GET /dashboard/ HTTP/1.1" 200 14024
+INFO 2025-06-02 02:48:49,388 basehttp 2128 13612 "GET /supplies/ HTTP/1.1" 200 57141
+INFO 2025-06-02 02:48:49,411 basehttp 2128 13612 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 02:48:50,042 basehttp 2128 13612 "GET /check-out/ HTTP/1.1" 200 2123
+INFO 2025-06-02 02:48:50,820 basehttp 2128 13612 "GET /my-supply-requests/ HTTP/1.1" 200 12302
+INFO 2025-06-02 02:48:51,433 basehttp 2128 13612 "GET /my-borrow-requests/ HTTP/1.1" 200 6255
+INFO 2025-06-02 02:48:52,928 basehttp 2128 13612 "GET /supplies/ HTTP/1.1" 200 57141
+INFO 2025-06-02 02:49:26,848 basehttp 2128 13612 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-02 02:49:26,875 basehttp 2128 13612 "GET /supplies/ HTTP/1.1" 200 57398
+INFO 2025-06-02 02:49:30,444 basehttp 2128 13612 "GET /activity/ HTTP/1.1" 200 13518
+INFO 2025-06-02 02:49:44,706 basehttp 2128 6584 "GET /property/ HTTP/1.1" 200 54868
+INFO 2025-06-02 02:56:16,758 autoreload 2128 6140 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 02:56:17,883 autoreload 4068 13252 Watching for file changes with StatReloader
+INFO 2025-06-02 02:56:38,720 autoreload 4068 13252 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-02 02:56:39,798 autoreload 376 3300 Watching for file changes with StatReloader
+INFO 2025-06-02 03:00:00,267 basehttp 376 10732 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 03:00:00,281 basehttp 376 10732 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-02 03:00:00,719 basehttp 376 10732 "GET / HTTP/1.1" 200 9162
+ERROR 2025-06-02 03:00:02,019 log 376 10732 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 56, in render
+    result = self.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'modify_property_quantity' with arguments '('',)' not found. 1 pattern(s) tried: ['property/(?P<pk>[0-9]+)/modify_quantity/\\Z']
+ERROR 2025-06-02 03:00:02,027 basehttp 376 10732 "GET /property/ HTTP/1.1" 500 162236
+ERROR 2025-06-02 03:02:48,715 log 376 5916 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 56, in render
+    result = self.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'modify_property_quantity' with arguments '('',)' not found. 1 pattern(s) tried: ['property/(?P<pk>[0-9]+)/modify_quantity/\\Z']
+ERROR 2025-06-02 03:02:48,718 basehttp 376 5916 "GET /property/ HTTP/1.1" 500 161488
+ERROR 2025-06-02 03:02:50,021 log 376 5916 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 56, in render
+    result = self.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'modify_property_quantity' with arguments '('',)' not found. 1 pattern(s) tried: ['property/(?P<pk>[0-9]+)/modify_quantity/\\Z']
+ERROR 2025-06-02 03:02:50,024 basehttp 376 5916 "GET /property/ HTTP/1.1" 500 161488
+INFO 2025-06-02 03:02:50,756 basehttp 376 5916 "GET /activity/ HTTP/1.1" 200 13518
+INFO 2025-06-02 03:02:51,747 basehttp 376 5916 "GET /activity/ HTTP/1.1" 200 13518
+INFO 2025-06-02 03:02:52,083 basehttp 376 5916 "GET /activity/ HTTP/1.1" 200 13518
+INFO 2025-06-02 03:02:52,234 basehttp 376 5916 "GET /activity/ HTTP/1.1" 200 13518
+ERROR 2025-06-02 03:02:53,198 log 376 5916 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 56, in render
+    result = self.nodelist.render(context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'modify_property_quantity' with arguments '('',)' not found. 1 pattern(s) tried: ['property/(?P<pk>[0-9]+)/modify_quantity/\\Z']
+ERROR 2025-06-02 03:02:53,200 basehttp 376 5916 "GET /property/ HTTP/1.1" 500 161351
+INFO 2025-06-02 03:07:26,127 basehttp 376 4860 "GET /property/ HTTP/1.1" 200 56033
+INFO 2025-06-02 03:07:26,332 basehttp 376 4860 "GET /property/ HTTP/1.1" 200 56033
+INFO 2025-06-02 03:08:21,916 basehttp 376 4860 "GET /property/ HTTP/1.1" 200 56020
+INFO 2025-06-02 03:10:42,658 basehttp 376 2128 "GET /property/ HTTP/1.1" 200 56020
+INFO 2025-06-02 03:10:42,845 basehttp 376 2128 "GET /property/ HTTP/1.1" 200 56020
+INFO 2025-06-02 03:12:31,415 basehttp 376 13996 "GET /property/ HTTP/1.1" 200 56018
+INFO 2025-06-02 03:12:31,433 basehttp 376 13996 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:12:31,552 basehttp 376 13996 "GET /property/ HTTP/1.1" 200 56018
+INFO 2025-06-02 03:12:31,755 basehttp 376 13996 "GET /property/ HTTP/1.1" 200 56018
+INFO 2025-06-02 03:12:31,904 basehttp 376 13996 "GET /property/ HTTP/1.1" 200 56018
+INFO 2025-06-02 03:12:32,052 basehttp 376 13996 "GET /property/ HTTP/1.1" 200 56018
+INFO 2025-06-02 03:12:32,210 basehttp 376 13996 "GET /property/ HTTP/1.1" 200 56018
+INFO 2025-06-02 03:14:20,399 basehttp 376 9672 "GET /property/ HTTP/1.1" 200 56018
+INFO 2025-06-02 03:14:20,413 basehttp 376 9672 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 03:14:20,542 basehttp 376 9672 "GET /property/ HTTP/1.1" 200 56018
+INFO 2025-06-02 03:14:20,804 basehttp 376 9672 "GET /property/ HTTP/1.1" 200 56018
+INFO 2025-06-02 03:14:36,805 basehttp 376 15044 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 03:14:36,836 basehttp 376 15044 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+WARNING 2025-06-02 03:14:36,943 basehttp 376 15044 "GET /favicon.ico HTTP/1.1" 404 14676
+INFO 2025-06-02 03:14:38,786 basehttp 376 15044 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 03:14:38,841 basehttp 376 15044 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 03:14:38,851 basehttp 376 15044 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 03:14:38,856 basehttp 376 15180 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:14:38,856 basehttp 376 15176 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:14:38,856 basehttp 376 15072 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-02 03:14:41,646 basehttp 376 15072 "GET /property/ HTTP/1.1" 200 56018
+INFO 2025-06-02 03:14:41,671 basehttp 376 15072 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:14:41,777 basehttp 376 15176 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 3863
+WARNING 2025-06-02 03:15:38,009 basehttp 376 9312 "POST /property//modify_quantity/ HTTP/1.1" 404 14722
+INFO 2025-06-02 03:15:40,521 basehttp 376 9312 "GET /property/ HTTP/1.1" 200 56018
+INFO 2025-06-02 03:15:50,189 basehttp 376 6956 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-02 03:15:50,196 basehttp 376 6956 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 03:16:01,292 basehttp 376 15312 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 03:16:03,558 basehttp 376 15312 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 03:16:03,597 basehttp 376 15312 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 03:16:03,621 basehttp 376 15312 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-02 03:16:06,353 basehttp 376 15312 "GET /property/ HTTP/1.1" 200 56018
+INFO 2025-06-02 03:16:06,384 basehttp 376 15312 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 3863
+INFO 2025-06-02 03:19:43,409 autoreload 376 3300 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-02 03:19:44,498 autoreload 6172 13884 Watching for file changes with StatReloader
+INFO 2025-06-02 03:20:46,555 autoreload 6172 13884 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-02 03:20:47,629 autoreload 15292 14620 Watching for file changes with StatReloader
+INFO 2025-06-02 03:20:55,000 autoreload 15292 14620 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-02 03:20:55,954 autoreload 5972 7308 Watching for file changes with StatReloader
+INFO 2025-06-02 03:21:19,733 autoreload 5972 7308 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-02 03:21:20,720 autoreload 10912 13440 Watching for file changes with StatReloader
+INFO 2025-06-02 03:21:27,476 basehttp 10912 10728 "GET /property/ HTTP/1.1" 200 55687
+INFO 2025-06-02 03:21:27,593 basehttp 10912 10728 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2680
+INFO 2025-06-02 03:21:28,146 basehttp 10912 10728 "GET /property/ HTTP/1.1" 200 55687
+INFO 2025-06-02 03:21:28,309 basehttp 10912 10728 "GET /property/ HTTP/1.1" 200 55687
+INFO 2025-06-02 03:26:56,386 basehttp 10912 11788 "GET /property/ HTTP/1.1" 200 55747
+INFO 2025-06-02 03:26:56,401 basehttp 10912 11788 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2680
+INFO 2025-06-02 03:26:56,667 basehttp 10912 11788 "GET /property/ HTTP/1.1" 200 55747
+INFO 2025-06-02 03:28:24,829 autoreload 10912 13440 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 03:28:25,962 autoreload 9220 5720 Watching for file changes with StatReloader
+INFO 2025-06-02 03:29:31,547 autoreload 9220 5720 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 03:29:32,685 autoreload 1084 10680 Watching for file changes with StatReloader
+INFO 2025-06-02 03:29:34,693 basehttp 1084 14980 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:29:34,711 basehttp 1084 14980 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:29:34,848 basehttp 1084 14980 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:29:35,010 basehttp 1084 14980 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:29:45,276 basehttp 1084 14980 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 03:29:46,931 basehttp 1084 14980 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 03:29:47,122 basehttp 1084 14980 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 03:29:47,290 basehttp 1084 14980 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 03:29:49,022 basehttp 1084 14980 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 03:29:49,090 basehttp 1084 14980 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 03:29:51,975 basehttp 1084 14980 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:29:51,997 basehttp 1084 14980 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:32:15,082 autoreload 1084 10680 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-02 03:32:16,270 autoreload 4044 5480 Watching for file changes with StatReloader
+INFO 2025-06-02 03:32:19,679 basehttp 4044 15340 "GET /property/ HTTP/1.1" 200 56954
+INFO 2025-06-02 03:32:19,771 basehttp 4044 15340 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2658
+INFO 2025-06-02 03:32:19,909 basehttp 4044 15340 "GET /property/ HTTP/1.1" 200 56954
+INFO 2025-06-02 03:32:20,097 basehttp 4044 15340 "GET /property/ HTTP/1.1" 200 56954
+INFO 2025-06-02 03:32:29,478 basehttp 4044 13416 "GET /property/ HTTP/1.1" 200 56954
+INFO 2025-06-02 03:32:29,492 basehttp 4044 13416 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2658
+INFO 2025-06-02 03:32:45,185 autoreload 12820 15028 Watching for file changes with StatReloader
+INFO 2025-06-02 03:32:47,416 basehttp 12820 3560 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 03:32:51,971 basehttp 12820 3560 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 03:32:52,061 basehttp 12820 3560 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 03:32:54,635 basehttp 12820 3560 "GET /property/ HTTP/1.1" 200 56954
+INFO 2025-06-02 03:32:54,665 basehttp 12820 3560 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:35:23,008 basehttp 12820 3560 "GET /property/ HTTP/1.1" 200 56989
+INFO 2025-06-02 03:35:23,024 basehttp 12820 3560 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:35:23,202 basehttp 12820 3560 "GET /property/ HTTP/1.1" 200 56989
+INFO 2025-06-02 03:35:48,352 basehttp 12820 8124 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 03:37:27,586 basehttp 12820 3560 "GET /property/ HTTP/1.1" 200 56948
+INFO 2025-06-02 03:37:27,678 basehttp 12820 3560 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2851
+INFO 2025-06-02 03:37:27,854 basehttp 12820 3560 "GET /property/ HTTP/1.1" 200 56948
+INFO 2025-06-02 03:39:42,306 basehttp 12820 3560 "GET /property/ HTTP/1.1" 200 56950
+INFO 2025-06-02 03:39:42,339 basehttp 12820 3560 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2711
+INFO 2025-06-02 03:39:42,502 basehttp 12820 3560 "GET /property/ HTTP/1.1" 200 56950
+INFO 2025-06-02 03:39:56,813 basehttp 12820 8124 "GET /dashboard/ HTTP/1.1" 302 0
+INFO 2025-06-02 03:39:56,827 basehttp 12820 8124 "GET /login_user/?next=/dashboard/ HTTP/1.1" 200 9162
+INFO 2025-06-02 03:39:56,838 basehttp 12820 8124 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-06-02 03:39:57,161 basehttp 12820 8124 "GET /login_user/?next=/dashboard/ HTTP/1.1" 200 9162
+INFO 2025-06-02 03:39:57,368 basehttp 12820 8124 "GET /login_user/?next=/dashboard/ HTTP/1.1" 200 9162
+INFO 2025-06-02 03:39:57,584 basehttp 12820 8124 "GET /login_user/?next=/dashboard/ HTTP/1.1" 200 9162
+INFO 2025-06-02 03:39:57,761 basehttp 12820 8124 "GET /login_user/?next=/dashboard/ HTTP/1.1" 200 9162
+INFO 2025-06-02 03:39:59,570 basehttp 12820 8124 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 03:39:59,612 basehttp 12820 8124 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 03:39:59,642 basehttp 12820 6372 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-02 03:39:59,644 basehttp 12820 8124 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 03:39:59,657 basehttp 12820 14172 "GET /static/scripts/charts.js HTTP/1.1" 200 12760
+INFO 2025-06-02 03:39:59,668 basehttp 12820 11492 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 5573
+INFO 2025-06-02 03:40:01,298 basehttp 12820 11492 "GET /property/ HTTP/1.1" 200 56950
+INFO 2025-06-02 03:40:01,311 basehttp 12820 11492 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2711
+INFO 2025-06-02 03:40:01,333 basehttp 12820 14172 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-02 03:43:07,063 basehttp 12820 7828 "GET /property/ HTTP/1.1" 200 56724
+INFO 2025-06-02 03:43:07,079 basehttp 12820 7828 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:43:07,169 basehttp 12820 7828 "GET /property/ HTTP/1.1" 200 56724
+INFO 2025-06-02 03:43:07,337 basehttp 12820 7828 "GET /property/ HTTP/1.1" 200 56724
+INFO 2025-06-02 03:43:36,966 basehttp 12820 7828 "GET /property/ HTTP/1.1" 200 56629
+INFO 2025-06-02 03:43:36,986 basehttp 12820 7828 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:43:37,058 basehttp 12820 7828 "GET /property/ HTTP/1.1" 200 56629
+INFO 2025-06-02 03:43:37,545 basehttp 12820 7828 "GET /property/ HTTP/1.1" 200 56629
+INFO 2025-06-02 03:43:37,695 basehttp 12820 7828 "GET /property/ HTTP/1.1" 200 56629
+INFO 2025-06-02 03:43:49,316 basehttp 12820 7828 "GET /property/ HTTP/1.1" 200 56629
+INFO 2025-06-02 03:43:49,459 basehttp 12820 7828 "GET /property/ HTTP/1.1" 200 56629
+INFO 2025-06-02 03:43:49,619 basehttp 12820 7828 "GET /property/ HTTP/1.1" 200 56629
+INFO 2025-06-02 03:43:49,742 basehttp 12820 7828 "GET /property/ HTTP/1.1" 200 56629
+INFO 2025-06-02 03:43:56,816 basehttp 12820 7828 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 03:43:56,845 basehttp 12820 7828 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-02 03:43:59,179 basehttp 12820 7828 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 03:43:59,217 basehttp 12820 7828 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 03:44:03,152 basehttp 12820 7828 "GET /property/ HTTP/1.1" 200 56629
+INFO 2025-06-02 03:45:40,435 basehttp 12820 9564 "GET /property/ HTTP/1.1" 200 57122
+INFO 2025-06-02 03:45:40,450 basehttp 12820 9564 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:45:41,049 basehttp 12820 9564 "GET /property/ HTTP/1.1" 200 57122
+INFO 2025-06-02 03:46:09,181 basehttp 12820 9564 "GET /property/ HTTP/1.1" 200 57122
+INFO 2025-06-02 03:46:09,310 basehttp 12820 9564 "GET /property/ HTTP/1.1" 200 57122
+INFO 2025-06-02 03:46:09,481 basehttp 12820 9564 "GET /property/ HTTP/1.1" 200 57122
+INFO 2025-06-02 03:46:09,703 basehttp 12820 9564 "GET /property/ HTTP/1.1" 200 57122
+INFO 2025-06-02 03:46:09,881 basehttp 12820 9564 "GET /property/ HTTP/1.1" 200 57122
+INFO 2025-06-02 03:46:10,058 basehttp 12820 9564 "GET /property/ HTTP/1.1" 200 57122
+INFO 2025-06-02 03:47:34,548 basehttp 12820 13572 "GET /property/ HTTP/1.1" 200 56551
+INFO 2025-06-02 03:47:34,562 basehttp 12820 13572 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:47:34,566 basehttp 12820 13572 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:47:34,794 basehttp 12820 13572 "GET /property/ HTTP/1.1" 200 56551
+INFO 2025-06-02 03:47:34,992 basehttp 12820 13572 "GET /property/ HTTP/1.1" 200 56551
+INFO 2025-06-02 03:47:41,243 basehttp 12820 13572 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 03:47:46,953 basehttp 12820 13572 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 03:47:49,869 basehttp 12820 13572 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 03:47:49,908 basehttp 12820 13572 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 03:47:52,132 basehttp 12820 13572 "GET /property/ HTTP/1.1" 200 56551
+INFO 2025-06-02 03:48:08,147 basehttp 12820 13572 "GET /property/ HTTP/1.1" 200 56724
+INFO 2025-06-02 03:48:08,307 basehttp 12820 13572 "GET /property/ HTTP/1.1" 200 56724
+INFO 2025-06-02 03:48:19,351 basehttp 12820 13572 "GET /property/ HTTP/1.1" 200 57382
+INFO 2025-06-02 03:48:19,473 basehttp 12820 13572 "GET /property/ HTTP/1.1" 200 57382
+INFO 2025-06-02 03:48:32,227 basehttp 12820 13572 "GET /property/ HTTP/1.1" 200 57382
+INFO 2025-06-02 03:48:32,241 basehttp 12820 13572 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:48:32,571 basehttp 12820 13572 "GET /property/ HTTP/1.1" 200 57382
+INFO 2025-06-02 03:48:32,794 basehttp 12820 13572 "GET /property/ HTTP/1.1" 200 57382
+INFO 2025-06-02 03:52:37,891 basehttp 12820 13012 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:37,915 basehttp 12820 13012 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 03:52:37,952 basehttp 12820 6360 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2644
+INFO 2025-06-02 03:52:38,120 basehttp 12820 6360 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:38,651 basehttp 12820 6360 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:38,810 basehttp 12820 6360 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:39,173 basehttp 12820 11892 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:39,317 basehttp 12820 11892 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:39,491 basehttp 12820 11892 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:39,718 basehttp 12820 11892 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:39,877 basehttp 12820 11892 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:40,045 basehttp 12820 11892 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:40,194 basehttp 12820 11892 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:40,332 basehttp 12820 11892 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:48,127 basehttp 12820 7840 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:48,142 basehttp 12820 7840 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2644
+INFO 2025-06-02 03:52:48,280 basehttp 12820 7840 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:48,486 basehttp 12820 7840 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:48,615 basehttp 12820 7840 "GET /property/ HTTP/1.1" 200 56927
+INFO 2025-06-02 03:52:59,627 basehttp 12820 13784 "GET /property/ HTTP/1.1" 200 57382
+INFO 2025-06-02 03:52:59,641 basehttp 12820 13784 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:52:59,716 basehttp 12820 13784 "GET /property/ HTTP/1.1" 200 57382
+INFO 2025-06-02 03:53:37,893 basehttp 12820 1204 "GET /property/ HTTP/1.1" 200 57382
+INFO 2025-06-02 03:53:37,906 basehttp 12820 1204 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:53:38,053 basehttp 12820 1204 "GET /property/ HTTP/1.1" 200 57382
+INFO 2025-06-02 03:53:45,629 basehttp 12820 14828 "GET /property/ HTTP/1.1" 200 57382
+INFO 2025-06-02 03:53:45,674 basehttp 12820 14828 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2711
+INFO 2025-06-02 03:53:45,770 basehttp 12820 14828 "GET /property/ HTTP/1.1" 200 57382
+INFO 2025-06-02 03:53:45,780 basehttp 12820 14828 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 03:54:18,272 basehttp 12820 9312 "GET /property/ HTTP/1.1" 200 56722
+INFO 2025-06-02 03:54:18,284 basehttp 12820 9312 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+ERROR 2025-06-02 04:06:45,851 log 12820 12740 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 523, in parse
+    self.unclosed_block_tag(parse_until)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 590, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 201: 'block'. Looking for one of: endblock.
+ERROR 2025-06-02 04:06:45,865 basehttp 12820 12740 "GET /property/ HTTP/1.1" 500 169514
+INFO 2025-06-02 04:07:02,578 basehttp 12820 12740 "GET /property/ HTTP/1.1" 200 57033
+INFO 2025-06-02 04:07:02,619 basehttp 12820 13012 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+INFO 2025-06-02 04:07:02,630 basehttp 12820 12740 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 9714
+INFO 2025-06-02 04:07:04,494 basehttp 12820 12740 "GET /property/ HTTP/1.1" 200 57033
+INFO 2025-06-02 04:07:04,650 basehttp 12820 12740 "GET /property/ HTTP/1.1" 200 57033
+INFO 2025-06-02 04:07:58,247 basehttp 12820 12740 "GET /property/ HTTP/1.1" 200 57033
+INFO 2025-06-02 04:07:58,265 basehttp 12820 12740 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:07:58,295 basehttp 12820 13012 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 9714
+INFO 2025-06-02 04:07:58,460 basehttp 12820 13012 "GET /property/ HTTP/1.1" 200 57033
+INFO 2025-06-02 04:07:58,671 basehttp 12820 13012 "GET /property/ HTTP/1.1" 200 57033
+INFO 2025-06-02 04:08:07,629 basehttp 12820 13012 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:08:09,734 basehttp 12820 13012 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 04:08:09,869 basehttp 12820 13012 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:08:09,897 basehttp 12820 13012 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-02 04:08:12,216 basehttp 12820 13012 "GET /property/ HTTP/1.1" 200 57033
+INFO 2025-06-02 04:08:12,245 basehttp 12820 13012 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:08:17,512 basehttp 12820 1556 "GET /property/ HTTP/1.1" 200 57033
+INFO 2025-06-02 04:08:17,526 basehttp 12820 1556 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+INFO 2025-06-02 04:08:17,527 basehttp 12820 15288 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 9714
+INFO 2025-06-02 04:08:17,663 basehttp 12820 15288 "GET /property/ HTTP/1.1" 200 57033
+INFO 2025-06-02 04:08:17,815 basehttp 12820 15288 "GET /property/ HTTP/1.1" 200 57033
+INFO 2025-06-02 04:08:17,942 basehttp 12820 15288 "GET /property/ HTTP/1.1" 200 57033
+INFO 2025-06-02 04:10:42,250 basehttp 12820 13500 "GET /property/ HTTP/1.1" 200 57034
+INFO 2025-06-02 04:10:42,266 basehttp 12820 13500 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:10:42,298 basehttp 12820 6480 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 9937
+INFO 2025-06-02 04:10:42,537 basehttp 12820 6480 "GET /property/ HTTP/1.1" 200 57034
+INFO 2025-06-02 04:10:42,742 basehttp 12820 6480 "GET /property/ HTTP/1.1" 200 57034
+INFO 2025-06-02 04:10:45,153 basehttp 12820 6480 "GET /property/ HTTP/1.1" 200 57034
+INFO 2025-06-02 04:10:45,166 basehttp 12820 6480 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:10:45,507 basehttp 12820 6480 "GET /property/ HTTP/1.1" 200 57034
+INFO 2025-06-02 04:10:45,677 basehttp 12820 6480 "GET /property/ HTTP/1.1" 200 57034
+INFO 2025-06-02 04:10:54,470 autoreload 12536 6048 Watching for file changes with StatReloader
+INFO 2025-06-02 04:10:56,694 basehttp 12536 7540 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:10:58,443 basehttp 12536 7540 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 04:10:58,537 basehttp 12536 7540 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:11:00,716 basehttp 12536 7540 "GET /property/ HTTP/1.1" 200 57034
+INFO 2025-06-02 04:11:00,742 basehttp 12536 7540 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:14:28,797 basehttp 12536 6468 "GET /property/ HTTP/1.1" 200 56992
+INFO 2025-06-02 04:14:28,811 basehttp 12536 6468 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:14:28,907 basehttp 12536 14476 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 3089
+INFO 2025-06-02 04:14:28,959 basehttp 12536 14476 "GET /property/ HTTP/1.1" 200 56992
+INFO 2025-06-02 04:14:29,188 basehttp 12536 14476 "GET /property/ HTTP/1.1" 200 56992
+INFO 2025-06-02 04:14:29,357 basehttp 12536 14476 "GET /property/ HTTP/1.1" 200 56992
+INFO 2025-06-02 04:14:31,875 basehttp 12536 14476 "GET /property/ HTTP/1.1" 200 56992
+INFO 2025-06-02 04:14:31,893 basehttp 12536 14476 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:14:31,893 basehttp 12536 6468 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 3089
+INFO 2025-06-02 04:14:32,034 basehttp 12536 6468 "GET /property/ HTTP/1.1" 200 56992
+INFO 2025-06-02 04:15:40,745 basehttp 12536 12640 "GET /property/ HTTP/1.1" 200 56992
+INFO 2025-06-02 04:15:40,757 basehttp 12536 12640 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:15:40,863 basehttp 12536 12640 "GET /property/ HTTP/1.1" 200 56992
+INFO 2025-06-02 04:15:41,011 basehttp 12536 12640 "GET /property/ HTTP/1.1" 200 56992
+INFO 2025-06-02 04:15:52,933 basehttp 12536 14880 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:15:54,965 basehttp 12536 14880 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 04:15:55,000 basehttp 12536 14880 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:15:56,367 basehttp 12536 14880 "GET /property/ HTTP/1.1" 200 56992
+INFO 2025-06-02 04:15:56,379 basehttp 12536 14880 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:15:56,380 basehttp 12536 5692 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 3089
+INFO 2025-06-02 04:18:11,400 basehttp 12536 5748 "GET /property/ HTTP/1.1" 200 56930
+INFO 2025-06-02 04:18:11,418 basehttp 12536 5748 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:18:11,419 basehttp 12536 12004 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:18:11,485 basehttp 12536 12004 "GET /property/ HTTP/1.1" 200 56930
+INFO 2025-06-02 04:18:11,667 basehttp 12536 12004 "GET /property/ HTTP/1.1" 200 56930
+INFO 2025-06-02 04:18:11,993 basehttp 12536 12004 "GET /property/ HTTP/1.1" 200 56930
+INFO 2025-06-02 04:18:12,571 basehttp 12536 12004 "GET /property/ HTTP/1.1" 200 56930
+INFO 2025-06-02 04:18:12,721 basehttp 12536 12004 "GET /property/ HTTP/1.1" 200 56930
+INFO 2025-06-02 04:18:27,571 basehttp 12536 5032 "GET /property/ HTTP/1.1" 200 56930
+INFO 2025-06-02 04:18:27,585 basehttp 12536 5032 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:18:27,585 basehttp 12536 11928 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:18:27,793 basehttp 12536 11928 "GET /property/ HTTP/1.1" 200 56930
+INFO 2025-06-02 04:18:31,875 basehttp 12536 11928 "GET /property/ HTTP/1.1" 200 56930
+INFO 2025-06-02 04:18:32,045 basehttp 12536 11928 "GET /property/ HTTP/1.1" 200 56930
+INFO 2025-06-02 04:18:36,273 basehttp 12536 11928 "GET /property/?page_Test2=2& HTTP/1.1" 200 36246
+INFO 2025-06-02 04:18:37,508 basehttp 12536 11928 "GET /property/?page_Test2=1& HTTP/1.1" 200 56930
+INFO 2025-06-02 04:21:15,581 basehttp 12536 6608 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:21:15,593 basehttp 12536 6608 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:21:15,619 basehttp 12536 6608 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1511
+INFO 2025-06-02 04:21:15,693 basehttp 12536 6608 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:21:15,888 basehttp 12536 6608 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:21:16,053 basehttp 12536 6608 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:21:16,213 basehttp 12536 6608 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:21:27,780 basehttp 12536 15272 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:21:27,798 basehttp 12536 15272 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 04:21:27,799 basehttp 12536 14736 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:21:27,800 basehttp 12536 9808 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:21:27,801 basehttp 12536 3368 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1511
+INFO 2025-06-02 04:21:27,921 basehttp 12536 3368 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:21:28,100 basehttp 12536 3368 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:21:28,323 basehttp 12536 3368 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:21:28,476 basehttp 12536 3368 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:21:31,029 basehttp 12536 3368 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:21:31,040 basehttp 12536 3368 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-02 04:21:31,041 basehttp 12536 9808 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:21:31,041 basehttp 12536 14736 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:21:33,033 basehttp 12536 13448 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:21:33,371 basehttp 12536 13448 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:21:33,659 basehttp 12536 13448 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:21:33,807 basehttp 12536 13448 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:21:34,188 basehttp 12536 13448 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:21:34,355 basehttp 12536 13448 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:21:34,513 basehttp 12536 13448 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:22:00,346 autoreload 12168 10140 Watching for file changes with StatReloader
+INFO 2025-06-02 04:22:07,192 basehttp 12168 9812 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:22:08,976 basehttp 12168 9812 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 04:22:09,045 basehttp 12168 9812 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:22:11,282 basehttp 12168 9812 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:22:11,311 basehttp 12168 9812 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:23:13,034 basehttp 12168 10176 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:23:13,179 basehttp 12168 10176 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1558
+INFO 2025-06-02 04:23:13,442 basehttp 12168 10176 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:23:13,568 basehttp 12168 10176 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:23:42,873 autoreload 12244 13796 Watching for file changes with StatReloader
+INFO 2025-06-02 04:23:45,145 basehttp 12244 4312 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:23:45,172 basehttp 12244 4312 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-02 04:23:46,956 basehttp 12244 4312 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 04:23:47,025 basehttp 12244 4312 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:23:49,718 basehttp 12244 4312 "GET /property/ HTTP/1.1" 200 56947
+INFO 2025-06-02 04:23:49,747 basehttp 12244 4312 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:23:49,747 basehttp 12244 15120 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:24:47,195 basehttp 12244 15120 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:24:47,212 basehttp 12244 15120 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:24:47,767 basehttp 12244 15120 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:26:38,154 autoreload 12244 13796 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 04:26:39,049 autoreload 15168 8392 Watching for file changes with StatReloader
+INFO 2025-06-02 04:27:01,493 autoreload 15168 8392 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 04:27:02,352 autoreload 6724 5800 Watching for file changes with StatReloader
+INFO 2025-06-02 04:28:45,952 autoreload 6724 5800 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-02 04:28:46,887 autoreload 7404 9124 Watching for file changes with StatReloader
+INFO 2025-06-02 04:30:19,308 autoreload 7404 9124 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 04:30:20,240 autoreload 14456 2864 Watching for file changes with StatReloader
+INFO 2025-06-02 04:31:08,297 autoreload 14456 2864 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-02 04:31:09,217 autoreload 5040 14756 Watching for file changes with StatReloader
+INFO 2025-06-02 04:31:12,422 autoreload 5040 14756 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-02 04:31:13,235 autoreload 8908 5188 Watching for file changes with StatReloader
+INFO 2025-06-02 04:31:19,742 basehttp 8908 14692 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:31:19,767 basehttp 8908 14692 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:31:19,768 basehttp 8908 14560 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:31:19,768 basehttp 8908 4288 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:31:19,894 basehttp 8908 4288 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:31:20,067 basehttp 8908 4288 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:31:40,092 basehttp 8908 4416 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:31:40,273 basehttp 8908 4416 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:31:48,716 autoreload 6256 11476 Watching for file changes with StatReloader
+INFO 2025-06-02 04:31:53,245 basehttp 6256 15320 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:31:54,057 basehttp 6256 15320 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:32:02,252 basehttp 6256 15320 "POST /accounts/logout/ HTTP/1.1" 302 0
+INFO 2025-06-02 04:32:02,258 basehttp 6256 15320 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:32:04,784 basehttp 6256 14680 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:32:05,002 basehttp 6256 14680 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:32:05,198 basehttp 6256 14680 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:32:05,367 basehttp 6256 14680 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:32:05,652 basehttp 6256 14680 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:32:05,943 basehttp 6256 14680 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:32:06,914 basehttp 6256 14680 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:32:07,089 basehttp 6256 14680 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:32:07,244 basehttp 6256 14680 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:32:07,410 basehttp 6256 14680 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:32:07,567 basehttp 6256 14680 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:32:08,862 basehttp 6256 14680 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 04:32:08,941 basehttp 6256 14680 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:32:11,953 basehttp 6256 14680 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:32:11,975 basehttp 6256 14680 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:33:36,980 autoreload 6256 11476 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 04:33:37,933 autoreload 3080 12412 Watching for file changes with StatReloader
+INFO 2025-06-02 04:35:10,868 autoreload 7480 15356 Watching for file changes with StatReloader
+INFO 2025-06-02 04:35:17,255 basehttp 7480 14536 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 04:35:17,350 basehttp 7480 14536 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+WARNING 2025-06-02 04:35:17,513 basehttp 7480 14536 "GET /favicon.ico HTTP/1.1" 404 14669
+INFO 2025-06-02 04:35:19,761 basehttp 7480 14536 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 04:35:19,824 basehttp 7480 14536 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:35:19,851 basehttp 7480 6480 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-02 04:35:19,852 basehttp 7480 14536 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 04:35:19,870 basehttp 7480 13644 "GET /static/scripts/charts.js HTTP/1.1" 200 12760
+INFO 2025-06-02 04:35:19,874 basehttp 7480 14640 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 5573
+INFO 2025-06-02 04:35:21,928 basehttp 7480 14640 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:35:21,946 basehttp 7480 6480 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1558
+INFO 2025-06-02 04:35:21,946 basehttp 7480 14640 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+INFO 2025-06-02 04:35:21,979 basehttp 7480 13644 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-02 04:37:14,592 autoreload 7480 15356 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 04:37:15,687 autoreload 12560 3404 Watching for file changes with StatReloader
+INFO 2025-06-02 04:37:35,398 autoreload 12560 3404 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-02 04:37:36,338 autoreload 10904 8500 Watching for file changes with StatReloader
+WARNING 2025-06-02 04:38:46,417 basehttp 10904 8124 "GET /property/modify_quantity/ HTTP/1.1" 405 0
+INFO 2025-06-02 04:40:13,414 basehttp 10904 15088 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:40:13,430 basehttp 10904 15088 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 04:40:13,431 basehttp 10904 14680 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:40:13,431 basehttp 10904 12252 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:40:13,562 basehttp 10904 12252 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:41:08,738 autoreload 11716 10940 Watching for file changes with StatReloader
+INFO 2025-06-02 04:41:25,889 basehttp 11716 14880 "GET / HTTP/1.1" 200 9162
+WARNING 2025-06-02 04:41:25,982 basehttp 11716 14880 "GET /favicon.ico HTTP/1.1" 404 14669
+INFO 2025-06-02 04:41:28,034 basehttp 11716 14880 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 04:41:28,108 basehttp 11716 14880 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:41:30,473 basehttp 11716 1552 "GET /property/ HTTP/1.1" 200 57928
+INFO 2025-06-02 04:43:36,595 autoreload 11716 10940 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-02 04:43:37,639 autoreload 8896 9424 Watching for file changes with StatReloader
+INFO 2025-06-02 04:45:07,812 basehttp 8896 3608 "GET /property/ HTTP/1.1" 200 58642
+INFO 2025-06-02 04:45:07,827 basehttp 8896 5980 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:45:07,827 basehttp 8896 3608 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:45:08,038 basehttp 8896 3608 "GET /property/ HTTP/1.1" 200 58642
+INFO 2025-06-02 04:45:08,834 basehttp 8896 3608 "GET /property/ HTTP/1.1" 200 58642
+INFO 2025-06-02 04:45:10,333 basehttp 8896 3608 "GET /property/ HTTP/1.1" 200 58642
+INFO 2025-06-02 04:45:14,659 basehttp 8896 3608 "GET /property/ HTTP/1.1" 200 58642
+INFO 2025-06-02 04:45:14,825 basehttp 8896 3608 "GET /property/ HTTP/1.1" 200 58642
+INFO 2025-06-02 04:45:26,013 basehttp 8896 4824 "GET / HTTP/1.1" 200 9162
+WARNING 2025-06-02 04:45:26,133 basehttp 8896 4824 "GET /favicon.ico HTTP/1.1" 404 14669
+INFO 2025-06-02 04:45:28,054 basehttp 8896 4824 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 04:45:28,108 basehttp 8896 4824 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 04:45:30,216 basehttp 8896 4824 "GET /property/ HTTP/1.1" 200 58642
+INFO 2025-06-02 04:45:30,226 basehttp 8896 4824 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:45:30,226 basehttp 8896 7236 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:45:45,388 basehttp 8896 2292 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:45,483 basehttp 8896 2292 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:50,191 basehttp 8896 13500 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:50,476 basehttp 8896 13500 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:50,625 basehttp 8896 13500 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:50,789 basehttp 8896 13500 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:50,941 basehttp 8896 13500 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:51,107 basehttp 8896 13500 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:51,264 basehttp 8896 10172 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:51,408 basehttp 8896 10172 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:51,537 basehttp 8896 10172 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:51,703 basehttp 8896 10172 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:51,876 basehttp 8896 10172 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:52,026 basehttp 8896 10172 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:45:52,183 basehttp 8896 10172 "GET /property/ HTTP/1.1" 200 57659
+INFO 2025-06-02 04:48:38,706 basehttp 8896 12740 "GET /property/ HTTP/1.1" 200 58956
+INFO 2025-06-02 04:48:38,718 basehttp 8896 12740 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:48:38,832 basehttp 8896 12740 "GET /property/ HTTP/1.1" 200 58956
+INFO 2025-06-02 04:51:24,908 basehttp 8896 1840 "GET /property/ HTTP/1.1" 200 60449
+INFO 2025-06-02 04:51:24,927 basehttp 8896 1840 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:51:24,927 basehttp 8896 4924 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 04:51:25,138 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60449
+INFO 2025-06-02 04:51:25,312 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60449
+INFO 2025-06-02 04:51:25,475 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60449
+INFO 2025-06-02 04:51:25,803 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60449
+INFO 2025-06-02 04:52:19,028 basehttp 8896 4924 "POST /property/modify_quantity/ HTTP/1.1" 302 0
+INFO 2025-06-02 04:52:19,052 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60708
+INFO 2025-06-02 04:52:22,568 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60449
+INFO 2025-06-02 04:52:23,103 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60449
+INFO 2025-06-02 04:52:23,411 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60449
+INFO 2025-06-02 04:52:23,568 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60449
+INFO 2025-06-02 04:52:41,179 basehttp 8896 4924 "POST /property/modify_quantity/ HTTP/1.1" 302 0
+INFO 2025-06-02 04:52:41,206 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60708
+INFO 2025-06-02 04:52:44,151 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60449
+INFO 2025-06-02 04:52:44,600 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60449
+INFO 2025-06-02 04:52:44,758 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60449
+INFO 2025-06-02 04:52:45,016 basehttp 8896 4924 "GET /property/ HTTP/1.1" 200 60449
+INFO 2025-06-02 04:53:55,757 basehttp 8896 4616 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 04:53:55,904 basehttp 8896 4616 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 04:53:56,073 basehttp 8896 4616 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 11:52:08,112 autoreload 5124 10260 Watching for file changes with StatReloader
+INFO 2025-06-02 11:52:19,318 basehttp 5124 6068 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 11:52:19,368 basehttp 5124 6068 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+WARNING 2025-06-02 11:52:19,483 basehttp 5124 6068 "GET /favicon.ico HTTP/1.1" 404 14669
+INFO 2025-06-02 11:52:25,148 basehttp 5124 4048 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 11:52:25,329 basehttp 5124 4048 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 11:52:25,346 basehttp 5124 4048 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 11:52:25,350 basehttp 5124 10148 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-02 11:52:25,468 basehttp 5124 12020 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 5573
+INFO 2025-06-02 11:52:25,469 basehttp 5124 11968 "GET /static/scripts/charts.js HTTP/1.1" 200 12760
+INFO 2025-06-02 11:53:27,089 basehttp 5124 13220 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 11:53:27,129 basehttp 5124 13232 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 11:53:27,130 basehttp 5124 13220 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 11:53:27,130 basehttp 5124 13236 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 11:53:32,844 basehttp 5124 13236 "GET /my-supply-requests/ HTTP/1.1" 200 12302
+INFO 2025-06-02 11:53:32,870 basehttp 5124 13236 "GET /static/scripts/filterStatus.js HTTP/1.1" 304 0
+INFO 2025-06-02 11:53:34,723 basehttp 5124 13236 "GET /my-supply-requests/ HTTP/1.1" 200 12302
+INFO 2025-06-02 11:53:35,224 basehttp 5124 13236 "GET /my-supply-requests/ HTTP/1.1" 200 12302
+INFO 2025-06-02 11:53:36,196 basehttp 5124 13236 "GET /activity/ HTTP/1.1" 200 13518
+INFO 2025-06-02 11:53:37,278 basehttp 5124 13236 "GET /check-out/ HTTP/1.1" 200 2123
+INFO 2025-06-02 11:53:39,838 basehttp 5124 13236 "GET /supplies/ HTTP/1.1" 200 57141
+INFO 2025-06-02 11:53:39,863 basehttp 5124 13236 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 11:53:43,299 basehttp 5124 13236 "GET /my-damage-reports/ HTTP/1.1" 200 4578
+INFO 2025-06-02 11:53:45,063 basehttp 5124 13236 "GET /my-reservations/ HTTP/1.1" 200 5982
+INFO 2025-06-02 11:53:53,163 basehttp 5124 13236 "GET /check-out/ HTTP/1.1" 200 2123
+INFO 2025-06-02 11:53:54,462 basehttp 5124 13236 "GET /my-borrow-requests/ HTTP/1.1" 200 6255
+INFO 2025-06-02 11:53:57,696 basehttp 5124 13236 "GET /my-borrow-requests/ HTTP/1.1" 200 6255
+INFO 2025-06-02 11:53:58,306 basehttp 5124 13236 "GET /my-borrow-requests/ HTTP/1.1" 200 6255
+INFO 2025-06-02 11:53:58,524 basehttp 5124 13236 "GET /my-borrow-requests/ HTTP/1.1" 200 6255
+INFO 2025-06-02 11:53:59,098 basehttp 5124 13236 "GET /my-borrow-requests/ HTTP/1.1" 200 6255
+INFO 2025-06-02 11:56:04,573 basehttp 5124 13236 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 12:01:51,982 basehttp 5124 3516 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 12:01:52,140 basehttp 5124 3516 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 12:01:52,304 basehttp 5124 3516 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 12:02:12,817 basehttp 5124 3516 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 12:02:12,976 basehttp 5124 3516 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 12:02:13,148 basehttp 5124 3516 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 12:02:13,298 basehttp 5124 3516 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 12:02:13,458 basehttp 5124 3516 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 12:02:24,994 basehttp 5124 10640 "GET /property/ HTTP/1.1" 302 0
+INFO 2025-06-02 12:02:25,013 basehttp 5124 10640 "GET /login_user/?next=/property/ HTTP/1.1" 200 9162
+INFO 2025-06-02 12:02:25,041 basehttp 5124 10640 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+WARNING 2025-06-02 12:02:25,144 basehttp 5124 10640 "GET /favicon.ico HTTP/1.1" 404 14669
+INFO 2025-06-02 12:02:27,109 basehttp 5124 10640 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 12:02:27,153 basehttp 5124 10640 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 12:02:27,168 basehttp 5124 10640 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 12:02:27,171 basehttp 5124 6316 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-02 12:02:27,171 basehttp 5124 12596 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-02 12:02:27,172 basehttp 5124 11096 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-02 12:02:28,556 basehttp 5124 3644 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 12:02:28,583 basehttp 5124 3644 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 12:02:28,585 basehttp 5124 4604 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 12:02:28,618 basehttp 5124 12584 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+INFO 2025-06-02 12:02:58,956 basehttp 5124 12536 "POST /property/modify_quantity/ HTTP/1.1" 302 0
+INFO 2025-06-02 12:02:58,991 basehttp 5124 12536 "GET /property/ HTTP/1.1" 200 57917
+INFO 2025-06-02 12:02:59,011 basehttp 5124 12536 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 12:03:25,690 basehttp 5124 12536 "POST /property/modify_quantity/ HTTP/1.1" 302 0
+INFO 2025-06-02 12:03:25,721 basehttp 5124 12536 "GET /property/ HTTP/1.1" 200 57916
+INFO 2025-06-02 12:03:25,737 basehttp 5124 12536 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 12:05:59,365 basehttp 5124 10916 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 12:06:00,675 basehttp 5124 10916 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 12:06:00,841 basehttp 5124 10916 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 12:06:00,978 basehttp 5124 10916 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 12:06:02,679 basehttp 5124 10916 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 12:06:02,716 basehttp 5124 10916 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 12:06:05,015 basehttp 5124 10916 "GET /property/ HTTP/1.1" 200 57654
+INFO 2025-06-02 12:06:10,620 basehttp 5124 10916 "GET /get_property_history/8/ HTTP/1.1" 200 2325
+INFO 2025-06-02 12:06:39,052 basehttp 5124 10916 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 12:06:40,995 basehttp 5124 10916 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 12:06:42,886 basehttp 5124 10916 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 12:06:42,921 basehttp 5124 10916 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 12:06:45,584 basehttp 5124 10916 "GET /property/ HTTP/1.1" 200 57654
+INFO 2025-06-02 12:07:14,842 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57654
+INFO 2025-06-02 12:07:14,855 basehttp 5124 7440 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 12:07:15,007 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57654
+INFO 2025-06-02 12:07:15,214 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57654
+INFO 2025-06-02 12:07:15,366 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57654
+INFO 2025-06-02 12:07:15,519 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57654
+INFO 2025-06-02 12:07:17,481 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57654
+INFO 2025-06-02 12:07:17,666 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57654
+INFO 2025-06-02 12:07:17,823 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57654
+INFO 2025-06-02 12:07:17,983 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57654
+INFO 2025-06-02 12:07:18,123 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57654
+INFO 2025-06-02 12:07:37,962 basehttp 5124 7440 "POST /property/modify_quantity/ HTTP/1.1" 302 0
+INFO 2025-06-02 12:07:37,996 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57917

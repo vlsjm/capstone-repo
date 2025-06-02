@@ -9,7 +9,7 @@ from django.views.generic import TemplateView, ListView
 from django.core.exceptions import ValidationError
 
 from django.views import View
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from .models import(
     Supply, Property, BorrowRequest,
     SupplyRequest, DamageReport, Reservation,
@@ -19,6 +19,7 @@ from .models import(
 )
 from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm
 from django.contrib.auth.forms import AuthenticationForm
+
 
 from datetime import timedelta, date
 import json
@@ -962,6 +963,7 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['form'] = PropertyForm()
         context['categories'] = PropertyCategory.objects.all()
+        context['property_list'] = Property.objects.all()
 
         # Get all properties
         properties = Property.objects.all()
@@ -986,7 +988,39 @@ class PropertyListView(PermissionRequiredMixin, ListView):
 
         context['grouped_properties'] = paginated_groups
         return context
+    
+@require_POST
+def modify_property_quantity_generic(request):
+    property_id = request.POST.get("property_id")
+    action_type = request.POST.get("action_type")
+    amount = int(request.POST.get("amount", 0))
 
+    prop = get_object_or_404(Property, pk=property_id)
+
+    if action_type == 'add':
+        prop.quantity += amount
+        prop.overall_quantity += amount
+    elif action_type == 'remove':
+        if amount > prop.quantity:
+            messages.error(request, "Cannot remove more than current quantity.")
+            return redirect('property_list')
+        prop.quantity -= amount
+        prop.overall_quantity -= amount
+
+    prop.save()
+
+    PropertyHistory.objects.create(
+        property=prop,
+        user=request.user,
+        action='quantity_update',
+        field_name='quantity',
+        old_value=str(prop.quantity + (amount if action_type == 'remove' else -amount)),
+        new_value=str(prop.quantity),
+        remarks=f"{action_type} {amount}"
+    )
+
+    messages.success(request, f"Quantity successfully {action_type}ed.")
+    return redirect('property_list')
 
 def add_property(request):
     if request.method == 'POST':
@@ -1171,18 +1205,25 @@ class LandingPageView(TemplateView):
 #meow   
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
-
+    
     def get_success_url(self):
         user = self.request.user
+
         if user.groups.filter(name='ADMIN').exists():
-            return reverse('dashboard') 
-        return reverse('user_dashboard')
+            return reverse('dashboard')
+        elif user.groups.filter(name='USER').exists():
+            return reverse('user_dashboard')
+        else:
+            logout(self.request)
+            messages.error(self.request, "You do not have permission to access the system. Contact the Admin.")
+            return reverse('login')
 
-def dashboard(request):
-    return render(request, 'app/dashboard.html')
 
-def user_dashboard(request):
-    return render(request, 'userpanel/user_dashboard.html')
+    def dashboard(request):
+        return render(request, 'app/dashboard.html')
+
+    def user_dashboard(request):
+        return render(request, 'userpanel/user_dashboard.html')
 
 
 
