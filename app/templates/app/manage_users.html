@@ -121,6 +121,87 @@
       .add-btn.secondary:hover {
         background-color: #1e7e34;
       }
+
+      /* Update search container styles */
+      .top-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px 0;
+        gap: 20px;
+      }
+
+      .button-container {
+        display: flex;
+        gap: 10px;
+      }
+
+      .search-container {
+        position: relative;
+        flex-grow: 1;
+        max-width: 400px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        overflow: hidden;
+      }
+
+      .search-container:hover {
+        background: #fff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+      }
+
+      .search-container:focus-within {
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(21, 45, 100, 0.15);
+        border-color: #152d64;
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #152d64;
+        font-size: 15px;
+        transition: color 0.3s ease;
+        z-index: 1;
+      }
+
+      .search-container:focus-within .search-icon {
+        color: #1e3d8a;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 12px 16px 12px 45px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        background: transparent;
+        transition: all 0.3s ease;
+      }
+
+      .search-input:focus {
+        outline: none;
+      }
+
+      .search-input::placeholder {
+        color: #6c757d;
+        opacity: 0.8;
+        font-weight: 400;
+      }
+
+      .search-container:focus-within .search-input::placeholder {
+        opacity: 0.6;
+      }
+
+      /* Hide rows that don't match search */
+      tr.hidden {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -148,17 +229,19 @@
       </div>
       {% endif %}
 
-      <!-- Add User and Department Buttons -->
-      <div class="add-property-container">
-        <div class="button-group">
+      <!-- Add search and buttons in top-controls -->
+      <div class="top-controls">
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search users...">
+        </div>
+        <div class="button-container">
           <button id="openModalBtn" class="add-btn">+ Create Account</button>
-          <button id="openDepartmentModalBtn" class="add-btn secondary">
-            + Add Department
-          </button>
+          <button id="openDepartmentModalBtn" class="add-btn secondary">+ Add Department</button>
         </div>
       </div>
 
-      <table border="1">
+      <table border="1" class="searchable-table">
         <thead>
           <tr>
             <th>No.</th>
@@ -314,6 +397,37 @@
           placeholder: "Select Department",
           allowClear: true,
           width: "100%",
+        });
+      });
+
+      document.addEventListener('DOMContentLoaded', function() {
+        // Add search functionality
+        const searchInput = document.getElementById('searchInput');
+        const table = document.querySelector('.searchable-table');
+
+        searchInput.addEventListener('keyup', function() {
+          const searchTerm = this.value.toLowerCase();
+          const rows = table.getElementsByTagName('tr');
+
+          // Start from 1 to skip header row
+          for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const cells = row.getElementsByTagName('td');
+            let found = false;
+
+            for (let cell of cells) {
+              if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                found = true;
+                break;
+              }
+            }
+
+            if (found) {
+              row.classList.remove('hidden');
+            } else {
+              row.classList.add('hidden');
+            }
+          }
         });
       });
     </script>

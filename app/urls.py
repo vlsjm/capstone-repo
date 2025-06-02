@@ -39,6 +39,7 @@ from .views import (
     create_department,
     add_property_category,
     modify_property_quantity_generic,
+    modify_supply_quantity_generic,
 
     
 
@@ -66,6 +67,7 @@ urlpatterns = [
      path('property/modify_quantity/', views.modify_property_quantity_generic, name='modify_property_quantity_generic'),
 
     path('add-category/', add_property_category, name='add_category'),
+    path('supply/modify_quantity/', views.modify_supply_quantity_generic, name='modify_supply_quantity_generic'),
 
     path('check-out/', CheckOutPageView.as_view(), name='checkout'),
 

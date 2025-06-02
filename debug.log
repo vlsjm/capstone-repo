@@ -5802,3 +5802,214 @@ INFO 2025-06-02 12:07:17,983 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57
 INFO 2025-06-02 12:07:18,123 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57654
 INFO 2025-06-02 12:07:37,962 basehttp 5124 7440 "POST /property/modify_quantity/ HTTP/1.1" 302 0
 INFO 2025-06-02 12:07:37,996 basehttp 5124 7440 "GET /property/ HTTP/1.1" 200 57917
+INFO 2025-06-02 16:33:43,383 autoreload 8324 4808 Watching for file changes with StatReloader
+INFO 2025-06-02 16:33:56,087 basehttp 8324 6264 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 16:34:01,295 basehttp 8324 6264 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-06-02 16:34:12,144 basehttp 8324 4648 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 16:34:13,301 basehttp 8324 4648 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 16:34:13,464 basehttp 8324 4648 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 16:34:13,761 basehttp 8324 5424 "GET /static/css/userStyle.css HTTP/1.1" 200 16259
+INFO 2025-06-02 16:34:13,818 basehttp 8324 4648 "GET /static/scripts/charts.js HTTP/1.1" 200 12760
+INFO 2025-06-02 16:34:13,958 basehttp 8324 4396 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 5573
+WARNING 2025-06-02 16:34:14,927 basehttp 8324 4140 "GET /favicon.ico HTTP/1.1" 404 14669
+WARNING 2025-06-02 16:34:16,569 basehttp 8324 8284 "GET /favicon.ico HTTP/1.1" 404 14669
+INFO 2025-06-02 16:34:25,210 basehttp 8324 8284 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 16:34:26,981 basehttp 8324 3508 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-02 16:34:26,982 basehttp 8324 6376 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+INFO 2025-06-02 16:34:27,033 basehttp 8324 1964 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+INFO 2025-06-02 16:34:28,469 basehttp 8324 1964 "GET /supplies/ HTTP/1.1" 200 57141
+INFO 2025-06-02 16:34:28,612 basehttp 8324 1964 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+INFO 2025-06-02 16:39:04,434 autoreload 9172 4692 Watching for file changes with StatReloader
+INFO 2025-06-02 16:39:12,753 basehttp 9172 8444 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 16:39:13,134 basehttp 9172 8444 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+WARNING 2025-06-02 16:39:13,800 basehttp 9172 8444 "GET /favicon.ico HTTP/1.1" 404 14964
+INFO 2025-06-02 16:39:17,755 basehttp 9172 8444 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 16:39:17,901 basehttp 9172 8444 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 16:39:17,980 basehttp 9172 8444 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 16:39:17,985 basehttp 9172 8444 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:39:17,989 basehttp 9172 8764 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-02 16:39:17,997 basehttp 9172 9028 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:39:21,018 basehttp 9172 4696 "GET /supplies/ HTTP/1.1" 200 59488
+INFO 2025-06-02 16:39:21,095 basehttp 9172 4696 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:40:29,353 autoreload 9172 4692 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 16:40:32,542 autoreload 4800 5568 Watching for file changes with StatReloader
+INFO 2025-06-02 16:40:43,937 basehttp 4800 7956 "GET /supplies/ HTTP/1.1" 200 60708
+INFO 2025-06-02 16:40:44,603 basehttp 4800 7956 "GET /supplies/ HTTP/1.1" 200 60708
+INFO 2025-06-02 16:40:44,694 basehttp 4800 6936 - Broken pipe from ('127.0.0.1', 50156)
+INFO 2025-06-02 16:40:45,069 basehttp 4800 6320 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+INFO 2025-06-02 16:40:45,070 basehttp 4800 7956 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-02 16:40:45,780 basehttp 4800 6320 "GET /favicon.ico HTTP/1.1" 404 14964
+INFO 2025-06-02 16:41:44,250 autoreload 4800 5568 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 16:41:47,299 autoreload 1028 6964 Watching for file changes with StatReloader
+INFO 2025-06-02 16:41:54,047 basehttp 1028 6060 "GET /supplies/ HTTP/1.1" 200 61183
+INFO 2025-06-02 16:42:14,997 basehttp 1028 6128 "POST /supply/modify_quantity/ HTTP/1.1" 302 0
+INFO 2025-06-02 16:42:15,109 basehttp 1028 6128 "GET /supplies/ HTTP/1.1" 200 61445
+INFO 2025-06-02 16:42:57,585 basehttp 1028 6800 "GET /property/ HTTP/1.1" 200 57658
+INFO 2025-06-02 16:42:57,719 basehttp 1028 6800 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 16:42:57,815 basehttp 1028 5344 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:42:57,839 basehttp 1028 3876 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:42:57,863 basehttp 1028 2084 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:43:29,739 basehttp 1028 948 "GET /property/ HTTP/1.1" 200 57992
+INFO 2025-06-02 16:43:58,883 basehttp 1028 6164 "GET /property/ HTTP/1.1" 200 57992
+INFO 2025-06-02 16:44:00,586 basehttp 1028 6164 "GET /supplies/ HTTP/1.1" 200 61186
+INFO 2025-06-02 16:44:00,656 basehttp 1028 6164 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:44:34,870 basehttp 1028 4912 "GET /property/ HTTP/1.1" 200 57992
+INFO 2025-06-02 16:44:34,952 basehttp 1028 4912 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:44:35,147 basehttp 1028 3656 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:44:35,161 basehttp 1028 1636 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:46:48,236 basehttp 1028 4400 "GET /supplies/ HTTP/1.1" 200 62559
+INFO 2025-06-02 16:46:48,831 basehttp 1028 4400 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 16:46:48,841 basehttp 1028 2100 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:46:54,092 basehttp 1028 1144 "GET /property/ HTTP/1.1" 200 57992
+INFO 2025-06-02 16:46:54,096 basehttp 1028 1144 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:46:54,325 basehttp 1028 7020 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:46:54,633 basehttp 1028 9144 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:46:57,632 basehttp 1028 7236 "GET /supplies/ HTTP/1.1" 200 62559
+INFO 2025-06-02 16:47:14,923 basehttp 1028 8868 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 16:47:15,236 basehttp 1028 8868 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+WARNING 2025-06-02 16:47:23,517 basehttp 1028 8868 "GET /favicon.ico HTTP/1.1" 404 14964
+INFO 2025-06-02 16:47:32,081 basehttp 1028 8868 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 16:47:33,254 basehttp 1028 8868 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 16:47:33,336 basehttp 1028 8868 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-02 16:47:33,388 basehttp 1028 8868 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:47:33,438 basehttp 1028 8868 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:47:47,927 basehttp 1028 8736 "GET /supplies/ HTTP/1.1" 200 62559
+INFO 2025-06-02 16:48:04,238 basehttp 1028 5656 "GET /property/ HTTP/1.1" 200 57992
+INFO 2025-06-02 16:49:58,906 basehttp 1028 8820 "GET /property/ HTTP/1.1" 200 57992
+INFO 2025-06-02 16:49:59,004 basehttp 1028 8820 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 16:49:59,014 basehttp 1028 1964 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:49:59,017 basehttp 1028 7896 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:49:59,020 basehttp 1028 6192 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:50:01,837 basehttp 1028 6192 "GET /supplies/ HTTP/1.1" 200 62587
+INFO 2025-06-02 16:50:01,904 basehttp 1028 6192 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:50:40,712 basehttp 1028 9116 "POST /supply/modify_quantity/ HTTP/1.1" 302 0
+INFO 2025-06-02 16:50:40,804 basehttp 1028 9116 "GET /supplies/ HTTP/1.1" 200 62846
+INFO 2025-06-02 16:50:57,077 basehttp 1028 1044 "POST /supply/modify_quantity/ HTTP/1.1" 302 0
+INFO 2025-06-02 16:50:57,151 basehttp 1028 1044 "GET /supplies/ HTTP/1.1" 200 62843
+INFO 2025-06-02 16:51:11,615 basehttp 1028 8924 "POST /supply/modify_quantity/ HTTP/1.1" 302 0
+INFO 2025-06-02 16:51:11,698 basehttp 1028 8924 "GET /supplies/ HTTP/1.1" 200 62849
+INFO 2025-06-02 16:51:16,578 basehttp 1028 2852 "GET /property/ HTTP/1.1" 200 57992
+INFO 2025-06-02 16:51:22,884 basehttp 1028 2852 "GET /supplies/ HTTP/1.1" 200 62587
+INFO 2025-06-02 16:51:28,370 basehttp 1028 7156 "GET /property/ HTTP/1.1" 200 57992
+INFO 2025-06-02 16:51:33,173 basehttp 1028 7156 "GET /supplies/ HTTP/1.1" 200 62587
+INFO 2025-06-02 16:51:35,842 basehttp 1028 1268 "GET /property/ HTTP/1.1" 200 57992
+INFO 2025-06-02 16:51:37,377 basehttp 1028 1268 "GET /supplies/ HTTP/1.1" 200 62587
+INFO 2025-06-02 16:51:40,066 basehttp 1028 1268 "GET /activity/ HTTP/1.1" 200 13518
+INFO 2025-06-02 16:54:43,088 basehttp 1028 2240 "GET /property/ HTTP/1.1" 200 58118
+INFO 2025-06-02 16:54:43,176 basehttp 1028 2240 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 16:54:43,182 basehttp 1028 2240 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:54:43,362 basehttp 1028 3220 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:54:43,432 basehttp 1028 6624 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:54:50,155 basehttp 1028 6632 "GET /property/ HTTP/1.1" 200 58118
+INFO 2025-06-02 16:54:50,818 basehttp 1028 6632 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-02 16:54:50,832 basehttp 1028 6080 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2004
+INFO 2025-06-02 16:54:50,873 basehttp 1028 8916 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+INFO 2025-06-02 16:54:50,885 basehttp 1028 6628 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+WARNING 2025-06-02 16:54:53,530 basehttp 1028 6632 "GET /favicon.ico HTTP/1.1" 404 14964
+INFO 2025-06-02 16:57:50,928 autoreload 1028 6964 C:\Users\rrdel\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-02 16:58:17,815 autoreload 5168 4396 Watching for file changes with StatReloader
+INFO 2025-06-02 16:58:24,950 basehttp 5168 2884 "GET /activity/ HTTP/1.1" 200 13518
+INFO 2025-06-02 16:58:31,586 basehttp 5168 8316 "GET /supplies/ HTTP/1.1" 200 62587
+INFO 2025-06-02 16:58:31,780 basehttp 5168 8316 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 16:58:32,397 basehttp 5168 7716 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:58:41,512 basehttp 5168 7716 "POST /supply/modify_quantity/ HTTP/1.1" 302 0
+INFO 2025-06-02 16:58:41,718 basehttp 5168 7716 "GET /supplies/ HTTP/1.1" 200 62846
+INFO 2025-06-02 16:58:47,569 basehttp 5168 7716 "GET /activity/ HTTP/1.1" 200 13490
+INFO 2025-06-02 16:58:47,915 basehttp 5168 7716 "GET /activity/ HTTP/1.1" 200 13490
+INFO 2025-06-02 16:58:52,084 basehttp 5168 7184 "GET /property/ HTTP/1.1" 200 57999
+INFO 2025-06-02 16:58:52,214 basehttp 5168 7184 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:58:52,450 basehttp 5168 6784 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:58:52,538 basehttp 5168 3588 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 16:59:15,950 basehttp 5168 8432 "POST /property/modify_quantity/ HTTP/1.1" 302 0
+INFO 2025-06-02 16:59:16,097 basehttp 5168 8432 "GET /property/ HTTP/1.1" 200 58258
+INFO 2025-06-02 16:59:21,498 basehttp 5168 1076 "GET /activity/ HTTP/1.1" 200 13471
+INFO 2025-06-02 17:02:12,555 basehttp 5168 4416 "GET /property/ HTTP/1.1" 200 60383
+INFO 2025-06-02 17:02:13,313 basehttp 5168 4416 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:02:13,329 basehttp 5168 4416 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:02:13,773 basehttp 5168 7332 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:02:31,187 basehttp 5168 1924 "GET /supplies/ HTTP/1.1" 200 64741
+INFO 2025-06-02 17:02:31,331 basehttp 5168 1924 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 17:02:31,470 basehttp 5168 7568 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:05:14,197 basehttp 5168 2764 "GET /supplies/ HTTP/1.1" 200 65573
+INFO 2025-06-02 17:05:21,216 basehttp 5168 4220 "GET /property/ HTTP/1.1" 200 61021
+INFO 2025-06-02 17:05:21,223 basehttp 5168 4220 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:05:21,229 basehttp 5168 4220 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:05:21,406 basehttp 5168 1800 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:05:49,742 basehttp 5168 4884 "GET /supplies/ HTTP/1.1" 200 65573
+INFO 2025-06-02 17:06:02,311 basehttp 5168 7124 "GET /property/ HTTP/1.1" 200 61021
+INFO 2025-06-02 17:08:59,516 basehttp 5168 7236 "GET /property/ HTTP/1.1" 200 61675
+INFO 2025-06-02 17:09:00,462 basehttp 5168 7628 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 17:09:00,776 basehttp 5168 5904 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:09:01,449 basehttp 5168 9060 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:09:01,631 basehttp 5168 656 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:09:10,523 basehttp 5168 2564 "GET /property/ HTTP/1.1" 200 61675
+INFO 2025-06-02 17:11:25,222 basehttp 5168 3132 "GET /property/ HTTP/1.1" 200 61743
+INFO 2025-06-02 17:11:31,075 basehttp 5168 3132 "GET /supplies/ HTTP/1.1" 200 66223
+INFO 2025-06-02 17:11:31,725 basehttp 5168 3132 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+WARNING 2025-06-02 17:12:13,854 basehttp 5168 4572 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15075
+WARNING 2025-06-02 17:14:39,486 basehttp 5168 4736 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15075
+INFO 2025-06-02 17:15:10,321 basehttp 5168 484 "GET /supplies/ HTTP/1.1" 200 66223
+INFO 2025-06-02 17:15:10,445 basehttp 5168 484 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 17:15:24,658 basehttp 5168 4364 "GET /property/ HTTP/1.1" 200 61743
+INFO 2025-06-02 17:15:24,889 basehttp 5168 4364 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:15:24,963 basehttp 5168 7020 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:15:25,109 basehttp 5168 764 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:15:27,560 basehttp 5168 3004 "GET /supplies/ HTTP/1.1" 200 66223
+INFO 2025-06-02 17:15:29,702 basehttp 5168 3004 "GET /manage-users/ HTTP/1.1" 200 19044
+INFO 2025-06-02 17:15:30,075 basehttp 5168 4532 "GET /static/scripts/departmentModal.js HTTP/1.1" 200 5347
+INFO 2025-06-02 17:15:30,110 basehttp 5168 3004 "GET /static/scripts/accountModal.js HTTP/1.1" 200 648
+WARNING 2025-06-02 17:15:38,557 basehttp 5168 5656 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15075
+WARNING 2025-06-02 17:16:25,079 basehttp 5168 5836 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15075
+INFO 2025-06-02 17:16:25,106 basehttp 5168 5836 - Broken pipe from ('127.0.0.1', 50927)
+WARNING 2025-06-02 17:18:13,426 basehttp 5168 2640 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15075
+INFO 2025-06-02 17:18:59,777 basehttp 5168 3588 "GET /manage-users/ HTTP/1.1" 200 19044
+WARNING 2025-06-02 17:19:07,411 basehttp 5168 5596 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 15075
+INFO 2025-06-02 17:19:07,413 basehttp 5168 5596 - Broken pipe from ('127.0.0.1', 51006)
+INFO 2025-06-02 17:20:45,522 basehttp 5168 6972 "GET /manage-users/ HTTP/1.1" 200 19044
+INFO 2025-06-02 17:20:45,653 basehttp 5168 6972 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 17:24:42,701 basehttp 5168 1712 "GET /manage-users/ HTTP/1.1" 200 22066
+INFO 2025-06-02 17:24:42,800 basehttp 5168 1712 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:24:42,935 basehttp 5168 3316 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:24:54,368 basehttp 5168 6324 "GET /property/ HTTP/1.1" 200 61743
+INFO 2025-06-02 17:24:54,476 basehttp 5168 6324 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:24:54,604 basehttp 5168 4696 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:24:54,613 basehttp 5168 8324 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:24:55,391 basehttp 5168 8324 "GET /supplies/ HTTP/1.1" 200 66223
+INFO 2025-06-02 17:24:55,562 basehttp 5168 8324 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:24:56,495 basehttp 5168 7680 "GET /check-out/ HTTP/1.1" 200 2123
+INFO 2025-06-02 17:24:58,119 basehttp 5168 7680 "GET /activity/ HTTP/1.1" 200 13471
+INFO 2025-06-02 17:43:17,393 autoreload 4744 1728 Watching for file changes with StatReloader
+INFO 2025-06-02 17:43:27,118 basehttp 4744 6392 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-02 17:43:27,471 basehttp 4744 6392 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+INFO 2025-06-02 17:43:37,701 basehttp 4744 6392 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-02 17:43:38,595 basehttp 4744 6392 "GET /dashboard/ HTTP/1.1" 200 33197
+INFO 2025-06-02 17:43:38,713 basehttp 4744 6392 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-02 17:43:38,911 basehttp 4744 6208 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:43:39,069 basehttp 4744 7564 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:43:39,218 basehttp 4744 844 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-02 17:43:43,734 basehttp 4744 844 "GET /manage-users/ HTTP/1.1" 200 22066
+INFO 2025-06-02 17:43:43,847 basehttp 4744 844 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:43:43,848 basehttp 4744 7564 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:44:24,088 views 4744 9072 Starting user creation process...
+INFO 2025-06-02 17:44:24,101 views 4744 9072 Verifying email settings...
+INFO 2025-06-02 17:44:24,103 views 4744 9072 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-06-02 17:44:24,106 views 4744 9072 EMAIL_HOST: smtp.gmail.com
+INFO 2025-06-02 17:44:24,314 views 4744 9072 EMAIL_PORT: 587
+INFO 2025-06-02 17:44:24,437 views 4744 9072 EMAIL_USE_TLS: True
+INFO 2025-06-02 17:44:24,560 views 4744 9072 EMAIL_HOST_USER: rrdelacruz710@gmail.com
+INFO 2025-06-02 17:44:24,620 views 4744 9072 EMAIL_HOST_PASSWORD is set: Yes
+INFO 2025-06-02 17:44:24,623 views 4744 9072 .env file exists: Yes
+INFO 2025-06-02 17:44:24,640 views 4744 9072 Checking form validity...
+INFO 2025-06-02 17:44:24,969 views 4744 9072 Form is valid, proceeding with user creation...
+INFO 2025-06-02 17:44:25,023 views 4744 9072 Creating user with email: rrdelacruz32@gmail.com
+INFO 2025-06-02 17:44:31,113 views 4744 9072 User created successfully with role: USER
+INFO 2025-06-02 17:44:31,585 views 4744 9072 Added user to group: USER
+INFO 2025-06-02 17:44:31,975 views 4744 9072 User profile created successfully
+INFO 2025-06-02 17:44:32,025 views 4744 9072 Attempting to send welcome email to rrdelacruz32@gmail.com...
+INFO 2025-06-02 17:44:36,827 views 4744 9072 Welcome email sent successfully!
+INFO 2025-06-02 17:44:37,164 basehttp 4744 9072 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-06-02 17:44:37,430 basehttp 4744 1544 "GET /manage-users/ HTTP/1.1" 200 22602
+INFO 2025-06-02 17:45:40,501 basehttp 4744 4396 "GET /property/ HTTP/1.1" 200 61743
+INFO 2025-06-02 17:45:40,717 basehttp 4744 4396 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:45:40,900 basehttp 4744 6080 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-02 17:45:41,010 basehttp 4744 7704 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0

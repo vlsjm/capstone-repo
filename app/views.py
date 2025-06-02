@@ -785,6 +785,7 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['form'] = SupplyForm()
         context['today'] = date.today()
+        context['supply_list'] = Supply.objects.select_related('quantity_info').all()
         
         # Get all supplies
         supplies = self.get_queryset()
@@ -996,6 +997,7 @@ def modify_property_quantity_generic(request):
     amount = int(request.POST.get("amount", 0))
 
     prop = get_object_or_404(Property, pk=property_id)
+    old_quantity = prop.quantity
 
     if action_type == 'add':
         prop.quantity += amount
@@ -1014,9 +1016,18 @@ def modify_property_quantity_generic(request):
         user=request.user,
         action='quantity_update',
         field_name='quantity',
-        old_value=str(prop.quantity + (amount if action_type == 'remove' else -amount)),
+        old_value=str(old_quantity),
         new_value=str(prop.quantity),
         remarks=f"{action_type} {amount}"
+    )
+
+    # Add activity log
+    ActivityLog.log_activity(
+        user=request.user,
+        action='quantity_update',
+        model_name='Property',
+        object_repr=str(prop),
+        description=f"{action_type.title()}ed {amount} units to/from property '{prop.property_name}'. Changed quantity from {old_quantity} to {prop.quantity}"
     )
 
     messages.success(request, f"Quantity successfully {action_type}ed.")
@@ -1410,3 +1421,54 @@ def get_property_history(request, property_id):
     return JsonResponse({
         'history': history_data
     })
+
+@require_POST
+def modify_supply_quantity_generic(request):
+    supply_id = request.POST.get("supply_id")
+    action_type = request.POST.get("action_type")
+    amount = int(request.POST.get("amount", 0))
+
+    supply = get_object_or_404(Supply, pk=supply_id)
+
+    try:
+        quantity_info = supply.quantity_info
+        old_quantity = quantity_info.current_quantity
+
+        if action_type == 'add':
+            quantity_info.current_quantity += amount
+        elif action_type == 'remove':
+            if amount > quantity_info.current_quantity:
+                messages.error(request, "Cannot remove more than current quantity.")
+                return redirect('supply_list')
+            quantity_info.current_quantity -= amount
+
+        quantity_info.save(user=request.user)
+
+        # Update supply's available_for_request status
+        supply.available_for_request = (quantity_info.current_quantity > 0)
+        supply.save(user=request.user)
+
+        SupplyHistory.objects.create(
+            supply=supply,
+            user=request.user,
+            action='quantity_update',
+            field_name='quantity',
+            old_value=str(old_quantity),
+            new_value=str(quantity_info.current_quantity),
+            remarks=f"{action_type} {amount}"
+        )
+
+        # Add activity log
+        ActivityLog.log_activity(
+            user=request.user,
+            action='quantity_update',
+            model_name='Supply',
+            object_repr=str(supply),
+            description=f"{action_type.title()}ed {amount} units to/from supply '{supply.supply_name}'. Changed quantity from {old_quantity} to {quantity_info.current_quantity}"
+        )
+
+        messages.success(request, f"Quantity successfully {action_type}ed.")
+    except SupplyQuantity.DoesNotExist:
+        messages.error(request, "Supply quantity information not found.")
+
+    return redirect('supply_list')
