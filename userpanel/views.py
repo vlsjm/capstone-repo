@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView
 from django.urls import reverse_lazy
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
@@ -13,6 +13,8 @@ from django.utils import timezone
 from datetime import timedelta
 import json
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 
 
 
@@ -22,7 +24,23 @@ class UserBorrowView( PermissionRequiredMixin, TemplateView):
 
     def get(self, request):
         form = BorrowForm()
-        return render(request, self.template_name, {'form': form})
+        recent_requests = BorrowRequest.objects.filter(user=request.user).order_by('-borrow_date')[:5]
+        
+        # Convert requests to dict format for template
+        recent_requests_data = [{
+            'id': req.id,
+            'item': req.property.property_name,
+            'quantity': req.quantity,
+            'status': req.status,
+            'date': req.borrow_date,
+            'return_date': req.return_date,
+            'purpose': req.purpose
+        } for req in recent_requests]
+        
+        return render(request, self.template_name, {
+            'form': form,
+            'recent_requests': recent_requests_data
+        })
 
     def post(self, request):
         form = BorrowForm(request.POST)
@@ -43,7 +61,23 @@ class UserBorrowView( PermissionRequiredMixin, TemplateView):
 
             messages.success(request, 'Borrow request submitted successfully.')
             return redirect('user_borrow')
-        return render(request, self.template_name, {'form': form})
+            
+        # If form is invalid, include recent requests in context
+        recent_requests = BorrowRequest.objects.filter(user=request.user).order_by('-borrow_date')[:5]
+        recent_requests_data = [{
+            'id': req.id,
+            'item': req.property.property_name,
+            'quantity': req.quantity,
+            'status': req.status,
+            'date': req.borrow_date,
+            'return_date': req.return_date,
+            'purpose': req.purpose
+        } for req in recent_requests]
+        
+        return render(request, self.template_name, {
+            'form': form,
+            'recent_requests': recent_requests_data
+        })
 
 
 class UserRequestView(PermissionRequiredMixin, TemplateView):
@@ -52,7 +86,22 @@ class UserRequestView(PermissionRequiredMixin, TemplateView):
 
     def get(self, request):
         form = SupplyRequestForm()
-        return render(request, self.template_name, {'form': form})
+        recent_requests = SupplyRequest.objects.filter(user=request.user).order_by('-request_date')[:5]
+        
+        # Convert requests to dict format for template
+        recent_requests_data = [{
+            'id': req.id,
+            'item': req.supply.supply_name,
+            'quantity': req.quantity,
+            'status': req.status,
+            'date': req.request_date,
+            'purpose': req.purpose
+        } for req in recent_requests]
+        
+        return render(request, self.template_name, {
+            'form': form,
+            'recent_requests': recent_requests_data
+        })
 
     def post(self, request):
         form = SupplyRequestForm(request.POST)
@@ -73,7 +122,22 @@ class UserRequestView(PermissionRequiredMixin, TemplateView):
 
             messages.success(request, 'Supply request submitted successfully.')
             return redirect('user_request')
-        return render(request, self.template_name, {'form': form})
+            
+        # If form is invalid, include recent requests in context
+        recent_requests = SupplyRequest.objects.filter(user=request.user).order_by('-request_date')[:5]
+        recent_requests_data = [{
+            'id': req.id,
+            'item': req.supply.supply_name,
+            'quantity': req.quantity,
+            'status': req.status,
+            'date': req.request_date,
+            'purpose': req.purpose
+        } for req in recent_requests]
+        
+        return render(request, self.template_name, {
+            'form': form,
+            'recent_requests': recent_requests_data
+        })
 
 
 class UserReserveView(PermissionRequiredMixin, TemplateView):
@@ -82,7 +146,24 @@ class UserReserveView(PermissionRequiredMixin, TemplateView):
 
     def get(self, request):
         form = ReservationForm()
-        return render(request, self.template_name, {'form': form})
+        recent_requests = Reservation.objects.filter(user=request.user).order_by('-reservation_date')[:5]
+        
+        # Convert requests to dict format for template
+        recent_requests_data = [{
+            'id': req.id,
+            'item': req.item.property_name,
+            'quantity': req.quantity,
+            'status': req.status,
+            'date': req.reservation_date,
+            'needed_date': req.needed_date,
+            'return_date': req.return_date,
+            'purpose': req.purpose
+        } for req in recent_requests]
+        
+        return render(request, self.template_name, {
+            'form': form,
+            'recent_requests': recent_requests_data
+        })
 
     def post(self, request):
         form = ReservationForm(request.POST)
@@ -102,7 +183,24 @@ class UserReserveView(PermissionRequiredMixin, TemplateView):
 
             messages.success(request, 'Reservation submitted successfully.')
             return redirect('user_reserve')
-        return render(request, self.template_name, {'form': form})
+            
+        # If form is invalid, include recent requests in context
+        recent_requests = Reservation.objects.filter(user=request.user).order_by('-reservation_date')[:5]
+        recent_requests_data = [{
+            'id': req.id,
+            'item': req.item.property_name,
+            'quantity': req.quantity,
+            'status': req.status,
+            'date': req.reservation_date,
+            'needed_date': req.needed_date,
+            'return_date': req.return_date,
+            'purpose': req.purpose
+        } for req in recent_requests]
+        
+        return render(request, self.template_name, {
+            'form': form,
+            'recent_requests': recent_requests_data
+        })
 
 
 class UserReportView(PermissionRequiredMixin, TemplateView):
@@ -111,7 +209,21 @@ class UserReportView(PermissionRequiredMixin, TemplateView):
 
     def get(self, request):
         form = DamageReportForm()
-        return render(request, self.template_name, {'form': form})
+        recent_requests = DamageReport.objects.filter(user=request.user).order_by('-report_date')[:5]
+        
+        # Convert requests to dict format for template
+        recent_requests_data = [{
+            'id': req.id,
+            'item': req.item.property_name,
+            'status': req.status,
+            'date': req.report_date,
+            'description': req.description
+        } for req in recent_requests]
+        
+        return render(request, self.template_name, {
+            'form': form,
+            'recent_requests': recent_requests_data
+        })
 
     def post(self, request):
         form = DamageReportForm(request.POST)
@@ -131,7 +243,21 @@ class UserReportView(PermissionRequiredMixin, TemplateView):
 
             messages.success(request, 'Damage report submitted successfully.')
             return redirect('user_report')
-        return render(request, self.template_name, {'form': form})
+            
+        # If form is invalid, include recent requests in context
+        recent_requests = DamageReport.objects.filter(user=request.user).order_by('-report_date')[:5]
+        recent_requests_data = [{
+            'id': req.id,
+            'item': req.item.property_name,
+            'status': req.status,
+            'date': req.report_date,
+            'description': req.description
+        } for req in recent_requests]
+        
+        return render(request, self.template_name, {
+            'form': form,
+            'recent_requests': recent_requests_data
+        })
 
 
 class UserLoginView(LoginView):
@@ -209,7 +335,7 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
             return {
                 'item': req.supply.supply_name,
                 'quantity': req.quantity,
-                'status': req.get_status_display(),
+                'status': req.status,
                 'date': req.request_date,
                 'purpose': req.purpose,
             }
@@ -218,7 +344,7 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
             return {
                 'item': borrow.property.property_name,
                 'quantity': borrow.quantity,
-                'status': borrow.get_status_display(),
+                'status': borrow.status,
                 'borrow_date': borrow.borrow_date,
                 'return_date': borrow.return_date,
             }
@@ -227,7 +353,7 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
             return {
                 'item': res.item.property_name,
                 'quantity': res.quantity,
-                'status': res.get_status_display(),
+                'status': res.status,
                 'needed_date': res.needed_date,
                 'return_date': res.return_date,
                 'purpose': res.purpose,
@@ -236,7 +362,7 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
         def damage_to_dict(report):
             return {
                 'item': report.item.property_name,
-                'status': report.get_status_display(),
+                'status': report.status,
                 'date': report.report_date,
                 'description': report.description,
             }
@@ -335,3 +461,113 @@ class UserPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
 
     def get_template_names(self):
         return ['userpanel/password_change_done.html']
+
+@login_required
+@require_POST
+def cancel_supply_request(request, request_id):
+    supply_request = get_object_or_404(SupplyRequest, id=request_id, user=request.user)
+    
+    # Only allow cancellation if request is pending
+    if supply_request.status == 'pending':
+        supply_request.status = 'cancelled'
+        supply_request.save()
+        
+        # Log the cancellation
+        ActivityLog.log_activity(
+            user=request.user,
+            action='cancel',
+            model_name='SupplyRequest',
+            object_repr=str(supply_request.supply.supply_name),
+            description=f"Cancelled supply request for {supply_request.quantity} units of {supply_request.supply.supply_name}"
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Request cancelled successfully'
+        })
+    
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Request cannot be cancelled'
+    }, status=400)
+
+@login_required
+@require_POST
+def cancel_borrow_request(request, request_id):
+    borrow_request = get_object_or_404(BorrowRequest, id=request_id, user=request.user)
+    
+    if borrow_request.status == 'pending':
+        borrow_request.status = 'cancelled'
+        borrow_request.save()
+        
+        ActivityLog.log_activity(
+            user=request.user,
+            action='cancel',
+            model_name='BorrowRequest',
+            object_repr=str(borrow_request.property.property_name),
+            description=f"Cancelled borrow request for {borrow_request.quantity} units of {borrow_request.property.property_name}"
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Request cancelled successfully'
+        })
+    
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Request cannot be cancelled'
+    }, status=400)
+
+@login_required
+@require_POST
+def cancel_reservation(request, request_id):
+    reservation = get_object_or_404(Reservation, id=request_id, user=request.user)
+    
+    if reservation.status == 'pending':
+        reservation.status = 'cancelled'
+        reservation.save()
+        
+        ActivityLog.log_activity(
+            user=request.user,
+            action='cancel',
+            model_name='Reservation',
+            object_repr=str(reservation.item.property_name),
+            description=f"Cancelled reservation for {reservation.quantity} units of {reservation.item.property_name}"
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Reservation cancelled successfully'
+        })
+    
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Reservation cannot be cancelled'
+    }, status=400)
+
+@login_required
+@require_POST
+def cancel_damage_report(request, request_id):
+    report = get_object_or_404(DamageReport, id=request_id, user=request.user)
+    
+    if report.status == 'pending':
+        report.status = 'cancelled'
+        report.save()
+        
+        ActivityLog.log_activity(
+            user=request.user,
+            action='cancel',
+            model_name='DamageReport',
+            object_repr=str(report.item.property_name),
+            description=f"Cancelled damage report for {report.item.property_name}"
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Report cancelled successfully'
+        })
+    
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Report cannot be cancelled'
+    }, status=400)

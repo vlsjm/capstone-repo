@@ -29,4 +29,8 @@ urlpatterns = [
     path('password/change/done/', 
          UserPasswordChangeDoneView.as_view(), 
          name='user_password_change_done'),
+    path('cancel-supply-request/<int:request_id>/', views.cancel_supply_request, name='cancel_supply_request'),
+    path('cancel-borrow-request/<int:request_id>/', views.cancel_borrow_request, name='cancel_borrow_request'),
+    path('cancel-reservation/<int:request_id>/', views.cancel_reservation, name='cancel_reservation'),
+    path('cancel-damage-report/<int:request_id>/', views.cancel_damage_report, name='cancel_damage_report'),
 ]
