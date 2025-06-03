@@ -527,7 +527,7 @@
     <div class="modal-content">
       <span class="close" id="closeCategoryModalBtn">&times;</span>
       <h2>Add New Category</h2>
-      <form id="addCategoryForm" method="POST" action="{% url 'add_category' %}">
+      <form id="addCategoryForm" method="POST" action="{% url 'add_property_category' %}">
         {% csrf_token %}
         <label for="categoryName">Category Name:</label>
         <input type="text" name="name" id="categoryName" required>
@@ -672,7 +672,7 @@
             <th>Field</th>
             <th>Previous Value</th>
             <th>New Value</th>
-            <th>Changed By</th>
+            <th>Transacted by</th>
           </tr>
         </thead>
         <tbody id="historyTableBody">
@@ -724,6 +724,48 @@
               successMessage.remove();
             }, 300);
           }, 2000);
+        }
+
+        // Category Modal Handling
+        const categoryModal = document.getElementById('categoryModal');
+        const openCategoryBtn = document.getElementById('openCategoryModalBtn');
+        const closeCategoryBtn = document.getElementById('closeCategoryModalBtn');
+        const addCategoryForm = document.getElementById('addCategoryForm');
+
+        if (openCategoryBtn) {
+          openCategoryBtn.onclick = function() {
+            categoryModal.style.display = 'block';
+          };
+        }
+
+        if (closeCategoryBtn) {
+          closeCategoryBtn.onclick = function() {
+            categoryModal.style.display = 'none';
+          };
+        }
+
+        if (addCategoryForm) {
+          addCategoryForm.onsubmit = function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            fetch(this.action, {
+              method: 'POST',
+              body: formData,
+              headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+              }
+            })
+            .then(response => {
+              if (response.redirected) {
+                window.location.href = response.url;
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('Error adding category. Please try again.');
+            });
+          };
         }
 
         // Edit button functionality

@@ -1229,8 +1229,22 @@ def add_property_category(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         if name:
-            PropertyCategory.objects.create(name=name)
-    return redirect('property_list') 
+            try:
+                category = PropertyCategory.objects.create(name=name)
+                
+                # Log the activity
+                ActivityLog.log_activity(
+                    user=request.user,
+                    action='create',
+                    model_name='PropertyCategory',
+                    object_repr=str(category),
+                    description=f"Added new property category '{name}'"
+                )
+                
+                messages.success(request, 'Category added successfully.')
+            except Exception as e:
+                messages.error(request, f'Error adding category: {str(e)}')
+    return redirect('property_list')
 
 class CheckOutPageView(PermissionRequiredMixin, TemplateView):
     template_name = 'app/checkout.html'
