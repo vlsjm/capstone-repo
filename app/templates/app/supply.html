@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="{% static 'css/barcode.css' %}">
   {% csrf_token %}
   <style>
+    
     /* Modal Styles */
     .modal {
       display: none;
@@ -457,6 +458,85 @@ tr.hidden {
 .input-group button {
   white-space: nowrap;
 }
+
+/* Add these new styles */
+.filter-container {
+  display: flex;
+  gap: 10px;
+  margin-right: 10px;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  min-width: 180px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 5px rgba(21, 45, 100, 0.2);
+}
+
+.filter-select option {
+  padding: 8px;
+}
+
+/* Add Supply Modal specific styles */
+#addSupplyModal .modal-content {
+  padding: 40px;
+}
+
+#addSupplyModal form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#addSupplyModal .form-group {
+  margin-bottom: 15px;
+}
+
+#addSupplyModal label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+#addSupplyModal input[type="text"],
+#addSupplyModal input[type="number"],
+#addSupplyModal input[type="date"],
+#addSupplyModal textarea,
+#addSupplyModal select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+#addSupplyModal input:focus,
+#addSupplyModal textarea:focus,
+#addSupplyModal select:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.1);
+}
+
+#addSupplyModal .submit-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+}
+
+/* Ensure Select2 dropdowns appear above the modal */
+.select2-container {
+  z-index: 1051;
+}
   </style>
 </head>
 <body>
@@ -489,16 +569,36 @@ tr.hidden {
             <i class="fas fa-search search-icon"></i>
             <input type="text" id="searchInput" class="search-input" placeholder="Search supplies...">
           </div>
+          <div class="filter-container">
+            <select id="statusFilter" class="filter-select">
+              <option value="">Filter by Status</option>
+              <option value="available">Available</option>
+              <option value="low_stock">Low Stock</option>
+              <option value="out_of_stock">Out of Stock</option>
+            </select>
+            <select id="availabilityFilter" class="filter-select">
+              <option value="">Filter by Availability</option>
+              <option value="Yes">Available for Request</option>
+              <option value="No">Not Available for Request</option>
+            </select>
+            <select id="expiryFilter" class="filter-select">
+              <option value="">Filter by Expiry</option>
+              <option value="expired">Expired</option>
+              <option value="expiring_soon">Expiring Soon (30 days)</option>
+              <option value="not_expired">Not Expired</option>
+              <option value="no_expiry">No Expiry Date</option>
+            </select>
+          </div>
           <div class="button-container">
             <button onclick="printBarcodes()" class="print-barcodes-btn">
               <i class="fas fa-print"></i> Print Barcodes
             </button>
             <button id="openModalBtn" class="add-btn">+ Add Supply</button>
             <button id="openModifyQuantityModalBtn" class="add-btn">Modify Quantity</button>
-            <button onclick="openCategoryModal()" class="add-btn">
+            <button id="openCategoryModalBtn" class="add-btn" onclick="openCategoryModal()">
               <i class="fas fa-plus"></i> Add Category
             </button>
-            <button onclick="openSubcategoryModal()" class="add-btn">
+            <button id="openSubcategoryModalBtn" class="add-btn" onclick="openSubcategoryModal()">
               <i class="fas fa-plus"></i> Add Subcategory
             </button>
           </div>
@@ -630,9 +730,9 @@ tr.hidden {
   <!-- Add Supply Modal -->
   <div id="addSupplyModal" class="modal">
     <div class="modal-content">
-      <span class="close" id="closeModalBtn">&times;</span>
+      <span class="close">&times;</span>
       <h3>Add New Supply</h3>
-      <form method="POST" action="{% url 'add_supply' %}">
+      <form method="POST" action="{% url 'add_supply' %}" id="addSupplyForm">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="submit-btn">Submit</button>
@@ -771,13 +871,13 @@ tr.hidden {
     <div class="modal-content">
       <span class="close" onclick="closeCategoryModal()">&times;</span>
       <h2>Add New Category</h2>
-      <form id="categoryForm" method="POST">
+      <form id="categoryForm" method="POST" action="{% url 'add_category' %}">
         {% csrf_token %}
         <div class="form-group">
           <label for="categoryName">Category Name</label>
           <input type="text" id="categoryName" name="name" required class="form-control">
         </div>
-        <button type="submit" class="btn btn-primary">Add Category</button>
+        <button type="submit" class="submit-btn">Add Category</button>
       </form>
     </div>
   </div>
@@ -787,18 +887,35 @@ tr.hidden {
     <div class="modal-content">
       <span class="close" onclick="closeSubcategoryModal()">&times;</span>
       <h2>Add New Subcategory</h2>
-      <form id="subcategoryForm" method="POST">
+      <form id="subcategoryForm" method="POST" action="{% url 'add_subcategory' %}">
         {% csrf_token %}
         <div class="form-group">
           <label for="subcategoryName">Subcategory Name</label>
           <input type="text" id="subcategoryName" name="name" required class="form-control">
         </div>
-        <button type="submit" class="btn btn-primary">Add Subcategory</button>
+        <button type="submit" class="submit-btn">Add Subcategory</button>
       </form>
     </div>
   </div>
 
   <script>
+    // Make modal functions globally accessible
+    window.openCategoryModal = function() {
+        document.getElementById('categoryModal').style.display = 'block';
+    };
+
+    window.closeCategoryModal = function() {
+        document.getElementById('categoryModal').style.display = 'none';
+    };
+
+    window.openSubcategoryModal = function() {
+        document.getElementById('subcategoryModal').style.display = 'block';
+    };
+
+    window.closeSubcategoryModal = function() {
+        document.getElementById('subcategoryModal').style.display = 'none';
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
       // Modal Elements
       const addModal = document.getElementById("addSupplyModal");
@@ -815,6 +932,13 @@ tr.hidden {
       const openModifyQuantityBtn = document.getElementById("openModifyQuantityModalBtn");
       const closeModifyQuantityBtn = document.getElementById("closeModifyQuantityModalBtn");
       const closeHistoryBtn = document.getElementById("closeHistoryModalBtn");
+
+      // Filter and Search Elements
+      const statusFilter = document.getElementById('statusFilter');
+      const availabilityFilter = document.getElementById('availabilityFilter');
+      const expiryFilter = document.getElementById('expiryFilter');
+      const searchInput = document.getElementById('searchInput');
+      const tables = document.getElementsByClassName('searchable-table');
 
       // Function to close all modals
       function closeAllModals() {
@@ -833,6 +957,107 @@ tr.hidden {
           }
         });
       }
+
+      // Combined filter and search function
+      function filterAndSearch() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+        const availabilityValue = availabilityFilter.value;
+        const expiryValue = expiryFilter.value;
+
+        for (let table of tables) {
+          const rows = table.getElementsByTagName('tr');
+          let hasVisibleRows = false;
+
+          // Start from 1 to skip header row
+          for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const cells = row.getElementsByTagName('td');
+            if (cells.length === 0) continue; // Skip empty rows
+            
+            // Get status, availability, and expiry cells
+            const statusCell = cells[6]; // Status column
+            const availabilityCell = cells[7]; // Availability column
+            const expiryCell = cells[10]; // Expiry Date column
+            
+            let matchesSearch = false;
+            let matchesStatus = !statusValue; // true if no filter selected
+            let matchesAvailability = !availabilityValue; // true if no filter selected
+            let matchesExpiry = !expiryValue; // true if no filter selected
+
+            // Check search term
+            for (let cell of cells) {
+              if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                matchesSearch = true;
+                break;
+              }
+            }
+
+            // Check status
+            if (statusValue) {
+              const statusText = statusCell.textContent.trim().toLowerCase();
+              const statusBadge = statusCell.querySelector('.status-badge');
+              const statusClass = statusBadge ? statusBadge.className : '';
+              
+              matchesStatus = statusClass.includes(`status-${statusValue}`) || 
+                             statusText.includes(statusValue.replace('_', ' '));
+            }
+
+            // Check availability
+            if (availabilityValue) {
+              const availabilityText = availabilityCell.textContent.trim();
+              matchesAvailability = availabilityText === availabilityValue;
+            }
+
+            // Check expiry
+            if (expiryValue) {
+              const expiryDiv = expiryCell.querySelector('.expiration-badge');
+              if (expiryValue === 'no_expiry') {
+                matchesExpiry = expiryCell.textContent.trim() === 'N/A';
+              } else if (expiryDiv) {
+                switch(expiryValue) {
+                  case 'expired':
+                    matchesExpiry = expiryDiv.classList.contains('expired');
+                    break;
+                  case 'expiring_soon':
+                    matchesExpiry = expiryDiv.classList.contains('nearly-expired');
+                    break;
+                  case 'not_expired':
+                    matchesExpiry = expiryDiv.classList.contains('not-expired');
+                    break;
+                }
+              }
+            }
+
+            // Show/hide row based on all filters
+            const shouldShow = matchesSearch && matchesStatus && matchesAvailability && matchesExpiry;
+            row.classList.toggle('hidden', !shouldShow);
+            
+            if (shouldShow) {
+              hasVisibleRows = true;
+            }
+          }
+
+          // Show/hide category headers based on whether any rows are visible
+          const categoryHeader = table.previousElementSibling;
+          if (!hasVisibleRows) {
+            categoryHeader.style.display = 'none';
+            table.style.display = 'none';
+          } else {
+            categoryHeader.style.display = 'block';
+            table.style.display = 'table';
+          }
+        }
+      }
+
+      // Add event listeners for filters and search
+      statusFilter.addEventListener('change', filterAndSearch);
+      availabilityFilter.addEventListener('change', filterAndSearch);
+      expiryFilter.addEventListener('change', filterAndSearch);
+      searchInput.addEventListener('keyup', filterAndSearch);
+
+      // Initialize filters
+      filterAndSearch();
 
       // Add Supply Modal Handling
       if (openAddBtn) {
@@ -1015,47 +1240,87 @@ tr.hidden {
         }
       });
 
-      // Add search functionality
-      const searchInput = document.getElementById('searchInput');
-      const tables = document.getElementsByClassName('searchable-table');
-
-      searchInput.addEventListener('keyup', function() {
-        const searchTerm = this.value.toLowerCase();
-
-        for (let table of tables) {
-          const rows = table.getElementsByTagName('tr');
-
-          // Start from 1 to skip header row
-          for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            const cells = row.getElementsByTagName('td');
-            let found = false;
-
-            for (let cell of cells) {
-              if (cell.textContent.toLowerCase().includes(searchTerm)) {
-                found = true;
-                break;
-              }
-            }
-
-            if (found) {
-              row.classList.remove('hidden');
+      // Handle category form submission
+      $('#categoryForm').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+          url: $(this).attr('action'),
+          type: 'POST',
+          data: $(this).serialize(),
+          success: function(response) {
+            if (response.success) {
+              // Add the new category to both edit and add form dropdowns
+              let newOption = new Option(response.category.name, response.category.id, true, true);
+              $('#edit_category').append(newOption).trigger('change');
+              $('#id_category').append(newOption.cloneNode(true)).trigger('change');
+              
+              // Close the modal and reset form
+              closeCategoryModal();
+              $('#categoryForm')[0].reset();
+              
+              // Show success message
+              alert('Category added successfully!');
             } else {
-              row.classList.add('hidden');
+              alert('Error: ' + response.error);
             }
+          },
+          error: function() {
+            alert('Error adding category. Please try again.');
           }
+        });
+      });
 
-          // Show/hide category headers based on whether any rows are visible
-          const categoryHeader = table.previousElementSibling;
-          const visibleRows = table.querySelectorAll('tr:not(.hidden)').length;
-          if (visibleRows <= 1) { // 1 accounts for the header row
-            categoryHeader.style.display = 'none';
-            table.style.display = 'none';
-          } else {
-            categoryHeader.style.display = 'block';
-            table.style.display = 'table';
+      // Handle subcategory form submission
+      $('#subcategoryForm').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+          url: $(this).attr('action'),
+          type: 'POST',
+          data: $(this).serialize(),
+          success: function(response) {
+            if (response.success) {
+              // Add the new subcategory to both edit and add form dropdowns
+              let newOption = new Option(response.subcategory.name, response.subcategory.id, true, true);
+              $('#edit_subcategory').append(newOption).trigger('change');
+              $('#id_subcategory').append(newOption.cloneNode(true)).trigger('change');
+              
+              // Close the modal and reset form
+              closeSubcategoryModal();
+              $('#subcategoryForm')[0].reset();
+              
+              // Show success message
+              alert('Subcategory added successfully!');
+            } else {
+              alert('Error: ' + response.error);
+            }
+          },
+          error: function() {
+            alert('Error adding subcategory. Please try again.');
           }
+        });
+      });
+
+      // Add event listeners for closing modals when clicking outside
+      [addModal, editModal, modifyQuantityModal, historyModal, categoryModal, subcategoryModal].forEach(modal => {
+        if (modal) {
+          modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+              modal.style.display = 'none';
+              destroySelect2Instances();
+            }
+          });
         }
+      });
+
+      // Add event listeners for close buttons
+      document.querySelectorAll('.close').forEach(closeBtn => {
+        closeBtn.addEventListener('click', function() {
+          const modal = this.closest('.modal');
+          if (modal) {
+            modal.style.display = 'none';
+            destroySelect2Instances();
+          }
+        });
       });
     });
    function printBarcodes() {
@@ -1163,83 +1428,6 @@ tr.hidden {
             };
         };
     }
-
-    // Add these functions to your existing JavaScript
-    function openCategoryModal() {
-      document.getElementById('categoryModal').style.display = 'block';
-    }
-
-    function closeCategoryModal() {
-      document.getElementById('categoryModal').style.display = 'none';
-    }
-
-    function openSubcategoryModal() {
-      document.getElementById('subcategoryModal').style.display = 'block';
-    }
-
-    function closeSubcategoryModal() {
-      document.getElementById('subcategoryModal').style.display = 'none';
-    }
-
-    // Handle category form submission
-    $('#categoryForm').on('submit', function(e) {
-      e.preventDefault();
-      $.ajax({
-        url: '{% url "add_category" %}',
-        type: 'POST',
-        data: $(this).serialize(),
-        success: function(response) {
-          if (response.success) {
-            // Add the new category to both edit and add form dropdowns
-            let newOption = new Option(response.category.name, response.category.id, true, true);
-            $('#edit_category').append(newOption).trigger('change');
-            $('#id_category').append(newOption.cloneNode(true)).trigger('change');
-            
-            // Close the modal and reset form
-            closeCategoryModal();
-            $('#categoryForm')[0].reset();
-            
-            // Show success message
-            alert('Category added successfully!');
-          } else {
-            alert('Error: ' + response.error);
-          }
-        },
-        error: function() {
-          alert('Error adding category. Please try again.');
-        }
-      });
-    });
-
-    // Handle subcategory form submission
-    $('#subcategoryForm').on('submit', function(e) {
-      e.preventDefault();
-      $.ajax({
-        url: '{% url "add_subcategory" %}',
-        type: 'POST',
-        data: $(this).serialize(),
-        success: function(response) {
-          if (response.success) {
-            // Add the new subcategory to both edit and add form dropdowns
-            let newOption = new Option(response.subcategory.name, response.subcategory.id, true, true);
-            $('#edit_subcategory').append(newOption).trigger('change');
-            $('#id_subcategory').append(newOption.cloneNode(true)).trigger('change');
-            
-            // Close the modal and reset form
-            closeSubcategoryModal();
-            $('#subcategoryForm')[0].reset();
-            
-            // Show success message
-            alert('Subcategory added successfully!');
-          } else {
-            alert('Error: ' + response.error);
-          }
-        },
-        error: function() {
-          alert('Error adding subcategory. Please try again.');
-        }
-      });
-    });
   </script>
   {% endblock %}
 </body>

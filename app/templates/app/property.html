@@ -328,6 +328,33 @@
       .print-btn i {
           font-size: 1.2em;
       }
+
+      /* Add these new styles */
+      .filter-container {
+        display: flex;
+        gap: 10px;
+        margin-right: 10px;
+      }
+
+      .filter-select {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+        min-width: 180px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .filter-select:focus {
+        outline: none;
+        border-color: #152d64;
+        box-shadow: 0 0 5px rgba(21, 45, 100, 0.2);
+      }
+
+      .filter-select option {
+        padding: 8px;
+      }
     </style>
   </head>
   <body>
@@ -357,6 +384,22 @@
           <div class="search-container">
             <i class="fas fa-search search-icon"></i>
             <input type="text" id="searchInput" class="search-input" placeholder="Search properties...">
+          </div>
+          <div class="filter-container">
+            <select id="availabilityFilter" class="filter-select">
+              <option value="">Filter by Availability</option>
+              <option value="available">Available</option>
+              <option value="not_available">Not Available</option>
+            </select>
+            <select id="conditionFilter" class="filter-select">
+              <option value="">Filter by Condition</option>
+              <option value="In good condition">In Good Condition</option>
+              <option value="Needing repair">Needing Repair</option>
+              <option value="Unserviceable">Unserviceable</option>
+              <option value="Obsolete">Obsolete</option>
+              <option value="No longer needed">No Longer Needed</option>
+              <option value="Not used since purchased">Not Used Since Purchased</option>
+            </select>
           </div>
           <div class="button-container">
             <button onclick="printBarcodes()" class="print-barcodes-btn">
@@ -847,40 +890,72 @@
           }
         });
 
-        // Add search functionality
+        // Get filter elements
+        const availabilityFilter = document.getElementById('availabilityFilter');
+        const conditionFilter = document.getElementById('conditionFilter');
         const searchInput = document.getElementById('searchInput');
         const tables = document.getElementsByClassName('searchable-table');
 
-        searchInput.addEventListener('keyup', function() {
-          const searchTerm = this.value.toLowerCase();
+        // Combined filter function
+        function filterProperties() {
+          const searchTerm = searchInput.value.toLowerCase();
+          const availabilityValue = availabilityFilter.value;
+          const conditionValue = conditionFilter.value;
 
           for (let table of tables) {
             const rows = table.getElementsByTagName('tr');
+            let hasVisibleRows = false;
 
             // Start from 1 to skip header row
             for (let i = 1; i < rows.length; i++) {
               const row = rows[i];
               const cells = row.getElementsByTagName('td');
-              let found = false;
+              if (cells.length === 0) continue; // Skip empty rows
+              
+              // Get availability and condition cells
+              const availabilityCell = cells[11]; // Availability column
+              const conditionCell = cells[10]; // Condition column
+              
+              let matchesSearch = false;
+              let matchesAvailability = !availabilityValue; // true if no filter selected
+              let matchesCondition = !conditionValue; // true if no filter selected
 
+              // Check search term
               for (let cell of cells) {
                 if (cell.textContent.toLowerCase().includes(searchTerm)) {
-                  found = true;
+                  matchesSearch = true;
                   break;
                 }
               }
 
-              if (found) {
-                row.classList.remove('hidden');
-              } else {
-                row.classList.add('hidden');
+              // Check availability
+              if (availabilityValue) {
+                const availabilityText = availabilityCell.textContent.trim().toLowerCase();
+                if (availabilityValue === 'available') {
+                  matchesAvailability = availabilityText.includes('available') && !availabilityText.includes('not available');
+                } else {
+                  matchesAvailability = availabilityText.includes('not available');
+                }
+              }
+
+              // Check condition
+              if (conditionValue) {
+                const conditionText = conditionCell.textContent.trim();
+                matchesCondition = conditionText === conditionValue;
+              }
+
+              // Show/hide row based on all filters
+              const shouldShow = matchesSearch && matchesAvailability && matchesCondition;
+              row.classList.toggle('hidden', !shouldShow);
+              
+              if (shouldShow) {
+                hasVisibleRows = true;
               }
             }
 
             // Show/hide category headers based on whether any rows are visible
             const categoryHeader = table.previousElementSibling;
-            const visibleRows = table.querySelectorAll('tr:not(.hidden)').length;
-            if (visibleRows <= 1) { // 1 accounts for the header row
+            if (!hasVisibleRows) {
               categoryHeader.style.display = 'none';
               table.style.display = 'none';
             } else {
@@ -888,7 +963,15 @@
               table.style.display = 'table';
             }
           }
-        });
+        }
+
+        // Add event listeners for filters
+        availabilityFilter.addEventListener('change', filterProperties);
+        conditionFilter.addEventListener('change', filterProperties);
+        searchInput.addEventListener('keyup', filterProperties);
+
+        // Initialize filters
+        filterProperties();
       });
     </script>
 
