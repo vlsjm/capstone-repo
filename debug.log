@@ -9298,3 +9298,12 @@ INFO 2025-06-04 05:32:53,250 basehttp 20844 19996 "GET /dashboard/ HTTP/1.1" 200
 INFO 2025-06-04 05:32:56,750 basehttp 20844 19996 "GET /change-password/ HTTP/1.1" 200 6152
 INFO 2025-06-04 05:33:00,370 basehttp 20844 19996 "GET /manage-users/ HTTP/1.1" 200 22768
 INFO 2025-06-04 05:33:41,261 basehttp 20844 19996 "GET /property/ HTTP/1.1" 200 280299
+INFO 2025-06-04 05:48:52,568 autoreload 6748 21204 Watching for file changes with StatReloader
+INFO 2025-06-04 05:49:25,376 autoreload 6748 21204 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 05:49:25,821 autoreload 9432 10676 Watching for file changes with StatReloader
+INFO 2025-06-04 05:49:28,495 basehttp 9432 8256 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-04 05:49:35,374 basehttp 9432 8256 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 05:49:35,413 basehttp 9432 8256 "GET /dashboard/ HTTP/1.1" 200 36924
+INFO 2025-06-04 05:49:39,103 basehttp 9432 8256 "GET /property/ HTTP/1.1" 200 315071
+INFO 2025-06-04 05:49:39,109 basehttp 9432 8256 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-04 05:49:39,109 basehttp 9432 13796 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0

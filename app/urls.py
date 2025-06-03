@@ -45,6 +45,8 @@ from .views import (
     add_category,
     add_subcategory,
     get_subcategories,
+    update_property_category,
+    delete_property_category,
 )
 
 urlpatterns = [
@@ -67,6 +69,8 @@ urlpatterns = [
     path('delete-property/<int:pk>/', delete_property, name='delete_property'),
     path('property/modify_quantity/', views.modify_property_quantity_generic, name='modify_property_quantity_generic'),
     path('add-property-category/', add_property_category, name='add_property_category'),
+    path('update_property_category/', update_property_category, name='update_property_category'),
+    path('delete_property_category/<int:category_id>/', delete_property_category, name='delete_property_category'),
 
     path('add-category/', add_category, name='add_category'),
     path('add-subcategory/', add_subcategory, name='add_subcategory'),

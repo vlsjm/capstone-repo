@@ -1592,3 +1592,58 @@ def get_subcategories(request):
             ]
         })
     return JsonResponse({'subcategories': []})
+   #new
+@login_required
+def update_property_category(request):
+    if request.method == 'POST':
+        category_id = request.POST.get('id')
+        new_name = request.POST.get('name')
+       
+        try:
+            category = PropertyCategory.objects.get(id=category_id)
+            old_name = category.name
+            category.name = new_name
+            category.save()
+           
+            # Log the activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='update',
+                model_name='PropertyCategory',
+                object_repr=str(category),
+                description=f"Updated category name from '{old_name}' to '{new_name}'"
+            )
+           
+            return JsonResponse({'success': True})
+        except PropertyCategory.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Category not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+           
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@login_required
+def delete_property_category(request, category_id):
+    if request.method == 'POST':
+        try:
+            category = PropertyCategory.objects.get(id=category_id)
+            category_name = category.name
+            category.delete()
+           
+            # Log the activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='delete',
+                model_name='PropertyCategory',
+                object_repr=category_name,
+                description=f"Deleted property category '{category_name}'"
+            )
+           
+            messages.success(request, 'Category deleted successfully.')
+        except PropertyCategory.DoesNotExist:
+            messages.error(request, 'Category not found.')
+        except Exception as e:
+            messages.error(request, f'Error deleting category: {str(e)}')
+           
+    return redirect('property_list')
