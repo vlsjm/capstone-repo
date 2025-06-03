@@ -8022,3 +8022,691 @@ INFO 2025-06-04 00:03:25,313 basehttp 15352 20424 "GET /activity/ HTTP/1.1" 200 
 INFO 2025-06-04 00:28:13,058 basehttp 15352 20176 "GET /property/ HTTP/1.1" 200 256900
 INFO 2025-06-04 00:28:13,065 basehttp 15352 20176 "GET /static/css/barcode.css HTTP/1.1" 304 0
 INFO 2025-06-04 00:28:13,065 basehttp 15352 10660 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:42,287 autoreload 6288 2312 Watching for file changes with StatReloader
+INFO 2025-06-04 01:03:45,943 basehttp 6288 9572 "GET /admin/ HTTP/1.1" 302 0
+INFO 2025-06-04 01:03:46,100 basehttp 6288 9572 "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4173
+INFO 2025-06-04 01:03:46,281 basehttp 6288 13224 "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2808
+INFO 2025-06-04 01:03:46,293 basehttp 6288 13236 "GET /static/admin/css/responsive.css HTTP/1.1" 200 16565
+INFO 2025-06-04 01:03:46,297 basehttp 6288 10156 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+INFO 2025-06-04 01:03:46,299 basehttp 6288 12736 "GET /static/admin/css/login.css HTTP/1.1" 200 951
+INFO 2025-06-04 01:03:46,300 basehttp 6288 9572 "GET /static/admin/css/base.css HTTP/1.1" 200 22120
+INFO 2025-06-04 01:03:46,306 basehttp 6288 3236 "GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+INFO 2025-06-04 01:03:46,306 basehttp 6288 9572 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+INFO 2025-06-04 01:03:48,165 basehttp 6288 9572 "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+INFO 2025-06-04 01:03:48,204 basehttp 6288 9572 "GET /admin/ HTTP/1.1" 200 18733
+INFO 2025-06-04 01:03:48,246 basehttp 6288 9572 "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+INFO 2025-06-04 01:03:48,269 basehttp 6288 9572 "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+INFO 2025-06-04 01:03:48,269 basehttp 6288 3236 "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+INFO 2025-06-04 01:03:48,270 basehttp 6288 12736 "GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+INFO 2025-06-04 01:03:51,406 basehttp 6288 12736 "GET /admin/app/supply/ HTTP/1.1" 200 20830
+INFO 2025-06-04 01:03:51,425 basehttp 6288 12736 "GET /static/admin/css/base.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:51,435 basehttp 6288 10156 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:51,435 basehttp 6288 12736 "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:51,437 basehttp 6288 9572 "GET /static/admin/js/theme.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:51,440 basehttp 6288 10156 "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:51,448 basehttp 6288 13236 "GET /static/admin/css/changelists.css HTTP/1.1" 200 6878
+INFO 2025-06-04 01:03:51,453 basehttp 6288 13224 "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+INFO 2025-06-04 01:03:51,468 basehttp 6288 3236 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 01:03:51,468 basehttp 6288 10156 "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9777
+INFO 2025-06-04 01:03:51,469 basehttp 6288 9572 "GET /static/admin/js/core.js HTTP/1.1" 200 6208
+INFO 2025-06-04 01:03:51,475 basehttp 6288 13224 "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+INFO 2025-06-04 01:03:51,479 basehttp 6288 13236 "GET /static/admin/js/actions.js HTTP/1.1" 200 8076
+INFO 2025-06-04 01:03:51,492 basehttp 6288 10156 "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+INFO 2025-06-04 01:03:51,498 basehttp 6288 12736 "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+INFO 2025-06-04 01:03:51,506 basehttp 6288 12736 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:51,528 basehttp 6288 12736 "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+INFO 2025-06-04 01:03:51,559 basehttp 6288 3236 "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+INFO 2025-06-04 01:03:51,589 basehttp 6288 3236 "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+INFO 2025-06-04 01:03:57,278 basehttp 6288 3236 "POST /admin/app/supply/ HTTP/1.1" 200 29409
+INFO 2025-06-04 01:03:57,298 basehttp 6288 3236 "GET /static/admin/css/base.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,300 basehttp 6288 12736 "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,300 basehttp 6288 13224 "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,300 basehttp 6288 10156 "GET /static/admin/js/theme.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,300 basehttp 6288 9572 "GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,301 basehttp 6288 13236 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,305 basehttp 6288 3236 "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,306 basehttp 6288 12736 "GET /static/admin/js/core.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,306 basehttp 6288 13224 "GET /static/admin/js/actions.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,308 basehttp 6288 10156 "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,309 basehttp 6288 9572 "GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,309 basehttp 6288 13236 "GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,310 basehttp 6288 3236 "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,314 basehttp 6288 3236 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:03:57,333 basehttp 6288 13236 "GET /static/admin/js/cancel.js HTTP/1.1" 200 884
+INFO 2025-06-04 01:04:00,123 basehttp 6288 13236 "POST /admin/app/supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 01:04:00,143 basehttp 6288 13236 "GET /admin/app/supply/ HTTP/1.1" 200 14146
+INFO 2025-06-04 01:04:00,161 basehttp 6288 3236 "GET /static/admin/css/changelists.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:00,166 basehttp 6288 13236 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 01:04:00,167 basehttp 6288 3236 "GET /static/admin/js/filters.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:00,197 basehttp 6288 3236 "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+INFO 2025-06-04 01:04:02,910 basehttp 6288 3236 "GET /admin/app/supply/ HTTP/1.1" 200 14008
+INFO 2025-06-04 01:04:02,930 basehttp 6288 10156 "GET /static/admin/js/theme.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:02,930 basehttp 6288 13236 "GET /static/admin/css/base.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:02,930 basehttp 6288 9572 "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:02,931 basehttp 6288 12736 "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:02,931 basehttp 6288 13224 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:02,936 basehttp 6288 10156 "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:02,938 basehttp 6288 13236 "GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:02,939 basehttp 6288 13224 "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:02,939 basehttp 6288 12736 "GET /static/admin/js/actions.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:02,940 basehttp 6288 9572 "GET /static/admin/js/core.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:02,942 basehttp 6288 10156 "GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:02,943 basehttp 6288 13236 "GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:02,945 basehttp 6288 9572 "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:02,945 basehttp 6288 3236 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 01:04:02,948 basehttp 6288 3236 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:03,455 basehttp 6288 3236 "GET /admin/app/supplyrequest/ HTTP/1.1" 200 14062
+INFO 2025-06-04 01:04:03,473 basehttp 6288 3236 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 01:04:04,855 basehttp 6288 3236 "GET /admin/app/supply/ HTTP/1.1" 200 14008
+INFO 2025-06-04 01:04:04,869 basehttp 6288 3236 "GET /static/admin/css/changelists.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:04,873 basehttp 6288 9572 "GET /static/admin/js/filters.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:04,876 basehttp 6288 3236 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 01:04:05,504 basehttp 6288 3236 "GET /admin/app/supplyrequest/ HTTP/1.1" 200 14062
+INFO 2025-06-04 01:04:05,521 basehttp 6288 3236 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 01:04:06,269 basehttp 6288 3236 "GET /admin/app/supplyquantity/ HTTP/1.1" 200 14069
+INFO 2025-06-04 01:04:06,293 basehttp 6288 3236 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 01:04:06,700 basehttp 6288 3236 "GET /admin/app/supplyhistory/ HTTP/1.1" 200 14062
+INFO 2025-06-04 01:04:06,716 basehttp 6288 3236 "GET /static/admin/css/base.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:06,726 basehttp 6288 13224 "GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:06,727 basehttp 6288 9572 "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:06,727 basehttp 6288 13236 "GET /static/admin/js/theme.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:06,729 basehttp 6288 10156 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:06,730 basehttp 6288 12736 "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:06,740 basehttp 6288 13224 "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:06,741 basehttp 6288 9572 "GET /static/admin/js/core.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:06,741 basehttp 6288 10156 "GET /static/admin/js/actions.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:06,741 basehttp 6288 12736 "GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:06,743 basehttp 6288 13236 "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:06,745 basehttp 6288 13224 "GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:06,745 basehttp 6288 9572 "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:04:06,746 basehttp 6288 3236 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 01:04:06,749 basehttp 6288 3236 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+INFO 2025-06-04 01:08:08,878 autoreload 6288 2312 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-04 01:08:09,805 autoreload 11500 2452 Watching for file changes with StatReloader
+INFO 2025-06-04 01:11:06,352 autoreload 11500 2452 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-04 01:11:07,077 autoreload 1648 10352 Watching for file changes with StatReloader
+INFO 2025-06-04 01:14:19,051 autoreload 1648 10352 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-04 01:14:20,093 autoreload 13180 9232 Watching for file changes with StatReloader
+ERROR 2025-06-04 01:14:23,869 log 13180 9336 Internal Server Error: /admin/app/supply/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: app_supply.category_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 719, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\admin\options.py", line 2163, in changelist_view
+    "selection_note": _("0 of %(cnt)s selected") % {"cnt": len(cl.result_list)},
+                                                           ~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 366, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1945, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: app_supply.category_id
+ERROR 2025-06-04 01:14:23,876 basehttp 13180 9336 "GET /admin/app/supply/ HTTP/1.1" 500 180402
+INFO 2025-06-04 01:14:28,316 basehttp 13180 9336 "GET /admin/app/supplyhistory/ HTTP/1.1" 200 14062
+INFO 2025-06-04 01:14:28,333 basehttp 13180 9336 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 01:15:02,891 basehttp 13180 9336 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-04 01:15:04,506 basehttp 13180 9336 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 01:15:04,540 basehttp 13180 9336 "GET /dashboard/ HTTP/1.1" 200 31317
+INFO 2025-06-04 01:15:04,565 basehttp 13180 9336 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:15:09,013 basehttp 13180 9336 "GET /property/ HTTP/1.1" 200 256900
+INFO 2025-06-04 01:15:09,035 basehttp 13180 9336 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-04 01:15:10,877 basehttp 13180 9336 "GET /supplies/ HTTP/1.1" 200 27571
+INFO 2025-06-04 01:15:16,598 basehttp 13180 9336 "GET /supplies/ HTTP/1.1" 200 27571
+INFO 2025-06-04 01:17:06,337 autoreload 13180 9232 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 01:17:07,150 autoreload 2608 5984 Watching for file changes with StatReloader
+INFO 2025-06-04 01:17:17,764 autoreload 2608 5984 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-04 01:17:18,589 autoreload 6248 5080 Watching for file changes with StatReloader
+INFO 2025-06-04 01:17:56,994 basehttp 6248 10608 "GET /supplies/ HTTP/1.1" 200 33932
+INFO 2025-06-04 01:17:57,109 basehttp 6248 10608 "GET /supplies/ HTTP/1.1" 200 33932
+INFO 2025-06-04 01:17:57,239 basehttp 6248 10608 "GET /supplies/ HTTP/1.1" 200 33932
+INFO 2025-06-04 01:17:57,354 basehttp 6248 10608 "GET /supplies/ HTTP/1.1" 200 33932
+INFO 2025-06-04 01:17:57,577 basehttp 6248 10608 "GET /supplies/ HTTP/1.1" 200 33932
+INFO 2025-06-04 01:17:57,975 basehttp 6248 10608 "GET /supplies/ HTTP/1.1" 200 33932
+INFO 2025-06-04 01:17:58,126 basehttp 6248 10608 "GET /supplies/ HTTP/1.1" 200 33932
+INFO 2025-06-04 01:17:58,274 basehttp 6248 10608 "GET /supplies/ HTTP/1.1" 200 33932
+INFO 2025-06-04 01:17:58,418 basehttp 6248 10608 "GET /supplies/ HTTP/1.1" 200 33932
+INFO 2025-06-04 01:17:58,635 basehttp 6248 10608 "GET /supplies/ HTTP/1.1" 200 33932
+INFO 2025-06-04 01:18:00,537 basehttp 6248 10608 "GET /supplies/ HTTP/1.1" 200 33932
+INFO 2025-06-04 01:18:01,093 basehttp 6248 10608 "GET /supplies/ HTTP/1.1" 200 33932
+INFO 2025-06-04 01:18:01,315 basehttp 6248 10608 "GET /supplies/ HTTP/1.1" 200 33932
+INFO 2025-06-04 01:19:26,896 autoreload 6248 5080 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-04 01:19:27,762 autoreload 3384 10032 Watching for file changes with StatReloader
+INFO 2025-06-04 01:22:06,371 basehttp 3384 4036 "GET /supplies/ HTTP/1.1" 200 34226
+INFO 2025-06-04 01:24:54,167 autoreload 3384 10032 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-04 01:24:55,100 autoreload 12936 3916 Watching for file changes with StatReloader
+INFO 2025-06-04 01:25:22,911 autoreload 12936 3916 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-04 01:25:23,764 autoreload 1920 12984 Watching for file changes with StatReloader
+INFO 2025-06-04 01:26:38,170 autoreload 1920 12984 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 01:26:38,970 autoreload 10136 1704 Watching for file changes with StatReloader
+INFO 2025-06-04 01:27:23,698 basehttp 10136 2864 "GET /supplies/ HTTP/1.1" 200 33502
+INFO 2025-06-04 01:27:24,107 basehttp 10136 2864 "GET /supplies/ HTTP/1.1" 200 33502
+INFO 2025-06-04 01:27:33,226 basehttp 10136 2864 "POST /add-category/ HTTP/1.1" 200 58
+ERROR 2025-06-04 01:27:33,281 log 10136 2864 Internal Server Error: /get-subcategories/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 1561, in get_subcategories
+    subcategories = SupplySubcategory.objects.filter(category_id=category_id)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1491, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1509, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1516, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1523, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1330, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1802, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'category_id' into field. Choices are: id, name, supply
+ERROR 2025-06-04 01:27:33,287 basehttp 10136 2864 "GET /get-subcategories/?category_id=1 HTTP/1.1" 500 121096
+INFO 2025-06-04 01:27:45,263 basehttp 10136 2864 "POST /add-subcategory/ HTTP/1.1" 200 67
+INFO 2025-06-04 01:29:06,853 autoreload 10136 1704 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-04 01:29:07,752 autoreload 1500 6720 Watching for file changes with StatReloader
+INFO 2025-06-04 01:30:10,093 basehttp 1500 412 "GET /supplies/ HTTP/1.1" 200 32731
+INFO 2025-06-04 01:30:18,330 autoreload 1500 6720 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 01:30:19,226 autoreload 10312 10572 Watching for file changes with StatReloader
+INFO 2025-06-04 01:57:24,366 basehttp 10312 11116 "GET /property/ HTTP/1.1" 200 256900
+INFO 2025-06-04 01:57:26,335 basehttp 10312 11116 "GET /dashboard/ HTTP/1.1" 200 31317
+INFO 2025-06-04 01:58:41,723 basehttp 10312 11116 "GET /dashboard/ HTTP/1.1" 200 31316
+INFO 2025-06-04 01:58:41,905 basehttp 10312 11116 "GET /dashboard/ HTTP/1.1" 200 31316
+INFO 2025-06-04 01:58:51,046 basehttp 10312 11116 "GET /supplies/ HTTP/1.1" 200 32731
+INFO 2025-06-04 01:59:38,085 basehttp 10312 11116 "POST /add-supply/ HTTP/1.1" 302 0
+ERROR 2025-06-04 01:59:38,217 log 10312 11116 Internal Server Error: /supplies/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 803, in get_context_data
+    category = supply.get_category_display() or 'Uncategorized'
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Supply' object has no attribute 'get_category_display'
+ERROR 2025-06-04 01:59:38,227 basehttp 10312 11116 "GET /supplies/ HTTP/1.1" 500 91457
+INFO 2025-06-04 02:00:36,733 autoreload 10312 10572 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 02:00:38,786 autoreload 6624 4824 Watching for file changes with StatReloader
+INFO 2025-06-04 02:00:53,501 autoreload 6624 4824 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 02:00:54,348 autoreload 10944 964 Watching for file changes with StatReloader
+INFO 2025-06-04 02:04:42,360 basehttp 10944 3332 "GET /supplies/ HTTP/1.1" 200 47122
+INFO 2025-06-04 02:04:50,406 autoreload 10944 964 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 02:04:51,488 autoreload 4600 8184 Watching for file changes with StatReloader
+INFO 2025-06-04 02:04:52,654 basehttp 4600 11552 "GET /supplies/ HTTP/1.1" 200 46865
+INFO 2025-06-04 02:04:53,049 basehttp 4600 11552 "GET /supplies/ HTTP/1.1" 200 46865
+INFO 2025-06-04 02:04:57,116 basehttp 4600 11552 "GET /get_supply_history/1/ HTTP/1.1" 200 198
+INFO 2025-06-04 02:04:57,123 basehttp 4600 10032 "GET /get_supply_history/1/ HTTP/1.1" 200 198
+INFO 2025-06-04 02:06:47,227 basehttp 4600 10188 "GET /supplies/ HTTP/1.1" 200 47236
+INFO 2025-06-04 02:07:03,193 basehttp 4600 10188 "POST /add-category/ HTTP/1.1" 200 63
+INFO 2025-06-04 02:07:07,855 basehttp 4600 10188 "GET /supplies/ HTTP/1.1" 200 47348
+INFO 2025-06-04 02:08:51,405 basehttp 4600 10188 "GET /supplies/ HTTP/1.1" 200 46948
+INFO 2025-06-04 02:08:51,423 basehttp 4600 10188 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-04 02:08:51,640 basehttp 4600 10188 "GET /supplies/ HTTP/1.1" 200 46948
+INFO 2025-06-04 02:08:52,009 basehttp 4600 10188 "GET /supplies/ HTTP/1.1" 200 46948
+INFO 2025-06-04 02:10:58,794 basehttp 4600 10188 "GET /supplies/ HTTP/1.1" 200 43549
+INFO 2025-06-04 02:11:02,759 basehttp 4600 10188 "GET /supplies/ HTTP/1.1" 200 43549
+INFO 2025-06-04 02:11:02,890 basehttp 4600 8188 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:11:02,897 basehttp 4600 10188 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 02:11:02,906 basehttp 4600 12132 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+WARNING 2025-06-04 02:11:03,063 basehttp 4600 12132 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:11:03,082 basehttp 4600 12132 "GET /supplies/ HTTP/1.1" 200 43549
+INFO 2025-06-04 02:11:03,098 basehttp 4600 8188 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+INFO 2025-06-04 02:11:03,098 basehttp 4600 10188 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:11:03,099 basehttp 4600 12132 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 02:11:03,354 basehttp 4600 12132 "GET /supplies/ HTTP/1.1" 200 43549
+INFO 2025-06-04 02:11:03,370 basehttp 4600 8188 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+INFO 2025-06-04 02:11:03,371 basehttp 4600 10188 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:11:03,371 basehttp 4600 12132 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:11:03,508 basehttp 4600 12132 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:11:03,638 basehttp 4600 12132 "GET /supplies/ HTTP/1.1" 200 43549
+INFO 2025-06-04 02:11:03,655 basehttp 4600 8188 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+INFO 2025-06-04 02:11:03,656 basehttp 4600 10188 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:11:03,656 basehttp 4600 12132 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:11:03,805 basehttp 4600 10188 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:11:03,858 basehttp 4600 10188 "GET /supplies/ HTTP/1.1" 200 43549
+INFO 2025-06-04 02:11:03,878 basehttp 4600 8188 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+INFO 2025-06-04 02:11:03,879 basehttp 4600 12132 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:11:03,879 basehttp 4600 10188 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:11:04,000 basehttp 4600 12132 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:11:04,031 basehttp 4600 12132 "GET /supplies/ HTTP/1.1" 200 43549
+INFO 2025-06-04 02:11:04,047 basehttp 4600 8188 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:11:04,047 basehttp 4600 10188 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 4500
+INFO 2025-06-04 02:11:04,047 basehttp 4600 12132 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:11:04,147 basehttp 4600 12132 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:11:44,071 basehttp 4600 12132 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-04 02:11:46,071 basehttp 4600 12132 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:11:46,102 basehttp 4600 12132 "GET /dashboard/ HTTP/1.1" 200 31316
+INFO 2025-06-04 02:11:48,805 basehttp 4600 12132 "GET /supplies/ HTTP/1.1" 200 43549
+INFO 2025-06-04 02:12:19,667 basehttp 4600 12132 "GET /supplies/ HTTP/1.1" 200 43549
+INFO 2025-06-04 02:12:19,884 basehttp 4600 12132 "GET /supplies/ HTTP/1.1" 200 43549
+INFO 2025-06-04 02:12:20,042 basehttp 4600 12132 "GET /supplies/ HTTP/1.1" 200 43549
+INFO 2025-06-04 02:12:20,263 basehttp 4600 12132 "GET /supplies/ HTTP/1.1" 200 43549
+INFO 2025-06-04 02:13:24,828 basehttp 4600 12132 "GET /supplies/ HTTP/1.1" 200 44008
+INFO 2025-06-04 02:16:19,971 autoreload 4600 8184 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 02:16:20,940 autoreload 8260 13004 Watching for file changes with StatReloader
+INFO 2025-06-04 02:16:23,634 basehttp 8260 7748 "GET /supplies/ HTTP/1.1" 200 44569
+INFO 2025-06-04 02:16:23,792 basehttp 8260 7748 "GET /supplies/ HTTP/1.1" 200 44569
+INFO 2025-06-04 02:16:23,925 basehttp 8260 7748 "GET /supplies/ HTTP/1.1" 200 44569
+INFO 2025-06-04 02:16:24,123 basehttp 8260 7748 "GET /supplies/ HTTP/1.1" 200 44569
+INFO 2025-06-04 02:19:01,981 autoreload 8260 13004 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 02:19:02,944 autoreload 2608 4712 Watching for file changes with StatReloader
+INFO 2025-06-04 02:19:56,297 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 45127
+INFO 2025-06-04 02:19:56,406 basehttp 2608 6968 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 395
+INFO 2025-06-04 02:19:56,416 basehttp 2608 13200 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 02:19:56,418 basehttp 2608 12668 "GET /static/css/barcode.css HTTP/1.1" 200 884
+WARNING 2025-06-04 02:19:56,551 basehttp 2608 12668 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:19:56,796 basehttp 2608 12668 "GET /supplies/ HTTP/1.1" 200 45127
+INFO 2025-06-04 02:19:56,814 basehttp 2608 13200 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:19:56,814 basehttp 2608 6968 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 395
+INFO 2025-06-04 02:19:56,815 basehttp 2608 12668 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:19:56,901 basehttp 2608 12668 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:19:57,138 basehttp 2608 12668 "GET /supplies/ HTTP/1.1" 200 45127
+INFO 2025-06-04 02:19:57,159 basehttp 2608 6968 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:19:57,160 basehttp 2608 12668 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 02:19:57,160 basehttp 2608 13200 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 395
+WARNING 2025-06-04 02:19:57,258 basehttp 2608 13200 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:19:57,409 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 45127
+INFO 2025-06-04 02:19:57,426 basehttp 2608 12668 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:19:57,427 basehttp 2608 6968 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 395
+INFO 2025-06-04 02:19:57,427 basehttp 2608 13200 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:19:57,500 basehttp 2608 13200 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:19:57,752 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 45127
+INFO 2025-06-04 02:19:57,769 basehttp 2608 12668 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 395
+INFO 2025-06-04 02:19:57,769 basehttp 2608 6968 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:19:57,770 basehttp 2608 13200 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:19:57,846 basehttp 2608 13200 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:20:31,674 basehttp 2608 13200 "POST /edit-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:20:31,702 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 45388
+INFO 2025-06-04 02:20:31,717 basehttp 2608 13200 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:21:44,173 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 44884
+INFO 2025-06-04 02:21:44,187 basehttp 2608 13200 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:21:47,399 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 44884
+INFO 2025-06-04 02:21:47,419 basehttp 2608 12668 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:21:47,419 basehttp 2608 6968 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 395
+INFO 2025-06-04 02:21:47,421 basehttp 2608 13200 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:21:47,559 basehttp 2608 13200 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:21:47,725 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 44884
+INFO 2025-06-04 02:21:47,742 basehttp 2608 6968 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:21:47,742 basehttp 2608 12668 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 395
+INFO 2025-06-04 02:21:47,743 basehttp 2608 13200 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:21:47,838 basehttp 2608 13200 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:21:47,889 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 44884
+INFO 2025-06-04 02:21:47,907 basehttp 2608 6968 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 395
+INFO 2025-06-04 02:21:47,908 basehttp 2608 12668 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:21:47,908 basehttp 2608 13200 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:21:47,987 basehttp 2608 13200 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:24:19,401 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 45605
+INFO 2025-06-04 02:24:19,416 basehttp 2608 13200 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 889
+INFO 2025-06-04 02:24:19,767 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 45605
+INFO 2025-06-04 02:24:19,963 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 45605
+INFO 2025-06-04 02:24:20,120 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 45605
+INFO 2025-06-04 02:24:20,269 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 45605
+INFO 2025-06-04 02:24:20,419 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 45605
+INFO 2025-06-04 02:24:26,346 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 45605
+INFO 2025-06-04 02:24:26,367 basehttp 2608 6968 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 889
+INFO 2025-06-04 02:24:26,368 basehttp 2608 12668 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:24:26,368 basehttp 2608 13200 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 02:24:26,593 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 45605
+INFO 2025-06-04 02:24:26,616 basehttp 2608 12668 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:24:26,616 basehttp 2608 6968 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 889
+INFO 2025-06-04 02:24:26,617 basehttp 2608 13200 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 02:24:26,768 basehttp 2608 13200 "GET /supplies/ HTTP/1.1" 200 45605
+INFO 2025-06-04 02:24:26,797 basehttp 2608 12668 "GET /static/css/barcode.css HTTP/1.1" 200 884
+WARNING 2025-06-04 02:24:26,798 basehttp 2608 728 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:24:26,798 basehttp 2608 6968 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 889
+INFO 2025-06-04 02:24:26,799 basehttp 2608 13200 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 02:24:26,913 basehttp 2608 6968 "GET /supplies/ HTTP/1.1" 200 45605
+INFO 2025-06-04 02:24:26,935 basehttp 2608 13200 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:24:26,935 basehttp 2608 728 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 889
+INFO 2025-06-04 02:24:26,935 basehttp 2608 6968 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:24:27,059 basehttp 2608 6968 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:24:39,034 basehttp 2608 3332 "GET /supplies/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:24:39,054 basehttp 2608 3332 "GET /login_user/?next=/supplies/ HTTP/1.1" 200 9162
+INFO 2025-06-04 02:24:39,076 basehttp 2608 3332 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+WARNING 2025-06-04 02:24:39,178 basehttp 2608 3332 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:24:41,191 basehttp 2608 356 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:24:41,236 basehttp 2608 356 "GET /dashboard/ HTTP/1.1" 200 31316
+INFO 2025-06-04 02:24:41,246 basehttp 2608 356 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 02:24:41,248 basehttp 2608 6832 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-04 02:24:41,249 basehttp 2608 12192 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:24:41,249 basehttp 2608 4188 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:24:42,966 basehttp 2608 4188 "GET /supplies/ HTTP/1.1" 200 45605
+INFO 2025-06-04 02:24:42,978 basehttp 2608 4188 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-04 02:24:42,980 basehttp 2608 12192 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 889
+INFO 2025-06-04 02:26:52,936 basehttp 2608 9996 "GET /supplies/ HTTP/1.1" 200 45020
+INFO 2025-06-04 02:26:52,951 basehttp 2608 9996 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:26:53,215 basehttp 2608 9996 "GET /supplies/ HTTP/1.1" 200 45020
+INFO 2025-06-04 02:26:53,381 basehttp 2608 9996 "GET /supplies/ HTTP/1.1" 200 45020
+INFO 2025-06-04 02:26:56,135 basehttp 2608 9996 "GET /supplies/ HTTP/1.1" 200 45020
+INFO 2025-06-04 02:26:56,154 basehttp 2608 12976 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 889
+INFO 2025-06-04 02:26:56,154 basehttp 2608 9824 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:26:56,155 basehttp 2608 9996 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:26:56,494 basehttp 2608 9996 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:26:57,199 basehttp 2608 9996 "GET /supplies/ HTTP/1.1" 200 45020
+INFO 2025-06-04 02:26:57,219 basehttp 2608 9824 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 889
+INFO 2025-06-04 02:26:57,220 basehttp 2608 12976 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:26:57,220 basehttp 2608 9996 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:26:57,340 basehttp 2608 9996 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:26:57,464 basehttp 2608 9996 "GET /supplies/ HTTP/1.1" 200 45020
+INFO 2025-06-04 02:26:57,484 basehttp 2608 9824 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 889
+INFO 2025-06-04 02:26:57,484 basehttp 2608 12976 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:26:57,484 basehttp 2608 9996 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:26:57,600 basehttp 2608 12976 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:26:57,670 basehttp 2608 12976 "GET /supplies/ HTTP/1.1" 200 45020
+INFO 2025-06-04 02:26:57,688 basehttp 2608 9824 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 889
+INFO 2025-06-04 02:26:57,689 basehttp 2608 9996 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:26:57,689 basehttp 2608 12976 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:26:57,836 basehttp 2608 12976 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:26:57,851 basehttp 2608 9996 "GET /supplies/ HTTP/1.1" 200 45020
+INFO 2025-06-04 02:26:57,869 basehttp 2608 12976 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:26:57,870 basehttp 2608 9824 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 889
+INFO 2025-06-04 02:26:57,871 basehttp 2608 9996 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 02:27:15,781 basehttp 2608 9996 "POST /edit-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:27:15,806 basehttp 2608 9996 "GET /supplies/ HTTP/1.1" 200 45274
+INFO 2025-06-04 02:27:37,587 basehttp 2608 9996 "POST /edit-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:27:37,614 basehttp 2608 9996 "GET /supplies/ HTTP/1.1" 200 45279
+INFO 2025-06-04 02:27:37,633 basehttp 2608 9996 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:27:47,629 autoreload 2608 4712 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 02:27:48,453 autoreload 7408 12124 Watching for file changes with StatReloader
+INFO 2025-06-04 02:27:53,149 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45020
+INFO 2025-06-04 02:27:53,259 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45020
+INFO 2025-06-04 02:27:53,474 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45020
+INFO 2025-06-04 02:28:10,374 basehttp 7408 12148 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:28:10,398 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45048
+INFO 2025-06-04 02:28:10,414 basehttp 7408 12148 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:28:14,945 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45020
+INFO 2025-06-04 02:28:26,035 basehttp 7408 12148 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:28:26,057 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45048
+INFO 2025-06-04 02:31:23,325 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 46484
+INFO 2025-06-04 02:31:23,340 basehttp 7408 12148 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:31:23,486 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 46484
+INFO 2025-06-04 02:31:46,065 basehttp 7408 12148 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:31:46,082 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 46512
+INFO 2025-06-04 02:31:55,567 basehttp 7408 12148 "POST /edit-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:31:55,584 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 46753
+INFO 2025-06-04 02:33:29,265 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45385
+INFO 2025-06-04 02:33:29,279 basehttp 7408 12148 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:33:29,415 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45385
+INFO 2025-06-04 02:33:29,558 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45385
+INFO 2025-06-04 02:33:29,828 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45385
+INFO 2025-06-04 02:33:30,007 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45385
+INFO 2025-06-04 02:33:30,979 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45385
+INFO 2025-06-04 02:33:31,122 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45385
+INFO 2025-06-04 02:33:31,249 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45385
+INFO 2025-06-04 02:33:31,365 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45385
+INFO 2025-06-04 02:33:31,480 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45385
+INFO 2025-06-04 02:33:31,577 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45385
+INFO 2025-06-04 02:33:31,731 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45385
+INFO 2025-06-04 02:33:31,860 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45385
+INFO 2025-06-04 02:33:45,624 basehttp 7408 12148 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:33:45,648 basehttp 7408 12148 "GET /supplies/ HTTP/1.1" 200 45413
+INFO 2025-06-04 02:37:15,062 basehttp 7408 11740 "GET /supplies/ HTTP/1.1" 200 46471
+INFO 2025-06-04 02:37:15,122 basehttp 7408 11740 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 395
+INFO 2025-06-04 02:37:15,255 basehttp 7408 11740 "GET /supplies/ HTTP/1.1" 200 46471
+INFO 2025-06-04 02:37:16,034 basehttp 7408 11740 "GET /supplies/ HTTP/1.1" 200 46471
+INFO 2025-06-04 02:37:16,187 basehttp 7408 11740 "GET /supplies/ HTTP/1.1" 200 46471
+INFO 2025-06-04 02:37:16,326 basehttp 7408 11740 "GET /supplies/ HTTP/1.1" 200 46471
+INFO 2025-06-04 02:37:16,458 basehttp 7408 11740 "GET /supplies/ HTTP/1.1" 200 46471
+INFO 2025-06-04 02:37:41,024 basehttp 7408 11740 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:37:41,048 basehttp 7408 11740 "GET /supplies/ HTTP/1.1" 200 46499
+INFO 2025-06-04 02:37:41,063 basehttp 7408 11740 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:37:44,072 basehttp 7408 11740 "GET /supplies/ HTTP/1.1" 200 46471
+INFO 2025-06-04 02:37:44,285 basehttp 7408 11740 "GET /supplies/ HTTP/1.1" 200 46471
+INFO 2025-06-04 02:37:47,582 basehttp 7408 11740 "GET /property/ HTTP/1.1" 200 256900
+INFO 2025-06-04 02:37:47,603 basehttp 7408 11740 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:37:47,607 basehttp 7408 11740 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:37:49,465 basehttp 7408 11740 "GET /supplies/ HTTP/1.1" 200 46471
+WARNING 2025-06-04 02:37:53,374 basehttp 7408 11740 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 16029
+INFO 2025-06-04 02:38:35,948 basehttp 7408 8848 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:38:35,976 basehttp 7408 8848 "GET /supplies/ HTTP/1.1" 200 46499
+INFO 2025-06-04 02:38:36,002 basehttp 7408 8848 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+WARNING 2025-06-04 02:38:36,015 basehttp 7408 8848 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 16029
+INFO 2025-06-04 02:39:03,406 autoreload 4288 6976 Watching for file changes with StatReloader
+INFO 2025-06-04 02:39:05,659 basehttp 4288 9628 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-04 02:39:07,667 basehttp 4288 9628 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:39:07,720 basehttp 4288 9628 "GET /dashboard/ HTTP/1.1" 200 31316
+INFO 2025-06-04 02:39:10,541 basehttp 4288 9628 "GET /supplies/ HTTP/1.1" 200 46471
+INFO 2025-06-04 02:39:10,568 basehttp 4288 9628 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:39:23,617 basehttp 4288 9628 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:39:23,639 basehttp 4288 9628 "GET /supplies/ HTTP/1.1" 200 46499
+INFO 2025-06-04 02:39:25,907 basehttp 4288 9628 "GET /supplies/ HTTP/1.1" 200 46471
+INFO 2025-06-04 02:39:26,096 basehttp 4288 9628 "GET /supplies/ HTTP/1.1" 200 46471
+INFO 2025-06-04 02:39:26,672 basehttp 4288 9628 "GET /supplies/ HTTP/1.1" 200 46471
+INFO 2025-06-04 02:41:00,118 autoreload 4288 6976 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\forms.py changed, reloading.
+INFO 2025-06-04 02:41:00,968 autoreload 9268 10900 Watching for file changes with StatReloader
+INFO 2025-06-04 02:42:03,347 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:03,361 basehttp 9268 12972 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:42:03,405 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:03,547 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:03,721 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:03,889 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:04,104 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:04,261 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:04,421 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:04,579 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:04,711 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:04,830 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:05,043 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:05,187 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:05,353 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:05,488 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:05,609 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:05,790 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:05,955 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:22,790 basehttp 9268 12972 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:42:22,821 basehttp 9268 12972 "GET /supplies/ HTTP/1.1" 200 48308
+INFO 2025-06-04 02:42:48,037 autoreload 5948 3844 Watching for file changes with StatReloader
+INFO 2025-06-04 02:42:51,576 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:51,589 basehttp 5948 10520 "GET /static/scripts/supplyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 02:42:51,740 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:51,871 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:52,006 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:52,143 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:52,297 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:52,438 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:52,573 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:52,717 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:52,850 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:53,019 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:53,172 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:53,405 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:54,044 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:42:54,203 basehttp 5948 10520 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:43:06,765 basehttp 5948 12488 "GET / HTTP/1.1" 200 9162
+WARNING 2025-06-04 02:43:06,864 basehttp 5948 12488 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:43:09,015 basehttp 5948 12132 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:43:09,048 basehttp 5948 12132 "GET /dashboard/ HTTP/1.1" 200 31316
+INFO 2025-06-04 02:43:11,941 basehttp 5948 12132 "GET /supplies/ HTTP/1.1" 200 48280
+INFO 2025-06-04 02:43:12,009 basehttp 5948 12132 "GET /static/scripts/supplyModal.js HTTP/1.1" 200 395
+INFO 2025-06-04 02:43:32,570 basehttp 5948 12132 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:43:32,596 basehttp 5948 12132 "GET /supplies/ HTTP/1.1" 200 48308
+INFO 2025-06-04 02:45:37,817 basehttp 5948 5896 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:45:37,947 basehttp 5948 5896 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:45:38,072 basehttp 5948 5896 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:45:38,222 basehttp 5948 5896 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:45:38,364 basehttp 5948 5896 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:45:38,523 basehttp 5948 5896 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:45:38,992 basehttp 5948 5896 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:45:39,164 basehttp 5948 5896 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:45:39,326 basehttp 5948 5896 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:45:39,491 basehttp 5948 5896 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:45:40,273 basehttp 5948 5896 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:45:40,437 basehttp 5948 5896 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:45:48,556 basehttp 5948 10112 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:45:48,578 basehttp 5948 10112 "GET /supplies/ HTTP/1.1" 200 47036
+INFO 2025-06-04 02:46:52,488 autoreload 5948 3844 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 02:46:53,370 autoreload 11348 7276 Watching for file changes with StatReloader
+INFO 2025-06-04 02:47:17,113 autoreload 11348 7276 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-04 02:47:17,916 autoreload 12824 1740 Watching for file changes with StatReloader
+INFO 2025-06-04 02:48:01,749 basehttp 12824 9468 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:48:04,515 basehttp 12824 9468 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:48:04,603 basehttp 12824 368 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:04,605 basehttp 12824 9468 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:48:04,696 basehttp 12824 9468 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:48:05,486 basehttp 12824 9468 "GET /supplies/ HTTP/1.1" 200 47008
+INFO 2025-06-04 02:48:05,498 basehttp 12824 368 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:05,499 basehttp 12824 9468 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:48:05,601 basehttp 12824 9468 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:48:27,400 basehttp 12824 6832 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:48:27,422 basehttp 12824 6832 "GET /supplies/ HTTP/1.1" 200 57541
+INFO 2025-06-04 02:48:31,437 basehttp 12824 3260 "GET /supplies/ HTTP/1.1" 200 57284
+INFO 2025-06-04 02:48:41,153 basehttp 12824 8520 "POST /edit-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:48:41,175 basehttp 12824 8520 "GET /supplies/ HTTP/1.1" 200 58248
+INFO 2025-06-04 02:48:49,523 basehttp 12824 11032 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:49,944 basehttp 12824 11032 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:51,962 basehttp 12824 11032 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:51,972 basehttp 12824 356 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:51,973 basehttp 12824 11032 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:48:52,120 basehttp 12824 11032 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:48:52,206 basehttp 12824 11032 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:52,218 basehttp 12824 356 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:52,218 basehttp 12824 11032 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:48:52,378 basehttp 12824 356 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:48:52,393 basehttp 12824 11032 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:52,404 basehttp 12824 356 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:52,404 basehttp 12824 11032 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:48:52,565 basehttp 12824 356 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:48:52,568 basehttp 12824 11032 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:52,579 basehttp 12824 356 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:52,579 basehttp 12824 11032 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 02:48:52,733 basehttp 12824 356 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:52,744 basehttp 12824 11032 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:52,745 basehttp 12824 356 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:48:52,838 basehttp 12824 356 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:48:52,907 basehttp 12824 356 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:52,919 basehttp 12824 11032 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:52,920 basehttp 12824 356 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:48:52,999 basehttp 12824 356 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:48:53,071 basehttp 12824 356 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:53,082 basehttp 12824 11032 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:53,083 basehttp 12824 356 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:48:53,216 basehttp 12824 356 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:48:53,234 basehttp 12824 11032 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:53,245 basehttp 12824 356 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:53,246 basehttp 12824 11032 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 02:48:53,389 basehttp 12824 356 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:53,399 basehttp 12824 11032 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:53,399 basehttp 12824 356 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:48:53,484 basehttp 12824 356 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:48:53,534 basehttp 12824 356 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:53,547 basehttp 12824 11032 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:53,548 basehttp 12824 356 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:48:53,624 basehttp 12824 356 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:48:53,687 basehttp 12824 356 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:53,699 basehttp 12824 11032 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:53,699 basehttp 12824 356 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:48:53,855 basehttp 12824 11032 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:48:53,859 basehttp 12824 356 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:53,871 basehttp 12824 11032 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:53,871 basehttp 12824 356 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 02:48:54,032 basehttp 12824 11032 "GET /supplies/ HTTP/1.1" 200 57989
+INFO 2025-06-04 02:48:54,043 basehttp 12824 356 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 02:48:54,044 basehttp 12824 11032 "GET /static/css/style.css HTTP/1.1" 200 28371
+WARNING 2025-06-04 02:48:54,173 basehttp 12824 11032 "GET /favicon.ico HTTP/1.1" 404 15918
+INFO 2025-06-04 02:49:04,971 basehttp 12824 10208 "POST /edit-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:49:04,992 basehttp 12824 10208 "GET /supplies/ HTTP/1.1" 200 58260
+INFO 2025-06-04 02:49:33,695 autoreload 12824 1740 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 02:49:35,317 autoreload 14000 14004 Watching for file changes with StatReloader
+INFO 2025-06-04 02:49:40,973 basehttp 14000 14424 "GET / HTTP/1.1" 200 9162
+INFO 2025-06-04 02:49:43,647 basehttp 14000 14424 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:49:43,788 basehttp 14000 14424 "GET /dashboard/ HTTP/1.1" 200 31316
+INFO 2025-06-04 02:49:47,197 basehttp 14000 14424 "GET /property/ HTTP/1.1" 200 256900
+INFO 2025-06-04 02:49:50,436 basehttp 14000 14424 "GET /supplies/ HTTP/1.1" 200 58001
+INFO 2025-06-04 02:50:06,781 basehttp 14000 14424 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 02:50:06,808 basehttp 14000 14424 "GET /supplies/ HTTP/1.1" 200 68854

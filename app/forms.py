@@ -1,5 +1,5 @@
 from django import forms
-from .models import Property, Supply, SupplyQuantity
+from .models import Property, Supply, SupplyQuantity, SupplyCategory, SupplySubcategory
 from django.contrib.auth.models import User
 from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation, Department,PropertyCategory
 from datetime import date
@@ -116,8 +116,8 @@ class PropertyForm(forms.ModelForm):
         return cleaned_data
 
 class SupplyForm(forms.ModelForm):
-    current_quantity = forms.IntegerField(min_value=0)
-    minimum_threshold = forms.IntegerField(min_value=0, initial=10)
+    current_quantity = forms.IntegerField(min_value=0, widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    minimum_threshold = forms.IntegerField(min_value=0, initial=10, widget=forms.NumberInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = Supply
@@ -130,11 +130,12 @@ class SupplyForm(forms.ModelForm):
             'expiration_date'
         ]
         widgets = {
-            'date_received': forms.DateInput(attrs={'type': 'date'}),
-            'expiration_date': forms.DateInput(attrs={'type': 'date', 'required': False}),
-            'description': forms.Textarea(attrs={'rows': 3}),
-            'category': forms.Select(choices=Supply.CATEGORY_CHOICES),
-            'subcategory': forms.Select(choices=Supply.SUBCATEGORY_CHOICES),
+            'supply_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'date_received': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'expiration_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'required': False}),
+            'description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'category': forms.Select(attrs={'class': 'form-control custom-select'}),
+            'subcategory': forms.Select(attrs={'class': 'form-control custom-select'}),
         }
         help_texts = {
             'expiration_date': 'Optional. Leave empty if the supply does not expire.',
@@ -142,12 +143,23 @@ class SupplyForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # Set up category field
+        self.fields['category'].queryset = SupplyCategory.objects.all().order_by('name')
+        self.fields['category'].empty_label = "Select a category"
+        
+        # Set up subcategory field - now independent of category
+        self.fields['subcategory'].queryset = SupplySubcategory.objects.all().order_by('name')
+        self.fields['subcategory'].empty_label = "Select a subcategory"
+
+        # Set required fields
         for field in self.fields.values():
             field.required = True
         # Make description and expiration_date optional
         self.fields['description'].required = False
         self.fields['expiration_date'].required = False
         
+        # Set initial values for quantity fields if editing existing supply
         if self.instance.pk:
             try:
                 quantity_info = self.instance.quantity_info

@@ -19,7 +19,7 @@ from .models import(
     SupplyRequest, DamageReport, Reservation,
     ActivityLog, UserProfile, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
-    Department, PropertyCategory
+    Department, PropertyCategory, SupplyCategory, SupplySubcategory
 )
 from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm
 from django.contrib.auth.forms import AuthenticationForm
@@ -782,28 +782,29 @@ class SupplyListView(PermissionRequiredMixin, ListView):
     paginate_by = None  # Disable default pagination as we'll handle it per category
 
     def get_queryset(self):
-        return Supply.objects.select_related('quantity_info').order_by('supply_name')
+        return Supply.objects.select_related('quantity_info', 'category', 'subcategory').order_by('supply_name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = SupplyForm()
+        form = SupplyForm()
+        context['form'] = form
         context['today'] = date.today()
         context['supply_list'] = Supply.objects.select_related('quantity_info').all()
         
         # Get all supplies
         supplies = self.get_queryset()
         
-         # Generate barcodes for each supply
+        # Generate barcodes for each supply
         for supply in supplies:
             supply.barcode = generate_barcode(f"SUP-{supply.id}")
 
         # Group supplies by category
         grouped = defaultdict(list)
         for supply in supplies:
-            category = supply.get_category_display() or 'Uncategorized'
-            grouped[category].append(supply)
+            category_name = supply.category.name if supply.category else 'Uncategorized'
+            grouped[category_name].append(supply)
             
-            # Calculate days until expiration for debugging
+            # Calculate days until expiration
             if supply.expiration_date:
                 days_until = (supply.expiration_date - date.today()).days
                 supply.days_until_expiration = days_until
@@ -822,7 +823,7 @@ class SupplyListView(PermissionRequiredMixin, ListView):
                 paginated_groups[category] = paginator.page(paginator.num_pages)
         
         # Convert to regular dict and sort categories
-        context['grouped_supplies'] = paginated_groups
+        context['grouped_supplies'] = dict(sorted(paginated_groups.items()))
         return context
 
 @permission_required('app.view_admin_module')
@@ -876,9 +877,8 @@ def edit_supply(request):
             old_values = {
                 'supply_name': supply.supply_name,
                 'description': supply.description,
-                'category': supply.category,
-                'subcategory': supply.subcategory,
-                'barcode': supply.barcode,
+                'category': supply.category.id if supply.category else None,
+                'subcategory': supply.subcategory.id if supply.subcategory else None,
                 'date_received': supply.date_received,
                 'expiration_date': supply.expiration_date,
                 'current_quantity': supply.quantity_info.current_quantity if supply.quantity_info else 0,
@@ -888,9 +888,21 @@ def edit_supply(request):
             # Update supply fields
             supply.supply_name = request.POST.get('supply_name')
             supply.description = request.POST.get('description')
-            supply.category = request.POST.get('category')
-            supply.subcategory = request.POST.get('subcategory')
-            supply.barcode = request.POST.get('barcode')
+            
+            # Handle category and subcategory
+            category_id = request.POST.get('category')
+            subcategory_id = request.POST.get('subcategory')
+            
+            if category_id:
+                supply.category = get_object_or_404(SupplyCategory, id=category_id)
+            else:
+                supply.category = None
+                
+            if subcategory_id:
+                supply.subcategory = get_object_or_404(SupplySubcategory, id=subcategory_id)
+            else:
+                supply.subcategory = None
+                
             supply.date_received = request.POST.get('date_received')
             supply.expiration_date = request.POST.get('expiration_date') or None
             
@@ -1509,3 +1521,60 @@ class AdminPasswordChangeDoneView(PasswordChangeDoneView):
 
     def get_template_names(self):
         return [self.template_name]
+
+@login_required
+def add_category(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        
+        if not name:
+            return JsonResponse({'success': False, 'error': 'Category name is required'})
+        
+        try:
+            category = SupplyCategory.objects.create(name=name)
+            return JsonResponse({
+                'success': True,
+                'category': {
+                    'id': category.id,
+                    'name': category.name
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+@login_required
+def add_subcategory(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        
+        if not name:
+            return JsonResponse({'success': False, 'error': 'Name is required'})
+        
+        try:
+            subcategory = SupplySubcategory.objects.create(name=name)
+            return JsonResponse({
+                'success': True,
+                'subcategory': {
+                    'id': subcategory.id,
+                    'name': subcategory.name
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+@login_required
+def get_subcategories(request):
+    category_id = request.GET.get('category_id')
+    if category_id:
+        subcategories = SupplySubcategory.objects.filter(category_id=category_id)
+        return JsonResponse({
+            'subcategories': [
+                {'id': sub.id, 'name': sub.name}
+                for sub in subcategories
+            ]
+        })
+    return JsonResponse({'subcategories': []})

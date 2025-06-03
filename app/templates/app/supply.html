@@ -57,25 +57,92 @@
       color: #152d64;
     }
 
-    /* Form Styles */
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
+    /* Form Controls */
+    .form-control {
       display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #152d64;
+      width: 100%;
+      padding: 0.375rem 0.75rem;
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #212529;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     }
 
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+    .form-control:focus {
+      color: #212529;
+      background-color: #fff;
+      border-color: #86b7fe;
+      outline: 0;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    /* Custom Select Styles */
+    .custom-select {
+      background-color: #fff;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+    }
+
+    .custom-select .select2-selection {
+      border: none !important;
+      background-color: transparent !important;
+      height: auto !important;
+      min-height: 38px;
+    }
+
+    .custom-select .select2-selection__rendered {
+      line-height: 38px !important;
+      padding-left: 12px !important;
+    }
+
+    .custom-select .select2-selection__arrow {
+      height: 38px !important;
+    }
+
+    /* Form Groups */
+    form p {
+      margin-bottom: 1rem;
+    }
+
+    form label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #212529;
+    }
+
+    /* Help Text */
+    form .helptext {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.875em;
+      color: #6c757d;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+      display: inline-block;
+      font-weight: 400;
+      text-align: center;
+      vertical-align: middle;
+      cursor: pointer;
+      padding: 0.375rem 0.75rem;
+      font-size: 1rem;
+      border-radius: 0.25rem;
+      color: #fff;
+      background-color: #152d64;
+      border: 1px solid #152d64;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .submit-btn:hover {
+      background-color: #0d1b3e;
+      border-color: #0d1b3e;
     }
 
     /* History Modal Styles */
@@ -375,6 +442,21 @@ tr.hidden {
         padding: 20px;
     }
 }
+
+/* Inside the supply form */
+.input-group {
+  display: flex;
+  gap: 10px;
+  align-items: start;
+}
+
+.input-group select {
+  flex: 1;
+}
+
+.input-group button {
+  white-space: nowrap;
+}
   </style>
 </head>
 <body>
@@ -413,6 +495,12 @@ tr.hidden {
             </button>
             <button id="openModalBtn" class="add-btn">+ Add Supply</button>
             <button id="openModifyQuantityModalBtn" class="add-btn">Modify Quantity</button>
+            <button onclick="openCategoryModal()" class="add-btn">
+              <i class="fas fa-plus"></i> Add Category
+            </button>
+            <button onclick="openSubcategoryModal()" class="add-btn">
+              <i class="fas fa-plus"></i> Add Subcategory
+            </button>
           </div>
         </div>
 
@@ -443,7 +531,7 @@ tr.hidden {
               <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
               <td>{{ supply.supply_name|default:"----" }}</td>
               <td>{{ supply.description|default:"----" }}</td>
-              <td><strong>{{ supply.get_subcategory_display|default:"----" }}</strong></td>
+              <td><strong>{{ supply.subcategory.name|default:"----" }}</strong></td>
               <td>{{ supply.quantity_info.current_quantity|default:"----" }}</td>
               <td>{{ supply.quantity_info.minimum_threshold|default:"----" }}</td>
               <td>
@@ -491,12 +579,11 @@ tr.hidden {
                   data-name="{{ supply.supply_name }}"
                   data-current-quantity="{{ supply.quantity_info.current_quantity }}"
                   data-minimum-threshold="{{ supply.quantity_info.minimum_threshold }}"
-                  data-category="{{ supply.category }}"
-                  data-subcategory="{{ supply.subcategory }}"
-                  data-description="{{ supply.description }}"
+                  data-category="{{ supply.category.id }}"
+                  data-subcategory="{{ supply.subcategory.id }}"
+                  data-description="{{ supply.description|default:'' }}"
                   data-date="{{ supply.date_received|date:'Y-m-d' }}"
-                  data-expiration-date="{{ supply.expiration_date|date:'Y-m-d' }}"
-                  data-barcode="{{ supply.barcode }}"
+                  data-expiration-date="{{ supply.expiration_date|date:'Y-m-d'|default:'' }}"
                   title="Edit">
                     <i class="fas fa-edit"></i>
                   </button>
@@ -578,19 +665,21 @@ tr.hidden {
         </div>
 
         <div class="form-group">
-          <label>Category</label>
-          <select name="category" id="edit_category" required>
-            {% for value, label in form.fields.category.choices %}
-              <option value="{{ value }}">{{ label }}</option>
+          <label for="edit_category">Category</label>
+          <select name="category" id="edit_category" class="form-select" required>
+            <option value="">Select a category</option>
+            {% for category in form.fields.category.queryset %}
+              <option value="{{ category.id }}">{{ category.name }}</option>
             {% endfor %}
           </select>
         </div>
 
         <div class="form-group">
-          <label>Sub Category</label>
-          <select name="subcategory" id="edit_subcategory" required>
-            {% for value, label in form.fields.subcategory.choices %}
-              <option value="{{ value }}">{{ label }}</option>
+          <label for="edit_subcategory">Subcategory</label>
+          <select name="subcategory" id="edit_subcategory" class="form-select">
+            <option value="">Select a subcategory</option>
+            {% for subcategory in form.fields.subcategory.queryset %}
+              <option value="{{ subcategory.id }}">{{ subcategory.name }}</option>
             {% endfor %}
           </select>
         </div>
@@ -677,19 +766,189 @@ tr.hidden {
     </div>
   </div>
 
+  <!-- Category Modal -->
+  <div id="categoryModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeCategoryModal()">&times;</span>
+      <h2>Add New Category</h2>
+      <form id="categoryForm" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="categoryName">Category Name</label>
+          <input type="text" id="categoryName" name="name" required class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Add Category</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Subcategory Modal -->
+  <div id="subcategoryModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeSubcategoryModal()">&times;</span>
+      <h2>Add New Subcategory</h2>
+      <form id="subcategoryForm" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="subcategoryName">Subcategory Name</label>
+          <input type="text" id="subcategoryName" name="name" required class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Add Subcategory</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Initialize Select2 for the supply dropdown in modify modal
-      if ($('#supply_id').length) {
-        $('#supply_id').select2({
-          width: '100%',
-          placeholder: "Search for a supply...",
-          allowClear: true,
-          dropdownParent: $('#modifyQuantityModal')
+      // Modal Elements
+      const addModal = document.getElementById("addSupplyModal");
+      const editModal = document.getElementById("editSupplyModal");
+      const modifyQuantityModal = document.getElementById("modifyQuantityModal");
+      const historyModal = document.getElementById("historyModal");
+      const categoryModal = document.getElementById("categoryModal");
+      const subcategoryModal = document.getElementById("subcategoryModal");
+
+      // Button Elements
+      const openAddBtn = document.getElementById("openModalBtn");
+      const closeAddBtn = document.getElementById("closeModalBtn");
+      const closeEditBtn = document.getElementById("closeEditModalBtn");
+      const openModifyQuantityBtn = document.getElementById("openModifyQuantityModalBtn");
+      const closeModifyQuantityBtn = document.getElementById("closeModifyQuantityModalBtn");
+      const closeHistoryBtn = document.getElementById("closeHistoryModalBtn");
+
+      // Function to close all modals
+      function closeAllModals() {
+        const modals = [addModal, editModal, modifyQuantityModal, historyModal, categoryModal, subcategoryModal];
+        modals.forEach(modal => {
+          if (modal) modal.style.display = "none";
         });
       }
 
-      // Auto-hide success messages after 2 seconds
+      // Function to destroy all Select2 instances
+      function destroySelect2Instances() {
+        ['#id_category', '#id_subcategory', '#edit_category', '#edit_subcategory', '#supply_id'].forEach(selector => {
+          const element = $(selector);
+          if (element.length && element.hasClass("select2-hidden-accessible")) {
+            element.select2('destroy');
+          }
+        });
+      }
+
+      // Initialize Select2 for add supply modal
+      function initializeAddSupplySelect2() {
+        $('#id_category').select2({
+          dropdownParent: $('#addSupplyModal'),
+          width: '100%',
+          placeholder: 'Select a category'
+        });
+
+        $('#id_subcategory').select2({
+          dropdownParent: $('#addSupplyModal'),
+          width: '100%',
+          placeholder: 'Select a subcategory'
+        });
+      }
+
+      // Add Supply Modal Handling
+      if (openAddBtn) {
+        openAddBtn.onclick = function(e) {
+          e.preventDefault();
+          closeAllModals();
+          destroySelect2Instances();
+          addModal.style.display = "block";
+          initializeAddSupplySelect2();
+        };
+      }
+
+      if (closeAddBtn) {
+        closeAddBtn.onclick = function() {
+          addModal.style.display = "none";
+          destroySelect2Instances();
+        };
+      }
+
+      // Modify Quantity Modal Handling
+      if (openModifyQuantityBtn) {
+        openModifyQuantityBtn.onclick = function() {
+          closeAllModals();
+          destroySelect2Instances();
+          modifyQuantityModal.style.display = "block";
+          $('#supply_id').select2({
+            dropdownParent: $('#modifyQuantityModal'),
+            width: '100%',
+            placeholder: "Search for a supply...",
+            allowClear: true
+          });
+        };
+      }
+
+      if (closeModifyQuantityBtn) {
+        closeModifyQuantityBtn.onclick = function() {
+          modifyQuantityModal.style.display = "none";
+          destroySelect2Instances();
+        };
+      }
+
+      // Edit Supply Modal Handling
+      document.querySelectorAll(".edit-btn").forEach(button => {
+        button.addEventListener("click", () => {
+          closeAllModals();
+          destroySelect2Instances();
+          
+          const categoryId = button.dataset.category;
+          const subcategoryId = button.dataset.subcategory;
+
+          // Set form values
+          document.getElementById("edit_id").value = button.dataset.id;
+          document.getElementById("edit_name").value = button.dataset.name;
+          document.getElementById("edit_current_quantity").value = button.dataset.currentQuantity;
+          document.getElementById("edit_minimum_threshold").value = button.dataset.minimumThreshold;
+          document.getElementById("edit_description").value = button.dataset.description || '';
+          document.getElementById("edit_date").value = button.dataset.date;
+          document.getElementById("edit_expiration_date").value = button.dataset.expirationDate || '';
+
+          // Show modal
+          editModal.style.display = "block";
+
+          // Initialize Select2 dropdowns
+          $('#edit_category').select2({
+            dropdownParent: $('#editSupplyModal'),
+            width: '100%',
+            placeholder: 'Select a category'
+          });
+
+          $('#edit_subcategory').select2({
+            dropdownParent: $('#editSupplyModal'),
+            width: '100%',
+            placeholder: 'Select a subcategory'
+          });
+
+          // Set selected values
+          if (categoryId) {
+            $('#edit_category').val(categoryId).trigger('change');
+          }
+          if (subcategoryId) {
+            $('#edit_subcategory').val(subcategoryId).trigger('change');
+          }
+        });
+      });
+
+      if (closeEditBtn) {
+        closeEditBtn.onclick = function() {
+          editModal.style.display = "none";
+          destroySelect2Instances();
+        };
+      }
+
+      // Close modal when clicking outside
+      window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+          event.target.style.display = "none";
+          destroySelect2Instances();
+        }
+      };
+
+      // Auto-hide success messages
       const successMessage = document.querySelector('.success-container');
       if (successMessage) {
         setTimeout(function() {
@@ -701,68 +960,14 @@ tr.hidden {
         }, 2000);
       }
 
-      // Modify Quantity Modal
-      const modifyQuantityModal = document.getElementById("modifyQuantityModal");
-      const openModifyQuantityModalBtn = document.getElementById("openModifyQuantityModalBtn");
-      const closeModifyQuantityModalBtn = document.getElementById("closeModifyQuantityModalBtn");
-
-      openModifyQuantityModalBtn.onclick = function() {
-        modifyQuantityModal.style.display = "block";
-      }
-
-      closeModifyQuantityModalBtn.onclick = function() {
-        modifyQuantityModal.style.display = "none";
-      }
-
-      // Close modals when clicking outside
-      window.onclick = function(event) {
-        if (event.target == addSupplyModal) {
-          addSupplyModal.style.display = "none";
-        } else if (event.target == editSupplyModal) {
-          editSupplyModal.style.display = "none";
-        } else if (event.target == modifyQuantityModal) {
-          modifyQuantityModal.style.display = "none";
-        } else if (event.target == historyModal) {
-          historyModal.style.display = "none";
-        }
-      }
-
-      // Edit Supply Modal
-      const editModal = document.getElementById("editSupplyModal");
-      const closeEditBtn = document.getElementById("closeEditModalBtn");
-
-      document.querySelectorAll(".edit-btn").forEach(button => {
-        button.addEventListener("click", () => {
-          document.getElementById("edit_id").value = button.dataset.id;
-          document.getElementById("edit_name").value = button.dataset.name;
-          document.getElementById("edit_current_quantity").value = button.dataset.currentQuantity;
-          document.getElementById("edit_minimum_threshold").value = button.dataset.minimumThreshold;
-          document.getElementById("edit_category").value = button.dataset.category;
-          document.getElementById("edit_subcategory").value = button.dataset.subcategory;
-          document.getElementById("edit_description").value = button.dataset.description || '';
-          document.getElementById("edit_date").value = button.dataset.date;
-          document.getElementById("edit_expiration_date").value = button.dataset.expirationDate || '';
-          editModal.style.display = "block";
-        });
-      });
-
-      closeEditBtn.onclick = () => editModal.style.display = "none";
-      window.addEventListener("click", event => {
-        if (event.target === editModal) {
-          editModal.style.display = "none";
-        }
-      });
-
       // History Modal functionality
-      const historyModal = document.getElementById('historyModal');
       const historyBtns = document.querySelectorAll('.history-btn');
-      const closeHistoryModalBtn = document.getElementById('closeHistoryModalBtn');
 
-      if (!historyModal || !historyBtns.length || !closeHistoryModalBtn) {
+      if (!historyModal || !historyBtns.length || !closeHistoryBtn) {
         console.error('Missing required elements:', {
           historyModal: !!historyModal,
           historyBtns: historyBtns.length,
-          closeHistoryModalBtn: !!closeHistoryModalBtn
+          closeHistoryBtn: !!closeHistoryBtn
         });
         return;
       }
@@ -803,7 +1008,7 @@ tr.hidden {
         });
       });
 
-      closeHistoryModalBtn.addEventListener('click', function() {
+      closeHistoryBtn.addEventListener('click', function() {
         historyModal.style.display = 'none';
       });
 
@@ -961,8 +1166,82 @@ tr.hidden {
             };
         };
     }
+
+    // Add these functions to your existing JavaScript
+    function openCategoryModal() {
+      document.getElementById('categoryModal').style.display = 'block';
+    }
+
+    function closeCategoryModal() {
+      document.getElementById('categoryModal').style.display = 'none';
+    }
+
+    function openSubcategoryModal() {
+      document.getElementById('subcategoryModal').style.display = 'block';
+    }
+
+    function closeSubcategoryModal() {
+      document.getElementById('subcategoryModal').style.display = 'none';
+    }
+
+    // Handle category form submission
+    $('#categoryForm').on('submit', function(e) {
+      e.preventDefault();
+      $.ajax({
+        url: '{% url "add_category" %}',
+        type: 'POST',
+        data: $(this).serialize(),
+        success: function(response) {
+          if (response.success) {
+            // Add the new category to the category dropdown
+            let newOption = new Option(response.category.name, response.category.id, true, true);
+            $('#edit_category').append(newOption).trigger('change');
+            
+            // Close the modal and reset form
+            closeCategoryModal();
+            $('#categoryForm')[0].reset();
+            
+            // Show success message
+            alert('Category added successfully!');
+          } else {
+            alert('Error: ' + response.error);
+          }
+        },
+        error: function() {
+          alert('Error adding category. Please try again.');
+        }
+      });
+    });
+
+    // Handle subcategory form submission
+    $('#subcategoryForm').on('submit', function(e) {
+      e.preventDefault();
+      $.ajax({
+        url: '{% url "add_subcategory" %}',
+        type: 'POST',
+        data: $(this).serialize(),
+        success: function(response) {
+          if (response.success) {
+            // Add the new subcategory to the subcategory dropdown
+            let newOption = new Option(response.subcategory.name, response.subcategory.id, true, true);
+            $('#edit_subcategory').append(newOption).trigger('change');
+            
+            // Close the modal and reset form
+            closeSubcategoryModal();
+            $('#subcategoryForm')[0].reset();
+            
+            // Show success message
+            alert('Subcategory added successfully!');
+          } else {
+            alert('Error: ' + response.error);
+          }
+        },
+        error: function() {
+          alert('Error adding subcategory. Please try again.');
+        }
+      });
+    });
   </script>
-  <script src="{% static 'scripts/supplyModal.js' %}"></script>
   {% endblock %}
 </body>
 </html>

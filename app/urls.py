@@ -42,10 +42,9 @@ from .views import (
     modify_supply_quantity_generic,
     AdminPasswordChangeView,
     AdminPasswordChangeDoneView,
-
-    
-
-
+    add_category,
+    add_subcategory,
+    get_subcategories,
 )
 
 urlpatterns = [
@@ -68,7 +67,9 @@ urlpatterns = [
     path('delete-property/<int:pk>/', delete_property, name='delete_property'),
      path('property/modify_quantity/', views.modify_property_quantity_generic, name='modify_property_quantity_generic'),
 
-    path('add-category/', add_property_category, name='add_category'),
+    path('add-category/', add_category, name='add_category'),
+    path('add-subcategory/', add_subcategory, name='add_subcategory'),
+    path('get-subcategories/', get_subcategories, name='get_subcategories'),
     path('supply/modify_quantity/', views.modify_supply_quantity_generic, name='modify_supply_quantity_generic'),
 
     path('check-out/', CheckOutPageView.as_view(), name='checkout'),
