@@ -331,6 +331,31 @@ tr.hidden {
     background-color: #1e3d8a;
 }
 
+.print-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+}
+
+.print-btn:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.print-btn i {
+    font-size: 1.2em;
+}
+
 @media print {
     body * {
         visibility: hidden;
@@ -480,6 +505,14 @@ tr.hidden {
                   data-id="{{ supply.id }}"
                   title="View History">
                     <i class="fas fa-history"></i>
+                  </button>
+
+                  <button class="print-btn" 
+                  onclick="printSingleBarcode(this)" 
+                  data-barcode="{{ supply.barcode }}"
+                  data-name="{{ supply.supply_name }}"
+                  title="Print Barcode">
+                    <i class="fas fa-print"></i>
                   </button>
 
                   <form method="POST" action="{% url 'delete_supply' supply.id %}">
@@ -861,6 +894,58 @@ tr.hidden {
         });
         
         content += `
+                </div>
+            </body>
+            </html>
+        `;
+        
+        // Write content to new window and print
+        printWindow.document.write(content);
+        printWindow.document.close();
+        printWindow.onload = function() {
+            printWindow.print();
+            printWindow.onafterprint = function() {
+                printWindow.close();
+            };
+        };
+    }
+
+    function printSingleBarcode(button) {
+        // Create a new window for printing
+        let printWindow = window.open('', '_blank');
+        
+        // Get the barcode data and name from the button's data attributes
+        let barcode = button.getAttribute('data-barcode');
+        let name = button.getAttribute('data-name');
+        
+        // Create print content
+        let content = `
+            <html>
+            <head>
+                <title>Print Barcode - ${name}</title>
+                <link rel="stylesheet" href="{% static 'css/barcode.css' %}">
+                <style>
+                    body { margin: 0; padding: 20px; }
+                    .barcode-container {
+                        background: white;
+                        padding: 15px;
+                        border: 1px solid #ddd;
+                        margin: 20px auto;
+                        max-width: 300px;
+                    }
+                    .barcode-title {
+                        text-align: center;
+                        margin-bottom: 10px;
+                        font-family: Arial, sans-serif;
+                        font-size: 14px;
+                        color: #333;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="barcode-container">
+                    <div class="barcode-title">${name}</div>
+                    <img src="${barcode}" alt="Barcode for ${name}" class="barcode-image">
                 </div>
             </body>
             </html>
