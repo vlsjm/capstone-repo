@@ -1,12 +1,16 @@
 from collections import defaultdict
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, ListView
 from django.core.exceptions import ValidationError
+
+from django.db.models import Count
+
+
 
 from django.views import View
 from django.contrib.auth import login, authenticate, logout
@@ -19,8 +23,6 @@ from .models import(
 )
 from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm
 from django.contrib.auth.forms import AuthenticationForm
-
-
 from datetime import timedelta, date
 import json
 from django.utils import timezone
@@ -45,6 +47,7 @@ from django.utils.html import strip_tags
 from django.conf import settings
 import logging
 import os
+from .utils import generate_barcode
 
 # Create a logger
 logger = logging.getLogger(__name__)
@@ -790,6 +793,10 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         # Get all supplies
         supplies = self.get_queryset()
         
+         # Generate barcodes for each supply
+        for supply in supplies:
+            supply.barcode = generate_barcode(f"SUP-{supply.id}")
+
         # Group supplies by category
         grouped = defaultdict(list)
         for supply in supplies:
@@ -958,21 +965,28 @@ class PropertyListView(PermissionRequiredMixin, ListView):
     template_name = 'app/property.html'
     context_object_name = 'properties'
     permission_required = 'app.view_admin_module'
-    paginate_by = None  # Disable default pagination as we'll handle it per category
+    paginate_by = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = PropertyForm()
-        context['categories'] = PropertyCategory.objects.all()
-        context['property_list'] = Property.objects.all()
-
-        # Get all properties
         properties = Property.objects.all()
         
-        # Group properties by category
-        grouped = defaultdict(list)
+        # Generate barcodes for each property
         for prop in properties:
-            grouped[prop.category.name].append(prop)
+            # Use property_number for barcode if available, otherwise use ID
+            barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+            prop.barcode = generate_barcode(barcode_number)
+            
+        # Group properties by category
+        properties_by_category = defaultdict(list)
+        for prop in properties:
+            properties_by_category[prop.category].append(prop)
+        
+        context['properties_by_category'] = dict(properties_by_category)
+        context['categories'] = PropertyCategory.objects.all()
+        context['form'] = PropertyForm()
+        
+        return context
 
         # Create paginated groups
         paginated_groups = {}
@@ -1048,6 +1062,11 @@ def add_property(request):
                 prop._logged_in_user = request.user
                 prop.save(user=request.user)  # Pass the user to save method
 
+
+            # Generate barcode based on property_number or ID
+                barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+                prop.barcode = generate_barcode(barcode_number)
+                prop.save(user=request.user)
                 # Create activity log using log_activity method
                 ActivityLog.log_activity(
                     user=request.user,
@@ -1472,3 +1491,21 @@ def modify_supply_quantity_generic(request):
         messages.error(request, "Supply quantity information not found.")
 
     return redirect('supply_list')
+
+class AdminPasswordChangeView(PasswordChangeView):
+    template_name = 'app/password_change.html'
+    success_url = reverse_lazy('password_change_done')
+
+    def get_template_names(self):
+        return [self.template_name]
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Your password was successfully updated!')
+        return response
+
+class AdminPasswordChangeDoneView(PasswordChangeDoneView):
+    template_name = 'app/password_change_done.html'
+
+    def get_template_names(self):
+        return [self.template_name]

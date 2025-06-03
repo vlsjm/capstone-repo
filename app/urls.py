@@ -40,6 +40,8 @@ from .views import (
     add_property_category,
     modify_property_quantity_generic,
     modify_supply_quantity_generic,
+    AdminPasswordChangeView,
+    AdminPasswordChangeDoneView,
 
     
 
@@ -103,4 +105,10 @@ urlpatterns = [
 
     path('get_supply_history/<int:supply_id>/', get_supply_history, name='get_supply_history'),
     path('get_property_history/<int:property_id>/', get_property_history, name='get_property_history'),
+    path('change-password/', 
+         AdminPasswordChangeView.as_view(), 
+         name='password_change'),
+    path('change-password/done/', 
+         AdminPasswordChangeDoneView.as_view(), 
+         name='password_change_done'),
 ]

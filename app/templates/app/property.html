@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/barcode.css' %}" />
     <style>
       /* Fix Select2 text weight */
       .select2-container--default .select2-selection--single,
@@ -262,6 +263,46 @@
       tr.hidden {
         display: none;
       }
+
+      /* Print Barcode Button */
+      .print-barcodes-btn {
+          background-color: #152d64;
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 4px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          margin: 10px 0;
+          transition: background-color 0.3s;
+      }
+
+      .print-barcodes-btn:hover {
+          background-color: #1e3d8a;
+      }
+
+      @media print {
+          body * {
+              visibility: hidden;
+          }
+          .barcode-container, .barcode-container * {
+              visibility: visible;
+          }
+          .barcode-container {
+              position: relative;
+              left: 0;
+              top: 0;
+          }
+          .print-grid {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 20px;
+              padding: 20px;
+          }
+      }
     </style>
   </head>
   <body>
@@ -283,124 +324,127 @@
     {% block content %}
     <div class="parent">
       <div class="div1">
-        <h2 >Properties</h2>
+        <h2>Properties</h2>
       </div>
-    <div class="content">
-      <!-- Add search input above the buttons -->
-      <div class="top-controls">
-        <div class="search-container">
-          <i class="fas fa-search search-icon"></i>
-          <input type="text" id="searchInput" class="search-input" placeholder="Search properties...">
+      <div class="content">
+        <!-- Add search input above the buttons -->
+        <div class="top-controls">
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search properties...">
+          </div>
+          <div class="button-container">
+            <button onclick="printBarcodes()" class="print-barcodes-btn">
+              <i class="fas fa-print"></i> Print Barcodes
+            </button>
+            <button id="openModalBtn" class="add-btn">+ Add Property</button>
+            <button id="openCategoryModalBtn" class="add-btn">+ Add Category</button>
+            <button id="openModifyQuantityModalBtn" class="add-btn">Modify Quantity</button>
+          </div>
         </div>
-        <div class="button-container">
-          <button id="openModalBtn" class="add-btn">+ Add Property</button>
-          <button id="openCategoryModalBtn" class="add-btn">+ Add Category</button>
-          <button id="openModifyQuantityModalBtn" class="add-btn">Modify Quantity</button>
-        </div>
-      </div>
 
-      {% if grouped_properties %}
-        {% for category, page_obj in grouped_properties.items %}
-          <h3>{{ category }}</h3>
-          <table border="1" class="searchable-table">
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>Property Number</th>
-                <th>Property Name</th>
-                <th>Description</th>
-                <th>Barcode</th>
-                <th>Unit of Measure</th>
-                <th>Unit Value</th>
-                <th>Overall Qty</th>
-                <th>Current Qty</th>
-                <th>Location</th>
-                <th>Condition</th>
-                <th>Availability</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for property in page_obj %}
-              <tr>
-                <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
-                <td>{{ property.property_number|default:"N/A" }}</td>
-                <td>{{ property.property_name|default:"N/A" }}</td>
-                <td>{{ property.description|default:"N/A" }}</td>
-                <td>{{ property.barcode|default:"N/A" }}</td>
-                <td>{{ property.unit_of_measure|default:"N/A" }}</td>
-                <td>{{ property.unit_value|default:"N/A" }}</td>
-                <td>{{ property.overall_quantity|default:"N/A" }}</td>
-                <td>{{ property.quantity|default:"N/A" }}</td>
-                <td>{{ property.location|default:"N/A" }}</td>
-                <td>{{ property.get_condition_display|default:"N/A" }}</td>
-                <td>
-                  <span class="status-badge {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' or property.availability == 'not_available' %}status-rejected{% else %}status-approved{% endif %}">
-                    {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' %}
-                      <i class="fas fa-times-circle"></i>
-                      Not Available
-                    {% else %}
-                      {% if property.availability == 'available' %}
-                        <i class="fas fa-check-circle"></i>
-                        Available
-                      {% else %}
+        {% if properties_by_category %}
+          {% for category, properties in properties_by_category.items %}
+            <h3>{{ category.name }}</h3>
+            <table border="1" class="searchable-table">
+              <thead>
+                <tr>
+                  <th>No.</th>
+                  <th>Property Number</th>
+                  <th>Property Name</th>
+                  <th>Description</th>
+                  <th>Barcode</th>
+                  <th>Unit of Measure</th>
+                  <th>Unit Value</th>
+                  <th>Overall Qty</th>
+                  <th>Current Qty</th>
+                  <th>Location</th>
+                  <th>Condition</th>
+                  <th>Availability</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for property in properties %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ property.property_number|default:"N/A" }}</td>
+                  <td>{{ property.property_name|default:"N/A" }}</td>
+                  <td>{{ property.description|default:"N/A" }}</td>
+                  <td>
+                    <div class="barcode-container">
+                      <img src="{{ property.barcode }}" alt="Barcode for {{ property.property_name }}" class="barcode-image">
+                    </div>
+                  </td>
+                  <td>{{ property.unit_of_measure|default:"N/A" }}</td>
+                  <td>{{ property.unit_value|default:"N/A" }}</td>
+                  <td>{{ property.overall_quantity|default:"N/A" }}</td>
+                  <td>{{ property.quantity|default:"N/A" }}</td>
+                  <td>{{ property.location|default:"N/A" }}</td>
+                  <td>{{ property.get_condition_display|default:"N/A" }}</td>
+                  <td>
+                    <span class="status-badge {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' or property.availability == 'not_available' %}status-rejected{% else %}status-approved{% endif %}">
+                      {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' %}
                         <i class="fas fa-times-circle"></i>
                         Not Available
+                      {% else %}
+                        {% if property.availability == 'available' %}
+                          <i class="fas fa-check-circle"></i>
+                          Available
+                        {% else %}
+                          <i class="fas fa-times-circle"></i>
+                          Not Available
+                        {% endif %}
                       {% endif %}
-                    {% endif %}
-                  </span>
-                </td>
-                <td>
-                  <!-- Edit Button -->
-                   <div class="button-group">
-                  <button class="edit-btn" 
-                    data-id="{{ property.id }}"
-                    data-property-number="{{ property.property_number }}"
-                    data-name="{{ property.property_name }}"
-                    data-description="{{ property.description }}"
-                    data-barcode="{{ property.barcode }}"
-                    data-unit="{{ property.unit_of_measure }}"
-                    data-value="{{ property.unit_value }}"
-                    data-overall-quantity="{{ property.overall_quantity }}"
-                    data-quantity="{{ property.quantity }}"
-                    data-location="{{ property.location }}"
-                    data-condition="{{ property.condition }}"
-                    data-category="{{ property.category.id }}"
-                    data-availability="{{ property.availability }}"
-                    title="Edit">
-                    <i class="fas fa-edit"></i>
-                  </button>
+                    </span>
+                  </td>
+                  <td>
+                    <div class="button-group">
+                      <button class="edit-btn" 
+                        data-id="{{ property.id }}"
+                        data-property-number="{{ property.property_number }}"
+                        data-name="{{ property.property_name }}"
+                        data-description="{{ property.description }}"
+                        data-barcode="{{ property.barcode }}"
+                        data-unit="{{ property.unit_of_measure }}"
+                        data-value="{{ property.unit_value }}"
+                        data-overall-quantity="{{ property.overall_quantity }}"
+                        data-quantity="{{ property.quantity }}"
+                        data-location="{{ property.location }}"
+                        data-condition="{{ property.condition }}"
+                        data-category="{{ property.category.id }}"
+                        data-availability="{{ property.availability }}"
+                        title="Edit">
+                        <i class="fas fa-edit"></i>
+                      </button>
 
-                  <button class="history-btn" 
-                    data-id="{{ property.id }}"
-                    title="View History">
-                    <i class="fas fa-history"></i>
-                  </button>
+                      <button class="history-btn" 
+                        data-id="{{ property.id }}"
+                        title="View History">
+                        <i class="fas fa-history"></i>
+                      </button>
 
-                  <!-- Delete Button -->
-                  <form method="POST" action="{% url 'delete_property' property.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="del-btn" onclick="return confirm('Are you sure you want to delete this property?');" title="Delete">
-                      <i class="fas fa-trash-alt"></i>
-                    </button>
-                  </form>
-                  </div>
-                </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="11">No properties available in this category.</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          {% with category=category %}
-            {% include 'app/includes/pagination.html' %}
-          {% endwith %}
-        {% endfor %}
-      {% else %}
-        <p>No properties available.</p>
-      {% endif %}
+                      <form method="POST" action="{% url 'delete_property' property.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="del-btn" onclick="return confirm('Are you sure you want to delete this property?');" title="Delete">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="13">No properties available in this category.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% endfor %}
+        {% else %}
+          <p>No properties available.</p>
+        {% endif %}
+      </div>
     </div>
 
     <div id="categoryModal" class="modal" style="display: none;">
@@ -456,9 +500,6 @@
 
       <label>Description</label>
       <input type="text" name="description" id="edit_description" />
-
-      <label>Barcode</label>
-      <input type="text" name="barcode" id="edit_barcode" />
 
       <label>Unit of Measure</label>
       <input type="text" name="unit_of_measure" id="edit_unit_of_measure" />
@@ -816,6 +857,62 @@
           }
         });
       });
+    </script>
+
+    <script>
+      function printBarcodes() {
+          // Create a new window for printing
+          let printWindow = window.open('', '_blank');
+          
+          // Get all barcodes
+          let barcodes = document.querySelectorAll('.barcode-container');
+          
+          // Create print content
+          let content = `
+              <html>
+              <head>
+                  <title>Print Barcodes</title>
+                  <link rel="stylesheet" href="{% static 'css/barcode.css' %}">
+                  <style>
+                      body { margin: 0; padding: 20px; }
+                      .print-grid {
+                          display: grid;
+                          grid-template-columns: repeat(3, 1fr);
+                          gap: 20px;
+                          padding: 20px;
+                      }
+                      .barcode-container {
+                          background: white;
+                          padding: 15px;
+                          border: 1px solid #ddd;
+                      }
+                  </style>
+              </head>
+              <body>
+                  <div class="print-grid">
+          `;
+          
+          // Add each barcode to the content
+          barcodes.forEach(barcode => {
+              content += barcode.outerHTML;
+          });
+          
+          content += `
+                  </div>
+              </body>
+              </html>
+          `;
+          
+          // Write content to new window and print
+          printWindow.document.write(content);
+          printWindow.document.close();
+          printWindow.onload = function() {
+              printWindow.print();
+              printWindow.onafterprint = function() {
+                  printWindow.close();
+              };
+          };
+      }
     </script>
 
     {% endblock %}

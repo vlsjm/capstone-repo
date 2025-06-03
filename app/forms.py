@@ -63,7 +63,6 @@ class PropertyForm(forms.ModelForm):
             'property_name',
             'category',
             'description',
-            'barcode',
             'unit_of_measure',
             'unit_value',
             'overall_quantity',
@@ -74,7 +73,6 @@ class PropertyForm(forms.ModelForm):
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
             'property_number': forms.TextInput(attrs={'placeholder': 'Enter unique property number'}),
-            'barcode': forms.TextInput(attrs={'placeholder': 'Enter barcode'}),
             'unit_value': forms.NumberInput(attrs={'min': 0, 'step': '0.01'}),
             'overall_quantity': forms.NumberInput(attrs={'min': 0}),
             'quantity': forms.NumberInput(attrs={'min': 0, 'readonly': True}),
@@ -86,7 +84,7 @@ class PropertyForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Set required fields
-        for field in ['property_name', 'description', 'barcode', 'unit_of_measure', 
+        for field in ['property_name', 'description', 'unit_of_measure', 
                       'unit_value', 'overall_quantity', 'location', 'condition', 'category']:
             self.fields[field].required = True
 
@@ -128,7 +126,6 @@ class SupplyForm(forms.ModelForm):
             'category',
             'subcategory',
             'description',
-            'barcode',
             'date_received',
             'expiration_date'
         ]
