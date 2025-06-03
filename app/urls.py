@@ -65,7 +65,8 @@ urlpatterns = [
     path('add-property/', add_property, name='add_property'),
     path('edit-property/', edit_property, name='edit_property'),
     path('delete-property/<int:pk>/', delete_property, name='delete_property'),
-     path('property/modify_quantity/', views.modify_property_quantity_generic, name='modify_property_quantity_generic'),
+    path('property/modify_quantity/', views.modify_property_quantity_generic, name='modify_property_quantity_generic'),
+    path('add-property-category/', add_property_category, name='add_property_category'),
 
     path('add-category/', add_category, name='add_category'),
     path('add-subcategory/', add_subcategory, name='add_subcategory'),
