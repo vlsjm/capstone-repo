@@ -834,21 +834,6 @@ tr.hidden {
         });
       }
 
-      // Initialize Select2 for add supply modal
-      function initializeAddSupplySelect2() {
-        $('#id_category').select2({
-          dropdownParent: $('#addSupplyModal'),
-          width: '100%',
-          placeholder: 'Select a category'
-        });
-
-        $('#id_subcategory').select2({
-          dropdownParent: $('#addSupplyModal'),
-          width: '100%',
-          placeholder: 'Select a subcategory'
-        });
-      }
-
       // Add Supply Modal Handling
       if (openAddBtn) {
         openAddBtn.onclick = function(e) {
@@ -856,7 +841,19 @@ tr.hidden {
           closeAllModals();
           destroySelect2Instances();
           addModal.style.display = "block";
-          initializeAddSupplySelect2();
+          
+          // Initialize Select2 for category and subcategory in add form
+          $('#id_category').select2({
+            dropdownParent: $('#addSupplyModal'),
+            width: '100%',
+            placeholder: 'Select a category'
+          });
+
+          $('#id_subcategory').select2({
+            dropdownParent: $('#addSupplyModal'),
+            width: '100%',
+            placeholder: 'Select a subcategory'
+          });
         };
       }
 
@@ -1193,9 +1190,10 @@ tr.hidden {
         data: $(this).serialize(),
         success: function(response) {
           if (response.success) {
-            // Add the new category to the category dropdown
+            // Add the new category to both edit and add form dropdowns
             let newOption = new Option(response.category.name, response.category.id, true, true);
             $('#edit_category').append(newOption).trigger('change');
+            $('#id_category').append(newOption.cloneNode(true)).trigger('change');
             
             // Close the modal and reset form
             closeCategoryModal();
@@ -1222,9 +1220,10 @@ tr.hidden {
         data: $(this).serialize(),
         success: function(response) {
           if (response.success) {
-            // Add the new subcategory to the subcategory dropdown
+            // Add the new subcategory to both edit and add form dropdowns
             let newOption = new Option(response.subcategory.name, response.subcategory.id, true, true);
             $('#edit_subcategory').append(newOption).trigger('change');
+            $('#id_subcategory').append(newOption.cloneNode(true)).trigger('change');
             
             // Close the modal and reset form
             closeSubcategoryModal();
