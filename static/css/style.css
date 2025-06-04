@@ -1501,3 +1501,28 @@ textarea:focus {
 .close:hover {
   color: #1e3d8a;
 }
+
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.export-btn:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.export-btn i {
+  font-size: 16px;
+}

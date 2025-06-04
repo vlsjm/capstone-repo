@@ -17,31 +17,7 @@
   {% csrf_token %}
   <style>
     
-    /* Modal Styles */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.5);
-    }
 
-    .modal-content {
-      background-color: white;
-      margin: 3% auto;
-      padding: 30px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 900px;
-      max-height: 85vh;
-      overflow-y: auto;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-      position: relative;
-    }
 
     .close {
       position: absolute;
@@ -492,7 +468,6 @@ tr.hidden {
 }
 
 #addSupplyModal form {
-  display: flex;
   flex-direction: column;
   gap: 20px;
 }
@@ -513,7 +488,7 @@ tr.hidden {
 #addSupplyModal input[type="date"],
 #addSupplyModal textarea,
 #addSupplyModal select {
-  width: 100%;
+  width: 95%;
   padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -536,6 +511,109 @@ tr.hidden {
 /* Ensure Select2 dropdowns appear above the modal */
 .select2-container {
   z-index: 1051;
+}
+
+/* Checkbox group styles */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 15px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Export button styles */
+#openExportModalBtn {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+#openExportModalBtn:hover {
+  background-color: #218838;
+  border-color: #218838;
+}
+
+/* Action button hover effects */
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn.primary-btn:hover {
+  background-color: #1e3d8a !important;
+}
+
+.action-btn.secondary-btn:hover {
+  background-color: #5a6779 !important;
+}
+
+.action-btn.success-btn:hover {
+  background-color: #218838 !important;
+}
+
+.action-btn.del-btn:hover {
+  background-color: #c82333 !important;
+}
+
+/* Button group layout */
+.button-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Action buttons base styles */
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* Table action buttons */
+.action-btn.edit-btn,
+.action-btn.history-btn,
+.action-btn.print-btn,
+.action-btn.del-btn {
+  width: 32px;
+  height: 32px;
+  justify-content: center;
+}
+
+.action-btn.edit-btn { background-color: #152d64; }
+.action-btn.history-btn { background-color: #4a5568; }
+.action-btn.print-btn { background-color: #28a745; }
+.action-btn.del-btn { background-color: #dc3545; }
+
+/* Common styles for all action buttons */
+.action-btn {
+  color: white;
+  font-weight: 500;
+}
+
+/* Remove form margins in button groups */
+.button-group form {
+  margin: 0;
 }
   </style>
 </head>
@@ -589,17 +667,21 @@ tr.hidden {
               <option value="no_expiry">No Expiry Date</option>
             </select>
           </div>
-          <div class="button-container">
-            <button onclick="printBarcodes()" class="print-barcodes-btn">
-              <i class="fas fa-print"></i> Print Barcodes
+          <div class="button-group" style="display: flex; gap: 8px;">
+            <button id="openModalBtn" class="action-btn primary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+              <i class="fas fa-plus"></i> Add Supply
             </button>
-            <button id="openModalBtn" class="add-btn">+ Add Supply</button>
-            <button id="openModifyQuantityModalBtn" class="add-btn">Modify Quantity</button>
-            <button id="openCategoryModalBtn" class="add-btn" onclick="openCategoryModal()">
-              <i class="fas fa-plus"></i> Add Category
+            <button id="openModifyQuantityModalBtn" class="action-btn secondary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #4a5568; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+              <i class="fas fa-edit"></i> Modify Quantity
             </button>
-            <button id="openSubcategoryModalBtn" class="add-btn" onclick="openSubcategoryModal()">
-              <i class="fas fa-plus"></i> Add Subcategory
+            <button id="openCategoryModalBtn" class="action-btn primary-btn" onclick="openCategoryModal()" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+              <i class="fas fa-folder-plus"></i> Add Category
+            </button>
+            <button id="openSubcategoryModalBtn" class="action-btn primary-btn" onclick="openSubcategoryModal()" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+              <i class="fas fa-folder-tree"></i> Add Subcategory
+            </button>
+            <button id="openExportModalBtn" class="action-btn success-btn" style="display: flex; align-items: center; gap: 6px; background-color: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+              <i class="fas fa-file-excel"></i> Export to Excel
             </button>
           </div>
         </div>
@@ -673,38 +755,44 @@ tr.hidden {
               </td>
               <td>{{ supply.last_updated|default:"----" }}</td>
               <td>
-                <div class="button-group">
-                  <button class="edit-btn" 
-                  data-id="{{ supply.id }}"
-                  data-name="{{ supply.supply_name }}"
-                  data-current-quantity="{{ supply.quantity_info.current_quantity }}"
-                  data-minimum-threshold="{{ supply.quantity_info.minimum_threshold }}"
-                  data-category="{{ supply.category.id }}"
-                  data-subcategory="{{ supply.subcategory.id }}"
-                  data-description="{{ supply.description|default:'' }}"
-                  data-date="{{ supply.date_received|date:'Y-m-d' }}"
-                  data-expiration-date="{{ supply.expiration_date|date:'Y-m-d'|default:'' }}"
-                  title="Edit">
+                <div class="button-group" style="display: flex; gap: 6px; justify-content: flex-start;">
+                  <button class="action-btn edit-btn" 
+                    data-id="{{ supply.id }}"
+                    data-name="{{ supply.supply_name }}"
+                    data-current-quantity="{{ supply.quantity_info.current_quantity }}"
+                    data-minimum-threshold="{{ supply.quantity_info.minimum_threshold }}"
+                    data-category="{{ supply.category.id }}"
+                    data-subcategory="{{ supply.subcategory.id }}"
+                    data-description="{{ supply.description|default:'' }}"
+                    data-date="{{ supply.date_received|date:'Y-m-d' }}"
+                    data-expiration-date="{{ supply.expiration_date|date:'Y-m-d'|default:'' }}"
+                    title="Edit"
+                    style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #152d64; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
                     <i class="fas fa-edit"></i>
                   </button>
 
-                  <button class="history-btn" 
-                  data-id="{{ supply.id }}"
-                  title="View History">
+                  <button class="action-btn history-btn" 
+                    data-id="{{ supply.id }}"
+                    title="View History"
+                    style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #4a5568; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
                     <i class="fas fa-history"></i>
                   </button>
 
-                  <button class="print-btn" 
-                  onclick="printSingleBarcode(this)" 
-                  data-barcode="{{ supply.barcode }}"
-                  data-name="{{ supply.supply_name }}"
-                  title="Print Barcode">
+                  <button class="action-btn print-btn" 
+                    onclick="printSingleBarcode(this)" 
+                    data-barcode="{{ supply.barcode }}"
+                    data-name="{{ supply.supply_name }}"
+                    title="Print Barcode"
+                    style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
                     <i class="fas fa-print"></i>
                   </button>
 
-                  <form method="POST" action="{% url 'delete_supply' supply.id %}">
+                  <form method="POST" action="{% url 'delete_supply' supply.id %}" style="margin: 0;">
                     {% csrf_token %}
-                    <button type="submit" class="del-btn" onclick="return confirm('Are you sure you want to delete this supply?');" title="Delete">
+                    <button type="submit" class="action-btn del-btn" 
+                      onclick="return confirm('Are you sure you want to delete this supply?');" 
+                      title="Delete"
+                      style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
                       <i class="fas fa-trash-alt"></i>
                     </button>
                   </form>
@@ -898,6 +986,46 @@ tr.hidden {
     </div>
   </div>
 
+  <!-- Export Modal -->
+  <div id="exportModal" class="modal">
+    <div class="modal-content" style="max-width: 350px; width: auto; padding: 20px;">
+      <span class="close" id="closeExportModalBtn" style="position: absolute; right: 15px; top: 10px;">&times;</span>
+      <h3 style="font-size: 18px; margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 1px solid #dee2e6;">Export Supply Inventory</h3>
+      <form method="POST" action="{% url 'export_supply' %}" id="exportForm">
+        {% csrf_token %}
+        <div class="form-group">
+          <p style="margin: 0 0 10px 0; font-size: 14px;">Select fields to include in the report:</p>
+          <div class="checkbox-group" style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+            <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" name="fields" value="supply_name" checked style="margin: 0; width: 16px; height: 16px;"> Supply Name
+            </label>
+            <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" name="fields" value="description" checked style="margin: 0; width: 16px; height: 16px;"> Description
+            </label>
+            <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" name="fields" value="category" checked style="margin: 0; width: 16px; height: 16px;"> Category
+            </label>
+            <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" name="fields" value="subcategory" checked style="margin: 0; width: 16px; height: 16px;"> Sub Category
+            </label>
+            <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" name="fields" value="current_quantity" checked style="margin: 0; width: 16px; height: 16px;"> Current Quantity
+            </label>
+            <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" name="fields" value="date_received" checked style="margin: 0; width: 16px; height: 16px;"> Date Received
+            </label>
+            <label style="font-size: 13px; margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" name="fields" value="expiration_date" checked style="margin: 0; width: 16px; height: 16px;"> Expiration Date
+            </label>
+          </div>
+          <div style="text-align: left;">
+            <button type="submit" class="submit-btn" style="background-color: #0A2647; padding: 8px 16px; font-size: 14px; border-radius: 4px;">Generate Report</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     // Make modal functions globally accessible
     window.openCategoryModal = function() {
@@ -924,6 +1052,7 @@ tr.hidden {
       const historyModal = document.getElementById("historyModal");
       const categoryModal = document.getElementById("categoryModal");
       const subcategoryModal = document.getElementById("subcategoryModal");
+      const exportModal = document.getElementById("exportModal");
 
       // Button Elements
       const openAddBtn = document.getElementById("openModalBtn");
@@ -932,6 +1061,8 @@ tr.hidden {
       const openModifyQuantityBtn = document.getElementById("openModifyQuantityModalBtn");
       const closeModifyQuantityBtn = document.getElementById("closeModifyQuantityModalBtn");
       const closeHistoryBtn = document.getElementById("closeHistoryModalBtn");
+      const openExportBtn = document.getElementById("openExportModalBtn");
+      const closeExportBtn = document.getElementById("closeExportModalBtn");
 
       // Filter and Search Elements
       const statusFilter = document.getElementById('statusFilter');
@@ -942,7 +1073,7 @@ tr.hidden {
 
       // Function to close all modals
       function closeAllModals() {
-        const modals = [addModal, editModal, modifyQuantityModal, historyModal, categoryModal, subcategoryModal];
+        const modals = [addModal, editModal, modifyQuantityModal, historyModal, categoryModal, subcategoryModal, exportModal];
         modals.forEach(modal => {
           if (modal) modal.style.display = "none";
         });
@@ -1301,7 +1432,7 @@ tr.hidden {
       });
 
       // Add event listeners for closing modals when clicking outside
-      [addModal, editModal, modifyQuantityModal, historyModal, categoryModal, subcategoryModal].forEach(modal => {
+      [addModal, editModal, modifyQuantityModal, historyModal, categoryModal, subcategoryModal, exportModal].forEach(modal => {
         if (modal) {
           modal.addEventListener('click', function(event) {
             if (event.target === modal) {
@@ -1321,6 +1452,28 @@ tr.hidden {
             destroySelect2Instances();
           }
         });
+      });
+
+      // Export Modal Handling
+      if (openExportBtn) {
+        openExportBtn.onclick = function() {
+          exportModal.style.display = "block";
+        }
+      }
+
+      if (closeExportBtn) {
+        closeExportBtn.onclick = function() {
+          exportModal.style.display = "none";
+        }
+      }
+
+      // Ensure at least one checkbox is selected
+      document.getElementById('exportForm').addEventListener('submit', function(e) {
+        const checkboxes = this.querySelectorAll('input[type="checkbox"]:checked');
+        if (checkboxes.length === 0) {
+          e.preventDefault();
+          alert('Please select at least one field to include in the report.');
+        }
       });
     });
    function printBarcodes() {

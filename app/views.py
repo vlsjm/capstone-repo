@@ -48,6 +48,12 @@ from django.conf import settings
 import logging
 import os
 from .utils import generate_barcode
+from openpyxl import Workbook
+from django.http import HttpResponse
+from datetime import datetime
+from openpyxl.styles import PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
+from openpyxl.cell.cell import MergedCell
 
 # Create a logger
 logger = logging.getLogger(__name__)
@@ -1647,3 +1653,453 @@ def delete_property_category(request, category_id):
             messages.error(request, f'Error deleting category: {str(e)}')
            
     return redirect('property_list')
+
+def export_supply_to_excel(request):
+    """Export supply data to Excel with filters"""
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Supply Inventory"
+
+    # Title and Header Styling
+    title_font = ws['A1'].font.copy(bold=True, size=16)
+    header_font = ws['A1'].font.copy(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="152D64", end_color="152D64", fill_type="solid")
+    thin_border = Side(border_style="thin", color="000000")
+    category_font = ws['A1'].font.copy(bold=True, size=12)
+
+    # Get selected fields from request
+    selected_fields = request.POST.getlist('fields', [
+        'supply_name', 'description', 'category', 'subcategory',
+        'current_quantity', 'date_received', 'expiration_date'
+    ])
+
+    # Define all possible fields and their display names
+    field_mapping = {
+        'supply_name': 'Supply Name',
+        'description': 'Description',
+        'category': 'Category',
+        'subcategory': 'Sub Category',
+        'current_quantity': 'Current Quantity',
+        'date_received': 'Date Received',
+        'expiration_date': 'Expiration Date'
+    }
+
+    # Create header row with title and metadata
+    num_columns = len(selected_fields)
+    merge_range = f'A1:{chr(64 + num_columns)}1'
+    ws.merge_cells(merge_range)
+    ws['A1'] = 'INVENTORY REPORT FOR SUPPLY'
+    ws['A1'].font = title_font
+    ws['A1'].alignment = ws['A1'].alignment.copy(horizontal='center')
+
+    # Add metadata
+    ws['A3'] = 'Department:'
+    ws['B3'] = request.user.userprofile.department.name if hasattr(request.user, 'userprofile') and request.user.userprofile.department else '_____________________'
+    ws['G3'] = 'Date:'
+    ws['H3'] = datetime.now().strftime("%B %d, %Y")
+    
+    ws['A4'] = 'Prepared by:'
+    ws['B4'] = f'{request.user.first_name} {request.user.last_name}'
+    ws['G4'] = 'Page:'
+    ws['H4'] = '1 of 1'
+
+    # Headers start at row 6
+    ws['A6'] = 'SUPPLY INVENTORY'
+    ws['A6'].font = ws['A6'].font.copy(bold=True)
+
+    # Get all supplies with related data and group by category
+    supplies = Supply.objects.select_related(
+        'category', 'subcategory', 'quantity_info'
+    ).order_by('category__name', 'supply_name').all()
+
+    # Group supplies by category
+    supplies_by_category = {}
+    for supply in supplies:
+        category_name = supply.category.name if supply.category else 'Uncategorized'
+        if category_name not in supplies_by_category:
+            supplies_by_category[category_name] = []
+        supplies_by_category[category_name].append(supply)
+
+    current_row = 8  # Start after the title and metadata
+
+    # Process each category
+    for category_name, category_supplies in supplies_by_category.items():
+        # Add category header
+        ws.cell(row=current_row, column=1, value=category_name)
+        ws.cell(row=current_row, column=1).font = category_font
+        current_row += 1
+
+        # Add headers for this category
+        headers = [field_mapping[field] for field in selected_fields]
+        for col, header in enumerate(headers, 1):
+            cell = ws.cell(row=current_row, column=col)
+            cell.value = header
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
+        current_row += 1
+
+        # Add data for this category
+        for supply in category_supplies:
+            row_data = []
+            for field in selected_fields:
+                if field == 'supply_name':
+                    row_data.append(supply.supply_name)
+                elif field == 'description':
+                    row_data.append(supply.description or 'N/A')
+                elif field == 'category':
+                    row_data.append(supply.category.name if supply.category else 'N/A')
+                elif field == 'subcategory':
+                    row_data.append(supply.subcategory.name if supply.subcategory else 'N/A')
+                elif field == 'current_quantity':
+                    row_data.append(supply.quantity_info.current_quantity if supply.quantity_info else 0)
+                elif field == 'date_received':
+                    row_data.append(supply.date_received.strftime('%Y-%m-%d') if supply.date_received else 'N/A')
+                elif field == 'expiration_date':
+                    row_data.append(supply.expiration_date.strftime('%Y-%m-%d') if supply.expiration_date else 'N/A')
+
+            for col, value in enumerate(row_data, 1):
+                cell = ws.cell(row=current_row, column=col)
+                cell.value = value
+                cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
+            current_row += 1
+
+        current_row += 1  # Add space between categories
+
+    # Add signature section
+    signature_row = current_row + 2
+    ws.cell(row=signature_row, column=1, value='Prepared by:')
+    ws.cell(row=signature_row, column=4, value='Reviewed by:')
+    ws.cell(row=signature_row, column=7, value='Approved by:')
+
+    ws.cell(row=signature_row + 2, column=1, value='_____________________')
+    ws.cell(row=signature_row + 2, column=4, value='_____________________')
+    ws.cell(row=signature_row + 2, column=7, value='_____________________')
+
+    ws.cell(row=signature_row + 3, column=1, value='Inventory Officer')
+    ws.cell(row=signature_row + 3, column=4, value='Department Head')
+    ws.cell(row=signature_row + 3, column=7, value='Property Custodian')
+
+    # Add notes section
+    notes_row = signature_row + 5
+    ws.cell(row=notes_row, column=1, value='Notes:')
+    ws.cell(row=notes_row + 1, column=1, value='1. This report shows the current inventory status of supplies.')
+    ws.cell(row=notes_row + 2, column=1, value='2. Please verify physical count against this report.')
+    ws.cell(row=notes_row + 3, column=1, value='3. Report any discrepancies to the inventory officer.')
+
+    # Auto-adjust column widths
+    for col_idx, column in enumerate(ws.columns, 1):
+        max_length = 0
+        column_letter = get_column_letter(col_idx)
+        
+        for cell in column[1:]:
+            if isinstance(cell, MergedCell):
+                continue
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        
+        adjusted_width = (max_length + 2)
+        ws.column_dimensions[column_letter].width = adjusted_width
+
+    # Create response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename=supply_inventory_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    
+    wb.save(response)
+    return response
+
+def export_property_to_excel(request):
+    """Export property data to Excel with filters"""
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Property Inventory"
+
+    # Title and Header Styling
+    title_font = ws['A1'].font.copy(bold=True, size=16)
+    header_font = ws['A1'].font.copy(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="152D64", end_color="152D64", fill_type="solid")
+    thin_border = Side(border_style="thin", color="000000")
+    category_font = ws['A1'].font.copy(bold=True, size=12)
+
+    # Get selected fields from request
+    selected_fields = request.POST.getlist('fields', [
+        'property_number', 'property_name', 'description', 'unit_of_measure',
+        'unit_value', 'overall_quantity', 'current_quantity', 'location',
+        'condition', 'category'
+    ])
+
+    # Define all possible fields and their display names
+    field_mapping = {
+        'property_number': 'Property Number',
+        'property_name': 'Property Name',
+        'description': 'Description',
+        'unit_of_measure': 'Unit of Measure',
+        'unit_value': 'Unit Value',
+        'overall_quantity': 'Overall Quantity',
+        'current_quantity': 'Current Quantity',
+        'location': 'Location',
+        'condition': 'Condition',
+        'category': 'Category'
+    }
+
+    # Create header row with title and metadata
+    num_columns = len(selected_fields)
+    merge_range = f'A1:{chr(64 + num_columns)}1'
+    ws.merge_cells(merge_range)
+    ws['A1'] = 'INVENTORY REPORT FOR PROPERTY'
+    ws['A1'].font = title_font
+    ws['A1'].alignment = ws['A1'].alignment.copy(horizontal='center')
+
+    # Add metadata
+    ws['A3'] = 'Department:'
+    ws['B3'] = request.user.userprofile.department.name if hasattr(request.user, 'userprofile') and request.user.userprofile.department else '_____________________'
+    ws['G3'] = 'Date:'
+    ws['H3'] = datetime.now().strftime("%B %d, %Y")
+    
+    ws['A4'] = 'Prepared by:'
+    ws['B4'] = f'{request.user.first_name} {request.user.last_name}'
+    ws['G4'] = 'Page:'
+    ws['H4'] = '1 of 1'
+
+    # Headers start at row 6
+    ws['A6'] = 'PROPERTY INVENTORY'
+    ws['A6'].font = ws['A6'].font.copy(bold=True)
+
+    # Get all properties with related data and group by category
+    properties = Property.objects.select_related('category').order_by('category__name', 'property_name').all()
+
+    # Group properties by category
+    properties_by_category = {}
+    for prop in properties:
+        category_name = prop.category.name if prop.category else 'Uncategorized'
+        if category_name not in properties_by_category:
+            properties_by_category[category_name] = []
+        properties_by_category[category_name].append(prop)
+
+    current_row = 8  # Start after the title and metadata
+
+    # Process each category
+    for category_name, category_properties in properties_by_category.items():
+        # Add category header
+        ws.cell(row=current_row, column=1, value=category_name)
+        ws.cell(row=current_row, column=1).font = category_font
+        current_row += 1
+
+        # Add headers for this category
+        headers = [field_mapping[field] for field in selected_fields]
+        for col, header in enumerate(headers, 1):
+            cell = ws.cell(row=current_row, column=col)
+            cell.value = header
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
+        current_row += 1
+
+        # Add data for this category
+        for prop in category_properties:
+            row_data = []
+            for field in selected_fields:
+                if field == 'property_number':
+                    row_data.append(prop.property_number or 'N/A')
+                elif field == 'property_name':
+                    row_data.append(prop.property_name)
+                elif field == 'description':
+                    row_data.append(prop.description or 'N/A')
+                elif field == 'unit_of_measure':
+                    row_data.append(prop.unit_of_measure or 'N/A')
+                elif field == 'unit_value':
+                    row_data.append(prop.unit_value or 0)
+                elif field == 'overall_quantity':
+                    row_data.append(prop.overall_quantity or 0)
+                elif field == 'current_quantity':
+                    row_data.append(prop.quantity or 0)
+                elif field == 'location':
+                    row_data.append(prop.location or 'N/A')
+                elif field == 'condition':
+                    row_data.append(prop.get_condition_display() if prop.condition else 'N/A')
+                elif field == 'category':
+                    row_data.append(prop.category.name if prop.category else 'N/A')
+
+            for col, value in enumerate(row_data, 1):
+                cell = ws.cell(row=current_row, column=col)
+                cell.value = value
+                cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
+            current_row += 1
+
+        current_row += 1  # Add space between categories
+
+    # Add signature section
+    signature_row = current_row + 2
+    ws.cell(row=signature_row, column=1, value='Prepared by:')
+    ws.cell(row=signature_row, column=4, value='Reviewed by:')
+    ws.cell(row=signature_row, column=7, value='Approved by:')
+
+    ws.cell(row=signature_row + 2, column=1, value='_____________________')
+    ws.cell(row=signature_row + 2, column=4, value='_____________________')
+    ws.cell(row=signature_row + 2, column=7, value='_____________________')
+
+    ws.cell(row=signature_row + 3, column=1, value='Inventory Officer')
+    ws.cell(row=signature_row + 3, column=4, value='Department Head')
+    ws.cell(row=signature_row + 3, column=7, value='Property Custodian')
+
+    # Add notes section
+    notes_row = signature_row + 5
+    ws.cell(row=notes_row, column=1, value='Notes:')
+    ws.cell(row=notes_row + 1, column=1, value='1. This report shows the current inventory status of properties.')
+    ws.cell(row=notes_row + 2, column=1, value='2. Please verify physical count against this report.')
+    ws.cell(row=notes_row + 3, column=1, value='3. Report any discrepancies to the inventory officer.')
+
+    # Auto-adjust column widths
+    for col_idx, column in enumerate(ws.columns, 1):
+        max_length = 0
+        column_letter = get_column_letter(col_idx)
+        
+        for cell in column[1:]:
+            if isinstance(cell, MergedCell):
+                continue
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        
+        adjusted_width = (max_length + 2)
+        ws.column_dimensions[column_letter].width = adjusted_width
+
+    # Create response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename=property_inventory_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    
+    wb.save(response)
+    return response
+
+def generate_sample_inventory_report(request):
+    """Generate a sample inventory report template"""
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Sample Inventory Report"
+
+    # Title and Header Styling
+    title_font = ws['A1'].font.copy(bold=True, size=16)
+    header_font = ws['A1'].font.copy(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="152D64", end_color="152D64", fill_type="solid")
+    
+    # Merge cells for title
+    ws.merge_cells('A1:J1')
+    ws['A1'] = 'SAMPLE INVENTORY REPORT TEMPLATE'
+    ws['A1'].font = title_font
+    ws['A1'].alignment = ws['A1'].alignment.copy(horizontal='center')
+
+    # Add metadata
+    ws['A3'] = 'Department:'
+    ws['B3'] = '_____________________'
+    ws['G3'] = 'Date:'
+    ws['H3'] = datetime.now().strftime("%B %d, %Y")
+    
+    ws['A4'] = 'Prepared by:'
+    ws['B4'] = '_____________________'
+    ws['G4'] = 'Page:'
+    ws['H4'] = '1 of 1'
+
+    # Add section headers
+    ws['A6'] = 'SUPPLY INVENTORY'
+    ws['A6'].font = ws['A6'].font.copy(bold=True)
+    
+    # Supply headers
+    supply_headers = ['Item Code', 'Supply Name', 'Category', 'Current Quantity', 'Unit', 'Status', 'Remarks']
+    for col, header in enumerate(supply_headers, 1):
+        cell = ws.cell(row=7, column=col)
+        cell.value = header
+        cell.font = header_font
+        cell.fill = header_fill
+
+    # Sample supply data
+    sample_supplies = [
+        ['SUP-001', 'Ballpen (Black)', 'Office Supplies', 100, 'Pieces', 'Available', ''],
+        ['SUP-002', 'A4 Paper', 'Office Supplies', 50, 'Reams', 'Low Stock', 'Need to reorder'],
+        ['SUP-003', 'Printer Ink', 'Supplies', 5, 'Cartridges', 'Low Stock', 'Order pending'],
+    ]
+
+    for row, data in enumerate(sample_supplies, 8):
+        for col, value in enumerate(data, 1):
+            cell = ws.cell(row=row, column=col)
+            cell.value = value
+
+    # Add property section
+    ws['A12'] = 'PROPERTY INVENTORY'
+    ws['A12'].font = ws['A12'].font.copy(bold=True)
+
+    # Property headers
+    property_headers = ['Property No.', 'Property Name', 'Description', 'Quantity', 'Location', 'Condition', 'Remarks']
+    for col, header in enumerate(property_headers, 1):
+        cell = ws.cell(row=13, column=col)
+        cell.value = header
+        cell.font = header_font
+        cell.fill = header_fill
+
+    # Sample property data
+    sample_properties = [
+        ['PROP-001', 'Desktop Computer', 'Dell OptiPlex', 5, 'IT Room', 'Good Condition', ''],
+        ['PROP-002', 'Office Chair', 'Ergonomic Chair', 10, 'Main Office', 'Good Condition', ''],
+        ['PROP-003', 'Printer', 'HP LaserJet', 2, 'Admin Office', 'Needs Repair', 'Under maintenance'],
+    ]
+
+    for row, data in enumerate(sample_properties, 14):
+        for col, value in enumerate(data, 1):
+            cell = ws.cell(row=row, column=col)
+            cell.value = value
+
+    # Add signature section
+    ws['A18'] = 'Prepared by:'
+    ws['D18'] = 'Reviewed by:'
+    ws['G18'] = 'Approved by:'
+
+    ws['A20'] = '_____________________'
+    ws['D20'] = '_____________________'
+    ws['G20'] = '_____________________'
+
+    ws['A21'] = 'Inventory Officer'
+    ws['D21'] = 'Department Head'
+    ws['G21'] = 'Property Custodian'
+
+    # Add notes section
+    ws['A23'] = 'Notes:'
+    ws['A24'] = '1. This is a sample template for inventory reporting.'
+    ws['A25'] = '2. Customize the sections and fields according to your needs.'
+    ws['A26'] = '3. Regular inventory count is recommended for accurate record keeping.'
+
+    # Adjust column widths
+    column_widths = [15, 20, 15, 15, 15, 15, 30]
+    for i, width in enumerate(column_widths, 1):
+        ws.column_dimensions[get_column_letter(i)].width = width
+
+    # Add borders to all cells with content
+    thin_border = Side(border_style="thin", color="000000")
+    max_row = ws.max_row
+    max_col = ws.max_column
+
+    for row in range(7, 11):  # Supply section
+        for col in range(1, 8):
+            cell = ws.cell(row=row, column=col)
+            cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
+
+    for row in range(13, 17):  # Property section
+        for col in range(1, 8):
+            cell = ws.cell(row=row, column=col)
+            cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
+
+    # Create response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename=inventory_report_template.xlsx'
+    
+    wb.save(response)
+    return response

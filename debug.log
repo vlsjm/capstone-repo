@@ -9307,3 +9307,1019 @@ INFO 2025-06-04 05:49:35,413 basehttp 9432 8256 "GET /dashboard/ HTTP/1.1" 200 3
 INFO 2025-06-04 05:49:39,103 basehttp 9432 8256 "GET /property/ HTTP/1.1" 200 315071
 INFO 2025-06-04 05:49:39,109 basehttp 9432 8256 "GET /static/css/barcode.css HTTP/1.1" 304 0
 INFO 2025-06-04 05:49:39,109 basehttp 9432 13796 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 05:58:15,923 autoreload 19000 18176 Watching for file changes with StatReloader
+INFO 2025-06-04 05:58:17,504 basehttp 19000 16416 "GET /property/ HTTP/1.1" 200 315049
+INFO 2025-06-04 05:58:24,234 basehttp 19000 16416 "GET /property/ HTTP/1.1" 200 315049
+INFO 2025-06-04 05:58:37,680 basehttp 19000 16416 "GET /property/ HTTP/1.1" 200 315049
+INFO 2025-06-04 05:58:37,817 basehttp 19000 16416 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 05:58:37,822 basehttp 19000 11832 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2157
+INFO 2025-06-04 05:58:37,825 basehttp 19000 17148 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-04 05:58:37,828 basehttp 19000 9836 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+INFO 2025-06-04 05:58:37,828 basehttp 19000 11824 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 05:58:37,884 basehttp 19000 16416 "GET /property/ HTTP/1.1" 200 315049
+WARNING 2025-06-04 05:58:38,235 basehttp 19000 11824 "GET /favicon.ico HTTP/1.1" 404 16809
+INFO 2025-06-04 05:58:38,289 basehttp 19000 16416 "GET /property/ HTTP/1.1" 200 315049
+INFO 2025-06-04 05:58:38,300 basehttp 19000 17148 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-04 05:58:38,300 basehttp 19000 11824 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 05:58:38,300 basehttp 19000 11832 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+INFO 2025-06-04 05:58:38,300 basehttp 19000 9836 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2157
+INFO 2025-06-04 05:58:38,301 basehttp 19000 16416 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 05:59:05,732 basehttp 19000 11824 "GET /property/ HTTP/1.1" 200 315038
+INFO 2025-06-04 05:59:27,079 basehttp 19000 11824 "GET /property/ HTTP/1.1" 200 314970
+INFO 2025-06-04 05:59:27,583 basehttp 19000 11824 "GET /property/ HTTP/1.1" 200 314970
+INFO 2025-06-04 06:08:23,144 basehttp 19000 8836 "GET /property/ HTTP/1.1" 200 318021
+INFO 2025-06-04 06:11:52,341 basehttp 19000 8836 "GET /property/ HTTP/1.1" 200 316650
+INFO 2025-06-04 06:13:08,828 basehttp 19000 8836 "GET /property/ HTTP/1.1" 200 317842
+INFO 2025-06-04 06:13:10,803 basehttp 19000 8836 "GET /property/ HTTP/1.1" 200 317842
+INFO 2025-06-04 06:13:10,813 basehttp 19000 8128 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 06:13:10,814 basehttp 19000 10472 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2157
+INFO 2025-06-04 06:13:10,814 basehttp 19000 8836 "GET /static/css/style.css HTTP/1.1" 200 28371
+INFO 2025-06-04 06:13:10,814 basehttp 19000 20768 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-04 06:13:10,814 basehttp 19000 6092 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+WARNING 2025-06-04 06:13:11,231 basehttp 19000 6092 "GET /favicon.ico HTTP/1.1" 404 16809
+INFO 2025-06-04 06:20:05,233 autoreload 19000 18176 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:20:05,711 autoreload 1200 13780 Watching for file changes with StatReloader
+INFO 2025-06-04 06:21:15,848 autoreload 11640 20688 Watching for file changes with StatReloader
+INFO 2025-06-04 06:22:02,257 autoreload 6712 6772 Watching for file changes with StatReloader
+INFO 2025-06-04 06:22:11,648 autoreload 20920 5000 Watching for file changes with StatReloader
+INFO 2025-06-04 06:22:14,585 basehttp 20920 17444 "GET /property/ HTTP/1.1" 200 315127
+INFO 2025-06-04 06:22:21,559 basehttp 20920 17444 "GET /export-property/ HTTP/1.1" 200 6414
+INFO 2025-06-04 06:23:40,354 basehttp 20920 17444 "GET /supplies/ HTTP/1.1" 200 119968
+INFO 2025-06-04 06:23:42,764 basehttp 20920 17444 "GET /export-supply/ HTTP/1.1" 200 5764
+INFO 2025-06-04 06:24:25,490 basehttp 20920 17444 "GET /property/ HTTP/1.1" 200 315127
+INFO 2025-06-04 06:24:53,154 basehttp 20920 17444 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-04 06:24:53,223 basehttp 20920 17444 "GET /property/ HTTP/1.1" 200 333244
+INFO 2025-06-04 06:25:55,422 autoreload 20920 5000 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:25:55,913 autoreload 22276 18180 Watching for file changes with StatReloader
+INFO 2025-06-04 06:26:35,836 basehttp 22276 17440 "GET /property/ HTTP/1.1" 200 332985
+INFO 2025-06-04 06:26:38,847 basehttp 22276 17440 "GET /property/ HTTP/1.1" 200 332985
+INFO 2025-06-04 06:26:39,290 basehttp 22276 17440 "GET /property/ HTTP/1.1" 200 332985
+INFO 2025-06-04 06:26:40,862 basehttp 22276 17440 "GET /export-property/ HTTP/1.1" 200 6474
+INFO 2025-06-04 06:27:15,200 basehttp 22276 17440 "GET /supplies/ HTTP/1.1" 200 123133
+ERROR 2025-06-04 06:27:33,380 log 22276 17440 Internal Server Error: /export-supply/
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\app\views.py", line 1728, in export_supply_to_excel
+    column_letter = column[0].column_letter
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MergedCell' object has no attribute 'column_letter'
+ERROR 2025-06-04 06:27:33,383 basehttp 22276 17440 "POST /export-supply/ HTTP/1.1" 500 74206
+INFO 2025-06-04 06:28:08,976 autoreload 22276 18180 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:28:09,475 autoreload 7344 9920 Watching for file changes with StatReloader
+INFO 2025-06-04 06:28:18,361 autoreload 7344 9920 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:28:18,843 autoreload 17720 2188 Watching for file changes with StatReloader
+INFO 2025-06-04 06:28:29,577 basehttp 17720 6876 "GET /supplies/ HTTP/1.1" 200 123133
+INFO 2025-06-04 06:28:30,797 basehttp 17720 6876 "GET /supplies/ HTTP/1.1" 200 123133
+INFO 2025-06-04 06:28:31,719 basehttp 17720 6876 "GET /supplies/ HTTP/1.1" 200 123133
+INFO 2025-06-04 06:28:35,111 basehttp 17720 6876 "POST /export-supply/ HTTP/1.1" 200 5700
+INFO 2025-06-04 06:29:23,716 autoreload 17720 2188 C:\Users\User\Desktop\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-04 06:29:24,200 autoreload 3904 17792 Watching for file changes with StatReloader
+INFO 2025-06-04 06:29:57,772 autoreload 3904 17792 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:29:58,244 autoreload 6316 20704 Watching for file changes with StatReloader
+INFO 2025-06-04 06:30:40,258 basehttp 6316 2488 "GET /property/ HTTP/1.1" 200 337421
+INFO 2025-06-04 06:30:49,608 basehttp 6316 2488 "POST /export-property/ HTTP/1.1" 200 6461
+INFO 2025-06-04 06:31:50,457 autoreload 6316 20704 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:31:50,931 autoreload 8588 14588 Watching for file changes with StatReloader
+INFO 2025-06-04 06:33:13,895 autoreload 8588 14588 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:33:14,354 autoreload 17072 19140 Watching for file changes with StatReloader
+INFO 2025-06-04 06:33:28,352 autoreload 17072 19140 C:\Users\User\Desktop\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-04 06:33:28,826 autoreload 19416 20784 Watching for file changes with StatReloader
+INFO 2025-06-04 06:34:57,628 autoreload 19416 20784 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:34:58,077 autoreload 3068 13176 Watching for file changes with StatReloader
+INFO 2025-06-04 06:35:14,134 autoreload 3068 13176 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:35:14,593 autoreload 16248 11364 Watching for file changes with StatReloader
+INFO 2025-06-04 06:35:33,487 basehttp 16248 21176 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:35:41,519 basehttp 16248 21176 "GET /sample-inventory-template/ HTTP/1.1" 200 6175
+INFO 2025-06-04 06:36:54,538 basehttp 16248 21176 "POST /export-property/ HTTP/1.1" 200 6645
+INFO 2025-06-04 06:37:18,974 basehttp 16248 21176 "GET /sample-inventory-template/ HTTP/1.1" 200 6175
+INFO 2025-06-04 06:39:09,433 autoreload 16248 11364 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:39:09,914 autoreload 20776 17756 Watching for file changes with StatReloader
+INFO 2025-06-04 06:39:51,729 autoreload 20776 17756 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:39:52,205 autoreload 8252 10248 Watching for file changes with StatReloader
+INFO 2025-06-04 06:40:03,217 basehttp 8252 21220 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:40:03,953 basehttp 8252 21220 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:40:04,413 basehttp 8252 21220 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:40:07,077 basehttp 8252 21220 "POST /export-property/ HTTP/1.1" 200 6974
+INFO 2025-06-04 06:43:19,502 autoreload 8252 10248 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:43:20,001 autoreload 14000 5372 Watching for file changes with StatReloader
+INFO 2025-06-04 06:43:45,198 basehttp 14000 6476 "POST /export-property/ HTTP/1.1" 200 6975
+INFO 2025-06-04 06:46:07,569 autoreload 14000 5372 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:46:08,059 autoreload 20896 21964 Watching for file changes with StatReloader
+INFO 2025-06-04 06:46:44,754 autoreload 20896 21964 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:46:45,228 autoreload 14308 3636 Watching for file changes with StatReloader
+INFO 2025-06-04 06:46:58,836 basehttp 14308 17328 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:46:59,491 basehttp 14308 17328 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:46:59,935 basehttp 14308 17328 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:47:01,536 basehttp 14308 17328 "POST /export-property/ HTTP/1.1" 200 7192
+INFO 2025-06-04 06:47:46,116 basehttp 14308 17328 "GET /supplies/ HTTP/1.1" 200 123133
+INFO 2025-06-04 06:47:50,739 basehttp 14308 17328 "POST /export-supply/ HTTP/1.1" 200 6255
+INFO 2025-06-04 06:48:02,211 basehttp 14308 17328 "POST /export-supply/ HTTP/1.1" 200 6204
+INFO 2025-06-04 06:48:30,465 autoreload 14308 3636 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:48:30,974 autoreload 18136 21188 Watching for file changes with StatReloader
+INFO 2025-06-04 06:49:53,595 basehttp 18136 17820 "GET /supplies/ HTTP/1.1" 302 0
+INFO 2025-06-04 06:49:53,604 basehttp 18136 17820 "GET /login_user/?next=/supplies/ HTTP/1.1" 200 9320
+INFO 2025-06-04 06:50:07,952 basehttp 18136 17820 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 06:50:07,989 basehttp 18136 17820 "GET /dashboard/ HTTP/1.1" 200 36924
+INFO 2025-06-04 06:50:12,614 basehttp 18136 17820 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:50:19,091 basehttp 18136 17820 "GET /supplies/ HTTP/1.1" 200 123668
+INFO 2025-06-04 06:50:25,457 basehttp 18136 17820 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:50:36,940 basehttp 18136 17820 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:50:38,578 basehttp 18136 17820 "GET /supplies/ HTTP/1.1" 200 123133
+INFO 2025-06-04 06:50:44,573 basehttp 18136 17820 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:53:09,286 autoreload 18136 21188 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:53:09,790 autoreload 3084 2948 Watching for file changes with StatReloader
+INFO 2025-06-04 06:53:24,818 autoreload 3084 2948 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:53:25,288 autoreload 4648 18528 Watching for file changes with StatReloader
+INFO 2025-06-04 06:53:36,214 autoreload 4648 18528 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:53:36,688 autoreload 19964 17996 Watching for file changes with StatReloader
+INFO 2025-06-04 06:53:58,934 autoreload 19964 17996 C:\Users\User\Desktop\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-04 06:53:59,404 autoreload 15900 9504 Watching for file changes with StatReloader
+ERROR 2025-06-04 06:54:11,262 log 15900 15516 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 210, in render
+    return template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 173, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'property_list' not found. 'property_list' is not a valid view function or pattern name.
+ERROR 2025-06-04 06:54:11,265 basehttp 15900 15516 "GET /property/ HTTP/1.1" 500 192034
+ERROR 2025-06-04 06:54:12,400 log 15900 15516 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 210, in render
+    return template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 173, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'property_list' not found. 'property_list' is not a valid view function or pattern name.
+ERROR 2025-06-04 06:54:12,401 basehttp 15900 15516 "GET /property/ HTTP/1.1" 500 192034
+ERROR 2025-06-04 06:54:12,626 log 15900 15516 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 210, in render
+    return template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 173, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'property_list' not found. 'property_list' is not a valid view function or pattern name.
+ERROR 2025-06-04 06:54:12,627 basehttp 15900 15516 "GET /property/ HTTP/1.1" 500 192034
+ERROR 2025-06-04 06:54:12,823 log 15900 15516 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 210, in render
+    return template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 173, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'property_list' not found. 'property_list' is not a valid view function or pattern name.
+ERROR 2025-06-04 06:54:12,824 basehttp 15900 15516 "GET /property/ HTTP/1.1" 500 192034
+ERROR 2025-06-04 06:54:12,999 log 15900 15516 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 210, in render
+    return template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 173, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'property_list' not found. 'property_list' is not a valid view function or pattern name.
+ERROR 2025-06-04 06:54:13,001 basehttp 15900 15516 "GET /property/ HTTP/1.1" 500 192034
+ERROR 2025-06-04 06:54:13,168 log 15900 15516 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 210, in render
+    return template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 173, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'property_list' not found. 'property_list' is not a valid view function or pattern name.
+ERROR 2025-06-04 06:54:13,169 basehttp 15900 15516 "GET /property/ HTTP/1.1" 500 192034
+INFO 2025-06-04 06:55:11,327 autoreload 15900 9504 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:55:11,805 autoreload 8104 2072 Watching for file changes with StatReloader
+ERROR 2025-06-04 06:55:17,278 log 8104 2432 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 210, in render
+    return template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 173, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'property_list' not found. 'property_list' is not a valid view function or pattern name.
+ERROR 2025-06-04 06:55:17,281 basehttp 8104 2432 "GET /property/ HTTP/1.1" 500 192034
+ERROR 2025-06-04 06:55:18,033 log 8104 2432 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 210, in render
+    return template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 173, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'property_list' not found. 'property_list' is not a valid view function or pattern name.
+ERROR 2025-06-04 06:55:18,034 basehttp 8104 2432 "GET /property/ HTTP/1.1" 500 192034
+ERROR 2025-06-04 06:55:20,494 log 8104 2432 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 210, in render
+    return template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 173, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'property_list' not found. 'property_list' is not a valid view function or pattern name.
+ERROR 2025-06-04 06:55:20,495 basehttp 8104 2432 "GET /property/ HTTP/1.1" 500 192162
+WARNING 2025-06-04 06:55:20,558 basehttp 8104 2432 "GET /favicon.ico HTTP/1.1" 404 15843
+INFO 2025-06-04 06:55:35,292 autoreload 8104 2072 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 06:55:35,837 autoreload 10424 13188 Watching for file changes with StatReloader
+ERROR 2025-06-04 06:57:27,830 log 10424 17412 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 210, in render
+    return template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 173, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'supply_list' not found. 'supply_list' is not a valid view function or pattern name.
+ERROR 2025-06-04 06:57:27,832 basehttp 10424 17412 "GET /property/ HTTP/1.1" 500 192377
+ERROR 2025-06-04 06:57:28,591 log 10424 17412 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\loader_tags.py", line 210, in render
+    return template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 173, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Desktop\capstone-repo\.venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'supply_list' not found. 'supply_list' is not a valid view function or pattern name.
+ERROR 2025-06-04 06:57:28,593 basehttp 10424 17412 "GET /property/ HTTP/1.1" 500 192377
+INFO 2025-06-04 06:57:59,510 basehttp 10424 17412 "GET / HTTP/1.1" 200 758
+INFO 2025-06-04 06:57:59,575 basehttp 10424 17412 "GET /static/css/auth.css HTTP/1.1" 200 1910
+INFO 2025-06-04 06:58:00,934 basehttp 10424 17412 "GET /login/ HTTP/1.1" 200 9311
+INFO 2025-06-04 06:58:05,930 autoreload 10424 13188 C:\Users\User\Desktop\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-06-04 06:58:06,443 autoreload 5572 21792 Watching for file changes with StatReloader
+WARNING 2025-06-04 06:58:09,458 basehttp 5572 21940 "GET /login/ HTTP/1.1" 404 17629
+WARNING 2025-06-04 06:58:10,346 basehttp 5572 21940 "GET /login/ HTTP/1.1" 404 17629
+WARNING 2025-06-04 06:58:10,963 basehttp 5572 21940 "GET /login/ HTTP/1.1" 404 17629
+WARNING 2025-06-04 06:58:11,146 basehttp 5572 21940 "GET /login/ HTTP/1.1" 404 17629
+WARNING 2025-06-04 06:58:11,313 basehttp 5572 21940 "GET /login/ HTTP/1.1" 404 17629
+INFO 2025-06-04 06:58:15,230 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:58:15,238 basehttp 5572 21940 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-04 06:58:15,238 basehttp 5572 17072 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 06:58:17,664 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:58:22,249 basehttp 5572 21940 "POST /export-property/ HTTP/1.1" 200 7192
+INFO 2025-06-04 06:58:46,577 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123133
+INFO 2025-06-04 06:58:57,538 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:59:01,773 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123133
+INFO 2025-06-04 06:59:05,771 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:59:12,390 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123133
+INFO 2025-06-04 06:59:23,531 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338256
+INFO 2025-06-04 06:59:53,622 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338082
+INFO 2025-06-04 07:01:08,912 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338109
+INFO 2025-06-04 07:01:11,065 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338109
+INFO 2025-06-04 07:01:15,307 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123064
+INFO 2025-06-04 07:01:50,271 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123064
+INFO 2025-06-04 07:01:50,646 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123064
+INFO 2025-06-04 07:01:58,759 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123064
+INFO 2025-06-04 07:02:14,121 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123064
+INFO 2025-06-04 07:02:14,544 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123064
+INFO 2025-06-04 07:02:14,849 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123064
+INFO 2025-06-04 07:02:15,156 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123064
+INFO 2025-06-04 07:03:49,811 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123064
+INFO 2025-06-04 07:03:50,286 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123064
+INFO 2025-06-04 07:03:50,648 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123064
+INFO 2025-06-04 07:03:56,616 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338109
+INFO 2025-06-04 07:05:07,118 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338109
+INFO 2025-06-04 07:07:19,867 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338143
+INFO 2025-06-04 07:07:20,378 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338143
+INFO 2025-06-04 07:07:20,823 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338143
+INFO 2025-06-04 07:07:24,497 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123165
+INFO 2025-06-04 07:07:29,226 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123165
+INFO 2025-06-04 07:07:29,233 basehttp 5572 16872 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:07:29,234 basehttp 5572 21940 "GET /static/css/style.css HTTP/1.1" 200 28833
+WARNING 2025-06-04 07:07:29,576 basehttp 5572 21940 "GET /favicon.ico HTTP/1.1" 404 17644
+INFO 2025-06-04 07:07:29,605 basehttp 5572 16872 - Broken pipe from ('127.0.0.1', 64705)
+INFO 2025-06-04 07:07:29,624 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123165
+INFO 2025-06-04 07:07:29,631 basehttp 5572 14316 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:07:29,631 basehttp 5572 21940 "GET /static/css/style.css HTTP/1.1" 200 28833
+WARNING 2025-06-04 07:07:29,954 basehttp 5572 14316 "GET /favicon.ico HTTP/1.1" 404 17644
+INFO 2025-06-04 07:07:29,973 basehttp 5572 21940 "GET /supplies/ HTTP/1.1" 200 123165
+INFO 2025-06-04 07:07:29,981 basehttp 5572 14316 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:07:29,981 basehttp 5572 21940 "GET /static/css/style.css HTTP/1.1" 200 28833
+INFO 2025-06-04 07:07:35,223 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338143
+INFO 2025-06-04 07:08:30,052 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338215
+INFO 2025-06-04 07:08:30,059 basehttp 5572 21940 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:08:31,409 basehttp 5572 21940 "GET /property/ HTTP/1.1" 200 338215
+INFO 2025-06-04 07:08:31,420 basehttp 5572 14316 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:08:31,421 basehttp 5572 16820 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2157
+INFO 2025-06-04 07:08:31,421 basehttp 5572 3696 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-04 07:08:31,422 basehttp 5572 21940 "GET /static/css/style.css HTTP/1.1" 200 28833
+INFO 2025-06-04 07:08:31,422 basehttp 5572 2432 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+WARNING 2025-06-04 07:08:31,871 basehttp 5572 2432 "GET /favicon.ico HTTP/1.1" 404 17644
+INFO 2025-06-04 07:08:31,953 basehttp 5572 2432 "GET /property/ HTTP/1.1" 200 338215
+INFO 2025-06-04 07:08:31,963 basehttp 5572 3696 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:08:31,963 basehttp 5572 21940 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-04 07:08:31,963 basehttp 5572 14316 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+INFO 2025-06-04 07:08:31,964 basehttp 5572 16820 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2157
+INFO 2025-06-04 07:08:31,964 basehttp 5572 2432 "GET /static/css/style.css HTTP/1.1" 200 28833
+WARNING 2025-06-04 07:08:32,420 basehttp 5572 14316 "GET /favicon.ico HTTP/1.1" 404 17644
+INFO 2025-06-04 07:08:36,453 basehttp 5572 14316 "GET /supplies/ HTTP/1.1" 200 123241
+INFO 2025-06-04 07:09:35,450 basehttp 5572 14316 "GET /supplies/ HTTP/1.1" 200 123192
+INFO 2025-06-04 07:09:35,456 basehttp 5572 14316 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:09:35,931 basehttp 5572 14316 "GET /supplies/ HTTP/1.1" 200 123192
+INFO 2025-06-04 07:09:36,247 basehttp 5572 14316 "GET /supplies/ HTTP/1.1" 200 123192
+INFO 2025-06-04 07:09:37,105 basehttp 5572 14316 "GET /supplies/ HTTP/1.1" 200 123192
+INFO 2025-06-04 07:09:37,438 basehttp 5572 14316 "GET /supplies/ HTTP/1.1" 200 123192
+INFO 2025-06-04 07:09:37,777 basehttp 5572 14316 "GET /supplies/ HTTP/1.1" 200 123192
+INFO 2025-06-04 07:09:48,878 basehttp 5572 14316 "GET /property/ HTTP/1.1" 200 338176
+INFO 2025-06-04 07:11:36,627 basehttp 5572 14316 "GET /property/ HTTP/1.1" 200 338428
+INFO 2025-06-04 07:11:36,635 basehttp 5572 14316 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:11:37,075 basehttp 5572 14316 "GET /property/ HTTP/1.1" 200 338428
+INFO 2025-06-04 07:11:37,163 basehttp 5572 14316 "GET /property/ HTTP/1.1" 200 338428
+INFO 2025-06-04 07:11:37,539 basehttp 5572 14316 "GET /property/ HTTP/1.1" 200 338428
+INFO 2025-06-04 07:11:37,978 basehttp 5572 14316 "GET /property/ HTTP/1.1" 200 338428
+INFO 2025-06-04 07:13:55,431 basehttp 5572 14316 "GET /property/ HTTP/1.1" 200 338524
+INFO 2025-06-04 07:13:55,440 basehttp 5572 14316 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:13:55,927 basehttp 5572 14316 "GET /property/ HTTP/1.1" 200 338524
+INFO 2025-06-04 07:13:56,474 basehttp 5572 14316 - Broken pipe from ('127.0.0.1', 64711)
+INFO 2025-06-04 07:13:56,485 basehttp 5572 7276 "GET /property/ HTTP/1.1" 200 338524
+INFO 2025-06-04 07:14:57,200 basehttp 5572 7276 "GET /property/ HTTP/1.1" 200 338524
+INFO 2025-06-04 07:14:57,208 basehttp 5572 7276 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:14:57,654 basehttp 5572 7276 "GET /property/ HTTP/1.1" 200 338524
+INFO 2025-06-04 07:14:58,105 basehttp 5572 7276 - Broken pipe from ('127.0.0.1', 64883)
+INFO 2025-06-04 07:14:58,159 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 338524
+INFO 2025-06-04 07:14:58,607 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 338524
+INFO 2025-06-04 07:16:28,695 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 339643
+INFO 2025-06-04 07:16:28,702 basehttp 5572 18112 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:16:32,316 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 339643
+INFO 2025-06-04 07:16:32,327 basehttp 5572 17936 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:16:32,328 basehttp 5572 9836 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2157
+INFO 2025-06-04 07:16:32,328 basehttp 5572 20644 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-04 07:16:32,328 basehttp 5572 18112 "GET /static/css/style.css HTTP/1.1" 200 28833
+INFO 2025-06-04 07:16:32,328 basehttp 5572 21000 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+WARNING 2025-06-04 07:16:32,776 basehttp 5572 21000 "GET /favicon.ico HTTP/1.1" 404 17644
+INFO 2025-06-04 07:16:32,841 basehttp 5572 20644 "GET /property/ HTTP/1.1" 200 339643
+INFO 2025-06-04 07:16:32,852 basehttp 5572 18112 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2157
+INFO 2025-06-04 07:16:32,852 basehttp 5572 9836 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-04 07:16:32,852 basehttp 5572 21000 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:16:32,852 basehttp 5572 17936 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+INFO 2025-06-04 07:16:32,852 basehttp 5572 20644 "GET /static/css/style.css HTTP/1.1" 200 28833
+INFO 2025-06-04 07:16:35,784 basehttp 5572 20644 "GET /property/ HTTP/1.1" 200 339643
+INFO 2025-06-04 07:16:35,794 basehttp 5572 9836 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:16:35,794 basehttp 5572 21000 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-04 07:16:35,795 basehttp 5572 17936 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2157
+INFO 2025-06-04 07:16:35,795 basehttp 5572 18112 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+INFO 2025-06-04 07:16:35,795 basehttp 5572 20644 "GET /static/css/style.css HTTP/1.1" 200 28833
+WARNING 2025-06-04 07:16:36,191 basehttp 5572 20644 "GET /favicon.ico HTTP/1.1" 404 17644
+INFO 2025-06-04 07:16:36,506 basehttp 5572 20644 "GET /property/ HTTP/1.1" 200 339643
+INFO 2025-06-04 07:16:36,517 basehttp 5572 21000 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-06-04 07:16:36,517 basehttp 5572 18112 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2157
+INFO 2025-06-04 07:16:36,517 basehttp 5572 17936 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:16:36,517 basehttp 5572 9836 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 200 1335
+INFO 2025-06-04 07:16:36,518 basehttp 5572 20644 "GET /static/css/style.css HTTP/1.1" 200 28833
+WARNING 2025-06-04 07:16:36,933 basehttp 5572 20644 "GET /favicon.ico HTTP/1.1" 404 17644
+INFO 2025-06-04 07:16:37,754 basehttp 5572 20644 "GET /supplies/ HTTP/1.1" 200 124329
+INFO 2025-06-04 07:17:49,709 basehttp 5572 20644 "GET /supplies/ HTTP/1.1" 200 124518
+INFO 2025-06-04 07:17:50,064 basehttp 5572 20644 "GET /supplies/ HTTP/1.1" 200 124518
+INFO 2025-06-04 07:17:50,404 basehttp 5572 20644 "GET /supplies/ HTTP/1.1" 200 124518
+INFO 2025-06-04 07:17:50,455 basehttp 5572 20644 "GET /supplies/ HTTP/1.1" 200 124518
+INFO 2025-06-04 07:17:50,744 basehttp 5572 20644 "GET /supplies/ HTTP/1.1" 200 124518
+INFO 2025-06-04 07:18:07,944 basehttp 5572 20644 "GET /supplies/ HTTP/1.1" 200 124518
+INFO 2025-06-04 07:18:07,951 basehttp 5572 20644 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:18:08,251 basehttp 5572 20644 "GET /supplies/ HTTP/1.1" 200 124518
+INFO 2025-06-04 07:18:08,566 basehttp 5572 20644 "GET /supplies/ HTTP/1.1" 200 124518
+INFO 2025-06-04 07:18:08,903 basehttp 5572 20644 "GET /supplies/ HTTP/1.1" 200 124518
+INFO 2025-06-04 07:18:12,453 basehttp 5572 20644 "GET /property/ HTTP/1.1" 200 339913
+INFO 2025-06-04 07:18:21,056 basehttp 5572 20644 "GET /property/ HTTP/1.1" 200 339913
+INFO 2025-06-04 07:18:21,507 basehttp 5572 20644 - Broken pipe from ('127.0.0.1', 64952)
+INFO 2025-06-04 07:18:21,570 basehttp 5572 9836 "GET /property/ HTTP/1.1" 200 339913
+INFO 2025-06-04 07:18:22,018 basehttp 5572 9836 - Broken pipe from ('127.0.0.1', 64951)
+INFO 2025-06-04 07:18:22,082 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 339913
+INFO 2025-06-04 07:18:28,912 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 339913
+INFO 2025-06-04 07:18:38,339 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 339913
+INFO 2025-06-04 07:18:38,784 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 339913
+INFO 2025-06-04 07:18:46,320 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 339913
+INFO 2025-06-04 07:18:46,898 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 339913
+INFO 2025-06-04 07:18:47,341 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 339913
+INFO 2025-06-04 07:20:49,365 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 339913
+INFO 2025-06-04 07:20:49,373 basehttp 5572 18112 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:20:49,808 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 339913
+INFO 2025-06-04 07:20:59,678 basehttp 5572 18112 "POST /export-property/ HTTP/1.1" 200 7192
+INFO 2025-06-04 07:22:51,363 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 362553
+INFO 2025-06-04 07:22:51,370 basehttp 5572 18112 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:22:52,570 basehttp 5572 18112 "GET /property/ HTTP/1.1" 200 362553
+INFO 2025-06-04 07:23:35,505 basehttp 5572 18112 "GET /supplies/ HTTP/1.1" 200 124518
+INFO 2025-06-04 07:24:44,352 basehttp 5572 18112 "GET /supplies/ HTTP/1.1" 200 134595
+INFO 2025-06-04 07:24:44,359 basehttp 5572 18112 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:24:45,077 basehttp 5572 18112 "GET /supplies/ HTTP/1.1" 200 134595
+INFO 2025-06-04 07:24:45,562 basehttp 5572 18112 "GET /supplies/ HTTP/1.1" 200 134595
+INFO 2025-06-04 07:24:45,861 basehttp 5572 18112 "GET /supplies/ HTTP/1.1" 200 134595
+INFO 2025-06-04 07:24:46,276 basehttp 5572 18112 "GET /supplies/ HTTP/1.1" 200 134595
+INFO 2025-06-04 07:24:46,576 basehttp 5572 18112 "GET /supplies/ HTTP/1.1" 200 134595
+INFO 2025-06-04 07:24:46,876 basehttp 5572 18112 "GET /supplies/ HTTP/1.1" 200 134595
+INFO 2025-06-04 07:24:47,193 basehttp 5572 18112 - Broken pipe from ('127.0.0.1', 64915)
+INFO 2025-06-04 07:24:47,207 basehttp 5572 6244 "GET /supplies/ HTTP/1.1" 200 134595
+INFO 2025-06-04 07:24:47,509 basehttp 5572 6244 "GET /supplies/ HTTP/1.1" 200 134595
+INFO 2025-06-04 07:25:05,711 basehttp 5572 6244 "GET /property/ HTTP/1.1" 200 362553
+INFO 2025-06-04 07:25:11,668 basehttp 5572 6244 "GET /supplies/ HTTP/1.1" 200 134595
+INFO 2025-06-04 07:28:06,863 basehttp 5572 6244 "GET /supplies/ HTTP/1.1" 200 134129
+INFO 2025-06-04 07:28:06,870 basehttp 5572 6244 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:28:07,184 basehttp 5572 6244 "GET /supplies/ HTTP/1.1" 200 134129
+INFO 2025-06-04 07:28:07,237 basehttp 5572 6244 "GET /supplies/ HTTP/1.1" 200 134129
+INFO 2025-06-04 07:28:07,504 basehttp 5572 6244 "GET /supplies/ HTTP/1.1" 200 134129
+INFO 2025-06-04 07:28:07,555 basehttp 5572 6244 "GET /supplies/ HTTP/1.1" 200 134129
+INFO 2025-06-04 07:28:07,812 basehttp 5572 6244 "GET /supplies/ HTTP/1.1" 200 134129
+INFO 2025-06-04 07:29:06,601 basehttp 5572 6244 "GET /get_supply_history/5/ HTTP/1.1" 200 196
+INFO 2025-06-04 07:29:11,168 basehttp 5572 6244 "GET /get_supply_history/7/ HTTP/1.1" 200 368
+INFO 2025-06-04 07:29:32,945 basehttp 5572 6244 "GET /supplies/ HTTP/1.1" 200 136844
+INFO 2025-06-04 07:29:41,973 basehttp 5572 6244 "GET /property/ HTTP/1.1" 200 362553
+INFO 2025-06-04 07:31:17,777 basehttp 5572 6244 "GET /property/ HTTP/1.1" 200 367909
+INFO 2025-06-04 07:31:17,785 basehttp 5572 6244 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:31:18,278 basehttp 5572 6244 "GET /property/ HTTP/1.1" 200 367909
+INFO 2025-06-04 07:31:18,797 basehttp 5572 6244 "GET /property/ HTTP/1.1" 200 367909
+INFO 2025-06-04 07:31:22,681 basehttp 5572 6244 "GET /supplies/ HTTP/1.1" 200 136844
+INFO 2025-06-04 07:31:26,241 basehttp 5572 6244 "GET /supplies/ HTTP/1.1" 200 136844
+INFO 2025-06-04 07:31:27,082 basehttp 5572 6244 "GET /supplies/ HTTP/1.1" 200 136844
+INFO 2025-06-04 07:31:27,090 basehttp 5572 6324 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:31:27,090 basehttp 5572 6244 "GET /static/css/style.css HTTP/1.1" 200 28833
+WARNING 2025-06-04 07:31:27,401 basehttp 5572 6324 "GET /favicon.ico HTTP/1.1" 404 17644
+INFO 2025-06-04 07:31:27,431 basehttp 5572 6244 - Broken pipe from ('127.0.0.1', 65143)
+INFO 2025-06-04 07:31:27,445 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 136844
+INFO 2025-06-04 07:31:27,453 basehttp 5572 11152 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:31:27,453 basehttp 5572 6324 "GET /static/css/style.css HTTP/1.1" 200 28833
+WARNING 2025-06-04 07:31:27,753 basehttp 5572 11152 "GET /favicon.ico HTTP/1.1" 404 17644
+INFO 2025-06-04 07:31:27,775 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 136844
+INFO 2025-06-04 07:31:27,783 basehttp 5572 11152 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:31:27,784 basehttp 5572 6324 "GET /static/css/style.css HTTP/1.1" 200 28833
+INFO 2025-06-04 07:33:01,373 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 136844
+INFO 2025-06-04 07:33:01,780 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 136844
+INFO 2025-06-04 07:33:02,105 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 136844
+INFO 2025-06-04 07:33:02,447 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 136844
+INFO 2025-06-04 07:33:05,083 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 136844
+INFO 2025-06-04 07:33:05,091 basehttp 5572 11152 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:33:05,091 basehttp 5572 6324 "GET /static/css/style.css HTTP/1.1" 200 28833
+WARNING 2025-06-04 07:33:05,439 basehttp 5572 6324 "GET /favicon.ico HTTP/1.1" 404 17644
+INFO 2025-06-04 07:33:05,465 basehttp 5572 11152 "GET /supplies/ HTTP/1.1" 200 136844
+INFO 2025-06-04 07:33:05,473 basehttp 5572 6324 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:33:05,474 basehttp 5572 11152 "GET /static/css/style.css HTTP/1.1" 200 28833
+INFO 2025-06-04 07:33:05,565 basehttp 5572 11152 "GET /supplies/ HTTP/1.1" 200 136844
+WARNING 2025-06-04 07:33:05,790 basehttp 5572 6324 "GET /favicon.ico HTTP/1.1" 404 17644
+INFO 2025-06-04 07:33:05,815 basehttp 5572 11152 "GET /supplies/ HTTP/1.1" 200 136844
+INFO 2025-06-04 07:33:05,824 basehttp 5572 6324 "GET /static/css/barcode.css HTTP/1.1" 200 884
+INFO 2025-06-04 07:33:05,824 basehttp 5572 11152 "GET /static/css/style.css HTTP/1.1" 200 28833
+INFO 2025-06-04 07:33:15,191 basehttp 5572 6324 "GET /property/ HTTP/1.1" 200 368177
+INFO 2025-06-04 07:33:25,491 basehttp 5572 6324 "GET /property/ HTTP/1.1" 200 362553
+INFO 2025-06-04 07:33:26,065 basehttp 5572 6324 "GET /property/ HTTP/1.1" 200 362553
+INFO 2025-06-04 07:33:26,857 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 134129
+INFO 2025-06-04 07:34:07,009 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 134112
+INFO 2025-06-04 07:34:07,312 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 134112
+INFO 2025-06-04 07:34:07,626 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 134112
+INFO 2025-06-04 07:35:34,363 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 134112
+INFO 2025-06-04 07:35:34,700 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 134112
+INFO 2025-06-04 07:35:34,771 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 134112
+INFO 2025-06-04 07:35:35,030 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 134112
+INFO 2025-06-04 07:35:43,524 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 134111
+INFO 2025-06-04 07:35:43,899 basehttp 5572 6324 "GET /supplies/ HTTP/1.1" 200 134111
+INFO 2025-06-04 07:35:44,222 basehttp 5572 6324 - Broken pipe from ('127.0.0.1', 65246)
+INFO 2025-06-04 07:35:44,247 basehttp 5572 11152 "GET /supplies/ HTTP/1.1" 200 134111
+INFO 2025-06-04 07:37:14,823 basehttp 5572 11152 "GET /property/ HTTP/1.1" 200 362553
+INFO 2025-06-04 07:37:14,830 basehttp 5572 11152 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:42:40,414 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362554
+INFO 2025-06-04 07:42:40,423 basehttp 5572 6628 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:42:41,075 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362554
+INFO 2025-06-04 07:42:41,619 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362554
+INFO 2025-06-04 07:44:30,364 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362572
+INFO 2025-06-04 07:44:30,838 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362572
+INFO 2025-06-04 07:44:30,947 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362572
+INFO 2025-06-04 07:44:31,283 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362572
+INFO 2025-06-04 07:44:34,055 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362572
+INFO 2025-06-04 07:44:34,516 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362572
+INFO 2025-06-04 07:44:34,963 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362572
+INFO 2025-06-04 07:46:49,295 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362554
+INFO 2025-06-04 07:46:49,303 basehttp 5572 6628 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:46:49,762 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362554
+INFO 2025-06-04 07:46:50,229 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362554
+INFO 2025-06-04 07:46:50,344 basehttp 5572 6628 "GET /property/ HTTP/1.1" 200 362554
+INFO 2025-06-04 07:47:04,353 basehttp 5572 6628 "GET /supplies/ HTTP/1.1" 200 134111
+INFO 2025-06-04 07:48:08,546 basehttp 5572 6628 "GET /supplies/ HTTP/1.1" 200 132625
+INFO 2025-06-04 07:48:09,144 basehttp 5572 6628 "GET /supplies/ HTTP/1.1" 200 132625
+INFO 2025-06-04 07:48:12,944 basehttp 5572 6628 "GET /supplies/ HTTP/1.1" 200 133527
+INFO 2025-06-04 07:48:13,255 basehttp 5572 6628 - Broken pipe from ('127.0.0.1', 49167)
+INFO 2025-06-04 07:48:13,274 basehttp 5572 20828 "GET /supplies/ HTTP/1.1" 200 133527
+INFO 2025-06-04 07:48:13,593 basehttp 5572 20828 "GET /supplies/ HTTP/1.1" 200 133527
+INFO 2025-06-04 07:48:16,560 basehttp 5572 20828 "GET /property/ HTTP/1.1" 200 362554
+INFO 2025-06-04 07:48:20,381 basehttp 5572 20828 "GET /supplies/ HTTP/1.1" 200 133527
+INFO 2025-06-04 07:49:16,495 basehttp 5572 20828 "GET /supplies/ HTTP/1.1" 200 132036
+INFO 2025-06-04 07:49:17,271 basehttp 5572 20828 "GET /supplies/ HTTP/1.1" 200 132036
+INFO 2025-06-04 07:49:17,587 basehttp 5572 20828 "GET /supplies/ HTTP/1.1" 200 132036
+INFO 2025-06-04 07:49:26,919 basehttp 5572 20828 "POST /add-category/ HTTP/1.1" 200 58
+INFO 2025-06-04 07:50:11,549 autoreload 5572 21792 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 07:50:12,047 autoreload 14044 7624 Watching for file changes with StatReloader
+INFO 2025-06-04 07:51:33,665 autoreload 14044 7624 C:\Users\User\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 07:51:34,106 autoreload 17684 6252 Watching for file changes with StatReloader
+INFO 2025-06-04 07:51:36,438 basehttp 17684 18356 "GET /property/ HTTP/1.1" 302 0
+INFO 2025-06-04 07:51:36,446 basehttp 17684 18356 "GET /login_user/?next=/property/ HTTP/1.1" 200 9320
+INFO 2025-06-04 07:51:36,775 basehttp 17684 18356 "GET /login_user/?next=/property/ HTTP/1.1" 200 9320
+INFO 2025-06-04 07:51:36,983 basehttp 17684 18356 "GET /login_user/?next=/property/ HTTP/1.1" 200 9320
+INFO 2025-06-04 07:51:41,809 basehttp 17684 18356 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 07:51:41,844 basehttp 17684 18356 "GET /dashboard/ HTTP/1.1" 200 36924
+INFO 2025-06-04 07:51:41,851 basehttp 17684 18356 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 07:51:45,533 basehttp 17684 18356 "GET /property/ HTTP/1.1" 200 362554
+INFO 2025-06-04 07:51:46,486 basehttp 17684 18356 "GET /supplies/ HTTP/1.1" 200 134209
+INFO 2025-06-04 07:51:50,082 basehttp 17684 18356 "GET /property/ HTTP/1.1" 200 362554
+INFO 2025-06-04 07:51:53,485 basehttp 17684 18356 "GET /supplies/ HTTP/1.1" 200 134209
+INFO 2025-06-04 07:54:18,848 basehttp 17684 18356 "GET /supplies/ HTTP/1.1" 200 134239
+INFO 2025-06-04 07:54:19,321 basehttp 17684 18356 "GET /supplies/ HTTP/1.1" 200 134239
+INFO 2025-06-04 07:54:35,851 basehttp 17684 18356 "POST /add-category/ HTTP/1.1" 200 57
+INFO 2025-06-04 07:54:43,907 basehttp 17684 18356 "GET /supplies/ HTTP/1.1" 200 134335
+INFO 2025-06-04 07:55:27,585 basehttp 17684 18356 "GET /supplies/ HTTP/1.1" 200 134740
+INFO 2025-06-04 07:55:31,223 basehttp 17684 18356 "GET /property/ HTTP/1.1" 200 362554
+INFO 2025-06-04 07:55:33,029 basehttp 17684 18356 "GET /supplies/ HTTP/1.1" 200 134740
+INFO 2025-06-04 07:55:50,182 basehttp 17684 18356 "POST /add-subcategory/ HTTP/1.1" 200 60
+INFO 2025-06-04 07:56:09,760 basehttp 17684 18356 "POST /edit-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 07:56:09,791 basehttp 17684 18356 "GET /supplies/ HTTP/1.1" 200 135096

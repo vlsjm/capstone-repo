@@ -47,6 +47,9 @@ from .views import (
     get_subcategories,
     update_property_category,
     delete_property_category,
+    export_supply_to_excel,
+    export_property_to_excel,
+    generate_sample_inventory_report,
 )
 
 urlpatterns = [
@@ -117,4 +120,8 @@ urlpatterns = [
     path('change-password/done/', 
          AdminPasswordChangeDoneView.as_view(), 
          name='password_change_done'),
+
+    path('export-supply/', export_supply_to_excel, name='export_supply'),
+    path('export-property/', export_property_to_excel, name='export_property'),
+    path('sample-inventory-template/', generate_sample_inventory_report, name='sample_inventory_template'),
 ]
