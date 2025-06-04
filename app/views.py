@@ -7,11 +7,7 @@ from django.urls import reverse_lazy, reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, ListView
 from django.core.exceptions import ValidationError
-
 from django.db.models import Count
-
-
-
 from django.views import View
 from django.contrib.auth import login, authenticate, logout
 from .models import(
@@ -27,20 +23,15 @@ from datetime import timedelta, date
 import json
 from django.utils import timezone
 from django.utils.timezone import now
-
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required
-
 from django.db import models
-
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.utils import timezone
 from datetime import timedelta
-
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -73,20 +64,20 @@ def verify_email_settings():
     env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
     logger.info(f".env file exists: {'Yes' if os.path.exists(env_path) else 'No'}")
 
-#user create user 
+#user create user
 def create_user(request):
     if request.method == 'POST':
         logger.info("Starting user creation process...")
         # Verify email settings before proceeding
         verify_email_settings()
-        
+       
         form = UserRegistrationForm(request.POST)
         logger.info("Checking form validity...")
         if form.is_valid():
             logger.info("Form is valid, proceeding with user creation...")
             try:
                 # Create user
-                initial_password = form.cleaned_data['password1']
+                initial_password = form.cleaned_data['password']
                 logger.info(f"Creating user with email: {form.cleaned_data['email']}")
                 user = User.objects.create_user(
                     username=form.cleaned_data['username'],
@@ -94,14 +85,14 @@ def create_user(request):
                     last_name=form.cleaned_data['last_name'],
                     email=form.cleaned_data['email'],
                     password=initial_password,
-        )
+                )
                 user.is_staff = True
-
                 user.save()
+
 
                 role = form.cleaned_data['role']  
                 logger.info(f"User created successfully with role: {role}")
-            
+           
                 # Add user to group
                 try:
                     group = Group.objects.get(name=role)
@@ -110,6 +101,7 @@ def create_user(request):
                 except Group.DoesNotExist:
                     logger.warning(f"Group {role} does not exist")
                     messages.warning(request, f'Group {role} does not exist. User created without group assignment.')
+
 
                 # Create user profile
                 profile = UserProfile.objects.create(
@@ -120,6 +112,7 @@ def create_user(request):
                 )
                 logger.info("User profile created successfully")
 
+
                 # Send welcome email
                 try:
                     context = {
@@ -129,7 +122,7 @@ def create_user(request):
                     }
                     html_message = render_to_string('app/email/account_created.html', context)
                     plain_message = strip_tags(html_message)
-                    
+                   
                     logger.info(f"Attempting to send welcome email to {user.email}...")
                     send_mail(
                         subject='Welcome to ResourceHive - Your Account Has Been Created',
@@ -145,6 +138,7 @@ def create_user(request):
                     logger.error(f"Failed to send welcome email: {str(e)}")
                     messages.warning(request, f'Account created successfully but failed to send welcome email. Error: {str(e)}')
 
+
                 # Log the activity
                 ActivityLog.log_activity(
                     user=request.user,
@@ -154,8 +148,9 @@ def create_user(request):
                     description=f"Created new user account for {user.username} with role {role}"
                 )
 
+
                 return redirect('manage_users')
-                
+               
             except Exception as e:
                 logger.error(f"Error in user creation process: {str(e)}")
                 messages.error(request, f'Error creating account: {str(e)}')
@@ -168,6 +163,7 @@ def create_user(request):
     users = UserProfile.objects.select_related('user').all()
     departments = Department.objects.all()
     return render(request, 'app/manage_users.html', {'form': form, 'users': users, 'departments': departments, })
+
 
 def create_department(request):
     if request.method == 'POST':
@@ -186,12 +182,20 @@ def edit_department(request, dept_id):
             return JsonResponse({"success": True})
     return JsonResponse({"success": False})
 
+
 def delete_department(request, dept_id):
     if request.method == 'POST':
         department = get_object_or_404(Department, id=dept_id)
+        # Check if there are any users in this department
+        if UserProfile.objects.filter(department=department).exists():
+            return JsonResponse({
+                "success": False,
+                "error": "Cannot delete department that has users assigned to it. Please reassign or remove users first."
+            })
         department.delete()
         return JsonResponse({"success": True})
     return JsonResponse({"success": False})
+
 
 @login_required
 @require_POST

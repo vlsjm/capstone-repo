@@ -10323,3 +10323,38 @@ INFO 2025-06-04 07:55:33,029 basehttp 17684 18356 "GET /supplies/ HTTP/1.1" 200 
 INFO 2025-06-04 07:55:50,182 basehttp 17684 18356 "POST /add-subcategory/ HTTP/1.1" 200 60
 INFO 2025-06-04 07:56:09,760 basehttp 17684 18356 "POST /edit-supply/ HTTP/1.1" 302 0
 INFO 2025-06-04 07:56:09,791 basehttp 17684 18356 "GET /supplies/ HTTP/1.1" 200 135096
+INFO 2025-06-04 08:44:45,690 autoreload 14764 18972 Watching for file changes with StatReloader
+INFO 2025-06-04 08:44:49,126 basehttp 14764 8348 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-04 08:44:54,105 basehttp 14764 8348 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 08:44:54,143 basehttp 14764 8348 "GET /dashboard/ HTTP/1.1" 200 36924
+INFO 2025-06-04 08:44:54,148 basehttp 14764 8348 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 08:44:56,424 basehttp 14764 8348 "GET /property/ HTTP/1.1" 200 362554
+INFO 2025-06-04 08:44:56,434 basehttp 14764 8348 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-04 08:44:56,434 basehttp 14764 12228 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 08:44:59,493 basehttp 14764 12228 "GET /manage-users/ HTTP/1.1" 200 28310
+INFO 2025-06-04 08:44:59,500 basehttp 14764 12228 "GET /static/scripts/userFilters.js HTTP/1.1" 200 2226
+INFO 2025-06-04 08:48:31,779 autoreload 3636 9496 Watching for file changes with StatReloader
+INFO 2025-06-04 08:48:37,584 basehttp 3636 2760 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-04 08:48:48,171 basehttp 3636 2760 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 08:48:48,208 basehttp 3636 2760 "GET /dashboard/ HTTP/1.1" 200 36924
+INFO 2025-06-04 08:48:50,873 basehttp 3636 2760 "GET /manage-users/ HTTP/1.1" 200 28310
+INFO 2025-06-04 08:48:50,879 basehttp 3636 2760 "GET /static/scripts/userFilters.js HTTP/1.1" 304 0
+INFO 2025-06-04 08:49:18,234 views 3636 2760 Starting user creation process...
+INFO 2025-06-04 08:49:18,234 views 3636 2760 Verifying email settings...
+INFO 2025-06-04 08:49:18,235 views 3636 2760 EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+INFO 2025-06-04 08:49:18,235 views 3636 2760 EMAIL_HOST: smtp.gmail.com
+INFO 2025-06-04 08:49:18,235 views 3636 2760 EMAIL_PORT: 587
+INFO 2025-06-04 08:49:18,235 views 3636 2760 EMAIL_USE_TLS: True
+INFO 2025-06-04 08:49:18,235 views 3636 2760 EMAIL_HOST_USER: johnmarkgvales@gmail.com
+INFO 2025-06-04 08:49:18,235 views 3636 2760 EMAIL_HOST_PASSWORD is set: Yes
+INFO 2025-06-04 08:49:18,236 views 3636 2760 .env file exists: Yes
+INFO 2025-06-04 08:49:18,236 views 3636 2760 Checking form validity...
+INFO 2025-06-04 08:49:18,275 views 3636 2760 Form is valid, proceeding with user creation...
+INFO 2025-06-04 08:49:18,275 views 3636 2760 Creating user with email: joshuabarnido27@gmail.com
+INFO 2025-06-04 08:49:18,912 views 3636 2760 User created successfully with role: USER
+INFO 2025-06-04 08:49:18,916 views 3636 2760 Added user to group: USER
+INFO 2025-06-04 08:49:18,920 views 3636 2760 User profile created successfully
+INFO 2025-06-04 08:49:18,921 views 3636 2760 Attempting to send welcome email to joshuabarnido27@gmail.com...
+INFO 2025-06-04 08:49:22,477 views 3636 2760 Welcome email sent successfully!
+INFO 2025-06-04 08:49:22,482 basehttp 3636 2760 "POST /create-user/ HTTP/1.1" 302 0
+INFO 2025-06-04 08:49:22,505 basehttp 3636 2760 "GET /manage-users/ HTTP/1.1" 200 28884

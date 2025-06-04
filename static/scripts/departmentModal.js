@@ -4,15 +4,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const openDeptModalBtn = document.getElementById('openDepartmentModalBtn'); // NOTE: matches your button ID in HTML
   const closeDeptModalBtn = document.getElementById('closeDepartmentModalBtn');
 
+
   // Open Add Department Modal
   openDeptModalBtn.addEventListener('click', () => {
     addDeptModal.style.display = 'block';
   });
 
+
   // Close Add Department Modal
   closeDeptModalBtn.addEventListener('click', () => {
     addDeptModal.style.display = 'none';
   });
+
 
   // Close Add Department Modal when clicking outside content
   window.addEventListener('click', (event) => {
@@ -21,10 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+
   // Edit Department Modal Elements
   const editModal = document.getElementById('editDepartmentModal');
   const closeEditModalBtn = document.getElementById('closeEditModal'); // matches your HTML span close ID
   const editForm = document.getElementById('editDepartmentForm');
+
 
   // Open Edit Modal on Edit Button Click
   document.querySelectorAll('.btn-edit').forEach((btn) => {
@@ -32,17 +37,21 @@ document.addEventListener('DOMContentLoaded', () => {
       const deptId = btn.getAttribute('data-id');
       const deptName = btn.getAttribute('data-name');
 
+
       document.getElementById('editDeptId').value = deptId;
       document.getElementById('editDeptName').value = deptName;
+
 
       editModal.style.display = 'block';
     });
   });
 
+
   // Close Edit Modal
   closeEditModalBtn.addEventListener('click', () => {
     editModal.style.display = 'none';
   });
+
 
   // Close Edit Modal when clicking outside content
   window.addEventListener('click', (event) => {
@@ -51,13 +60,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+
   // Submit Edit Department Form
   editForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
+
     const deptId = document.getElementById('editDeptId').value;
     const newName = document.getElementById('editDeptName').value;
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
 
     fetch(`/edit-department/${deptId}/`, {
       method: 'POST',
@@ -89,12 +101,14 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(() => alert('Error updating department.'));
   });
 
+
   // Delete Department with Confirmation Modal
   const deleteModal = document.getElementById('deleteDepartmentModal');
   const closeDeleteModalBtn = document.getElementById('closeDeleteModal');
   const deleteDeptNameSpan = document.getElementById('deleteDeptName');
   const deleteForm = document.getElementById('deleteDepartmentForm');
   let deleteDeptId = null;
+
 
   // Open Delete Confirmation Modal on Delete Button Click
   document.querySelectorAll('.btn-delete').forEach((btn) => {
@@ -106,10 +120,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+
   // Close Delete Modal
   closeDeleteModalBtn.addEventListener('click', () => {
     deleteModal.style.display = 'none';
   });
+
 
   // Close Delete Modal when clicking outside content
   window.addEventListener('click', (event) => {
@@ -118,13 +134,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+
   // Handle Delete Department Form submission
   deleteForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
+
     if (!deleteDeptId) return;
 
+
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
 
     fetch(`/delete-department/${deleteDeptId}/`, {
       method: 'POST',
@@ -134,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
       .then((res) => res.json())
       .then((data) => {
+        console.log('Response:', data); // Debug log
         if (data.success) {
           // Remove the row from the table
           const delBtn = document.querySelector(`.btn-delete[data-id='${deleteDeptId}']`);
@@ -143,9 +164,17 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           deleteModal.style.display = 'none';
         } else {
-          alert('Failed to delete department.');
+          alert(data.error || "Failed to delete department.");
+          deleteModal.style.display = 'none';
         }
       })
-      .catch(() => alert('Error deleting department.'));
+      .catch((error) => {
+        console.error('Error:', error); // Debug log
+        alert("Error deleting department. Please try again.");
+        deleteModal.style.display = 'none';
+      });
   });
 });
+
+
+
