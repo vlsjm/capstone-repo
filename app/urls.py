@@ -50,6 +50,17 @@ from .views import (
     export_supply_to_excel,
     export_property_to_excel,
     generate_sample_inventory_report,
+    get_supply_by_barcode,
+    get_property_by_barcode,
+    archive_supply,
+    unarchive_supply,
+    archive_property,
+    unarchive_property,
+    ArchivedItemsView,
+    update_supply_category,
+    update_supply_subcategory,
+    delete_supply_category,
+    delete_supply_subcategory,
 )
 
 urlpatterns = [
@@ -79,6 +90,10 @@ urlpatterns = [
     path('add-subcategory/', add_subcategory, name='add_subcategory'),
     path('get-subcategories/', get_subcategories, name='get_subcategories'),
     path('supply/modify_quantity/', views.modify_supply_quantity_generic, name='modify_supply_quantity_generic'),
+    path('update_supply_category/', views.update_supply_category, name='update_supply_category'),
+    path('delete_supply_category/<int:category_id>/', delete_supply_category, name='delete_supply_category'),
+    path('update_supply_subcategory/', views.update_supply_subcategory, name='update_supply_subcategory'),
+    path('delete_supply_subcategory/<int:subcategory_id>/', delete_supply_subcategory, name='delete_supply_subcategory'),
 
     path('check-out/', CheckOutPageView.as_view(), name='checkout'),
 
@@ -121,7 +136,15 @@ urlpatterns = [
          AdminPasswordChangeDoneView.as_view(), 
          name='password_change_done'),
 
+    path('get_supply_by_barcode/<str:barcode>/', get_supply_by_barcode, name='get_supply_by_barcode'),
+    path('get_property_by_barcode/<str:barcode>/', get_property_by_barcode, name='get_property_by_barcode'),
     path('export-supply/', export_supply_to_excel, name='export_supply'),
     path('export-property/', export_property_to_excel, name='export_property'),
     path('sample-inventory-template/', generate_sample_inventory_report, name='sample_inventory_template'),
+
+    path('supply/<int:pk>/archive/', archive_supply, name='archive_supply'),
+    path('supply/<int:pk>/unarchive/', unarchive_supply, name='unarchive_supply'),
+    path('property/<int:pk>/archive/', archive_property, name='archive_property'),
+    path('property/<int:pk>/unarchive/', unarchive_property, name='unarchive_property'),
+    path('archived-items/', ArchivedItemsView.as_view(), name='archived_items'),
 ]

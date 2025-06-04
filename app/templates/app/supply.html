@@ -567,10 +567,6 @@ tr.hidden {
   background-color: #218838 !important;
 }
 
-.action-btn.del-btn:hover {
-  background-color: #c82333 !important;
-}
-
 /* Button group layout */
 .button-group {
   display: flex;
@@ -593,8 +589,7 @@ tr.hidden {
 /* Table action buttons */
 .action-btn.edit-btn,
 .action-btn.history-btn,
-.action-btn.print-btn,
-.action-btn.del-btn {
+.action-btn.print-btn {
   width: 32px;
   height: 32px;
   justify-content: center;
@@ -603,7 +598,6 @@ tr.hidden {
 .action-btn.edit-btn { background-color: #152d64; }
 .action-btn.history-btn { background-color: #4a5568; }
 .action-btn.print-btn { background-color: #28a745; }
-.action-btn.del-btn { background-color: #dc3545; }
 
 /* Common styles for all action buttons */
 .action-btn {
@@ -683,6 +677,9 @@ tr.hidden {
             <button id="openExportModalBtn" class="action-btn success-btn" style="display: flex; align-items: center; gap: 6px; background-color: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-file-excel"></i> Export to Excel
             </button>
+            <button onclick="printBarcodes()" class="action-btn primary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+              <i class="fas fa-print"></i> Print All Barcodes
+            </button>
           </div>
         </div>
 
@@ -697,12 +694,12 @@ tr.hidden {
               <th>Description</th>
               <th>Sub Category</th>
               <th>Current Quantity</th>
+              <th>Expiration Date</th>
               <th>Min. Threshold</th>
               <th>Status</th>
               <th>Available</th>
               <th>Barcode</th>
               <th>Date Received</th>
-              <th>Expiration Date</th>
               <th>Last Updated</th>
               <th>Actions</th>
             </tr>
@@ -715,6 +712,24 @@ tr.hidden {
               <td>{{ supply.description|default:"----" }}</td>
               <td><strong>{{ supply.subcategory.name|default:"----" }}</strong></td>
               <td>{{ supply.quantity_info.current_quantity|default:"----" }}</td>
+              <td>
+                {% if supply.expiration_date %}
+                  <div class="expiration-badge 
+                    {% if supply.days_until_expiration < 0 %}expired
+                    {% elif supply.days_until_expiration <= 30 %}nearly-expired
+                    {% else %}not-expired{% endif %}">
+                    {% if supply.days_until_expiration < 0 %}
+                      <i class="fas fa-exclamation-triangle"></i> Expired
+                    {% elif supply.days_until_expiration <= 30 %}
+                      <i class="fas fa-clock"></i> Expires in {{ supply.days_until_expiration }} days
+                    {% else %}
+                      <i class="fas fa-check"></i> {{ supply.expiration_date|date:"M d, Y" }}
+                    {% endif %}
+                  </div>
+                {% else %}
+                  N/A
+                {% endif %}
+              </td>
               <td>{{ supply.quantity_info.minimum_threshold|default:"----" }}</td>
               <td>
                 <span class="status-badge status-{{ supply.status }}">
@@ -735,24 +750,6 @@ tr.hidden {
                     </div>
                   </td>
               <td>{{ supply.date_received|default:"----" }}</td>
-              <td>
-                {% if supply.expiration_date %}
-                  <div class="expiration-badge 
-                    {% if supply.days_until_expiration < 0 %}expired
-                    {% elif supply.days_until_expiration <= 30 %}nearly-expired
-                    {% else %}not-expired{% endif %}">
-                    {% if supply.days_until_expiration < 0 %}
-                      <i class="fas fa-exclamation-triangle"></i> Expired
-                    {% elif supply.days_until_expiration <= 30 %}
-                      <i class="fas fa-clock"></i> Expires in {{ supply.days_until_expiration }} days
-                    {% else %}
-                      <i class="fas fa-check"></i> {{ supply.expiration_date|date:"M d, Y" }}
-                    {% endif %}
-                  </div>
-                {% else %}
-                  N/A
-                {% endif %}
-              </td>
               <td>{{ supply.last_updated|default:"----" }}</td>
               <td>
                 <div class="button-group" style="display: flex; gap: 6px; justify-content: flex-start;">
@@ -787,13 +784,14 @@ tr.hidden {
                     <i class="fas fa-print"></i>
                   </button>
 
-                  <form method="POST" action="{% url 'delete_supply' supply.id %}" style="margin: 0;">
+                  <form method="post" action="{% url 'archive_supply' supply.id %}" style="display: inline;">
                     {% csrf_token %}
-                    <button type="submit" class="action-btn del-btn" 
-                      onclick="return confirm('Are you sure you want to delete this supply?');" 
-                      title="Delete"
-                      style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
-                      <i class="fas fa-trash-alt"></i>
+                    <button type="submit" class="action-btn" 
+                      onclick="return confirm('Are you sure you want to archive this supply? This will only be possible if the quantity is zero.');"
+                      title="Archive"
+                      {% if supply.quantity_info.current_quantity > 0 %}disabled{% endif %}
+                      style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #36b9cc; color: white; border: none; border-radius: 4px; cursor: {% if supply.quantity_info.current_quantity > 0 %}not-allowed{% else %}pointer{% endif %}; transition: all 0.2s; {% if supply.quantity_info.current_quantity > 0 %}opacity: 0.6{% endif %}">
+                      <i class="fas fa-archive"></i>
                     </button>
                   </form>
                 </div>
@@ -840,11 +838,6 @@ tr.hidden {
         <div class="form-group">
           <label>Supply Name</label>
           <input type="text" name="supply_name" id="edit_name" required />
-        </div>
-
-        <div class="form-group">
-          <label>Current Quantity</label>
-          <input type="number" name="current_quantity" id="edit_current_quantity" required min="0" />
         </div>
 
         <div class="form-group">
@@ -899,31 +892,31 @@ tr.hidden {
       <span class="close" id="closeModifyQuantityModalBtn">&times;</span>
       <h3>Modify Supply Quantity</h3>
 
-      <form method="post" action="{% url 'modify_supply_quantity_generic' %}">
+      <form method="post" action="{% url 'modify_supply_quantity_generic' %}" id="modifyQuantityForm">
         {% csrf_token %}
 
-        <!-- Action Selector -->
-        <label for="action_type">Action</label>
-        <select name="action_type" id="action_type" required class="type-box">
-          <option value="">Select Action</option>
-          <option value="add">Add</option>
-          <option value="remove">Remove</option>
-        </select>
+        <!-- Barcode Scanner Input -->
+        <div class="form-group">
+          <label for="barcode_input">Scan Barcode</label>
+          <input type="text" id="barcode_input" class="form-control" placeholder="Scan or enter barcode..." autofocus>
+        </div>
 
-        <!-- Supply Dropdown (Searchable) -->
-        <label for="supply_id">Supply</label>
-        <select name="supply_id" id="supply_id" class="select2" required style="width: 100%;">
-          <option value="">Select Supply</option>
-          {% for supply in supply_list %}
-          <option value="{{ supply.pk }}">{{ supply.supply_name }} (Current Quantity: {{ supply.quantity_info.current_quantity }})</option>
-          {% endfor %}
-        </select>
+        <!-- Supply Info Display -->
+        <div id="supply_info" style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; display: none;">
+          <p><strong>Supply Name: </strong><span id="scanned_supply_name"></span></p>
+          <p><strong>Current Quantity: </strong><span id="scanned_supply_quantity"></span></p>
+        </div>
+
+        <!-- Hidden Supply ID -->
+        <input type="hidden" name="supply_id" id="supply_id" required>
 
         <!-- Quantity -->
-        <label for="amount">Amount</label>
-        <input type="number" name="amount" id="amount" min="1" required class="type-box" />
+        <div class="form-group">
+          <label for="amount">Quantity to Add</label>
+          <input type="number" name="amount" id="amount" min="1" required class="form-control">
+        </div>
 
-        <button type="submit" class="submit-btn">Submit</button>
+        <button type="submit" class="submit-btn" id="modifyQuantitySubmitBtn" disabled>Add Quantity</button>
       </form>
     </div>
   </div>
@@ -954,37 +947,235 @@ tr.hidden {
     </div>
   </div>
 
-  <!-- Category Modal -->
-  <div id="categoryModal" class="modal">
-    <div class="modal-content">
+   <!-- Category Modal -->
+   <div id="categoryModal" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
       <span class="close" onclick="closeCategoryModal()">&times;</span>
-      <h2>Add New Category</h2>
-      <form id="categoryForm" method="POST" action="{% url 'add_category' %}">
+      <h2 style="color: #152d64; margin-bottom: 25px;">Manage Categories</h2>
+     
+      <!-- Add Category Form -->
+      <form id="categoryForm" method="POST" action="{% url 'add_category' %}"
+            style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid #eee;">
         {% csrf_token %}
-        <div class="form-group">
-          <label for="categoryName">Category Name</label>
-          <input type="text" id="categoryName" name="name" required class="form-control">
+        <div style="display: flex; gap: 15px; align-items: flex-end;">
+          <div style="flex: 1;">
+            <label for="categoryName" style="display: block; margin-bottom: 8px; color: #444; font-weight: 500;">
+              Category Name:
+            </label>
+            <input type="text" id="categoryName" name="name" required class="form-control">
+          </div>
+          <button type="submit" class="submit-btn"
+                  style="background-color: #152d64; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-left:15px; transition: background-color 0.3s ease;">
+            Add Category
+          </button>
         </div>
-        <button type="submit" class="submit-btn">Add Category</button>
+      </form>
+
+
+      <!-- Categories Table -->
+      <div class="table-container" style="max-height: 400px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px;">
+        <table style="width: 100%; border-collapse: collapse; background: white;">
+          <thead style="position: sticky; top: 0; z-index: 1;">
+            <tr>
+              <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: left; font-weight: 500;">No.</th>
+              <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: left; font-weight: 500;">Category Name</th>
+              <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: center; font-weight: 500;">Supplies Count</th>
+              <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: center; font-weight: 500;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for category in categories %}
+            <tr style="transition: background-color 0.2s ease;">
+              <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">{{ forloop.counter }}</td>
+              <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">
+                <span class="category-name" style="font-weight: 500;">{{ category.name }}</span>
+              </td>
+              <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                <span class="badge {% if category.supply_set.count > 0 %}badge-active{% else %}badge-inactive{% endif %}">
+                  {{ category.supply_set.count }}
+                </span>
+              </td>
+              <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                <div class="button-group" style="display: flex; gap: 8px; justify-content: center;">
+                  <button type="button" class="category-edit-btn"
+                          data-id="{{ category.id }}"
+                          data-name="{{ category.name|escapejs }}"
+                          onclick="editCategory(this.dataset.id, this.dataset.name)"
+                          style="background-color: #152d64; color: white; border: none; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <form method="POST" action="{% url 'delete_supply_category' category.id %}"
+                        style="display: inline;"
+                        data-count="{{ category.supply_set.count }}"
+                        onsubmit="return validateDelete(this.dataset.count)">
+                    {% csrf_token %}
+                    <button type="submit" class="del-btn"
+                            style="background-color: #dc3545; color: white; border: none; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: center;">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" style="padding: 20px; text-align: center; color: #666;">
+                No categories available.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Category Edit Modal -->
+  <div id="categoryEditModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+      <span class="close" id="closeCategoryEditModalBtn">&times;</span>
+      <h2 style="color: #152d64; margin-bottom: 20px;">Edit Category</h2>
+      <form id="categoryEditForm" method="POST" action="{% url 'update_supply_category' %}" style="margin-top: 20px;">
+        {% csrf_token %}
+        <input type="hidden" id="categoryEditId" name="id">
+        <div style="margin-bottom: 20px;">
+          <label for="categoryEditName" style="display: block; margin-bottom: 8px; color: #444; font-weight: 500;">
+            Category Name:
+          </label>
+          <input type="text" id="categoryEditName" name="name" required
+                 style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; transition: border-color 0.3s ease;"
+                 placeholder="Enter category name">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="cancel-btn" onclick="closeCategoryEditModal()"
+                  style="padding: 8px 16px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Cancel
+          </button>
+          <button type="submit" class="submit-btn"
+                  style="padding: 8px 16px; background-color: #152d64; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Save Changes
+          </button>
+        </div>
       </form>
     </div>
   </div>
 
+
   <!-- Subcategory Modal -->
   <div id="subcategoryModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 800px;">
       <span class="close" onclick="closeSubcategoryModal()">&times;</span>
-      <h2>Add New Subcategory</h2>
-      <form id="subcategoryForm" method="POST" action="{% url 'add_subcategory' %}">
+      <h2 style="color: #152d64; margin-bottom: 25px;">Manage Subcategories</h2>
+     
+      <!-- Add Subcategory Form -->
+      <form id="subcategoryForm" method="POST" action="{% url 'add_subcategory' %}"
+            style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid #eee;">
         {% csrf_token %}
-        <div class="form-group">
-          <label for="subcategoryName">Subcategory Name</label>
-          <input type="text" id="subcategoryName" name="name" required class="form-control">
+        <div style="display: flex; gap: 15px; align-items: flex-end;">
+          <div style="flex: 1;">
+            <label for="subcategoryName" style="display: block; margin-bottom: 8px; color: #444; font-weight: 500;">
+              Subcategory Name:
+            </label>
+            <input type="text" id="subcategoryName" name="name" required class="form-control">
+          </div>
+          <button type="submit" class="submit-btn"
+                  style="background-color: #152d64; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-left:15px; transition: background-color 0.3s ease;">
+            Add Subcategory
+          </button>
         </div>
-        <button type="submit" class="submit-btn">Add Subcategory</button>
+      </form>
+
+
+      <!-- Subcategories Table -->
+      <div class="table-container" style="max-height: 400px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px;">
+        <table style="width: 100%; border-collapse: collapse; background: white;">
+          <thead style="position: sticky; top: 0; z-index: 1;">
+            <tr>
+              <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: left; font-weight: 500;">No.</th>
+              <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: left; font-weight: 500;">Subcategory Name</th>
+              <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: center; font-weight: 500;">Supplies Count</th>
+              <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: center; font-weight: 500;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for subcategory in subcategories %}
+            <tr style="transition: background-color 0.2s ease;">
+              <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">{{ forloop.counter }}</td>
+              <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">
+                <span class="subcategory-name" style="font-weight: 500;">{{ subcategory.name }}</span>
+              </td>
+              <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                <span class="badge {% if subcategory.supply_set.count > 0 %}badge-active{% else %}badge-inactive{% endif %}">
+                  {{ subcategory.supply_set.count }}
+                </span>
+              </td>
+              <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                <div class="button-group" style="display: flex; gap: 8px; justify-content: center;">
+                  <button type="button" class="subcategory-edit-btn"
+                          data-id="{{ subcategory.id }}"
+                          data-name="{{ subcategory.name|escapejs }}"
+                          onclick="editSubcategory(this.dataset.id, this.dataset.name)"
+                          style="background-color: #152d64; color: white; border: none; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <form method="POST" action="{% url 'delete_supply_subcategory' subcategory.id %}"
+                        style="display: inline;"
+                        data-count="{{ subcategory.supply_set.count }}"
+                        onsubmit="return validateDeleteSubcategory(this.dataset.count)">
+                    {% csrf_token %}
+                    <button type="submit" class="del-btn"
+                            style="background-color: #dc3545; color: white; border: none; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: center;">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" style="padding: 20px; text-align: center; color: #666;">
+                No subcategories available.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Subcategory Edit Modal -->
+  <div id="subcategoryEditModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+      <span class="close" id="closeSubcategoryEditModalBtn">&times;</span>
+      <h2 style="color: #152d64; margin-bottom: 20px;">Edit Subcategory</h2>
+      <form id="subcategoryEditForm" method="POST" action="{% url 'update_supply_subcategory' %}" style="margin-top: 20px;">
+        {% csrf_token %}
+        <input type="hidden" id="subcategoryEditId" name="id">
+        <div style="margin-bottom: 20px;">
+          <label for="subcategoryEditName" style="display: block; margin-bottom: 8px; color: #444; font-weight: 500;">
+            Subcategory Name:
+          </label>
+          <input type="text" id="subcategoryEditName" name="name" required
+                 style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; transition: border-color 0.3s ease;"
+                 placeholder="Enter subcategory name">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="cancel-btn" onclick="closeSubcategoryEditModal()"
+                  style="padding: 8px 16px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Cancel
+          </button>
+          <button type="submit" class="submit-btn"
+                  style="padding: 8px 16px; background-color: #152d64; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Save Changes
+          </button>
+        </div>
       </form>
     </div>
   </div>
+
 
   <!-- Export Modal -->
   <div id="exportModal" class="modal">
@@ -1027,6 +1218,8 @@ tr.hidden {
   </div>
 
   <script>
+
+
     // Make modal functions globally accessible
     window.openCategoryModal = function() {
         document.getElementById('categoryModal').style.display = 'block';
@@ -1044,6 +1237,85 @@ tr.hidden {
         document.getElementById('subcategoryModal').style.display = 'none';
     };
 
+    function validateDelete(supplyCount) {
+      supplyCount = parseInt(supplyCount, 10);
+      if (supplyCount > 0) {
+        alert('Cannot delete this category. Please remove or reassign all supplies in this category first.');
+        return false;
+      }
+      return confirm('Are you sure you want to delete this category?');
+    }
+
+
+    function editCategory(categoryId, categoryName) {
+      event.preventDefault();
+      event.stopPropagation();
+     
+      const editModal = document.getElementById('categoryEditModal');
+      const idInput = document.getElementById('categoryEditId');
+      const nameInput = document.getElementById('categoryEditName');
+
+
+      if (editModal && idInput && nameInput) {
+        idInput.value = categoryId;
+        nameInput.value = categoryName;
+        editModal.style.display = 'block';
+      }
+    }
+
+
+    function closeCategoryEditModal() {
+      const editModal = document.getElementById('categoryEditModal');
+      const editForm = document.getElementById('categoryEditForm');
+      if (editModal) {
+        editModal.style.display = 'none';
+      }
+      if (editForm) {
+        editForm.reset();
+      }
+    }
+
+
+    function editSubcategory(subcategoryId, subcategoryName) {
+      event.preventDefault();
+      event.stopPropagation();
+     
+      const editModal = document.getElementById('subcategoryEditModal');
+      const idInput = document.getElementById('subcategoryEditId');
+      const nameInput = document.getElementById('subcategoryEditName');
+
+
+      if (editModal && idInput && nameInput) {
+        idInput.value = subcategoryId;
+        nameInput.value = subcategoryName;
+        editModal.style.display = 'block';
+      }
+    }
+
+
+    function closeSubcategoryEditModal() {
+      const editModal = document.getElementById('subcategoryEditModal');
+      const editForm = document.getElementById('subcategoryEditForm');
+      if (editModal) {
+        editModal.style.display = 'none';
+      }
+      if (editForm) {
+        editForm.reset();
+      }
+    }
+
+
+    function validateDeleteSubcategory(supplyCount) {
+      supplyCount = parseInt(supplyCount, 10);
+      console.log('Validating delete subcategory with supply count:', supplyCount);
+      if (supplyCount > 0) {
+        alert('Cannot delete this subcategory. Please remove or reassign all supplies in this subcategory first.');
+        return false;
+      }
+      return confirm('Are you sure you want to delete this subcategory?');
+    }
+
+
     document.addEventListener('DOMContentLoaded', function() {
       // Modal Elements
       const addModal = document.getElementById("addSupplyModal");
@@ -1051,8 +1323,214 @@ tr.hidden {
       const modifyQuantityModal = document.getElementById("modifyQuantityModal");
       const historyModal = document.getElementById("historyModal");
       const categoryModal = document.getElementById("categoryModal");
+      const categoryEditModal = document.getElementById("categoryEditModal");
       const subcategoryModal = document.getElementById("subcategoryModal");
       const exportModal = document.getElementById("exportModal");
+
+       // Get form and button elements for category
+       const categoryEditForm = document.getElementById('categoryEditForm');
+      const closeCategoryEditModalBtn = document.getElementById('closeCategoryEditModalBtn');
+
+
+      // Close modal with X button
+      if (closeCategoryEditModalBtn) {
+        closeCategoryEditModalBtn.onclick = function(e) {
+          e.preventDefault();
+          closeCategoryEditModal();
+        };
+      }
+
+
+      // Close modal when clicking outside
+      window.onclick = function(event) {
+        if (event.target === categoryEditModal) {
+          closeCategoryEditModal();
+        }
+      };
+
+
+      // Handle category edit form submission
+      if (categoryEditForm) {
+        categoryEditForm.onsubmit = function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+         
+          const formData = new FormData(this);
+
+
+          // Convert FormData to URL-encoded string
+          const data = new URLSearchParams();
+          data.append('id', formData.get('id'));
+          data.append('name', formData.get('name'));
+
+
+          fetch(this.action, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: data.toString()
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Find and update the category in the table
+              const categoryId = formData.get('id');
+              const newName = formData.get('name');
+              const editButton = document.querySelector(`button.category-edit-btn[data-id="${categoryId}"]`);
+             
+              if (editButton) {
+                const row = editButton.closest('tr');
+                if (row) {
+                  // Update the name in the table
+                  const nameSpan = row.querySelector('.category-name');
+                  if (nameSpan) {
+                    nameSpan.textContent = newName;
+                  }
+                 
+                  // Update the edit button's data
+                  editButton.setAttribute('data-name', newName);
+                }
+
+
+                // Update category in dropdowns
+                const categorySelects = document.querySelectorAll('select[name="category"]');
+                categorySelects.forEach(select => {
+                  const option = select.querySelector(`option[value="${categoryId}"]`);
+                  if (option) {
+                    option.textContent = newName;
+                  }
+                });
+
+
+                // Show success message
+                alert('Category updated successfully');
+
+
+                // Close modal
+                closeCategoryEditModal();
+              }
+            } else {
+              alert('Error updating category: ' + (data.error || 'Unknown error'));
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating category. Please try again.');
+          });
+         
+          return false; // Prevent form submission
+        };
+      }
+
+
+      // Remove any other event listeners that might be attached to the form
+      categoryEditForm.removeEventListener('submit', function() {});
+
+
+      // Handle subcategory edit form submission
+      const subcategoryEditForm = document.getElementById('subcategoryEditForm');
+      const closeSubcategoryEditModalBtn = document.getElementById('closeSubcategoryEditModalBtn');
+      const subcategoryEditModal = document.getElementById('subcategoryEditModal');
+
+
+      // Close modal with X button
+      if (closeSubcategoryEditModalBtn) {
+        closeSubcategoryEditModalBtn.onclick = function(e) {
+          e.preventDefault();
+          closeSubcategoryEditModal();
+        };
+      }
+
+
+      // Close modal when clicking outside
+      window.onclick = function(event) {
+        if (event.target === subcategoryEditModal) {
+          closeSubcategoryEditModal();
+        }
+      };
+
+
+      // Handle subcategory edit form submission
+      if (subcategoryEditForm) {
+        subcategoryEditForm.onsubmit = function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+         
+          const formData = new FormData(this);
+
+
+          // Convert FormData to URL-encoded string
+          const data = new URLSearchParams();
+          data.append('id', formData.get('id'));
+          data.append('name', formData.get('name'));
+
+
+          fetch(this.action, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: data.toString()
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Find and update the subcategory in the table
+              const subcategoryId = formData.get('id');
+              const newName = formData.get('name');
+              const editButton = document.querySelector(`button.subcategory-edit-btn[data-id="${subcategoryId}"]`);
+             
+              if (editButton) {
+                const row = editButton.closest('tr');
+                if (row) {
+                  // Update the name in the table
+                  const nameSpan = row.querySelector('.subcategory-name');
+                  if (nameSpan) {
+                    nameSpan.textContent = newName;
+                  }
+                 
+                  // Update the edit button's data
+                  editButton.setAttribute('data-name', newName);
+                }
+
+
+                // Update subcategory in dropdowns
+                const subcategorySelects = document.querySelectorAll('select[name="subcategory"]');
+                subcategorySelects.forEach(select => {
+                  const option = select.querySelector(`option[value="${subcategoryId}"]`);
+                  if (option) {
+                    option.textContent = newName;
+                  }
+                });
+
+
+                // Show success message
+                alert('Subcategory updated successfully');
+
+
+                // Close modal
+                closeSubcategoryEditModal();
+              }
+            } else {
+              alert('Error updating subcategory: ' + (data.error || 'Unknown error'));
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating subcategory. Please try again.');
+          });
+         
+          return false; // Prevent form submission
+        };
+      }
+
+
+      // Remove any other event listeners that might be attached to the form
+      subcategoryEditForm && subcategoryEditForm.removeEventListener('submit', function() {});
+
 
       // Button Elements
       const openAddBtn = document.getElementById("openModalBtn");
@@ -1089,7 +1567,7 @@ tr.hidden {
         });
       }
 
-      // Combined filter and search function
+      // Filter and Search functionality
       function filterAndSearch() {
         const searchTerm = searchInput.value.toLowerCase();
         const statusValue = statusFilter.value;
@@ -1104,17 +1582,17 @@ tr.hidden {
           for (let i = 1; i < rows.length; i++) {
             const row = rows[i];
             const cells = row.getElementsByTagName('td');
-            if (cells.length === 0) continue; // Skip empty rows
-            
-            // Get status, availability, and expiry cells
-            const statusCell = cells[6]; // Status column
-            const availabilityCell = cells[7]; // Availability column
-            const expiryCell = cells[10]; // Expiry Date column
-            
+            if (cells.length === 0) continue;
+
+            // Get relevant cells
+            const statusCell = cells[7]; // Status column
+            const availabilityCell = cells[8]; // Availability column
+            const expiryCell = cells[5]; // Expiry Date column
+
             let matchesSearch = false;
-            let matchesStatus = !statusValue; // true if no filter selected
-            let matchesAvailability = !availabilityValue; // true if no filter selected
-            let matchesExpiry = !expiryValue; // true if no filter selected
+            let matchesStatus = !statusValue;
+            let matchesAvailability = !availabilityValue;
+            let matchesExpiry = !expiryValue;
 
             // Check search term
             for (let cell of cells) {
@@ -1129,9 +1607,9 @@ tr.hidden {
               const statusText = statusCell.textContent.trim().toLowerCase();
               const statusBadge = statusCell.querySelector('.status-badge');
               const statusClass = statusBadge ? statusBadge.className : '';
-              
+
               matchesStatus = statusClass.includes(`status-${statusValue}`) || 
-                             statusText.includes(statusValue.replace('_', ' '));
+                            statusText.includes(statusValue.replace('_', ' '));
             }
 
             // Check availability
@@ -1162,8 +1640,8 @@ tr.hidden {
 
             // Show/hide row based on all filters
             const shouldShow = matchesSearch && matchesStatus && matchesAvailability && matchesExpiry;
-            row.classList.toggle('hidden', !shouldShow);
-            
+            row.style.display = shouldShow ? '' : 'none';
+
             if (shouldShow) {
               hasVisibleRows = true;
             }
@@ -1171,23 +1649,28 @@ tr.hidden {
 
           // Show/hide category headers based on whether any rows are visible
           const categoryHeader = table.previousElementSibling;
-          if (!hasVisibleRows) {
-            categoryHeader.style.display = 'none';
-            table.style.display = 'none';
-          } else {
-            categoryHeader.style.display = 'block';
-            table.style.display = 'table';
+          if (categoryHeader && categoryHeader.tagName === 'H3') {
+            categoryHeader.style.display = hasVisibleRows ? 'block' : 'none';
           }
+          table.style.display = hasVisibleRows ? 'table' : 'none';
         }
       }
 
       // Add event listeners for filters and search
-      statusFilter.addEventListener('change', filterAndSearch);
-      availabilityFilter.addEventListener('change', filterAndSearch);
-      expiryFilter.addEventListener('change', filterAndSearch);
-      searchInput.addEventListener('keyup', filterAndSearch);
+      if (searchInput) {
+        searchInput.addEventListener('input', filterAndSearch);
+      }
+      if (statusFilter) {
+        statusFilter.addEventListener('change', filterAndSearch);
+      }
+      if (availabilityFilter) {
+        availabilityFilter.addEventListener('change', filterAndSearch);
+      }
+      if (expiryFilter) {
+        expiryFilter.addEventListener('change', filterAndSearch);
+      }
 
-      // Initialize filters
+      // Initialize filtering
       filterAndSearch();
 
       // Add Supply Modal Handling
@@ -1226,20 +1709,153 @@ tr.hidden {
           closeAllModals();
           destroySelect2Instances();
           modifyQuantityModal.style.display = "block";
-          $('#supply_id').select2({
-            dropdownParent: $('#modifyQuantityModal'),
-            width: '100%',
-            placeholder: "Search for a supply...",
-            allowClear: true
-          });
+          document.getElementById('barcode_input').focus();
         };
       }
+
 
       if (closeModifyQuantityBtn) {
         closeModifyQuantityBtn.onclick = function() {
           modifyQuantityModal.style.display = "none";
-          destroySelect2Instances();
+          resetModifyQuantityForm();
         };
+      }
+
+      // Handle barcode scanning
+      let barcodeBuffer = '';
+      let barcodeTimeout;
+      let lastScannedSupplyId = null;
+
+      // Prevent form submission on Enter key
+      document.getElementById('modifyQuantityForm').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault(); // Prevent form submission
+          return false;
+        }
+      });
+
+      // Prevent form submission on Enter key in barcode input
+      document.getElementById('barcode_input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault(); // Prevent form submission
+          return false;
+        }
+      });
+
+      $('#barcode_input').on('input', function() {
+        let barcode = $(this).val();
+        if (barcode) {
+            $.get(`/get_supply_by_barcode/${barcode}/`, function(response) {
+                if (response.success) {
+                    // Clear any previous error message
+                    $('#barcode_error').remove();
+                    
+                    $('#supply_info').show();
+                    $('#scanned_supply_name').text(response.supply.name);
+                    $('#scanned_supply_quantity').text(response.supply.current_quantity);
+                    $('#supply_id').val(response.supply.id);
+                    $('#modifyQuantitySubmitBtn').prop('disabled', false);
+                    
+                    // Increment quantity instead of clearing it
+                    let currentQty = parseInt($('#amount').val()) || 0;
+                    $('#amount').val(currentQty + 1);
+                    
+                    // Clear the barcode input for next scan
+                    $('#barcode_input').val('');
+                } else {
+                    $('#supply_info').hide();
+                    $('#supply_id').val('');
+                    $('#modifyQuantitySubmitBtn').prop('disabled', true);
+                    
+                    // Remove any existing error message first
+                    $('#barcode_error').remove();
+                    
+                    // Add error message below the barcode input
+                    const errorDiv = $('<div id="barcode_error" style="color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem;">Invalid barcode or supply not found in records</div>');
+                    $('#barcode_input').after(errorDiv);
+                    
+                    // Clear the barcode input after a short delay
+                    setTimeout(() => {
+                        $('#barcode_input').val('');
+                        // Remove error message after 3 seconds
+                        setTimeout(() => {
+                            $('#barcode_error').fadeOut('slow', function() {
+                                $(this).remove();
+                            });
+                        }, 3000);
+                    }, 1000);
+                }
+            });
+        }
+    });
+
+      // Handle form submission ONLY when submit button is clicked
+      document.getElementById('modifyQuantitySubmitBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        const form = document.getElementById('modifyQuantityForm');
+        
+        const supplyId = document.getElementById('supply_id').value;
+        const amount = parseInt(document.getElementById('amount').value);
+        
+        if (!supplyId) {
+          alert('Please scan a valid supply barcode first.');
+          return;
+        }
+        
+        if (!amount || amount < 1) {
+          alert('Please enter a valid quantity (minimum 1).');
+          return;
+        }
+
+        // Get CSRF token from the form
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Submit the form using fetch
+        fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: new URLSearchParams({
+            'supply_id': supplyId,
+            'amount': amount,
+            'csrfmiddlewaretoken': csrfToken
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert('Quantity updated successfully!');
+            // Reset form and close modal
+            resetModifyQuantityForm();
+            document.getElementById('modifyQuantityModal').style.display = 'none';
+            // Reload page to show updated quantities
+            window.location.reload();
+          } else {
+            alert(data.error || 'Error updating quantity.');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error updating quantity. Please try again.');
+        });
+      });
+
+      // Function to reset the modify quantity form
+      function resetModifyQuantityForm() {
+        document.getElementById('barcode_input').value = '';
+        document.getElementById('supply_id').value = '';
+        document.getElementById('supply_info').style.display = 'none';
+        document.getElementById('scanned_supply_name').textContent = '';
+        document.getElementById('scanned_supply_quantity').textContent = '';
+        document.getElementById('amount').value = '1';
+        document.getElementById('modifyQuantitySubmitBtn').disabled = true;
+        barcodeBuffer = '';
+        lastScannedSupplyId = null; // Reset the last scanned supply ID
+        // Focus back on barcode input
+        document.getElementById('barcode_input').focus();
       }
 
       // Edit Supply Modal Handling
@@ -1254,7 +1870,6 @@ tr.hidden {
           // Set form values
           document.getElementById("edit_id").value = button.dataset.id;
           document.getElementById("edit_name").value = button.dataset.name;
-          document.getElementById("edit_current_quantity").value = button.dataset.currentQuantity;
           document.getElementById("edit_minimum_threshold").value = button.dataset.minimumThreshold;
           document.getElementById("edit_description").value = button.dataset.description || '';
           document.getElementById("edit_date").value = button.dataset.date;
@@ -1401,35 +2016,88 @@ tr.hidden {
         });
       });
 
+     // Handle subcategory form submission
+     const subcategoryForm = document.getElementById('subcategoryForm');
+      const closeSubcategoryModalBtn = document.querySelector('#subcategoryModal .close');
+
+
+      // Close subcategory modal with X button
+      if (closeSubcategoryModalBtn) {
+        closeSubcategoryModalBtn.onclick = function(e) {
+          e.preventDefault();
+          closeSubcategoryModal();
+        };
+      }
+
+
+      // Close subcategory modal when clicking outside
+      window.onclick = function(event) {
+        if (event.target === subcategoryModal) {
+          closeSubcategoryModal();
+        }
+      };
+
+
       // Handle subcategory form submission
-      $('#subcategoryForm').on('submit', function(e) {
-        e.preventDefault();
-        $.ajax({
-          url: $(this).attr('action'),
-          type: 'POST',
-          data: $(this).serialize(),
-          success: function(response) {
-            if (response.success) {
+      if (subcategoryForm) {
+        subcategoryForm.onsubmit = function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+         
+          const formData = new FormData(this);
+
+
+          // Convert FormData to URL-encoded string
+          const data = new URLSearchParams();
+          for (let pair of formData.entries()) {
+            data.append(pair[0], pair[1]);
+          }
+
+
+          fetch(this.action, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: data.toString()
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
               // Add the new subcategory to both edit and add form dropdowns
-              let newOption = new Option(response.subcategory.name, response.subcategory.id, true, true);
+              let newOption = new Option(data.subcategory.name, data.subcategory.id, true, true);
               $('#edit_subcategory').append(newOption).trigger('change');
               $('#id_subcategory').append(newOption.cloneNode(true)).trigger('change');
-              
-              // Close the modal and reset form
-              closeSubcategoryModal();
-              $('#subcategoryForm')[0].reset();
-              
+             
               // Show success message
               alert('Subcategory added successfully!');
+             
+              // Close modal and reset form
+              closeSubcategoryModal();
+              subcategoryForm.reset();
             } else {
-              alert('Error: ' + response.error);
+              alert('Error: ' + (data.error || 'Unknown error'));
             }
-          },
-          error: function() {
+          })
+          .catch(error => {
+            console.error('Error:', error);
             alert('Error adding subcategory. Please try again.');
-          }
-        });
-      });
+          });
+         
+          return false; // Prevent form submission
+        };
+      }
+
+
+      // Remove any other event listeners that might be attached to the form
+      subcategoryForm && subcategoryForm.removeEventListener('submit', function() {});
+
+
+      // Remove the old subcategory form handler
+      $('#subcategoryForm').off('submit');
+
+
 
       // Add event listeners for closing modals when clicking outside
       [addModal, editModal, modifyQuantityModal, historyModal, categoryModal, subcategoryModal, exportModal].forEach(modal => {

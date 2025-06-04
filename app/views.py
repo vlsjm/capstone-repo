@@ -45,7 +45,6 @@ from datetime import datetime
 from openpyxl.styles import PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.cell.cell import MergedCell
-
 # Create a logger
 logger = logging.getLogger(__name__)
 
@@ -64,13 +63,13 @@ def verify_email_settings():
     env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
     logger.info(f".env file exists: {'Yes' if os.path.exists(env_path) else 'No'}")
 
-#user create user
+#user create user 
 def create_user(request):
     if request.method == 'POST':
         logger.info("Starting user creation process...")
         # Verify email settings before proceeding
         verify_email_settings()
-       
+        
         form = UserRegistrationForm(request.POST)
         logger.info("Checking form validity...")
         if form.is_valid():
@@ -89,10 +88,9 @@ def create_user(request):
                 user.is_staff = True
                 user.save()
 
-
                 role = form.cleaned_data['role']  
                 logger.info(f"User created successfully with role: {role}")
-           
+            
                 # Add user to group
                 try:
                     group = Group.objects.get(name=role)
@@ -101,7 +99,6 @@ def create_user(request):
                 except Group.DoesNotExist:
                     logger.warning(f"Group {role} does not exist")
                     messages.warning(request, f'Group {role} does not exist. User created without group assignment.')
-
 
                 # Create user profile
                 profile = UserProfile.objects.create(
@@ -112,7 +109,6 @@ def create_user(request):
                 )
                 logger.info("User profile created successfully")
 
-
                 # Send welcome email
                 try:
                     context = {
@@ -122,7 +118,7 @@ def create_user(request):
                     }
                     html_message = render_to_string('app/email/account_created.html', context)
                     plain_message = strip_tags(html_message)
-                   
+                    
                     logger.info(f"Attempting to send welcome email to {user.email}...")
                     send_mail(
                         subject='Welcome to ResourceHive - Your Account Has Been Created',
@@ -138,7 +134,6 @@ def create_user(request):
                     logger.error(f"Failed to send welcome email: {str(e)}")
                     messages.warning(request, f'Account created successfully but failed to send welcome email. Error: {str(e)}')
 
-
                 # Log the activity
                 ActivityLog.log_activity(
                     user=request.user,
@@ -148,9 +143,8 @@ def create_user(request):
                     description=f"Created new user account for {user.username} with role {role}"
                 )
 
-
                 return redirect('manage_users')
-               
+                
             except Exception as e:
                 logger.error(f"Error in user creation process: {str(e)}")
                 messages.error(request, f'Error creating account: {str(e)}')
@@ -163,7 +157,6 @@ def create_user(request):
     users = UserProfile.objects.select_related('user').all()
     departments = Department.objects.all()
     return render(request, 'app/manage_users.html', {'form': form, 'users': users, 'departments': departments, })
-
 
 def create_department(request):
     if request.method == 'POST':
@@ -182,7 +175,6 @@ def edit_department(request, dept_id):
             return JsonResponse({"success": True})
     return JsonResponse({"success": False})
 
-
 def delete_department(request, dept_id):
     if request.method == 'POST':
         department = get_object_or_404(Department, id=dept_id)
@@ -195,7 +187,6 @@ def delete_department(request, dept_id):
         department.delete()
         return JsonResponse({"success": True})
     return JsonResponse({"success": False})
-
 
 @login_required
 @require_POST
@@ -517,16 +508,18 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
 
         # Property Categories Counts
         try:
-            categories = [choice[0] for choice in Property.CATEGORY_CHOICES]
+            # Get all categories from PropertyCategory model
+            categories = PropertyCategory.objects.all()
             property_categories_data = []
             for category in categories:
                 count = Property.objects.filter(category=category).count()
                 if count > 0:
                     property_categories_data.append({
-                        'category': category,
+                        'category': category.name,
                         'count': count
                     })
-        except AttributeError:
+        except Exception as e:
+            logger.error(f"Error getting property categories data: {str(e)}")
             property_categories_data = []
 
         # User Activity by Role
@@ -792,7 +785,7 @@ class SupplyListView(PermissionRequiredMixin, ListView):
     paginate_by = None  # Disable default pagination as we'll handle it per category
 
     def get_queryset(self):
-        return Supply.objects.select_related('quantity_info', 'category', 'subcategory').order_by('supply_name')
+        return Supply.objects.filter(is_archived=False).select_related('quantity_info', 'category', 'subcategory').order_by('supply_name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -801,6 +794,9 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         context['today'] = date.today()
         context['supply_list'] = Supply.objects.select_related('quantity_info').all()
         
+        context['categories'] = SupplyCategory.objects.prefetch_related('supply_set').all()
+        context['subcategories'] = SupplySubcategory.objects.prefetch_related('supply_set').all()
+
         # Get all supplies
         supplies = self.get_queryset()
         
@@ -989,6 +985,9 @@ class PropertyListView(PermissionRequiredMixin, ListView):
     permission_required = 'app.view_admin_module'
     paginate_by = None
 
+    def get_queryset(self):
+        return Property.objects.filter(is_archived=False).select_related('category').order_by('property_name')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         properties = Property.objects.all()
@@ -1027,47 +1026,77 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         return context
     
 @require_POST
-def modify_property_quantity_generic(request):
-    property_id = request.POST.get("property_id")
-    action_type = request.POST.get("action_type")
-    amount = int(request.POST.get("amount", 0))
+def modify_supply_quantity_generic(request):
+    try:
+        supply_id = request.POST.get("supply_id")
+        if not supply_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'Supply ID is required'
+            })
 
-    prop = get_object_or_404(Property, pk=property_id)
-    old_quantity = prop.quantity
+        amount = int(request.POST.get("amount", 0))
+        supply = get_object_or_404(Supply, pk=supply_id)
 
-    if action_type == 'add':
-        prop.quantity += amount
-        prop.overall_quantity += amount
-    elif action_type == 'remove':
-        if amount > prop.quantity:
-            messages.error(request, "Cannot remove more than current quantity.")
-            return redirect('property_list')
-        prop.quantity -= amount
-        prop.overall_quantity -= amount
+        quantity_info = supply.quantity_info
+        old_quantity = quantity_info.current_quantity
 
-    prop.save()
+        # Always add the quantity since we removed the action type selection
+        quantity_info.current_quantity += amount
+        quantity_info.save(user=request.user)
 
-    PropertyHistory.objects.create(
-        property=prop,
-        user=request.user,
-        action='quantity_update',
-        field_name='quantity',
-        old_value=str(old_quantity),
-        new_value=str(prop.quantity),
-        remarks=f"{action_type} {amount}"
-    )
+        # Update supply's available_for_request status
+        supply.available_for_request = (quantity_info.current_quantity > 0)
+        supply.save(user=request.user)
 
-    # Add activity log
-    ActivityLog.log_activity(
-        user=request.user,
-        action='quantity_update',
-        model_name='Property',
-        object_repr=str(prop),
-        description=f"{action_type.title()}ed {amount} units to/from property '{prop.property_name}'. Changed quantity from {old_quantity} to {prop.quantity}"
-    )
+        SupplyHistory.objects.create(
+            supply=supply,
+            user=request.user,
+            action='quantity_update',
+            field_name='quantity',
+            old_value=str(old_quantity),
+            new_value=str(quantity_info.current_quantity),
+            remarks=f"add {amount}"
+        )
 
-    messages.success(request, f"Quantity successfully {action_type}ed.")
-    return redirect('property_list')
+        # Add activity log
+        ActivityLog.log_activity(
+            user=request.user,
+            action='quantity_update',
+            model_name='Supply',
+            object_repr=str(supply),
+            description=f"Added {amount} units to supply '{supply.supply_name}'. Changed quantity from {old_quantity} to {quantity_info.current_quantity}"
+        )
+
+        messages.success(request, f"Quantity successfully added.")
+        
+        # Check if request expects JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': 'Quantity updated successfully',
+                'new_quantity': quantity_info.current_quantity
+            })
+        return redirect('supply_list')
+
+    except SupplyQuantity.DoesNotExist:
+        error_msg = "Supply quantity information not found."
+        messages.error(request, error_msg)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': error_msg
+            })
+        return redirect('supply_list')
+    except ValueError as e:
+        error_msg = str(e)
+        messages.error(request, error_msg)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': error_msg
+            })
+        return redirect('supply_list')
 
 def add_property(request):
     if request.method == 'POST':
@@ -1479,24 +1508,22 @@ def get_property_history(request, property_id):
 
 @require_POST
 def modify_supply_quantity_generic(request):
-    supply_id = request.POST.get("supply_id")
-    action_type = request.POST.get("action_type")
-    amount = int(request.POST.get("amount", 0))
-
-    supply = get_object_or_404(Supply, pk=supply_id)
-
     try:
+        supply_id = request.POST.get("supply_id")
+        if not supply_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'Supply ID is required'
+            })
+
+        amount = int(request.POST.get("amount", 0))
+        supply = get_object_or_404(Supply, pk=supply_id)
+
         quantity_info = supply.quantity_info
         old_quantity = quantity_info.current_quantity
 
-        if action_type == 'add':
-            quantity_info.current_quantity += amount
-        elif action_type == 'remove':
-            if amount > quantity_info.current_quantity:
-                messages.error(request, "Cannot remove more than current quantity.")
-                return redirect('supply_list')
-            quantity_info.current_quantity -= amount
-
+        # Always add the quantity since we removed the action type selection
+        quantity_info.current_quantity += amount
         quantity_info.save(user=request.user)
 
         # Update supply's available_for_request status
@@ -1510,7 +1537,7 @@ def modify_supply_quantity_generic(request):
             field_name='quantity',
             old_value=str(old_quantity),
             new_value=str(quantity_info.current_quantity),
-            remarks=f"{action_type} {amount}"
+            remarks=f"add {amount}"
         )
 
         # Add activity log
@@ -1519,14 +1546,38 @@ def modify_supply_quantity_generic(request):
             action='quantity_update',
             model_name='Supply',
             object_repr=str(supply),
-            description=f"{action_type.title()}ed {amount} units to/from supply '{supply.supply_name}'. Changed quantity from {old_quantity} to {quantity_info.current_quantity}"
+            description=f"Added {amount} units to supply '{supply.supply_name}'. Changed quantity from {old_quantity} to {quantity_info.current_quantity}"
         )
 
-        messages.success(request, f"Quantity successfully {action_type}ed.")
-    except SupplyQuantity.DoesNotExist:
-        messages.error(request, "Supply quantity information not found.")
+        messages.success(request, f"Quantity successfully added.")
+        
+        # Check if request expects JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': 'Quantity updated successfully',
+                'new_quantity': quantity_info.current_quantity
+            })
+        return redirect('supply_list')
 
-    return redirect('supply_list')
+    except SupplyQuantity.DoesNotExist:
+        error_msg = "Supply quantity information not found."
+        messages.error(request, error_msg)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': error_msg
+            })
+        return redirect('supply_list')
+    except ValueError as e:
+        error_msg = str(e)
+        messages.error(request, error_msg)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': error_msg
+            })
+        return redirect('supply_list')
 
 class AdminPasswordChangeView(PasswordChangeView):
     template_name = 'app/password_change.html'
@@ -2107,3 +2158,377 @@ def generate_sample_inventory_report(request):
     
     wb.save(response)
     return response
+
+@login_required
+def get_supply_by_barcode(request, barcode):
+    try:
+        # Try to find the supply by the exact barcode first
+        supply = Supply.objects.get(barcode=barcode)
+    except Supply.DoesNotExist:
+        try:
+            # If not found, try to find by ID (extract ID from SUP-{id} format)
+            if barcode.startswith('SUP-'):
+                supply_id = barcode.split('-')[1]
+                supply = Supply.objects.get(id=supply_id)
+            else:
+                raise Supply.DoesNotExist
+        except (Supply.DoesNotExist, IndexError):
+            return JsonResponse({
+                'success': False,
+                'error': 'Supply not found'
+            })
+    
+    return JsonResponse({
+        'success': True,
+        'supply': {
+            'id': supply.id,
+            'name': supply.supply_name,
+            'current_quantity': supply.quantity_info.current_quantity if hasattr(supply, 'quantity_info') else 0
+        }
+    })
+
+@require_POST
+def modify_property_quantity_generic(request):
+    try:
+        property_id = request.POST.get("property_id")
+        amount = int(request.POST.get("amount", 0))
+
+        prop = get_object_or_404(Property, pk=property_id)
+        old_quantity = prop.quantity
+
+        # Always add the quantity since we removed the action type selection
+        prop.quantity += amount
+        prop.overall_quantity += amount
+        prop.save()
+
+        PropertyHistory.objects.create(
+            property=prop,
+            user=request.user,
+            action='quantity_update',
+            field_name='quantity',
+            old_value=str(old_quantity),
+            new_value=str(prop.quantity),
+            remarks=f"add {amount}"
+        )
+
+        # Add activity log
+        ActivityLog.log_activity(
+            user=request.user,
+            action='quantity_update',
+            model_name='Property',
+            object_repr=str(prop),
+            description=f"Added {amount} units to property '{prop.property_name}'. Changed quantity from {old_quantity} to {prop.quantity}"
+        )
+
+        messages.success(request, f"Quantity successfully added.")
+        
+        # Return JSON response for AJAX request
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': 'Quantity updated successfully',
+                'new_quantity': prop.quantity
+            })
+        return redirect('property_list')
+        
+    except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+        messages.error(request, f"Error modifying quantity: {str(e)}")
+        return redirect('property_list')
+
+@login_required
+def get_property_by_barcode(request, barcode):
+    try:
+        # Try to find the property by the exact barcode first
+        property = Property.objects.get(barcode=barcode)
+    except Property.DoesNotExist:
+        try:
+            # If not found, try to find by property number
+            property = Property.objects.get(property_number=barcode)
+        except Property.DoesNotExist:
+            try:
+                # If still not found, try to find by ID (extract ID from PROP-{id} format)
+                if barcode.startswith('PROP-'):
+                    property_id = barcode.split('-')[1]
+                    property = Property.objects.get(id=property_id)
+                else:
+                    raise Property.DoesNotExist
+            except (Property.DoesNotExist, IndexError):
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Property not found'
+                })
+    
+    return JsonResponse({
+        'success': True,
+        'property': {
+            'id': property.id,
+            'name': property.property_name,
+            'current_quantity': property.quantity
+        }
+    })
+
+@login_required
+def archive_supply(request, pk):
+    supply = get_object_or_404(Supply, pk=pk)
+    if request.method == 'POST':
+        # Check if supply has zero quantity
+        if hasattr(supply, 'quantity_info') and supply.quantity_info.current_quantity > 0:
+            messages.error(request, f"Cannot archive supply '{supply.supply_name}' because it still has {supply.quantity_info.current_quantity} units.")
+            return redirect('supply_list')
+        
+        supply.is_archived = True
+        supply.save(user=request.user)
+        
+        ActivityLog.log_activity(
+            user=request.user,
+            action='archive',
+            model_name='Supply',
+            object_repr=str(supply),
+            description=f"Archived supply '{supply.supply_name}'"
+        )
+        messages.success(request, 'Supply archived successfully.')
+    return redirect('supply_list')
+
+@login_required
+def unarchive_supply(request, pk):
+    supply = get_object_or_404(Supply, pk=pk)
+    if request.method == 'POST':
+        supply.is_archived = False
+        supply.save(user=request.user)
+        
+        ActivityLog.log_activity(
+            user=request.user,
+            action='unarchive',
+            model_name='Supply',
+            object_repr=str(supply),
+            description=f"Unarchived supply '{supply.supply_name}'"
+        )
+        messages.success(request, 'Supply unarchived successfully.')
+    return redirect('archived_items')
+
+@login_required
+def archive_property(request, pk):
+    property_obj = get_object_or_404(Property, pk=pk)
+    if request.method == 'POST':
+        # Check if property has zero quantity
+        if property_obj.quantity > 0:
+            messages.error(request, f"Cannot archive property '{property_obj.property_name}' because it still has {property_obj.quantity} units.")
+            return redirect('property_list')
+        
+        property_obj.is_archived = True
+        property_obj.save(user=request.user)
+        
+        ActivityLog.log_activity(
+            user=request.user,
+            action='archive',
+            model_name='Property',
+            object_repr=str(property_obj),
+            description=f"Archived property '{property_obj.property_name}'"
+        )
+        messages.success(request, 'Property archived successfully.')
+    return redirect('property_list')
+
+@login_required
+def unarchive_property(request, pk):
+    property_obj = get_object_or_404(Property, pk=pk)
+    if request.method == 'POST':
+        property_obj.is_archived = False
+        property_obj.save(user=request.user)
+        
+        ActivityLog.log_activity(
+            user=request.user,
+            action='unarchive',
+            model_name='Property',
+            object_repr=str(property_obj),
+            description=f"Unarchived property '{property_obj.property_name}'"
+        )
+        messages.success(request, 'Property unarchived successfully.')
+    return redirect('archived_items')
+
+class ArchivedItemsView(PermissionRequiredMixin, TemplateView):
+    template_name = 'app/archived_items.html'
+    permission_required = 'app.view_admin_module'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get archived supplies
+        supplies = Supply.objects.filter(is_archived=True).select_related(
+            'category', 'subcategory', 'quantity_info'
+        ).order_by('supply_name')
+        
+        # Generate barcodes for supplies
+        for supply in supplies:
+            supply.barcode = generate_barcode(f"SUP-{supply.id}")
+        
+        # Group supplies by category
+        supplies_by_category = defaultdict(list)
+        for supply in supplies:
+            category_name = supply.category.name if supply.category else 'Uncategorized'
+            supplies_by_category[category_name].append(supply)
+        
+        # Get archived properties
+        properties = Property.objects.filter(is_archived=True).select_related('category').order_by('property_name')
+        
+        # Generate barcodes for properties
+        for prop in properties:
+            barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+            prop.barcode = generate_barcode(barcode_number)
+        
+        # Group properties by category
+        properties_by_category = defaultdict(list)
+        for prop in properties:
+            category_name = prop.category.name if prop.category else 'Uncategorized'
+            properties_by_category[category_name].append(prop)
+        
+        context.update({
+            'supplies_by_category': dict(supplies_by_category),
+            'properties_by_category': dict(properties_by_category),
+        })
+        return context
+
+@login_required
+def update_supply_category(request):
+    if request.method == 'POST':
+        category_id = request.POST.get('id')
+        new_name = request.POST.get('name')
+       
+        try:
+            category = SupplyCategory.objects.get(id=category_id)
+            old_name = category.name
+            category.name = new_name
+            category.save()
+           
+            # Log the activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='update',
+                model_name='SupplyCategory',
+                object_repr=str(category),
+                description=f"Updated category name from '{old_name}' to '{new_name}'"
+            )
+           
+            # Return more data for UI update
+            return JsonResponse({
+                'success': True,
+                'category': {
+                    'id': category.id,
+                    'name': category.name,
+                    'supply_count': category.supply_set.count()
+                }
+            })
+        except SupplyCategory.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Category not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+           
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@login_required
+def delete_supply_category(request, category_id):
+    if request.method == 'POST':
+        try:
+            category = SupplyCategory.objects.get(id=category_id)
+            category_name = category.name
+            category.delete()
+           
+            # Log the activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='delete',
+                model_name='SupplyCategory',
+                object_repr=category_name,
+                description=f"Deleted supply category '{category_name}'"
+            )
+           
+            messages.success(request, 'Category deleted successfully.')
+        except SupplyCategory.DoesNotExist:
+            messages.error(request, 'Category not found.')
+        except Exception as e:
+            messages.error(request, f'Error deleting category: {str(e)}')
+           
+    return redirect('supply_list')
+
+
+@login_required
+def update_supply_subcategory(request):
+    if request.method == 'POST':
+        subcategory_id = request.POST.get('id')
+        new_name = request.POST.get('name')
+       
+        try:
+            subcategory = SupplySubcategory.objects.get(id=subcategory_id)
+            old_name = subcategory.name
+            subcategory.name = new_name
+            subcategory.save()
+           
+            # Log the activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='update',
+                model_name='SupplySubcategory',
+                object_repr=str(subcategory),
+                description=f"Updated subcategory name from '{old_name}' to '{new_name}'"
+            )
+           
+            # Return more data for UI update
+            return JsonResponse({
+                'success': True,
+                'subcategory': {
+                    'id': subcategory.id,
+                    'name': subcategory.name,
+                    'supply_count': subcategory.supply_set.count()
+                }
+            })
+        except SupplySubcategory.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Subcategory not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+           
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@login_required
+def delete_supply_subcategory(request, subcategory_id):
+    if request.method == 'POST':
+        try:
+            print(f"Attempting to delete subcategory {subcategory_id}")
+            subcategory = SupplySubcategory.objects.get(id=subcategory_id)
+            subcategory_name = subcategory.name
+           
+            # Check if there are any supplies using this subcategory
+            supply_count = subcategory.supply_set.count()
+            print(f"Subcategory {subcategory_name} has {supply_count} supplies")
+           
+            if subcategory.supply_set.exists():
+                print(f"Cannot delete subcategory {subcategory_name} - has supplies assigned")
+                messages.error(request, 'Cannot delete subcategory that has supplies assigned to it.')
+                return redirect('supply_list')
+               
+            subcategory.delete()
+            print(f"Successfully deleted subcategory {subcategory_name}")
+           
+            # Log the activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='delete',
+                model_name='SupplySubcategory',
+                object_repr=subcategory_name,
+                description=f"Deleted supply subcategory '{subcategory_name}'"
+            )
+           
+            messages.success(request, 'Subcategory deleted successfully.')
+        except SupplySubcategory.DoesNotExist:
+            print(f"Subcategory {subcategory_id} not found")
+            messages.error(request, 'Subcategory not found.')
+        except Exception as e:
+            print(f"Error deleting subcategory: {str(e)}")
+            messages.error(request, f'Error deleting subcategory: {str(e)}')
+           
+    return redirect('supply_list')

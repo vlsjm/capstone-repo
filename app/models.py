@@ -149,6 +149,7 @@ class Supply(models.Model):
     date_received = models.DateField()
     expiration_date = models.DateField(null=True, blank=True)
     last_updated = models.DateTimeField(auto_now=True)
+    is_archived = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         # Generate barcode if not set
@@ -320,6 +321,7 @@ class Property(models.Model):
     location = models.CharField(max_length=255, null=True, blank=True)
     condition = models.CharField(max_length=100, choices=CONDITION_CHOICES, default='In good condition')
     availability = models.CharField(max_length=20, choices=AVAILABILITY_CHOICES, default='available')
+    is_archived = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.property_name} - {self.barcode if self.barcode else 'No Barcode'}"

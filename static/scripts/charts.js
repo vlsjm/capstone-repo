@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('Charts.js loaded');
 
     function safeParseJSON(elementId, fallback = []) {
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error(`Canvas ${canvasId} not found`);
             return null;
         }
-        
+
         try {
             return new Chart(canvas, config);
         } catch (error) {
@@ -356,26 +356,26 @@ document.addEventListener('DOMContentLoaded', function() {
 // Additional debugging function
 function debugCharts() {
     console.log('=== Chart Debug Info ===');
-    
+
     // Check if Chart.js is loaded
     console.log('Chart.js loaded:', typeof Chart !== 'undefined');
-    
+
     // Check all canvas elements
     const canvases = [
         'supplyStatusChart',
-        'propertyConditionChart', 
+        'propertyConditionChart',
         'requestStatusChart',
         'damageStatusChart',
         'borrowTrendsChart',
         'propertyCategoriesChart',
         'userActivityChart'
     ];
-    
+
     canvases.forEach(id => {
         const canvas = document.getElementById(id);
         console.log(`${id}:`, canvas ? 'Found' : 'Missing');
     });
-    
+
     // Check data scripts
     const dataScripts = [
         'supplyData',
@@ -386,7 +386,7 @@ function debugCharts() {
         'propertyCategoriesData',
         'userActivityData'
     ];
-    
+
     dataScripts.forEach(id => {
         const script = document.getElementById(id);
         console.log(`${id}:`, script ? 'Found' : 'Missing');

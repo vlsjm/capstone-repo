@@ -106,8 +106,8 @@
   margin: 5% auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 60%;
-  max-width: 700px;
+  width: 80%;  /* Increased from 60% to 80% to give more space */
+  max-width: 1000px;  /* Increased from 700px to 1000px */
   border-radius: 8px;
   position: relative;
   max-height: 80vh;
@@ -118,31 +118,44 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
+  table-layout: fixed;
 }
 
 .history-table th {
   background-color: #152d64;
   color: white;
-  padding: 12px;
+  padding: 8px;
   text-align: left;
+  font-size: 13px;
 }
 
 .history-table td {
-  padding: 10px;
+  padding: 8px;
   border-bottom: 1px solid #ddd;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 0;
+  white-space: pre-wrap;
 }
 
-.history-table tr:hover {
-  background-color: #f5f5f5;
-}
+/* Column widths */
+.history-table th:nth-child(1), .history-table td:nth-child(1) { width: 12%; }  /* Date */
+.history-table th:nth-child(2), .history-table td:nth-child(2) { width: 8%; }   /* Action */
+.history-table th:nth-child(3), .history-table td:nth-child(3) { width: 10%; }  /* Field */
+.history-table th:nth-child(4), .history-table td:nth-child(4) { width: 30%; }  /* Previous Value */
+.history-table th:nth-child(5), .history-table td:nth-child(5) { width: 30%; }  /* New Value */
+.history-table th:nth-child(6), .history-table td:nth-child(6) { width: 10%; }  /* User */
 
-/* Make only the change history section scrollable */
+/* Make the history content section more compact */
 #historyContent {
-  max-height: 300px;
+  max-height: 600px;
   overflow-y: auto;
   border: 1px solid #ddd;
   border-radius: 4px;
   margin-top: 10px;
+  font-family: monospace;
 }
 
 /* Keep the header sticky when scrolling through history */
@@ -171,473 +184,481 @@
 #historyContent::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
-      .close {
-        color: #152d64;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-      }
-
-      .close:hover {
-        color: #1e3d8a;
-      }
-
-      /* Update search container styles */
-      .top-controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 20px 0;
-        gap: 20px;
-      }
-
-      .button-group {
-        display: flex;
-        gap: 10px;
-      }
-
-      .search-container {
-        position: relative;
-        flex-grow: 1;
-        max-width: 400px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
-        overflow: hidden;
-      }
-
-      .search-container:hover {
-        background: #fff;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
-      }
-
-      .search-container:focus-within {
-        background: #fff;
-        box-shadow: 0 4px 12px rgba(21, 45, 100, 0.15);
-        border-color: #152d64;
-      }
-
-      .search-icon {
-        position: absolute;
-        left: 16px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #152d64;
-        font-size: 15px;
-        transition: color 0.3s ease;
-        z-index: 1;
-      }
-
-      .search-container:focus-within .search-icon {
-        color: #1e3d8a;
-      }
-
-      .search-input {
-        width: 100%;
-        padding: 12px 16px 12px 45px;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        background: transparent;
-        transition: all 0.3s ease;
-      }
-
-      .search-input:focus {
-        outline: none;
-      }
-
-      .search-input::placeholder {
-        color: #6c757d;
-        opacity: 0.8;
-        font-weight: 400;
-      }
-
-      .search-container:focus-within .search-input::placeholder {
-        opacity: 0.6;
-      }
-
-      /* Hide rows that don't match search */
-      tr.hidden {
-        display: none;
-      }
-
-      /* Print Barcode Button */
-      .print-barcodes-btn {
-          background-color: #152d64;
-          color: white;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 4px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 14px;
-          margin: 10px 0;
-          transition: background-color 0.3s;
-      }
-
-      .print-barcodes-btn:hover {
-          background-color: #1e3d8a;
-      }
-
-      @media print {
-          body * {
-              visibility: hidden;
-          }
-          .barcode-container, .barcode-container * {
-              visibility: visible;
-          }
-          .barcode-container {
-              position: relative;
-              left: 0;
-              top: 0;
-          }
-          .print-grid {
-              display: grid;
-              grid-template-columns: repeat(3, 1fr);
-              gap: 20px;
-              padding: 20px;
-          }
-      }
-
-      .print-btn {
-          width: 35px;
-          height: 35px;
-          border-radius: 50%;
-          border: none;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          background-color: #28a745;
-          color: white;
-          text-decoration: none;
-      }
-
-      .print-btn:hover {
-          background-color: #218838;
-          transform: translateY(-2px);
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      }
-
-      .print-btn i {
-          font-size: 1.2em;
-      }
-
-      /* Add these new styles */
-      .filter-container {
-        display: flex;
-        gap: 10px;
-        margin-right: 10px;
-      }
-
-      .filter-select {
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        background-color: white;
-        min-width: 180px;
-        cursor: pointer;
-        font-size: 14px;
-      }
-
-      .filter-select:focus {
-        outline: none;
-        border-color: #152d64;
-        box-shadow: 0 0 5px rgba(21, 45, 100, 0.2);
-      }
-
-      .filter-select option {
-        padding: 8px;
-      }
-
-      .table-container::-webkit-scrollbar {
-        width: 8px;
-      }
-
-      .table-container::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 4px;
-      }
-
-      .table-container::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 4px;
-      }
-
-      .table-container::-webkit-scrollbar-thumb:hover {
-        background: #a8a8a8;
-      }
-
-      .submit-btn {
-        background-color: #152d64;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-      }
-
-      .submit-btn:hover {
-        background-color: #1e3d8a;
-      }
-
-      .cancel-btn {
-        background-color: #878c99;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        height: 50px;
-        margin-top: 20px;
-      }
-
-
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-      }
-
-      .modal-content {
-        background-color: #fff;
-        margin: 5% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 50%;
-        max-width: 600px;
-        border-radius: 8px;
-        position: relative;
-      }
-
-      .close {
-        position: absolute;
-        right: 20px;
-        top: 15px;
-        font-size: 24px;
-        cursor: pointer;
-        color: #666;
-      }
-
-      .close:hover {
-        color: #333;
-      }
-
-      .modal-content {
-        animation: slideIn 0.3s ease-out;
-      }
-
-      @keyframes slideIn {
-        from {
-          transform: translateY(-20px);
-          opacity: 0;
-        }
-        to {
-          transform: translateY(0);
-          opacity: 1;
-        }
-      }
-
-      .table-container::-webkit-scrollbar {
-        width: 8px;
-      }
-
-      .table-container::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 4px;
-      }
-
-      .table-container::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 4px;
-      }
-
-      .table-container::-webkit-scrollbar-thumb:hover {
-        background: #a8a8a8;
-      }
-
-      .category-edit-btn:hover {
-        background-color: #1e3d8a !important;
-      }
-
-      .del-btn:hover {
-        background-color: #c82333 !important;
-      }
-
-      .submit-btn:hover {
-        background-color: #1e3d8a !important;
-      }
-
-
-
-      tr:hover {
-        background-color: #f8f9fa;
-      }
-
-      input:focus {
-        outline: none;
-        border-color: #152d64 !important;
-        box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.1);
-      }
-
-      .badge {
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 12px;
-      }
-
-      .badge-active {
-        background-color: #e3f2fd;
-        color: #1565c0;
-      }
-
-      .badge-inactive {
-        background-color: #f5f5f5;
-        color: #666;
-      }
-
-      /* Checkbox group styles */
-      .checkbox-group {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin: 15px 0;
-        padding: 15px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-      }
-
-      .checkbox-group label {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        cursor: pointer;
-        font-weight: normal;
-      }
-
-      .checkbox-group input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        cursor: pointer;
-      }
-
-      /* Export button styles */
-      #openExportModalBtn {
-        background-color: #28a745;
-        border-color: #28a745;
-      }
-
-      #openExportModalBtn:hover {
-        background-color: #218838;
-        border-color: #218838;
-      }
-
-      .export-buttons {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-      }
-
-      .template-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        background-color: #6c757d;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        text-decoration: none;
-        font-size: 14px;
-        transition: all 0.3s ease;
-      }
-
-      .template-btn:hover {
-        background-color: #5a6268;
-        text-decoration: none;
-        color: white;
-      }
-
-      /* Action button hover effects */
-      .action-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .action-btn.primary-btn:hover {
-        background-color: #1e3d8a !important;
-      }
-
-      .action-btn.secondary-btn:hover {
-        background-color: #5a6779 !important;
-      }
-
-      .action-btn.success-btn:hover {
-        background-color: #218838 !important;
-      }
-
-      .action-btn.del-btn:hover {
-        background-color: #c82333 !important;
-      }
-
-      /* Button group layout */
-      .button-group {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-
-      /* Action buttons base styles */
-      .action-btn {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        border: none;
-        border-radius: 4px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-
-      /* Table action buttons */
-      .action-btn.edit-btn,
-      .action-btn.history-btn,
-      .action-btn.print-btn,
-      .action-btn.del-btn {
-        width: 32px;
-        height: 32px;
-        justify-content: center;
-      }
-
-      .action-btn.edit-btn { background-color: #152d64; }
-      .action-btn.history-btn { background-color: #4a5568; }
-      .action-btn.print-btn { background-color: #28a745; }
-      .action-btn.del-btn { background-color: #dc3545; }
-
-      /* Common styles for all action buttons */
-      .action-btn {
-        color: white;
-        font-weight: 500;
-      }
-
-      /* Remove form margins in button groups */
-      .button-group form {
-        margin: 0;
-      }
+
+/* Add hover effect for better readability */
+.history-table tr:hover td {
+  background-color: #f5f5f5;
+}
+
+/* Add text ellipsis for very long content */
+.history-table td.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+/* Style for expanded content */
+.history-table td.expanded {
+  white-space: pre-wrap;
+  cursor: pointer;
+}
+
+.close {
+  color: #152d64;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #1e3d8a;
+}
+
+/* Update search container styles */
+.top-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+  gap: 20px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.search-container {
+  position: relative;
+  flex-grow: 1;
+  max-width: 400px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  overflow: hidden;
+}
+
+.search-container:hover {
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+.search-container:focus-within {
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(21, 45, 100, 0.15);
+  border-color: #152d64;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #152d64;
+  font-size: 15px;
+  transition: color 0.3s ease;
+  z-index: 1;
+}
+
+.search-container:focus-within .search-icon {
+  color: #1e3d8a;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px 12px 45px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: #6c757d;
+  opacity: 0.8;
+  font-weight: 400;
+}
+
+.search-container:focus-within .search-input::placeholder {
+  opacity: 0.6;
+}
+
+/* Hide rows that don't match search */
+tr.hidden {
+  display: none;
+}
+
+/* Print Barcode Button */
+.print-barcodes-btn {
+  background-color: #152d64;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  margin: 10px 0;
+  transition: background-color 0.3s;
+}
+
+.print-barcodes-btn:hover {
+  background-color: #1e3d8a;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .barcode-container, .barcode-container * {
+    visibility: visible;
+  }
+  .barcode-container {
+    position: relative;
+    left: 0;
+    top: 0;
+  }
+  .print-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
+  }
+}
+
+.print-btn {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #28a745;
+  color: white;
+  text-decoration: none;
+}
+
+.print-btn:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.print-btn i {
+  font-size: 1.2em;
+}
+
+/* Add these new styles */
+.filter-container {
+  display: flex;
+  gap: 10px;
+  margin-right: 10px;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  min-width: 180px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 5px rgba(21, 45, 100, 0.2);
+}
+
+.filter-select option {
+  padding: 8px;
+}
+
+.table-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.submit-btn {
+  background-color: #152d64;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+  background-color: #1e3d8a;
+}
+
+.cancel-btn {
+  background-color: #878c99;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  height: 50px;
+  margin-top: 20px;
+}
+
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 50%;
+  max-width: 600px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  right: 20px;
+  top: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.close:hover {
+  color: #333;
+}
+
+.modal-content {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.table-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.category-edit-btn:hover {
+  background-color: #1e3d8a !important;
+}
+
+.submit-btn:hover {
+  background-color: #1e3d8a !important;
+}
+
+tr:hover {
+  background-color: #f8f9fa;
+}
+
+input:focus {
+  outline: none;
+  border-color: #152d64 !important;
+  box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.1);
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.badge-active {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge-inactive {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+/* Checkbox group styles */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 15px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Export button styles */
+#openExportModalBtn {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+#openExportModalBtn:hover {
+  background-color: #218838;
+  border-color: #218838;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.template-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.template-btn:hover {
+  background-color: #5a6268;
+  text-decoration: none;
+  color: white;
+}
+
+/* Action button hover effects */
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn.primary-btn:hover {
+  background-color: #1e3d8a !important;
+}
+
+.action-btn.secondary-btn:hover {
+  background-color: #5a6779 !important;
+}
+
+.action-btn.success-btn:hover {
+  background-color: #218838 !important;
+}
+
+/* Button group layout */
+.button-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Action buttons base styles */
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* Table action buttons */
+.action-btn.edit-btn,
+.action-btn.history-btn,
+.action-btn.print-btn {
+  width: 32px;
+  height: 32px;
+  justify-content: center;
+}
+
+.action-btn.edit-btn { background-color: #152d64; }
+.action-btn.history-btn { background-color: #4a5568; }
+.action-btn.print-btn { background-color: #28a745; }
+
+/* Common styles for all action buttons */
+.action-btn {
+  color: white;
+  font-weight: 500;
+}
+
+/* Remove form margins in button groups */
+.button-group form {
+  margin: 0;
+}
     </style>
   </head>
   <body>
@@ -696,6 +717,9 @@
             </button>
             <button id="openExportModalBtn" class="action-btn success-btn" style="display: flex; align-items: center; gap: 6px; background-color: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-file-excel"></i> Export to Excel
+            </button>
+            <button onclick="printBarcodes()" class="action-btn primary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+              <i class="fas fa-print"></i> Print All Barcodes
             </button>
           </div>
         </div>
@@ -760,16 +784,15 @@
                       <button class="action-btn edit-btn" 
                         data-id="{{ property.id }}"
                         data-property-number="{{ property.property_number }}"
-                        data-name="{{ property.property_name }}"
-                        data-description="{{ property.description }}"
-                        data-barcode="{{ property.barcode }}"
-                        data-unit="{{ property.unit_of_measure }}"
-                        data-value="{{ property.unit_value }}"
+                        data-property-name="{{ property.property_name }}"
+                        data-description="{{ property.description|default:'' }}"
+                        data-unit-measure="{{ property.unit_of_measure|default:'' }}"
+                        data-unit-value="{{ property.unit_value|default:0 }}"
                         data-overall-quantity="{{ property.overall_quantity }}"
                         data-quantity="{{ property.quantity }}"
-                        data-location="{{ property.location }}"
+                        data-location="{{ property.location|default:'' }}"
                         data-condition="{{ property.condition }}"
-                        data-category="{{ property.category.id }}"
+                        data-category="{{ property.category.id|default:'' }}"
                         data-availability="{{ property.availability }}"
                         title="Edit"
                         style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #152d64; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
@@ -792,13 +815,14 @@
                         <i class="fas fa-print"></i>
                       </button>
 
-                      <form method="POST" action="{% url 'delete_property' property.id %}" style="margin: 0;">
+                      <form method="post" action="{% url 'archive_property' property.id %}" style="display: inline;">
                         {% csrf_token %}
-                        <button type="submit" class="action-btn del-btn" 
-                          onclick="return confirm('Are you sure you want to delete this property?');" 
-                          title="Delete"
-                          style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
-                          <i class="fas fa-trash-alt"></i>
+                        <button type="submit" class="action-btn" 
+                          onclick="return confirm('Are you sure you want to archive this property? This will only be possible if the quantity is zero.');"
+                          title="Archive"
+                          {% if property.quantity > 0 %}disabled{% endif %}
+                          style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #36b9cc; color: white; border: none; border-radius: 4px; cursor: {% if property.quantity > 0 %}not-allowed{% else %}pointer{% endif %}; transition: all 0.2s; {% if property.quantity > 0 %}opacity: 0.6{% endif %}">
+                          <i class="fas fa-archive"></i>
                         </button>
                       </form>
                     </div>
@@ -956,55 +980,67 @@
   <div class="modal-content">
     <span class="close" id="closeEditModalBtn">&times;</span>
     <h3>Edit Property</h3>
-    <form method="POST" action="{% url 'edit_property' %}" id="editPropertyForm">
+    <form method="POST" action="{% url 'edit_property' %}">
       {% csrf_token %}
       <input type="hidden" name="id" id="edit_id" />
+      <input type="hidden" name="property_number" id="edit_property_number" />
+      <input type="hidden" name="overall_quantity" id="edit_overall_quantity" />
+      <input type="hidden" name="quantity" id="edit_quantity" />
+      
+      <div class="form-group">
+        <label>Property Name</label>
+        <input type="text" name="property_name" id="edit_name" required />
+      </div>
 
-      <label>Property Number</label>
-      <input type="text" name="property_number" id="edit_property_number" class="type-box" />
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description" id="edit_description" rows="3"></textarea>
+      </div>
 
-      <label>Property Name</label>
-      <input type="text" name="property_name" id="edit_property_name" class="type-box" />
+      <div class="form-group">
+        <label>Unit of Measure</label>
+        <input type="text" name="unit_of_measure" id="edit_unit_of_measure" required />
+      </div>
 
-      <label>Description</label>
-      <input type="text" name="description" id="edit_description" />
+      <div class="form-group">
+        <label>Unit Value</label>
+        <input type="number" name="unit_value" id="edit_unit_value" step="0.01" min="0" required />
+      </div>
 
-      <label>Unit of Measure</label>
-      <input type="text" name="unit_of_measure" id="edit_unit_of_measure" />
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" name="location" id="edit_location" required />
+      </div>
 
-      <label>Unit Value</label>
-      <input type="number" step="any" name="unit_value" id="edit_unit_value" />
+      <div class="form-group">
+        <label>Condition</label>
+        <select name="condition" id="edit_condition" class="form-select" required>
+          <option value="In good condition">In good condition</option>
+          <option value="Needing repair">Needing repair</option>
+          <option value="Unserviceable">Unserviceable</option>
+          <option value="Obsolete">Obsolete</option>
+          <option value="No longer needed">No longer needed</option>
+          <option value="Not used since purchased">Not used since purchased</option>
+        </select>
+      </div>
 
-      <label>Overall Quantity</label>
-      <input type="number" name="overall_quantity" id="edit_overall_quantity" min="0" />
+      <div class="form-group">
+        <label>Category</label>
+        <select name="category" id="edit_category" class="form-select" required>
+          <option value="">Select a category</option>
+          {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-      <label>Location</label>
-      <input type="text" name="location" id="edit_location" />
-
-      <label>Condition</label>
-      <select name="condition" id="edit_condition">
-        <option value="">Select Condition</option>
-        <option value="In good condition">In good condition</option>
-        <option value="Needing repair">Needing repair</option>
-        <option value="Unserviceable">Unserviceable</option>
-        <option value="Obsolete">Obsolete</option>
-        <option value="No longer needed">No longer needed</option>
-        <option value="Not used since purchased">Not used since purchased</option>
-      </select>
-
-      <label>Category</label>
-      <select id="edit_category" name="category" class="select2-edit" required>
-        <option value="">Select Category</option>
-        {% for category in categories %}
-        <option value="{{ category.id }}">{{ category.name }}</option>
-        {% endfor %}
-      </select>
-
-      <label>Availability</label>
-      <select name="availability" id="edit_availability">
-        <option value="available">Available</option>
-        <option value="not_available">Not Available</option>
-      </select>
+      <div class="form-group">
+        <label>Availability</label>
+        <select name="availability" id="edit_availability" class="form-select" required>
+          <option value="available">Available</option>
+          <option value="not_available">Not Available</option>
+        </select>
+      </div>
 
       <button type="submit" class="submit-btn">Update</button>
     </form>
@@ -1017,33 +1053,31 @@
     <span class="close" id="closeModifyQuantityModalBtn">&times;</span>
     <h3>Modify Property Quantity</h3>
 
-    <form method="post" action="{% url 'modify_property_quantity_generic' %}">
+    <form method="post" action="{% url 'modify_property_quantity_generic' %}" id="modifyQuantityForm">
       {% csrf_token %}
 
-      <!-- Action Selector -->
-      <label for="action_type">Action</label>
-      <select name="action_type" id="action_type" required class="type-box">
-        <option value="">Select Action</option>
-        <option value="add">Add</option>
-        <option value="remove">Remove</option>
-      </select>
+      <!-- Barcode Scanner Input -->
+      <div class="form-group">
+        <label for="barcode_input">Scan Barcode</label>
+        <input type="text" id="barcode_input" class="form-control" placeholder="Scan or enter barcode..." autofocus>
+      </div>
 
-      <!-- Property Dropdown (Searchable) -->
-      <label for="property_id">Property</label>
-      <select name="property_id" id="property_id" class="type-box" required>
-      <option value="">Select Property</option>
-      {% for property in property_list %}
-      <!-- prettier ignore -->
-      <option value="{{ property.pk }}">{{ property.property_number }} - {{ property.property_name }} (Current: {{ property.quantity }}/Overall: {{ property.overall_quantity }})</option>
-      <!-- prettier ignore -->
-      {% endfor %}
-      </select>
+      <!-- Property Info Display -->
+      <div id="property_info" style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; display: none;">
+        <p><strong>Property Name: </strong><span id="scanned_property_name"></span></p>
+        <p><strong>Current Quantity: </strong><span id="scanned_property_quantity"></span></p>
+      </div>
+
+      <!-- Hidden Property ID -->
+      <input type="hidden" name="property_id" id="property_id" required>
 
       <!-- Quantity -->
-      <label for="amount">Amount</label>
-      <input type="number" name="amount" id="amount" min="1" required class="type-box" />
+      <div class="form-group">
+        <label for="amount">Quantity to Add</label>
+        <input type="number" name="amount" id="amount" min="1" required class="form-control">
+      </div>
 
-      <button type="submit" class="submit-btn">Submit</button>
+      <button type="submit" class="submit-btn" id="modifyQuantitySubmitBtn" disabled>Add Quantity</button>
     </form>
   </div>
 </div>
@@ -1213,100 +1247,64 @@
         const editBtns = document.querySelectorAll('.edit-btn');
         const editModal = document.getElementById('editPropertyModal');
         const closeEditModalBtn = document.getElementById('closeEditModalBtn');
-        const editPropertyForm = document.getElementById('editPropertyForm');
-        const conditionSelect = document.getElementById('edit_condition');
-        const availabilitySelect = document.getElementById('edit_availability');
-
-        function updateAvailability() {
-            const unavailableConditions = [
-                'Needing repair',
-                'Unserviceable',
-                'No longer needed',
-                'Obsolete'
-            ];
-            
-            const condition = conditionSelect.value;
-            console.log('Current condition:', condition);
-            
-            if (unavailableConditions.includes(condition)) {
-                console.log('Setting to not available');
-                availabilitySelect.value = 'not_available';
-                availabilitySelect.disabled = true;
-            } else {
-                console.log('Enabling availability selection');
-                availabilitySelect.disabled = false;
-            }
-        }
 
         editBtns.forEach(btn => {
             btn.addEventListener('click', function() {
-                // Get data from button attributes
+                // Set hidden fields
                 document.getElementById('edit_id').value = this.dataset.id;
                 document.getElementById('edit_property_number').value = this.dataset.propertyNumber;
-                document.getElementById('edit_property_name').value = this.dataset.name;
-                document.getElementById('edit_description').value = this.dataset.description;
-                document.getElementById('edit_barcode').value = this.dataset.barcode;
-                document.getElementById('edit_unit_of_measure').value = this.dataset.unit;
-                document.getElementById('edit_unit_value').value = this.dataset.value;
                 document.getElementById('edit_overall_quantity').value = this.dataset.overallQuantity;
+                document.getElementById('edit_quantity').value = this.dataset.quantity;
+                
+                // Set visible fields
+                document.getElementById('edit_name').value = this.dataset.propertyName;
+                document.getElementById('edit_description').value = this.dataset.description;
+                document.getElementById('edit_unit_of_measure').value = this.dataset.unitMeasure;
+                document.getElementById('edit_unit_value').value = this.dataset.unitValue;
                 document.getElementById('edit_location').value = this.dataset.location;
                 document.getElementById('edit_condition').value = this.dataset.condition;
                 document.getElementById('edit_category').value = this.dataset.category;
                 document.getElementById('edit_availability').value = this.dataset.availability;
 
+                // Handle condition-based availability
+                const unavailableConditions = ['Needing repair', 'Unserviceable', 'No longer needed', 'Obsolete'];
+                const availabilitySelect = document.getElementById('edit_availability');
+                
+                if (unavailableConditions.includes(document.getElementById('edit_condition').value)) {
+                    availabilitySelect.value = 'not_available';
+                    availabilitySelect.disabled = true;
+                } else {
+                    availabilitySelect.disabled = false;
+                }
+
                 // Show the modal
                 editModal.style.display = 'block';
-
-                if ($('#edit_category').hasClass("select2-hidden-accessible")) {
-                $('#edit_category').select2('destroy');
-                }
-                $('#edit_category').select2({
-                width: '100%',
-                placeholder: "Select a category",
-                allowClear: true,
-                dropdownParent: $('#editPropertyModal')
-    });
-                
-                // Update availability based on condition
-                setTimeout(updateAvailability, 100);
             });
         });
 
-        // Close modal when clicking the close button
-        if (closeEditModalBtn) {
-            closeEditModalBtn.addEventListener('click', function() {
-                editModal.style.display = 'none';
-            });
-        }
-
-        // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
-            if (event.target == editModal) {
-                editModal.style.display = 'none';
+        // Handle condition change
+        document.getElementById('edit_condition').addEventListener('change', function() {
+            const unavailableConditions = ['Needing repair', 'Unserviceable', 'No longer needed', 'Obsolete'];
+            const availabilitySelect = document.getElementById('edit_availability');
+            
+            if (unavailableConditions.includes(this.value)) {
+                availabilitySelect.value = 'not_available';
+                availabilitySelect.disabled = true;
+            } else {
+                availabilitySelect.disabled = false;
             }
         });
 
-        // Handle condition changes
-        if (conditionSelect) {
-            conditionSelect.addEventListener('change', updateAvailability);
+        // Close edit modal when clicking the close button
+        closeEditModalBtn.onclick = function() {
+            editModal.style.display = 'none';
         }
 
-        // Handle form submission
-        if (editPropertyForm) {
-            editPropertyForm.addEventListener('submit', function(e) {
-                const condition = conditionSelect.value;
-                const unavailableConditions = [
-                    'Needing repair',
-                    'Unserviceable',
-                    'No longer needed',
-                    'Obsolete'
-                ];
-                
-                if (unavailableConditions.includes(condition)) {
-                    availabilitySelect.value = 'not_available';
-                    availabilitySelect.disabled = false; // Enable before submit to ensure value is sent
-                }
-            });
+        // Close edit modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target == editModal) {
+                editModal.style.display = 'none';
+            }
         }
 
         // History Modal functionality
@@ -1315,383 +1313,90 @@
         const closeHistoryModalBtn = document.getElementById('closeHistoryModalBtn');
 
         if (!historyModal || !historyBtns.length || !closeHistoryModalBtn) {
-          console.error('Missing required elements:', {
-            historyModal: !!historyModal,
-            historyBtns: historyBtns.length,
-            closeHistoryModalBtn: !!closeHistoryModalBtn
-          });
-          return;
+            console.error('Missing required elements:', {
+                historyModal: !!historyModal,
+                historyBtns: historyBtns.length,
+                closeHistoryModalBtn: !!closeHistoryModalBtn
+            });
+            return;
         }
 
         historyBtns.forEach(btn => {
-          btn.addEventListener('click', function() {
-            const propertyId = this.dataset.id;
-            historyModal.style.display = 'block';
-            
-            // Clear existing content
-            const historyTableBody = document.getElementById('historyTableBody');
-            
-            historyTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
-            
-            // Fetch history data
-            fetch(`/get_property_history/${propertyId}/`)
-              .then(response => response.json())
-              .then(data => {
-                // Populate history table
-                historyTableBody.innerHTML = '';
-                if (data.history.length === 0) {
-                  historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No changes have been made to this property yet.</td></tr>';
-                } else {
-                  data.history.forEach(entry => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                      <td>${entry.date}</td>
-                      <td>${entry.action}</td>
-                      <td>${entry.field_name}</td>
-                      <td>${entry.old_value}</td>
-                      <td>${entry.new_value}</td>
-                      <td>${entry.user}</td>
-                    `;
-                    historyTableBody.appendChild(row);
-                  });
-                }
-              })
-              .catch(error => {
-                console.error('Error fetching history:', error);
-                historyTableBody.innerHTML = '<tr><td colspan="6">Error loading history data</td></tr>';
-              });
-          });
-        });
-
-        closeHistoryModalBtn.addEventListener('click', function() {
-          historyModal.style.display = 'none';
-        });
-
-        window.addEventListener('click', function(event) {
-          if (event.target == historyModal) {
-            historyModal.style.display = 'none';
-          }
-        });
-
-        // Get filter elements
-        const availabilityFilter = document.getElementById('availabilityFilter');
-        const conditionFilter = document.getElementById('conditionFilter');
-        const searchInput = document.getElementById('searchInput');
-        const tables = document.getElementsByClassName('searchable-table');
-
-        // Combined filter function
-        function filterProperties() {
-          const searchTerm = searchInput.value.toLowerCase();
-          const availabilityValue = availabilityFilter.value;
-          const conditionValue = conditionFilter.value;
-
-          for (let table of tables) {
-            const rows = table.getElementsByTagName('tr');
-            let hasVisibleRows = false;
-
-            // Start from 1 to skip header row
-            for (let i = 1; i < rows.length; i++) {
-              const row = rows[i];
-              const cells = row.getElementsByTagName('td');
-              if (cells.length === 0) continue; // Skip empty rows
-              
-              // Get availability and condition cells
-              const availabilityCell = cells[11]; // Availability column
-              const conditionCell = cells[10]; // Condition column
-              
-              let matchesSearch = false;
-              let matchesAvailability = !availabilityValue; // true if no filter selected
-              let matchesCondition = !conditionValue; // true if no filter selected
-
-              // Check search term
-              for (let cell of cells) {
-                if (cell.textContent.toLowerCase().includes(searchTerm)) {
-                  matchesSearch = true;
-                  break;
-                }
-              }
-
-              // Check availability
-              if (availabilityValue) {
-                const availabilityText = availabilityCell.textContent.trim().toLowerCase();
-                if (availabilityValue === 'available') {
-                  matchesAvailability = availabilityText.includes('available') && !availabilityText.includes('not available');
-                } else {
-                  matchesAvailability = availabilityText.includes('not available');
-                }
-              }
-
-              // Check condition
-              if (conditionValue) {
-                const conditionText = conditionCell.textContent.trim();
-                matchesCondition = conditionText === conditionValue;
-              }
-
-              // Show/hide row based on all filters
-              const shouldShow = matchesSearch && matchesAvailability && matchesCondition;
-              row.classList.toggle('hidden', !shouldShow);
-              
-              if (shouldShow) {
-                hasVisibleRows = true;
-              }
-            }
-
-            // Show/hide category headers based on whether any rows are visible
-            const categoryHeader = table.previousElementSibling;
-            if (!hasVisibleRows) {
-              categoryHeader.style.display = 'none';
-              table.style.display = 'none';
-            } else {
-              categoryHeader.style.display = 'block';
-              table.style.display = 'table';
-            }
-          }
-        }
-
-        // Add event listeners for filters
-        availabilityFilter.addEventListener('change', filterProperties);
-        conditionFilter.addEventListener('change', filterProperties);
-        searchInput.addEventListener('keyup', filterProperties);
-
-        // Initialize filters
-        filterProperties();
-      });
-    </script>
-
-    <script>
-      function printBarcodes() {
-          // Create a new window for printing
-          let printWindow = window.open('', '_blank');
-          
-          // Get all barcodes
-          let barcodes = document.querySelectorAll('.barcode-container');
-          
-          // Create print content
-          let content = `
-              <html>
-              <head>
-                  <title>Print Barcodes</title>
-                  <link rel="stylesheet" href="{% static 'css/barcode.css' %}">
-                  <style>
-                      body { margin: 0; padding: 20px; }
-                      .print-grid {
-                          display: grid;
-                          grid-template-columns: repeat(3, 1fr);
-                          gap: 20px;
-                          padding: 20px;
-                      }
-                      .barcode-container {
-                          background: white;
-                          padding: 15px;
-                          border: 1px solid #ddd;
-                      }
-                  </style>
-              </head>
-              <body>
-                  <div class="print-grid">
-          `;
-          
-          // Add each barcode to the content
-          barcodes.forEach(barcode => {
-              content += barcode.outerHTML;
-          });
-          
-          content += `
-                  </div>
-              </body>
-              </html>
-          `;
-          
-          // Write content to new window and print
-          printWindow.document.write(content);
-          printWindow.document.close();
-          printWindow.onload = function() {
-              printWindow.print();
-              printWindow.onafterprint = function() {
-                  printWindow.close();
-              };
-          };
-      }
-    </script>
-
-    <script>
-      function printSingleBarcode(button) {
-          // Create a new window for printing
-          let printWindow = window.open('', '_blank');
-          
-          // Get the barcode data and name from the button's data attributes
-          let barcode = button.getAttribute('data-barcode');
-          let name = button.getAttribute('data-name');
-          
-          // Create print content
-          let content = `
-              <html>
-              <head>
-                  <title>Print Barcode - ${name}</title>
-                  <link rel="stylesheet" href="{% static 'css/barcode.css' %}">
-                  <style>
-                      body { margin: 0; padding: 20px; }
-                      .barcode-container {
-                          background: white;
-                          padding: 15px;
-                          border: 1px solid #ddd;
-                          margin: 20px auto;
-                          max-width: 300px;
-                      }
-                      .barcode-title {
-                          text-align: center;
-                          margin-bottom: 10px;
-                          font-family: Arial, sans-serif;
-                          font-size: 14px;
-                          color: #333;
-                      }
-                  </style>
-              </head>
-              <body>
-                  <div class="barcode-container">
-                      <div class="barcode-title">${name}</div>
-                      <img src="${barcode}" alt="Barcode for ${name}" class="barcode-image">
-                  </div>
-              </body>
-              </html>
-          `;
-          
-          // Write content to new window and print
-          printWindow.document.write(content);
-          printWindow.document.close();
-          printWindow.onload = function() {
-              printWindow.print();
-              printWindow.onafterprint = function() {
-                  printWindow.close();
-              };
-          };
-      }
-    </script>
-
-<script>
-  function validateDelete(propertyCount) {
-    propertyCount = parseInt(propertyCount, 10);
-    if (propertyCount > 0) {
-      alert('Cannot delete this category. Please remove or reassign all properties in this category first.');
-      return false;
-    }
-    return confirm('Are you sure you want to delete this category?');
-  }
-
-  function editCategory(categoryId, categoryName) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const editModal = document.getElementById('categoryEditModal');
-    const idInput = document.getElementById('categoryEditId');
-    const nameInput = document.getElementById('categoryEditName');
-
-    if (editModal && idInput && nameInput) {
-      idInput.value = categoryId;
-      nameInput.value = categoryName;
-      editModal.style.display = 'block';
-    }
-  }
-
-  function closeCategoryEditModal() {
-    const editModal = document.getElementById('categoryEditModal');
-    const editForm = document.getElementById('categoryEditForm');
-    if (editModal) {
-      editModal.style.display = 'none';
-    }
-    if (editForm) {
-      editForm.reset();
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    const categoryEditForm = document.getElementById('categoryEditForm');
-    const closeCategoryEditModalBtn = document.getElementById('closeCategoryEditModalBtn');
-    const categoryEditModal = document.getElementById('categoryEditModal');
-
-    // Close modal with X button
-    if (closeCategoryEditModalBtn) {
-      closeCategoryEditModalBtn.onclick = function(e) {
-        e.preventDefault();
-        closeCategoryEditModal();
-      };
-    }
-
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-      if (event.target === categoryEditModal) {
-        closeCategoryEditModal();
-      }
-    };
-
-    // Handle category edit form submission
-    if (categoryEditForm) {
-      categoryEditForm.onsubmit = function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const formData = new FormData(this);
-
-        // Convert FormData to URL-encoded string
-        const data = new URLSearchParams();
-        data.append('id', formData.get('id'));
-        data.append('name', formData.get('name'));
-
-        fetch('/update_property_category/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-          },
-          body: data.toString()
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // Find and update the category in the table
-            const categoryId = formData.get('id');
-            const newName = formData.get('name');
-            const editButton = document.querySelector(`button.category-edit-btn[data-id="${categoryId}"]`);
-            
-            if (editButton) {
-              const row = editButton.closest('tr');
-              if (row) {
-                // Update the name in the table
-                const nameSpan = row.querySelector('.category-name');
-                if (nameSpan) {
-                  nameSpan.textContent = newName;
-                }
+            btn.addEventListener('click', function() {
+                const propertyId = this.dataset.id;
+                historyModal.style.display = 'block';
                 
-                // Update the edit button's data
-                editButton.setAttribute('data-name', newName);
-              }
+                // Clear existing content
+                const historyTableBody = document.getElementById('historyTableBody');
+                historyTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+                
+                // Fetch history data
+                fetch(`/get_property_history/${propertyId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Populate history table
+                        historyTableBody.innerHTML = '';
+                        if (data.history.length === 0) {
+                            historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No changes have been made to this property yet.</td></tr>';
+                        } else {
+                            data.history.forEach(entry => {
+                                const row = document.createElement('tr');
+                                
+                                // Helper function to create truncatable cell
+                                const createTruncatableCell = (content) => {
+                                    const td = document.createElement('td');
+                                    if (content && content.length > 100) {
+                                        td.classList.add('truncate');
+                                        td.setAttribute('data-full-content', content);
+                                        td.textContent = content.substring(0, 100) + '...';
+                                        td.addEventListener('click', function() {
+                                            if (this.classList.contains('truncate')) {
+                                                this.classList.remove('truncate');
+                                                this.classList.add('expanded');
+                                                this.textContent = this.getAttribute('data-full-content');
+                                            } else {
+                                                this.classList.remove('expanded');
+                                                this.classList.add('truncate');
+                                                this.textContent = this.getAttribute('data-full-content').substring(0, 100) + '...';
+                                            }
+                                        });
+                                    } else {
+                                        td.textContent = content || '';
+                                    }
+                                    return td;
+                                };
 
-              // Update category in dropdowns
-              const categorySelects = document.querySelectorAll('select[name="category"]');
-              categorySelects.forEach(select => {
-                const option = select.querySelector(`option[value="${categoryId}"]`);
-                if (option) {
-                  option.textContent = newName;
-                }
-              });
-
-              // Show success message
-              alert('Category updated successfully');
-
-              // Close modal
-              closeCategoryEditModal();
-            }
-          } else {
-            alert('Error updating category: ' + (data.error || 'Unknown error'));
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error updating category. Please try again.');
+                                // Add cells to the row
+                                row.appendChild(createTruncatableCell(entry.date));
+                                row.appendChild(createTruncatableCell(entry.action));
+                                row.appendChild(createTruncatableCell(entry.field_name));
+                                row.appendChild(createTruncatableCell(entry.old_value));
+                                row.appendChild(createTruncatableCell(entry.new_value));
+                                row.appendChild(createTruncatableCell(entry.user));
+                                
+                                historyTableBody.appendChild(row);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching history:', error);
+                        historyTableBody.innerHTML = '<tr><td colspan="6">Error loading history data</td></tr>';
+                    });
+            });
         });
-      };
-    }
-  });
+
+        // Close history modal when clicking the close button
+        closeHistoryModalBtn.addEventListener('click', function() {
+            historyModal.style.display = 'none';
+        });
+
+        // Close history modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target == historyModal) {
+                historyModal.style.display = 'none';
+            }
+        });
+    });
 </script>
 
 <!-- Export Modal Handling -->
@@ -1735,6 +1440,331 @@ window.onclick = function(event) {
         event.target.style.display = "none";
     }
 }
+</script>
+
+<script>
+function printBarcodes() {
+    // Create a new window for printing
+    let printWindow = window.open('', '_blank');
+    
+    // Get all barcodes
+    let barcodes = document.querySelectorAll('.barcode-container');
+    
+    // Create print content
+    let content = `
+        <html>
+        <head>
+            <title>Print Barcodes</title>
+            <link rel="stylesheet" href="{% static 'css/barcode.css' %}">
+            <style>
+                body { margin: 0; padding: 20px; }
+                .print-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 20px;
+                    padding: 20px;
+                }
+                .barcode-container {
+                    background: white;
+                    padding: 15px;
+                    border: 1px solid #ddd;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="print-grid">
+    `;
+    
+    // Add each barcode to the content
+    barcodes.forEach(barcode => {
+        content += barcode.outerHTML;
+    });
+    
+    content += `
+            </div>
+        </body>
+        </html>
+    `;
+    
+    // Write content to new window and print
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.onload = function() {
+        printWindow.print();
+        printWindow.onafterprint = function() {
+            printWindow.close();
+        };
+    };
+}
+</script>
+
+<script>
+function printSingleBarcode(button) {
+    // Create a new window for printing
+    let printWindow = window.open('', '_blank');
+    
+    // Get the barcode data and name from the button's data attributes
+    let barcode = button.getAttribute('data-barcode');
+    let name = button.getAttribute('data-name');
+    
+    // Create print content
+    let content = `
+        <html>
+        <head>
+            <title>Print Barcode - ${name}</title>
+            <link rel="stylesheet" href="{% static 'css/barcode.css' %}">
+            <style>
+                body { margin: 0; padding: 20px; }
+                .barcode-container {
+                    background: white;
+                    padding: 15px;
+                    border: 1px solid #ddd;
+                    margin: 20px auto;
+                    max-width: 300px;
+                }
+                .barcode-title {
+                    text-align: center;
+                    margin-bottom: 10px;
+                    font-family: Arial, sans-serif;
+                    font-size: 14px;
+                    color: #333;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="barcode-container">
+                <div class="barcode-title">${name}</div>
+                <img src="${barcode}" alt="Barcode for ${name}" class="barcode-image">
+            </div>
+        </body>
+        </html>
+    `;
+    
+    // Write content to new window and print
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.onload = function() {
+        printWindow.print();
+        printWindow.onafterprint = function() {
+            printWindow.close();
+        };
+    };
+}
+</script>
+
+<script>
+function validateDelete(propertyCount) {
+    propertyCount = parseInt(propertyCount, 10);
+    if (propertyCount > 0) {
+        alert('Cannot delete this category. Please remove or reassign all properties in this category first.');
+        return false;
+    }
+    return confirm('Are you sure you want to delete this category?');
+}
+
+function editCategory(categoryId, categoryName) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const editModal = document.getElementById('categoryEditModal');
+    const idInput = document.getElementById('categoryEditId');
+    const nameInput = document.getElementById('categoryEditName');
+
+    if (editModal && idInput && nameInput) {
+        idInput.value = categoryId;
+        nameInput.value = categoryName;
+        editModal.style.display = 'block';
+    }
+}
+
+function closeCategoryEditModal() {
+    const editModal = document.getElementById('categoryEditModal');
+    const editForm = document.getElementById('categoryEditForm');
+    if (editModal) {
+        editModal.style.display = 'none';
+    }
+    if (editForm) {
+        editForm.reset();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryEditForm = document.getElementById('categoryEditForm');
+    const closeCategoryEditModalBtn = document.getElementById('closeCategoryEditModalBtn');
+    const categoryEditModal = document.getElementById('categoryEditModal');
+
+    // Close modal with X button
+    if (closeCategoryEditModalBtn) {
+        closeCategoryEditModalBtn.onclick = function(e) {
+            e.preventDefault();
+            closeCategoryEditModal();
+        };
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target === categoryEditModal) {
+            closeCategoryEditModal();
+        }
+    };
+
+    // Handle category edit form submission
+    if (categoryEditForm) {
+        categoryEditForm.onsubmit = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const formData = new FormData(this);
+
+            // Convert FormData to URL-encoded string
+            const data = new URLSearchParams();
+            data.append('id', formData.get('id'));
+            data.append('name', formData.get('name'));
+
+            fetch('/update_property_category/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: data.toString()
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Find and update the category in the table
+                    const categoryId = formData.get('id');
+                    const newName = formData.get('name');
+                    const editButton = document.querySelector(`button.category-edit-btn[data-id="${categoryId}"]`);
+                    
+                    if (editButton) {
+                        const row = editButton.closest('tr');
+                        if (row) {
+                            // Update the name in the table
+                            const nameSpan = row.querySelector('.category-name');
+                            if (nameSpan) {
+                                nameSpan.textContent = newName;
+                            }
+                            
+                            // Update the edit button's data
+                            editButton.setAttribute('data-name', newName);
+                        }
+
+                        // Update category in dropdowns
+                        const categorySelects = document.querySelectorAll('select[name="category"]');
+                        categorySelects.forEach(select => {
+                            const option = select.querySelector(`option[value="${categoryId}"]`);
+                            if (option) {
+                                option.textContent = newName;
+                            }
+                        });
+
+                        // Show success message
+                        alert('Category updated successfully');
+
+                        // Close modal
+                        closeCategoryEditModal();
+                    }
+                } else {
+                    alert('Error updating category: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating category. Please try again.');
+            });
+        };
+    }
+});
+</script>
+
+<!-- Filter and Search functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('searchInput');
+  const availabilityFilter = document.getElementById('availabilityFilter');
+  const conditionFilter = document.getElementById('conditionFilter');
+  const tables = document.getElementsByClassName('searchable-table');
+
+  function filterAndSearch() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const availabilityValue = availabilityFilter.value;
+    const conditionValue = conditionFilter.value;
+
+    for (let table of tables) {
+      const rows = table.getElementsByTagName('tr');
+      let hasVisibleRows = false;
+
+      // Start from 1 to skip header row
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const cells = row.getElementsByTagName('td');
+        if (cells.length === 0) continue;
+
+        // Get availability and condition cells
+        const availabilityCell = cells[11]; // Availability column
+        const conditionCell = cells[10]; // Condition column
+
+        let matchesSearch = false;
+        let matchesAvailability = !availabilityValue;
+        let matchesCondition = !conditionValue;
+
+        // Check search term
+        for (let cell of cells) {
+          if (cell.textContent.toLowerCase().includes(searchTerm)) {
+            matchesSearch = true;
+            break;
+          }
+        }
+
+        // Check availability
+        if (availabilityValue) {
+          const availabilityText = availabilityCell.textContent.trim().toLowerCase();
+          if (availabilityValue === 'available') {
+            matchesAvailability = availabilityText.includes('available');
+          } else if (availabilityValue === 'not_available') {
+            matchesAvailability = availabilityText.includes('not available');
+          }
+        }
+
+        // Check condition
+        if (conditionValue) {
+          const conditionText = conditionCell.textContent.trim();
+          matchesCondition = conditionText === conditionValue;
+        }
+
+        // Show/hide row based on all filters
+        const shouldShow = matchesSearch && matchesAvailability && matchesCondition;
+        row.style.display = shouldShow ? '' : 'none';
+
+        if (shouldShow) {
+          hasVisibleRows = true;
+        }
+      }
+
+      // Show/hide category headers based on whether any rows are visible
+      const categoryHeader = table.previousElementSibling;
+      if (categoryHeader && categoryHeader.tagName === 'H3') {
+        categoryHeader.style.display = hasVisibleRows ? 'block' : 'none';
+      }
+      table.style.display = hasVisibleRows ? 'table' : 'none';
+    }
+  }
+
+  // Add event listeners for filters and search
+  if (searchInput) {
+    searchInput.addEventListener('input', filterAndSearch);
+  }
+  if (availabilityFilter) {
+    availabilityFilter.addEventListener('change', filterAndSearch);
+  }
+  if (conditionFilter) {
+    conditionFilter.addEventListener('change', filterAndSearch);
+  }
+
+  // Initialize filtering
+  filterAndSearch();
+});
 </script>
 
 {% endblock %}

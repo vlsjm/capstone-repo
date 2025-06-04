@@ -1,0 +1,171 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Archived Items{% endblock %}
+
+<style>
+/* Action buttons styling */
+.btn-action {
+    padding: 6px 12px;
+    margin: 0 2px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.title{
+    font-size: 20px;
+    font-weight: bold;
+    color: #1a237e;
+    text-align: center;
+}
+
+.btn-edit {
+    background-color: #1a237e;
+    color: white;
+}
+
+.btn-return {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-print {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-archive {
+    background-color: #36b9cc;
+    color: white;
+    border: none;
+}
+
+/* Hover effects */
+.btn-action:hover {
+    opacity: 0.9;
+    color: white;
+}
+
+.btn-archive:hover {
+    background-color: #2ea7b9;
+    color: white;
+}
+</style>
+
+{% block content %}
+{% include 'app/navbar.html' %}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h1title">Archived Items</h1>
+    </div>
+
+    <!-- Archived Supplies -->
+    <div class="card shadow mb-4" style="margin-left: 270px;">
+        <div class="card-header py-3">
+            <h2 class="m-0 font-weight-bold text-primary">Archived Supplies</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Supply Name</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Subcategory</th>
+                            <th>Date Received</th>
+                            <th>Expiration Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if supplies_by_category %}
+                            {% for category, supplies in supplies_by_category.items %}
+                                {% for supply in supplies %}
+                                    <tr>
+                                        <td>{{ supply.supply_name }}</td>
+                                        <td>{{ supply.description|default:"N/A" }}</td>
+                                        <td>{{ supply.category|default:"N/A" }}</td>
+                                        <td>{{ supply.subcategory|default:"N/A" }}</td>
+                                        <td>{{ supply.date_received }}</td>
+                                        <td>{{ supply.expiration_date|default:"N/A" }}</td>
+                                        <td>
+                                            <form method="post" action="{% url 'unarchive_supply' supply.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-action btn-archive">
+                                                    <i class="fas fa-box"></i> Unarchive
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No archived supplies found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Archived Properties -->
+    <div class="card shadow mb-4" style="margin-left: 270px;">
+        <div class="card-header py-3">
+            <h2 class="m-0 font-weight-bold text-primary">Archived Properties</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Property Number</th>
+                            <th>Property Name</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Location</th>
+                            <th>Condition</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if properties_by_category %}
+                            {% for category, properties in properties_by_category.items %}
+                                {% for property in properties %}
+                                    <tr>
+                                        <td>{{ property.property_number|default:"N/A" }}</td>
+                                        <td>{{ property.property_name }}</td>
+                                        <td>{{ property.description|default:"N/A" }}</td>
+                                        <td>{{ property.category|default:"N/A" }}</td>
+                                        <td>{{ property.location|default:"N/A" }}</td>
+                                        <td>{{ property.get_condition_display }}</td>
+                                        <td>
+                                            <form method="post" action="{% url 'unarchive_property' property.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-action btn-archive">
+                                                    <i class="fas fa-box"></i> Unarchive
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">No archived properties found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
