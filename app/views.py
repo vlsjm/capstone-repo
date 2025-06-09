@@ -796,6 +796,9 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         
         context['categories'] = SupplyCategory.objects.prefetch_related('supply_set').all()
         context['subcategories'] = SupplySubcategory.objects.prefetch_related('supply_set').all()
+        
+        # Add all supplies for the manual selection dropdown
+        context['all_supplies'] = Supply.objects.filter(is_archived=False).select_related('quantity_info').order_by('supply_name')
 
         # Get all supplies
         supplies = self.get_queryset()
@@ -2532,3 +2535,14 @@ def delete_supply_subcategory(request, subcategory_id):
             messages.error(request, f'Error deleting subcategory: {str(e)}')
            
     return redirect('supply_list')
+
+def supply_list(request):
+    # ... existing code ...
+    context = {
+        'grouped_supplies': grouped_supplies,
+        'form': form,
+        'categories': categories,
+        'subcategories': subcategories,
+        'supplies': Supply.objects.all().order_by('supply_name'),  # Add this line
+    }
+    # ... existing code ...

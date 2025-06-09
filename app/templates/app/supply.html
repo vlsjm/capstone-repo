@@ -895,10 +895,36 @@ tr.hidden {
       <form method="post" action="{% url 'modify_supply_quantity_generic' %}" id="modifyQuantityForm">
         {% csrf_token %}
 
-        <!-- Barcode Scanner Input -->
+        <!-- Input Method Selection -->
         <div class="form-group">
+          <label>Select Input Method</label>
+          <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <button type="button" class="input-method-btn active" data-method="barcode" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; background: #152d64; color: white;">
+              <i class="fas fa-barcode"></i> Barcode Scanner
+            </button>
+            <button type="button" class="input-method-btn" data-method="manual" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; background: #f8f9fa; color: #333;">
+              <i class="fas fa-keyboard"></i> Manual Selection
+            </button>
+          </div>
+        </div>
+
+        <!-- Barcode Scanner Input -->
+        <div id="barcode-input-section" class="form-group">
           <label for="barcode_input">Scan Barcode</label>
           <input type="text" id="barcode_input" class="form-control" placeholder="Scan barcode" autofocus>
+        </div>
+
+        <!-- Manual Selection Input -->
+        <div id="manual-input-section" class="form-group" style="display: none;">
+          <label for="manual_supply_select">Select Supply</label>
+          <select id="manual_supply_select" class="form-control custom-select">
+            <option value="">Select a supply</option>
+            {% for supply in all_supplies %}
+              <option value="{{ supply.id }}" data-quantity="{{ supply.quantity_info.current_quantity }}">
+                {{ supply.supply_name }}
+              </option>
+            {% endfor %}
+          </select>
         </div>
 
         <!-- Supply Info Display -->
@@ -913,7 +939,7 @@ tr.hidden {
         <!-- Quantity -->
         <div class="form-group">
           <label for="amount">Quantity to Add</label>
-          <input type="number" name="amount" id="amount" min="1" required class="form-control">
+          <input type="number" name="amount" id="amount" min="0" required class="form-control">
         </div>
 
         <button type="submit" class="submit-btn" id="modifyQuantitySubmitBtn" disabled>Add Quantity</button>
@@ -1709,6 +1735,14 @@ tr.hidden {
           closeAllModals();
           destroySelect2Instances();
           modifyQuantityModal.style.display = "block";
+          
+          // Initialize Select2 for manual supply selection
+          $('#manual_supply_select').select2({
+            dropdownParent: $('#modifyQuantityModal'),
+            width: '100%',
+            placeholder: 'Select a supply'
+          });
+          
           document.getElementById('barcode_input').focus();
         };
       }
@@ -1720,6 +1754,59 @@ tr.hidden {
           resetModifyQuantityForm();
         };
       }
+
+      // Handle input method switching
+      document.querySelectorAll('.input-method-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          // Update button styles
+          document.querySelectorAll('.input-method-btn').forEach(b => {
+            b.classList.remove('active');
+            b.style.background = '#f8f9fa';
+            b.style.color = '#333';
+          });
+          this.classList.add('active');
+          this.style.background = '#152d64';
+          this.style.color = 'white';
+
+          // Show/hide appropriate input section
+          const method = this.dataset.method;
+          document.getElementById('barcode-input-section').style.display = 
+            method === 'barcode' ? 'block' : 'none';
+          document.getElementById('manual-input-section').style.display = 
+            method === 'manual' ? 'block' : 'none';
+
+          // Reset form
+          resetModifyQuantityForm();
+
+          // Focus appropriate input
+          if (method === 'barcode') {
+            document.getElementById('barcode_input').focus();
+          } else {
+            $('#manual_supply_select').select2('focus');
+          }
+        });
+      });
+
+      // Handle manual supply selection
+      $('#manual_supply_select').on('change', function() {
+        const selectedOption = $(this).find(':selected');
+        const supplyId = selectedOption.val();
+        const supplyName = selectedOption.text();
+        const currentQuantity = selectedOption.data('quantity');
+
+        if (supplyId) {
+          $('#supply_info').show();
+          $('#scanned_supply_name').text(supplyName);
+          $('#scanned_supply_quantity').text(currentQuantity);
+          $('#supply_id').val(supplyId);
+          $('#modifyQuantitySubmitBtn').prop('disabled', false);
+          
+          // Set initial quantity to 1
+          $('#amount').val(1);
+        } else {
+          resetModifyQuantityForm();
+        }
+      });
 
       // Handle barcode scanning
       let barcodeBuffer = '';
