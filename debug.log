@@ -21465,3 +21465,1640 @@ INFO 2025-06-04 14:11:49,944 basehttp 13848 14368 "POST /update_supply_category/
 INFO 2025-06-04 14:11:59,889 basehttp 13848 6688 "POST /update_supply_subcategory/ HTTP/1.1" 200 88
 INFO 2025-06-04 14:12:09,652 basehttp 13848 13792 "POST /edit-supply/ HTTP/1.1" 302 0
 INFO 2025-06-04 14:12:09,695 basehttp 13848 13792 "GET /supplies/ HTTP/1.1" 200 213419
+INFO 2025-06-04 16:09:54,685 autoreload 1280 8572 Watching for file changes with StatReloader
+INFO 2025-06-04 16:10:05,841 basehttp 1280 11316 "GET / HTTP/1.1" 200 9320
+WARNING 2025-06-04 16:10:05,953 basehttp 1280 11316 "GET /favicon.ico HTTP/1.1" 404 20900
+INFO 2025-06-04 16:10:09,165 basehttp 1280 11316 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:10:09,366 basehttp 1280 8772 "GET /dashboard/ HTTP/1.1" 200 37251
+INFO 2025-06-04 16:10:09,384 basehttp 1280 8772 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 16:10:09,385 basehttp 1280 2108 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:10:18,585 basehttp 1280 2108 "GET /property/ HTTP/1.1" 200 295675
+INFO 2025-06-04 16:10:18,616 basehttp 1280 9276 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:10:18,616 basehttp 1280 2108 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:10:18,616 basehttp 1280 8676 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:10:18,616 basehttp 1280 8772 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-04 16:10:20,903 basehttp 1280 8772 "GET /dashboard/ HTTP/1.1" 200 37251
+INFO 2025-06-04 16:10:25,630 basehttp 1280 8772 "GET /my-supply-requests/ HTTP/1.1" 200 7274
+INFO 2025-06-04 16:10:36,756 basehttp 1280 8772 "GET /property/ HTTP/1.1" 200 295675
+INFO 2025-06-04 16:12:09,571 autoreload 13856 13860 Watching for file changes with StatReloader
+INFO 2025-06-04 16:12:23,882 basehttp 13856 11020 "GET / HTTP/1.1" 200 9320
+WARNING 2025-06-04 16:12:24,020 basehttp 13856 11020 "GET /favicon.ico HTTP/1.1" 404 20900
+INFO 2025-06-04 16:12:26,806 basehttp 13856 11348 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:12:26,870 basehttp 13856 11348 "GET /dashboard/ HTTP/1.1" 200 37251
+INFO 2025-06-04 16:12:34,825 basehttp 13856 11348 "GET /dashboard/ HTTP/1.1" 200 37251
+INFO 2025-06-04 16:12:36,184 basehttp 13856 11348 "GET /property/ HTTP/1.1" 200 295675
+INFO 2025-06-04 16:14:49,706 autoreload 11608 12348 Watching for file changes with StatReloader
+INFO 2025-06-04 16:15:15,024 basehttp 11608 2852 "GET / HTTP/1.1" 200 9320
+WARNING 2025-06-04 16:15:15,154 basehttp 11608 2852 "GET /favicon.ico HTTP/1.1" 404 20900
+INFO 2025-06-04 16:15:24,653 basehttp 11608 2852 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:15:24,721 basehttp 11608 2852 "GET /dashboard/ HTTP/1.1" 200 37251
+INFO 2025-06-04 16:15:43,618 basehttp 11608 2852 "GET /property/ HTTP/1.1" 200 295675
+INFO 2025-06-04 16:15:45,992 basehttp 11608 2852 "GET /supplies/ HTTP/1.1" 200 213160
+INFO 2025-06-04 16:15:56,707 basehttp 11608 2852 "POST /add-subcategory/ HTTP/1.1" 200 59
+INFO 2025-06-04 16:16:04,393 basehttp 11608 2852 "GET /supplies/ HTTP/1.1" 200 215464
+INFO 2025-06-04 16:16:16,204 basehttp 11608 2852 "GET /admin/ HTTP/1.1" 200 18296
+INFO 2025-06-04 16:16:16,229 basehttp 11608 2852 "GET /static/admin/css/base.css HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:16,239 basehttp 11608 2852 "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:16,241 basehttp 11608 12020 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:16,242 basehttp 11608 3416 "GET /static/admin/js/theme.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:16,243 basehttp 11608 1840 "GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:16,244 basehttp 11608 14020 "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:16,251 basehttp 11608 14020 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:16,256 basehttp 11608 3416 "GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:16,257 basehttp 11608 14020 "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:16,257 basehttp 11608 1840 "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:20,727 basehttp 11608 1840 "GET /admin/app/property/ HTTP/1.1" 200 56790
+INFO 2025-06-04 16:16:20,754 basehttp 11608 1840 "GET /static/admin/css/changelists.css HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:20,767 basehttp 11608 3416 "GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:20,769 basehttp 11608 12020 "GET /static/admin/js/core.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:20,769 basehttp 11608 13692 "GET /static/admin/js/actions.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:20,771 basehttp 11608 14020 "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:20,772 basehttp 11608 2852 "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:20,776 basehttp 11608 3416 "GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:20,777 basehttp 11608 12020 "GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:20,779 basehttp 11608 2852 "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:20,787 basehttp 11608 2852 "GET /static/admin/js/filters.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:20,819 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:20,838 basehttp 11608 1840 "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:26,465 basehttp 11608 1840 "POST /admin/app/property/ HTTP/1.1" 200 49414
+INFO 2025-06-04 16:16:26,482 basehttp 11608 1840 "GET /static/admin/js/cancel.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:28,401 basehttp 11608 1840 "GET /admin/app/supply/ HTTP/1.1" 200 16845
+INFO 2025-06-04 16:16:28,425 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:33,703 basehttp 11608 1840 "POST /admin/app/supply/ HTTP/1.1" 200 21207
+INFO 2025-06-04 16:16:35,646 basehttp 11608 1840 "POST /admin/app/supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:16:35,666 basehttp 11608 1840 "GET /admin/app/supply/ HTTP/1.1" 200 14145
+INFO 2025-06-04 16:16:35,689 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:35,708 basehttp 11608 1840 "GET /static/admin/img/icon-yes.svg HTTP/1.1" 304 0
+INFO 2025-06-04 16:16:37,520 basehttp 11608 1840 "GET /admin/app/property/ HTTP/1.1" 200 56790
+INFO 2025-06-04 16:16:37,545 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:42,782 basehttp 11608 1840 "POST /admin/app/property/ HTTP/1.1" 200 49414
+INFO 2025-06-04 16:16:45,392 basehttp 11608 1840 "POST /admin/app/property/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:16:45,412 basehttp 11608 1840 "GET /admin/app/property/ HTTP/1.1" 200 14162
+INFO 2025-06-04 16:16:45,437 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:47,443 basehttp 11608 1840 "GET /admin/app/userprofile/ HTTP/1.1" 200 22237
+INFO 2025-06-04 16:16:47,467 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:49,017 basehttp 11608 1840 "GET /admin/app/supply/ HTTP/1.1" 200 14008
+INFO 2025-06-04 16:16:49,042 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:50,593 basehttp 11608 1840 "GET /admin/app/supplyrequest/ HTTP/1.1" 200 14062
+INFO 2025-06-04 16:16:50,617 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:52,109 basehttp 11608 1840 "GET /admin/app/supplyquantity/ HTTP/1.1" 200 14069
+INFO 2025-06-04 16:16:52,131 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:53,140 basehttp 11608 1840 "GET /admin/app/supplyhistory/ HTTP/1.1" 200 14062
+INFO 2025-06-04 16:16:53,160 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:54,338 basehttp 11608 1840 "GET /admin/app/reservation/ HTTP/1.1" 200 14043
+INFO 2025-06-04 16:16:54,363 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:55,438 basehttp 11608 1840 "GET /admin/app/property/ HTTP/1.1" 200 14022
+INFO 2025-06-04 16:16:55,459 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:56,340 basehttp 11608 1840 "GET /admin/app/propertyhistory/ HTTP/1.1" 200 14076
+INFO 2025-06-04 16:16:56,361 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:58,662 basehttp 11608 1840 "GET /admin/app/propertycategory/ HTTP/1.1" 200 18049
+INFO 2025-06-04 16:16:58,686 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:16:59,697 basehttp 11608 1840 "GET /admin/app/notification/ HTTP/1.1" 200 53299
+INFO 2025-06-04 16:16:59,720 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:17:00,794 basehttp 11608 1840 "GET /admin/app/propertycategory/ HTTP/1.1" 200 18049
+INFO 2025-06-04 16:17:00,819 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:17:05,837 basehttp 11608 1840 "POST /admin/app/propertycategory/ HTTP/1.1" 200 15679
+INFO 2025-06-04 16:17:07,114 basehttp 11608 1840 "POST /admin/app/propertycategory/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:17:07,133 basehttp 11608 1840 "GET /admin/app/propertycategory/ HTTP/1.1" 200 14232
+INFO 2025-06-04 16:17:07,158 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:17:10,899 basehttp 11608 1840 "GET /admin/app/notification/ HTTP/1.1" 200 53299
+INFO 2025-06-04 16:17:10,922 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:17:18,681 basehttp 11608 1840 "POST /admin/app/notification/ HTTP/1.1" 200 34255
+INFO 2025-06-04 16:17:22,435 basehttp 11608 1840 "POST /admin/app/notification/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:17:22,546 basehttp 11608 1840 "GET /admin/app/notification/ HTTP/1.1" 200 53533
+INFO 2025-06-04 16:17:22,570 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:17:24,113 basehttp 11608 1840 "GET /admin/app/department/ HTTP/1.1" 200 15571
+INFO 2025-06-04 16:17:24,141 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:17:28,923 basehttp 11608 1840 "GET /admin/app/damagereport/ HTTP/1.1" 200 14055
+INFO 2025-06-04 16:17:28,950 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:17:30,470 basehttp 11608 1840 "GET /admin/app/borrowrequest/ HTTP/1.1" 200 14062
+INFO 2025-06-04 16:17:30,492 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:17:31,821 basehttp 11608 1840 "GET /admin/app/activitylog/ HTTP/1.1" 200 196827
+INFO 2025-06-04 16:17:31,848 basehttp 11608 1840 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:18:51,532 autoreload 11608 12348 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\admin.py changed, reloading.
+INFO 2025-06-04 16:18:53,013 autoreload 10888 7552 Watching for file changes with StatReloader
+INFO 2025-06-04 16:18:54,154 basehttp 10888 4468 "GET /admin/app/activitylog/ HTTP/1.1" 200 197757
+INFO 2025-06-04 16:18:54,180 basehttp 10888 4468 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:18:56,279 basehttp 10888 4468 "GET /admin/app/supplysubcategory/ HTTP/1.1" 200 18248
+INFO 2025-06-04 16:18:56,302 basehttp 10888 4468 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:19:01,849 basehttp 10888 4468 "POST /admin/app/supplysubcategory/ HTTP/1.1" 200 16199
+INFO 2025-06-04 16:19:03,620 basehttp 10888 4468 "POST /admin/app/supplysubcategory/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:19:03,646 basehttp 10888 4468 "GET /admin/app/supplysubcategory/ HTTP/1.1" 200 15172
+INFO 2025-06-04 16:19:03,672 basehttp 10888 4468 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:19:05,214 basehttp 10888 4468 "GET /admin/app/supplycategory/ HTTP/1.1" 200 20814
+INFO 2025-06-04 16:19:05,244 basehttp 10888 4468 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:19:09,116 basehttp 10888 4468 "POST /admin/app/supplycategory/ HTTP/1.1" 200 17613
+INFO 2025-06-04 16:19:10,969 basehttp 10888 4468 "POST /admin/app/supplycategory/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:19:10,987 basehttp 10888 4468 "GET /admin/app/supplycategory/ HTTP/1.1" 200 15149
+INFO 2025-06-04 16:19:11,013 basehttp 10888 4468 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-06-04 16:19:16,327 basehttp 10888 4468 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-04 16:19:18,327 basehttp 10888 4468 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:19:18,371 basehttp 10888 4468 "GET /dashboard/ HTTP/1.1" 200 27415
+INFO 2025-06-04 16:19:22,255 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 57265
+INFO 2025-06-04 16:20:16,585 basehttp 10888 4468 "POST /add-property-category/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:20:16,607 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 59651
+INFO 2025-06-04 16:20:16,639 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 59392
+INFO 2025-06-04 16:20:39,807 basehttp 10888 4468 "POST /add-property-category/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:20:39,827 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 62014
+INFO 2025-06-04 16:20:39,859 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 61755
+INFO 2025-06-04 16:20:50,724 basehttp 10888 4468 "POST /add-property-category/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:20:50,746 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 64401
+INFO 2025-06-04 16:20:50,781 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 64142
+INFO 2025-06-04 16:20:58,806 basehttp 10888 4468 "POST /add-property-category/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:20:58,829 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 66756
+INFO 2025-06-04 16:20:58,869 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 66497
+INFO 2025-06-04 16:22:40,258 basehttp 10888 4468 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:22:40,293 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 76791
+INFO 2025-06-04 16:23:29,974 basehttp 10888 4468 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:23:30,020 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 87675
+INFO 2025-06-04 16:24:23,257 basehttp 10888 4468 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:24:23,294 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 102777
+INFO 2025-06-04 16:25:10,970 basehttp 10888 4468 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:25:11,011 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 114093
+INFO 2025-06-04 16:25:59,271 basehttp 10888 4468 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:25:59,324 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 123594
+INFO 2025-06-04 16:25:59,346 basehttp 10888 4468 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 16:26:46,747 basehttp 10888 4468 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:26:46,799 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 133007
+INFO 2025-06-04 16:27:31,001 basehttp 10888 4468 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:27:31,048 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 142020
+INFO 2025-06-04 16:28:25,682 basehttp 10888 4468 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:28:25,743 basehttp 10888 4468 "GET /property/ HTTP/1.1" 200 155151
+INFO 2025-06-04 16:28:28,158 basehttp 10888 4468 "GET /supplies/ HTTP/1.1" 200 73245
+INFO 2025-06-04 16:29:01,707 basehttp 10888 4468 "POST /add-category/ HTTP/1.1" 200 68
+INFO 2025-06-04 16:29:04,771 basehttp 10888 4468 "GET /supplies/ HTTP/1.1" 200 75378
+INFO 2025-06-04 16:29:19,113 basehttp 10888 4468 "POST /add-category/ HTTP/1.1" 200 62
+INFO 2025-06-04 16:29:49,809 basehttp 10888 4468 "GET /supplies/ HTTP/1.1" 200 77683
+INFO 2025-06-04 16:30:31,228 autoreload 7972 8672 Watching for file changes with StatReloader
+INFO 2025-06-04 16:30:43,144 basehttp 7972 10888 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-04 16:30:51,912 basehttp 7972 3076 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:30:52,009 basehttp 7972 3076 "GET /dashboard/ HTTP/1.1" 200 27619
+INFO 2025-06-04 16:30:56,262 basehttp 7972 3076 "GET /supplies/ HTTP/1.1" 200 77683
+INFO 2025-06-04 16:30:57,986 basehttp 7972 3076 "GET /property/ HTTP/1.1" 200 154892
+INFO 2025-06-04 16:31:01,598 basehttp 7972 6828 "GET /supplies/ HTTP/1.1" 200 77683
+INFO 2025-06-04 16:31:14,363 basehttp 7972 11584 "POST /add-category/ HTTP/1.1" 200 63
+WARNING 2025-06-04 16:31:58,331 log 7972 10152 Forbidden (CSRF token from POST incorrect.): /add-category/
+WARNING 2025-06-04 16:31:58,333 basehttp 7972 10152 "POST /add-category/ HTTP/1.1" 403 2503
+INFO 2025-06-04 16:32:00,094 basehttp 7972 10152 "GET /supplies/ HTTP/1.1" 200 79992
+INFO 2025-06-04 16:32:01,058 basehttp 7972 10152 "GET /supplies/ HTTP/1.1" 200 79992
+INFO 2025-06-04 16:32:18,421 basehttp 7972 10152 "POST /add-subcategory/ HTTP/1.1" 200 77
+INFO 2025-06-04 16:32:21,200 basehttp 7972 10152 "GET /supplies/ HTTP/1.1" 200 82169
+INFO 2025-06-04 16:32:38,284 basehttp 7972 10152 "POST /add-subcategory/ HTTP/1.1" 200 80
+INFO 2025-06-04 16:32:39,690 basehttp 7972 10152 "GET /supplies/ HTTP/1.1" 200 84557
+INFO 2025-06-04 16:33:51,955 basehttp 7972 10152 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:33:51,991 basehttp 7972 10152 "GET /supplies/ HTTP/1.1" 200 97575
+INFO 2025-06-04 16:34:41,791 basehttp 7972 10152 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:34:41,826 basehttp 7972 10152 "GET /supplies/ HTTP/1.1" 200 110494
+INFO 2025-06-04 16:35:22,072 basehttp 7972 10152 "POST /export-supply/ HTTP/1.1" 200 5904
+INFO 2025-06-04 16:36:09,587 basehttp 7972 10152 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:36:09,623 basehttp 7972 10152 "GET /supplies/ HTTP/1.1" 200 122329
+INFO 2025-06-04 16:37:01,174 basehttp 7972 10152 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:37:01,219 basehttp 7972 10152 "GET /supplies/ HTTP/1.1" 200 134672
+INFO 2025-06-04 16:37:59,216 basehttp 7972 10152 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:37:59,266 basehttp 7972 10152 "GET /supplies/ HTTP/1.1" 200 147646
+INFO 2025-06-04 16:38:44,181 basehttp 7972 10152 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:38:44,229 basehttp 7972 10152 "GET /supplies/ HTTP/1.1" 200 159602
+INFO 2025-06-04 16:39:33,173 basehttp 7972 10152 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:39:33,226 basehttp 7972 10152 "GET /supplies/ HTTP/1.1" 200 171827
+INFO 2025-06-04 16:39:46,939 basehttp 7972 10152 "GET /activity/ HTTP/1.1" 200 14454
+INFO 2025-06-04 16:39:48,171 basehttp 7972 10152 "GET /my-supply-requests/ HTTP/1.1" 200 4842
+INFO 2025-06-04 16:39:50,371 basehttp 7972 10152 "GET /my-borrow-requests/ HTTP/1.1" 200 6488
+INFO 2025-06-04 16:39:51,228 basehttp 7972 10152 "GET /my-damage-reports/ HTTP/1.1" 200 4811
+INFO 2025-06-04 16:39:52,402 basehttp 7972 10152 "GET /my-reservations/ HTTP/1.1" 200 6215
+INFO 2025-06-04 16:39:53,982 basehttp 7972 10152 "GET /manage-users/ HTTP/1.1" 200 28718
+INFO 2025-06-04 16:39:54,015 basehttp 7972 12376 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:39:54,016 basehttp 7972 10152 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:39:54,016 basehttp 7972 12724 "GET /static/scripts/userFilters.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:39:55,834 basehttp 7972 12724 "GET /change-password/ HTTP/1.1" 200 6270
+INFO 2025-06-04 16:39:58,126 basehttp 7972 12724 "GET /archived-items/ HTTP/1.1" 200 5005
+INFO 2025-06-04 16:40:00,311 basehttp 7972 12724 "GET /dashboard/ HTTP/1.1" 200 27619
+INFO 2025-06-04 16:40:24,274 basehttp 7972 3796 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-04 16:40:24,299 basehttp 7972 3796 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+WARNING 2025-06-04 16:40:24,426 basehttp 7972 3796 "GET /favicon.ico HTTP/1.1" 404 20900
+INFO 2025-06-04 16:40:31,783 basehttp 7972 3796 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:40:31,812 basehttp 7972 3796 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 6951
+INFO 2025-06-04 16:40:31,824 basehttp 7972 3796 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-04 16:40:33,830 basehttp 7972 3796 "GET /userpanel/user_request/ HTTP/1.1" 200 14735
+INFO 2025-06-04 16:40:51,352 basehttp 7972 3796 "POST /userpanel/user_request/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:40:51,373 basehttp 7972 3796 "GET /userpanel/user_request/ HTTP/1.1" 200 15836
+INFO 2025-06-04 16:41:07,154 basehttp 7972 3796 "POST /userpanel/user_request/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:41:07,176 basehttp 7972 3796 "GET /userpanel/user_request/ HTTP/1.1" 200 16701
+INFO 2025-06-04 16:41:08,912 basehttp 7972 3796 "GET /userpanel/user_borrow/ HTTP/1.1" 200 40872
+INFO 2025-06-04 16:41:31,540 basehttp 7972 3796 "POST /userpanel/user_borrow/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:41:31,563 basehttp 7972 3796 "GET /userpanel/user_borrow/ HTTP/1.1" 200 42018
+INFO 2025-06-04 16:41:33,067 basehttp 7972 3796 "GET /userpanel/user_reserve/ HTTP/1.1" 200 41999
+INFO 2025-06-04 16:42:01,899 basehttp 7972 3796 "POST /userpanel/user_reserve/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:42:01,922 basehttp 7972 3796 "GET /userpanel/user_reserve/ HTTP/1.1" 200 43238
+INFO 2025-06-04 16:42:04,118 basehttp 7972 3796 "GET /userpanel/user_report/ HTTP/1.1" 200 40450
+INFO 2025-06-04 16:42:27,098 basehttp 7972 1192 "POST /userpanel/user_report/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:42:27,119 basehttp 7972 1192 "GET /userpanel/user_report/ HTTP/1.1" 200 41499
+INFO 2025-06-04 16:42:36,039 basehttp 7972 10496 "GET /my-supply-requests/ HTTP/1.1" 200 6468
+INFO 2025-06-04 16:42:42,576 basehttp 7972 1192 "GET /userpanel/user_request/ HTTP/1.1" 200 16413
+INFO 2025-06-04 16:42:58,016 basehttp 7972 1192 "POST /userpanel/user_request/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:42:58,038 basehttp 7972 1192 "GET /userpanel/user_request/ HTTP/1.1" 200 17580
+INFO 2025-06-04 16:43:04,190 basehttp 7972 1192 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:43:04,199 basehttp 7972 1192 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-04 16:43:08,507 basehttp 7972 1192 "POST /accounts/login/ HTTP/1.1" 200 9518
+INFO 2025-06-04 16:43:17,773 basehttp 7972 1192 "POST /accounts/login/ HTTP/1.1" 200 9518
+INFO 2025-06-04 16:43:47,715 basehttp 7972 1192 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:43:47,745 basehttp 7972 1192 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 42834
+INFO 2025-06-04 16:43:50,776 basehttp 7972 1192 "GET /userpanel/user_request/ HTTP/1.1" 200 14735
+INFO 2025-06-04 16:44:11,322 basehttp 7972 1192 "POST /userpanel/user_request/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:44:11,346 basehttp 7972 1192 "GET /userpanel/user_request/ HTTP/1.1" 200 15822
+INFO 2025-06-04 16:44:26,090 basehttp 7972 1192 "POST /userpanel/user_request/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:44:26,113 basehttp 7972 1192 "GET /userpanel/user_request/ HTTP/1.1" 200 16700
+INFO 2025-06-04 16:44:28,150 basehttp 7972 1192 "GET /userpanel/user_borrow/ HTTP/1.1" 200 40872
+INFO 2025-06-04 16:44:38,742 basehttp 7972 1192 "POST /userpanel/user_borrow/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:44:38,772 basehttp 7972 1192 "GET /userpanel/user_borrow/ HTTP/1.1" 200 42010
+INFO 2025-06-04 16:45:02,660 basehttp 7972 1192 "POST /userpanel/user_borrow/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:45:02,688 basehttp 7972 1192 "GET /userpanel/user_borrow/ HTTP/1.1" 200 42953
+INFO 2025-06-04 16:45:05,861 basehttp 7972 1192 "GET /userpanel/user_report/ HTTP/1.1" 200 40450
+INFO 2025-06-04 16:45:06,809 basehttp 7972 1192 "GET /userpanel/user_reserve/ HTTP/1.1" 200 41999
+INFO 2025-06-04 16:45:40,632 basehttp 7972 1192 "POST /userpanel/user_reserve/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:45:40,662 basehttp 7972 1192 "GET /userpanel/user_reserve/ HTTP/1.1" 200 43232
+INFO 2025-06-04 16:45:49,853 basehttp 7972 1192 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:45:49,859 basehttp 7972 1192 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-04 16:45:53,443 basehttp 7972 10496 "GET /manage-users/ HTTP/1.1" 200 28718
+INFO 2025-06-04 16:45:53,470 basehttp 7972 10496 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 16:45:55,958 basehttp 7972 10496 "GET /my-reservations/ HTTP/1.1" 200 7845
+INFO 2025-06-04 16:45:57,260 basehttp 7972 10496 "GET /my-damage-reports/ HTTP/1.1" 200 5627
+INFO 2025-06-04 16:46:01,598 basehttp 7972 10496 "GET /my-borrow-requests/ HTTP/1.1" 200 9097
+INFO 2025-06-04 16:46:03,954 basehttp 7972 10496 "GET /my-supply-requests/ HTTP/1.1" 200 9051
+INFO 2025-06-04 16:46:06,025 basehttp 7972 10496 "GET /manage-users/ HTTP/1.1" 200 28718
+INFO 2025-06-04 16:46:09,007 basehttp 7972 10496 "GET /my-reservations/ HTTP/1.1" 200 7845
+INFO 2025-06-04 16:46:14,906 basehttp 7972 10496 "GET /my-supply-requests/ HTTP/1.1" 200 9051
+INFO 2025-06-04 16:46:17,612 basehttp 7972 10496 "GET /activity/ HTTP/1.1" 200 14264
+INFO 2025-06-04 16:46:19,445 basehttp 7972 10496 "GET /property/ HTTP/1.1" 200 154892
+INFO 2025-06-04 16:46:19,476 basehttp 7972 10496 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-04 16:47:22,913 basehttp 7972 10496 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:47:22,980 basehttp 7972 10496 "GET /property/ HTTP/1.1" 200 165704
+INFO 2025-06-04 16:49:14,267 basehttp 7972 10496 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:49:14,334 basehttp 7972 10496 "GET /property/ HTTP/1.1" 200 177669
+INFO 2025-06-04 16:49:45,147 basehttp 7972 10496 "GET /supplies/ HTTP/1.1" 200 171570
+INFO 2025-06-04 16:51:04,858 basehttp 7972 10496 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:51:04,917 basehttp 7972 10496 "GET /supplies/ HTTP/1.1" 200 184834
+INFO 2025-06-04 16:52:56,312 basehttp 7972 10496 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:52:56,375 basehttp 7972 10496 "GET /supplies/ HTTP/1.1" 200 196969
+INFO 2025-06-04 16:53:49,266 basehttp 7972 10496 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:53:49,332 basehttp 7972 10496 "GET /supplies/ HTTP/1.1" 200 209868
+INFO 2025-06-04 16:54:02,752 basehttp 7972 10496 "GET /property/ HTTP/1.1" 200 177410
+INFO 2025-06-04 16:57:30,313 basehttp 7972 8608 "POST /add-property/ HTTP/1.1" 302 0
+INFO 2025-06-04 16:57:30,382 basehttp 7972 8608 "GET /property/ HTTP/1.1" 200 187348
+INFO 2025-06-04 17:02:37,611 autoreload 8096 15704 Watching for file changes with StatReloader
+INFO 2025-06-04 17:03:10,740 basehttp 8096 10912 "GET /property/ HTTP/1.1" 200 187089
+INFO 2025-06-04 17:03:31,270 basehttp 8096 10912 "GET /supplies/ HTTP/1.1" 200 209609
+INFO 2025-06-04 17:04:58,109 autoreload 13660 13008 Watching for file changes with StatReloader
+INFO 2025-06-04 17:05:09,351 basehttp 13660 15232 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-04 17:05:11,942 basehttp 13660 15232 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 17:05:12,015 basehttp 13660 15232 "GET /dashboard/ HTTP/1.1" 200 37042
+INFO 2025-06-04 17:05:12,045 basehttp 13660 15232 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 17:05:12,054 basehttp 13660 15232 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-04 17:05:17,789 basehttp 13660 15232 "GET /supplies/ HTTP/1.1" 200 209609
+INFO 2025-06-04 17:05:39,702 basehttp 13660 15232 "POST /add-subcategory/ HTTP/1.1" 200 74
+INFO 2025-06-04 17:07:11,554 autoreload 15420 12068 Watching for file changes with StatReloader
+INFO 2025-06-04 17:07:14,839 basehttp 15420 10028 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-04 17:07:19,967 basehttp 15420 10028 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 17:07:20,058 basehttp 15420 10028 "GET /dashboard/ HTTP/1.1" 200 37042
+INFO 2025-06-04 17:07:24,032 basehttp 15420 10028 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:07:27,668 basehttp 15420 10028 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:07:29,207 basehttp 15420 10028 "GET /property/ HTTP/1.1" 200 187089
+INFO 2025-06-04 17:07:30,440 basehttp 15420 10028 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:07:33,918 basehttp 15420 10028 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:07:34,480 basehttp 15420 10028 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:07:34,759 basehttp 15420 10028 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:07:35,099 basehttp 15420 10028 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:08:58,085 basehttp 15420 9924 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:08:58,698 basehttp 15420 9924 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:08:58,834 basehttp 15420 9924 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:08:58,958 basehttp 15420 9924 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:08:59,077 basehttp 15420 9924 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:08:59,216 basehttp 15420 9924 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:08:59,443 basehttp 15420 9924 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:09:01,052 basehttp 15420 9924 "GET /property/ HTTP/1.1" 200 187089
+INFO 2025-06-04 17:09:02,799 basehttp 15420 9924 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:09:50,588 autoreload 6056 10096 Watching for file changes with StatReloader
+INFO 2025-06-04 17:09:56,552 basehttp 6056 15168 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:09:57,033 basehttp 6056 15168 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:09:58,141 basehttp 6056 15168 "GET /supplies/ HTTP/1.1" 200 63804
+INFO 2025-06-04 17:11:11,108 autoreload 15060 6724 Watching for file changes with StatReloader
+INFO 2025-06-04 17:11:15,836 basehttp 15060 10028 "GET /supplies/ HTTP/1.1" 200 211975
+INFO 2025-06-04 17:11:21,039 basehttp 15060 14520 "POST /add-category/ HTTP/1.1" 200 54
+INFO 2025-06-04 17:11:27,557 basehttp 15060 14520 "POST /add-subcategory/ HTTP/1.1" 200 58
+INFO 2025-06-04 17:11:31,852 basehttp 15060 7896 "GET /supplies/ HTTP/1.1" 200 216548
+INFO 2025-06-04 17:11:32,368 basehttp 15060 7896 "GET /supplies/ HTTP/1.1" 200 216548
+INFO 2025-06-04 17:11:32,508 basehttp 15060 7896 "GET /supplies/ HTTP/1.1" 200 216548
+INFO 2025-06-04 17:11:32,656 basehttp 15060 7896 "GET /supplies/ HTTP/1.1" 200 216548
+INFO 2025-06-04 17:11:37,171 basehttp 15060 7896 "POST /delete_supply_subcategory/12/ HTTP/1.1" 302 0
+INFO 2025-06-04 17:11:37,245 basehttp 15060 7896 "GET /supplies/ HTTP/1.1" 200 214512
+INFO 2025-06-04 17:11:41,040 basehttp 15060 8672 "POST /delete_supply_category/22/ HTTP/1.1" 302 0
+INFO 2025-06-04 17:11:41,106 basehttp 15060 8672 "GET /supplies/ HTTP/1.1" 200 212236
+INFO 2025-06-04 17:12:35,867 basehttp 15060 8672 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-06-04 17:12:35,948 basehttp 15060 8672 "GET /supplies/ HTTP/1.1" 200 224864
+INFO 2025-06-04 17:12:43,200 basehttp 15060 8672 "GET /property/ HTTP/1.1" 200 187089
+INFO 2025-06-04 17:12:44,201 basehttp 15060 8672 "GET /supplies/ HTTP/1.1" 200 224607
+INFO 2025-06-04 17:12:45,452 basehttp 15060 8672 "GET /my-supply-requests/ HTTP/1.1" 200 9051
+INFO 2025-06-04 17:19:26,413 basehttp 15060 592 "GET /property/ HTTP/1.1" 200 187089
+INFO 2025-06-04 17:19:37,471 basehttp 15060 592 "GET /supplies/ HTTP/1.1" 200 224607
+INFO 2025-06-04 17:19:39,620 basehttp 15060 592 "GET /property/ HTTP/1.1" 200 187089
+INFO 2025-06-04 17:19:43,295 basehttp 15060 592 "GET /supplies/ HTTP/1.1" 200 224607
+INFO 2025-06-04 17:20:46,095 basehttp 15060 592 "GET /supplies/ HTTP/1.1" 200 224607
+INFO 2025-06-04 17:20:46,110 basehttp 15060 592 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-04 17:20:46,563 basehttp 15060 592 "GET /supplies/ HTTP/1.1" 200 224607
+INFO 2025-06-04 17:20:46,766 basehttp 15060 592 "GET /supplies/ HTTP/1.1" 200 224607
+INFO 2025-06-04 17:21:34,087 basehttp 15060 592 "GET /supplies/ HTTP/1.1" 200 224605
+INFO 2025-06-04 17:21:34,991 basehttp 15060 592 "GET /supplies/ HTTP/1.1" 200 224605
+INFO 2025-06-04 17:21:37,078 basehttp 15060 592 "GET /property/ HTTP/1.1" 200 187089
+INFO 2025-06-04 17:21:37,098 basehttp 15060 592 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 17:21:37,098 basehttp 15060 16256 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-04 17:23:16,008 basehttp 15060 16256 "GET /get_property_by_barcode/SUP-5/ HTTP/1.1" 200 49
+INFO 2025-06-04 17:23:28,166 basehttp 15060 16256 "GET /property/ HTTP/1.1" 200 187086
+INFO 2025-06-04 17:23:28,305 basehttp 15060 16256 "GET /property/ HTTP/1.1" 200 187086
+INFO 2025-06-04 17:23:28,433 basehttp 15060 16256 "GET /property/ HTTP/1.1" 200 187086
+INFO 2025-06-04 17:23:28,657 basehttp 15060 16256 "GET /property/ HTTP/1.1" 200 187086
+INFO 2025-06-04 17:23:31,414 basehttp 15060 16256 "GET /supplies/ HTTP/1.1" 200 224596
+INFO 2025-06-04 17:23:52,371 basehttp 15060 16256 "GET /property/ HTTP/1.1" 200 187086
+INFO 2025-06-04 17:24:10,128 basehttp 15060 16256 "GET /get_property_by_barcode/e/ HTTP/1.1" 200 49
+INFO 2025-06-04 17:25:19,121 basehttp 15060 16256 "GET /property/ HTTP/1.1" 200 187074
+INFO 2025-06-04 17:25:19,139 basehttp 15060 16256 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-04 17:25:19,575 basehttp 15060 16256 "GET /property/ HTTP/1.1" 200 187074
+INFO 2025-06-04 17:25:25,811 basehttp 15060 16256 "GET /get_property_by_barcode/f/ HTTP/1.1" 200 49
+INFO 2025-06-04 17:26:53,653 basehttp 15060 16256 "GET /get_property_history/21/ HTTP/1.1" 200 3354
+INFO 2025-06-04 17:27:01,901 basehttp 15060 16256 "GET /get_property_history/21/ HTTP/1.1" 200 3354
+INFO 2025-06-04 17:28:53,451 basehttp 15060 16256 "GET /supplies/ HTTP/1.1" 200 224584
+INFO 2025-06-04 17:28:53,470 basehttp 15060 16256 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 17:51:41,218 autoreload 16184 3584 Watching for file changes with StatReloader
+ERROR 2025-06-04 17:51:45,329 log 16184 16252 Internal Server Error: /supplies/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 805, in get_context_data
+    supply.barcode = generate_barcode(f"SUP-{supply.id}")
+                     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\utils.py", line 13, in generate_barcode
+    code128(code, writer=ImageWriter()).write(rv)
+                         ~~~~~~~~~~~^^
+TypeError: 'NoneType' object is not callable
+ERROR 2025-06-04 17:51:45,334 basehttp 16184 16252 "GET /supplies/ HTTP/1.1" 500 94952
+ERROR 2025-06-04 17:51:45,540 log 16184 16252 Internal Server Error: /supplies/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 805, in get_context_data
+    supply.barcode = generate_barcode(f"SUP-{supply.id}")
+                     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\utils.py", line 13, in generate_barcode
+    code128(code, writer=ImageWriter()).write(rv)
+                         ~~~~~~~~~~~^^
+TypeError: 'NoneType' object is not callable
+ERROR 2025-06-04 17:51:45,543 basehttp 16184 16252 "GET /supplies/ HTTP/1.1" 500 94952
+ERROR 2025-06-04 17:51:45,666 log 16184 16252 Internal Server Error: /supplies/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 805, in get_context_data
+    supply.barcode = generate_barcode(f"SUP-{supply.id}")
+                     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\utils.py", line 13, in generate_barcode
+    code128(code, writer=ImageWriter()).write(rv)
+                         ~~~~~~~~~~~^^
+TypeError: 'NoneType' object is not callable
+ERROR 2025-06-04 17:51:45,668 basehttp 16184 16252 "GET /supplies/ HTTP/1.1" 500 94952
+ERROR 2025-06-04 17:51:45,860 log 16184 16252 Internal Server Error: /supplies/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 805, in get_context_data
+    supply.barcode = generate_barcode(f"SUP-{supply.id}")
+                     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\utils.py", line 13, in generate_barcode
+    code128(code, writer=ImageWriter()).write(rv)
+                         ~~~~~~~~~~~^^
+TypeError: 'NoneType' object is not callable
+ERROR 2025-06-04 17:51:45,861 basehttp 16184 16252 "GET /supplies/ HTTP/1.1" 500 94952
+ERROR 2025-06-04 17:51:46,009 log 16184 16252 Internal Server Error: /supplies/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 805, in get_context_data
+    supply.barcode = generate_barcode(f"SUP-{supply.id}")
+                     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\utils.py", line 13, in generate_barcode
+    code128(code, writer=ImageWriter()).write(rv)
+                         ~~~~~~~~~~~^^
+TypeError: 'NoneType' object is not callable
+ERROR 2025-06-04 17:51:46,010 basehttp 16184 16252 "GET /supplies/ HTTP/1.1" 500 94952
+ERROR 2025-06-04 17:51:46,231 log 16184 16252 Internal Server Error: /supplies/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 805, in get_context_data
+    supply.barcode = generate_barcode(f"SUP-{supply.id}")
+                     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\utils.py", line 13, in generate_barcode
+    code128(code, writer=ImageWriter()).write(rv)
+                         ~~~~~~~~~~~^^
+TypeError: 'NoneType' object is not callable
+ERROR 2025-06-04 17:51:46,233 basehttp 16184 16252 "GET /supplies/ HTTP/1.1" 500 94952
+ERROR 2025-06-04 17:51:47,923 log 16184 16252 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 999, in get_context_data
+    prop.barcode = generate_barcode(barcode_number)
+                   ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\utils.py", line 13, in generate_barcode
+    code128(code, writer=ImageWriter()).write(rv)
+                         ~~~~~~~~~~~^^
+TypeError: 'NoneType' object is not callable
+ERROR 2025-06-04 17:51:47,924 basehttp 16184 16252 "GET /property/ HTTP/1.1" 500 103347
+ERROR 2025-06-04 17:51:49,457 log 16184 16252 Internal Server Error: /supplies/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 805, in get_context_data
+    supply.barcode = generate_barcode(f"SUP-{supply.id}")
+                     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\utils.py", line 13, in generate_barcode
+    code128(code, writer=ImageWriter()).write(rv)
+                         ~~~~~~~~~~~^^
+TypeError: 'NoneType' object is not callable
+ERROR 2025-06-04 17:51:49,459 basehttp 16184 16252 "GET /supplies/ HTTP/1.1" 500 94815
+ERROR 2025-06-04 17:51:49,938 log 16184 16252 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 999, in get_context_data
+    prop.barcode = generate_barcode(barcode_number)
+                   ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\utils.py", line 13, in generate_barcode
+    code128(code, writer=ImageWriter()).write(rv)
+                         ~~~~~~~~~~~^^
+TypeError: 'NoneType' object is not callable
+ERROR 2025-06-04 17:51:49,939 basehttp 16184 16252 "GET /property/ HTTP/1.1" 500 103347
+ERROR 2025-06-04 17:51:50,178 log 16184 16252 Internal Server Error: /supplies/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 805, in get_context_data
+    supply.barcode = generate_barcode(f"SUP-{supply.id}")
+                     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\utils.py", line 13, in generate_barcode
+    code128(code, writer=ImageWriter()).write(rv)
+                         ~~~~~~~~~~~^^
+TypeError: 'NoneType' object is not callable
+ERROR 2025-06-04 17:51:50,180 basehttp 16184 16252 "GET /supplies/ HTTP/1.1" 500 94684
+ERROR 2025-06-04 17:51:50,609 log 16184 16252 Internal Server Error: /property/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 999, in get_context_data
+    prop.barcode = generate_barcode(barcode_number)
+                   ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\utils.py", line 13, in generate_barcode
+    code128(code, writer=ImageWriter()).write(rv)
+                         ~~~~~~~~~~~^^
+TypeError: 'NoneType' object is not callable
+ERROR 2025-06-04 17:51:50,611 basehttp 16184 16252 "GET /property/ HTTP/1.1" 500 103347
+INFO 2025-06-04 17:51:53,211 basehttp 16184 15164 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-04 17:51:56,050 basehttp 16184 15164 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 17:51:56,106 basehttp 16184 15164 "GET /dashboard/ HTTP/1.1" 200 37042
+INFO 2025-06-04 17:51:56,136 basehttp 16184 15164 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-04 17:51:56,136 basehttp 16184 12260 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+ERROR 2025-06-04 17:52:11,021 log 16184 10872 Internal Server Error: /supplies/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\mixins.py", line 109, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\views\generic\list.py", line 178, in get
+    context = self.get_context_data()
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 805, in get_context_data
+    supply.barcode = generate_barcode(f"SUP-{supply.id}")
+                     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\utils.py", line 13, in generate_barcode
+    code128(code, writer=ImageWriter()).write(rv)
+                         ~~~~~~~~~~~^^
+TypeError: 'NoneType' object is not callable
+ERROR 2025-06-04 17:52:11,023 basehttp 16184 10872 "GET /supplies/ HTTP/1.1" 500 94816
+INFO 2025-06-04 17:53:12,419 autoreload 16184 3584 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\utils.py changed, reloading.
+INFO 2025-06-04 17:53:13,599 autoreload 15368 7972 Watching for file changes with StatReloader
+INFO 2025-06-04 17:53:18,762 basehttp 15368 12456 "GET /supplies/ HTTP/1.1" 200 230868
+INFO 2025-06-04 17:53:18,784 basehttp 15368 12456 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 17:53:50,040 basehttp 15368 14384 "POST /supply/modify_quantity/ HTTP/1.1" 200 81
+INFO 2025-06-04 17:53:54,541 autoreload 15368 7972 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-04 17:53:55,867 autoreload 3664 15488 Watching for file changes with StatReloader
+INFO 2025-06-04 17:54:13,854 basehttp 3664 3280 "POST /supply/modify_quantity/ HTTP/1.1" 200 81
+INFO 2025-06-04 17:56:11,517 basehttp 3664 14472 "GET /supplies/ HTTP/1.1" 200 231483
+INFO 2025-06-04 17:56:53,035 basehttp 3664 14808 "GET /get_supply_by_barcode/0/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:56:53,038 basehttp 3664 5680 "GET /get_supply_by_barcode/09/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:56:53,040 basehttp 3664 14180 "GET /get_supply_by_barcode/092/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:56:53,055 basehttp 3664 14180 "GET /get_supply_by_barcode/0923/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:56:53,056 basehttp 3664 5680 "GET /get_supply_by_barcode/09234/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:57:24,247 basehttp 3664 5732 "GET /get_supply_by_barcode/S/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:57:24,257 basehttp 3664 5732 "GET /get_supply_by_barcode/SU/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:57:24,275 basehttp 3664 4872 "GET /get_supply_by_barcode/SUP/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:57:24,282 basehttp 3664 13220 "GET /get_supply_by_barcode/SUP-1/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:57:24,284 basehttp 3664 13444 "GET /get_supply_by_barcode/SUP-11/ HTTP/1.1" 200 88
+ERROR 2025-06-04 17:57:24,368 log 3664 5732 Internal Server Error: /get_supply_by_barcode/SUP-/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2166, in get_supply_by_barcode
+    supply = Supply.objects.get(barcode=barcode)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 633, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+app.models.Supply.DoesNotExist: Supply matching query does not exist.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\fields\__init__.py", line 2128, in get_prep_value
+    return int(value)
+ValueError: invalid literal for int() with base 10: ''
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2172, in get_supply_by_barcode
+    supply = Supply.objects.get(id=supply_id)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1491, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1509, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1516, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\fields\__init__.py", line 2130, in get_prep_value
+    raise e.__class__(
+        "Field '%s' expected a number but got %r." % (self.name, value),
+    ) from e
+ValueError: Field 'id' expected a number but got ''.
+ERROR 2025-06-04 17:57:24,379 basehttp 3664 5732 "GET /get_supply_by_barcode/SUP-/ HTTP/1.1" 500 156716
+INFO 2025-06-04 17:58:07,727 basehttp 3664 14980 "GET /get_supply_by_barcode/S/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:07,744 basehttp 3664 14980 "GET /get_supply_by_barcode/SU/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:07,783 basehttp 3664 14980 "GET /get_supply_by_barcode/SUP/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:07,793 basehttp 3664 8236 "GET /get_supply_by_barcode/SUP-1/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:07,804 basehttp 3664 16348 "GET /get_supply_by_barcode/SUP-11/ HTTP/1.1" 200 88
+ERROR 2025-06-04 17:58:07,832 log 3664 15412 Internal Server Error: /get_supply_by_barcode/SUP-/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2166, in get_supply_by_barcode
+    supply = Supply.objects.get(barcode=barcode)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 633, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+app.models.Supply.DoesNotExist: Supply matching query does not exist.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\fields\__init__.py", line 2128, in get_prep_value
+    return int(value)
+ValueError: invalid literal for int() with base 10: ''
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2172, in get_supply_by_barcode
+    supply = Supply.objects.get(id=supply_id)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1491, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1509, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1516, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\fields\__init__.py", line 2130, in get_prep_value
+    raise e.__class__(
+        "Field '%s' expected a number but got %r." % (self.name, value),
+    ) from e
+ValueError: Field 'id' expected a number but got ''.
+ERROR 2025-06-04 17:58:07,835 basehttp 3664 15412 "GET /get_supply_by_barcode/SUP-/ HTTP/1.1" 500 156716
+INFO 2025-06-04 17:58:07,988 basehttp 3664 15412 "GET /get_supply_by_barcode/S/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:08,004 basehttp 3664 15412 "GET /get_supply_by_barcode/SU/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:08,020 basehttp 3664 16348 "GET /get_supply_by_barcode/SUP/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:08,037 basehttp 3664 15412 "GET /get_supply_by_barcode/SUP-1/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:08,038 basehttp 3664 14980 "GET /get_supply_by_barcode/SUP-11/ HTTP/1.1" 200 88
+ERROR 2025-06-04 17:58:08,092 log 3664 8236 Internal Server Error: /get_supply_by_barcode/SUP-/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2166, in get_supply_by_barcode
+    supply = Supply.objects.get(barcode=barcode)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 633, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+app.models.Supply.DoesNotExist: Supply matching query does not exist.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\fields\__init__.py", line 2128, in get_prep_value
+    return int(value)
+ValueError: invalid literal for int() with base 10: ''
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2172, in get_supply_by_barcode
+    supply = Supply.objects.get(id=supply_id)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1491, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1509, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1516, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\fields\__init__.py", line 2130, in get_prep_value
+    raise e.__class__(
+        "Field '%s' expected a number but got %r." % (self.name, value),
+    ) from e
+ValueError: Field 'id' expected a number but got ''.
+ERROR 2025-06-04 17:58:08,097 basehttp 3664 8236 "GET /get_supply_by_barcode/SUP-/ HTTP/1.1" 500 156716
+INFO 2025-06-04 17:58:14,709 basehttp 3664 1076 "GET /get_supply_by_barcode/S/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:14,733 basehttp 3664 1076 "GET /get_supply_by_barcode/SU/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:14,770 basehttp 3664 8200 "GET /get_supply_by_barcode/SUP/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:14,773 basehttp 3664 1076 "GET /get_supply_by_barcode/SUP-11/ HTTP/1.1" 200 88
+INFO 2025-06-04 17:58:14,784 basehttp 3664 11316 "GET /get_supply_by_barcode/SUP-1/ HTTP/1.1" 200 47
+ERROR 2025-06-04 17:58:14,843 log 3664 13216 Internal Server Error: /get_supply_by_barcode/SUP-/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2166, in get_supply_by_barcode
+    supply = Supply.objects.get(barcode=barcode)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 633, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+app.models.Supply.DoesNotExist: Supply matching query does not exist.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\fields\__init__.py", line 2128, in get_prep_value
+    return int(value)
+ValueError: invalid literal for int() with base 10: ''
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2172, in get_supply_by_barcode
+    supply = Supply.objects.get(id=supply_id)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1491, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1509, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1516, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\fields\__init__.py", line 2130, in get_prep_value
+    raise e.__class__(
+        "Field '%s' expected a number but got %r." % (self.name, value),
+    ) from e
+ValueError: Field 'id' expected a number but got ''.
+ERROR 2025-06-04 17:58:14,848 basehttp 3664 13216 "GET /get_supply_by_barcode/SUP-/ HTTP/1.1" 500 156716
+INFO 2025-06-04 17:58:18,693 basehttp 3664 13216 "GET /get_supply_by_barcode/S/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:18,707 basehttp 3664 11316 "GET /get_supply_by_barcode/SU/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:18,743 basehttp 3664 11316 "GET /get_supply_by_barcode/SUP/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:18,759 basehttp 3664 1076 "GET /get_supply_by_barcode/SUP-1/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:18,768 basehttp 3664 8200 "GET /get_supply_by_barcode/SUP-11/ HTTP/1.1" 200 88
+ERROR 2025-06-04 17:58:18,817 log 3664 13216 Internal Server Error: /get_supply_by_barcode/SUP-/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2166, in get_supply_by_barcode
+    supply = Supply.objects.get(barcode=barcode)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 633, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+app.models.Supply.DoesNotExist: Supply matching query does not exist.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\fields\__init__.py", line 2128, in get_prep_value
+    return int(value)
+ValueError: invalid literal for int() with base 10: ''
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2172, in get_supply_by_barcode
+    supply = Supply.objects.get(id=supply_id)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1491, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1509, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1516, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\fields\__init__.py", line 2130, in get_prep_value
+    raise e.__class__(
+        "Field '%s' expected a number but got %r." % (self.name, value),
+    ) from e
+ValueError: Field 'id' expected a number but got ''.
+ERROR 2025-06-04 17:58:18,822 basehttp 3664 13216 "GET /get_supply_by_barcode/SUP-/ HTTP/1.1" 500 156716
+INFO 2025-06-04 17:58:21,014 basehttp 3664 13216 "POST /supply/modify_quantity/ HTTP/1.1" 200 81
+INFO 2025-06-04 17:58:28,117 basehttp 3664 14688 "GET /get_supply_by_barcode/S/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:28,162 basehttp 3664 16324 "GET /get_supply_by_barcode/SU/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:28,184 basehttp 3664 6032 "GET /get_supply_by_barcode/SUP-1/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:28,187 basehttp 3664 14688 "GET /get_supply_by_barcode/SUP/ HTTP/1.1" 200 47
+INFO 2025-06-04 17:58:28,206 basehttp 3664 6928 "GET /get_supply_by_barcode/SUP-11/ HTTP/1.1" 200 88
+ERROR 2025-06-04 17:58:28,254 log 3664 9952 Internal Server Error: /get_supply_by_barcode/SUP-/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2166, in get_supply_by_barcode
+    supply = Supply.objects.get(barcode=barcode)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 633, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+app.models.Supply.DoesNotExist: Supply matching query does not exist.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\fields\__init__.py", line 2128, in get_prep_value
+    return int(value)
+ValueError: invalid literal for int() with base 10: ''
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2172, in get_supply_by_barcode
+    supply = Supply.objects.get(id=supply_id)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1491, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1509, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\query.py", line 1516, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\Lib\site-packages\django\db\models\fields\__init__.py", line 2130, in get_prep_value
+    raise e.__class__(
+        "Field '%s' expected a number but got %r." % (self.name, value),
+    ) from e
+ValueError: Field 'id' expected a number but got ''.
+ERROR 2025-06-04 17:58:28,260 basehttp 3664 9952 "GET /get_supply_by_barcode/SUP-/ HTTP/1.1" 500 156974
+INFO 2025-06-04 17:58:32,351 autoreload 3664 15488 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 17:58:33,945 autoreload 7884 14956 Watching for file changes with StatReloader
+INFO 2025-06-04 17:59:05,042 autoreload 7884 14956 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 17:59:06,433 autoreload 16056 14800 Watching for file changes with StatReloader
+INFO 2025-06-04 18:01:45,484 autoreload 14196 9852 Watching for file changes with StatReloader
+INFO 2025-06-04 18:02:20,596 autoreload 14196 9852 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 18:02:22,111 autoreload 11424 6000 Watching for file changes with StatReloader
+INFO 2025-06-04 18:03:35,979 autoreload 15500 5248 Watching for file changes with StatReloader
+INFO 2025-06-04 18:03:57,522 autoreload 11424 6000 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-06-04 18:03:58,243 autoreload 15500 5248 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-06-04 18:03:59,195 autoreload 12084 10012 Watching for file changes with StatReloader
+INFO 2025-06-04 18:03:59,621 autoreload 11648 16060 Watching for file changes with StatReloader
+INFO 2025-06-04 18:04:25,536 autoreload 16104 8340 Watching for file changes with StatReloader
+INFO 2025-06-04 18:04:41,129 basehttp 16104 3280 "GET /supplies/ HTTP/1.1" 200 224843
+INFO 2025-06-04 18:04:50,130 basehttp 16104 3280 "GET /supplies/ HTTP/1.1" 200 224584
+INFO 2025-06-04 18:04:50,382 basehttp 16104 3280 "GET /supplies/ HTTP/1.1" 200 224584
+INFO 2025-06-04 18:04:57,730 basehttp 16104 3280 "GET /get_supply_by_barcode/S/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:04:57,780 basehttp 16104 3280 "GET /get_supply_by_barcode/SU/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:04:57,796 basehttp 16104 2516 "GET /get_supply_by_barcode/SUP/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:04:57,802 basehttp 16104 11684 "GET /get_supply_by_barcode/SUP-1/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:04:57,820 basehttp 16104 11784 "GET /get_supply_by_barcode/SUP-11/ HTTP/1.1" 200 88
+ERROR 2025-06-04 18:04:58,088 log 16104 15332 Internal Server Error: /get_supply_by_barcode/SUP-/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2166, in get_supply_by_barcode
+    supply = Supply.objects.get(barcode=barcode)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 633, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+app.models.Supply.DoesNotExist: Supply matching query does not exist.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 2128, in get_prep_value
+    return int(value)
+ValueError: invalid literal for int() with base 10: ''
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2172, in get_supply_by_barcode
+    supply = Supply.objects.get(id=supply_id)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1491, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1509, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1516, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 2130, in get_prep_value
+    raise e.__class__(
+        "Field '%s' expected a number but got %r." % (self.name, value),
+    ) from e
+ValueError: Field 'id' expected a number but got ''.
+ERROR 2025-06-04 18:04:58,096 basehttp 16104 15332 "GET /get_supply_by_barcode/SUP-/ HTTP/1.1" 500 158442
+INFO 2025-06-04 18:04:59,909 basehttp 16104 15332 "GET /get_supply_by_barcode/S/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:04:59,914 basehttp 16104 11784 "GET /get_supply_by_barcode/SU/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:04:59,933 basehttp 16104 11784 "GET /get_supply_by_barcode/SUP/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:04:59,952 basehttp 16104 11684 "GET /get_supply_by_barcode/SUP-1/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:04:59,968 basehttp 16104 2516 "GET /get_supply_by_barcode/SUP-11/ HTTP/1.1" 200 88
+ERROR 2025-06-04 18:04:59,994 log 16104 15332 Internal Server Error: /get_supply_by_barcode/SUP-/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2166, in get_supply_by_barcode
+    supply = Supply.objects.get(barcode=barcode)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 633, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+app.models.Supply.DoesNotExist: Supply matching query does not exist.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 2128, in get_prep_value
+    return int(value)
+ValueError: invalid literal for int() with base 10: ''
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2172, in get_supply_by_barcode
+    supply = Supply.objects.get(id=supply_id)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1491, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1509, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1516, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 2130, in get_prep_value
+    raise e.__class__(
+        "Field '%s' expected a number but got %r." % (self.name, value),
+    ) from e
+ValueError: Field 'id' expected a number but got ''.
+ERROR 2025-06-04 18:04:59,998 basehttp 16104 15332 "GET /get_supply_by_barcode/SUP-/ HTTP/1.1" 500 158442
+INFO 2025-06-04 18:05:02,597 basehttp 16104 15332 "POST /supply/modify_quantity/ HTTP/1.1" 200 81
+INFO 2025-06-04 18:05:04,469 basehttp 16104 15332 "GET /supplies/ HTTP/1.1" 200 224844
+INFO 2025-06-04 18:05:12,962 basehttp 16104 15332 "GET /get_supply_by_barcode/S/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:05:12,963 basehttp 16104 2516 "GET /get_supply_by_barcode/SU/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:05:13,002 basehttp 16104 2516 "GET /get_supply_by_barcode/SUP/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:05:13,023 basehttp 16104 11684 "GET /get_supply_by_barcode/SUP-1/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:05:13,029 basehttp 16104 11784 "GET /get_supply_by_barcode/SUP-11/ HTTP/1.1" 200 88
+ERROR 2025-06-04 18:05:13,066 log 16104 15332 Internal Server Error: /get_supply_by_barcode/SUP-/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2166, in get_supply_by_barcode
+    supply = Supply.objects.get(barcode=barcode)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 633, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+app.models.Supply.DoesNotExist: Supply matching query does not exist.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 2128, in get_prep_value
+    return int(value)
+ValueError: invalid literal for int() with base 10: ''
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2172, in get_supply_by_barcode
+    supply = Supply.objects.get(id=supply_id)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1491, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1509, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1516, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 2130, in get_prep_value
+    raise e.__class__(
+        "Field '%s' expected a number but got %r." % (self.name, value),
+    ) from e
+ValueError: Field 'id' expected a number but got ''.
+ERROR 2025-06-04 18:05:13,070 basehttp 16104 15332 "GET /get_supply_by_barcode/SUP-/ HTTP/1.1" 500 158442
+INFO 2025-06-04 18:05:22,257 basehttp 16104 15332 "GET /get_supply_by_barcode/S/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:05:22,270 basehttp 16104 11784 "GET /get_supply_by_barcode/SU/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:05:22,287 basehttp 16104 15332 "GET /get_supply_by_barcode/SUP/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:05:22,305 basehttp 16104 11684 "GET /get_supply_by_barcode/SUP-1/ HTTP/1.1" 200 47
+INFO 2025-06-04 18:05:22,318 basehttp 16104 2516 "GET /get_supply_by_barcode/SUP-11/ HTTP/1.1" 200 88
+ERROR 2025-06-04 18:05:22,360 log 16104 11784 Internal Server Error: /get_supply_by_barcode/SUP-/
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2166, in get_supply_by_barcode
+    supply = Supply.objects.get(barcode=barcode)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 633, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+app.models.Supply.DoesNotExist: Supply matching query does not exist.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 2128, in get_prep_value
+    return int(value)
+ValueError: invalid literal for int() with base 10: ''
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py", line 2172, in get_supply_by_barcode
+    supply = Supply.objects.get(id=supply_id)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1491, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1509, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\query.py", line 1516, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 2130, in get_prep_value
+    raise e.__class__(
+        "Field '%s' expected a number but got %r." % (self.name, value),
+    ) from e
+ValueError: Field 'id' expected a number but got ''.
+ERROR 2025-06-04 18:05:22,367 basehttp 16104 11784 "GET /get_supply_by_barcode/SUP-/ HTTP/1.1" 500 158442
+INFO 2025-06-04 18:05:28,838 basehttp 16104 11784 "POST /supply/modify_quantity/ HTTP/1.1" 200 81
+INFO 2025-06-04 18:05:30,245 basehttp 16104 11784 "GET /supplies/ HTTP/1.1" 200 224844
+INFO 2025-06-04 18:06:01,160 basehttp 16104 11784 "GET /supplies/ HTTP/1.1" 200 224585
+INFO 2025-06-04 18:06:04,031 basehttp 16104 11784 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-04 18:06:04,039 basehttp 16104 11784 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-04 18:19:10,687 basehttp 16104 6812 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-04 18:19:10,750 basehttp 16104 6812 "GET /dashboard/ HTTP/1.1" 200 37042
+INFO 2025-06-04 18:19:17,596 basehttp 16104 6812 "GET /property/ HTTP/1.1" 200 187074
+INFO 2025-06-04 18:19:17,632 basehttp 16104 6812 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-04 18:20:11,599 basehttp 16104 6812 "GET /get_property_by_barcode/SUP-11/ HTTP/1.1" 200 49
+INFO 2025-06-04 18:20:21,454 basehttp 16104 6812 "GET /get_property_by_barcode/001/ HTTP/1.1" 200 84
+INFO 2025-06-04 18:20:25,428 basehttp 16104 6812 "GET /get_property_by_barcode/001/ HTTP/1.1" 200 84
+INFO 2025-06-04 18:20:32,247 basehttp 16104 6812 "GET /get_property_by_barcode/001/ HTTP/1.1" 200 84
+INFO 2025-06-04 18:20:33,631 basehttp 16104 6812 "GET /get_property_by_barcode/001/ HTTP/1.1" 200 84
+INFO 2025-06-04 18:20:34,974 basehttp 16104 6812 "GET /get_property_by_barcode/001/ HTTP/1.1" 200 84
+INFO 2025-06-04 18:20:36,804 basehttp 16104 6812 "GET /get_property_by_barcode/001/ HTTP/1.1" 200 84
+INFO 2025-06-04 18:20:58,012 basehttp 16104 6812 "POST /property/modify_quantity/ HTTP/1.1" 200 81
+INFO 2025-06-04 18:21:00,091 basehttp 16104 6812 "GET /property/ HTTP/1.1" 200 187333
+INFO 2025-06-04 18:21:00,111 basehttp 16104 6812 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-04 18:21:59,005 basehttp 16104 6812 "GET /get_property_by_barcode/B:+D/ HTTP/1.1" 200 49
+INFO 2025-06-04 18:22:13,694 basehttp 16104 6812 "GET /get_property_by_barcode/001/ HTTP/1.1" 200 84
+INFO 2025-06-04 18:22:18,895 basehttp 16104 6812 "GET /get_property_by_barcode/001/ HTTP/1.1" 200 84
+INFO 2025-06-04 18:22:26,948 basehttp 16104 6812 "POST /property/modify_quantity/ HTTP/1.1" 200 81
+INFO 2025-06-04 18:22:29,229 basehttp 16104 6812 "GET /property/ HTTP/1.1" 200 187333
+INFO 2025-06-04 18:22:40,648 basehttp 16104 6812 "GET /get_property_history/20/ HTTP/1.1" 200 3971
+INFO 2025-06-04 18:23:10,699 basehttp 16104 6812 "POST /export-property/ HTTP/1.1" 200 6883
+INFO 2025-06-04 18:29:10,663 basehttp 16104 15456 "POST /property/30/archive/ HTTP/1.1" 302 0
+INFO 2025-06-04 18:29:10,749 basehttp 16104 15456 "GET /property/ HTTP/1.1" 200 187336
+INFO 2025-06-04 18:29:15,671 basehttp 16104 15456 "GET /archived-items/ HTTP/1.1" 200 6110
+INFO 2025-06-04 18:30:02,749 basehttp 16104 15456 "GET /supplies/ HTTP/1.1" 200 224585
+INFO 2025-06-06 13:24:54,021 autoreload 13224 10320 Watching for file changes with StatReloader
+INFO 2025-06-06 13:24:58,431 basehttp 13224 13168 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-06 13:24:58,473 basehttp 13224 13168 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+WARNING 2025-06-06 13:24:58,607 basehttp 13224 13168 "GET /favicon.ico HTTP/1.1" 404 20900
+INFO 2025-06-06 13:25:00,650 basehttp 13224 13168 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-06 13:25:00,889 basehttp 13224 13168 "GET /dashboard/ HTTP/1.1" 200 37042
+INFO 2025-06-06 13:25:00,915 basehttp 13224 13168 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-06 13:25:00,916 basehttp 13224 14976 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-06 13:25:00,918 basehttp 13224 14188 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-06 13:25:00,919 basehttp 13224 1056 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-06 13:33:08,887 basehttp 13224 7944 "GET /property/ HTTP/1.1" 200 187074
+INFO 2025-06-06 13:33:08,928 basehttp 13224 7944 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-06-06 13:33:08,933 basehttp 13224 8300 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-06 13:33:08,934 basehttp 13224 616 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-06 13:33:08,935 basehttp 13224 3964 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0
+INFO 2025-06-06 13:33:22,120 basehttp 13224 616 "GET /activity/ HTTP/1.1" 200 14567
+INFO 2025-06-06 13:33:23,135 basehttp 13224 616 "GET /supplies/ HTTP/1.1" 200 224585
+INFO 2025-06-06 13:33:32,555 basehttp 13224 616 "GET /activity/ HTTP/1.1" 200 14567
+INFO 2025-06-06 13:43:45,636 basehttp 13224 15756 "GET /dashboard/ HTTP/1.1" 200 37042
+INFO 2025-06-06 13:43:46,552 basehttp 13224 15756 "GET /property/ HTTP/1.1" 200 187074
+INFO 2025-06-06 13:43:48,506 basehttp 13224 15756 "GET /dashboard/ HTTP/1.1" 200 37042
+INFO 2025-06-06 13:54:09,599 basehttp 13224 6292 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-06 13:54:09,608 basehttp 13224 6292 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-06 13:54:15,814 basehttp 13224 6292 "POST /accounts/login/ HTTP/1.1" 200 9518
+INFO 2025-06-06 13:56:03,549 basehttp 13224 1184 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-06 13:56:03,663 basehttp 13224 1184 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 11295
+INFO 2025-06-06 14:08:10,064 basehttp 13224 13260 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-06 14:08:10,072 basehttp 13224 13260 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-06 14:23:30,333 basehttp 13224 15000 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-06 14:23:30,411 basehttp 13224 15000 "GET /dashboard/ HTTP/1.1" 200 37042
+INFO 2025-06-06 14:23:32,801 basehttp 13224 15000 "GET /property/ HTTP/1.1" 200 187074
+INFO 2025-06-06 14:46:26,165 basehttp 13224 15164 "GET /my-reservations/ HTTP/1.1" 200 7845
+INFO 2025-06-06 14:46:26,195 basehttp 13224 15164 "GET /static/scripts/filterStatus.js HTTP/1.1" 304 0
+INFO 2025-06-06 14:46:28,346 basehttp 13224 15164 "GET /manage-users/ HTTP/1.1" 200 28718
+INFO 2025-06-06 14:46:28,380 basehttp 13224 6992 "GET /static/scripts/departmentModal.js HTTP/1.1" 304 0
+INFO 2025-06-06 14:46:28,381 basehttp 13224 15164 "GET /static/scripts/accountModal.js HTTP/1.1" 304 0
+INFO 2025-06-06 14:46:28,382 basehttp 13224 6792 "GET /static/scripts/userFilters.js HTTP/1.1" 304 0
+INFO 2025-06-06 14:46:31,271 basehttp 13224 6792 "GET /my-supply-requests/ HTTP/1.1" 200 9051
+INFO 2025-06-06 14:46:37,445 basehttp 13224 6792 "GET /archived-items/ HTTP/1.1" 200 6110
+INFO 2025-06-06 14:46:54,028 basehttp 13224 6792 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-06 14:46:54,036 basehttp 13224 6792 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-06 14:46:59,677 basehttp 13224 6792 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-06 14:46:59,710 basehttp 13224 6792 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 11295
+INFO 2025-06-06 14:47:01,270 basehttp 13224 6792 "GET /userpanel/user_borrow/ HTTP/1.1" 200 41730
+INFO 2025-06-06 14:47:04,027 basehttp 13224 6792 "GET /userpanel/user_borrow/ HTTP/1.1" 200 41730
+INFO 2025-06-06 14:47:05,117 basehttp 13224 6792 "GET /userpanel/user_request/ HTTP/1.1" 200 17376
+INFO 2025-06-06 15:03:03,203 basehttp 13224 8780 "POST /userpanel/cancel-supply-request/47/ HTTP/1.1" 200 66
+INFO 2025-06-06 15:03:05,848 basehttp 13224 8780 "GET /userpanel/user_request/ HTTP/1.1" 200 17141
+INFO 2025-06-06 15:03:15,615 basehttp 13224 8780 "GET /userpanel/user_request/ HTTP/1.1" 200 17141
+INFO 2025-06-06 15:03:16,704 basehttp 13224 8780 "GET /userpanel/user_borrow/ HTTP/1.1" 200 41730
+INFO 2025-06-06 15:03:18,688 basehttp 13224 8780 "GET /userpanel/user_reserve/ HTTP/1.1" 200 53044
+INFO 2025-06-06 15:03:19,970 basehttp 13224 8780 "GET /userpanel/user_report/ HTTP/1.1" 200 51303
+INFO 2025-06-06 15:03:22,223 basehttp 13224 8780 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 11299
+INFO 2025-06-09 14:21:49,519 autoreload 12932 12928 Watching for file changes with StatReloader
+INFO 2025-06-09 14:21:56,063 basehttp 12932 5504 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-09 14:21:56,233 basehttp 12932 5504 "GET /static/images/resourcehivelogo.png HTTP/1.1" 304 0
+WARNING 2025-06-09 14:21:56,299 basehttp 12932 5504 "GET /favicon.ico HTTP/1.1" 404 20900
+INFO 2025-06-09 14:21:58,789 basehttp 12932 5504 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-09 14:21:58,860 basehttp 12932 5504 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 11299
+INFO 2025-06-09 14:21:58,878 basehttp 12932 5504 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-06-09 14:21:58,880 basehttp 12932 5504 "GET /static/scripts/notificationBell.js HTTP/1.1" 304 0
+INFO 2025-06-09 14:22:04,849 basehttp 12932 5504 "GET /userpanel/user_request/ HTTP/1.1" 200 17141
+INFO 2025-06-09 14:22:08,020 basehttp 12932 5504 "GET /userpanel/user_reserve/ HTTP/1.1" 200 53044
+INFO 2025-06-09 14:22:11,013 basehttp 12932 5504 "GET /userpanel/user_report/ HTTP/1.1" 200 51303
+INFO 2025-06-09 14:22:12,347 basehttp 12932 5504 "GET /userpanel/password/change/ HTTP/1.1" 200 9584
+INFO 2025-06-09 14:22:21,403 basehttp 12932 5504 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-06-09 14:22:21,408 basehttp 12932 5504 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-09 14:22:24,992 basehttp 12932 5504 "GET /accounts/register/ HTTP/1.1" 200 2768
+INFO 2025-06-09 14:22:25,009 basehttp 12932 5504 "GET /static/css/auth.css HTTP/1.1" 200 1910
+INFO 2025-06-09 14:22:30,091 basehttp 12932 5504 "GET / HTTP/1.1" 200 9320
+INFO 2025-06-09 14:22:40,491 basehttp 12932 5504 "POST /accounts/login/ HTTP/1.1" 200 9518
+INFO 2025-06-09 14:22:47,317 basehttp 12932 5504 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-06-09 14:22:47,356 basehttp 12932 5504 "GET /dashboard/ HTTP/1.1" 200 37042
+INFO 2025-06-09 14:22:47,376 basehttp 12932 5504 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-06-09 14:22:47,376 basehttp 12932 7448 "GET /static/scripts/charts.js HTTP/1.1" 304 0
+INFO 2025-06-09 14:23:03,364 basehttp 12932 7448 "GET /supplies/ HTTP/1.1" 200 224585
+INFO 2025-06-09 14:23:03,383 basehttp 12932 7448 "GET /static/css/barcode.css HTTP/1.1" 304 0
+WARNING 2025-06-09 14:23:29,982 basehttp 12932 7448 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 21011
+INFO 2025-06-09 14:23:43,941 basehttp 12932 7448 "GET /dashboard/ HTTP/1.1" 200 37042
+WARNING 2025-06-09 14:23:43,973 basehttp 12932 7448 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 21011
+INFO 2025-06-09 14:23:46,927 basehttp 12932 7448 "GET /activity/ HTTP/1.1" 200 14285
+WARNING 2025-06-09 14:23:46,957 basehttp 12932 7448 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 21011
+INFO 2025-06-09 14:23:48,287 basehttp 12932 7448 "GET /activity/?user=&model=&start_date=&end_date= HTTP/1.1" 200 14285
+WARNING 2025-06-09 14:23:48,318 basehttp 12932 7448 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 21011
+INFO 2025-06-09 14:23:49,674 basehttp 12932 7448 "GET /property/ HTTP/1.1" 200 187074
+WARNING 2025-06-09 14:23:49,705 basehttp 12932 7448 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 21011
+INFO 2025-06-09 14:23:49,707 basehttp 12932 5504 "GET /static/scripts/propertyModal.js HTTP/1.1" 304 0
+INFO 2025-06-09 14:23:49,708 basehttp 12932 13024 "GET /static/scripts/categoryModal.js HTTP/1.1" 304 0
+INFO 2025-06-09 14:23:49,709 basehttp 12932 12988 "GET /static/scripts/modifyQuantity.js HTTP/1.1" 304 0

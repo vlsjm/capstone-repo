@@ -710,7 +710,7 @@ input:focus {
               <i class="fas fa-plus"></i> Add Property
             </button>
             <button id="openModifyQuantityModalBtn" class="action-btn secondary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #4a5568; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
-              <i class="fas fa-edit"></i> Modify Quantity
+              <i class="fas fa-edit"></i> Property Inventory
             </button>
             <button id="openCategoryModalBtn" class="action-btn primary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-folder-plus"></i> Add Category
@@ -1051,7 +1051,7 @@ input:focus {
 <div id="modifyQuantityModal" class="modal">
   <div class="modal-content">
     <span class="close" id="closeModifyQuantityModalBtn">&times;</span>
-    <h3>Modify Property Quantity</h3>
+    <h3>Property Inventory</h3>
 
     <form method="post" action="{% url 'modify_property_quantity_generic' %}" id="modifyQuantityForm">
       {% csrf_token %}
@@ -1059,7 +1059,7 @@ input:focus {
       <!-- Barcode Scanner Input -->
       <div class="form-group">
         <label for="barcode_input">Scan Barcode</label>
-        <input type="text" id="barcode_input" class="form-control" placeholder="Scan or enter barcode..." autofocus>
+        <input type="text" id="barcode_input" class="form-control" placeholder="Scan barcode" autofocus>
       </div>
 
       <!-- Property Info Display -->
