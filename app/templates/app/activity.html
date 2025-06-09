@@ -72,7 +72,13 @@
                         <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
                         <td>{{ log.user.username }}</td>
                         <td>{{ log.get_action_display }}</td>
-                        <td>{{ log.description }}</td>
+                        <td title="{{ log.description }}">
+                            {% if log.description|length > 50 %}
+                                {{ log.description|slice:':50' }}...
+                            {% else %}
+                                {{ log.description }}
+                            {% endif %}
+                        </td>
                         <td>{{ log.timestamp|date:"M d, Y - h:i A" }}</td>
                     </tr>
                     {% empty %}

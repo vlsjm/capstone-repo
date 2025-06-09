@@ -399,6 +399,18 @@ tr.hidden {
 .print-btn i {
     font-size: 1.2em;
 }
+.cancel-btn {
+  background-color: #878c99;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  height: 50px;
+  margin-top: 20px;
+}
+
 
 @media print {
     body * {
@@ -743,7 +755,13 @@ tr.hidden {
                   {{ supply.get_status_display }}
                 </span>
               </td>
-              <td>{{ supply.available_for_request|yesno:"Yes,No" }}</td>
+              <td>
+                {% if supply.is_expired %}
+                  Not Available
+                {% else %}
+                  {{ supply.available_for_request|yesno:"Yes,No" }}
+                {% endif %}
+              </td>
                <td>
                     <div class="barcode-container">
                       <img src="{{ supply.barcode }}" alt="Barcode for {{ supply.supply_name }}" class="barcode-image">
@@ -787,10 +805,10 @@ tr.hidden {
                   <form method="post" action="{% url 'archive_supply' supply.id %}" style="display: inline;">
                     {% csrf_token %}
                     <button type="submit" class="action-btn" 
-                      onclick="return confirm('Are you sure you want to archive this supply? This will only be possible if the quantity is zero.');"
+                      onclick="return confirm('{% if supply.is_expired %}Are you sure you want to archive this expired supply? This action is allowed even if the quantity is not zero.{% else %}Are you sure you want to archive this supply? This will only be possible if the quantity is zero.{% endif %}');"
                       title="Archive"
-                      {% if supply.quantity_info.current_quantity > 0 %}disabled{% endif %}
-                      style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #36b9cc; color: white; border: none; border-radius: 4px; cursor: {% if supply.quantity_info.current_quantity > 0 %}not-allowed{% else %}pointer{% endif %}; transition: all 0.2s; {% if supply.quantity_info.current_quantity > 0 %}opacity: 0.6{% endif %}">
+                      {% if not supply.is_expired and supply.quantity_info.current_quantity > 0 %}disabled{% endif %}
+                      style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #36b9cc; color: white; border: none; border-radius: 4px; cursor: {% if not supply.is_expired and supply.quantity_info.current_quantity > 0 %}not-allowed{% else %}pointer{% endif %}; transition: all 0.2s; {% if not supply.is_expired and supply.quantity_info.current_quantity > 0 %}opacity: 0.6{% endif %}">
                       <i class="fas fa-archive"></i>
                     </button>
                   </form>
@@ -920,7 +938,7 @@ tr.hidden {
           <select id="manual_supply_select" class="form-control custom-select">
             <option value="">Select a supply</option>
             {% for supply in all_supplies %}
-              <option value="{{ supply.id }}" data-quantity="{{ supply.quantity_info.current_quantity }}">
+              <option value="{{ supply.id }}" data-quantity="{{ supply.quantity_info.current_quantity }}" data-description="{{ supply.description|default:''|escapejs }}">
                 {{ supply.supply_name }}
               </option>
             {% endfor %}
@@ -931,6 +949,7 @@ tr.hidden {
         <div id="supply_info" style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; display: none;">
           <p><strong>Supply Name: </strong><span id="scanned_supply_name"></span></p>
           <p><strong>Current Quantity: </strong><span id="scanned_supply_quantity"></span></p>
+          <p><strong>Description: </strong><span id="scanned_supply_description"></span></p>
         </div>
 
         <!-- Hidden Supply ID -->
@@ -1074,8 +1093,7 @@ tr.hidden {
                  placeholder="Enter category name">
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 10px;">
-          <button type="button" class="cancel-btn" onclick="closeCategoryEditModal()"
-                  style="padding: 8px 16px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          <button type="button" class="cancel-btn" onclick="closeCategoryEditModal()">
             Cancel
           </button>
           <button type="submit" class="submit-btn"
@@ -1189,8 +1207,7 @@ tr.hidden {
                  placeholder="Enter subcategory name">
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 10px;">
-          <button type="button" class="cancel-btn" onclick="closeSubcategoryEditModal()"
-                  style="padding: 8px 16px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          <button type="button" class="cancel-btn" onclick="closeSubcategoryEditModal()">
             Cancel
           </button>
           <button type="submit" class="submit-btn"
@@ -1793,16 +1810,18 @@ tr.hidden {
         const supplyId = selectedOption.val();
         const supplyName = selectedOption.text();
         const currentQuantity = selectedOption.data('quantity');
+        const description = selectedOption.data('description');
 
         if (supplyId) {
           $('#supply_info').show();
           $('#scanned_supply_name').text(supplyName);
           $('#scanned_supply_quantity').text(currentQuantity);
+          $('#scanned_supply_description').text(description);
           $('#supply_id').val(supplyId);
           $('#modifyQuantitySubmitBtn').prop('disabled', false);
           
           // Set initial quantity to 1
-          $('#amount').val(1);
+          $('#amount').val(0);
         } else {
           resetModifyQuantityForm();
         }
@@ -1840,6 +1859,7 @@ tr.hidden {
                     $('#supply_info').show();
                     $('#scanned_supply_name').text(response.supply.name);
                     $('#scanned_supply_quantity').text(response.supply.current_quantity);
+                    $('#scanned_supply_description').text(response.supply.description);
                     $('#supply_id').val(response.supply.id);
                     $('#modifyQuantitySubmitBtn').prop('disabled', false);
                     
@@ -1937,6 +1957,7 @@ tr.hidden {
         document.getElementById('supply_info').style.display = 'none';
         document.getElementById('scanned_supply_name').textContent = '';
         document.getElementById('scanned_supply_quantity').textContent = '';
+        document.getElementById('scanned_supply_description').textContent = '';
         document.getElementById('amount').value = '1';
         document.getElementById('modifyQuantitySubmitBtn').disabled = true;
         barcodeBuffer = '';

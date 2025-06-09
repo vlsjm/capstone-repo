@@ -224,6 +224,7 @@ h1 {
   font-style: italic;
 }
 
+
 /* Responsive adjustments for activity page */
 @media (max-width: 768px) {
   .actlog-page {

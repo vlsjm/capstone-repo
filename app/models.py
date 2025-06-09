@@ -324,7 +324,10 @@ class Property(models.Model):
     is_archived = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.property_name} - {self.barcode if self.barcode else 'No Barcode'}"
+        # Only show property name and property number (if available), not barcode
+        if self.property_number:
+            return f"{self.property_name} ({self.property_number})"
+        return self.property_name
 
     def update_availability(self):
         """Update availability based on condition and quantity"""
@@ -831,9 +834,9 @@ class SupplyHistory(models.Model):
     class Meta:
         ordering = ['-timestamp']
 
-def __str__(self):
-    user_display = self.user.username if self.user else "Unknown User"  
-    return f"{self.supply.supply_name} - {self.action} by {self.user.username} at {self.timestamp}"
+    def __str__(self):
+        user_display = self.user.username if self.user else "Unknown User"  
+        return f"{self.supply.supply_name} - {self.action} by {self.user.username} at {self.timestamp}"
 
 class PropertyHistory(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='history')
@@ -848,6 +851,6 @@ class PropertyHistory(models.Model):
     class Meta:
         ordering = ['-timestamp']
 
-def __str__(self):
-    user_display = self.user.username if self.user else "Unknown User"  
-    return f"{self.property.property_name} - {self.action} by {self.user.username} at {self.timestamp}"
+    def __str__(self):
+        user_display = self.user.username if self.user else "Unknown User"  
+        return f"{self.property.property_name} - {self.action} by {self.user.username} at {self.timestamp}"

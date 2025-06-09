@@ -67,7 +67,7 @@
     <!-- Archived Supplies -->
     <div class="card shadow mb-4" style="margin-left: 270px;">
         <div class="card-header py-3">
-            <h2 class="m-0 font-weight-bold text-primary">Archived Supplies</h2>
+            <h2 class="m-0 font-weight-bold text-primary" style="color: #1a237e;">Archived Supplies</h2>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -97,7 +97,7 @@
                                         <td>
                                             <form method="post" action="{% url 'unarchive_supply' supply.id %}" style="display: inline;">
                                                 {% csrf_token %}
-                                                <button type="submit" class="btn btn-action btn-archive">
+                                                <button type="submit" class="btn-action btn-unarchive" style="background-color: #28a745; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-size: 14px; transition: background 0.2s;">
                                                     <i class="fas fa-box"></i> Unarchive
                                                 </button>
                                             </form>
@@ -119,7 +119,7 @@
     <!-- Archived Properties -->
     <div class="card shadow mb-4" style="margin-left: 270px;">
         <div class="card-header py-3">
-            <h2 class="m-0 font-weight-bold text-primary">Archived Properties</h2>
+            <h2 class="m-0 font-weight-bold text-primary" style="color: #1a237e;">Archived Properties</h2>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -149,7 +149,7 @@
                                         <td>
                                             <form method="post" action="{% url 'unarchive_property' property.id %}" style="display: inline;">
                                                 {% csrf_token %}
-                                                <button type="submit" class="btn btn-action btn-archive">
+                                                <button type="submit" class="btn-action btn-unarchive" style="background-color: #28a745; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-size: 14px; transition: background 0.2s;">
                                                     <i class="fas fa-box"></i> Unarchive
                                                 </button>
                                             </form>

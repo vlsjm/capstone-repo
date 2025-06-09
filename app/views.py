@@ -435,7 +435,7 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
 
         #expiry count
         today = timezone.now().date()
-        seven_days_later = today + timedelta(days=7) #7 days before the expiry date para ma trigger
+        seven_days_later = today + timedelta(days=30) #30 days before the expiry date para ma trigger
         context['near_expiry_count'] = Supply.objects.filter(
             expiration_date__range=(today, seven_days_later),
             quantity_info__current_quantity__gt=0
@@ -915,20 +915,19 @@ def edit_supply(request):
             supply.date_received = request.POST.get('date_received')
             supply.expiration_date = request.POST.get('expiration_date') or None
             
-            # Update quantity info
-            current_quantity = int(request.POST.get('current_quantity', 0))
+            # Only update minimum_threshold, NOT current_quantity
             minimum_threshold = int(request.POST.get('minimum_threshold', 0))
             
             if not supply.quantity_info:
-                # Create new quantity info
+                # Create new quantity info, set current_quantity to 0 by default
                 quantity_info = SupplyQuantity(
                     supply=supply,
-                    current_quantity=current_quantity,
+                    current_quantity=0,
                     minimum_threshold=minimum_threshold
                 )
                 quantity_info.save(user=request.user)
             else:
-                supply.quantity_info.current_quantity = current_quantity
+                # Only update minimum_threshold
                 supply.quantity_info.minimum_threshold = minimum_threshold
                 supply.quantity_info.save(user=request.user)
             
@@ -938,8 +937,10 @@ def edit_supply(request):
             # Create activity log for the update
             changes = []
             for field, old_value in old_values.items():
-                if field in ['current_quantity', 'minimum_threshold']:
-                    new_value = current_quantity if field == 'current_quantity' else minimum_threshold
+                if field == 'minimum_threshold':
+                    new_value = minimum_threshold
+                elif field == 'current_quantity':
+                    new_value = old_value  # current_quantity is not changed here
                 else:
                     new_value = getattr(supply, field)
                 if str(old_value) != str(new_value):
@@ -2038,129 +2039,129 @@ def export_property_to_excel(request):
     wb.save(response)
     return response
 
-def generate_sample_inventory_report(request):
-    """Generate a sample inventory report template"""
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Sample Inventory Report"
+# def generate_sample_inventory_report(request):
+#     """Generate a sample inventory report template"""
+#     wb = Workbook()
+#     ws = wb.active
+#     ws.title = "Sample Inventory Report"
 
-    # Title and Header Styling
-    title_font = ws['A1'].font.copy(bold=True, size=16)
-    header_font = ws['A1'].font.copy(bold=True, color="FFFFFF")
-    header_fill = PatternFill(start_color="152D64", end_color="152D64", fill_type="solid")
+#     # Title and Header Styling
+#     title_font = ws['A1'].font.copy(bold=True, size=16)
+#     header_font = ws['A1'].font.copy(bold=True, color="FFFFFF")
+#     header_fill = PatternFill(start_color="152D64", end_color="152D64", fill_type="solid")
     
-    # Merge cells for title
-    ws.merge_cells('A1:J1')
-    ws['A1'] = 'SAMPLE INVENTORY REPORT TEMPLATE'
-    ws['A1'].font = title_font
-    ws['A1'].alignment = ws['A1'].alignment.copy(horizontal='center')
+#     # Merge cells for title
+#     ws.merge_cells('A1:J1')
+#     ws['A1'] = 'SAMPLE INVENTORY REPORT TEMPLATE'
+#     ws['A1'].font = title_font
+#     ws['A1'].alignment = ws['A1'].alignment.copy(horizontal='center')
 
-    # Add metadata
-    ws['A3'] = 'Department:'
-    ws['B3'] = '_____________________'
-    ws['G3'] = 'Date:'
-    ws['H3'] = datetime.now().strftime("%B %d, %Y")
+#     # Add metadata
+#     ws['A3'] = 'Department:'
+#     ws['B3'] = '_____________________'
+#     ws['G3'] = 'Date:'
+#     ws['H3'] = datetime.now().strftime("%B %d, %Y")
     
-    ws['A4'] = 'Prepared by:'
-    ws['B4'] = '_____________________'
-    ws['G4'] = 'Page:'
-    ws['H4'] = '1 of 1'
+#     ws['A4'] = 'Prepared by:'
+#     ws['B4'] = '_____________________'
+#     ws['G4'] = 'Page:'
+#     ws['H4'] = '1 of 1'
 
-    # Add section headers
-    ws['A6'] = 'SUPPLY INVENTORY'
-    ws['A6'].font = ws['A6'].font.copy(bold=True)
+#     # Add section headers
+#     ws['A6'] = 'SUPPLY INVENTORY'
+#     ws['A6'].font = ws['A6'].font.copy(bold=True)
     
-    # Supply headers
-    supply_headers = ['Item Code', 'Supply Name', 'Category', 'Current Quantity', 'Unit', 'Status', 'Remarks']
-    for col, header in enumerate(supply_headers, 1):
-        cell = ws.cell(row=7, column=col)
-        cell.value = header
-        cell.font = header_font
-        cell.fill = header_fill
+#     # Supply headers
+#     supply_headers = ['Item Code', 'Supply Name', 'Category', 'Current Quantity', 'Unit', 'Status', 'Remarks']
+#     for col, header in enumerate(supply_headers, 1):
+#         cell = ws.cell(row=7, column=col)
+#         cell.value = header
+#         cell.font = header_font
+#         cell.fill = header_fill
 
-    # Sample supply data
-    sample_supplies = [
-        ['SUP-001', 'Ballpen (Black)', 'Office Supplies', 100, 'Pieces', 'Available', ''],
-        ['SUP-002', 'A4 Paper', 'Office Supplies', 50, 'Reams', 'Low Stock', 'Need to reorder'],
-        ['SUP-003', 'Printer Ink', 'Supplies', 5, 'Cartridges', 'Low Stock', 'Order pending'],
-    ]
+#     # Sample supply data
+#     sample_supplies = [
+#         ['SUP-001', 'Ballpen (Black)', 'Office Supplies', 100, 'Pieces', 'Available', ''],
+#         ['SUP-002', 'A4 Paper', 'Office Supplies', 50, 'Reams', 'Low Stock', 'Need to reorder'],
+#         ['SUP-003', 'Printer Ink', 'Supplies', 5, 'Cartridges', 'Low Stock', 'Order pending'],
+#     ]
 
-    for row, data in enumerate(sample_supplies, 8):
-        for col, value in enumerate(data, 1):
-            cell = ws.cell(row=row, column=col)
-            cell.value = value
+#     for row, data in enumerate(sample_supplies, 8):
+#         for col, value in enumerate(data, 1):
+#             cell = ws.cell(row=row, column=col)
+#             cell.value = value
 
-    # Add property section
-    ws['A12'] = 'PROPERTY INVENTORY'
-    ws['A12'].font = ws['A12'].font.copy(bold=True)
+#     # Add property section
+#     ws['A12'] = 'PROPERTY INVENTORY'
+#     ws['A12'].font = ws['A12'].font.copy(bold=True)
 
-    # Property headers
-    property_headers = ['Property No.', 'Property Name', 'Description', 'Quantity', 'Location', 'Condition', 'Remarks']
-    for col, header in enumerate(property_headers, 1):
-        cell = ws.cell(row=13, column=col)
-        cell.value = header
-        cell.font = header_font
-        cell.fill = header_fill
+#     # Property headers
+#     property_headers = ['Property No.', 'Property Name', 'Description', 'Quantity', 'Location', 'Condition', 'Remarks']
+#     for col, header in enumerate(property_headers, 1):
+#         cell = ws.cell(row=13, column=col)
+#         cell.value = header
+#         cell.font = header_font
+#         cell.fill = header_fill
 
-    # Sample property data
-    sample_properties = [
-        ['PROP-001', 'Desktop Computer', 'Dell OptiPlex', 5, 'IT Room', 'Good Condition', ''],
-        ['PROP-002', 'Office Chair', 'Ergonomic Chair', 10, 'Main Office', 'Good Condition', ''],
-        ['PROP-003', 'Printer', 'HP LaserJet', 2, 'Admin Office', 'Needs Repair', 'Under maintenance'],
-    ]
+#     # Sample property data
+#     sample_properties = [
+#         ['PROP-001', 'Desktop Computer', 'Dell OptiPlex', 5, 'IT Room', 'Good Condition', ''],
+#         ['PROP-002', 'Office Chair', 'Ergonomic Chair', 10, 'Main Office', 'Good Condition', ''],
+#         ['PROP-003', 'Printer', 'HP LaserJet', 2, 'Admin Office', 'Needs Repair', 'Under maintenance'],
+#     ]
 
-    for row, data in enumerate(sample_properties, 14):
-        for col, value in enumerate(data, 1):
-            cell = ws.cell(row=row, column=col)
-            cell.value = value
+#     for row, data in enumerate(sample_properties, 14):
+#         for col, value in enumerate(data, 1):
+#             cell = ws.cell(row=row, column=col)
+#             cell.value = value
 
-    # Add signature section
-    ws['A18'] = 'Prepared by:'
-    ws['D18'] = 'Reviewed by:'
-    ws['G18'] = 'Approved by:'
+#     # Add signature section
+#     ws['A18'] = 'Prepared by:'
+#     ws['D18'] = 'Reviewed by:'
+#     ws['G18'] = 'Approved by:'
 
-    ws['A20'] = '_____________________'
-    ws['D20'] = '_____________________'
-    ws['G20'] = '_____________________'
+#     ws['A20'] = '_____________________'
+#     ws['D20'] = '_____________________'
+#     ws['G20'] = '_____________________'
 
-    ws['A21'] = 'Inventory Officer'
-    ws['D21'] = 'Department Head'
-    ws['G21'] = 'Property Custodian'
+#     ws['A21'] = 'Inventory Officer'
+#     ws['D21'] = 'Department Head'
+#     ws['G21'] = 'Property Custodian'
 
-    # Add notes section
-    ws['A23'] = 'Notes:'
-    ws['A24'] = '1. This is a sample template for inventory reporting.'
-    ws['A25'] = '2. Customize the sections and fields according to your needs.'
-    ws['A26'] = '3. Regular inventory count is recommended for accurate record keeping.'
+#     # Add notes section
+#     ws['A23'] = 'Notes:'
+#     ws['A24'] = '1. This is a sample template for inventory reporting.'
+#     ws['A25'] = '2. Customize the sections and fields according to your needs.'
+#     ws['A26'] = '3. Regular inventory count is recommended for accurate record keeping.'
 
-    # Adjust column widths
-    column_widths = [15, 20, 15, 15, 15, 15, 30]
-    for i, width in enumerate(column_widths, 1):
-        ws.column_dimensions[get_column_letter(i)].width = width
+#     # Adjust column widths
+#     column_widths = [15, 20, 15, 15, 15, 15, 30]
+#     for i, width in enumerate(column_widths, 1):
+#         ws.column_dimensions[get_column_letter(i)].width = width
 
-    # Add borders to all cells with content
-    thin_border = Side(border_style="thin", color="000000")
-    max_row = ws.max_row
-    max_col = ws.max_column
+#     # Add borders to all cells with content
+#     thin_border = Side(border_style="thin", color="000000")
+#     max_row = ws.max_row
+#     max_col = ws.max_column
 
-    for row in range(7, 11):  # Supply section
-        for col in range(1, 8):
-            cell = ws.cell(row=row, column=col)
-            cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
+#     for row in range(7, 11):  # Supply section
+#         for col in range(1, 8):
+#             cell = ws.cell(row=row, column=col)
+#             cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
 
-    for row in range(13, 17):  # Property section
-        for col in range(1, 8):
-            cell = ws.cell(row=row, column=col)
-            cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
+#     for row in range(13, 17):  # Property section
+#         for col in range(1, 8):
+#             cell = ws.cell(row=row, column=col)
+#             cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
 
-    # Create response
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    response['Content-Disposition'] = f'attachment; filename=inventory_report_template.xlsx'
+#     # Create response
+#     response = HttpResponse(
+#         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+#     )
+#     response['Content-Disposition'] = f'attachment; filename=inventory_report_template.xlsx'
     
-    wb.save(response)
-    return response
+#     wb.save(response)
+#     return response
 
 @login_required
 def get_supply_by_barcode(request, barcode):
@@ -2186,7 +2187,8 @@ def get_supply_by_barcode(request, barcode):
         'supply': {
             'id': supply.id,
             'name': supply.supply_name,
-            'current_quantity': supply.quantity_info.current_quantity if hasattr(supply, 'quantity_info') else 0
+            'current_quantity': supply.quantity_info.current_quantity if hasattr(supply, 'quantity_info') else 0,
+            'description': supply.description or ''
         }
     })
 
@@ -2279,8 +2281,8 @@ def get_property_by_barcode(request, barcode):
 def archive_supply(request, pk):
     supply = get_object_or_404(Supply, pk=pk)
     if request.method == 'POST':
-        # Check if supply has zero quantity
-        if hasattr(supply, 'quantity_info') and supply.quantity_info.current_quantity > 0:
+        # Allow archive if expired, otherwise only if quantity is zero
+        if not supply.is_expired and hasattr(supply, 'quantity_info') and supply.quantity_info.current_quantity > 0:
             messages.error(request, f"Cannot archive supply '{supply.supply_name}' because it still has {supply.quantity_info.current_quantity} units.")
             return redirect('supply_list')
         
