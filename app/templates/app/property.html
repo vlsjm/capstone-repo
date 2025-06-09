@@ -659,6 +659,15 @@ input:focus {
 .button-group form {
   margin: 0;
 }
+
+.input-method-btn.active {
+  background-color: #152d64 !important;
+  color: white !important;
+}
+.input-method-btn {
+  background-color: #e9ecef;
+  color: #333;
+}
     </style>
   </head>
   <body>
@@ -1056,10 +1065,38 @@ input:focus {
     <form method="post" action="{% url 'modify_property_quantity_generic' %}" id="modifyQuantityForm">
       {% csrf_token %}
 
+      <!-- Input Method Toggle -->
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label style="font-weight: 600; margin-bottom: 8px; display: block;">Select Input Method</label>
+        <div style="display: flex; gap: 12px;">
+          <button type="button" id="barcodeModeBtn" class="input-method-btn active" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer;">
+            <i class="fas fa-barcode"></i> Barcode Scanner
+          </button>
+          <button type="button" id="manualModeBtn" class="input-method-btn" style="display: flex; align-items: center; gap: 6px; background-color: #e9ecef; color: #333; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer;">
+            <i class="fas fa-list"></i> Manual Selection
+          </button>
+        </div>
+      </div>
+
       <!-- Barcode Scanner Input -->
-      <div class="form-group">
+      <div class="form-group" id="barcodeInputGroup">
         <label for="barcode_input">Scan Barcode</label>
         <input type="text" id="barcode_input" class="form-control" placeholder="Scan barcode" autofocus>
+      </div>
+
+      <!-- Manual Selection Input -->
+      <div class="form-group" id="manualInputGroup" style="display: none;">
+        <label for="manual_property_select">Select Property</label>
+        <select id="manual_property_select" class="form-control">
+          <option value="">-- Select a property --</option>
+          {% for category, properties in properties_by_category.items %}
+            <optgroup label="{{ category.name }}">
+              {% for property in properties %}
+                <option value="{{ property.id }}" data-name="{{ property.property_name }}" data-quantity="{{ property.quantity }}">{{ property.property_name }} ({{ property.property_number }})</option>
+              {% endfor %}
+            </optgroup>
+          {% endfor %}
+        </select>
       </div>
 
       <!-- Property Info Display -->
@@ -1456,7 +1493,7 @@ function printBarcodes() {
         <head>
             <title>Print Barcodes</title>
             <link rel="stylesheet" href="{% static 'css/barcode.css' %}">
-            <style>
+<style>
                 body { margin: 0; padding: 20px; }
                 .print-grid {
                     display: grid;
@@ -1518,7 +1555,7 @@ function printSingleBarcode(button) {
                 .barcode-container {
                     background: white;
                     padding: 15px;
-                    border: 1px solid #ddd;
+  border: 1px solid #ddd;
                     margin: 20px auto;
                     max-width: 300px;
                 }
@@ -1527,7 +1564,7 @@ function printSingleBarcode(button) {
                     margin-bottom: 10px;
                     font-family: Arial, sans-serif;
                     font-size: 14px;
-                    color: #333;
+  color: #333;
                 }
             </style>
         </head>

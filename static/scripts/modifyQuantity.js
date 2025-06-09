@@ -3,10 +3,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const closeBtn = document.getElementById('closeModifyQuantityModalBtn');
   const openBtn = document.getElementById('openModifyQuantityModalBtn');
   const barcodeInput = document.getElementById('barcode_input');
+  const manualSelect = document.getElementById('manual_property_select');
+  const barcodeInputGroup = document.getElementById('barcodeInputGroup');
+  const manualInputGroup = document.getElementById('manualInputGroup');
+  const barcodeModeBtn = document.getElementById('barcodeModeBtn');
+  const manualModeBtn = document.getElementById('manualModeBtn');
   const submitBtn = document.getElementById('modifyQuantitySubmitBtn');
   const form = document.getElementById('modifyQuantityForm');
   let lastScannedBarcode = '';
   let scanTimeout = null;
+  let currentMode = 'barcode'; // 'barcode' or 'manual'
 
   if (openBtn) {
     openBtn.addEventListener('click', function () {
@@ -29,8 +35,65 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  // Toggle input method
+  function setInputMode(mode) {
+    currentMode = mode;
+    resetForm(); // Always reset first
+
+    if (mode === 'barcode') {
+      barcodeInputGroup.style.display = '';
+      manualInputGroup.style.display = 'none';
+      barcodeModeBtn.classList.add('active');
+      manualModeBtn.classList.remove('active');
+      barcodeInput.disabled = false;
+      manualSelect.disabled = true;
+      barcodeInput.focus();
+    } else {
+      barcodeInputGroup.style.display = 'none';
+      manualInputGroup.style.display = '';
+      barcodeModeBtn.classList.remove('active');
+      manualModeBtn.classList.add('active');
+      barcodeInput.disabled = true;
+      manualSelect.disabled = false;
+      manualSelect.value = '';
+      submitBtn.disabled = true;
+      document.getElementById('property_info').style.display = 'none';
+    }
+  }
+
+  if (barcodeModeBtn && manualModeBtn) {
+    barcodeModeBtn.addEventListener('click', function () {
+      setInputMode('barcode');
+    });
+    manualModeBtn.addEventListener('click', function () {
+      setInputMode('manual');
+    });
+  }
+
+  // Manual selection logic
+  if (manualSelect) {
+    manualSelect.addEventListener('change', function (e) {
+      const selectedOption = manualSelect.options[manualSelect.selectedIndex];
+      const propertyId = manualSelect.value;
+      if (propertyId) {
+        // Set property info from data attributes
+        document.getElementById('property_id').value = propertyId;
+        document.getElementById('scanned_property_name').textContent = selectedOption.getAttribute('data-name');
+        document.getElementById('scanned_property_quantity').textContent = selectedOption.getAttribute('data-quantity');
+        document.getElementById('property_info').style.display = 'block';
+        submitBtn.disabled = false;
+        document.getElementById('amount').value = 1;
+      } else {
+        document.getElementById('property_info').style.display = 'none';
+        document.getElementById('property_id').value = '';
+        submitBtn.disabled = true;
+      }
+    });
+  }
+
   // Handle barcode scanning
   barcodeInput.addEventListener('input', function (e) {
+    if (currentMode !== 'barcode') return;
     const barcode = e.target.value;
 
     // Clear any existing timeout
@@ -86,9 +149,12 @@ document.addEventListener('DOMContentLoaded', function () {
   if (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-
-      if (!document.getElementById('property_id').value) {
+      if (currentMode === 'barcode' && !document.getElementById('property_id').value) {
         alert('Please scan a valid property barcode first.');
+        return;
+      }
+      if (currentMode === 'manual' && !document.getElementById('property_id').value) {
+        alert('Please select a property first.');
         return;
       }
 
@@ -143,7 +209,9 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('scanned_property_quantity').textContent = '';
       submitBtn.disabled = true;
       lastScannedBarcode = '';
-      barcodeInput.focus();
+      if (currentMode === 'barcode') {
+        barcodeInput.focus();
+      }
     }
   }
 });
