@@ -34,6 +34,9 @@
     .barcode-image {
         print-color-adjust: exact;
         -webkit-print-color-adjust: exact;
+        width: 1in;
+        height: 1in;
+        max-width: none;
     }
 
     .barcode-number {
