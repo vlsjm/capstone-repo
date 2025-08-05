@@ -727,8 +727,8 @@ input:focus {
             <button id="openExportModalBtn" class="action-btn success-btn" style="display: flex; align-items: center; gap: 6px; background-color: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-file-excel"></i> Export to Excel
             </button>
-            <button onclick="printBarcodes()" class="action-btn primary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
-              <i class="fas fa-print"></i> Print All Barcodes
+            <button onclick="openBarcodeSelectionModal()" class="action-btn primary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+              <i class="fas fa-print"></i> Print Barcodes
             </button>
           </div>
         </div>
@@ -1484,14 +1484,14 @@ function printBarcodes() {
     // Create a new window for printing
     let printWindow = window.open('', '_blank');
     
-    // Get all barcodes
-    let barcodes = document.querySelectorAll('.barcode-container');
+    // Get all property rows to extract barcode and name data
+    let propertyRows = document.querySelectorAll('tbody tr');
     
     // Create print content
     let content = `
         <html>
         <head>
-            <title>Print Barcodes</title>
+            <title>Print Property Barcodes</title>
             <link rel="stylesheet" href="{% static 'css/barcode.css' %}">
 <style>
                 body { margin: 0; padding: 20px; }
@@ -1505,6 +1505,19 @@ function printBarcodes() {
                     background: white;
                     padding: 15px;
                     border: 1px solid #ddd;
+                    text-align: center;
+                }
+                .barcode-image {
+                    max-width: 100%;
+                    height: auto;
+                    margin-bottom: 10px;
+                }
+                .barcode-name {
+                    font-weight: bold;
+                    font-size: 14px;
+                    color: #333;
+                    margin-top: 8px;
+                    word-wrap: break-word;
                 }
             </style>
         </head>
@@ -1512,9 +1525,22 @@ function printBarcodes() {
             <div class="print-grid">
     `;
     
-    // Add each barcode to the content
-    barcodes.forEach(barcode => {
-        content += barcode.outerHTML;
+    // Add each barcode with its name to the content
+    propertyRows.forEach((row, index) => {
+        const barcodeImg = row.querySelector('.barcode-container img');
+        const propertyNameCell = row.cells[2]; // Property name is in the third column
+        
+        if (barcodeImg && propertyNameCell) {
+            const propertyName = propertyNameCell.textContent.trim();
+            const barcodeSrc = barcodeImg.src;
+            
+            content += `
+                <div class="barcode-container">
+                    <img src="${barcodeSrc}" alt="Barcode for ${propertyName}" class="barcode-image">
+                    <div class="barcode-name">${propertyName}</div>
+                </div>
+            `;
+        }
     });
     
     content += `
@@ -1805,5 +1831,428 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 {% endblock %}
+
+<!-- Enhanced Barcode Selection JavaScript -->
+<script>
+// Enhanced Barcode Selection Functionality
+function openBarcodeSelectionModal() {
+    const modal = document.getElementById('barcodeSelectionModal');
+    const tableBody = document.getElementById('barcodeSelectionTableBody');
+    
+    // Clear existing content
+    tableBody.innerHTML = '';
+    
+    // Get all property rows
+    const propertyRows = document.querySelectorAll('tbody tr');
+    let rowIndex = 0;
+    
+    propertyRows.forEach((row, index) => {
+        const barcodeImg = row.querySelector('.barcode-container img');
+        const propertyNameCell = row.cells[2]; // Property name is in the third column
+        const propertyNumberCell = row.cells[1]; // Property number is in the second column
+        
+        if (barcodeImg && propertyNameCell) {
+            const propertyName = propertyNameCell.textContent.trim();
+            const propertyNumber = propertyNumberCell.textContent.trim();
+            const barcodeSrc = barcodeImg.src;
+            
+            const tableRow = document.createElement('tr');
+            tableRow.style.transition = 'background-color 0.2s ease';
+            tableRow.className = 'barcode-row'; // Add class for search filtering
+            tableRow.innerHTML = `
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                    <input type="checkbox" class="barcode-checkbox" data-index="${rowIndex}" 
+                           style="width: 18px; height: 18px; cursor: pointer;">
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-weight: 500;" class="property-name-cell">
+                    ${propertyName}
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;" class="property-number-cell">
+                    ${propertyNumber}
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                    <input type="number" class="quantity-input" data-index="${rowIndex}" 
+                           value="1" min="1" max="100" disabled
+                           style="width: 80px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; text-align: center; background-color: #f8f9fa;">
+                </td>
+            `;
+            
+            // Store barcode data for later use
+            tableRow.dataset.barcodeSrc = barcodeSrc;
+            tableRow.dataset.propertyName = propertyName;
+            tableRow.dataset.propertyNumber = propertyNumber;
+            
+            tableBody.appendChild(tableRow);
+            rowIndex++;
+        }
+    });
+    
+    // Reset modal state
+    document.getElementById('selectAllBarcodes').checked = false;
+    document.getElementById('defaultQuantity').value = 1;
+    document.getElementById('barcodeSearchInput').value = ''; // Clear search
+    updateSelectionSummary();
+    
+    // Show modal
+    modal.style.display = 'block';
+}
+
+// Search functionality for barcode selection modal
+function filterBarcodeTable() {
+    const searchInput = document.getElementById('barcodeSearchInput');
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    const rows = document.querySelectorAll('#barcodeSelectionTableBody .barcode-row');
+    
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        const propertyName = row.querySelector('.property-name-cell').textContent.toLowerCase();
+        const propertyNumber = row.querySelector('.property-number-cell').textContent.toLowerCase();
+        const barcodeSrc = row.dataset.barcodeSrc.toLowerCase();
+        
+        // Check if search term matches property name, number, or barcode
+        const matches = searchTerm === '' || 
+                       propertyName.includes(searchTerm) || 
+                       propertyNumber.includes(searchTerm) || 
+                       barcodeSrc.includes(searchTerm);
+        
+        if (matches) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+            // Keep hidden rows checked if they were selected
+            // This preserves user selections across searches
+        }
+    });
+    
+    // Update selection summary and select all state
+    updateSelectionSummary();
+    updateSelectAllState();
+    
+    // Show no results message if needed
+    const tableBody = document.getElementById('barcodeSelectionTableBody');
+    let noResultsRow = document.getElementById('noResultsRow');
+    
+    if (visibleCount === 0 && searchTerm !== '') {
+        if (!noResultsRow) {
+            noResultsRow = document.createElement('tr');
+            noResultsRow.id = 'noResultsRow';
+            noResultsRow.innerHTML = `
+                <td colspan="4" style="padding: 20px; text-align: center; color: #6c757d; font-style: italic;">
+                    No barcodes found matching "${searchTerm}"
+                </td>
+            `;
+            tableBody.appendChild(noResultsRow);
+        }
+    } else if (noResultsRow) {
+        noResultsRow.remove();
+    }
+}
+
+// Handle checkbox changes
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('barcode-checkbox')) {
+        const index = e.target.dataset.index;
+        const quantityInput = document.querySelector(`.quantity-input[data-index="${index}"]`);
+        
+        if (e.target.checked) {
+            quantityInput.disabled = false;
+            quantityInput.style.backgroundColor = 'white';
+        } else {
+            quantityInput.disabled = true;
+            quantityInput.style.backgroundColor = '#f8f9fa';
+        }
+        
+        updateSelectionSummary();
+        updateSelectAllState();
+    }
+    
+    if (e.target.classList.contains('quantity-input')) {
+        updateSelectionSummary();
+    }
+});
+
+// Handle Select All checkbox
+document.addEventListener('DOMContentLoaded', function() {
+    // Add search input event listener
+    const barcodeSearchInput = document.getElementById('barcodeSearchInput');
+    if (barcodeSearchInput) {
+        barcodeSearchInput.addEventListener('input', filterBarcodeTable);
+        
+        // Add search input focus styling
+        barcodeSearchInput.addEventListener('focus', function() {
+            this.style.borderColor = '#152d64';
+            this.style.boxShadow = '0 0 5px rgba(21, 45, 100, 0.2)';
+        });
+        
+        barcodeSearchInput.addEventListener('blur', function() {
+            this.style.borderColor = '#ddd';
+            this.style.boxShadow = 'none';
+        });
+    }
+    
+    const selectAllCheckbox = document.getElementById('selectAllBarcodes');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            // Only affect visible checkboxes
+            const visibleCheckboxes = document.querySelectorAll('.barcode-row:not([style*="display: none"]) .barcode-checkbox');
+            const visibleQuantityInputs = document.querySelectorAll('.barcode-row:not([style*="display: none"]) .quantity-input');
+            
+            visibleCheckboxes.forEach((checkbox, index) => {
+                checkbox.checked = this.checked;
+                const quantityInput = visibleQuantityInputs[index];
+                
+                if (this.checked) {
+                    quantityInput.disabled = false;
+                    quantityInput.style.backgroundColor = 'white';
+                } else {
+                    quantityInput.disabled = true;
+                    quantityInput.style.backgroundColor = '#f8f9fa';
+                }
+            });
+            
+            updateSelectionSummary();
+        });
+    }
+    
+    // Apply default quantity to selected items
+    const applyDefaultBtn = document.getElementById('applyDefaultQuantity');
+    if (applyDefaultBtn) {
+        applyDefaultBtn.addEventListener('click', function() {
+            const defaultQuantity = document.getElementById('defaultQuantity').value;
+            const selectedQuantityInputs = document.querySelectorAll('.quantity-input:not([disabled])');
+            
+            selectedQuantityInputs.forEach(input => {
+                input.value = defaultQuantity;
+            });
+            
+            updateSelectionSummary();
+        });
+    }
+    
+    // Print selected barcodes
+    const printBtn = document.getElementById('printSelectedBarcodes');
+    if (printBtn) {
+        printBtn.addEventListener('click', function() {
+            const selectedCheckboxes = document.querySelectorAll('.barcode-checkbox:checked');
+            
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one barcode to print.');
+                return;
+            }
+            
+            printSelectedBarcodesFunction(selectedCheckboxes);
+            document.getElementById('barcodeSelectionModal').style.display = 'none';
+        });
+    }
+    
+
+    
+    // Close modal functionality
+    const closeBtn = document.getElementById('closeBarcodeSelectionBtn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            document.getElementById('barcodeSelectionModal').style.display = 'none';
+        });
+    }
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('barcodeSelectionModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+});
+
+// Update selection summary
+function updateSelectionSummary() {
+    const selectedCheckboxes = document.querySelectorAll('.barcode-checkbox:checked');
+    const selectedCount = selectedCheckboxes.length;
+    
+    let totalCopies = 0;
+    selectedCheckboxes.forEach(checkbox => {
+        const index = checkbox.dataset.index;
+        const quantityInput = document.querySelector(`.quantity-input[data-index="${index}"]`);
+        totalCopies += parseInt(quantityInput.value) || 0;
+    });
+    
+    const selectedCountEl = document.getElementById('selectedCount');
+    const totalCopiesEl = document.getElementById('totalCopies');
+    
+    if (selectedCountEl) selectedCountEl.textContent = selectedCount;
+    if (totalCopiesEl) totalCopiesEl.textContent = totalCopies;
+}
+
+// Update Select All state based on individual selections
+function updateSelectAllState() {
+    const visibleCheckboxes = document.querySelectorAll('.barcode-row:not([style*="display: none"]) .barcode-checkbox');
+    const checkedVisibleCheckboxes = document.querySelectorAll('.barcode-row:not([style*="display: none"]) .barcode-checkbox:checked');
+    const selectAllCheckbox = document.getElementById('selectAllBarcodes');
+    
+    if (!selectAllCheckbox) return;
+    
+    if (checkedVisibleCheckboxes.length === 0) {
+        selectAllCheckbox.indeterminate = false;
+        selectAllCheckbox.checked = false;
+    } else if (checkedVisibleCheckboxes.length === visibleCheckboxes.length) {
+        selectAllCheckbox.indeterminate = false;
+        selectAllCheckbox.checked = true;
+    } else {
+        selectAllCheckbox.indeterminate = true;
+    }
+}
+
+// Function to print selected barcodes
+function printSelectedBarcodesFunction(selectedCheckboxes) {
+    let printWindow = window.open('', '_blank');
+    
+    let content = `
+        <html>
+        <head>
+            <title>Print Selected Property Barcodes</title>
+            <link rel="stylesheet" href="{% static 'css/barcode.css' %}">
+            <style>
+                body { margin: 0; padding: 20px; }
+                .print-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 20px;
+                    padding: 20px;
+                }
+                .barcode-container {
+                    background: white;
+                    padding: 15px;
+                    border: 1px solid #ddd;
+                    text-align: center;
+                    page-break-inside: avoid;
+                }
+                .barcode-image {
+                    max-width: 100%;
+                    height: auto;
+                    margin-bottom: 10px;
+                }
+                .barcode-name {
+                    font-weight: bold;
+                    font-size: 14px;
+                    color: #333;
+                    margin-top: 8px;
+                    word-wrap: break-word;
+                }
+                .barcode-number {
+                    font-size: 12px;
+                    color: #666;
+                    margin-top: 4px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="print-grid">
+    `;
+    
+    selectedCheckboxes.forEach(checkbox => {
+        const index = checkbox.dataset.index;
+        const quantityInput = document.querySelector(`.quantity-input[data-index="${index}"]`);
+        const quantity = parseInt(quantityInput.value) || 1;
+        const row = checkbox.closest('tr');
+        
+        const barcodeSrc = row.dataset.barcodeSrc;
+        const propertyName = row.dataset.propertyName;
+        const propertyNumber = row.dataset.propertyNumber;
+        
+        // Add multiple copies based on quantity
+        for (let i = 0; i < quantity; i++) {
+            content += `
+                <div class="barcode-container">
+                    <img src="${barcodeSrc}" alt="Barcode for ${propertyName}" class="barcode-image">
+                    <div class="barcode-name">${propertyName}</div>
+                </div>
+            `;
+        }
+    });
+    
+    content += `
+            </div>
+        </body>
+        </html>
+    `;
+    
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.onload = function() {
+        printWindow.print();
+        printWindow.onafterprint = function() {
+            printWindow.close();
+        };
+    };
+}
+
+</script>
+
+<!-- Barcode Selection Modal -->
+<div id="barcodeSelectionModal" class="modal" style="display: none;">
+  <div class="modal-content" style="max-width: 900px; max-height: 80vh; overflow-y: auto;">
+    <span class="close" id="closeBarcodeSelectionBtn">&times;</span>
+    <h2 style="color: #152d64; margin-bottom: 25px;">Select Barcodes to Print</h2>
+    
+    <!-- Search Input -->
+    <div style="margin-bottom: 20px;">
+      <div style="position: relative; max-width: 400px;">
+        <input type="text" id="barcodeSearchInput" placeholder="Search by property name, number, or barcode..." 
+               style="width: 100%; padding: 10px 40px 10px 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; transition: border-color 0.3s ease;">
+        <i class="fas fa-search" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #6c757d; pointer-events: none;"></i>
+      </div>
+    </div>
+    
+    <!-- Select All and Default Quantity Controls -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 6px;">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <label style="display: flex; align-items: center; gap: 8px; font-weight: 500;">
+          <input type="checkbox" id="selectAllBarcodes" style="width: 18px; height: 18px;">
+          Select All
+        </label>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label for="defaultQuantity" style="font-weight: 500;">Default Quantity:</label>
+          <input type="number" id="defaultQuantity" value="1" min="1" max="100" 
+                 style="width: 80px; padding: 6px; border: 1px solid #ddd; border-radius: 4px;">
+          <button id="applyDefaultQuantity" class="action-btn" 
+                  style="background-color: #4a5568; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+            Apply to Selected
+          </button>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button id="printSelectedBarcodes" class="action-btn primary-btn" 
+                style="background-color: #152d64; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+          <i class="fas fa-print"></i> Print Selected
+        </button>
+      </div>
+    </div>
+    
+    <!-- Barcode Selection Table -->
+    <div class="table-container" style="max-height: 400px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px;">
+      <table id="barcodeSelectionTable" style="width: 100%; border-collapse: collapse; background: white;">
+        <thead style="position: sticky; top: 0; z-index: 1;">
+          <tr>
+            <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: center; width: 60px;">Select</th>
+            <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: left;">Property Name</th>
+            <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: center;">Property Number</th>
+            <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: center; width: 120px;">Quantity</th>
+          </tr>
+        </thead>
+        <tbody id="barcodeSelectionTableBody">
+          <!-- Dynamic content will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Summary -->
+    <div id="selectionSummary" style="margin-top: 15px; padding: 10px; background-color: #e9ecef; border-radius: 4px; font-weight: 500;">
+      Selected: <span id="selectedCount">0</span> items | Total copies: <span id="totalCopies">0</span>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

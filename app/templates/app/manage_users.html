@@ -408,7 +408,7 @@
         <tbody>
           {% for profile in users %}
           <tr>
-            <td>{{ forloop.counter }}</td>
+            <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
             <td>{{ profile.user.username }}</td>
             <td>{{ profile.user.first_name|default:"—" }}</td>
             <td>{{ profile.user.last_name|default:"—" }}</td>
@@ -424,6 +424,24 @@
           {% endfor %}
         </tbody>
       </table>
+
+      {% if is_paginated %}
+      <div class="actlog-pagination">
+        {% if page_obj.has_previous %}
+          <a href="?page=1">&laquo; First</a>
+          <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+
+        <span class="current">
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}">Next</a>
+          <a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+        {% endif %}
+      </div>
+      {% endif %}
     </div>
 
 

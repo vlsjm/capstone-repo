@@ -412,6 +412,7 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
     template_name = 'app/manage_users.html'
     permission_required = 'app.view_admin_module'
     context_object_name = 'users'
+    paginate_by = 10
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
