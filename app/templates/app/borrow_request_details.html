@@ -53,7 +53,7 @@
       {% if borrow_obj.status == 'pending' %}
         <form method="post" class="stat-button">
           {% csrf_token %}
-          <textarea name="remarks" placeholder="Enter remarks or comments here..." required></textarea>
+          <textarea name="remarks" placeholder="Enter remarks or comments here..."></textarea>
           <button type="submit" name="action" value="approve" class="btn-approve">Approve</button>
           <button type="submit" name="action" value="decline" class="btn-reject">Decline</button>
           <a href="{% url 'user_borrow_requests' %}" class="btn-back">← Back to Borrow Requests</a>
@@ -62,7 +62,7 @@
       {% elif borrow_obj.status == 'approved' %}
         <form method="post" class="stat-button">
           {% csrf_token %}
-          <textarea name="remarks" placeholder="Enter remarks or comments here..." required></textarea>
+          <textarea name="remarks" placeholder="Enter remarks or comments here..."></textarea>
           <button type="submit" name="action" value="return" class="btn-approve">Mark as Returned</button>
           <a href="{% url 'user_borrow_requests' %}" class="btn-back">← Back to Borrow Requests</a>
         </form>
@@ -75,7 +75,7 @@
         {% if borrow_obj.status == 'overdue' %}
           <form method="post" class="stat-button">
             {% csrf_token %}
-            <textarea name="remarks" placeholder="Enter remarks or comments here..." required></textarea>
+            <textarea name="remarks" placeholder="Enter remarks or comments here..."></textarea>
             <button type="submit" name="action" value="return" class="btn-approve">Mark as Returned</button>
             <a href="{% url 'user_borrow_requests' %}" class="btn-back">← Back to Borrow Requests</a>
           </form>
