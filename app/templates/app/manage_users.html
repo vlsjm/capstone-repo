@@ -369,20 +369,21 @@
         <div class="search-and-filters">
           <div class="search-container">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" id="searchInput" class="search-input" placeholder="Search users...">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search users..." value="{{ search }}">
           </div>
           <div class="filter-container">
             <select id="roleFilter" class="filter-select">
               <option value="">All Roles</option>
-              <option value="ADMIN">Admin</option>
-              <option value="USER">User</option>
+              <option value="ADMIN" {% if selected_role == 'ADMIN' %}selected{% endif %}>Admin</option>
+              <option value="USER" {% if selected_role == 'USER' %}selected{% endif %}>User</option>
             </select>
             <select id="departmentFilter" class="filter-select">
               <option value="">All Departments</option>
               {% for dept in departments %}
-                <option value="{{ dept.name }}">{{ dept.name }}</option>
+                <option value="{{ dept.name }}" {% if selected_department == dept.name %}selected{% endif %}>{{ dept.name }}</option>
               {% endfor %}
             </select>
+            <button id="applyFilters" class="add-btn">Apply Filters</button>
           </div>
         </div>
         <div class="button-container">

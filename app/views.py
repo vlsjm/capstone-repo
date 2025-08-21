@@ -7,7 +7,7 @@ from django.urls import reverse_lazy, reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, ListView
 from django.core.exceptions import ValidationError
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.views import View
 from django.contrib.auth import login, authenticate, logout
 from .models import(
@@ -414,10 +414,39 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
     context_object_name = 'users'
     paginate_by = 10
 
+    def get_queryset(self):
+        queryset = super().get_queryset().select_related('user', 'department')
+        
+        # Get filter parameters from the URL
+        search = self.request.GET.get('search', '')
+        role = self.request.GET.get('role', '')
+        department = self.request.GET.get('department', '')
+        
+        if search:
+            queryset = queryset.filter(
+                Q(user__username__icontains=search) |
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
+                Q(user__email__icontains=search) |
+                Q(department__name__icontains=search)
+            )
+        
+        if role:
+            queryset = queryset.filter(role=role)
+            
+        if department:
+            queryset = queryset.filter(department__name=department)
+            
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = UserRegistrationForm()
-        context['departments'] = Department.objects.all() 
+        context['departments'] = Department.objects.all()
+        # Add current filter values to context
+        context['search'] = self.request.GET.get('search', '')
+        context['selected_role'] = self.request.GET.get('role', '')
+        context['selected_department'] = self.request.GET.get('department', '')
         return context
 
 class DashboardPageView(PermissionRequiredMixin,TemplateView):

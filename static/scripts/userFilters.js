@@ -2,54 +2,86 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('searchInput');
     const roleFilter = document.getElementById('roleFilter');
     const departmentFilter = document.getElementById('departmentFilter');
+    const applyFiltersBtn = document.getElementById('applyFilters');
     const table = document.querySelector('.searchable-table');
 
-
-    function filterTable() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const selectedRole = roleFilter.value.toLowerCase();
-        const selectedDepartment = departmentFilter.value.toLowerCase();
-
-
-        const rows = table.getElementsByTagName('tr');
-
-
-        // Start from index 1 to skip the header row
-        for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            const cells = row.getElementsByTagName('td');
-            if (cells.length === 0) continue;
-
-
-            const username = cells[1].textContent.toLowerCase();
-            const firstName = cells[2].textContent.toLowerCase();
-            const lastName = cells[3].textContent.toLowerCase();
-            const email = cells[4].textContent.toLowerCase();
-            const role = cells[5].textContent.toLowerCase();
-            const department = cells[6].textContent.toLowerCase();
-
-
-            // Check if the row matches all filters
-            const matchesSearch = username.includes(searchTerm) ||
-                firstName.includes(searchTerm) ||
-                lastName.includes(searchTerm) ||
-                email.includes(searchTerm) ||
-                role.includes(searchTerm) ||
-                department.includes(searchTerm);
-
-
-            const matchesRole = !selectedRole || role.includes(selectedRole);
-            const matchesDepartment = !selectedDepartment || department.includes(selectedDepartment);
-
-
-            // Show/hide row based on all filters
-            row.style.display = (matchesSearch && matchesRole && matchesDepartment) ? '' : 'none';
-        }
+    // Function to get current URL parameters
+    function getUrlParameters() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+            page: params.get('page') || '1',
+            search: params.get('search') || '',
+            role: params.get('role') || '',
+            department: params.get('department') || ''
+        };
     }
 
+    // Function to update URL with filters
+    function updateUrl(search, role, department) {
+        const params = new URLSearchParams();
+        if (search) params.append('search', search);
+        if (role) params.append('role', role);
+        if (department) params.append('department', department);
+        params.append('page', '1'); // Reset to first page when applying filters
+        
+        window.location.href = `${window.location.pathname}?${params.toString()}`;
+    }
 
-    // Add event listeners for all filter inputs
-    searchInput.addEventListener('input', filterTable);
-    roleFilter.addEventListener('change', filterTable);
-    departmentFilter.addEventListener('change', filterTable);
+    // Initialize filters from URL parameters
+    function initializeFilters() {
+        const params = getUrlParameters();
+        searchInput.value = params.search || '';
+        roleFilter.value = params.role || '';
+        departmentFilter.value = params.department || '';
+    }
+
+    // Apply filters when the button is clicked
+    function applyFilters() {
+        const searchTerm = searchInput.value;
+        const selectedRole = roleFilter.value;
+        const selectedDepartment = departmentFilter.value;
+
+        updateUrl(searchTerm, selectedRole, selectedDepartment);
+    }
+
+    // Add event listener for the apply filters button
+    applyFiltersBtn.addEventListener('click', applyFilters);
+
+    // Handle enter key in search input
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            applyFilters();
+        }
+    });
+
+    // Initialize filters from URL on page load
+    initializeFilters();
+
+    // Update pagination links to preserve filters
+    function updatePaginationLinks() {
+        const paginationLinks = document.querySelectorAll('.actlog-pagination a');
+        const currentParams = new URLSearchParams(window.location.search);
+        
+        paginationLinks.forEach(link => {
+            const linkUrl = new URL(link.href);
+            const pageParam = linkUrl.searchParams.get('page');
+            
+            // Copy all current parameters except page
+            const newParams = new URLSearchParams();
+            for (const [key, value] of currentParams.entries()) {
+                if (key !== 'page') {
+                    newParams.append(key, value);
+                }
+            }
+            // Add the page parameter
+            if (pageParam) {
+                newParams.append('page', pageParam);
+            }
+            
+            link.href = `${window.location.pathname}?${newParams.toString()}`;
+        });
+    }
+
+    // Update pagination links on page load
+    updatePaginationLinks();
 });
