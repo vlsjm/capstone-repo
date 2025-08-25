@@ -431,6 +431,11 @@
               <canvas id="propertyCategoriesChart"></canvas>
             </div>
 
+            <div class="chart-container">
+              <h3>Requests by Department</h3>
+              <canvas id="departmentRequestsChart"></canvas>
+            </div>
+
             <div class="chart-container wide-chart">
               <h3>User Activity by Role</h3>
               <canvas id="userActivityChart"></canvas>
@@ -516,6 +521,10 @@
 
     <script id="userActivityData" type="application/json">
       {% autoescape off %} {{ user_activity_by_role|default:"[]"|safe }} {% endautoescape %}
+    </script>
+
+    <script id="departmentRequestsData" type="application/json">
+      {% autoescape off %} {{ department_requests_data|default:"[]"|safe }} {% endautoescape %}
     </script>
 
     <script src="{% static 'scripts/charts.js' %}"></script>

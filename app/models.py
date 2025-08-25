@@ -494,6 +494,124 @@ class SupplyRequest(models.Model):
             except SupplyQuantity.DoesNotExist:
                 pass
 
+class SupplyRequestBatch(models.Model):
+    """
+    A batch supply request that can contain multiple supply items.
+    This replaces single-item SupplyRequest for new multi-item functionality.
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('partially_approved', 'Partially Approved'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    request_date = models.DateTimeField(auto_now_add=True)
+    purpose = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    approved_date = models.DateTimeField(null=True, blank=True)
+    remarks = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['-request_date']
+
+    def __str__(self):
+        return f"Batch Request #{self.id} by {self.user.username} ({self.request_date.date()})"
+
+    @property
+    def total_items(self):
+        return self.items.count()
+
+    @property
+    def total_quantity(self):
+        return sum(item.quantity for item in self.items.all())
+
+    def save(self, *args, **kwargs):
+        # Check if this is a new batch request
+        is_new = self.pk is None
+        
+        # Get the old instance if it exists
+        try:
+            old_instance = SupplyRequestBatch.objects.get(pk=self.pk)
+            old_status = old_instance.status
+        except SupplyRequestBatch.DoesNotExist:
+            old_status = None
+
+        # Save the batch request
+        super().save(*args, **kwargs)
+
+        # If this is a new batch request, notify admin users
+        if is_new:
+            admin_users = User.objects.filter(userprofile__role='ADMIN')
+            item_list = ", ".join([f"{item.supply.supply_name} (x{item.quantity})" 
+                                 for item in self.items.all()[:3]])
+            if self.items.count() > 3:
+                item_list += f" and {self.items.count() - 3} more items"
+            
+            for admin_user in admin_users:
+                Notification.objects.create(
+                    user=admin_user,
+                    message=f"New batch supply request submitted by {self.user.username}",
+                    remarks=f"Items: {item_list}. Purpose: {self.purpose[:100]}"
+                )
+
+        # Update supply quantities when request is approved
+        if old_status != self.status and self.status in ['approved', 'partially_approved']:
+            for item in self.items.filter(approved=True):
+                try:
+                    quantity_info = item.supply.quantity_info
+                    if quantity_info.current_quantity >= item.quantity:
+                        quantity_info.current_quantity -= item.quantity
+                        quantity_info.save()
+                        
+                        # Save the supply to update available_for_request
+                        item.supply.save()
+                        
+                        # Create notification for low stock if needed
+                        if quantity_info.current_quantity <= quantity_info.minimum_threshold:
+                            admin_users = User.objects.filter(userprofile__role='ADMIN')
+                            
+                            for admin_user in admin_users:
+                                Notification.objects.create(
+                                    user=admin_user,
+                                    message=f"Supply '{item.supply.supply_name}' is running low on stock (Current: {quantity_info.current_quantity}, Minimum: {quantity_info.minimum_threshold})",
+                                    remarks="Please restock soon."
+                                )
+                except SupplyQuantity.DoesNotExist:
+                    pass
+
+class SupplyRequestItem(models.Model):
+    """
+    Individual supply items within a batch request.
+    """
+    batch_request = models.ForeignKey(SupplyRequestBatch, on_delete=models.CASCADE, related_name='items')
+    supply = models.ForeignKey(Supply, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    approved = models.BooleanField(default=False)
+    remarks = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ['batch_request', 'supply']  # Prevent duplicate items in same batch
+
+    def __str__(self):
+        return f"{self.supply.supply_name} (x{self.quantity}) in Batch #{self.batch_request.id}"
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        
+        if self.quantity and self.supply:
+            try:
+                available_quantity = self.supply.quantity_info.current_quantity
+                if self.quantity > available_quantity:
+                    raise ValidationError({
+                        'quantity': f'Only {available_quantity} units of {self.supply.supply_name} are available.'
+                    })
+            except SupplyQuantity.DoesNotExist:
+                raise ValidationError({
+                    'supply': f'Supply {self.supply.supply_name} has no quantity information.'
+                })
+
 class Reservation(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),

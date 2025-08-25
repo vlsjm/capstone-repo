@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const borrowTrendsData = safeParseJSON('borrowTrendsData', []);
     const propertyCategoriesData = safeParseJSON('propertyCategoriesData', []);
     const userActivityData = safeParseJSON('userActivityData', []);
+    const departmentRequestsData = safeParseJSON('departmentRequestsData', []);
 
     // Chart 1: Supply Status
     createChart('supplyStatusChart', {
@@ -281,6 +282,83 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Chart 7: Department Requests (Fixed to handle empty data)
+    if (departmentRequestsData && departmentRequestsData.length > 0) {
+        createChart('departmentRequestsChart', {
+            type: 'bar',
+            data: {
+                labels: departmentRequestsData.map(item => item.department || ''),
+                datasets: [{
+                    label: 'Total Requests',
+                    data: departmentRequestsData.map(item => item.total_requests || 0),
+                    backgroundColor: '#3498db',
+                    borderColor: '#2980b9',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            afterBody: function (context) {
+                                const index = context[0].dataIndex;
+                                const data = departmentRequestsData[index];
+                                return [
+                                    `Supply Requests: ${data.supply_requests || 0}`,
+                                    `Borrow Requests: ${data.borrow_requests || 0}`,
+                                    `Reservations: ${data.reservations || 0}`
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        // Create empty chart
+        createChart('departmentRequestsChart', {
+            type: 'bar',
+            data: {
+                labels: ['No Data'],
+                datasets: [{
+                    label: 'Total Requests',
+                    data: [0],
+                    backgroundColor: '#E0E0E0'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+
     if (userActivityData && userActivityData.length > 0) {
         createChart('userActivityChart', {
             type: 'bar',
@@ -368,6 +446,7 @@ function debugCharts() {
         'damageStatusChart',
         'borrowTrendsChart',
         'propertyCategoriesChart',
+        'departmentRequestsChart',
         'userActivityChart'
     ];
 
@@ -384,6 +463,7 @@ function debugCharts() {
         'damageStatusData',
         'borrowTrendsData',
         'propertyCategoriesData',
+        'departmentRequestsData',
         'userActivityData'
     ];
 

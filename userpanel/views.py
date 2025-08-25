@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm, SupplyRequest, BorrowRequest, Reservation, DamageReport
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordChangeDoneView
-from app.models import UserProfile, Notification, Property, ActivityLog
+from app.models import UserProfile, Notification, Property, ActivityLog, Supply, SupplyRequestBatch, SupplyRequestItem
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import JsonResponse
 from django.utils import timezone
@@ -15,10 +15,85 @@ import json
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.http import JsonResponse
+from django.utils import timezone
+from datetime import timedelta
+import json
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 
 
 
-class UserBorrowView( PermissionRequiredMixin, TemplateView):
+class UserRequestView(PermissionRequiredMixin, TemplateView):
+    template_name = 'userpanel/user_request.html'
+    permission_required = 'app.view_user_module'
+
+    def get(self, request):
+        # Get cart items from session
+        cart_items = request.session.get('supply_cart', [])
+        
+        # Get available supplies
+        available_supplies = Supply.objects.filter(
+            available_for_request=True,
+            quantity_info__current_quantity__gt=0
+        ).select_related('quantity_info')
+        
+        # Get recent batch requests (new system)
+        recent_batch_requests = SupplyRequestBatch.objects.filter(user=request.user).order_by('-request_date')[:5]
+        
+        # Get recent single requests (legacy system) 
+        recent_single_requests = SupplyRequest.objects.filter(user=request.user).order_by('-request_date')[:5]
+        
+        # Combine and format recent requests
+        recent_requests_data = []
+        
+        # Add batch requests
+        for req in recent_batch_requests:
+            items_text = f"{req.total_items} items"
+            if req.total_items <= 3:
+                items_list = ", ".join([f"{item.supply.supply_name} (x{item.quantity})" for item in req.items.all()])
+                items_text = items_list
+            
+            recent_requests_data.append({
+                'id': req.id,
+                'item': items_text,
+                'quantity': req.total_quantity,
+                'status': req.status,
+                'date': req.request_date,
+                'purpose': req.purpose,
+                'type': 'batch'
+            })
+        
+        # Add single requests (for backward compatibility)
+        for req in recent_single_requests:
+            recent_requests_data.append({
+                'id': req.id,
+                'item': req.supply.supply_name,
+                'quantity': req.quantity,
+                'status': req.status,
+                'date': req.request_date,
+                'purpose': req.purpose,
+                'type': 'single'
+            })
+        
+        # Sort by date
+        recent_requests_data.sort(key=lambda x: x['date'], reverse=True)
+        recent_requests_data = recent_requests_data[:5]  # Keep only 5 most recent
+        
+        return render(request, self.template_name, {
+            'cart_items': cart_items,
+            'available_supplies': available_supplies,
+            'recent_requests': recent_requests_data
+        })
+
+    def post(self, request):
+        # This method is now handled by the new cart-based views in app.views
+        # Redirect to the main supply request page
+        return redirect('create_supply_request')
+
+
+class UserBorrowView(PermissionRequiredMixin, TemplateView):
     template_name = 'userpanel/user_borrow.html'
     permission_required = 'app.view_user_module'
 
@@ -85,59 +160,67 @@ class UserRequestView(PermissionRequiredMixin, TemplateView):
     permission_required = 'app.view_user_module'
 
     def get(self, request):
-        form = SupplyRequestForm()
-        recent_requests = SupplyRequest.objects.filter(user=request.user).order_by('-request_date')[:5]
+        # Get cart items from session
+        cart_items = request.session.get('supply_cart', [])
         
-        # Convert requests to dict format for template
-        recent_requests_data = [{
-            'id': req.id,
-            'item': req.supply.supply_name,
-            'quantity': req.quantity,
-            'status': req.status,
-            'date': req.request_date,
-            'purpose': req.purpose
-        } for req in recent_requests]
+        # Get available supplies
+        available_supplies = Supply.objects.filter(
+            available_for_request=True,
+            quantity_info__current_quantity__gt=0
+        ).select_related('quantity_info')
+        
+        # Get recent batch requests (new system)
+        recent_batch_requests = SupplyRequestBatch.objects.filter(user=request.user).order_by('-request_date')[:5]
+        
+        # Get recent single requests (legacy system) 
+        recent_single_requests = SupplyRequest.objects.filter(user=request.user).order_by('-request_date')[:5]
+        
+        # Combine and format recent requests
+        recent_requests_data = []
+        
+        # Add batch requests
+        for req in recent_batch_requests:
+            items_text = f"{req.total_items} items"
+            if req.total_items <= 3:
+                items_list = ", ".join([f"{item.supply.supply_name} (x{item.quantity})" for item in req.items.all()])
+                items_text = items_list
+            
+            recent_requests_data.append({
+                'id': req.id,
+                'item': items_text,
+                'quantity': req.total_quantity,
+                'status': req.status,
+                'date': req.request_date,
+                'purpose': req.purpose,
+                'type': 'batch'
+            })
+        
+        # Add single requests (for backward compatibility)
+        for req in recent_single_requests:
+            recent_requests_data.append({
+                'id': req.id,
+                'item': req.supply.supply_name,
+                'quantity': req.quantity,
+                'status': req.status,
+                'date': req.request_date,
+                'purpose': req.purpose,
+                'type': 'single'
+            })
+        
+        # Sort by date
+        recent_requests_data.sort(key=lambda x: x['date'], reverse=True)
+        recent_requests_data = recent_requests_data[:5]  # Keep only 5 most recent
         
         return render(request, self.template_name, {
-            'form': form,
+            'cart_items': cart_items,
+            'available_supplies': available_supplies,
             'recent_requests': recent_requests_data
         })
 
     def post(self, request):
-        form = SupplyRequestForm(request.POST)
-        if form.is_valid():
-            supply_request = form.save(commit=False)
-            supply_request.user = request.user
-            supply_request.status = 'pending'  # Explicitly set status
-            supply_request.save()  # This will trigger the model's save method
-
-            # Log the supply request activity
-            ActivityLog.log_activity(
-                user=request.user,
-                action='request',
-                model_name='SupplyRequest',
-                object_repr=str(supply_request.supply.supply_name),
-                description=f"Requested {supply_request.quantity} units of {supply_request.supply.supply_name}"
-            )
-
-            messages.success(request, 'Supply request submitted successfully.')
-            return redirect('user_request')
-            
-        # If form is invalid, include recent requests in context
-        recent_requests = SupplyRequest.objects.filter(user=request.user).order_by('-request_date')[:5]
-        recent_requests_data = [{
-            'id': req.id,
-            'item': req.supply.supply_name,
-            'quantity': req.quantity,
-            'status': req.status,
-            'date': req.request_date,
-            'purpose': req.purpose
-        } for req in recent_requests]
-        
-        return render(request, self.template_name, {
-            'form': form,
-            'recent_requests': recent_requests_data
-        })
+        # This method is now handled by the new cart-based views in app.views
+        # Redirect to the main supply request page
+        return redirect('create_supply_request')
 
 
 class UserReserveView(PermissionRequiredMixin, TemplateView):

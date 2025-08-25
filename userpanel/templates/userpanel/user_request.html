@@ -5,31 +5,119 @@
 {% block content %}
 <div class="request-page-layout">
     <main class="request-form-container">
-        <h1><i class="fas fa-tasks"></i> Supply Request</h1>
-        <p class="form-description">Please fill out the form below to request supplies. Make sure to provide accurate information for faster processing.</p>
+        <h1><i class="fas fa-list"></i> Supply Request List</h1>
+        <p class="form-description">Add multiple supply items to your list, then submit your request all at once.</p>
 
-        {% if form.errors %}
-        <ul class="errorlist form-top-errors">
-            {% for field in form %}
-                {% for error in field.errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            {% endfor %}
-        </ul>
-        {% endif %}
+        <!-- Add Item to List Section -->
+        <div class="add-item-section">
+            <h3><i class="fas fa-plus"></i> Add Item to List</h3>
+            <form id="add-item-form" class="add-it    }    });
+});
+</script>
 
-        <form method="post" action="{% url 'user_request' %}" class="request-form">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <div class="form-actions">
-                <button type="submit" class="btn-submit">
-                    <i class="fas fa-paper-plane"></i> Submit Request
-                </button>
-                <button type="reset" class="btn-reset">
-                    <i class="fas fa-undo"></i> Clear Form
-                </button>
+<style>
+.request-form {;
+</script>
+
+<style>
+.request-form {m">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="supply-select">Supply Item:</label>
+                        <select id="supply-select" name="supply_id" class="form-control" required>
+                            <option value="">Select a supply item...</option>
+                            {% for supply in available_supplies %}
+                                <option value="{{ supply.id }}" 
+                                        data-available="{{ supply.quantity_info.current_quantity }}"
+                                        data-name="{{ supply.supply_name }}">
+                                    {{ supply.supply_name }} ({{ supply.quantity_info.current_quantity }} available)
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity-input">Quantity:</label>
+                        <input type="number" id="quantity-input" name="quantity" 
+                               class="form-control" min="1" required placeholder="Enter quantity">
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn-add-to-list">
+                            <i class="fas fa-plus"></i> Add to List
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- List Items Section -->
+        <div class="list-section">
+            <h3><i class="fas fa-list"></i> Request Items <span id="list-count">({{ cart_items|length }})</span></h3>
+            <div id="list-items-container">
+                {% if cart_items %}
+                    <table class="list-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Available</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="list-items-body">
+                            {% for item in cart_items %}
+                                <tr data-supply-id="{{ item.supply_id }}">
+                                    <td>{{ item.supply_name }}</td>
+                                    <td>
+                                        <input type="number" class="quantity-edit" 
+                                               value="{{ item.quantity }}" 
+                                               min="1" max="{{ item.available_quantity }}"
+                                               data-supply-id="{{ item.supply_id }}">
+                                    </td>
+                                    <td>{{ item.available_quantity }}</td>
+                                    <td>
+                                        <button class="btn-update" data-supply-id="{{ item.supply_id }}">
+                                            <i class="fas fa-save"></i>
+                                        </button>
+                                        <button class="btn-remove" data-supply-id="{{ item.supply_id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="empty-list">
+                        <i class="fas fa-list"></i>
+                        <p>Your request list is empty. Add some items above to get started.</p>
+                    </div>
+                {% endif %}
             </div>
-        </form>
+        </div>
+
+        <!-- Submit Request Section -->
+        {% if cart_items %}
+        <div class="submit-section">
+            <form id="submit-request-form" method="post" action="{% url 'submit_list_request' %}">>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="submit_request">
+                <div class="form-group">
+                    <label for="purpose-input">Purpose/Description:</label>
+                    <textarea id="purpose-input" name="purpose" class="form-control" 
+                              rows="3" required placeholder="Please describe the purpose of this request..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-paper-plane"></i> Submit Request ({{ cart_items|length }} items)
+                    </button>
+                    <button type="button" class="btn-clear-list">
+                        <i class="fas fa-trash"></i> Clear List
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
     </main>
 
     <aside class="recent-requests">
@@ -99,6 +187,436 @@
     margin-bottom: 2rem;
 }
 
+/* Add Item Section */
+.add-item-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.add-item-section h3 {
+    color: #152d64;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+}
+
+.form-group {
+    flex: 1;
+}
+
+.form-group:nth-child(2) {
+    flex: 0 0 150px;
+}
+
+.form-group:nth-child(3) {
+    flex: 0 0 auto;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    height: auto;
+    box-sizing: border-box;
+}
+
+.btn-add-to-list {
+    background: #152d64;
+    color: white;
+    border: 1px solid #152d64;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 130px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    height: calc(0.9rem * 1.5 + 1rem + 2px);
+}
+
+.btn-add-to-list:hover {
+    background: #0f1f4a;
+}
+
+/* List Section */
+.list-section {
+    margin-bottom: 2rem;
+}
+
+.list-section h3 {
+    color: #152d64;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.list-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.list-table th,
+.list-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.list-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #152d64;
+}
+
+.quantity-edit {
+    width: 80px;
+    padding: 0.25rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.btn-update,
+.btn-remove {
+    background: none;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    margin: 0 0.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-update {
+    color: #28a745;
+}
+
+.btn-update:hover {
+    background: #d4edda;
+}
+
+.btn-remove {
+    color: #dc3545;
+}
+
+.btn-remove:hover {
+    background: #f8d7da;
+}
+
+.empty-list {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.empty-list i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Submit Section */
+.submit-section {
+    background: #e8f4fd;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #152d64;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn-submit {
+    background: #152d64;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+
+.btn-submit:hover {
+    background: #0f1f4a;
+}
+
+.btn-clear-list {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-clear-list:hover {
+    background: #c82333;
+}
+
+/* Recent Requests Styles */
+.recent-requests {
+    width: 320px;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+}
+
+.recent-requests h2 {
+    color: #152d64;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.request-card {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #152d64;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.request-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.request-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.request-date {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-rejected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.no-requests {
+    text-align: center;
+    color: #666;
+    padding: 2rem 1rem;
+}
+
+.no-requests i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .request-page-layout {
+        flex-direction: column;
+        margin-left: 0;
+    }
+    
+    .recent-requests {
+        width: 100%;
+    }
+}
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Add item to list
+    $('#add-item-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        formData.append('action', 'add_to_cart');
+        
+        $.ajax({
+            url: '{% url "add_to_list" %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    showMessage(response.message, 'success');
+                    location.reload(); // Reload to update list display
+                } else {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('Error adding item to list', 'error');
+            }
+        });
+    });
+    
+    // Update list item quantity
+    $('.btn-update').on('click', function() {
+        const supplyId = $(this).data('supply-id');
+        const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
+        
+        $.ajax({
+            url: '{% url "update_list_item" %}',
+            type: 'POST',
+            data: {
+                'supply_id': supplyId,
+                'quantity': newQuantity,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    showMessage(response.message, 'success');
+                } else {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('Error updating list item', 'error');
+            }
+        });
+    });
+    
+    // Remove item from list
+    $('.btn-remove').on('click', function() {
+        const supplyId = $(this).data('supply-id');
+        
+        if (confirm('Are you sure you want to remove this item from your list?')) {
+            $.ajax({
+                url: '{% url "remove_from_list" %}',
+                type: 'POST',
+                data: {
+                    'supply_id': supplyId,
+                    'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showMessage(response.message, 'success');
+                        location.reload(); // Reload to update list display
+                    } else {
+                        showMessage(response.message, 'error');
+                    }
+                },
+                error: function() {
+                    showMessage('Error removing item from list', 'error');
+                }
+            });
+        }
+    });
+    
+    // Clear entire list
+    $('.btn-clear-list').on('click', function() {
+        if (confirm('Are you sure you want to clear your entire list?')) {
+            // Clear all items one by one
+            $('.btn-remove').each(function() {
+                $(this).click();
+            });
+        }
+    });
+    
+    // Update quantity limits based on selected supply
+    $('#supply-select').on('change', function() {
+        const selectedOption = $(this).find(':selected');
+        const available = selectedOption.data('available');
+        
+        $('#quantity-input').attr('max', available);
+        $('#quantity-input').attr('placeholder', `Enter quantity (max ${available})`);
+    });
+    
+    // Show message function
+    function showMessage(message, type) {
+        // Remove existing messages
+        $('.message').remove();
+        
+        // Create new message
+        const messageClass = type === 'success' ? 'alert-success' : 'alert-error';
+        const messageHtml = `
+            <div class="message ${messageClass}" style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                color: white;
+                background: ${type === 'success' ? '#28a745' : '#dc3545'};
+                z-index: 1000;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            ">
+                ${message}
+            </div>
+        `;
+        
+        $('body').append(messageHtml);
+        
+        // Auto remove after 3 seconds
+        setTimeout(function() {
+            $('.message').fadeOut(300, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+});
+</script>
+
+<style>
 .request-form {
     display: flex;
     flex-direction: column;

@@ -1,7 +1,7 @@
 from django import forms
 from .models import Property, Supply, SupplyQuantity, SupplyCategory, SupplySubcategory
 from django.contrib.auth.models import User
-from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation, Department,PropertyCategory
+from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation, Department,PropertyCategory, SupplyRequestBatch, SupplyRequestItem, Supply, SupplyQuantity
 from datetime import date
 
 class DepartmentForm(forms.ModelForm):
@@ -214,6 +214,66 @@ class SupplyRequestForm(forms.ModelForm):
                 raise forms.ValidationError(f"Only {available_quantity} units available.")
         
         return quantity
+
+
+class SupplyRequestBatchForm(forms.ModelForm):
+    """Form for creating a batch supply request (cart functionality)"""
+    class Meta:
+        model = SupplyRequestBatch
+        fields = ['purpose']
+        widgets = {
+            'purpose': forms.Textarea(attrs={
+                'rows': 3,
+                'placeholder': 'Please describe the purpose of this request...'
+            }),
+        }
+
+class SupplyRequestItemForm(forms.Form):
+    """Form for adding individual items to the cart"""
+    supply = forms.ModelChoiceField(
+        queryset=None,
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'supply-select',
+            'data-placeholder': 'Select a supply item...'
+        }),
+        empty_label="Select a supply item..."
+    )
+    quantity = forms.IntegerField(
+        min_value=1,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'id': 'quantity-input',
+            'placeholder': 'Enter quantity'
+        })
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Only show supplies that are available for request and have stock
+        self.fields['supply'].queryset = Supply.objects.filter(
+            available_for_request=True,
+            quantity_info__current_quantity__gt=0
+        ).select_related('quantity_info')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        supply = cleaned_data.get('supply')
+        quantity = cleaned_data.get('quantity')
+        
+        if supply and quantity:
+            try:
+                available_quantity = supply.quantity_info.current_quantity
+                if quantity > available_quantity:
+                    raise forms.ValidationError(
+                        f"Only {available_quantity} units of {supply.supply_name} are available."
+                    )
+            except SupplyQuantity.DoesNotExist:
+                raise forms.ValidationError(
+                    f"Supply {supply.supply_name} has no quantity information."
+                )
+        
+        return cleaned_data
 
 
 class BorrowRequestForm(forms.ModelForm):

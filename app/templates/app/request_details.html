@@ -26,8 +26,8 @@
             {% endif %}
         {% endwith %}
         {% endwith %}
+        ({{ request_obj.user.userprofile.department }})
         </p>
-      <p><span>Department:</span> {{ request_obj.user.userprofile.department }}</p>
       <p><span>Supply:</span> {{ request_obj.supply.supply_name }}</p>
       <p><span>Quantity:</span> {{ request_obj.quantity }}</p>
       <p><span>Purpose:</span> {{ request_obj.purpose }}</p>

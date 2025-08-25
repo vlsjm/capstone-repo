@@ -7,6 +7,134 @@
   <title>Supply Requests</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <style>
+    .request {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin: 15px 0;
+      background: #f9f9f9;
+    }
+    .request-header {
+      background: #f0f0f0;
+      padding: 15px;
+      border-bottom: 1px solid #e0e0e0;
+      border-radius: 8px 8px 0 0;
+    }
+    .request-items {
+      padding: 0;
+    }
+    .request-item {
+      padding: 10px 15px;
+      border-bottom: 1px solid #e9e9e9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .request-item:last-child {
+      border-bottom: none;
+    }
+    .item-info {
+      flex: 1;
+    }
+    .item-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .approve-btn, .reject-btn {
+      padding: 5px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .approve-btn {
+      background: #28a745;
+      color: white;
+    }
+    .reject-btn {
+      background: #dc3545;
+      color: white;
+    }
+    .approve-btn:hover {
+      background: #218838;
+    }
+    .reject-btn:hover {
+      background: #c82333;
+    }
+    .item-status {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .status-approved {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status-rejected {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+    .status-partial {
+      background: #ffeaa7;
+      color: #d63031;
+    }
+    .status-badge {
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .remarks-form {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      display: none;
+    }
+    .remarks-form.show {
+      display: block;
+    }
+    .remarks-form textarea {
+      width: 100%;
+      min-height: 60px;
+      margin-bottom: 10px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .filter-tabs {
+      margin-bottom: 20px;
+    }
+    .tab-button {
+      padding: 10px 20px;
+      margin-right: 10px;
+      border: 1px solid #ddd;
+      background: white;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .tab-button.active {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+  </style>
 </head>
 <body>
   {% include 'app/navbar.html' %}
@@ -17,200 +145,330 @@
     </div>
 
     <main class="content">
-      <div class="request-controls">
-        <div class="button-group">
-          <button onclick="filterStatus('all')" class="filter-btn">All</button>
-          <button onclick="filterStatus('pending')" class="filter-btn">Pending</button>
-          <button onclick="filterStatus('approved')" class="filter-btn">Approved</button>
-          <button onclick="filterStatus('rejected')" class="filter-btn">Rejected</button>
-        </div>
+      <!-- Filter Tabs -->
+      <div class="filter-tabs">
+        <button class="tab-button active" data-tab="pending">Pending</button>
+        <button class="tab-button" data-tab="approved">Approved</button>
+        <button class="tab-button" data-tab="rejected">Rejected</button>
+        <button class="tab-button" data-tab="partial">Partially Approved</button>
       </div>
 
-      <!-- Pending Requests Table -->
-      <div class="status-table" data-status="pending">
+      <!-- Pending Requests -->
+      <div id="pending" class="tab-content active">
         <h3>Pending Requests</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Requester</th>
-              <th>Supply</th>
-              <th>Quantity</th>
-              <th>Status</th>
-              <th>Request Date</th>
-              <th>Approved Date</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for request in pending_requests %}
-            <tr>
-              <td>
-                {% with request.user.first_name as first_name %}
-                {% with request.user.last_name as last_name %}
-                  {% if first_name or last_name %}
-                    {{ first_name }} {{ last_name }}
+        {% for batch_request in pending_batch_requests %}
+        <div class="request">
+          <div class="request-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h4>Request #{{ batch_request.id }}</h4>
+                <p><strong>Requester:</strong> 
+                  {% if batch_request.user.first_name or batch_request.user.last_name %}
+                    {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
                   {% else %}
-                    {{ request.user.username }}
+                    {{ batch_request.user.username }}
                   {% endif %}
-                {% endwith %}
-                {% endwith %}
-                <br/>
-                <small>{{ request.user.userprofile.get_role_display }}<br/>Dept: {{ request.user.userprofile.department }}</small>
-              </td>
-              <td>{{ request.supply.supply_name }}</td>
-              <td>{{ request.quantity }}</td>
-              <td>
-                <span class="status-badge status-{{ request.status|lower|cut:' ' }}">
-                  {% if request.status == 'pending' %}
-                    <i class="fas fa-clock"></i>
-                  {% elif request.status == 'approved' %}
-                    <i class="fas fa-check-circle"></i>
-                  {% elif request.status == 'declined' %}
-                    <i class="fas fa-times-circle"></i>
-                  {% endif %}
-                  {{ request.get_status_display }}
+                  ({{ batch_request.user.userprofile.department }})
+                </p>
+                <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
+                <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
+                <p><strong>Total Items:</strong> {{ batch_request.total_items }}</p>
+              </div>
+              <div>
+                <span class="status-badge status-{{ batch_request.status|lower }}">
+                  <i class="fas fa-clock"></i> {{ batch_request.get_status_display }}
                 </span>
-              </td>
-              <td>{{ request.request_date|date:"M d, Y H:i" }}</td>
-              <td>{% if request.approved_date %}{{ request.approved_date|date:"M d, Y H:i" }}{% else %}-{% endif %}</td>
-              <td>
-                <a href="{% url 'request_detail' request.id %}" class="details-btn" title="View Details">
-                  <i class="fas fa-info-circle"></i>
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7">No pending requests found.</td></tr>
+              </div>
+            </div>
+          </div>
+          <div class="request-items">
+            {% for item in batch_request.items.all %}
+            <div class="request-item">
+              <div class="item-info">
+                <strong>{{ item.supply.supply_name }}</strong> - Quantity: {{ item.quantity }}
+                {% if item.remarks %}
+                  <br><small><em>Remarks: {{ item.remarks }}</em></small>
+                {% endif %}
+              </div>
+              <div class="item-actions">
+                {% if item.approved %}
+                  <span class="item-status status-approved">Approved</span>
+                {% else %}
+                  <button class="approve-btn" data-action="approve" data-batch-id="{{ batch_request.id }}" data-item-id="{{ item.id }}">
+                    <i class="fas fa-check"></i> Approve
+                  </button>
+                  <button class="reject-btn" data-action="reject" data-batch-id="{{ batch_request.id }}" data-item-id="{{ item.id }}">
+                    <i class="fas fa-times"></i> Reject
+                  </button>
+                {% endif %}
+              </div>
+            </div>
+            <!-- Remarks Form (hidden by default) -->
+            <div id="remarks-form-{{ batch_request.id }}-{{ item.id }}" class="remarks-form">
+              <form method="post" action="{% url 'batch_request_detail' batch_request.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="item_id" value="{{ item.id }}">
+                <input type="hidden" name="action" id="action-{{ batch_request.id }}-{{ item.id }}" value="">
+                <textarea name="remarks" placeholder="Enter remarks (optional)..."></textarea>
+                <button type="submit" class="approve-btn">Submit</button>
+                <button type="button" class="reject-btn cancel-btn" data-batch-id="{{ batch_request.id }}" data-item-id="{{ item.id }}">Cancel</button>
+              </form>
+            </div>
             {% endfor %}
-          </tbody>
-        </table>
-        {% include 'app/includes/pagination.html' %}
+          </div>
+        </div>
+        {% empty %}
+        <p>No pending requests found.</p>
+        {% endfor %}
       </div>
 
-      <!-- Approved Requests Table -->
-      <div class="status-table" data-status="approved">
+      <!-- Approved Requests Tab -->
+      <div id="approved" class="tab-content">
         <h3>Approved Requests</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Requester</th>
-              <th>Supply</th>
-              <th>Quantity</th>
-              <th>Status</th>
-              <th>Request Date</th>
-              <th>Approved Date</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for request in approved_requests %}
-            <tr>
-              <td>
-                {% with request.user.first_name as first_name %}
-                {% with request.user.last_name as last_name %}
-                  {% if first_name or last_name %}
-                    {{ first_name }} {{ last_name }}
+        {% for batch_request in approved_batch_requests %}
+        <div class="request">
+          <div class="request-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h4>Request #{{ batch_request.id }}</h4>
+                <p><strong>Requester:</strong> 
+                  {% if batch_request.user.first_name or batch_request.user.last_name %}
+                    {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
                   {% else %}
-                    {{ request.user.username }}
+                    {{ batch_request.user.username }}
                   {% endif %}
-                {% endwith %}
-                {% endwith %}
-                <br/>
-                <small>{{ request.user.userprofile.get_role_display }}<br/>Dept: {{ request.user.userprofile.department }}</small>
-              </td>
-              <td>{{ request.supply.supply_name }}</td>
-              <td>{{ request.quantity }}</td>
-              <td>
-                <span class="status-badge status-{{ request.status|lower|cut:' ' }}">
-                  {% if request.status == 'pending' %}
-                    <i class="fas fa-clock"></i>
-                  {% elif request.status == 'approved' %}
-                    <i class="fas fa-check-circle"></i>
-                  {% elif request.status == 'declined' %}
-                    <i class="fas fa-times-circle"></i>
-                  {% endif %}
-                  {{ request.get_status_display }}
+                </p>
+                <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
+                <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
+                <p><strong>Approved Date:</strong> {{ batch_request.approved_date|date:"M d, Y H:i" }}</p>
+              </div>
+              <div>
+                <span class="status-badge status-approved">
+                  <i class="fas fa-check-circle"></i> {{ batch_request.get_status_display }}
                 </span>
-              </td>
-              <td>{{ request.request_date|date:"M d, Y H:i" }}</td>
-              <td>{% if request.approved_date %}{{ request.approved_date|date:"M d, Y H:i" }}{% else %}-{% endif %}</td>
-              <td>
-                <a href="{% url 'request_detail' request.id %}" class="details-btn" title="View Details">
-                  <i class="fas fa-info-circle"></i>
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7">No approved requests found.</td></tr>
+              </div>
+            </div>
+          </div>
+          <div class="request-items">
+            {% for item in batch_request.items.all %}
+            <div class="request-item">
+              <div class="item-info">
+                <strong>{{ item.supply.supply_name }}</strong> - Quantity: {{ item.quantity }}
+                {% if item.remarks %}
+                  <br><small><em>Remarks: {{ item.remarks }}</em></small>
+                {% endif %}
+              </div>
+              <div class="item-actions">
+                <span class="item-status status-approved">Approved</span>
+              </div>
+            </div>
             {% endfor %}
-          </tbody>
-        </table>
-        {% include 'app/includes/pagination.html' %}
+          </div>
+        </div>
+        {% empty %}
+        <p>No approved requests found.</p>
+        {% endfor %}
       </div>
 
-      <!-- Rejected Requests Table -->
-      <div class="status-table" data-status="rejected">
+      <!-- Rejected Requests Tab -->
+      <div id="rejected" class="tab-content">
         <h3>Rejected Requests</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Requester</th>
-              <th>Supply</th>
-              <th>Quantity</th>
-              <th>Status</th>
-              <th>Request Date</th>
-              <th>Rejected Date</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for request in rejected_requests %}
-            <tr>
-              <td>
-                {% with request.user.first_name as first_name %}
-                {% with request.user.last_name as last_name %}
-                  {% if first_name or last_name %}
-                    {{ first_name }} {{ last_name }}
+        {% for batch_request in rejected_batch_requests %}
+        <div class="request">
+          <div class="request-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h4>Request #{{ batch_request.id }}</h4>
+                <p><strong>Requester:</strong> 
+                  {% if batch_request.user.first_name or batch_request.user.last_name %}
+                    {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
                   {% else %}
-                    {{ request.user.username }}
+                    {{ batch_request.user.username }}
                   {% endif %}
-                {% endwith %}
-                {% endwith %}
-                <br/>
-                <small>{{ request.user.userprofile.get_role_display }}<br/>Dept: {{ request.user.userprofile.department }}</small>
-              </td>
-              <td>{{ request.supply.supply_name }}</td>
-              <td>{{ request.quantity }}</td>
-              <td>
-                <span class="status-badge status-{{ request.status|lower|cut:' ' }}">
-                  {% if request.status == 'pending' %}
-                    <i class="fas fa-clock"></i>
-                  {% elif request.status == 'approved' %}
-                    <i class="fas fa-check-circle"></i>
-                  {% elif request.status == 'declined' %}
-                    <i class="fas fa-times-circle"></i>
-                  {% endif %}
-                  {{ request.get_status_display }}
+                </p>
+                <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
+                <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
+              </div>
+              <div>
+                <span class="status-badge status-rejected">
+                  <i class="fas fa-times-circle"></i> {{ batch_request.get_status_display }}
                 </span>
-              </td>
-              <td>{{ request.request_date|date:"M d, Y H:i" }}</td>
-              <td>{% if request.approved_date %}{{ request.approved_date|date:"M d, Y H:i" }}{% else %}-{% endif %}</td>
-              <td>
-                <a href="{% url 'request_detail' request.id %}" class="details-btn" title="View Details">
-                  <i class="fas fa-info-circle"></i>
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7">No rejected requests found.</td></tr>
+              </div>
+            </div>
+          </div>
+          <div class="request-items">
+            {% for item in batch_request.items.all %}
+            <div class="request-item">
+              <div class="item-info">
+                <strong>{{ item.supply.supply_name }}</strong> - Quantity: {{ item.quantity }}
+                {% if item.remarks %}
+                  <br><small><em>Remarks: {{ item.remarks }}</em></small>
+                {% endif %}
+              </div>
+              <div class="item-actions">
+                <span class="item-status status-rejected">Rejected</span>
+              </div>
+            </div>
             {% endfor %}
-          </tbody>
-        </table>
-        {% include 'app/includes/pagination.html' %}
+          </div>
+        </div>
+        {% empty %}
+        <p>No rejected requests found.</p>
+        {% endfor %}
       </div>
+
+      <!-- Partially Approved Requests Tab -->
+      <div id="partial" class="tab-content">
+        <h3>Partially Approved Requests</h3>
+        {% for batch_request in partially_approved_batch_requests %}
+        <div class="request">
+          <div class="request-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h4>Request #{{ batch_request.id }}</h4>
+                <p><strong>Requester:</strong> 
+                  {% if batch_request.user.first_name or batch_request.user.last_name %}
+                    {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
+                  {% else %}
+                    {{ batch_request.user.username }}
+                  {% endif %}
+                </p>
+                <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
+                <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
+              </div>
+              <div>
+                <span class="status-badge status-partial">
+                  <i class="fas fa-exclamation-triangle"></i> {{ batch_request.get_status_display }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="request-items">
+            {% for item in batch_request.items.all %}
+            <div class="request-item">
+              <div class="item-info">
+                <strong>{{ item.supply.supply_name }}</strong> - Quantity: {{ item.quantity }}
+                {% if item.remarks %}
+                  <br><small><em>Remarks: {{ item.remarks }}</em></small>
+                {% endif %}
+              </div>
+              <div class="item-actions">
+                {% if item.approved %}
+                  <span class="item-status status-approved">Approved</span>
+                {% else %}
+                  <button class="approve-btn" data-action="approve" data-batch-id="{{ batch_request.id }}" data-item-id="{{ item.id }}">
+                    <i class="fas fa-check"></i> Approve
+                  </button>
+                  <button class="reject-btn" data-action="reject" data-batch-id="{{ batch_request.id }}" data-item-id="{{ item.id }}">
+                    <i class="fas fa-times"></i> Reject
+                  </button>
+                {% endif %}
+              </div>
+            </div>
+            <!-- Remarks Form -->
+            <div id="remarks-form-{{ batch_request.id }}-{{ item.id }}" class="remarks-form">
+              <form method="post" action="{% url 'batch_request_detail' batch_request.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="item_id" value="{{ item.id }}">
+                <input type="hidden" name="action" id="action-{{ batch_request.id }}-{{ item.id }}" value="">
+                <textarea name="remarks" placeholder="Enter remarks (optional)..."></textarea>
+                <button type="submit" class="approve-btn">Submit</button>
+                <button type="button" class="reject-btn cancel-btn" data-batch-id="{{ batch_request.id }}" data-item-id="{{ item.id }}">Cancel</button>
+              </form>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% empty %}
+        <p>No partially approved requests found.</p>
+        {% endfor %}
+      </div>
+
     </main>
   </div>
 
-  <script src="{% static 'scripts/filterStatus.js' %}"></script>
+  <script>
+    // Initialize event listeners when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeEventListeners();
+    });
+
+    function initializeEventListeners() {
+      // Event delegation for tab buttons
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('.tab-button[data-tab]')) {
+          e.preventDefault();
+          const button = e.target.closest('.tab-button[data-tab]');
+          const tabName = button.dataset.tab;
+          showTab(tabName, button);
+        }
+        
+        if (e.target.closest('.approve-btn[data-action]') || e.target.closest('.reject-btn[data-action]')) {
+          e.preventDefault();
+          const button = e.target.closest('[data-action]');
+          const action = button.dataset.action;
+          const batchId = button.dataset.batchId;
+          const itemId = button.dataset.itemId;
+          showRemarksForm(action, batchId, itemId);
+        }
+        
+        if (e.target.closest('.cancel-btn')) {
+          e.preventDefault();
+          const button = e.target.closest('.cancel-btn');
+          const batchId = button.dataset.batchId;
+          const itemId = button.dataset.itemId;
+          hideRemarksForm(batchId, itemId);
+        }
+      });
+    }
+
+    function showTab(tabName, buttonElement) {
+      // Hide all tab contents
+      const tabs = document.querySelectorAll('.tab-content');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      
+      // Remove active class from all buttons
+      const buttons = document.querySelectorAll('.tab-button');
+      buttons.forEach(button => button.classList.remove('active'));
+      
+      // Show selected tab
+      const targetTab = document.getElementById(tabName);
+      if (targetTab) {
+        targetTab.classList.add('active');
+      }
+      
+      // Add active class to clicked button
+      if (buttonElement) {
+        buttonElement.classList.add('active');
+      }
+    }
+
+    function showRemarksForm(action, batchId, itemId) {
+      const formId = `remarks-form-${batchId}-${itemId}`;
+      const actionFieldId = `action-${batchId}-${itemId}`;
+      
+      const form = document.getElementById(formId);
+      const actionField = document.getElementById(actionFieldId);
+      
+      if (form && actionField) {
+        form.classList.add('show');
+        actionField.value = action;
+      }
+    }
+
+    function hideRemarksForm(batchId, itemId) {
+      const formId = `remarks-form-${batchId}-${itemId}`;
+      const form = document.getElementById(formId);
+      
+      if (form) {
+        form.classList.remove('show');
+        // Clear the form
+        const textarea = form.querySelector('textarea[name="remarks"]');
+        if (textarea) {
+          textarea.value = '';
+        }
+      }
+    }
+  </script>
 </body>
 </html>

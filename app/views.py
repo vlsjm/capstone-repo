@@ -15,9 +15,10 @@ from .models import(
     SupplyRequest, DamageReport, Reservation,
     ActivityLog, UserProfile, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
-    Department, PropertyCategory, SupplyCategory, SupplySubcategory
+    Department, PropertyCategory, SupplyCategory, SupplySubcategory,
+    SupplyRequestBatch, SupplyRequestItem
 )
-from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm
+from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm, SupplyRequestBatchForm, SupplyRequestItemForm, SupplyRequestBatchForm, SupplyRequestItemForm
 from django.contrib.auth.forms import AuthenticationForm
 from datetime import timedelta, date
 import json
@@ -499,12 +500,13 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
             for condition in property_condition_choices
         ]
 
-        # Request Status Counts (SupplyRequest)
+        # Request Status Counts (SupplyRequest + SupplyRequestBatch)
         request_status_choices = ['pending', 'approved', 'rejected']
-        request_status_counts = [
-            SupplyRequest.objects.filter(status__iexact=status).count()
-            for status in request_status_choices
-        ]
+        request_status_counts = []
+        for status in request_status_choices:
+            legacy_count = SupplyRequest.objects.filter(status__iexact=status).count()
+            batch_count = SupplyRequestBatch.objects.filter(status__iexact=status).count()
+            request_status_counts.append(legacy_count + batch_count)
 
         # Damage Report Status Counts
         damage_status_choices = ['pending', 'reviewed', 'resolved']
@@ -572,27 +574,101 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
         except (AttributeError, NameError):
             user_activity_data = []
 
+        # Department Request Analysis
+        try:
+            # Get requests by department for both SupplyRequest and BorrowRequest
+            departments = Department.objects.all()
+            department_request_data = []
+            
+            for department in departments:
+                # Count supply requests from users in this department (legacy system)
+                legacy_supply_request_count = SupplyRequest.objects.filter(
+                    user__userprofile__department=department
+                ).count()
+                
+                # Count batch supply requests from users in this department (new system)
+                batch_supply_request_count = SupplyRequestBatch.objects.filter(
+                    user__userprofile__department=department
+                ).count()
+                
+                # Total supply requests (legacy + batch)
+                total_supply_requests = legacy_supply_request_count + batch_supply_request_count
+                
+                # Count borrow requests from users in this department
+                borrow_request_count = BorrowRequest.objects.filter(
+                    user__userprofile__department=department
+                ).count()
+                
+                # Count reservations from users in this department
+                reservation_count = Reservation.objects.filter(
+                    user__userprofile__department=department
+                ).count()
+                
+                # Total requests from this department
+                total_requests = total_supply_requests + borrow_request_count + reservation_count
+                
+                if total_requests > 0:
+                    department_request_data.append({
+                        'department': department.name,
+                        'total_requests': total_requests,
+                        'supply_requests': total_supply_requests,
+                        'borrow_requests': borrow_request_count,
+                        'reservations': reservation_count
+                    })
+            
+            # Sort by total requests descending
+            department_request_data.sort(key=lambda x: x['total_requests'], reverse=True)
+            
+        except Exception as e:
+            logger.error(f"Error getting department request data: {str(e)}")
+            department_request_data = []
+
         # Recent Requests for Preview Table
         recent_supply_requests = SupplyRequest.objects.select_related(
             'user', 'supply'
-        ).order_by('-request_date')[:10]
+        ).order_by('-request_date')[:5]
+
+        recent_batch_requests = SupplyRequestBatch.objects.select_related(
+            'user'
+        ).order_by('-request_date')[:5]
 
         recent_borrow_requests = BorrowRequest.objects.select_related(
             'user', 'property'
-        ).order_by('-borrow_date')[:10]
+        ).order_by('-borrow_date')[:5]
 
         recent_reservations = Reservation.objects.select_related(
             'user', 'item'
-        ).order_by('-reservation_date')[:10]
+        ).order_by('-reservation_date')[:5]
 
         all_recent_requests = []
         
+        # Add legacy supply requests
         for req in recent_supply_requests:
             all_recent_requests.append({
                 'type': 'Supply Request',
                 'user': req.user.username,
                 'item': req.supply.supply_name,
                 'quantity': req.quantity,
+                'status': req.get_status_display(),
+                'date': req.request_date,
+                'purpose': req.purpose[:50] + '...' if len(req.purpose) > 50 else req.purpose
+            })
+        
+        # Add batch supply requests
+        for req in recent_batch_requests:
+            items_text = f"{req.total_items} items"
+            if req.total_items <= 3:
+                try:
+                    items_list = ", ".join([f"{item.supply.supply_name} (x{item.quantity})" for item in req.items.all()])
+                    items_text = items_list
+                except:
+                    items_text = f"{req.total_items} items"
+            
+            all_recent_requests.append({
+                'type': 'Batch Supply Request',
+                'user': req.user.username,
+                'item': items_text,
+                'quantity': req.total_quantity,
                 'status': req.get_status_display(),
                 'date': req.request_date,
                 'purpose': req.purpose[:50] + '...' if len(req.purpose) > 50 else req.purpose
@@ -655,11 +731,12 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
             'borrow_trends_data': json.dumps(borrow_trends_data),
             'property_categories_counts': json.dumps(property_categories_data),
             'user_activity_by_role': json.dumps(user_activity_data),
+            'department_requests_data': json.dumps(department_request_data),
 
             # total counts for cards
             'supply_count': Supply.objects.count(),
             'property_count': Property.objects.count(),
-            'pending_requests': SupplyRequest.objects.filter(status__iexact='pending').count(),
+            'pending_requests': SupplyRequest.objects.filter(status__iexact='pending').count() + SupplyRequestBatch.objects.filter(status__iexact='pending').count(),
             'damage_reports': DamageReport.objects.filter(status__iexact='pending').count(),
             
             # Recent requests for preview table
@@ -743,22 +820,25 @@ class UserBorrowRequestListView(PermissionRequiredMixin, ListView):
         return context
 
 class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
-    model = SupplyRequest
+    model = SupplyRequestBatch
     template_name = 'app/requests.html'
     permission_required = 'app.view_admin_module'
-    context_object_name = 'requests'
+    context_object_name = 'batch_requests'
     paginate_by = 10
     
     def get_queryset(self):
-        return SupplyRequest.objects.select_related('user', 'user__userprofile', 'supply').order_by('-request_date')
+        # Show batch requests ordered by most recent
+        return SupplyRequestBatch.objects.select_related('user', 'user__userprofile').prefetch_related('items__supply').order_by('-request_date')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        all_requests = self.get_queryset()
+        all_batch_requests = self.get_queryset()
         
-        context['pending_requests'] = all_requests.filter(status='pending')
-        context['approved_requests'] = all_requests.filter(status='approved')
-        context['rejected_requests'] = all_requests.filter(status='rejected')
+        # Batch requests by status - only new cart-based requests
+        context['pending_batch_requests'] = all_batch_requests.filter(status='pending')
+        context['approved_batch_requests'] = all_batch_requests.filter(status='approved')
+        context['rejected_batch_requests'] = all_batch_requests.filter(status='rejected')
+        context['partially_approved_batch_requests'] = all_batch_requests.filter(status='partially_approved')
         
         return context
 
@@ -1370,34 +1450,257 @@ def logout_view(request):
 
 @login_required
 def create_supply_request(request):
+    """
+    New cart-based supply request system.
+    Users can add multiple items to a cart before submitting.
+    """
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'add_to_cart':
+            # Handle adding item to list
+            return add_to_list(request)
+        elif action == 'remove_from_cart':
+            # Handle removing item from list
+            return remove_from_list(request)
+        elif action == 'update_cart':
+            # Handle updating item quantity in list
+            return update_list_item(request)
+        elif action == 'submit_request':
+            # Handle final request submission
+            return submit_list_request(request)
+    
+    # GET request - show the cart page
+    cart_items = request.session.get('supply_cart', [])
+    
+    # Get recent batch requests (new system)
+    recent_batch_requests = SupplyRequestBatch.objects.filter(user=request.user).order_by('-request_date')[:5]
+    
+    # Get recent single requests (legacy system) 
+    recent_single_requests = SupplyRequest.objects.filter(user=request.user).order_by('-request_date')[:5]
+    
+    # Combine and format recent requests
+    recent_requests_data = []
+    
+    # Add batch requests
+    for req in recent_batch_requests:
+        items_text = f"{req.total_items} items"
+        if req.total_items <= 3:
+            items_list = ", ".join([f"{item.supply.supply_name} (x{item.quantity})" for item in req.items.all()])
+            items_text = items_list
+        
+        recent_requests_data.append({
+            'id': req.id,
+            'item': items_text,
+            'quantity': req.total_quantity,
+            'status': req.status,
+            'date': req.request_date,
+            'purpose': req.purpose,
+            'type': 'batch'
+        })
+    
+    # Add single requests (for backward compatibility)
+    for req in recent_single_requests:
+        recent_requests_data.append({
+            'id': req.id,
+            'item': req.supply.supply_name,
+            'quantity': req.quantity,
+            'status': req.status,
+            'date': req.request_date,
+            'purpose': req.purpose,
+            'type': 'single'
+        })
+    
+    # Sort by date
+    recent_requests_data.sort(key=lambda x: x['date'], reverse=True)
+    recent_requests_data = recent_requests_data[:5]  # Keep only 5 most recent
+    
+    context = {
+        'cart_items': cart_items,
+        'item_form': SupplyRequestItemForm(),
+        'batch_form': SupplyRequestBatchForm(),
+        'available_supplies': Supply.objects.filter(
+            available_for_request=True,
+            quantity_info__current_quantity__gt=0
+        ).select_related('quantity_info'),
+        'recent_requests': recent_requests_data,
+    }
+    
+    return render(request, 'userpanel/user_request.html', context)
+
+@login_required
+def add_to_list(request):
+    """Add an item to the supply request list"""
     if request.method == 'POST':
         supply_id = request.POST.get('supply_id')
-        quantity = request.POST.get('quantity')
-        purpose = request.POST.get('purpose')
+        quantity = int(request.POST.get('quantity', 0))
         
-        supply = get_object_or_404(Supply, id=supply_id)
+        try:
+            supply = Supply.objects.get(id=supply_id)
+            
+            # Validate quantity
+            available_quantity = supply.quantity_info.current_quantity
+            if quantity > available_quantity:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Only {available_quantity} units of {supply.supply_name} are available.'
+                })
+            
+            # Get or create cart in session
+            cart = request.session.get('supply_cart', [])
+            
+            # Check if item already exists in cart
+            item_exists = False
+            for item in cart:
+                if item['supply_id'] == supply_id:
+                    # Update quantity (prevent duplicates)
+                    new_quantity = item['quantity'] + quantity
+                    if new_quantity > available_quantity:
+                        return JsonResponse({
+                            'success': False,
+                            'message': f'Cannot add {quantity} more. Total would exceed available quantity ({available_quantity}).'
+                        })
+                    item['quantity'] = new_quantity
+                    item_exists = True
+                    break
+            
+            if not item_exists:
+                cart.append({
+                    'supply_id': supply_id,
+                    'supply_name': supply.supply_name,
+                    'quantity': quantity,
+                    'available_quantity': available_quantity
+                })
+            
+            request.session['supply_cart'] = cart
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Added {supply.supply_name} to list.',
+                'list_count': len(cart)
+            })
+            
+        except Supply.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Supply item not found.'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error adding item to cart: {str(e)}'
+            })
+
+@login_required
+def remove_from_list(request):
+    """Remove an item from the supply request list"""
+    if request.method == 'POST':
+        supply_id = request.POST.get('supply_id')
         
-        # Create the supply request object
-        supply_request = SupplyRequest(
-            user=request.user,
-            supply=supply,
-            quantity=quantity,
-            purpose=purpose,
-            status='pending'
-        )
-        # Save to trigger the model's save method which handles notifications
-        supply_request.save()
+        cart = request.session.get('supply_cart', [])
+        cart = [item for item in cart if item['supply_id'] != supply_id]
+        
+        request.session['supply_cart'] = cart
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Item removed from cart.',
+            'cart_count': len(cart)
+        })
 
-        ActivityLog.log_activity(
-            user=request.user,
-            action='request',
-            model_name='Supply',
-            object_repr=supply.supply_name,
-            description=f"Requested {quantity} units of {supply.supply_name} for {purpose}"
-        )
+@login_required
+def update_list_item(request):
+    """Update quantity of an item in the list"""
+    if request.method == 'POST':
+        supply_id = request.POST.get('supply_id')
+        new_quantity = int(request.POST.get('quantity', 0))
+        
+        try:
+            supply = Supply.objects.get(id=supply_id)
+            available_quantity = supply.quantity_info.current_quantity
+            
+            if new_quantity > available_quantity:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Only {available_quantity} units available.'
+                })
+            
+            cart = request.session.get('supply_cart', [])
+            
+            for item in cart:
+                if item['supply_id'] == supply_id:
+                    item['quantity'] = new_quantity
+                    break
+            
+            request.session['supply_cart'] = cart
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Cart updated.',
+                'cart_count': len(cart)
+            })
+            
+        except Supply.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Supply item not found.'
+            })
 
-        messages.success(request, 'Supply request created successfully.')
-        return redirect('user_supply_requests')
+@login_required
+def submit_list_request(request):
+    """Submit the list as a batch supply request"""
+    if request.method == 'POST':
+        purpose = request.POST.get('purpose', '').strip()
+        cart = request.session.get('supply_cart', [])
+        
+        if not cart:
+            messages.error(request, 'Your request list is empty. Please add items before submitting.')
+            return redirect('create_supply_request')
+        
+        if not purpose:
+            messages.error(request, 'Please provide a purpose for your request.')
+            return redirect('create_supply_request')
+        
+        try:
+            # Create the batch request
+            batch_request = SupplyRequestBatch.objects.create(
+                user=request.user,
+                purpose=purpose,
+                status='pending'
+            )
+            
+            # Create individual items
+            for cart_item in cart:
+                supply = Supply.objects.get(id=cart_item['supply_id'])
+                SupplyRequestItem.objects.create(
+                    batch_request=batch_request,
+                    supply=supply,
+                    quantity=cart_item['quantity']
+                )
+            
+            # Log activity
+            item_list = ", ".join([f"{item['supply_name']} (x{item['quantity']})" for item in cart[:3]])
+            if len(cart) > 3:
+                item_list += f" and {len(cart) - 3} more items"
+            
+            ActivityLog.log_activity(
+                user=request.user,
+                action='request',
+                model_name='SupplyRequestBatch',
+                object_repr=f"Batch #{batch_request.id}",
+                description=f"Submitted batch supply request with {len(cart)} items: {item_list}"
+            )
+            
+            # Clear the cart
+            request.session['supply_cart'] = []
+            
+            messages.success(request, f'Supply request submitted successfully! Your request ID is #{batch_request.id}.')
+            return redirect('create_supply_request')
+            
+        except Exception as e:
+            messages.error(request, f'Error submitting request: {str(e)}')
+            return redirect('create_supply_request')
+
 
 @login_required
 def create_borrow_request(request):
@@ -1428,24 +1731,8 @@ def create_borrow_request(request):
         )
 
         messages.success(request, 'Borrow request created successfully.')
-        return redirect('user_borrow_requests')
+        return redirect('create_borrow_request')
 
-@login_required
-def approve_supply_request(request, request_id):
-    supply_request = get_object_or_404(SupplyRequest, id=request_id)
-    supply_request.status = 'approved'
-    supply_request.save()
-
-    ActivityLog.log_activity(
-        user=request.user,
-        action='approve',
-        model_name='SupplyRequest',
-        object_repr=f"Request #{request_id}",
-        description=f"Approved supply request for {supply_request.quantity} units of {supply_request.supply.supply_name}"
-    )
-
-    messages.success(request, 'Supply request approved successfully.')
-    return redirect('supply_requests')
 
 @login_required
 def approve_borrow_request(request, request_id):
@@ -1464,22 +1751,6 @@ def approve_borrow_request(request, request_id):
     messages.success(request, 'Borrow request approved successfully.')
     return redirect('borrow_requests')
 
-@login_required
-def reject_supply_request(request, request_id):
-    supply_request = get_object_or_404(SupplyRequest, id=request_id)
-    supply_request.status = 'rejected'
-    supply_request.save()
-
-    ActivityLog.log_activity(
-        user=request.user,
-        action='reject',
-        model_name='SupplyRequest',
-        object_repr=f"Request #{request_id}",
-        description=f"Rejected supply request for {supply_request.quantity} units of {supply_request.supply.supply_name}"
-    )
-
-    messages.success(request, 'Supply request rejected successfully.')
-    return redirect('supply_requests')
 
 @login_required
 def reject_borrow_request(request, request_id):
@@ -2569,12 +2840,164 @@ def delete_supply_subcategory(request, subcategory_id):
     return redirect('supply_list')
 
 def supply_list(request):
-    # ... existing code ...
+    # Redirect to the class-based view
+    return redirect('supplies')
+
+
+# Batch Request Item Management Views
+@login_required
+@require_POST
+def approve_batch_item(request, batch_id, item_id):
+    """Approve an individual item in a batch request"""
+    batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
+    item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
+    
+    # Mark item as approved
+    item.approved = True
+    remarks = request.POST.get('remarks', '')
+    if remarks:
+        item.remarks = remarks
+    item.save()
+    
+    # Check if all items in the batch are processed
+    total_items = batch_request.items.count()
+    approved_items = batch_request.items.filter(approved=True).count()
+    
+    # Update batch status
+    if approved_items == total_items:
+        batch_request.status = 'approved'
+    elif approved_items > 0:
+        batch_request.status = 'partially_approved'
+    
+    batch_request.save()
+    
+    # Create notification for user
+    Notification.objects.create(
+        user=batch_request.user,
+        message=f"Item '{item.supply.supply_name}' in your batch request #{batch_request.id} has been approved.",
+        remarks=remarks
+    )
+    
+    # Log activity
+    ActivityLog.log_activity(
+        user=request.user,
+        action='approve',
+        model_name='SupplyRequestItem',
+        object_repr=f"Batch #{batch_id} - {item.supply.supply_name}",
+        description=f"Approved {item.quantity} units of {item.supply.supply_name} in batch request #{batch_id}"
+    )
+    
+    messages.success(request, f'Item "{item.supply.supply_name}" approved successfully.')
+    return redirect('user_supply_requests')
+
+
+@login_required
+@require_POST
+def reject_batch_item(request, batch_id, item_id):
+    """Reject an individual item in a batch request"""
+    batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
+    item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
+    
+    # Mark item as not approved and add remarks
+    item.approved = False
+    remarks = request.POST.get('remarks', '')
+    if remarks:
+        item.remarks = remarks
+    item.save()
+    
+    # Check if all items in the batch are processed
+    total_items = batch_request.items.count()
+    approved_items = batch_request.items.filter(approved=True).count()
+    
+    # Update batch status
+    if approved_items == 0:
+        batch_request.status = 'rejected'
+    elif approved_items > 0:
+        batch_request.status = 'partially_approved'
+    
+    batch_request.save()
+    
+    # Create notification for user
+    Notification.objects.create(
+        user=batch_request.user,
+        message=f"Item '{item.supply.supply_name}' in your batch request #{batch_request.id} has been rejected.",
+        remarks=remarks
+    )
+    
+    # Log activity
+    ActivityLog.log_activity(
+        user=request.user,
+        action='reject',
+        model_name='SupplyRequestItem',
+        object_repr=f"Batch #{batch_id} - {item.supply.supply_name}",
+        description=f"Rejected {item.quantity} units of {item.supply.supply_name} in batch request #{batch_id}"
+    )
+    
+    messages.success(request, f'Item "{item.supply.supply_name}" rejected successfully.')
+    return redirect('user_supply_requests')
+
+
+@login_required
+def batch_request_detail(request, batch_id):
+    """View detailed information about a batch request with individual item actions"""
+    batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        item_id = request.POST.get('item_id')
+        remarks = request.POST.get('remarks', '')
+        
+        if item_id:
+            item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
+            
+            if action == 'approve':
+                item.approved = True
+                if remarks:
+                    item.remarks = remarks
+                item.save()
+                
+                # Create notification
+                Notification.objects.create(
+                    user=batch_request.user,
+                    message=f"Item '{item.supply.supply_name}' in your batch request #{batch_request.id} has been approved.",
+                    remarks=remarks
+                )
+                
+                messages.success(request, f'Item "{item.supply.supply_name}" approved successfully.')
+                
+            elif action == 'reject':
+                item.approved = False
+                if remarks:
+                    item.remarks = remarks
+                item.save()
+                
+                # Create notification
+                Notification.objects.create(
+                    user=batch_request.user,
+                    message=f"Item '{item.supply.supply_name}' in your batch request #{batch_request.id} has been rejected.",
+                    remarks=remarks
+                )
+                
+                messages.success(request, f'Item "{item.supply.supply_name}" rejected successfully.')
+            
+            # Update batch status
+            total_items = batch_request.items.count()
+            approved_items = batch_request.items.filter(approved=True).count()
+            
+            if approved_items == total_items:
+                batch_request.status = 'approved'
+            elif approved_items > 0:
+                batch_request.status = 'partially_approved'
+            else:
+                batch_request.status = 'rejected'
+            
+            batch_request.save()
+        
+        return redirect('batch_request_detail', batch_id=batch_id)
+    
     context = {
-        'grouped_supplies': grouped_supplies,
-        'form': form,
-        'categories': categories,
-        'subcategories': subcategories,
-        'supplies': Supply.objects.all().order_by('supply_name'),  # Add this line
+        'batch_request': batch_request,
+        'items': batch_request.items.all().order_by('supply__supply_name')
     }
-    # ... existing code ...
+    
+    return render(request, 'app/batch_request_detail.html', context)
