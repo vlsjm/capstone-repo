@@ -504,6 +504,7 @@ class SupplyRequestBatch(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
         ('partially_approved', 'Partially Approved'),
+        ('for_claiming', 'For Claiming'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -558,7 +559,7 @@ class SupplyRequestBatch(models.Model):
 
         # Update supply quantities when request is approved
         if old_status != self.status and self.status in ['approved', 'partially_approved']:
-            for item in self.items.filter(approved=True):
+            for item in self.items.filter(status='approved'):
                 try:
                     quantity_info = item.supply.quantity_info
                     if quantity_info.current_quantity >= item.quantity:
@@ -585,10 +586,17 @@ class SupplyRequestItem(models.Model):
     """
     Individual supply items within a batch request.
     """
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    
     batch_request = models.ForeignKey(SupplyRequestBatch, on_delete=models.CASCADE, related_name='items')
     supply = models.ForeignKey(Supply, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
-    approved = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    approved = models.BooleanField(default=False)  # Keep for backward compatibility
     remarks = models.TextField(blank=True, null=True)
 
     class Meta:
@@ -596,6 +604,11 @@ class SupplyRequestItem(models.Model):
 
     def __str__(self):
         return f"{self.supply.supply_name} (x{self.quantity}) in Batch #{self.batch_request.id}"
+
+    def save(self, *args, **kwargs):
+        # Keep approved field in sync with status for backward compatibility
+        self.approved = (self.status == 'approved')
+        super().save(*args, **kwargs)
 
     def clean(self):
         from django.core.exceptions import ValidationError

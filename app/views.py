@@ -166,6 +166,8 @@ def create_department(request):
             Department.objects.create(name=name)
             messages.success(request, "Department added.")
     return redirect('manage_users')
+
+@permission_required('app.view_admin_module')
 def edit_department(request, dept_id):
     if request.method == 'POST':
         department = get_object_or_404(Department, id=dept_id)
@@ -176,6 +178,7 @@ def edit_department(request, dept_id):
             return JsonResponse({"success": True})
     return JsonResponse({"success": False})
 
+@permission_required('app.view_admin_module')
 def delete_department(request, dept_id):
     if request.method == 'POST':
         department = get_object_or_404(Department, id=dept_id)
@@ -501,7 +504,7 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
         ]
 
         # Request Status Counts (SupplyRequest + SupplyRequestBatch)
-        request_status_choices = ['pending', 'approved', 'rejected']
+        request_status_choices = ['pending', 'approved', 'rejected', 'partially_approved', 'for_claiming']
         request_status_counts = []
         for status in request_status_choices:
             legacy_count = SupplyRequest.objects.filter(status__iexact=status).count()
@@ -827,18 +830,105 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
     paginate_by = 10
     
     def get_queryset(self):
-        # Show batch requests ordered by most recent
-        return SupplyRequestBatch.objects.select_related('user', 'user__userprofile').prefetch_related('items__supply').order_by('-request_date')
+        # Show batch requests ordered by oldest first
+        return SupplyRequestBatch.objects.select_related('user', 'user__userprofile', 'user__userprofile__department').prefetch_related('items__supply').order_by('request_date')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        all_batch_requests = self.get_queryset()
         
-        # Batch requests by status - only new cart-based requests
-        context['pending_batch_requests'] = all_batch_requests.filter(status='pending')
-        context['approved_batch_requests'] = all_batch_requests.filter(status='approved')
-        context['rejected_batch_requests'] = all_batch_requests.filter(status='rejected')
-        context['partially_approved_batch_requests'] = all_batch_requests.filter(status='partially_approved')
+        # Get the current tab from request
+        current_tab = self.request.GET.get('tab', 'pending')
+        
+        # Get search and filter parameters
+        search_query = self.request.GET.get('search', '').strip()
+        department_filter = self.request.GET.get('department', '')
+        date_from = self.request.GET.get('date_from', '')
+        date_to = self.request.GET.get('date_to', '')
+        
+        # Base queryset with related data
+        base_queryset = SupplyRequestBatch.objects.select_related('user', 'user__userprofile', 'user__userprofile__department').prefetch_related('items__supply').order_by('request_date')
+        
+        # Apply search filter
+        if search_query:
+            # Search only by supply request ID/number
+            try:
+                # Try to extract just the number from the search query
+                search_number = ''.join(filter(str.isdigit, search_query))
+                if search_number:
+                    base_queryset = base_queryset.filter(id=int(search_number))
+                else:
+                    # If no number found, return empty queryset
+                    base_queryset = base_queryset.none()
+            except (ValueError, TypeError):
+                # If conversion fails, return empty queryset
+                base_queryset = base_queryset.none()
+        
+        # Apply department filter
+        if department_filter:
+            base_queryset = base_queryset.filter(user__userprofile__department__id=department_filter)
+        
+        # Apply date range filters
+        if date_from:
+            base_queryset = base_queryset.filter(request_date__gte=date_from)
+        if date_to:
+            base_queryset = base_queryset.filter(request_date__lte=date_to)
+        
+        # Apply pagination to each status filter
+        from django.core.paginator import Paginator
+        
+        pending_requests = base_queryset.filter(status='pending')
+        approved_requests = base_queryset.filter(status='approved')
+        rejected_requests = base_queryset.filter(status='rejected')
+        partially_approved_requests = base_queryset.filter(status='partially_approved')
+        for_claiming_requests = base_queryset.filter(status='for_claiming')
+        
+        # Paginate each category
+        pending_paginator = Paginator(pending_requests, self.paginate_by)
+        approved_paginator = Paginator(approved_requests, self.paginate_by)
+        rejected_paginator = Paginator(rejected_requests, self.paginate_by)
+        partially_approved_paginator = Paginator(partially_approved_requests, self.paginate_by)
+        for_claiming_paginator = Paginator(for_claiming_requests, self.paginate_by)
+        
+        # Get current page number for each tab
+        pending_page = self.request.GET.get('pending_page', 1)
+        approved_page = self.request.GET.get('approved_page', 1)
+        rejected_page = self.request.GET.get('rejected_page', 1)
+        partially_approved_page = self.request.GET.get('partially_approved_page', 1)
+        for_claiming_page = self.request.GET.get('for_claiming_page', 1)
+        
+        # Get the page objects
+        context['pending_batch_requests'] = pending_paginator.get_page(pending_page)
+        context['approved_batch_requests'] = approved_paginator.get_page(approved_page)
+        context['rejected_batch_requests'] = rejected_paginator.get_page(rejected_page)
+        context['partially_approved_batch_requests'] = partially_approved_paginator.get_page(partially_approved_page)
+        context['for_claiming_batch_requests'] = for_claiming_paginator.get_page(for_claiming_page)
+        
+        # Add current tab to context
+        context['current_tab'] = current_tab
+        
+        # Add search and filter parameters to context
+        context['search_query'] = search_query
+        context['department_filter'] = department_filter
+        context['date_from'] = date_from
+        context['date_to'] = date_to
+        
+        # Build URL parameters string for pagination links
+        url_params = []
+        if search_query:
+            url_params.append(f'search={search_query}')
+        if department_filter:
+            url_params.append(f'department={department_filter}')
+        if date_from:
+            url_params.append(f'date_from={date_from}')
+        if date_to:
+            url_params.append(f'date_to={date_to}')
+        
+        base_url_params = '&'.join(url_params)
+        context['url_params'] = '&' + base_url_params if base_url_params else ''
+        
+        # Get all departments for the filter dropdown
+        from .models import Department
+        context['departments'] = Department.objects.all().order_by('name')
         
         return context
 
@@ -985,6 +1075,7 @@ def add_supply(request):
     return redirect('supply_list')
 
 
+@permission_required('app.view_admin_module')
 @login_required
 def edit_supply(request):
     if request.method == 'POST':
@@ -1072,7 +1163,7 @@ def edit_supply(request):
             return redirect('supply_list')
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-
+@permission_required('app.view_admin_module')
 def delete_supply(request, pk):
     supply = get_object_or_404(Supply, pk=pk)
     if request.method == 'POST':
@@ -1212,6 +1303,7 @@ def modify_supply_quantity_generic(request):
             })
         return redirect('supply_list')
 
+@permission_required('app.view_admin_module')
 def add_property(request):
     if request.method == 'POST':
         form = PropertyForm(request.POST)
@@ -1256,7 +1348,7 @@ def add_property(request):
             messages.error(request, f'Please correct the following errors: {", ".join(error_messages)}')
     return redirect('property_list')
 
-
+@permission_required('app.view_admin_module')
 @login_required
 def edit_property(request):
     if request.method == 'POST':
@@ -1359,6 +1451,7 @@ def edit_property(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
+@permission_required('app.view_admin_module')
 def delete_property(request, pk):
     prop = get_object_or_404(Property, pk=pk)
     if request.method == 'POST':
@@ -1378,6 +1471,7 @@ def delete_property(request, pk):
         messages.success(request, 'Property deleted successfully.')
     return redirect('property_list')
 
+@permission_required('app.view_admin_module')
 def add_property_category(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -1734,6 +1828,7 @@ def create_borrow_request(request):
         return redirect('create_borrow_request')
 
 
+@permission_required('app.view_admin_module')
 @login_required
 def approve_borrow_request(request, request_id):
     borrow_request = get_object_or_404(BorrowRequest, id=request_id)
@@ -1752,6 +1847,7 @@ def approve_borrow_request(request, request_id):
     return redirect('borrow_requests')
 
 
+@permission_required('app.view_admin_module')
 @login_required
 def reject_borrow_request(request, request_id):
     borrow_request = get_object_or_404(BorrowRequest, id=request_id)
@@ -1902,6 +1998,7 @@ class AdminPasswordChangeDoneView(PasswordChangeDoneView):
     def get_template_names(self):
         return [self.template_name]
 
+@permission_required('app.view_admin_module')
 @login_required
 def add_category(request):
     if request.method == 'POST':
@@ -1924,6 +2021,7 @@ def add_category(request):
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
+@permission_required('app.view_admin_module')
 @login_required
 def add_subcategory(request):
     if request.method == 'POST':
@@ -1959,6 +2057,7 @@ def get_subcategories(request):
         })
     return JsonResponse({'subcategories': []})
    #new
+@permission_required('app.view_admin_module')
 @login_required
 def update_property_category(request):
     if request.method == 'POST':
@@ -1989,6 +2088,7 @@ def update_property_category(request):
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 
+@permission_required('app.view_admin_module')
 @login_required
 def delete_property_category(request, category_id):
     if request.method == 'POST':
@@ -2014,6 +2114,7 @@ def delete_property_category(request, category_id):
            
     return redirect('property_list')
 
+@permission_required('app.view_admin_module')
 def export_supply_to_excel(request):
     """Export supply data to Excel with filters"""
     wb = Workbook()
@@ -2173,6 +2274,7 @@ def export_supply_to_excel(request):
     wb.save(response)
     return response
 
+@permission_required('app.view_admin_module')
 def export_property_to_excel(request):
     """Export property data to Excel with filters"""
     wb = Workbook()
@@ -2493,6 +2595,7 @@ def get_supply_by_barcode(request, barcode):
         }
     })
 
+@permission_required('app.view_admin_module')
 @require_POST
 def modify_property_quantity_generic(request):
     try:
@@ -2578,6 +2681,7 @@ def get_property_by_barcode(request, barcode):
         }
     })
 
+@permission_required('app.view_admin_module')
 @login_required
 def archive_supply(request, pk):
     supply = get_object_or_404(Supply, pk=pk)
@@ -2600,6 +2704,7 @@ def archive_supply(request, pk):
         messages.success(request, 'Supply archived successfully.')
     return redirect('supply_list')
 
+@permission_required('app.view_admin_module')
 @login_required
 def unarchive_supply(request, pk):
     supply = get_object_or_404(Supply, pk=pk)
@@ -2617,6 +2722,7 @@ def unarchive_supply(request, pk):
         messages.success(request, 'Supply unarchived successfully.')
     return redirect('archived_items')
 
+@permission_required('app.view_admin_module')
 @login_required
 def archive_property(request, pk):
     property_obj = get_object_or_404(Property, pk=pk)
@@ -2639,6 +2745,7 @@ def archive_property(request, pk):
         messages.success(request, 'Property archived successfully.')
     return redirect('property_list')
 
+@permission_required('app.view_admin_module')
 @login_required
 def unarchive_property(request, pk):
     property_obj = get_object_or_404(Property, pk=pk)
@@ -2698,6 +2805,7 @@ class ArchivedItemsView(PermissionRequiredMixin, TemplateView):
         })
         return context
 
+@permission_required('app.view_admin_module')
 @login_required
 def update_supply_category(request):
     if request.method == 'POST':
@@ -2735,7 +2843,7 @@ def update_supply_category(request):
            
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
-
+@permission_required('app.view_admin_module')
 @login_required
 def delete_supply_category(request, category_id):
     if request.method == 'POST':
@@ -2761,7 +2869,7 @@ def delete_supply_category(request, category_id):
            
     return redirect('supply_list')
 
-
+@permission_required('app.view_admin_module')
 @login_required
 def update_supply_subcategory(request):
     if request.method == 'POST':
@@ -2799,7 +2907,7 @@ def update_supply_subcategory(request):
            
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
-
+@permission_required('app.view_admin_module')
 @login_required
 def delete_supply_subcategory(request, subcategory_id):
     if request.method == 'POST':
@@ -2845,6 +2953,7 @@ def supply_list(request):
 
 
 # Batch Request Item Management Views
+@permission_required('app.view_admin_module')
 @login_required
 @require_POST
 def approve_batch_item(request, batch_id, item_id):
@@ -2854,6 +2963,7 @@ def approve_batch_item(request, batch_id, item_id):
     
     # Mark item as approved
     item.approved = True
+    item.status = 'approved'  # Also update the status field
     remarks = request.POST.get('remarks', '')
     if remarks:
         item.remarks = remarks
@@ -2862,10 +2972,16 @@ def approve_batch_item(request, batch_id, item_id):
     # Check if all items in the batch are processed
     total_items = batch_request.items.count()
     approved_items = batch_request.items.filter(approved=True).count()
+    rejected_items = batch_request.items.filter(approved=False, status='rejected').count()
+    processed_items = approved_items + rejected_items
     
     # Update batch status
-    if approved_items == total_items:
-        batch_request.status = 'approved'
+    if processed_items == total_items:
+        # All items have been processed (approved or rejected)
+        if approved_items > 0:
+            batch_request.status = 'for_claiming'
+        else:
+            batch_request.status = 'rejected'
     elif approved_items > 0:
         batch_request.status = 'partially_approved'
     
@@ -2890,7 +3006,7 @@ def approve_batch_item(request, batch_id, item_id):
     messages.success(request, f'Item "{item.supply.supply_name}" approved successfully.')
     return redirect('user_supply_requests')
 
-
+@permission_required('app.view_admin_module')
 @login_required
 @require_POST
 def reject_batch_item(request, batch_id, item_id):
@@ -2900,6 +3016,7 @@ def reject_batch_item(request, batch_id, item_id):
     
     # Mark item as not approved and add remarks
     item.approved = False
+    item.status = 'rejected'  # Also update the status field
     remarks = request.POST.get('remarks', '')
     if remarks:
         item.remarks = remarks
@@ -2908,10 +3025,16 @@ def reject_batch_item(request, batch_id, item_id):
     # Check if all items in the batch are processed
     total_items = batch_request.items.count()
     approved_items = batch_request.items.filter(approved=True).count()
+    rejected_items = batch_request.items.filter(approved=False, status='rejected').count()
+    processed_items = approved_items + rejected_items
     
     # Update batch status
-    if approved_items == 0:
-        batch_request.status = 'rejected'
+    if processed_items == total_items:
+        # All items have been processed (approved or rejected)
+        if approved_items > 0:
+            batch_request.status = 'for_claiming'
+        else:
+            batch_request.status = 'rejected'
     elif approved_items > 0:
         batch_request.status = 'partially_approved'
     
@@ -2936,7 +3059,7 @@ def reject_batch_item(request, batch_id, item_id):
     messages.success(request, f'Item "{item.supply.supply_name}" rejected successfully.')
     return redirect('user_supply_requests')
 
-
+@permission_required('app.view_admin_module')
 @login_required
 def batch_request_detail(request, batch_id):
     """View detailed information about a batch request with individual item actions"""
@@ -2951,7 +3074,7 @@ def batch_request_detail(request, batch_id):
             item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
             
             if action == 'approve':
-                item.approved = True
+                item.status = 'approved'
                 if remarks:
                     item.remarks = remarks
                 item.save()
@@ -2966,7 +3089,7 @@ def batch_request_detail(request, batch_id):
                 messages.success(request, f'Item "{item.supply.supply_name}" approved successfully.')
                 
             elif action == 'reject':
-                item.approved = False
+                item.status = 'rejected'
                 if remarks:
                     item.remarks = remarks
                 item.save()
@@ -2980,16 +3103,34 @@ def batch_request_detail(request, batch_id):
                 
                 messages.success(request, f'Item "{item.supply.supply_name}" rejected successfully.')
             
-            # Update batch status
+            # Update batch status based on individual item statuses
             total_items = batch_request.items.count()
-            approved_items = batch_request.items.filter(approved=True).count()
+            approved_items = batch_request.items.filter(status='approved').count()
+            rejected_items = batch_request.items.filter(status='rejected').count()
+            pending_items = batch_request.items.filter(status='pending').count()
+            processed_items = approved_items + rejected_items
             
-            if approved_items == total_items:
-                batch_request.status = 'approved'
+            if processed_items == total_items:
+                # All items have been processed (approved or rejected)
+                if approved_items > 0:
+                    # At least some items were approved
+                    batch_request.status = 'for_claiming'
+                    if approved_items == total_items:
+                        batch_request.approved_date = timezone.now()
+                else:
+                    # All items were rejected
+                    batch_request.status = 'rejected'
             elif approved_items > 0:
+                # Some approved, some still pending
                 batch_request.status = 'partially_approved'
             else:
-                batch_request.status = 'rejected'
+                # No items approved yet (either all pending or all rejected)
+                if rejected_items > 0 and pending_items > 0:
+                    # Some rejected, some pending
+                    batch_request.status = 'pending'
+                else:
+                    # All pending or all rejected
+                    batch_request.status = 'pending' if pending_items > 0 else 'rejected'
             
             batch_request.save()
         

@@ -8,147 +8,752 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <style>
+    /* Main container styles matching system theme */
+    .requests-container {
+      padding: 20px;
+      margin-left: 270px;
+      background-color: #f5f6fa;
+      min-height: 100vh;
+    }
+    
+    .requests-title {
+      color: #152d64;
+      margin-bottom: 30px;
+      font-size: 32px;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    /* Request cards with system theme */
     .request {
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      margin: 15px 0;
-      background: #f9f9f9;
+      border: none;
+      border-radius: 12px;
+      margin: 20px 0;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
     }
+    
+    .request:hover {
+      background: white;
+      border-color: transparent;
+      box-shadow: 0 8px 25px rgba(21, 45, 100, 0.15);
+      transform: translateY(-3px);
+    }
+    
+    .request:hover .request-header {
+      background: linear-gradient(135deg, #f8fbff 0%, #e8f4fd 100%);
+    }
+    
+    .request:hover .request-header h4 {
+      color: #152d64;
+    }
+    
+    .request:hover .expand-indicator {
+      color: #152d64 !important;
+      font-weight: 600;
+    }
+    
+    .request:hover .expand-indicator i {
+      transform: scale(1.1);
+    }
+    
+    .request:active {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(21, 45, 100, 0.2);
+    }
+    
     .request-header {
-      background: #f0f0f0;
-      padding: 15px;
-      border-bottom: 1px solid #e0e0e0;
-      border-radius: 8px 8px 0 0;
+      background: #f8f9fa;
+      padding: 20px;
+      border-bottom: 1px solid #e9ecef;
+      border-radius: 12px 12px 0 0;
+      position: relative;
+      user-select: none;
+      transition: all 0.3s ease;
     }
+    
+    .request-header:hover {
+      background: linear-gradient(135deg, #f8fbff 0%, #e8f4fd 100%);
+    }
+    
+    .request-header h4 {
+      margin: 0 0 15px 0;
+      display: flex;
+      align-items: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: #152d64;
+    }
+    
+    .request-header h4::after {
+      content: 'Click to expand';
+      font-size: 11px;
+      font-weight: normal;
+      color: #6c757d;
+      margin-left: auto;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      background: rgba(21, 45, 100, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    
+    .request:hover .request-header h4::after {
+      opacity: 1;
+    }
+    
+    .request-header p {
+      margin: 8px 0;
+      color: #495057;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    
+    .request-header p strong {
+      color: #152d64;
+      font-weight: 600;
+    }
+    
+    /* Toggle Arrow and Interaction Styles */
+    .toggle-arrow {
+      margin-right: 12px;
+      transition: transform 0.3s ease, color 0.3s ease;
+      color: #152d64;
+      font-size: 16px;
+    }
+    
+    .toggle-arrow.expanded {
+      transform: rotate(180deg);
+      color: #28a745;
+    }
+    
+    .request:hover .toggle-arrow {
+      color: #152d64;
+      transform: scale(1.1);
+    }
+    
+    .request:hover .toggle-arrow.expanded {
+      transform: rotate(180deg) scale(1.1);
+      color: #28a745;
+    }
+    
+    /* Detail link styling */
+    .detail-link {
+      color: #152d64;
+      text-decoration: none;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      border: 1px solid #152d64;
+      background: transparent;
+    }
+    
+    .detail-link:hover {
+      background: #152d64;
+      color: white;
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.3);
+    }
+    
+    /* Request items section */
     .request-items {
       padding: 0;
+      background: #fefefe;
     }
+    
     .request-item {
-      padding: 10px 15px;
-      border-bottom: 1px solid #e9e9e9;
+      padding: 16px 20px;
+      border-bottom: 1px solid #f1f3f4;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      transition: background-color 0.2s ease;
     }
+    
     .request-item:last-child {
       border-bottom: none;
+      border-radius: 0 0 12px 12px;
     }
+    
+    .request-item:hover {
+      background-color: #f8f9fa;
+    }
+    
     .item-info {
       flex: 1;
     }
+    
+    .item-info strong {
+      color: #152d64;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    
+    .item-info small {
+      color: #6c757d;
+      font-style: italic;
+    }
+    
     .item-actions {
       display: flex;
       gap: 10px;
     }
-    .approve-btn, .reject-btn {
-      padding: 5px 15px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      text-decoration: none;
-      display: inline-block;
-    }
-    .approve-btn {
-      background: #28a745;
-      color: white;
-    }
-    .reject-btn {
-      background: #dc3545;
-      color: white;
-    }
-    .approve-btn:hover {
-      background: #218838;
-    }
-    .reject-btn:hover {
-      background: #c82333;
-    }
+    
+    /* Status badges with system colors */
     .item-status {
-      padding: 3px 8px;
-      border-radius: 12px;
+      padding: 4px 10px;
+      border-radius: 16px;
       font-size: 11px;
-      font-weight: bold;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    .status-approved {
-      background: #d4edda;
+    
+    .status-approved, .status-badge.status-approved {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
       color: #155724;
+      border: 1px solid #c3e6cb;
     }
-    .status-rejected {
-      background: #f8d7da;
+    
+    .status-rejected, .status-badge.status-rejected {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
       color: #721c24;
+      border: 1px solid #f5c6cb;
     }
-    .status-pending {
-      background: #fff3cd;
+    
+    .status-pending, .status-badge.status-pending {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
       color: #856404;
+      border: 1px solid #ffeaa7;
     }
-    .status-partial {
-      background: #ffeaa7;
-      color: #d63031;
+    
+    .status-partial, .status-badge.status-partial {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      color: #856404;
+      border: 1px solid #ffeaa7;
     }
+    
+    .status-for_claiming, .status-badge.status-for_claiming {
+      background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    
     .status-badge {
-      padding: 5px 10px;
-      border-radius: 15px;
+      padding: 6px 12px;
+      border-radius: 20px;
       font-size: 12px;
-      font-weight: bold;
+      font-weight: 600;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    .remarks-form {
-      margin-top: 10px;
-      padding: 10px;
-      background: #f8f9fa;
-      border-radius: 4px;
-      display: none;
-    }
-    .remarks-form.show {
-      display: block;
-    }
-    .remarks-form textarea {
-      width: 100%;
-      min-height: 60px;
-      margin-bottom: 10px;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    .filter-tabs {
-      margin-bottom: 20px;
-    }
-    .tab-button {
-      padding: 10px 20px;
-      margin-right: 10px;
-      border: 1px solid #ddd;
+    
+    /* Search and Filter Controls */
+    .search-filter-container {
+      margin-bottom: 25px;
       background: white;
-      cursor: pointer;
-      border-radius: 4px;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+      border-left: 4px solid #152d64;
     }
-    .tab-button.active {
-      background: #007bff;
+    
+    .search-filter-form {
+      margin: 0;
+    }
+    
+    .search-row {
+      display: grid;
+      grid-template-columns: 250px 200px 150px 150px auto;
+      gap: 15px;
+      align-items: center;
+    }
+    
+    .search-input-group {
+      position: relative;
+      max-width: 250px;
+      width: 100%;
+      height: 42px; /* Fixed height for alignment */
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6c757d;
+      font-size: 14px;
+    }
+    
+    .search-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px 0 35px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+      box-sizing: border-box;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: #152d64;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      height: 42px; /* Match search input height */
+      justify-content: center;
+    }
+    
+    .filter-select, .date-input {
+      height: 42px;
+      padding: 0 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #f8f9fa;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+    
+    .filter-select:focus, .date-input:focus {
+      outline: none;
+      border-color: #152d64;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+    }
+    
+    .filter-buttons {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      height: 42px; /* Match other elements */
+    }
+    
+    .btn-filter {
+      height: 42px;
+      padding: 0 20px;
+      background: #152d64;
       color: white;
-      border-color: #007bff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
     }
+    
+    .btn-filter:hover {
+      background: #0d1f4a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(21, 45, 100, 0.3);
+    }
+    
+    .btn-clear {
+      height: 42px;
+      padding: 0 20px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    .btn-clear:hover {
+      background: #5a6268;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+      color: white;
+      text-decoration: none;
+    }
+    
+    /* Responsive design for search controls */
+    @media (max-width: 1200px) {
+      .search-row {
+        grid-template-columns: 200px 180px 120px 120px auto;
+        gap: 12px;
+      }
+    }
+    
+    @media (max-width: 1000px) {
+      .search-row {
+        grid-template-columns: 180px 160px 110px 110px auto;
+        gap: 10px;
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .search-row {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: 
+          "search department"
+          "date-from date-to"
+          "buttons buttons";
+        gap: 12px;
+      }
+      
+      .search-input-group {
+        grid-area: search;
+        max-width: 100%;
+      }
+      
+      .filter-group:nth-child(2) {
+        grid-area: department;
+      }
+      
+      .filter-group:nth-child(3) {
+        grid-area: date-from;
+      }
+      
+      .filter-group:nth-child(4) {
+        grid-area: date-to;
+      }
+      
+      .filter-buttons {
+        grid-area: buttons;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .search-filter-container {
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+      
+      .search-row {
+        grid-template-columns: 1fr;
+        grid-template-areas: 
+          "search"
+          "department" 
+          "date-from"
+          "date-to"
+          "buttons";
+        gap: 15px;
+      }
+      
+      .search-input-group,
+      .filter-group {
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      .filter-buttons {
+        justify-content: stretch;
+        gap: 12px;
+      }
+      
+      .btn-filter, .btn-clear {
+        flex: 1;
+        justify-content: center;
+        min-width: 120px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .search-filter-container {
+        padding: 12px;
+        margin-bottom: 15px;
+      }
+      
+      .search-row {
+        gap: 12px;
+      }
+      
+      .search-input, .filter-select, .date-input {
+        font-size: 16px; /* Prevent zoom on iOS */
+        height: 44px; /* Larger touch targets */
+      }
+      
+      .search-input-group,
+      .filter-group {
+        height: 44px;
+      }
+      
+      .btn-filter, .btn-clear {
+        height: 44px;
+        font-size: 14px;
+      }
+      
+      .filter-buttons {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .btn-filter, .btn-clear {
+        width: 100%;
+      }
+    }
+    
+    /* Filter tabs with system theme */
+    .filter-tabs {
+      margin-bottom: 30px;
+      background: white;
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+      display: flex;
+      gap: 4px;
+    }
+    
+    .tab-button {
+      padding: 12px 24px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 8px;
+      font-weight: 500;
+      color: #6c757d;
+      transition: all 0.2s ease;
+      font-size: 14px;
+    }
+    
+    .tab-button:hover {
+      background: #f8f9fa;
+      color: #152d64;
+    }
+    
+    .tab-button.active {
+      background: #152d64;
+      color: white;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.3);
+    }
+    
+    /* Responsive design for filter tabs */
+    @media (max-width: 768px) {
+      .filter-tabs {
+        margin-bottom: 20px;
+        padding: 6px;
+        gap: 3px;
+      }
+      
+      .tab-button {
+        padding: 10px 16px;
+        font-size: 14px;
+        flex: 1;
+        text-align: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .filter-tabs {
+        flex-direction: column;
+        gap: 4px;
+      }
+      
+      .tab-button {
+        padding: 12px 16px;
+        width: 100%;
+        text-align: center;
+      }
+    }
+    
     .tab-content {
       display: none;
     }
+    
     .tab-content.active {
       display: block;
+    }
+    
+    .tab-content h3 {
+      color: #152d64;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 25px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #28a745;
+      display: inline-block;
+    }
+    
+    /* Pagination Styles matching system theme */
+    .pagination-container {
+      margin-top: 40px;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .pagination {
+      display: flex;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+      overflow: hidden;
+    }
+    
+    .page-item {
+      margin: 0;
+    }
+    
+    .page-link {
+      display: block;
+      padding: 12px 16px;
+      color: #152d64;
+      text-decoration: none;
+      border: none;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      background: white;
+    }
+    
+    .page-link:hover {
+      background: #f8f9fa;
+      color: #152d64;
+      text-decoration: none;
+    }
+    
+    .page-item.active .page-link {
+      background: #152d64;
+      color: white;
+      font-weight: 600;
+    }
+    
+    .page-item:first-child .page-link {
+      border-radius: 12px 0 0 12px;
+    }
+    
+    .page-item:last-child .page-link {
+      border-radius: 0 12px 12px 0;
+    }
+    
+    .page-item.active .page-link:hover {
+      background-color: #152d64;
+      border-color: #152d64;
+    }
+    
+    /* Empty state styling */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6c757d;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+      margin: 20px 0;
+    }
+    
+    .empty-state i {
+      font-size: 48px;
+      color: #152d64;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+    
+    .empty-state p {
+      font-size: 16px;
+      margin: 0;
     }
   </style>
 </head>
 <body>
   {% include 'app/navbar.html' %}
 
-  <div class="parent">
-    <div class="div1">
-      <h2>Supply Requests</h2>
-    </div>
+  <div class="requests-container">
+    <h1 class="requests-title">Supply Requests</h1>
 
-    <main class="content">
+    <main class="requests-content">
+      <!-- Search and Filter Controls -->
+      <div class="search-filter-container">
+        <form method="GET" class="search-filter-form" id="filterForm">
+          <div class="search-row">
+            <!-- Search Input -->
+            <div class="search-input-group">
+              <i class="fas fa-search search-icon"></i>
+              <input type="text" 
+                     name="search" 
+                     placeholder="Search by request number..." 
+                     value="{{ search_query }}"
+                     class="search-input"
+                     autocomplete="off">
+            </div>
+            
+            <!-- Department Filter -->
+            <div class="filter-group">
+              <select name="department" class="filter-select">
+                <option value="">All Departments</option>
+                {% for department in departments %}
+                  <option value="{{ department.id }}" {% if department_filter == department.id|stringformat:"s" %}selected{% endif %}>
+                    {{ department.name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            
+            <!-- Date Range Filters -->
+            <div class="filter-group">
+              <input type="date" 
+                     name="date_from" 
+                     value="{{ date_from }}"
+                     class="date-input"
+                     placeholder="From Date">
+            </div>
+            
+            <div class="filter-group">
+              <input type="date" 
+                     name="date_to" 
+                     value="{{ date_to }}"
+                     class="date-input"
+                     placeholder="To Date">
+            </div>
+            
+            <!-- Filter Buttons -->
+            <div class="filter-buttons">
+              <button type="submit" class="btn-filter">
+                <i class="fas fa-filter"></i> Filter
+              </button>
+              <a href="{% url 'user_supply_requests' %}" class="btn-clear">
+                <i class="fas fa-times"></i> Clear
+              </a>
+            </div>
+          </div>
+          
+          <!-- Hidden field to preserve current tab -->
+          <input type="hidden" name="tab" value="{{ current_tab }}" id="currentTabInput">
+        </form>
+      </div>
+
       <!-- Filter Tabs -->
       <div class="filter-tabs">
         <button class="tab-button active" data-tab="pending">Pending</button>
-        <button class="tab-button" data-tab="approved">Approved</button>
+        <button class="tab-button" data-tab="for_claiming">For Claiming</button>
         <button class="tab-button" data-tab="rejected">Rejected</button>
         <button class="tab-button" data-tab="partial">Partially Approved</button>
       </div>
@@ -157,11 +762,14 @@
       <div id="pending" class="tab-content active">
         <h3>Pending Requests</h3>
         {% for batch_request in pending_batch_requests %}
-        <div class="request">
-          <div class="request-header">
+        <div class="request" data-request-id="{{ batch_request.id }}">
+          <div class="request-header" data-toggle-id="{{ batch_request.id }}">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <h4>Request #{{ batch_request.id }}</h4>
+                <h4>
+                  <i class="fas fa-chevron-down toggle-arrow" id="arrow-{{ batch_request.id }}"></i>
+                  Supply Request {{ batch_request.id|stringformat:"03d" }}
+                </h4>
                 <p><strong>Requester:</strong> 
                   {% if batch_request.user.first_name or batch_request.user.last_name %}
                     {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
@@ -178,10 +786,15 @@
                 <span class="status-badge status-{{ batch_request.status|lower }}">
                   <i class="fas fa-clock"></i> {{ batch_request.get_status_display }}
                 </span>
+                <div style="margin-top: 8px;">
+                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
               </div>
             </div>
           </div>
-          <div class="request-items">
+          <div class="request-items" id="items-{{ batch_request.id }}" style="display: none;">
             {% for item in batch_request.items.all %}
             <div class="request-item">
               <div class="item-info">
@@ -191,65 +804,98 @@
                 {% endif %}
               </div>
               <div class="item-actions">
-                {% if item.approved %}
+                {% if item.status == 'approved' %}
                   <span class="item-status status-approved">Approved</span>
+                {% elif item.status == 'rejected' %}
+                  <span class="item-status status-rejected">Rejected</span>
                 {% else %}
-                  <button class="approve-btn" data-action="approve" data-batch-id="{{ batch_request.id }}" data-item-id="{{ item.id }}">
-                    <i class="fas fa-check"></i> Approve
-                  </button>
-                  <button class="reject-btn" data-action="reject" data-batch-id="{{ batch_request.id }}" data-item-id="{{ item.id }}">
-                    <i class="fas fa-times"></i> Reject
-                  </button>
+                  <span class="item-status status-pending">Pending</span>
                 {% endif %}
               </div>
-            </div>
-            <!-- Remarks Form (hidden by default) -->
-            <div id="remarks-form-{{ batch_request.id }}-{{ item.id }}" class="remarks-form">
-              <form method="post" action="{% url 'batch_request_detail' batch_request.id %}">
-                {% csrf_token %}
-                <input type="hidden" name="item_id" value="{{ item.id }}">
-                <input type="hidden" name="action" id="action-{{ batch_request.id }}-{{ item.id }}" value="">
-                <textarea name="remarks" placeholder="Enter remarks (optional)..."></textarea>
-                <button type="submit" class="approve-btn">Submit</button>
-                <button type="button" class="reject-btn cancel-btn" data-batch-id="{{ batch_request.id }}" data-item-id="{{ item.id }}">Cancel</button>
-              </form>
             </div>
             {% endfor %}
           </div>
         </div>
         {% empty %}
-        <p>No pending requests found.</p>
+        <div class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <p>No pending requests found.</p>
+        </div>
         {% endfor %}
+        
+        <!-- Pagination for Pending Requests -->
+        {% if pending_batch_requests.has_other_pages %}
+        <div class="pagination-container">
+          <nav aria-label="Pending requests pagination">
+            <ul class="pagination">
+              {% if pending_batch_requests.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?tab=pending&pending_page={{ pending_batch_requests.previous_page_number }}{{ url_params }}">&laquo; Previous</a>
+                </li>
+              {% endif %}
+              
+              {% for num in pending_batch_requests.paginator.page_range %}
+                {% if pending_batch_requests.number == num %}
+                  <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                  </li>
+                {% elif num > pending_batch_requests.number|add:'-3' and num < pending_batch_requests.number|add:'3' %}
+                  <li class="page-item">
+                    <a class="page-link" href="?tab=pending&pending_page={{ num }}{{ url_params }}">{{ num }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+              
+              {% if pending_batch_requests.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?tab=pending&pending_page={{ pending_batch_requests.next_page_number }}{{ url_params }}">Next &raquo;</a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+        {% endif %}
       </div>
 
-      <!-- Approved Requests Tab -->
-      <div id="approved" class="tab-content">
-        <h3>Approved Requests</h3>
-        {% for batch_request in approved_batch_requests %}
-        <div class="request">
-          <div class="request-header">
+      <!-- For Claiming Requests Tab -->
+      <div id="for_claiming" class="tab-content">
+        <h3>For Claiming</h3>
+        {% for batch_request in for_claiming_batch_requests %}
+        <div class="request" data-request-id="{{ batch_request.id }}">
+          <div class="request-header" data-toggle-id="{{ batch_request.id }}">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <h4>Request #{{ batch_request.id }}</h4>
+                <h4>
+                  <i class="fas fa-chevron-down toggle-arrow" id="arrow-{{ batch_request.id }}"></i>
+                  Supply Request {{ batch_request.id|stringformat:"03d" }}
+                </h4>
                 <p><strong>Requester:</strong> 
                   {% if batch_request.user.first_name or batch_request.user.last_name %}
                     {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
                   {% else %}
                     {{ batch_request.user.username }}
                   {% endif %}
+                  ({{ batch_request.user.userprofile.department }})
                 </p>
                 <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
                 <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
-                <p><strong>Approved Date:</strong> {{ batch_request.approved_date|date:"M d, Y H:i" }}</p>
+                {% if batch_request.approved_date %}
+                  <p><strong>Approved Date:</strong> {{ batch_request.approved_date|date:"M d, Y H:i" }}</p>
+                {% endif %}
               </div>
               <div>
-                <span class="status-badge status-approved">
-                  <i class="fas fa-check-circle"></i> {{ batch_request.get_status_display }}
+                <span class="status-badge status-for_claiming">
+                  <i class="fas fa-hand-paper"></i> {{ batch_request.get_status_display }}
                 </span>
+                <div style="margin-top: 8px;">
+                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
               </div>
             </div>
           </div>
-          <div class="request-items">
+          <div id="items-{{ batch_request.id }}" class="request-items" style="display: none;">
             {% for item in batch_request.items.all %}
             <div class="request-item">
               <div class="item-info">
@@ -259,26 +905,71 @@
                 {% endif %}
               </div>
               <div class="item-actions">
-                <span class="item-status status-approved">Approved</span>
+                {% if item.status == 'approved' %}
+                  <span class="item-status status-approved">Approved</span>
+                {% elif item.status == 'rejected' %}
+                  <span class="item-status status-rejected">Rejected</span>
+                {% else %}
+                  <span class="item-status status-pending">Pending</span>
+                {% endif %}
               </div>
             </div>
             {% endfor %}
           </div>
         </div>
         {% empty %}
-        <p>No approved requests found.</p>
+        <div class="empty-state">
+          <i class="fas fa-hand-paper"></i>
+          <p>No requests for claiming found.</p>
+        </div>
         {% endfor %}
+
+        <!-- Pagination for For Claiming Requests -->
+        {% if for_claiming_batch_requests.has_other_pages %}
+        <div class="pagination-wrapper">
+          <nav aria-label="For claiming requests pagination">
+            <ul class="pagination">
+              {% if for_claiming_batch_requests.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?tab=for_claiming&for_claiming_page={{ for_claiming_batch_requests.previous_page_number }}{{ url_params }}">&laquo; Previous</a>
+                </li>
+              {% endif %}
+              
+              {% for num in for_claiming_batch_requests.paginator.page_range %}
+                {% if for_claiming_batch_requests.number == num %}
+                  <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                  </li>
+                {% elif num > for_claiming_batch_requests.number|add:'-3' and num < for_claiming_batch_requests.number|add:'3' %}
+                  <li class="page-item">
+                    <a class="page-link" href="?tab=for_claiming&for_claiming_page={{ num }}{{ url_params }}">{{ num }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+              
+              {% if for_claiming_batch_requests.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?tab=for_claiming&for_claiming_page={{ for_claiming_batch_requests.next_page_number }}{{ url_params }}">Next &raquo;</a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+        {% endif %}
       </div>
 
       <!-- Rejected Requests Tab -->
       <div id="rejected" class="tab-content">
         <h3>Rejected Requests</h3>
         {% for batch_request in rejected_batch_requests %}
-        <div class="request">
+        <div class="request" data-toggle-id="{{ batch_request.id }}">
           <div class="request-header">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <h4>Request #{{ batch_request.id }}</h4>
+                <h4>
+                  <i class="fas fa-chevron-down toggle-arrow" id="arrow-{{ batch_request.id }}"></i>
+                  Supply Request {{ batch_request.id|stringformat:"03d" }}
+                </h4>
                 <p><strong>Requester:</strong> 
                   {% if batch_request.user.first_name or batch_request.user.last_name %}
                     {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
@@ -293,10 +984,15 @@
                 <span class="status-badge status-rejected">
                   <i class="fas fa-times-circle"></i> {{ batch_request.get_status_display }}
                 </span>
+                <div style="margin-top: 8px;">
+                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
               </div>
             </div>
           </div>
-          <div class="request-items">
+          <div id="items-{{ batch_request.id }}" class="request-items" style="display: none;">
             {% for item in batch_request.items.all %}
             <div class="request-item">
               <div class="item-info">
@@ -306,26 +1002,71 @@
                 {% endif %}
               </div>
               <div class="item-actions">
-                <span class="item-status status-rejected">Rejected</span>
+                {% if item.status == 'approved' %}
+                  <span class="item-status status-approved">Approved</span>
+                {% elif item.status == 'rejected' %}
+                  <span class="item-status status-rejected">Rejected</span>
+                {% else %}
+                  <span class="item-status status-pending">Pending</span>
+                {% endif %}
               </div>
             </div>
             {% endfor %}
           </div>
         </div>
         {% empty %}
-        <p>No rejected requests found.</p>
+        <div class="empty-state">
+          <i class="fas fa-times-circle"></i>
+          <p>No rejected requests found.</p>
+        </div>
         {% endfor %}
+        
+        <!-- Pagination for Rejected Requests -->
+        {% if rejected_batch_requests.has_other_pages %}
+        <div class="pagination-container">
+          <nav aria-label="Rejected requests pagination">
+            <ul class="pagination">
+              {% if rejected_batch_requests.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?tab=rejected&rejected_page={{ rejected_batch_requests.previous_page_number }}{{ url_params }}">&laquo; Previous</a>
+                </li>
+              {% endif %}
+              
+              {% for num in rejected_batch_requests.paginator.page_range %}
+                {% if rejected_batch_requests.number == num %}
+                  <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                  </li>
+                {% elif num > rejected_batch_requests.number|add:'-3' and num < rejected_batch_requests.number|add:'3' %}
+                  <li class="page-item">
+                    <a class="page-link" href="?tab=rejected&rejected_page={{ num }}{{ url_params }}">{{ num }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+              
+              {% if rejected_batch_requests.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?tab=rejected&rejected_page={{ rejected_batch_requests.next_page_number }}{{ url_params }}">Next &raquo;</a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+        {% endif %}
       </div>
 
       <!-- Partially Approved Requests Tab -->
       <div id="partial" class="tab-content">
         <h3>Partially Approved Requests</h3>
         {% for batch_request in partially_approved_batch_requests %}
-        <div class="request">
+        <div class="request" data-toggle-id="{{ batch_request.id }}">
           <div class="request-header">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <h4>Request #{{ batch_request.id }}</h4>
+                <h4>
+                  <i class="fas fa-chevron-down toggle-arrow" id="arrow-{{ batch_request.id }}"></i>
+                  Supply Request {{ batch_request.id|stringformat:"03d" }}
+                </h4>
                 <p><strong>Requester:</strong> 
                   {% if batch_request.user.first_name or batch_request.user.last_name %}
                     {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
@@ -340,10 +1081,15 @@
                 <span class="status-badge status-partial">
                   <i class="fas fa-exclamation-triangle"></i> {{ batch_request.get_status_display }}
                 </span>
+                <div style="margin-top: 8px;">
+                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
               </div>
             </div>
           </div>
-          <div class="request-items">
+          <div id="items-{{ batch_request.id }}" class="request-items" style="display: none;">
             {% for item in batch_request.items.all %}
             <div class="request-item">
               <div class="item-info">
@@ -353,35 +1099,57 @@
                 {% endif %}
               </div>
               <div class="item-actions">
-                {% if item.approved %}
+                {% if item.status == 'approved' %}
                   <span class="item-status status-approved">Approved</span>
+                {% elif item.status == 'rejected' %}
+                  <span class="item-status status-rejected">Rejected</span>
                 {% else %}
-                  <button class="approve-btn" data-action="approve" data-batch-id="{{ batch_request.id }}" data-item-id="{{ item.id }}">
-                    <i class="fas fa-check"></i> Approve
-                  </button>
-                  <button class="reject-btn" data-action="reject" data-batch-id="{{ batch_request.id }}" data-item-id="{{ item.id }}">
-                    <i class="fas fa-times"></i> Reject
-                  </button>
+                  <span class="item-status status-pending">Pending</span>
                 {% endif %}
               </div>
-            </div>
-            <!-- Remarks Form -->
-            <div id="remarks-form-{{ batch_request.id }}-{{ item.id }}" class="remarks-form">
-              <form method="post" action="{% url 'batch_request_detail' batch_request.id %}">
-                {% csrf_token %}
-                <input type="hidden" name="item_id" value="{{ item.id }}">
-                <input type="hidden" name="action" id="action-{{ batch_request.id }}-{{ item.id }}" value="">
-                <textarea name="remarks" placeholder="Enter remarks (optional)..."></textarea>
-                <button type="submit" class="approve-btn">Submit</button>
-                <button type="button" class="reject-btn cancel-btn" data-batch-id="{{ batch_request.id }}" data-item-id="{{ item.id }}">Cancel</button>
-              </form>
             </div>
             {% endfor %}
           </div>
         </div>
         {% empty %}
-        <p>No partially approved requests found.</p>
+        <div class="empty-state">
+          <i class="fas fa-exclamation-triangle"></i>
+          <p>No partially approved requests found.</p>
+        </div>
         {% endfor %}
+        
+        <!-- Pagination for Partially Approved Requests -->
+        {% if partially_approved_batch_requests.has_other_pages %}
+        <div class="pagination-container">
+          <nav aria-label="Partially approved requests pagination">
+            <ul class="pagination">
+              {% if partially_approved_batch_requests.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?tab=partial&partially_approved_page={{ partially_approved_batch_requests.previous_page_number }}{{ url_params }}">&laquo; Previous</a>
+                </li>
+              {% endif %}
+              
+              {% for num in partially_approved_batch_requests.paginator.page_range %}
+                {% if partially_approved_batch_requests.number == num %}
+                  <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                  </li>
+                {% elif num > partially_approved_batch_requests.number|add:'-3' and num < partially_approved_batch_requests.number|add:'3' %}
+                  <li class="page-item">
+                    <a class="page-link" href="?tab=partial&partially_approved_page={{ num }}{{ url_params }}">{{ num }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+              
+              {% if partially_approved_batch_requests.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?tab=partial&partially_approved_page={{ partially_approved_batch_requests.next_page_number }}{{ url_params }}">Next &raquo;</a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+        {% endif %}
       </div>
 
     </main>
@@ -391,6 +1159,8 @@
     // Initialize event listeners when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
       initializeEventListeners();
+      initializeActiveTab();
+      initializeFormHandling();
     });
 
     function initializeEventListeners() {
@@ -402,24 +1172,60 @@
           const tabName = button.dataset.tab;
           showTab(tabName, button);
         }
-        
-        if (e.target.closest('.approve-btn[data-action]') || e.target.closest('.reject-btn[data-action]')) {
-          e.preventDefault();
-          const button = e.target.closest('[data-action]');
-          const action = button.dataset.action;
-          const batchId = button.dataset.batchId;
-          const itemId = button.dataset.itemId;
-          showRemarksForm(action, batchId, itemId);
-        }
-        
-        if (e.target.closest('.cancel-btn')) {
-          e.preventDefault();
-          const button = e.target.closest('.cancel-btn');
-          const batchId = button.dataset.batchId;
-          const itemId = button.dataset.itemId;
-          hideRemarksForm(batchId, itemId);
+      });
+      
+      // Event delegation for request toggling
+      document.addEventListener('click', function(e) {
+        const toggleElement = e.target.closest('[data-toggle-id]');
+        if (toggleElement) {
+          const requestId = toggleElement.dataset.toggleId;
+          toggleRequestItems(requestId);
         }
       });
+    }
+    
+    function initializeActiveTab() {
+      // Get current tab from URL or default to pending
+      const urlParams = new URLSearchParams(window.location.search);
+      const currentTab = urlParams.get('tab') || 'pending';
+      
+      // Find and activate the correct tab button
+      const targetButton = document.querySelector(`[data-tab="${currentTab}"]`);
+      if (targetButton) {
+        showTab(currentTab, targetButton);
+      }
+    }
+    
+    function initializeFormHandling() {
+      // Auto-submit form when filter values change
+      const filterSelects = document.querySelectorAll('.filter-select, .date-input');
+      filterSelects.forEach(select => {
+        select.addEventListener('change', function() {
+          // Update hidden tab field and submit
+          updateTabAndSubmit();
+        });
+      });
+      
+      // Handle search input with debounce
+      const searchInput = document.querySelector('.search-input');
+      if (searchInput) {
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => {
+            updateTabAndSubmit();
+          }, 500); // 500ms debounce
+        });
+      }
+    }
+    
+    function updateTabAndSubmit() {
+      const currentTab = document.querySelector('.tab-button.active')?.dataset.tab || 'pending';
+      const tabInput = document.getElementById('currentTabInput');
+      if (tabInput) {
+        tabInput.value = currentTab;
+      }
+      document.getElementById('filterForm').submit();
     }
 
     function showTab(tabName, buttonElement) {
@@ -441,31 +1247,50 @@
       if (buttonElement) {
         buttonElement.classList.add('active');
       }
-    }
-
-    function showRemarksForm(action, batchId, itemId) {
-      const formId = `remarks-form-${batchId}-${itemId}`;
-      const actionFieldId = `action-${batchId}-${itemId}`;
       
-      const form = document.getElementById(formId);
-      const actionField = document.getElementById(actionFieldId);
-      
-      if (form && actionField) {
-        form.classList.add('show');
-        actionField.value = action;
+      // Update hidden form field
+      const tabInput = document.getElementById('currentTabInput');
+      if (tabInput) {
+        tabInput.value = tabName;
       }
+      
+      // Update URL to preserve search parameters
+      const url = new URL(window.location);
+      url.searchParams.set('tab', tabName);
+      window.history.replaceState({}, '', url);
     }
 
-    function hideRemarksForm(batchId, itemId) {
-      const formId = `remarks-form-${batchId}-${itemId}`;
-      const form = document.getElementById(formId);
+    function toggleRequestItems(requestId) {
+      const itemsContainer = document.getElementById(`items-${requestId}`);
       
-      if (form) {
-        form.classList.remove('show');
-        // Clear the form
-        const textarea = form.querySelector('textarea[name="remarks"]');
-        if (textarea) {
-          textarea.value = '';
+      // Try to find the arrow icon with either ID pattern
+      let arrowIcon = document.getElementById(`arrow-${requestId}`) || 
+                     document.getElementById(`chevron-${requestId}`);
+      
+      if (itemsContainer && arrowIcon) {
+        if (itemsContainer.style.display === 'none' || itemsContainer.style.display === '') {
+          // Show items with smooth animation
+          itemsContainer.style.display = 'block';
+          itemsContainer.style.maxHeight = '0';
+          itemsContainer.style.overflow = 'hidden';
+          itemsContainer.style.transition = 'max-height 0.3s ease-out';
+          
+          // Trigger animation
+          setTimeout(() => {
+            itemsContainer.style.maxHeight = itemsContainer.scrollHeight + 'px';
+          }, 10);
+          
+          arrowIcon.classList.add('expanded');
+        } else {
+          // Hide items with smooth animation
+          itemsContainer.style.maxHeight = '0';
+          arrowIcon.classList.remove('expanded');
+          
+          // Hide completely after animation
+          setTimeout(() => {
+            itemsContainer.style.display = 'none';
+            itemsContainer.style.maxHeight = '';
+          }, 300);
         }
       }
     }
