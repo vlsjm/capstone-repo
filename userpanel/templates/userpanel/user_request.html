@@ -25,16 +25,22 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="supply-select">Supply Item:</label>
-                        <select id="supply-select" name="supply_id" class="form-control" required>
-                            <option value="">Select a supply item...</option>
-                            {% for supply in available_supplies %}
-                                <option value="{{ supply.id }}" 
-                                        data-available="{{ supply.quantity_info.current_quantity }}"
-                                        data-name="{{ supply.supply_name }}">
-                                    {{ supply.supply_name }} ({{ supply.quantity_info.current_quantity }} available)
-                                </option>
-                            {% endfor %}
-                        </select>
+                        <div class="searchable-select-container">
+                            <input type="text" id="supply-search" class="supply-search-input" 
+                                   placeholder="Search for a supply item..." autocomplete="off">
+                            <div class="select-dropdown" id="supply-dropdown">
+                                <div class="select-option" data-value="">Select a supply item...</div>
+                                {% for supply in available_supplies %}
+                                    <div class="select-option" 
+                                         data-value="{{ supply.id }}"
+                                         data-available="{{ supply.quantity_info.current_quantity }}"
+                                         data-name="{{ supply.supply_name }}">
+                                        {{ supply.supply_name }} ({{ supply.quantity_info.current_quantity }} available)
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" id="supply-select" name="supply_id" required>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="quantity-input">Quantity:</label>
@@ -153,13 +159,27 @@
 </div>
 
 <style>
+/* Base responsive settings */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
 .request-page-layout {
     display: flex;
     gap: 2rem;
     margin-left: 270px;
     padding: 2rem;
-    max-width: 100%;
+    max-width: calc(100vw - 270px); /* Ensure it doesn't exceed viewport */
+    min-height: 100vh;
     box-sizing: border-box;
+    overflow-x: hidden;
+    position: relative;
 }
 
 .request-form-container {
@@ -169,8 +189,9 @@
     border-radius: 12px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin: 0;
-    width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .request-form-container h1 {
@@ -205,20 +226,33 @@
 
 .form-row {
     display: flex;
-    gap: 1rem;
+    gap: 2.5rem;
     align-items: end;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group:nth-child(1) {
     flex: 1;
+    min-width: 0; /* Allows flex item to shrink below content size */
+    max-width: calc(100% - 180px); /* Reserve space for quantity and button */
+    overflow: hidden;
 }
 
 .form-group:nth-child(2) {
-    flex: 0 0 150px;
+    flex: 0 0 120px; /* Reduced width for quantity */
+    min-width: 120px;
 }
 
 .form-group:nth-child(3) {
     flex: 0 0 auto;
+    min-width: auto;
 }
 
 .form-group label {
@@ -230,12 +264,19 @@
 
 .form-control {
     width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.9rem;
+    padding: 12px 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 14px;
     height: auto;
     box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .btn-add-to-list {
@@ -836,6 +877,8 @@ $(document).ready(function() {
 @media (max-width: 1200px) {
     .request-page-layout {
         flex-direction: column;
+        max-width: calc(100vw - 270px);
+        gap: 1.5rem;
     }
 
     .recent-requests {
@@ -843,10 +886,54 @@ $(document).ready(function() {
     }
 }
 
+/* Large tablets */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .request-page-layout {
+        margin-left: 270px;
+        padding: 1.5rem;
+        max-width: calc(100vw - 270px - 3rem); /* Account for padding */
+    }
+    
+    .request-form-container {
+        padding: 2rem;
+        max-width: 100%;
+    }
+    
+    .form-row {
+        gap: 2rem;
+    }
+    
+    .form-group:nth-child(1) {
+        max-width: calc(100% - 180px);
+    }
+}
+
+@media (max-width: 992px) {
+    .request-page-layout {
+        margin-left: 270px; /* Keep sidebar space on tablets */
+        padding: 1.5rem;
+        max-width: calc(100vw - 270px);
+    }
+    
+    .request-form-container {
+        padding: 2rem;
+        max-width: 100%;
+    }
+}
+
 @media (max-width: 768px) {
     .request-page-layout {
-        margin-left: 0;
+        margin-left: 0; /* Remove sidebar margin on mobile */
         padding: 1rem;
+        max-width: 100vw; /* Use full viewport width */
+        padding-left: 1rem;
+    }
+    
+    .request-form-container {
+        padding: 1.5rem;
+        margin: 0;
+        max-width: 100%;
+        border-radius: 8px;
     }
 
     .form-actions {
@@ -856,6 +943,71 @@ $(document).ready(function() {
     .btn-submit,
     .btn-reset {
         width: 100%;
+    }
+    
+    /* Ensure content doesn't go under sidebar on mobile */
+    body {
+        overflow-x: hidden;
+    }
+    
+    /* Add space for fixed sidebar on very small screens if needed */
+    .request-page-layout {
+        position: relative;
+        z-index: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .request-page-layout {
+        padding: 0.5rem;
+        margin-left: 0;
+        padding-left: 0.5rem;
+    }
+    
+    .request-form-container {
+        padding: 1rem;
+        border-radius: 0;
+        box-shadow: none;
+        border: 1px solid #e1e5e9;
+        margin: 0;
+        width: 100%;
+    }
+    
+    .request-form-container h1 {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Handle sidebar overlap on very small screens */
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+    }
+    
+    /* Show sidebar on hover/focus for mobile if needed */
+    .sidebar:hover,
+    .sidebar:focus-within {
+        transform: translateX(0);
+    }
+    
+    /* Ensure main content uses full width */
+    body {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+@media (max-width: 320px) {
+    .request-page-layout {
+        padding: 0.25rem;
+    }
+    
+    .request-form-container {
+        padding: 0.75rem;
+        margin: 0;
+        width: 100%;
+        min-width: auto;
     }
 }
 
@@ -987,5 +1139,464 @@ function cancelRequest(requestId, type) {
         showToast('An error occurred while cancelling the request', 'error');
     });
 }
+
+// Searchable dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('supply-search');
+    const dropdown = document.getElementById('supply-dropdown');
+    const hiddenInput = document.getElementById('supply-select');
+    const options = dropdown.querySelectorAll('.select-option');
+    
+    let isDropdownOpen = false;
+    
+    // Toggle dropdown visibility
+    function toggleDropdown() {
+        isDropdownOpen = !isDropdownOpen;
+        
+        if (isDropdownOpen) {
+            // Move dropdown to body for proper positioning
+            const inputRect = searchInput.getBoundingClientRect();
+            const formGroupRect = searchInput.closest('.form-group').getBoundingClientRect();
+            const quantityField = document.getElementById('quantity-input');
+            const quantityRect = quantityField ? quantityField.getBoundingClientRect() : null;
+            
+            // Responsive width calculation
+            let dropdownWidth;
+            const viewportWidth = window.innerWidth;
+            
+            if (viewportWidth <= 768) {
+                // Mobile: Use most of the viewport width with padding
+                dropdownWidth = Math.min(viewportWidth - 32, 400); // 32px total padding
+                dropdown.style.left = Math.max(16, inputRect.left) + 'px';
+                dropdown.style.right = 'auto';
+            } else {
+                // Desktop: Calculate safe width that won't overlap with quantity field
+                const maxSafeWidth = quantityRect ? quantityRect.left - inputRect.left - 20 : formGroupRect.width;
+                const preferredWidth = Math.min(formGroupRect.width, maxSafeWidth);
+                dropdownWidth = Math.max(preferredWidth, 250); // Minimum 250px width
+                dropdown.style.left = inputRect.left + 'px';
+                dropdown.style.right = 'auto';
+            }
+            
+            dropdown.style.position = 'fixed';
+            dropdown.style.top = (inputRect.bottom + 2) + 'px';
+            dropdown.style.width = dropdownWidth + 'px';
+            dropdown.style.zIndex = '999999';
+            dropdown.style.display = 'block';
+            
+            // Move to body to avoid parent container clipping
+            document.body.appendChild(dropdown);
+            
+            searchInput.focus();
+        } else {
+            dropdown.style.display = 'none';
+            // Move back to original container
+            searchInput.parentNode.appendChild(dropdown);
+            dropdown.style.position = '';
+            dropdown.style.top = '';
+            dropdown.style.left = '';
+            dropdown.style.right = '';
+            dropdown.style.width = '';
+            dropdown.style.zIndex = '';
+        }
+    }
+    
+      // Filter options based on search
+      function filterOptions() {
+        const searchTerm = searchInput.value.toLowerCase();
+        let hasVisibleOptions = false;
+        
+        // First restore all original options if they were replaced
+        if (dropdown.querySelector('.no-results')) {
+          dropdown.innerHTML = '';
+          options.forEach(option => {
+            dropdown.appendChild(option.cloneNode(true));
+          });
+        }
+        
+        // Get fresh options after potential restoration
+        const currentOptions = dropdown.querySelectorAll('.select-option');
+        
+        currentOptions.forEach(option => {
+          const text = option.textContent.toLowerCase();
+          const isVisible = text.includes(searchTerm);
+          option.style.display = isVisible ? 'block' : 'none';
+          if (isVisible && option.dataset.value !== '') {
+            hasVisibleOptions = true;
+          }
+        });
+        
+        // Show "no results" if no options are visible and there's a search term
+        if (!hasVisibleOptions && searchTerm.trim() !== '') {
+          dropdown.innerHTML = '<div class="select-option no-results">No items found</div>';
+        }
+      }
+      
+      // Select an option
+      function selectOption(option) {
+        const value = option.dataset.value;
+        const text = option.textContent;
+        
+        hiddenInput.value = value;
+        
+        if (value) {
+          searchInput.value = text;
+          searchInput.placeholder = text;
+          
+          // Update available quantity display
+          const available = option.dataset.available;
+          const quantityInput = document.getElementById('quantity-input');
+          quantityInput.max = available;
+          quantityInput.placeholder = `Max: ${available}`;
+        } else {
+          searchInput.value = '';
+          searchInput.placeholder = 'Search for a supply item...';
+          
+          // Reset quantity input
+          const quantityInput = document.getElementById('quantity-input');
+          quantityInput.max = '';
+          quantityInput.placeholder = 'Enter quantity';
+        }
+        
+        toggleDropdown();
+        
+        // Reset all options to be visible after selection
+        const currentOptions = dropdown.querySelectorAll('.select-option');
+        currentOptions.forEach(opt => {
+          opt.style.display = 'block';
+        });
+      }
+    
+    // Event listeners
+    searchInput.addEventListener('click', function() {
+        if (!isDropdownOpen) {
+            toggleDropdown();
+        }
+    });
+    
+    searchInput.addEventListener('input', filterOptions);
+    
+    // Handle option clicks
+    dropdown.addEventListener('click', function(e) {
+        if (e.target.classList.contains('select-option') && !e.target.classList.contains('no-results')) {
+            selectOption(e.target);
+        }
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+            if (isDropdownOpen) {
+                toggleDropdown();
+            }
+        }
+    });
+    
+    // Keyboard navigation
+    searchInput.addEventListener('keydown', function(e) {
+        const visibleOptions = Array.from(options).filter(opt => opt.style.display !== 'none');
+        
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (!isDropdownOpen) {
+                toggleDropdown();
+                return;
+            }
+            
+            const currentIndex = visibleOptions.findIndex(opt => opt.classList.contains('highlighted'));
+            let newIndex;
+            
+            if (e.key === 'ArrowDown') {
+                newIndex = currentIndex < visibleOptions.length - 1 ? currentIndex + 1 : 0;
+            } else {
+                newIndex = currentIndex > 0 ? currentIndex - 1 : visibleOptions.length - 1;
+            }
+            
+            visibleOptions.forEach(opt => opt.classList.remove('highlighted'));
+            if (visibleOptions[newIndex]) {
+                visibleOptions[newIndex].classList.add('highlighted');
+            }
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            const highlighted = dropdown.querySelector('.select-option.highlighted');
+            if (highlighted && !highlighted.classList.contains('no-results')) {
+                selectOption(highlighted);
+            }
+        } else if (e.key === 'Escape') {
+            if (isDropdownOpen) {
+                toggleDropdown();
+            }
+        }
+    });
+    
+    // Close dropdown on scroll or resize when attached to body
+    window.addEventListener('scroll', function() {
+        if (isDropdownOpen && dropdown.parentNode === document.body) {
+            toggleDropdown();
+        }
+    });
+    
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        if (isDropdownOpen && dropdown.parentNode === document.body) {
+            // Debounce resize events to avoid excessive repositioning
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                // Reposition dropdown instead of closing it
+                const inputRect = searchInput.getBoundingClientRect();
+                const formGroupRect = searchInput.closest('.form-group').getBoundingClientRect();
+                const quantityField = document.getElementById('quantity-input');
+                const quantityRect = quantityField ? quantityField.getBoundingClientRect() : null;
+                
+                // Responsive width calculation
+                let dropdownWidth;
+                const viewportWidth = window.innerWidth;
+                
+                if (viewportWidth <= 768) {
+                    // Mobile: Use most of the viewport width with padding
+                    dropdownWidth = Math.min(viewportWidth - 32, 400);
+                    dropdown.style.left = Math.max(16, inputRect.left) + 'px';
+                    dropdown.style.right = 'auto';
+                } else {
+                    // Desktop: Calculate safe width that won't overlap with quantity field
+                    const maxSafeWidth = quantityRect ? quantityRect.left - inputRect.left - 20 : formGroupRect.width;
+                    const preferredWidth = Math.min(formGroupRect.width, maxSafeWidth);
+                    dropdownWidth = Math.max(preferredWidth, 250);
+                    dropdown.style.left = inputRect.left + 'px';
+                    dropdown.style.right = 'auto';
+                }
+                
+                dropdown.style.top = (inputRect.bottom + 2) + 'px';
+                dropdown.style.width = dropdownWidth + 'px';
+            }, 100); // 100ms debounce
+        }
+    });
+});
+</script>
+
+<style>
+/* Searchable dropdown styles */
+.searchable-select-container {
+    position: relative;
+    width: 100%;
+}
+
+.supply-search-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.supply-search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e1e5e9;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.select-option {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f3f4;
+    transition: background-color 0.2s ease;
+    font-size: 14px;
+}
+
+.select-option:hover,
+.select-option.highlighted {
+    background-color: #f8f9fa;
+}
+
+.select-option:first-child {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.select-option.no-results {
+    color: #6c757d;
+    font-style: italic;
+    cursor: default;
+}
+
+.select-option.no-results:hover {
+    background-color: transparent;
+}
+
+/* Scrollbar styling for dropdown */
+.select-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.select-dropdown::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.select-dropdown::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.select-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Dropdown when moved to body */
+body > .select-dropdown {
+    position: fixed !important;
+    z-index: 999999 !important;
+    background: white;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive adjustments for form layout */
+/* Tablet and smaller desktop screens */
+@media (max-width: 1200px) {
+    .form-row {
+        gap: 2rem;
+    }
+    
+    .form-group:nth-child(1) {
+        max-width: calc(100% - 180px);
+    }
+}
+
+/* Medium tablets */
+@media (max-width: 992px) {
+    .form-row {
+        gap: 1.5rem;
+    }
+    
+    .form-group:nth-child(1) {
+        max-width: calc(100% - 160px); /* Adjust for smaller screens */
+    }
+    
+    .form-group:nth-child(2) {
+        flex: 0 0 100px; /* Smaller quantity field on medium screens */
+    }
+}
+
+/* Small tablets and large phones */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: stretch;
+    }
+    
+    .form-group:nth-child(1),
+    .form-group:nth-child(2),
+    .form-group:nth-child(3) {
+        flex: none;
+        max-width: none;
+        width: 100%;
+    }
+    
+    .btn-add-to-list {
+        width: 100%;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+    .form-row {
+        gap: 1rem;
+    }
+    
+    .form-control {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 10px 12px;
+    }
+    
+    .supply-search-input {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 10px 12px;
+    }
+    
+    .btn-add-to-list {
+        font-size: 16px;
+        padding: 12px 1rem;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 320px) {
+    .form-row {
+        gap: 0.75rem;
+    }
+    
+    .form-control,
+    .supply-search-input {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+    
+    .select-dropdown {
+        max-height: 200px;
+        font-size: 13px;
+    }
+    
+    .select-option {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+}
+
+/* Responsive dropdown adjustments */
+@media (max-width: 768px) {
+    .select-dropdown {
+        max-height: 250px;
+        border-radius: 8px;
+    }
+    
+    .select-option {
+        padding: 14px 16px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    body > .select-dropdown {
+        max-width: calc(100vw - 2rem);
+        left: 1rem !important;
+        right: 1rem !important;
+        width: auto !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .select-dropdown {
+        max-height: 200px;
+    }
+    
+    body > .select-dropdown {
+        max-width: calc(100vw - 1rem);
+        left: 0.5rem !important;
+        right: 0.5rem !important;
+    }
+}
+</style>
 </script>
 {% endblock %}

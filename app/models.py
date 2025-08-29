@@ -16,6 +16,8 @@ class ActivityLog(models.Model):
         ('request', 'Requested'),
         ('approve', 'Approved'),
         ('reject', 'Rejected'),
+        ('claim', 'Claimed'),
+        ('complete', 'Completed'),
         ('borrow', 'Borrowed'),
         ('return', 'Returned'),
         ('report', 'Reported'),
@@ -505,6 +507,7 @@ class SupplyRequestBatch(models.Model):
         ('rejected', 'Rejected'),
         ('partially_approved', 'Partially Approved'),
         ('for_claiming', 'For Claiming'),
+        ('completed', 'Completed'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -512,6 +515,9 @@ class SupplyRequestBatch(models.Model):
     purpose = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     approved_date = models.DateTimeField(null=True, blank=True)
+    claimed_date = models.DateTimeField(null=True, blank=True)
+    completed_date = models.DateTimeField(null=True, blank=True)
+    claimed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='claimed_requests')
     remarks = models.TextField(blank=True, null=True)
 
     class Meta:
@@ -590,13 +596,16 @@ class SupplyRequestItem(models.Model):
         ('pending', 'Pending'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
+        ('completed', 'Completed'),
     ]
     
     batch_request = models.ForeignKey(SupplyRequestBatch, on_delete=models.CASCADE, related_name='items')
     supply = models.ForeignKey(Supply, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
+    quantity = models.PositiveIntegerField()  # Requested quantity
+    approved_quantity = models.PositiveIntegerField(null=True, blank=True)  # Approved quantity
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     approved = models.BooleanField(default=False)  # Keep for backward compatibility
+    claimed_date = models.DateTimeField(null=True, blank=True)  # When item was claimed
     remarks = models.TextField(blank=True, null=True)
 
     class Meta:

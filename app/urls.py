@@ -49,6 +49,8 @@ from .views import (
     batch_request_detail,
     approve_batch_item,
     reject_batch_item,
+    claim_batch_items,
+    claim_individual_item,
     get_subcategories,
     update_property_category,
     delete_property_category,
@@ -159,4 +161,8 @@ urlpatterns = [
     path('batch-request/<int:batch_id>/', batch_request_detail, name='batch_request_detail'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/approve/', approve_batch_item, name='approve_batch_item'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/reject/', reject_batch_item, name='reject_batch_item'),
+    
+    # Claiming workflow URLs
+    path('batch-request/<int:batch_id>/claim/', claim_batch_items, name='claim_batch_items'),
+    path('batch-request/<int:batch_id>/item/<int:item_id>/claim/', claim_individual_item, name='claim_individual_item'),
 ]

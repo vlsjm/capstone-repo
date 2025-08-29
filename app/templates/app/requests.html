@@ -252,6 +252,36 @@
       border: 1px solid #bee5eb;
     }
     
+    .status-completed, .status-badge.status-completed {
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+      color: #2d3748;
+      border: 1px solid #cbd5e0;
+    }
+    
+    /* Claim button styling */
+    .claim-button {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .claim-button:hover {
+      background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    }
+    
     .status-badge {
       padding: 6px 12px;
       border-radius: 20px;
@@ -272,6 +302,8 @@
       padding: 20px;
       box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
       border-left: 4px solid #152d64;
+      position: relative;
+      overflow: visible;
     }
     
     .search-filter-form {
@@ -283,6 +315,8 @@
       grid-template-columns: 250px 200px 150px 150px auto;
       gap: 15px;
       align-items: center;
+      position: relative;
+      overflow: visible;
     }
     
     .search-input-group {
@@ -325,6 +359,8 @@
       flex-direction: column;
       height: 42px; /* Match search input height */
       justify-content: center;
+      position: relative;
+      overflow: visible;
     }
     
     .filter-select, .date-input {
@@ -707,14 +743,21 @@
             
             <!-- Department Filter -->
             <div class="filter-group">
-              <select name="department" class="filter-select">
-                <option value="">All Departments</option>
-                {% for department in departments %}
-                  <option value="{{ department.id }}" {% if department_filter == department.id|stringformat:"s" %}selected{% endif %}>
-                    {{ department.name }}
-                  </option>
-                {% endfor %}
-              </select>
+              <div class="searchable-select-container">
+                <input type="text" id="department-search" class="filter-search-input" 
+                       placeholder="Search departments..." autocomplete="off">
+                <div class="filter-dropdown" id="department-dropdown">
+                  <div class="filter-option" data-value="">All Departments</div>
+                  {% for department in departments %}
+                    <div class="filter-option" 
+                         data-value="{{ department.id }}"
+                         {% if department_filter == department.id|stringformat:"s" %}data-selected="true"{% endif %}>
+                      {{ department.name }}
+                    </div>
+                  {% endfor %}
+                </div>
+                <input type="hidden" name="department" id="department-filter" value="{{ department_filter }}">
+              </div>
             </div>
             
             <!-- Date Range Filters -->
@@ -754,6 +797,7 @@
       <div class="filter-tabs">
         <button class="tab-button active" data-tab="pending">Pending</button>
         <button class="tab-button" data-tab="for_claiming">For Claiming</button>
+        <button class="tab-button" data-tab="completed">Completed</button>
         <button class="tab-button" data-tab="rejected">Rejected</button>
         <button class="tab-button" data-tab="partial">Partially Approved</button>
       </div>
@@ -892,6 +936,14 @@
                     <i class="fas fa-external-link-alt"></i> View Details
                   </a>
                 </div>
+                <div style="margin-top: 8px;">
+                  <form method="post" action="{% url 'claim_batch_items' batch_request.id %}" style="display: inline;" onclick="event.stopPropagation();">
+                    {% csrf_token %}
+                    <button type="submit" class="claim-button" onclick="return confirm('Are you sure you want to claim all items in this request? This will deduct stock quantities.');">
+                      <i class="fas fa-shopping-cart"></i> Claim Items
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
@@ -950,6 +1002,117 @@
               {% if for_claiming_batch_requests.has_next %}
                 <li class="page-item">
                   <a class="page-link" href="?tab=for_claiming&for_claiming_page={{ for_claiming_batch_requests.next_page_number }}{{ url_params }}">Next &raquo;</a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Completed Requests Tab -->
+      <div id="completed" class="tab-content">
+        <h3>Completed Requests</h3>
+        {% for batch_request in completed_batch_requests %}
+        <div class="request" data-request-id="{{ batch_request.id }}">
+          <div class="request-header" data-toggle-id="{{ batch_request.id }}">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h4>
+                  <i class="fas fa-chevron-down toggle-arrow" id="arrow-{{ batch_request.id }}"></i>
+                  Supply Request {{ batch_request.id|stringformat:"03d" }}
+                </h4>
+                <p><strong>Requester:</strong> 
+                  {% if batch_request.user.first_name or batch_request.user.last_name %}
+                    {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
+                  {% else %}
+                    {{ batch_request.user.username }}
+                  {% endif %}
+                  ({{ batch_request.user.userprofile.department }})
+                </p>
+                <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
+                <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
+                {% if batch_request.claimed_date %}
+                  <p><strong>Claimed Date:</strong> {{ batch_request.claimed_date|date:"M d, Y H:i" }}</p>
+                {% endif %}
+                {% if batch_request.completed_date %}
+                  <p><strong>Completed Date:</strong> {{ batch_request.completed_date|date:"M d, Y H:i" }}</p>
+                {% endif %}
+                {% if batch_request.claimed_by %}
+                  <p><strong>Released By:</strong> 
+                    {% if batch_request.claimed_by.first_name or batch_request.claimed_by.last_name %}
+                      {{ batch_request.claimed_by.first_name }} {{ batch_request.claimed_by.last_name }}
+                    {% else %}
+                      {{ batch_request.claimed_by.username }}
+                    {% endif %}
+                  </p>
+                {% endif %}
+              </div>
+              <div>
+                <span class="status-badge status-completed">
+                  <i class="fas fa-check-circle"></i> {{ batch_request.get_status_display }}
+                </span>
+                <div style="margin-top: 8px;">
+                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="items-{{ batch_request.id }}" class="request-items" style="display: none;">
+            {% for item in batch_request.items.all %}
+            <div class="request-item">
+              <div class="item-info">
+                <strong>{{ item.supply.supply_name }}</strong> 
+                - Requested: {{ item.quantity }}
+                {% if item.approved_quantity %}
+                  - Claimed: {{ item.approved_quantity }}
+                {% endif %}
+                {% if item.remarks %}
+                  <br><small><em>Remarks: {{ item.remarks }}</em></small>
+                {% endif %}
+              </div>
+              <div class="item-actions">
+                <span class="item-status status-completed">Completed</span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% empty %}
+        <div class="no-requests">
+          <i class="fas fa-inbox"></i>
+          <p>No completed requests found.</p>
+        </div>
+        {% endfor %}
+        
+        <!-- Pagination for Completed Requests -->
+        {% if completed_batch_requests.has_other_pages %}
+        <div class="pagination-wrapper">
+          <nav aria-label="Completed requests pagination">
+            <ul class="pagination">
+              {% if completed_batch_requests.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?tab=completed&completed_page={{ completed_batch_requests.previous_page_number }}{{ url_params }}">&laquo; Previous</a>
+                </li>
+              {% endif %}
+              
+              {% for num in completed_batch_requests.paginator.page_range %}
+                {% if completed_batch_requests.number == num %}
+                  <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                  </li>
+                {% elif num > completed_batch_requests.number|add:'-3' and num < completed_batch_requests.number|add:'3' %}
+                  <li class="page-item">
+                    <a class="page-link" href="?tab=completed&completed_page={{ num }}{{ url_params }}">{{ num }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+              
+              {% if completed_batch_requests.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?tab=completed&completed_page={{ completed_batch_requests.next_page_number }}{{ url_params }}">Next &raquo;</a>
                 </li>
               {% endif %}
             </ul>
@@ -1294,6 +1457,282 @@
         }
       }
     }
+
+    // Searchable department filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('department-search');
+      const dropdown = document.getElementById('department-dropdown');
+      const hiddenInput = document.getElementById('department-filter');
+      const options = dropdown.querySelectorAll('.filter-option');
+      
+      let isDropdownOpen = false;
+      
+      // Set initial display value
+      const selectedOption = dropdown.querySelector('[data-selected="true"]');
+      if (selectedOption) {
+        searchInput.value = selectedOption.textContent.trim();
+      } else {
+        searchInput.value = 'All Departments';
+      }
+      
+      // Toggle dropdown visibility
+      function toggleDropdown() {
+        isDropdownOpen = !isDropdownOpen;
+        
+        if (isDropdownOpen) {
+          // Position dropdown relative to input
+          const inputRect = searchInput.getBoundingClientRect();
+          dropdown.style.position = 'fixed';
+          dropdown.style.top = (inputRect.bottom - 1) + 'px';
+          dropdown.style.left = inputRect.left + 'px';
+          dropdown.style.width = inputRect.width + 'px';
+          dropdown.style.display = 'block';
+          searchInput.focus();
+          searchInput.select();
+        } else {
+          dropdown.style.display = 'none';
+        }
+      }
+      
+      // Filter options based on search
+      function filterOptions() {
+        const searchTerm = searchInput.value.toLowerCase();
+        let hasVisibleOptions = false;
+        
+        // First restore all original options if they were replaced
+        if (dropdown.querySelector('.no-results')) {
+          dropdown.innerHTML = '';
+          options.forEach(option => {
+            dropdown.appendChild(option.cloneNode(true));
+          });
+        }
+        
+        // Get fresh options after potential restoration
+        const currentOptions = dropdown.querySelectorAll('.filter-option');
+        
+        currentOptions.forEach(option => {
+          const text = option.textContent.toLowerCase();
+          const isVisible = text.includes(searchTerm);
+          option.style.display = isVisible ? 'block' : 'none';
+          if (isVisible) {
+            hasVisibleOptions = true;
+          }
+        });
+        
+        // Show "no results" if no options are visible and there's a search term
+        if (!hasVisibleOptions && searchTerm.trim() !== '') {
+          dropdown.innerHTML = '<div class="filter-option no-results">No departments found</div>';
+        }
+      }
+      
+      // Select an option
+      function selectOption(option) {
+        const value = option.dataset.value;
+        const text = option.textContent.trim();
+        
+        hiddenInput.value = value;
+        searchInput.value = text;
+        
+        // Remove previous selection
+        options.forEach(opt => opt.removeAttribute('data-selected'));
+        option.setAttribute('data-selected', 'true');
+        
+        toggleDropdown();
+        
+        // Trigger form submission
+        document.querySelector('.search-filter-form').submit();
+      }
+      
+      // Event listeners
+      searchInput.addEventListener('click', function() {
+        if (!isDropdownOpen) {
+          toggleDropdown();
+        }
+      });
+      
+      searchInput.addEventListener('input', filterOptions);
+      
+      // Handle option clicks
+      dropdown.addEventListener('click', function(e) {
+        if (e.target.classList.contains('filter-option') && !e.target.classList.contains('no-results')) {
+          selectOption(e.target);
+        }
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+          if (isDropdownOpen) {
+            toggleDropdown();
+          }
+        }
+      });
+      
+      // Keyboard navigation
+      searchInput.addEventListener('keydown', function(e) {
+        const visibleOptions = Array.from(options).filter(opt => opt.style.display !== 'none');
+        
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (!isDropdownOpen) {
+            toggleDropdown();
+            return;
+          }
+          
+          const currentIndex = visibleOptions.findIndex(opt => opt.classList.contains('highlighted'));
+          let newIndex;
+          
+          if (e.key === 'ArrowDown') {
+            newIndex = currentIndex < visibleOptions.length - 1 ? currentIndex + 1 : 0;
+          } else {
+            newIndex = currentIndex > 0 ? currentIndex - 1 : visibleOptions.length - 1;
+          }
+          
+          visibleOptions.forEach(opt => opt.classList.remove('highlighted'));
+          if (visibleOptions[newIndex]) {
+            visibleOptions[newIndex].classList.add('highlighted');
+          }
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          const highlighted = dropdown.querySelector('.filter-option.highlighted');
+          if (highlighted && !highlighted.classList.contains('no-results')) {
+            selectOption(highlighted);
+          }
+        } else if (e.key === 'Escape') {
+          if (isDropdownOpen) {
+            toggleDropdown();
+          }
+        }
+      });
+      
+      // Close dropdown when scrolling or resizing
+      window.addEventListener('scroll', function() {
+        if (isDropdownOpen) {
+          toggleDropdown();
+        }
+      });
+      
+      window.addEventListener('resize', function() {
+        if (isDropdownOpen) {
+          toggleDropdown();
+        }
+      });
+    });
   </script>
+
+  <style>
+    /* Searchable filter dropdown styles */
+    .searchable-select-container {
+      position: relative;
+      width: 100%;
+      z-index: 10;
+    }
+
+    .filter-search-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #f8f9fa;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #495057;
+      box-sizing: border-box;
+    }
+
+    .filter-search-input:focus {
+      outline: none;
+      border-color: #152d64;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+    }
+
+    .filter-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 2px solid #e9ecef;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 10000;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      margin-top: -1px;
+    }
+
+    /* When dropdown is fixed positioned */
+    .filter-dropdown[style*="position: fixed"] {
+      position: fixed !important;
+      border: 2px solid #e9ecef;
+      border-top: 2px solid #152d64;
+      border-radius: 8px;
+    }
+
+    .filter-option {
+      padding: 10px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #f1f3f4;
+      transition: background-color 0.2s ease;
+      font-size: 14px;
+      color: #495057;
+    }
+
+    .filter-option:hover,
+    .filter-option.highlighted {
+      background-color: #f8f9fa;
+    }
+
+    .filter-option[data-selected="true"] {
+      background-color: #152d64;
+      color: white;
+    }
+
+    .filter-option.no-results {
+      color: #6c757d;
+      font-style: italic;
+      cursor: default;
+    }
+
+    .filter-option.no-results:hover {
+      background-color: transparent;
+    }
+
+    /* Scrollbar styling for filter dropdown */
+    .filter-dropdown::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .filter-dropdown::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+
+    .filter-dropdown::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+
+    .filter-dropdown::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+
+    /* Mobile responsive adjustments */
+    @media (max-width: 768px) {
+      .filter-dropdown {
+        max-height: 200px;
+      }
+      
+      .filter-option {
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+    }
+  </style>
 </body>
 </html>

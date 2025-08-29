@@ -881,6 +881,7 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         rejected_requests = base_queryset.filter(status='rejected')
         partially_approved_requests = base_queryset.filter(status='partially_approved')
         for_claiming_requests = base_queryset.filter(status='for_claiming')
+        completed_requests = base_queryset.filter(status='completed')
         
         # Paginate each category
         pending_paginator = Paginator(pending_requests, self.paginate_by)
@@ -888,6 +889,7 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         rejected_paginator = Paginator(rejected_requests, self.paginate_by)
         partially_approved_paginator = Paginator(partially_approved_requests, self.paginate_by)
         for_claiming_paginator = Paginator(for_claiming_requests, self.paginate_by)
+        completed_paginator = Paginator(completed_requests, self.paginate_by)
         
         # Get current page number for each tab
         pending_page = self.request.GET.get('pending_page', 1)
@@ -895,6 +897,7 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         rejected_page = self.request.GET.get('rejected_page', 1)
         partially_approved_page = self.request.GET.get('partially_approved_page', 1)
         for_claiming_page = self.request.GET.get('for_claiming_page', 1)
+        completed_page = self.request.GET.get('completed_page', 1)
         
         # Get the page objects
         context['pending_batch_requests'] = pending_paginator.get_page(pending_page)
@@ -902,6 +905,7 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         context['rejected_batch_requests'] = rejected_paginator.get_page(rejected_page)
         context['partially_approved_batch_requests'] = partially_approved_paginator.get_page(partially_approved_page)
         context['for_claiming_batch_requests'] = for_claiming_paginator.get_page(for_claiming_page)
+        context['completed_batch_requests'] = completed_paginator.get_page(completed_page)
         
         # Add current tab to context
         context['current_tab'] = current_tab
@@ -2961,9 +2965,20 @@ def approve_batch_item(request, batch_id, item_id):
     batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
     item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
     
+    # Get approved quantity from form
+    approved_quantity = request.POST.get('approved_quantity', item.quantity)
+    try:
+        approved_quantity = int(approved_quantity)
+        if approved_quantity <= 0 or approved_quantity > item.quantity:
+            messages.error(request, f'Invalid approved quantity. Must be between 1 and {item.quantity}.')
+            return redirect('batch_request_detail', batch_id=batch_id)
+    except (ValueError, TypeError):
+        approved_quantity = item.quantity
+    
     # Mark item as approved
     item.approved = True
     item.status = 'approved'  # Also update the status field
+    item.approved_quantity = approved_quantity
     remarks = request.POST.get('remarks', '')
     if remarks:
         item.remarks = remarks
@@ -2990,7 +3005,7 @@ def approve_batch_item(request, batch_id, item_id):
     # Create notification for user
     Notification.objects.create(
         user=batch_request.user,
-        message=f"Item '{item.supply.supply_name}' in your batch request #{batch_request.id} has been approved.",
+        message=f"Item '{item.supply.supply_name}' in your batch request #{batch_request.id} has been approved for {item.approved_quantity} units.",
         remarks=remarks
     )
     
@@ -3000,11 +3015,12 @@ def approve_batch_item(request, batch_id, item_id):
         action='approve',
         model_name='SupplyRequestItem',
         object_repr=f"Batch #{batch_id} - {item.supply.supply_name}",
-        description=f"Approved {item.quantity} units of {item.supply.supply_name} in batch request #{batch_id}"
+        description=f"Approved {item.approved_quantity} out of {item.quantity} units of {item.supply.supply_name} in batch request #{batch_id}"
     )
     
-    messages.success(request, f'Item "{item.supply.supply_name}" approved successfully.')
-    return redirect('user_supply_requests')
+    # Remove success message since user can see status change immediately on the page
+    # messages.success(request, f'Item "{item.supply.supply_name}" approved successfully.')
+    return redirect('batch_request_detail', batch_id=batch_id)
 
 @permission_required('app.view_admin_module')
 @login_required
@@ -3056,8 +3072,9 @@ def reject_batch_item(request, batch_id, item_id):
         description=f"Rejected {item.quantity} units of {item.supply.supply_name} in batch request #{batch_id}"
     )
     
-    messages.success(request, f'Item "{item.supply.supply_name}" rejected successfully.')
-    return redirect('user_supply_requests')
+    # Remove success message since user can see status change immediately on the page
+    # messages.success(request, f'Item "{item.supply.supply_name}" rejected successfully.')
+    return redirect('batch_request_detail', batch_id=batch_id)
 
 @permission_required('app.view_admin_module')
 @login_required
@@ -3142,3 +3159,175 @@ def batch_request_detail(request, batch_id):
     }
     
     return render(request, 'app/batch_request_detail.html', context)
+
+
+# Claiming Workflow Views
+@permission_required('app.view_admin_module')
+@login_required
+@require_POST
+def claim_batch_items(request, batch_id):
+    """
+    Handle claiming of all approved items in a batch request.
+    This will deduct stock and mark items as completed.
+    """
+    batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
+    
+    # Only allow claiming if batch is in for_claiming status
+    if batch_request.status != 'for_claiming':
+        messages.error(request, 'This request is not available for claiming.')
+        return redirect('user_supply_requests')
+    
+    # Get all approved items that haven't been claimed yet
+    approved_items = batch_request.items.filter(status='approved', claimed_date__isnull=True)
+    
+    if not approved_items.exists():
+        messages.error(request, 'No approved items available for claiming.')
+        return redirect('user_supply_requests')
+    
+    # Check stock availability for all items before processing
+    insufficient_stock_items = []
+    for item in approved_items:
+        available_quantity = 0
+        if hasattr(item.supply, 'quantity_info') and item.supply.quantity_info:
+            available_quantity = item.supply.quantity_info.current_quantity or 0
+        
+        # Handle case where approved_quantity might be None (fallback to requested quantity)
+        approved_qty = item.approved_quantity or item.quantity or 0
+        
+        if available_quantity < approved_qty:
+            insufficient_stock_items.append(f"{item.supply.supply_name} (available: {available_quantity}, needed: {approved_qty})")
+    
+    if insufficient_stock_items:
+        messages.error(request, f"Insufficient stock for items: {', '.join(insufficient_stock_items)}")
+        return redirect('user_supply_requests')
+    
+    # Process each approved item
+    claimed_items = []
+    for item in approved_items:
+        # Handle case where approved_quantity might be None (fallback to requested quantity)
+        approved_qty = item.approved_quantity or item.quantity or 0
+        
+        # Deduct from stock
+        if hasattr(item.supply, 'quantity_info') and item.supply.quantity_info:
+            current_qty = item.supply.quantity_info.current_quantity or 0
+            item.supply.quantity_info.current_quantity = max(0, current_qty - approved_qty)
+            item.supply.quantity_info.save()
+        
+        # Update the approved_quantity if it was None
+        if item.approved_quantity is None:
+            item.approved_quantity = item.quantity
+        
+        # Mark item as completed and claimed
+        item.status = 'completed'
+        item.claimed_date = timezone.now()
+        item.save()
+        
+        claimed_items.append(item)
+        
+        # Log activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='claim',
+            model_name='SupplyRequestItem',
+            object_repr=f"Batch #{batch_id} - {item.supply.supply_name}",
+            description=f"Claimed {item.approved_quantity or item.quantity} units of {item.supply.supply_name} from batch request #{batch_id}"
+        )
+    
+    # Update batch status and dates
+    batch_request.status = 'completed'
+    batch_request.claimed_date = timezone.now()
+    batch_request.completed_date = timezone.now()
+    batch_request.claimed_by = request.user
+    batch_request.save()
+    
+    # Create notification for the requester
+    Notification.objects.create(
+        user=batch_request.user,
+        message=f"Your supply request #{batch_request.id} has been completed and items have been claimed.",
+        remarks=f"Total items claimed: {len(claimed_items)}"
+    )
+    
+    # Log batch completion
+    ActivityLog.log_activity(
+        user=request.user,
+        action='complete',
+        model_name='SupplyRequestBatch',
+        object_repr=f"Batch #{batch_id}",
+        description=f"Completed batch request #{batch_id} with {len(claimed_items)} items claimed"
+    )
+    
+    return redirect('user_supply_requests')
+
+
+@permission_required('app.view_admin_module') 
+@login_required
+@require_POST
+def claim_individual_item(request, batch_id, item_id):
+    """
+    Handle claiming of an individual approved item.
+    This will deduct stock and mark the specific item as completed.
+    """
+    batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
+    item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
+    
+    # Only allow claiming if item is approved and not yet claimed
+    if item.status != 'approved' or item.claimed_date is not None:
+        messages.error(request, 'This item is not available for claiming.')
+        return redirect('batch_request_detail', batch_id=batch_id)
+    
+    # Check stock availability
+    available_quantity = 0
+    if hasattr(item.supply, 'quantity_info') and item.supply.quantity_info:
+        available_quantity = item.supply.quantity_info.current_quantity or 0
+    
+    # Handle case where approved_quantity might be None (fallback to requested quantity)
+    approved_qty = item.approved_quantity or item.quantity or 0
+    
+    if available_quantity < approved_qty:
+        messages.error(request, f"Insufficient stock for {item.supply.supply_name}. Available: {available_quantity}, needed: {approved_qty}")
+        return redirect('batch_request_detail', batch_id=batch_id)
+    
+    # Deduct from stock
+    if hasattr(item.supply, 'quantity_info') and item.supply.quantity_info:
+        current_qty = item.supply.quantity_info.current_quantity or 0
+        item.supply.quantity_info.current_quantity = max(0, current_qty - approved_qty)
+        item.supply.quantity_info.save()
+    
+    # Update the approved_quantity if it was None
+    if item.approved_quantity is None:
+        item.approved_quantity = item.quantity
+    
+    # Mark item as completed and claimed
+    item.status = 'completed'
+    item.claimed_date = timezone.now()
+    item.save()
+    
+    # Check if all approved items in the batch are now completed
+    remaining_approved_items = batch_request.items.filter(status='approved', claimed_date__isnull=True)
+    if not remaining_approved_items.exists():
+        # All approved items have been claimed, mark batch as completed
+        batch_request.status = 'completed'
+        batch_request.completed_date = timezone.now()
+        if not batch_request.claimed_date:
+            batch_request.claimed_date = timezone.now()
+        if not batch_request.claimed_by:
+            batch_request.claimed_by = request.user
+        batch_request.save()
+        
+        # Notify user
+        Notification.objects.create(
+            user=batch_request.user,
+            message=f"Your supply request #{batch_request.id} has been completed.",
+            remarks="All approved items have been claimed."
+        )
+    
+    # Log activity
+    ActivityLog.log_activity(
+        user=request.user,
+        action='claim',
+        model_name='SupplyRequestItem',
+        object_repr=f"Batch #{batch_id} - {item.supply.supply_name}",
+        description=f"Claimed {item.approved_quantity or item.quantity} units of {item.supply.supply_name} from batch request #{batch_id}"
+    )
+    
+    return redirect('batch_request_detail', batch_id=batch_id)
