@@ -18,7 +18,7 @@
         </ul>
         {% endif %}
 
-        <form method="post" action="{% url 'user_report' %}" class="request-form">
+        <form method="post" action="{% url 'user_report' %}" class="request-form" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.as_p }}
             <div class="form-actions">
@@ -108,6 +108,58 @@
     font-weight: 500;
 }
 
+/* Special styling for file input labels */
+.request-form label[for*="image"] {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.request-form label[for*="image"]::before {
+    content: '\f03e';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: #152d64;
+}
+
+/* Help text styling */
+.request-form .helptext {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+/* File input preview */
+.file-input-wrapper {
+    position: relative;
+}
+
+.file-preview {
+    margin-top: 10px;
+    padding: 10px;
+    background: #e8f5e8;
+    border-radius: 6px;
+    border: 1px solid #c3e6cb;
+    display: none;
+}
+
+.file-preview.show {
+    display: block;
+}
+
+.file-preview-text {
+    color: #155724;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-preview-text i {
+    color: #28a745;
+}
+
 .request-form input,
 .request-form select,
 .request-form textarea {
@@ -117,6 +169,26 @@
     border-radius: 8px;
     font-size: 0.95rem;
     box-sizing: border-box;
+}
+
+.request-form input[type="file"] {
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.request-form input[type="file"]:hover {
+    border-color: #152d64;
+    background: #f0f8ff;
+}
+
+.request-form input[type="file"]:focus {
+    outline: none;
+    border-color: #152d64;
+    box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
 }
 
 .request-form textarea {
@@ -383,14 +455,44 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Event delegation for cancel buttons
-    document.querySelector('.requests-list').addEventListener('click', function(e) {
-        const cancelButton = e.target.closest('.btn-cancel-request');
-        if (cancelButton) {
-            const requestId = cancelButton.dataset.requestId;
-            const requestType = cancelButton.dataset.requestType;
-            cancelRequest(requestId, requestType);
-        }
-    });
+    const requestsList = document.querySelector('.requests-list');
+    if (requestsList) {
+        requestsList.addEventListener('click', function(e) {
+            const cancelButton = e.target.closest('.btn-cancel-request');
+            if (cancelButton) {
+                const requestId = cancelButton.dataset.requestId;
+                const requestType = cancelButton.dataset.requestType;
+                cancelRequest(requestId, requestType);
+            }
+        });
+    }
+
+    // File input enhancement
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Check file size (5MB limit)
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('File size too large. Please choose an image under 5MB.', 'error');
+                    e.target.value = '';
+                    return;
+                }
+
+                // Check file type
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    showToast('Please upload a valid image file (JPG, PNG, GIF, BMP, WebP).', 'error');
+                    e.target.value = '';
+                    return;
+                }
+
+                // Show success message
+                showToast(`Image "${file.name}" selected successfully.`, 'success');
+            }
+        });
+    }
 });
 
 function showToast(message, type = 'success') {

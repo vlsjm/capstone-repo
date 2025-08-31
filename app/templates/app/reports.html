@@ -6,65 +6,727 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Damage Reports</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <style>
+    /* Main container styles matching system theme */
+    .reports-container {
+      padding: 20px;
+      margin-left: 270px;
+      background-color: #f5f6fa;
+      min-height: 100vh;
+    }
+    
+    .reports-title {
+      color: #152d64;
+      margin-bottom: 30px;
+      font-size: 32px;
+      font-weight: 600;
+      text-align: center;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Report cards with system theme */
+    .report {
+      border: none;
+      border-radius: 12px;
+      margin: 20px 0;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+    }
+    
+    .report:hover {
+      background: white;
+      border-color: transparent;
+      box-shadow: 0 8px 25px rgba(21, 45, 100, 0.15);
+      transform: translateY(-3px);
+    }
+    
+    .report:hover .report-header {
+      background: linear-gradient(135deg, #f8fbff 0%, #e8f4fd 100%);
+    }
+    
+    .report:hover .report-header h4 {
+      color: #152d64;
+    }
+    
+    .report:hover .expand-indicator {
+      color: #152d64 !important;
+      font-weight: 600;
+    }
+    
+    .report:hover .expand-indicator i {
+      transform: scale(1.1);
+    }
+    
+    .report:active {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(21, 45, 100, 0.2);
+    }
+    
+    .report-header {
+      background: #f8f9fa;
+      padding: 20px;
+      border-bottom: 1px solid #e9ecef;
+      border-radius: 12px 12px 0 0;
+      position: relative;
+      user-select: none;
+      transition: all 0.3s ease;
+    }
+    
+    .report-header:hover {
+      background: linear-gradient(135deg, #f8fbff 0%, #e8f4fd 100%);
+    }
+    
+    .report-header h4 {
+      margin: 0 0 15px 0;
+      display: flex;
+      align-items: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: #152d64;
+    }
+    
+    .report-header h4::after {
+      content: 'Click to expand';
+      font-size: 11px;
+      font-weight: normal;
+      color: #6c757d;
+      margin-left: auto;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      background: rgba(21, 45, 100, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    
+    .report:hover .report-header h4::after {
+      opacity: 1;
+    }
+    
+    .report-header p {
+      margin: 8px 0;
+      color: #495057;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    
+    .report-header p strong {
+      color: #152d64;
+      font-weight: 600;
+    }
+    
+    /* Toggle Arrow and Interaction Styles */
+    .toggle-arrow {
+      margin-right: 12px;
+      transition: transform 0.3s ease, color 0.3s ease;
+      color: #152d64;
+      font-size: 16px;
+    }
+    
+    .toggle-arrow.expanded {
+      transform: rotate(180deg);
+      color: #28a745;
+    }
+    
+    .report:hover .toggle-arrow {
+      color: #152d64;
+      transform: scale(1.1);
+    }
+    
+    .report:hover .toggle-arrow.expanded {
+      transform: rotate(180deg) scale(1.1);
+      color: #28a745;
+    }
+    
+    /* Detail link styling */
+    .detail-link {
+      color: #152d64;
+      text-decoration: none;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      border: 1px solid #152d64;
+      background: transparent;
+    }
+    
+    .detail-link:hover {
+      background: #152d64;
+      color: white;
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.3);
+    }
+    
+    /* Report items section */
+    .report-items {
+      padding: 0;
+      background: #fefefe;
+    }
+    
+    .report-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f1f3f4;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.2s ease;
+    }
+    
+    .report-item:last-child {
+      border-bottom: none;
+      border-radius: 0 0 12px 12px;
+    }
+    
+    .report-item:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .item-info {
+      flex: 1;
+    }
+    
+    .item-info strong {
+      color: #152d64;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    
+    .item-info small {
+      color: #6c757d;
+      font-style: italic;
+    }
+    
+    .item-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    /* Status badges with system colors */
+    .item-status {
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .status-pending, .status-badge.status-pending {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+    
+    .status-reviewed, .status-badge.status-reviewed {
+      background: linear-gradient(135deg, #e2e3e5 0%, #d6d8db 100%);
+      color: #383d41;
+      border: 1px solid #d6d8db;
+    }
+    
+    .status-resolved, .status-badge.status-resolved {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    /* Search and Filter Controls */
+    .search-filter-container {
+      margin-bottom: 25px;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+      border-left: 4px solid #152d64;
+      position: relative;
+      overflow: visible;
+    }
+    
+    .search-filter-form {
+      margin: 0;
+    }
+    
+    .search-row {
+      display: grid;
+      grid-template-columns: 250px 200px 150px 150px auto;
+      gap: 15px;
+      align-items: center;
+      position: relative;
+      overflow: visible;
+    }
+    
+    .search-input-group {
+      position: relative;
+      max-width: 250px;
+      width: 100%;
+      height: 42px; /* Fixed height for alignment */
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6c757d;
+      font-size: 14px;
+    }
+    
+    .search-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px 0 35px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+      box-sizing: border-box;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: #152d64;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      height: 42px; /* Match search input height */
+      justify-content: center;
+      position: relative;
+      overflow: visible;
+    }
+    
+    .filter-select, .date-input {
+      height: 42px;
+      padding: 0 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #f8f9fa;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+    
+    .filter-select:focus, .date-input:focus {
+      outline: none;
+      border-color: #152d64;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+    }
+    
+    .filter-buttons {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      height: 42px; /* Match other elements */
+    }
+    
+    .btn-filter {
+      height: 42px;
+      padding: 0 20px;
+      background: #152d64;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    .btn-filter:hover {
+      background: #0d1f4a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(21, 45, 100, 0.3);
+    }
+    
+    .btn-clear {
+      height: 42px;
+      padding: 0 20px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    .btn-clear:hover {
+      background: #5a6268;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+      color: white;
+      text-decoration: none;
+    }
+    
+    /* Responsive design for search controls */
+    @media (max-width: 1200px) {
+      .search-row {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+      }
+      
+      .filter-buttons {
+        grid-column: span 3;
+        justify-content: flex-start;
+      }
+    }
+    
+    @media (max-width: 1000px) {
+      .search-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      
+      .search-input-group {
+        grid-column: span 2;
+      }
+      
+      .filter-buttons {
+        grid-column: span 2;
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .search-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .search-input-group {
+        grid-column: span 1;
+        max-width: 100%;
+      }
+      
+      .filter-group:nth-child(2) {
+        grid-column: span 1;
+      }
+      
+      .filter-group:nth-child(3) {
+        grid-column: span 1;
+      }
+      
+      .filter-group:nth-child(4) {
+        grid-column: span 1;
+      }
+      
+      .filter-buttons {
+        grid-column: span 1;
+        justify-content: stretch;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .search-filter-container {
+        padding: 15px;
+        margin-left: 0;
+        margin-right: 0;
+      }
+      
+      .search-row {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .search-input-group,
+      .filter-group {
+        max-width: 100%;
+        width: 100%;
+      }
+      
+      .filter-buttons {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      
+      .btn-filter, .btn-clear {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .search-filter-container {
+        padding: 10px;
+      }
+      
+      .search-row {
+        gap: 10px;
+      }
+      
+      .search-input, .filter-select, .date-input {
+        font-size: 16px; /* Prevent zoom on mobile */
+      }
+      
+      .search-input-group,
+      .filter-group {
+        height: auto;
+      }
+      
+      .btn-filter, .btn-clear {
+        height: auto;
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+      
+      .filter-buttons {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .btn-filter, .btn-clear {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    
+    /* Filter tabs with system theme */
+    .filter-tabs {
+      display: flex;
+      background: white;
+      border-radius: 12px;
+      padding: 8px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+      border-left: 4px solid #152d64;
+      overflow-x: auto;
+    }
+    
+    .tab-button {
+      flex: 1;
+      padding: 12px 20px;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #6c757d;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 120px;
+    }
+    
+    .tab-button:hover {
+      color: #152d64;
+      background: rgba(21, 45, 100, 0.05);
+    }
+    
+    .tab-button.active {
+      background: linear-gradient(135deg, #152d64 0%, #1e3a8a 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.3);
+    }
+    
+    /* Responsive design for filter tabs */
+    @media (max-width: 768px) {
+      .filter-tabs {
+        justify-content: flex-start;
+        padding: 6px;
+      }
+      
+      .tab-button {
+        min-width: 100px;
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .filter-tabs {
+        padding: 4px;
+        gap: 2px;
+      }
+      
+      .tab-button {
+        min-width: 80px;
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .tab-content h3 {
+      color: #152d64;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e9ecef;
+    }
+    
+    /* Empty state styling */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6c757d;
+      background: white;
+      border-radius: 12px;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+    }
+    
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 20px;
+      color: #dee2e6;
+    }
+    
+    .empty-state p {
+      font-size: 16px;
+      margin: 0;
+      font-style: italic;
+    }
+  </style>
 </head>
 <body>
   {% include 'app/navbar.html' %}
 
-  <div class="parent">
-    <div class="div1">
-      <h2>Damage Reports</h2>
+  <div class="reports-container">
+    <h1 class="reports-title">
+      <i class="fas fa-exclamation-triangle"></i>
+      Damage Reports
+    </h1>
+
+    <!-- Search and Filter Controls -->
+    <div class="search-filter-container">
+      <form method="get" class="search-filter-form" id="reportFilterForm">
+        <div class="search-row">
+          <!-- Search Input -->
+          <div class="search-input-group">
+            <i class="fas fa-search search-icon"></i>
+            <input 
+              type="text" 
+              name="search" 
+              class="search-input"
+              placeholder="Search by reporter, item, or description..."
+              value="{{ request.GET.search }}"
+              autocomplete="off"
+            >
+          </div>
+          
+          <!-- Department Filter -->
+          <div class="filter-group">
+            <select name="department" class="filter-select">
+              <option value="">All Departments</option>
+              {% for dept in departments %}
+              <option value="{{ dept.id }}" {% if request.GET.department == dept.id|stringformat:"s" %}selected{% endif %}>
+                {{ dept.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <!-- Date Range Filters -->
+          <div class="filter-group">
+            <input 
+              type="date" 
+              name="date_from" 
+              class="date-input"
+              placeholder="From Date"
+              value="{{ request.GET.date_from }}"
+            >
+          </div>
+          
+          <div class="filter-group">
+            <input 
+              type="date" 
+              name="date_to" 
+              class="date-input"
+              placeholder="To Date"
+              value="{{ request.GET.date_to }}"
+            >
+          </div>
+          
+          <!-- Filter Buttons -->
+          <div class="filter-buttons">
+            <button type="submit" class="btn-filter">
+              <i class="fas fa-filter"></i>
+              Apply Filters
+            </button>
+            <a href="{% url 'user_damage_reports' %}" class="btn-clear">
+              <i class="fas fa-times"></i>
+              Clear
+            </a>
+          </div>
+        </div>
+      </form>
     </div>
 
-    <main class="content">
-      <div class="request-controls">
-        <div class="button-group">
-          <button onclick="filterStatus('all')" class="filter-btn">All</button>
-          <button onclick="filterStatus('pending')" class="filter-btn">Pending</button>
-          <button onclick="filterStatus('reviewed')" class="filter-btn">Reviewed</button>
-          <button onclick="filterStatus('resolved')" class="filter-btn">Resolved</button>
-        </div>
-      </div>
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <button class="tab-button active" onclick="showTab('all', this)" id="allTab">
+        <i class="fas fa-list"></i>
+        All Reports
+        <span class="badge">{{ pending_reports.count|add:reviewed_reports.count|add:resolved_reports.count }}</span>
+      </button>
+      <button class="tab-button" onclick="showTab('pending', this)" id="pendingTab">
+        <i class="fas fa-clock"></i>
+        Pending
+        <span class="badge">{{ pending_reports.count }}</span>
+      </button>
+      <button class="tab-button" onclick="showTab('reviewed', this)" id="reviewedTab">
+        <i class="fas fa-eye"></i>
+        Reviewed
+        <span class="badge">{{ reviewed_reports.count }}</span>
+      </button>
+      <button class="tab-button" onclick="showTab('resolved', this)" id="resolvedTab">
+        <i class="fas fa-check-circle"></i>
+        Resolved
+        <span class="badge">{{ resolved_reports.count }}</span>
+      </button>
+    </div>
 
-      <!-- Pending Reports Table -->
-      <div class="status-table" data-status="pending">
-        <h3>Pending Reports</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Reporter</th>
-              <th>Item</th>
-              <th>Description</th>
-              <th>Status</th>
-              <th>Report Date</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for report in pending_reports %}
-            <tr>
-              <td>
-                {% with report.user.first_name as first_name %}
-                {% with report.user.last_name as last_name %}
-                  {% if first_name or last_name %}
-                    {{ first_name }} {{ last_name }}
-                  {% else %}
-                    {{ report.user.username }}
-                  {% endif %}
-                {% endwith %}
-                {% endwith %}
-                <br />
-                <small>
-                  Dept: {{ report.user.userprofile.department }}
-                </small>
-              </td>
-              <td>{{ report.item.property_name }}</td>
-              <td>{{ report.description }}</td>
-              <td>
-                <span class="status-badge status-{{ report.status|lower|cut:' ' }}">
+    <main class="reports-content">
+      <!-- All Reports Tab -->
+      <div id="all" class="tab-content active">
+        <h3>All Damage Reports</h3>
+        {% for report in pending_reports|slice:":5" %}
+          <div class="report" onclick="toggleReportItems('report-{{ report.id }}')">
+            <div class="report-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-report-{{ report.id }}"></i>
+                <i class="fas fa-exclamation-triangle" style="color: #ffc107; margin-right: 8px;"></i>
+                {{ report.item.property_name }}
+                <span class="status-badge status-{{ report.status|lower|cut:' ' }}" style="margin-left: auto;">
                   {% if report.status == 'pending' %}
                     <i class="fas fa-clock"></i>
                   {% elif report.status == 'reviewed' %}
@@ -74,42 +736,8 @@
                   {% endif %}
                   {{ report.get_status_display }}
                 </span>
-              </td>
-              <td>{{ report.report_date|date:"M d, Y H:i" }}</td>
-              <td>
-                <a href="{% url 'damage_report_detail' report.id %}" class="details-btn" title="View Details">
-                  <i class="fas fa-info-circle"></i>
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="6">No pending reports found.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% include 'app/includes/pagination.html' %}
-      </div>
-
-      <!-- Reviewed Reports Table -->
-      <div class="status-table" data-status="reviewed">
-        <h3>Reviewed Reports</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Reporter</th>
-              <th>Item</th>
-              <th>Description</th>
-              <th>Status</th>
-              <th>Report Date</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for report in reviewed_reports %}
-            <tr>
-              <td>
+              </h4>
+              <p><strong>Reporter:</strong> 
                 {% with report.user.first_name as first_name %}
                 {% with report.user.last_name as last_name %}
                   {% if first_name or last_name %}
@@ -119,60 +747,50 @@
                   {% endif %}
                 {% endwith %}
                 {% endwith %}
-                <br />
-                <small>
-                  Dept: {{ report.user.userprofile.department }}
-                </small>
-              </td>
-              <td>{{ report.item.property_name }}</td>
-              <td>{{ report.description }}</td>
-              <td>
-                <span class="status-badge status-{{ report.status|lower|cut:' ' }}">
-                  {% if report.status == 'pending' %}
-                    <i class="fas fa-clock"></i>
-                  {% elif report.status == 'reviewed' %}
-                    <i class="fas fa-eye"></i>
-                  {% elif report.status == 'resolved' %}
-                    <i class="fas fa-check-circle"></i>
+                <small>({{ report.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Report Date:</strong> {{ report.report_date|date:"M d, Y H:i" }}</p>
+              <p><strong>Description:</strong> {{ report.description|truncatewords:15 }}</p>
+            </div>
+            <div class="report-items" id="report-{{ report.id }}" style="display: none;">
+              <div class="report-item">
+                <div class="item-info">
+                  <strong>Full Description:</strong><br>
+                  {{ report.description }}
+                  {% if report.remarks %}
+                    <br><br><strong>Remarks:</strong><br>
+                    <small>{{ report.remarks }}</small>
                   {% endif %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'damage_report_detail' report.id %}" class="detail-link">
+                    <i class="fas fa-eye"></i>
+                    View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="empty-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>No damage reports found matching your criteria.</p>
+          </div>
+        {% endfor %}
+
+        {% for report in reviewed_reports|slice:":5" %}
+          <div class="report" onclick="toggleReportItems('report-{{ report.id }}')">
+            <div class="report-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-report-{{ report.id }}"></i>
+                <i class="fas fa-eye" style="color: #6c757d; margin-right: 8px;"></i>
+                {{ report.item.property_name }}
+                <span class="status-badge status-{{ report.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-eye"></i>
                   {{ report.get_status_display }}
                 </span>
-              </td>
-              <td>{{ report.report_date|date:"M d, Y H:i" }}</td>
-              <td>
-                <a href="{% url 'damage_report_detail' report.id %}" class="details-btn" title="View Details">
-                  <i class="fas fa-info-circle"></i>
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="6">No reviewed reports found.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% include 'app/includes/pagination.html' %}
-      </div>
-
-      <!-- Resolved Reports Table -->
-      <div class="status-table" data-status="resolved">
-        <h3>Resolved Reports</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Reporter</th>
-              <th>Item</th>
-              <th>Description</th>
-              <th>Status</th>
-              <th>Report Date</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for report in resolved_reports %}
-            <tr>
-              <td>
+              </h4>
+              <p><strong>Reporter:</strong> 
                 {% with report.user.first_name as first_name %}
                 {% with report.user.last_name as last_name %}
                   {% if first_name or last_name %}
@@ -182,44 +800,353 @@
                   {% endif %}
                 {% endwith %}
                 {% endwith %}
-                <br />
-                <small>
-                  Dept: {{ report.user.userprofile.department }}
-                </small>
-              </td>
-              <td>{{ report.item.property_name }}</td>
-              <td>{{ report.description }}</td>
-              <td>
-                <span class="status-badge status-{{ report.status|lower|cut:' ' }}">
-                  {% if report.status == 'pending' %}
-                    <i class="fas fa-clock"></i>
-                  {% elif report.status == 'reviewed' %}
-                    <i class="fas fa-eye"></i>
-                  {% elif report.status == 'resolved' %}
-                    <i class="fas fa-check-circle"></i>
+                <small>({{ report.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Report Date:</strong> {{ report.report_date|date:"M d, Y H:i" }}</p>
+              <p><strong>Description:</strong> {{ report.description|truncatewords:15 }}</p>
+            </div>
+            <div class="report-items" id="report-{{ report.id }}" style="display: none;">
+              <div class="report-item">
+                <div class="item-info">
+                  <strong>Full Description:</strong><br>
+                  {{ report.description }}
+                  {% if report.remarks %}
+                    <br><br><strong>Remarks:</strong><br>
+                    <small>{{ report.remarks }}</small>
                   {% endif %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'damage_report_detail' report.id %}" class="detail-link">
+                    <i class="fas fa-eye"></i>
+                    View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+
+        {% for report in resolved_reports|slice:":5" %}
+          <div class="report" onclick="toggleReportItems('report-{{ report.id }}')">
+            <div class="report-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-report-{{ report.id }}"></i>
+                <i class="fas fa-check-circle" style="color: #28a745; margin-right: 8px;"></i>
+                {{ report.item.property_name }}
+                <span class="status-badge status-{{ report.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-check-circle"></i>
                   {{ report.get_status_display }}
                 </span>
-              </td>
-              <td>{{ report.report_date|date:"M d, Y H:i" }}</td>
-              <td>
-                <a href="{% url 'damage_report_detail' report.id %}" class="details-btn" title="View Details">
-                  <i class="fas fa-info-circle"></i>
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="6">No resolved reports found.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% include 'app/includes/pagination.html' %}
+              </h4>
+              <p><strong>Reporter:</strong> 
+                {% with report.user.first_name as first_name %}
+                {% with report.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ report.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <small>({{ report.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Report Date:</strong> {{ report.report_date|date:"M d, Y H:i" }}</p>
+              <p><strong>Description:</strong> {{ report.description|truncatewords:15 }}</p>
+            </div>
+            <div class="report-items" id="report-{{ report.id }}" style="display: none;">
+              <div class="report-item">
+                <div class="item-info">
+                  <strong>Full Description:</strong><br>
+                  {{ report.description }}
+                  {% if report.remarks %}
+                    <br><br><strong>Remarks:</strong><br>
+                    <small>{{ report.remarks }}</small>
+                  {% endif %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'damage_report_detail' report.id %}" class="detail-link">
+                    <i class="fas fa-eye"></i>
+                    View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pending Reports Tab -->
+      <div id="pending" class="tab-content">
+        <h3>Pending Damage Reports</h3>
+        {% for report in pending_reports %}
+          <div class="report" onclick="toggleReportItems('report-pending-{{ report.id }}')">
+            <div class="report-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-report-pending-{{ report.id }}"></i>
+                <i class="fas fa-exclamation-triangle" style="color: #ffc107; margin-right: 8px;"></i>
+                {{ report.item.property_name }}
+                <span class="status-badge status-{{ report.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-clock"></i>
+                  {{ report.get_status_display }}
+                </span>
+              </h4>
+              <p><strong>Reporter:</strong> 
+                {% with report.user.first_name as first_name %}
+                {% with report.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ report.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <small>({{ report.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Report Date:</strong> {{ report.report_date|date:"M d, Y H:i" }}</p>
+              <p><strong>Description:</strong> {{ report.description|truncatewords:15 }}</p>
+            </div>
+            <div class="report-items" id="report-pending-{{ report.id }}" style="display: none;">
+              <div class="report-item">
+                <div class="item-info">
+                  <strong>Full Description:</strong><br>
+                  {{ report.description }}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'damage_report_detail' report.id %}" class="detail-link">
+                    <i class="fas fa-eye"></i>
+                    View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="empty-state">
+            <i class="fas fa-clock"></i>
+            <p>No pending damage reports found.</p>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Reviewed Reports Tab -->
+      <div id="reviewed" class="tab-content">
+        <h3>Reviewed Damage Reports</h3>
+        {% for report in reviewed_reports %}
+          <div class="report" onclick="toggleReportItems('report-reviewed-{{ report.id }}')">
+            <div class="report-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-report-reviewed-{{ report.id }}"></i>
+                <i class="fas fa-eye" style="color: #6c757d; margin-right: 8px;"></i>
+                {{ report.item.property_name }}
+                <span class="status-badge status-{{ report.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-eye"></i>
+                  {{ report.get_status_display }}
+                </span>
+              </h4>
+              <p><strong>Reporter:</strong> 
+                {% with report.user.first_name as first_name %}
+                {% with report.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ report.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <small>({{ report.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Report Date:</strong> {{ report.report_date|date:"M d, Y H:i" }}</p>
+              <p><strong>Description:</strong> {{ report.description|truncatewords:15 }}</p>
+            </div>
+            <div class="report-items" id="report-reviewed-{{ report.id }}" style="display: none;">
+              <div class="report-item">
+                <div class="item-info">
+                  <strong>Full Description:</strong><br>
+                  {{ report.description }}
+                  {% if report.remarks %}
+                    <br><br><strong>Remarks:</strong><br>
+                    <small>{{ report.remarks }}</small>
+                  {% endif %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'damage_report_detail' report.id %}" class="detail-link">
+                    <i class="fas fa-eye"></i>
+                    View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="empty-state">
+            <i class="fas fa-eye"></i>
+            <p>No reviewed damage reports found.</p>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Resolved Reports Tab -->
+      <div id="resolved" class="tab-content">
+        <h3>Resolved Damage Reports</h3>
+        {% for report in resolved_reports %}
+          <div class="report" onclick="toggleReportItems('report-resolved-{{ report.id }}')">
+            <div class="report-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-report-resolved-{{ report.id }}"></i>
+                <i class="fas fa-check-circle" style="color: #28a745; margin-right: 8px;"></i>
+                {{ report.item.property_name }}
+                <span class="status-badge status-{{ report.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-check-circle"></i>
+                  {{ report.get_status_display }}
+                </span>
+              </h4>
+              <p><strong>Reporter:</strong> 
+                {% with report.user.first_name as first_name %}
+                {% with report.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ report.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <small>({{ report.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Report Date:</strong> {{ report.report_date|date:"M d, Y H:i" }}</p>
+              <p><strong>Description:</strong> {{ report.description|truncatewords:15 }}</p>
+            </div>
+            <div class="report-items" id="report-resolved-{{ report.id }}" style="display: none;">
+              <div class="report-item">
+                <div class="item-info">
+                  <strong>Full Description:</strong><br>
+                  {{ report.description }}
+                  {% if report.remarks %}
+                    <br><br><strong>Remarks:</strong><br>
+                    <small>{{ report.remarks }}</small>
+                  {% endif %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'damage_report_detail' report.id %}" class="detail-link">
+                    <i class="fas fa-eye"></i>
+                    View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="empty-state">
+            <i class="fas fa-check-circle"></i>
+            <p>No resolved damage reports found.</p>
+          </div>
+        {% endfor %}
       </div>
     </main>
   </div>
 
-  <script src="{% static 'scripts/filterStatus.js' %}"></script>
+  <script>
+    // Initialize event listeners when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeFormHandling();
+    });
+
+    function initializeEventListeners() {
+      // Initialize any needed event listeners here
+    }
+    
+    function initializeActiveTab() {
+      // Check if there's a saved tab preference
+      const savedTab = localStorage.getItem('activeReportTab') || 'all';
+      const tabButton = document.getElementById(savedTab + 'Tab');
+      if (tabButton) {
+        showTab(savedTab, tabButton);
+      }
+    }
+    
+    function initializeFormHandling() {
+      initializeActiveTab();
+      initializeEventListeners();
+    }
+    
+    function updateTabAndSubmit() {
+      const activeTab = document.querySelector('.tab-button.active').onclick.toString().match(/'([^']+)'/)[1];
+      localStorage.setItem('activeReportTab', activeTab);
+    }
+
+    function showTab(tabName, buttonElement) {
+      // Hide all tab contents
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Remove active class from all buttons
+      const tabButtons = document.querySelectorAll('.tab-button');
+      tabButtons.forEach(button => {
+        button.classList.remove('active');
+      });
+      
+      // Show selected tab content
+      const selectedTab = document.getElementById(tabName);
+      if (selectedTab) {
+        selectedTab.classList.add('active');
+      }
+      
+      // Add active class to clicked button
+      buttonElement.classList.add('active');
+      
+      // Save active tab preference
+      localStorage.setItem('activeReportTab', tabName);
+    }
+
+    function toggleReportItems(reportId) {
+      const reportItems = document.getElementById(reportId);
+      const arrow = document.getElementById('arrow-' + reportId);
+      
+      if (reportItems.style.display === 'none' || reportItems.style.display === '') {
+        reportItems.style.display = 'block';
+        arrow.classList.add('expanded');
+      } else {
+        reportItems.style.display = 'none';
+        arrow.classList.remove('expanded');
+      }
+    }
+  </script>
+
+  <style>
+    /* Badge styles */
+    .badge {
+      background: rgba(255, 255, 255, 0.3);
+      color: inherit;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+    
+    .tab-button.active .badge {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+    
+    /* Additional responsive adjustments */
+    @media (max-width: 768px) {
+      .report-header h4 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .report-header h4::after {
+        display: none;
+      }
+      
+      .status-badge {
+        margin-left: 0 !important;
+        align-self: flex-start;
+      }
+    }
+  </style>
 </body>
 </html>

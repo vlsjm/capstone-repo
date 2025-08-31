@@ -1,8 +1,10 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from .models import Property, Supply, SupplyQuantity, SupplyCategory, SupplySubcategory
 from django.contrib.auth.models import User
 from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation, Department,PropertyCategory, SupplyRequestBatch, SupplyRequestItem, Supply, SupplyQuantity
 from datetime import date
+import os
 
 class DepartmentForm(forms.ModelForm):
     class Meta:
@@ -311,10 +313,29 @@ class BorrowRequestForm(forms.ModelForm):
 class DamageReportForm(forms.ModelForm):
     class Meta:
         model = DamageReport
-        fields = ['item', 'description']
+        fields = ['item', 'description', 'image']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
+            'image': forms.FileInput(attrs={
+                'accept': 'image/*',
+                'class': 'form-control-file'
+            })
         }
+    
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image:
+            # Check file size (limit to 5MB)
+            if image.size > 5 * 1024 * 1024:
+                raise ValidationError("Image file too large. Please keep it under 5MB.")
+            
+            # Check file type
+            valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+            file_extension = os.path.splitext(image.name)[1].lower()
+            if file_extension not in valid_extensions:
+                raise ValidationError("Please upload a valid image file (JPG, PNG, GIF, BMP, WebP).")
+        
+        return image
 
 
 class ReservationForm(forms.ModelForm):

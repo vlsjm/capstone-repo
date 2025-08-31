@@ -10,7 +10,7 @@ from app.models import UserProfile, Notification, Property, ActivityLog, Supply,
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import JsonResponse
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 import json
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
@@ -98,7 +98,26 @@ class UserBorrowView(PermissionRequiredMixin, TemplateView):
     permission_required = 'app.view_user_module'
 
     def get(self, request):
-        form = BorrowForm()
+        # Get cart items from session
+        cart_items = request.session.get('borrow_cart', [])
+        
+        # Convert cart items to objects with property details
+        cart_items_data = []
+        for item in cart_items:
+            try:
+                property_obj = Property.objects.get(id=item['property_id'])
+                cart_items_data.append({
+                    'supply': property_obj,  # Using 'supply' for template consistency
+                    'quantity': item['quantity'],
+                    'return_date': datetime.strptime(item['return_date'], '%Y-%m-%d').date() if item['return_date'] else None,
+                    'purpose': item['purpose']
+                })
+            except Property.DoesNotExist:
+                continue
+        
+        # Get available properties for the dropdown
+        available_supplies = Property.objects.filter(is_archived=False, quantity__gt=0)
+        
         recent_requests = BorrowRequest.objects.filter(user=request.user).order_by('-borrow_date')[:5]
         
         # Convert requests to dict format for template
@@ -113,41 +132,15 @@ class UserBorrowView(PermissionRequiredMixin, TemplateView):
         } for req in recent_requests]
         
         return render(request, self.template_name, {
-            'form': form,
+            'cart_items': cart_items_data,
+            'available_supplies': available_supplies,
             'recent_requests': recent_requests_data
         })
 
     def post(self, request):
-        form = BorrowForm(request.POST)
-        if form.is_valid():
-            borrow_request = form.save(commit=False)
-            borrow_request.user = request.user
-            borrow_request.status = 'pending'  # default status
-            borrow_request.save()
-
-            # Log the borrow request activity
-            ActivityLog.log_activity(
-                user=request.user,
-                action='request',
-                model_name='BorrowRequest',
-                object_repr=str(borrow_request.property.property_name),
-                description=f"Requested to borrow {borrow_request.quantity} units of {borrow_request.property.property_name}"
-            )
-
-            messages.success(request, 'Borrow request submitted successfully.')
-            return redirect('user_borrow')
-            
-        # If form is invalid, include recent requests in context
-        recent_requests = BorrowRequest.objects.filter(user=request.user).order_by('-borrow_date')[:5]
-        recent_requests_data = [{
-            'id': req.id,
-            'item': req.property.property_name,
-            'quantity': req.quantity,
-            'status': req.status,
-            'date': req.borrow_date,
-            'return_date': req.return_date,
-            'purpose': req.purpose
-        } for req in recent_requests]
+        # This method is now handled by the new cart-based views
+        # Redirect to the main borrow request page
+        return redirect('user_borrow')
         
         return render(request, self.template_name, {
             'form': form,
@@ -228,7 +221,27 @@ class UserReserveView(PermissionRequiredMixin, TemplateView):
     permission_required = 'app.view_user_module'
 
     def get(self, request):
-        form = ReservationForm()
+        # Get cart items from session
+        cart_items = request.session.get('reservation_cart', [])
+        
+        # Convert cart items to objects with property details
+        cart_items_data = []
+        for item in cart_items:
+            try:
+                property_obj = Property.objects.get(id=item['property_id'])
+                cart_items_data.append({
+                    'supply': property_obj,  # Using 'supply' for template consistency
+                    'quantity': item['quantity'],
+                    'needed_date': datetime.strptime(item['needed_date'], '%Y-%m-%d').date() if item['needed_date'] else None,
+                    'return_date': datetime.strptime(item['return_date'], '%Y-%m-%d').date() if item['return_date'] else None,
+                    'purpose': item['purpose']
+                })
+            except Property.DoesNotExist:
+                continue
+        
+        # Get available properties for the dropdown
+        available_supplies = Property.objects.filter(is_archived=False, quantity__gt=0)
+        
         recent_requests = Reservation.objects.filter(user=request.user).order_by('-reservation_date')[:5]
         
         # Convert requests to dict format for template
@@ -244,46 +257,15 @@ class UserReserveView(PermissionRequiredMixin, TemplateView):
         } for req in recent_requests]
         
         return render(request, self.template_name, {
-            'form': form,
+            'cart_items': cart_items_data,
+            'available_supplies': available_supplies,
             'recent_requests': recent_requests_data
         })
 
     def post(self, request):
-        form = ReservationForm(request.POST)
-        if form.is_valid():
-            reservation = form.save(commit=False)
-            reservation.user = request.user
-            reservation.save()
-
-            # Log the reservation activity
-            ActivityLog.log_activity(
-                user=request.user,
-                action='request',
-                model_name='Reservation',
-                object_repr=str(reservation.item.property_name),
-                description=f"Reserved {reservation.quantity} units of {reservation.item.property_name} from {reservation.needed_date} to {reservation.return_date}"
-            )
-
-            messages.success(request, 'Reservation submitted successfully.')
-            return redirect('user_reserve')
-            
-        # If form is invalid, include recent requests in context
-        recent_requests = Reservation.objects.filter(user=request.user).order_by('-reservation_date')[:5]
-        recent_requests_data = [{
-            'id': req.id,
-            'item': req.item.property_name,
-            'quantity': req.quantity,
-            'status': req.status,
-            'date': req.reservation_date,
-            'needed_date': req.needed_date,
-            'return_date': req.return_date,
-            'purpose': req.purpose
-        } for req in recent_requests]
-        
-        return render(request, self.template_name, {
-            'form': form,
-            'recent_requests': recent_requests_data
-        })
+        # This method is now handled by the new cart-based views
+        # Redirect to the main reservation page
+        return redirect('user_reserve')
 
 
 class UserReportView(PermissionRequiredMixin, TemplateView):
@@ -309,7 +291,7 @@ class UserReportView(PermissionRequiredMixin, TemplateView):
         })
 
     def post(self, request):
-        form = DamageReportForm(request.POST)
+        form = DamageReportForm(request.POST, request.FILES)
         if form.is_valid():
             report = form.save(commit=False)
             report.user = request.user
@@ -450,9 +432,53 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
                 'description': report.description,
             }
 
+        # Calculate stats counts
+        request_count = request_history_qs.count()
+        borrow_count = borrow_history_qs.count()
+        reservation_count = reservation_history_qs.count()
+        damage_count = damage_history_qs.count()
+
+        # Get recent activity (last 5 activities from all types)
+        recent_activity = []
+        
+        # Add recent requests
+        for req in request_history_qs[:3]:
+            recent_activity.append({
+                'message': f'Requested {req.supply.supply_name} (x{req.quantity})',
+                'timestamp': req.request_date,
+                'type': 'request'
+            })
+        
+        # Add recent borrows
+        for borrow in borrow_history_qs[:3]:
+            recent_activity.append({
+                'message': f'Borrowed {borrow.property.property_name} (x{borrow.quantity})',
+                'timestamp': borrow.borrow_date,
+                'type': 'borrow'
+            })
+        
+        # Add recent reservations
+        for res in reservation_history_qs[:3]:
+            recent_activity.append({
+                'message': f'Reserved {res.item.property_name} (x{res.quantity})',
+                'timestamp': res.reservation_date,
+                'type': 'reservation'
+            })
+        
+        # Sort by timestamp and get the 5 most recent
+        recent_activity.sort(key=lambda x: x['timestamp'], reverse=True)
+        recent_activity = recent_activity[:5]
+
         context.update({
             'notifications': Notification.objects.filter(user=user).order_by('-timestamp'),
             'unread_count': Notification.objects.filter(user=user, is_read=False).count(),
+
+            # Stats counts
+            'request_count': request_count,
+            'borrow_count': borrow_count,
+            'reservation_count': reservation_count,
+            'damage_count': damage_count,
+            'recent_activity': recent_activity,
 
             # Pass paginated page objects (converted to dict)
             'request_history': [request_to_dict(r) for r in request_history_page],
@@ -654,3 +680,435 @@ def cancel_damage_report(request, request_id):
         'status': 'error',
         'message': 'Report cannot be cancelled'
     }, status=400)
+
+
+# Borrow Cart Functionality
+@login_required
+def add_to_borrow_list(request):
+    """Add item to borrow cart session"""
+    if request.method == 'POST':
+        property_id = request.POST.get('supply')
+        quantity = int(request.POST.get('quantity', 1))
+        return_date = request.POST.get('return_date')
+        purpose = request.POST.get('purpose', '')
+        
+        try:
+            property_obj = Property.objects.get(id=property_id)
+            
+            # Validate quantity
+            if quantity > property_obj.quantity:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Only {property_obj.quantity} units available'
+                })
+            
+            # Validate return date
+            if return_date:
+                return_date_obj = datetime.strptime(return_date, '%Y-%m-%d').date()
+                if return_date_obj <= datetime.now().date():
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Return date must be in the future'
+                    })
+            
+            # Get or create cart in session
+            cart = request.session.get('borrow_cart', [])
+            
+            # Check if item already exists in cart
+            item_exists = False
+            for item in cart:
+                if item['property_id'] == property_id:
+                    item['quantity'] += quantity
+                    item['return_date'] = return_date
+                    item['purpose'] = purpose
+                    item_exists = True
+                    break
+            
+            if not item_exists:
+                cart.append({
+                    'property_id': property_id,
+                    'quantity': quantity,
+                    'return_date': return_date,
+                    'purpose': purpose
+                })
+            
+            request.session['borrow_cart'] = cart
+            request.session.modified = True
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': f'{property_obj.property_name} added to borrow list',
+                'list_count': len(cart)
+            })
+            
+        except Property.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Item not found'
+            })
+        except ValueError:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid data provided'
+            })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+@login_required
+def remove_from_borrow_list(request):
+    """Remove item from borrow cart session"""
+    if request.method == 'POST':
+        property_id = request.POST.get('supply_id')
+        
+        cart = request.session.get('borrow_cart', [])
+        cart = [item for item in cart if item['property_id'] != property_id]
+        
+        request.session['borrow_cart'] = cart
+        request.session.modified = True
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Item removed from borrow list',
+            'list_count': len(cart)
+        })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+@login_required
+def update_borrow_list_item(request):
+    """Update item quantity and return date in borrow cart session"""
+    if request.method == 'POST':
+        property_id = request.POST.get('supply_id')
+        quantity = int(request.POST.get('quantity', 1))
+        return_date = request.POST.get('return_date')
+        
+        try:
+            property_obj = Property.objects.get(id=property_id)
+            
+            # Validate quantity
+            if quantity > property_obj.quantity:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Only {property_obj.quantity} units available'
+                })
+            
+            # Validate return date
+            if return_date:
+                return_date_obj = datetime.strptime(return_date, '%Y-%m-%d').date()
+                if return_date_obj <= datetime.now().date():
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Return date must be in the future'
+                    })
+            
+            cart = request.session.get('borrow_cart', [])
+            
+            for item in cart:
+                if item['property_id'] == property_id:
+                    item['quantity'] = quantity
+                    item['return_date'] = return_date
+                    break
+            
+            request.session['borrow_cart'] = cart
+            request.session.modified = True
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Item updated successfully'
+            })
+            
+        except Property.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Item not found'
+            })
+        except ValueError:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid data provided'
+            })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+@login_required
+def clear_borrow_list(request):
+    """Clear all items from borrow cart session"""
+    if request.method == 'POST':
+        request.session['borrow_cart'] = []
+        request.session.modified = True
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Borrow list cleared successfully'
+        })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+@login_required
+def submit_borrow_list_request(request):
+    """Submit all items in borrow cart as individual borrow requests"""
+    if request.method == 'POST':
+        cart = request.session.get('borrow_cart', [])
+        
+        if not cart:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'No items in borrow list'
+            })
+        
+        general_purpose = request.POST.get('general_purpose', '')
+        
+        try:
+            created_requests = []
+            
+            for item in cart:
+                property_obj = Property.objects.get(id=item['property_id'])
+                
+                # Create the borrow request
+                borrow_request = BorrowRequest.objects.create(
+                    user=request.user,
+                    property=property_obj,
+                    quantity=item['quantity'],
+                    return_date=datetime.strptime(item['return_date'], '%Y-%m-%d').date(),
+                    purpose=f"{item['purpose']}. {general_purpose}".strip('. '),
+                    status='pending'
+                )
+                
+                created_requests.append(borrow_request)
+                
+                # Log the activity
+                ActivityLog.log_activity(
+                    user=request.user,
+                    action='request',
+                    model_name='BorrowRequest',
+                    object_repr=str(property_obj.property_name),
+                    description=f"Requested to borrow {item['quantity']} units of {property_obj.property_name}"
+                )
+            
+            # Clear the cart
+            request.session['borrow_cart'] = []
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Error submitting requests: {str(e)}'
+            })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+# Reservation Cart Functionality
+@login_required
+def add_to_reservation_list(request):
+    """Add item to reservation cart session"""
+    if request.method == 'POST':
+        property_id = request.POST.get('supply')
+        quantity = int(request.POST.get('quantity', 1))
+        needed_date = request.POST.get('needed_date')
+        return_date = request.POST.get('return_date')
+        purpose = request.POST.get('purpose', '')
+        
+        # Get property details
+        try:
+            property_obj = Property.objects.get(id=property_id)
+        except Property.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Property not found'
+            })
+        
+        # Check if enough quantity is available
+        if quantity > property_obj.quantity:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Only {property_obj.quantity} units available'
+            })
+        
+        # Check if item already exists in cart
+        cart = request.session.get('reservation_cart', [])
+        
+        existing_item = None
+        for i, item in enumerate(cart):
+            if item['property_id'] == property_id:
+                existing_item = i
+                break
+        
+        if existing_item is not None:
+            # Update existing item
+            cart[existing_item]['quantity'] += quantity
+            cart[existing_item]['needed_date'] = needed_date
+            cart[existing_item]['return_date'] = return_date
+            cart[existing_item]['purpose'] = purpose
+            
+            # Check if total quantity exceeds available
+            if cart[existing_item]['quantity'] > property_obj.quantity:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Total quantity would exceed available stock ({property_obj.quantity} units)'
+                })
+        else:
+            # Add new item
+            cart.append({
+                'property_id': property_id,
+                'property_name': property_obj.property_name,
+                'quantity': quantity,
+                'needed_date': needed_date,
+                'return_date': return_date,
+                'purpose': purpose
+            })
+        
+        # Save cart to session
+        request.session['reservation_cart'] = cart
+        request.session.modified = True
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': f'{property_obj.property_name} added to reservation list',
+            'cart_count': len(cart)
+        })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+@login_required
+def update_reservation_list_item(request):
+    """Update quantity of item in reservation cart"""
+    if request.method == 'POST':
+        property_id = request.POST.get('property_id')
+        new_quantity = int(request.POST.get('quantity', 1))
+        
+        cart = request.session.get('reservation_cart', [])
+        
+        # Find and update the item
+        for i, item in enumerate(cart):
+            if item['property_id'] == property_id:
+                try:
+                    property_obj = Property.objects.get(id=property_id)
+                    
+                    # Check if new quantity is available
+                    if new_quantity > property_obj.quantity:
+                        return JsonResponse({
+                            'status': 'error',
+                            'message': f'Only {property_obj.quantity} units available'
+                        })
+                    
+                    cart[i]['quantity'] = new_quantity
+                    request.session['reservation_cart'] = cart
+                    request.session.modified = True
+                    
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': 'Quantity updated successfully'
+                    })
+                    
+                except Property.DoesNotExist:
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Property not found'
+                    })
+        
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Item not found in reservation list'
+        })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+@login_required
+def remove_from_reservation_list(request):
+    """Remove item from reservation cart"""
+    if request.method == 'POST':
+        property_id = request.POST.get('property_id')
+        
+        cart = request.session.get('reservation_cart', [])
+        
+        # Remove the item
+        cart = [item for item in cart if item['property_id'] != property_id]
+        
+        request.session['reservation_cart'] = cart
+        request.session.modified = True
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Item removed from reservation list successfully',
+            'cart_count': len(cart)
+        })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+@login_required
+def clear_reservation_list(request):
+    """Clear all items from reservation cart"""
+    if request.method == 'POST':
+        request.session['reservation_cart'] = []
+        request.session.modified = True
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Reservation list cleared successfully'
+        })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+@login_required
+def submit_reservation_list_request(request):
+    """Submit all items in reservation cart as individual reservation requests"""
+    if request.method == 'POST':
+        cart = request.session.get('reservation_cart', [])
+        
+        if not cart:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'No items in reservation list'
+            })
+        
+        general_purpose = request.POST.get('general_purpose', '')
+        
+        try:
+            created_requests = []
+            
+            for item in cart:
+                property_obj = Property.objects.get(id=item['property_id'])
+                
+                # Create the reservation request
+                reservation = Reservation.objects.create(
+                    user=request.user,
+                    item=property_obj,
+                    quantity=item['quantity'],
+                    needed_date=datetime.strptime(item['needed_date'], '%Y-%m-%d').date(),
+                    return_date=datetime.strptime(item['return_date'], '%Y-%m-%d').date(),
+                    purpose=f"{item['purpose']}. {general_purpose}".strip('. '),
+                    status='pending'
+                )
+                
+                created_requests.append(reservation)
+                
+                # Log the activity
+                ActivityLog.log_activity(
+                    user=request.user,
+                    action='request',
+                    model_name='Reservation',
+                    object_repr=str(property_obj.property_name),
+                    description=f"Reserved {item['quantity']} units of {property_obj.property_name} from {item['needed_date']} to {item['return_date']}"
+                )
+            
+            # Clear the cart
+            request.session['reservation_cart'] = []
+            request.session.modified = True
+            
+            messages.success(request, f'{len(created_requests)} reservation request(s) submitted successfully.')
+            return redirect('user_reserve')
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Error submitting requests: {str(e)}'
+            })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})

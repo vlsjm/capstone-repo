@@ -1,7 +1,9 @@
 from django import forms
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from app.models import SupplyRequest, Reservation, DamageReport, BorrowRequest, Supply, Property
 from datetime import date
+import os
 
 class BorrowForm(forms.ModelForm):
     error_css_class = 'error'
@@ -212,4 +214,32 @@ class DamageReportForm(forms.ModelForm):
 
     class Meta:
         model = DamageReport
-        fields = ['item', 'description']
+        fields = ['item', 'description', 'image']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4}),
+            'image': forms.FileInput(attrs={
+                'accept': 'image/*',
+                'class': 'form-control-file'
+            })
+        }
+        labels = {
+            'image': 'Attach Image (Optional)',
+        }
+        help_texts = {
+            'image': 'Upload an image to support your damage report (JPG, PNG, etc.)',
+        }
+    
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image:
+            # Check file size (limit to 5MB)
+            if image.size > 5 * 1024 * 1024:
+                raise ValidationError("Image file too large. Please keep it under 5MB.")
+            
+            # Check file type
+            valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+            file_extension = os.path.splitext(image.name)[1].lower()
+            if file_extension not in valid_extensions:
+                raise ValidationError("Please upload a valid image file (JPG, PNG, GIF, BMP, WebP).")
+        
+        return image

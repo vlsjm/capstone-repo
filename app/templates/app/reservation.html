@@ -7,45 +7,969 @@
   <title>Reservations</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <style>
+    /* Main container styles matching system theme */
+    .reservations-container {
+      padding: 20px;
+      margin-left: 270px;
+      background-color: #f5f6fa;
+      min-height: 100vh;
+    }
+    
+    .reservations-title {
+      color: #152d64;
+      margin-bottom: 30px;
+      font-size: 32px;
+      font-weight: 600;
+      text-align: center;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Reservation cards with system theme */
+    .reservation {
+      border: none;
+      border-radius: 12px;
+      margin: 20px 0;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+    }
+    
+    .reservation:hover {
+      background: white;
+      border-color: transparent;
+      box-shadow: 0 8px 25px rgba(21, 45, 100, 0.15);
+      transform: translateY(-3px);
+    }
+    
+    .reservation:hover .reservation-header {
+      background: linear-gradient(135deg, #f8fbff 0%, #e8f4fd 100%);
+    }
+    
+    .reservation:hover .reservation-header h4 {
+      color: #152d64;
+    }
+    
+    .reservation:hover .expand-indicator {
+      color: #152d64 !important;
+      font-weight: 600;
+    }
+    
+    .reservation:hover .expand-indicator i {
+      transform: scale(1.1);
+    }
+    
+    .reservation:active {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(21, 45, 100, 0.2);
+    }
+    
+    .reservation-header {
+      background: #f8f9fa;
+      padding: 20px;
+      border-bottom: 1px solid #e9ecef;
+      border-radius: 12px 12px 0 0;
+      position: relative;
+      user-select: none;
+      transition: all 0.3s ease;
+    }
+    
+    .reservation-header:hover {
+      background: linear-gradient(135deg, #f8fbff 0%, #e8f4fd 100%);
+    }
+    
+    .reservation-header h4 {
+      margin: 0 0 15px 0;
+      display: flex;
+      align-items: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: #152d64;
+    }
+    
+    .reservation-header h4::after {
+      content: 'Click to expand';
+      font-size: 11px;
+      font-weight: normal;
+      color: #6c757d;
+      margin-left: auto;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      background: rgba(21, 45, 100, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    
+    .reservation:hover .reservation-header h4::after {
+      opacity: 1;
+    }
+    
+    .reservation-header p {
+      margin: 8px 0;
+      color: #495057;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    
+    .reservation-header p strong {
+      color: #152d64;
+      font-weight: 600;
+    }
+    
+    /* Toggle Arrow and Interaction Styles */
+    .toggle-arrow {
+      margin-right: 12px;
+      transition: transform 0.3s ease, color 0.3s ease;
+      color: #152d64;
+      font-size: 16px;
+    }
+    
+    .toggle-arrow.expanded {
+      transform: rotate(180deg);
+      color: #28a745;
+    }
+    
+    .reservation:hover .toggle-arrow {
+      color: #152d64;
+      transform: scale(1.1);
+    }
+    
+    .reservation:hover .toggle-arrow.expanded {
+      transform: rotate(180deg) scale(1.1);
+      color: #28a745;
+    }
+    
+    /* Detail link styling */
+    .detail-link {
+      color: #152d64;
+      text-decoration: none;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      border: 1px solid #152d64;
+      background: transparent;
+    }
+    
+    .detail-link:hover {
+      background: #152d64;
+      color: white;
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.3);
+    }
+    
+    /* Reservation items section */
+    .reservation-items {
+      padding: 0;
+      background: #fefefe;
+    }
+    
+    .reservation-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f1f3f4;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.2s ease;
+    }
+    
+    .reservation-item:last-child {
+      border-bottom: none;
+      border-radius: 0 0 12px 12px;
+    }
+    
+    .reservation-item:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .item-info {
+      flex: 1;
+    }
+    
+    .item-info strong {
+      color: #152d64;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    
+    .item-info small {
+      color: #6c757d;
+      font-style: italic;
+    }
+    
+    .item-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    /* Status badges with system colors */
+    .item-status {
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .status-approved, .status-badge.status-approved {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .status-rejected, .status-badge.status-rejected {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .status-pending, .status-badge.status-pending {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+    
+    .status-active, .status-badge.status-active {
+      background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    
+    .status-completed, .status-badge.status-completed {
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+      color: #2d3748;
+      border: 1px solid #cbd5e0;
+    }
+    
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Search and Filter Controls */
+    .search-filter-container {
+      margin-bottom: 25px;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+      border-left: 4px solid #152d64;
+      position: relative;
+      overflow: visible;
+    }
+    
+    .search-filter-form {
+      margin: 0;
+    }
+    
+    .search-row {
+      display: grid;
+      grid-template-columns: 250px 200px 150px 150px auto;
+      gap: 15px;
+      align-items: center;
+      position: relative;
+      overflow: visible;
+    }
+    
+    .search-input-group {
+      position: relative;
+      max-width: 250px;
+      width: 100%;
+      height: 42px; /* Fixed height for alignment */
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6c757d;
+      font-size: 14px;
+    }
+    
+    .search-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 12px 0 35px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+      box-sizing: border-box;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: #152d64;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      height: 42px; /* Match search input height */
+      justify-content: center;
+      position: relative;
+      overflow: visible;
+    }
+    
+    .filter-select, .date-input {
+      height: 42px;
+      padding: 0 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #f8f9fa;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+    
+    .filter-select:focus, .date-input:focus {
+      outline: none;
+      border-color: #152d64;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+    }
+    
+    .filter-buttons {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      height: 42px; /* Match other elements */
+    }
+    
+    .btn-filter {
+      height: 42px;
+      padding: 0 20px;
+      background: #152d64;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    .btn-filter:hover {
+      background: #0d1f4a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(21, 45, 100, 0.3);
+    }
+    
+    .btn-clear {
+      height: 42px;
+      padding: 0 20px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    .btn-clear:hover {
+      background: #5a6268;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+      color: white;
+      text-decoration: none;
+    }
+    
+    /* Responsive design for search controls */
+    @media (max-width: 1200px) {
+      .search-row {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+      }
+      
+      .filter-buttons {
+        grid-column: span 3;
+        justify-content: flex-start;
+      }
+    }
+    
+    @media (max-width: 1000px) {
+      .search-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      
+      .search-input-group {
+        grid-column: span 2;
+      }
+      
+      .filter-buttons {
+        grid-column: span 2;
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .search-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .search-input-group {
+        grid-column: span 1;
+        max-width: 100%;
+      }
+      
+      .filter-group:nth-child(2) {
+        grid-column: span 1;
+      }
+      
+      .filter-group:nth-child(3) {
+        grid-column: span 1;
+      }
+      
+      .filter-group:nth-child(4) {
+        grid-column: span 1;
+      }
+      
+      .filter-buttons {
+        grid-column: span 1;
+        justify-content: stretch;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .reservations-container {
+        margin-left: 0;
+        padding: 15px;
+      }
+      
+      .search-filter-container {
+        padding: 15px;
+        margin-left: 0;
+        margin-right: 0;
+      }
+      
+      .search-row {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .search-input-group,
+      .filter-group {
+        max-width: 100%;
+        width: 100%;
+      }
+      
+      .filter-buttons {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      
+      .btn-filter, .btn-clear {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .search-filter-container {
+        padding: 10px;
+      }
+      
+      .search-row {
+        gap: 10px;
+      }
+      
+      .search-input, .filter-select, .date-input {
+        font-size: 16px; /* Prevent zoom on mobile */
+      }
+      
+      .search-input-group,
+      .filter-group {
+        height: auto;
+      }
+      
+      .btn-filter, .btn-clear {
+        height: auto;
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+      
+      .filter-buttons {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .btn-filter, .btn-clear {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    
+    /* Filter tabs with system theme */
+    .filter-tabs {
+      margin-bottom: 30px;
+      background: white;
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+      border-left: 4px solid #152d64;
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+    }
+    
+    .tab-button {
+      flex: 1;
+      padding: 12px 20px;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #6c757d;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 120px;
+    }
+    
+    .tab-button:hover {
+      color: #152d64;
+      background: rgba(21, 45, 100, 0.05);
+    }
+    
+    .tab-button.active {
+      background: linear-gradient(135deg, #152d64 0%, #1e3a8a 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.3);
+    }
+    
+    /* Responsive design for filter tabs */
+    @media (max-width: 768px) {
+      .filter-tabs {
+        justify-content: flex-start;
+        padding: 6px;
+      }
+      
+      .tab-button {
+        min-width: 100px;
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .filter-tabs {
+        padding: 4px;
+        gap: 2px;
+      }
+      
+      .tab-button {
+        min-width: 80px;
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .tab-content h3 {
+      color: #152d64;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e9ecef;
+    }
+    
+    /* Empty state styling */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6c757d;
+      background: white;
+      border-radius: 12px;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+    }
+    
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 20px;
+      color: #dee2e6;
+    }
+    
+    .empty-state p {
+      font-size: 16px;
+      margin: 0;
+      font-style: italic;
+    }
+  </style>
 </head>
 <body>
   {% include 'app/navbar.html' %}
 
-  <div class="parent">
-    <div class="div1">
-      <h2>Reservations</h2>
+  <div class="reservations-container">
+    <h1 class="reservations-title">
+      <i class="fas fa-calendar-check"></i>
+      Reservations
+    </h1>
+
+    <!-- Search and Filter Controls -->
+    <div class="search-filter-container">
+      <form method="get" class="search-filter-form" id="reservationFilterForm">
+        <div class="search-row">
+          <!-- Search Input -->
+          <div class="search-input-group">
+            <i class="fas fa-search search-icon"></i>
+            <input 
+              type="text" 
+              name="search" 
+              class="search-input"
+              placeholder="Search by reserver, item, or purpose..."
+              value="{{ request.GET.search }}"
+              autocomplete="off"
+            >
+          </div>
+          
+          <!-- Department Filter -->
+          <div class="filter-group">
+            <select name="department" class="filter-select">
+              <option value="">All Departments</option>
+              {% for dept in departments %}
+              <option value="{{ dept.id }}" {% if request.GET.department == dept.id|stringformat:"s" %}selected{% endif %}>
+                {{ dept.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <!-- Date Range Filters -->
+          <div class="filter-group">
+            <input 
+              type="date" 
+              name="date_from" 
+              class="date-input"
+              placeholder="From Date"
+              value="{{ request.GET.date_from }}"
+            >
+          </div>
+          
+          <div class="filter-group">
+            <input 
+              type="date" 
+              name="date_to" 
+              class="date-input"
+              placeholder="To Date"
+              value="{{ request.GET.date_to }}"
+            >
+          </div>
+          
+          <!-- Filter Buttons -->
+          <div class="filter-buttons">
+            <button type="submit" class="btn-filter">
+              <i class="fas fa-filter"></i>
+              Apply Filters
+            </button>
+            <a href="{% url 'user_reservations' %}" class="btn-clear">
+              <i class="fas fa-times"></i>
+              Clear
+            </a>
+          </div>
+        </div>
+      </form>
     </div>
 
-    <main class="content">
-      <div class="request-controls">
-        <div class="button-group">
-          <button onclick="filterStatus('all')" class="filter-btn">All</button>
-          <button onclick="filterStatus('pending')" class="filter-btn">Pending</button>
-          <button onclick="filterStatus('active')" class="filter-btn">Active</button>
-          <button onclick="filterStatus('completed')" class="filter-btn">Completed</button>
-          <button onclick="filterStatus('rejected')" class="filter-btn">Rejected</button>
-        </div>
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <button class="tab-button active" onclick="showTab('all', this)" id="allTab">
+        <i class="fas fa-list"></i>
+        All Reservations
+        <span class="badge">{{ pending_reservations.count|add:approved_reservations.count|add:active_reservations.count|add:completed_reservations.count|add:rejected_reservations.count }}</span>
+      </button>
+      <button class="tab-button" onclick="showTab('pending', this)" id="pendingTab">
+        <i class="fas fa-clock"></i>
+        Pending
+        <span class="badge">{{ pending_reservations.count }}</span>
+      </button>
+      <button class="tab-button" onclick="showTab('approved', this)" id="approvedTab">
+        <i class="fas fa-check-circle"></i>
+        Approved
+        <span class="badge">{{ approved_reservations.count }}</span>
+      </button>
+      <button class="tab-button" onclick="showTab('active', this)" id="activeTab">
+        <i class="fas fa-play-circle"></i>
+        Active
+        <span class="badge">{{ active_reservations.count }}</span>
+      </button>
+      <button class="tab-button" onclick="showTab('completed', this)" id="completedTab">
+        <i class="fas fa-check-double"></i>
+        Completed
+        <span class="badge">{{ completed_reservations.count }}</span>
+      </button>
+      <button class="tab-button" onclick="showTab('rejected', this)" id="rejectedTab">
+        <i class="fas fa-times-circle"></i>
+        Rejected
+        <span class="badge">{{ rejected_reservations.count }}</span>
+      </button>
+    </div>
+
+    <main class="reservations-content">
+      <!-- All Reservations Tab -->
+      <div id="all" class="tab-content active">
+        <h3>All Reservations</h3>
+        {% for reservation in pending_reservations|slice:":3" %}
+          <div class="reservation" onclick="toggleReservationItems('reservation-{{ reservation.id }}')">
+            <div class="reservation-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-reservation-{{ reservation.id }}"></i>
+                <i class="fas fa-clock" style="color: #ffc107; margin-right: 8px;"></i>
+                {{ reservation.item.property_name }}
+                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-clock"></i> {{ reservation.get_status_display }}
+                </span>
+              </h4>
+              <p><strong>Reserver:</strong> 
+                {% with reservation.user.first_name as first_name %}
+                {% with reservation.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ reservation.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <small>({{ reservation.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Quantity:</strong> {{ reservation.quantity }}</p>
+              <p><strong>Purpose:</strong> {{ reservation.purpose|truncatewords:10 }}</p>
+              <p><strong>Needed Date:</strong> {{ reservation.needed_date|date:"M d, Y" }}</p>
+              <p><strong>Return Date:</strong> {{ reservation.return_date|date:"M d, Y" }}</p>
+            </div>
+            <div class="reservation-items" id="reservation-{{ reservation.id }}" style="display: none;">
+              <div class="reservation-item">
+                <div class="item-info">
+                  <strong>Additional Details</strong>
+                  <br><small><em>Reservation Date: {{ reservation.reservation_date|date:"M d, Y H:i" }}</em></small>
+                  {% if reservation.approved_date %}
+                    <br><small><em>Approved Date: {{ reservation.approved_date|date:"M d, Y H:i" }}</em></small>
+                  {% endif %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'reservation_detail' reservation.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+
+        {% for reservation in approved_reservations|slice:":3" %}
+          <div class="reservation" onclick="toggleReservationItems('reservation-{{ reservation.id }}')">
+            <div class="reservation-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-reservation-{{ reservation.id }}"></i>
+                <i class="fas fa-check-circle" style="color: #28a745; margin-right: 8px;"></i>
+                {{ reservation.item.property_name }}
+                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-check-circle"></i> {{ reservation.get_status_display }}
+                </span>
+              </h4>
+              <p><strong>Reserver:</strong> 
+                {% with reservation.user.first_name as first_name %}
+                {% with reservation.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ reservation.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <small>({{ reservation.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Quantity:</strong> {{ reservation.quantity }}</p>
+              <p><strong>Purpose:</strong> {{ reservation.purpose|truncatewords:10 }}</p>
+              <p><strong>Needed Date:</strong> {{ reservation.needed_date|date:"M d, Y" }}</p>
+              <p><strong>Return Date:</strong> {{ reservation.return_date|date:"M d, Y" }}</p>
+            </div>
+            <div class="reservation-items" id="reservation-{{ reservation.id }}" style="display: none;">
+              <div class="reservation-item">
+                <div class="item-info">
+                  <strong>Additional Details</strong>
+                  <br><small><em>Reservation Date: {{ reservation.reservation_date|date:"M d, Y H:i" }}</em></small>
+                  {% if reservation.approved_date %}
+                    <br><small><em>Approved Date: {{ reservation.approved_date|date:"M d, Y H:i" }}</em></small>
+                  {% endif %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'reservation_detail' reservation.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+
+        {% for reservation in active_reservations|slice:":2" %}
+          <div class="reservation" onclick="toggleReservationItems('reservation-{{ reservation.id }}')">
+            <div class="reservation-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-reservation-{{ reservation.id }}"></i>
+                <i class="fas fa-play-circle" style="color: #17a2b8; margin-right: 8px;"></i>
+                {{ reservation.item.property_name }}
+                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-play-circle"></i> {{ reservation.get_status_display }}
+                </span>
+              </h4>
+              <p><strong>Reserver:</strong> 
+                {% with reservation.user.first_name as first_name %}
+                {% with reservation.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ reservation.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <small>({{ reservation.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Quantity:</strong> {{ reservation.quantity }}</p>
+              <p><strong>Purpose:</strong> {{ reservation.purpose|truncatewords:10 }}</p>
+              <p><strong>Start Date:</strong> {{ reservation.start_date|date:"M d, Y H:i" }}</p>
+              <p><strong>End Date:</strong> {{ reservation.end_date|date:"M d, Y H:i" }}</p>
+            </div>
+            <div class="reservation-items" id="reservation-{{ reservation.id }}" style="display: none;">
+              <div class="reservation-item">
+                <div class="item-info">
+                  <strong>Additional Details</strong>
+                  <br><small><em>Reservation Date: {{ reservation.reservation_date|date:"M d, Y H:i" }}</em></small>
+                  {% if reservation.approved_date %}
+                    <br><small><em>Approved Date: {{ reservation.approved_date|date:"M d, Y H:i" }}</em></small>
+                  {% endif %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'reservation_detail' reservation.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+
+        {% for reservation in completed_reservations|slice:":2" %}
+          <div class="reservation" onclick="toggleReservationItems('reservation-{{ reservation.id }}')">
+            <div class="reservation-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-reservation-{{ reservation.id }}"></i>
+                <i class="fas fa-check-double" style="color: #6c757d; margin-right: 8px;"></i>
+                {{ reservation.item.property_name }}
+                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-check-double"></i> {{ reservation.get_status_display }}
+                </span>
+              </h4>
+              <p><strong>Reserver:</strong> 
+                {% with reservation.user.first_name as first_name %}
+                {% with reservation.user.last_name as last_name %}
+                  {% if first_name or last_name %}
+                    {{ first_name }} {{ last_name }}
+                  {% else %}
+                    {{ reservation.user.username }}
+                  {% endif %}
+                {% endwith %}
+                {% endwith %}
+                <small>({{ reservation.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Quantity:</strong> {{ reservation.quantity }}</p>
+              <p><strong>Purpose:</strong> {{ reservation.purpose|truncatewords:10 }}</p>
+              <p><strong>Start Date:</strong> {{ reservation.start_date|date:"M d, Y H:i" }}</p>
+              <p><strong>End Date:</strong> {{ reservation.end_date|date:"M d, Y H:i" }}</p>
+            </div>
+            <div class="reservation-items" id="reservation-{{ reservation.id }}" style="display: none;">
+              <div class="reservation-item">
+                <div class="item-info">
+                  <strong>Additional Details</strong>
+                  <br><small><em>Reservation Date: {{ reservation.reservation_date|date:"M d, Y H:i" }}</em></small>
+                  {% if reservation.approved_date %}
+                    <br><small><em>Approved Date: {{ reservation.approved_date|date:"M d, Y H:i" }}</em></small>
+                  {% endif %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'reservation_detail' reservation.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+        
+        {% if not pending_reservations and not approved_reservations and not active_reservations and not completed_reservations and not rejected_reservations %}
+          <div class="empty-state">
+            <i class="fas fa-calendar-times"></i>
+            <p>No reservations found matching your criteria.</p>
+          </div>
+        {% endif %}
       </div>
 
-      <!-- Pending Reservations Table -->
-      <div class="status-table" data-status="pending">
+      <!-- Pending Reservations Tab -->
+      <div id="pending" class="tab-content">
         <h3>Pending Reservations</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Reserver</th>
-              <th>Reserved Item</th>
-              <th>Quantity</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for reservation in pending_reservations %}
-            <tr>
-              <td>
+        {% for reservation in pending_reservations %}
+          <div class="reservation" onclick="toggleReservationItems('reservation-pending-{{ reservation.id }}')">
+            <div class="reservation-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-reservation-pending-{{ reservation.id }}"></i>
+                <i class="fas fa-clock" style="color: #ffc107; margin-right: 8px;"></i>
+                {{ reservation.item.property_name }}
+                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-clock"></i> {{ reservation.get_status_display }}
+                </span>
+              </h4>
+              <p><strong>Reserver:</strong> 
                 {% with reservation.user.first_name as first_name %}
                 {% with reservation.user.last_name as last_name %}
                   {% if first_name or last_name %}
@@ -55,62 +979,53 @@
                   {% endif %}
                 {% endwith %}
                 {% endwith %}
-                <br/>
-                <small>Dept: {{ reservation.user.userprofile.department }}</small>
-              </td>
-              <td>{{ reservation.item.property_name }}</td>
-              <td>{{ reservation.quantity }}</td>
-              <td>{{ reservation.needed_date|date:"M d, Y" }}</td>
-              <td>{{ reservation.return_date|date:"M d, Y" }}</td>
-              <td>
-                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}">
-                  {% if reservation.status == 'pending' %}
-                    <i class="fas fa-clock"></i>
-                  {% elif reservation.status == 'approved' %}
-                    <i class="fas fa-check-circle"></i>
-                  {% elif reservation.status == 'active' %}
-                    <i class="fas fa-play-circle"></i>
-                  {% elif reservation.status == 'completed' %}
-                    <i class="fas fa-check-double"></i>
-                  {% elif reservation.status == 'rejected' %}
-                    <i class="fas fa-times-circle"></i>
+                <small>({{ reservation.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Quantity:</strong> {{ reservation.quantity }}</p>
+              <p><strong>Purpose:</strong> {{ reservation.purpose|truncatewords:10 }}</p>
+              <p><strong>Needed Date:</strong> {{ reservation.needed_date|date:"M d, Y" }}</p>
+              <p><strong>Return Date:</strong> {{ reservation.return_date|date:"M d, Y" }}</p>
+            </div>
+            <div class="reservation-items" id="reservation-pending-{{ reservation.id }}" style="display: none;">
+              <div class="reservation-item">
+                <div class="item-info">
+                  <strong>Additional Details</strong>
+                  <br><small><em>Reservation Date: {{ reservation.reservation_date|date:"M d, Y H:i" }}</em></small>
+                  {% if reservation.approved_date %}
+                    <br><small><em>Approved Date: {{ reservation.approved_date|date:"M d, Y H:i" }}</em></small>
                   {% endif %}
-                  {{ reservation.get_status_display }}
-                </span>
-              </td>
-              <td>
-                <a href="{% url 'reservation_detail' reservation.id %}" class="details-btn" title="View Details">
-                  <i class="fas fa-info-circle"></i>
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7">No pending reservations found.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% include 'app/includes/pagination.html' %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'reservation_detail' reservation.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="empty-state">
+            <i class="fas fa-clock"></i>
+            <p>No pending reservations found.</p>
+          </div>
+        {% endfor %}
       </div>
 
-      <!-- Approved Reservations Table -->
-      <div class="status-table" data-status="approved">
+      <!-- Approved Reservations Tab -->
+      <div id="approved" class="tab-content">
         <h3>Approved Reservations</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Reserver</th>
-              <th>Reserved Item</th>
-              <th>Quantity</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for reservation in approved_reservations %}
-            <tr>
-              <td>
+        {% for reservation in approved_reservations %}
+          <div class="reservation" onclick="toggleReservationItems('reservation-approved-{{ reservation.id }}')">
+            <div class="reservation-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-reservation-approved-{{ reservation.id }}"></i>
+                <i class="fas fa-check-circle" style="color: #28a745; margin-right: 8px;"></i>
+                {{ reservation.item.property_name }}
+                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-check-circle"></i> {{ reservation.get_status_display }}
+                </span>
+              </h4>
+              <p><strong>Reserver:</strong> 
                 {% with reservation.user.first_name as first_name %}
                 {% with reservation.user.last_name as last_name %}
                   {% if first_name or last_name %}
@@ -120,62 +1035,53 @@
                   {% endif %}
                 {% endwith %}
                 {% endwith %}
-                <br/>
-                <small>Dept: {{ reservation.user.userprofile.department }}</small>
-              </td>
-              <td>{{ reservation.item.property_name }}</td>
-              <td>{{ reservation.quantity }}</td>
-              <td>{{ reservation.needed_date|date:"M d, Y" }}</td>
-              <td>{{ reservation.return_date|date:"M d, Y" }}</td>
-              <td>
-                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}">
-                  {% if reservation.status == 'pending' %}
-                    <i class="fas fa-clock"></i>
-                  {% elif reservation.status == 'approved' %}
-                    <i class="fas fa-check-circle"></i>
-                  {% elif reservation.status == 'active' %}
-                    <i class="fas fa-play-circle"></i>
-                  {% elif reservation.status == 'completed' %}
-                    <i class="fas fa-check-double"></i>
-                  {% elif reservation.status == 'rejected' %}
-                    <i class="fas fa-times-circle"></i>
+                <small>({{ reservation.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Quantity:</strong> {{ reservation.quantity }}</p>
+              <p><strong>Purpose:</strong> {{ reservation.purpose|truncatewords:10 }}</p>
+              <p><strong>Needed Date:</strong> {{ reservation.needed_date|date:"M d, Y" }}</p>
+              <p><strong>Return Date:</strong> {{ reservation.return_date|date:"M d, Y" }}</p>
+            </div>
+            <div class="reservation-items" id="reservation-approved-{{ reservation.id }}" style="display: none;">
+              <div class="reservation-item">
+                <div class="item-info">
+                  <strong>Additional Details</strong>
+                  <br><small><em>Reservation Date: {{ reservation.reservation_date|date:"M d, Y H:i" }}</em></small>
+                  {% if reservation.approved_date %}
+                    <br><small><em>Approved Date: {{ reservation.approved_date|date:"M d, Y H:i" }}</em></small>
                   {% endif %}
-                  {{ reservation.get_status_display }}
-                </span>
-              </td>
-              <td>
-                <a href="{% url 'reservation_detail' reservation.id %}" class="details-btn" title="View Details">
-                  <i class="fas fa-info-circle"></i>
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7">No approved reservations found.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% include 'app/includes/pagination.html' %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'reservation_detail' reservation.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="empty-state">
+            <i class="fas fa-check-circle"></i>
+            <p>No approved reservations found.</p>
+          </div>
+        {% endfor %}
       </div>
 
-      <!-- Active Reservations Table -->
-      <div class="status-table" data-status="active">
+      <!-- Active Reservations Tab -->
+      <div id="active" class="tab-content">
         <h3>Active Reservations</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Reserver</th>
-              <th>Reserved Item</th>
-              <th>Quantity</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for reservation in active_reservations %}
-            <tr>
-              <td>
+        {% for reservation in active_reservations %}
+          <div class="reservation" onclick="toggleReservationItems('reservation-active-{{ reservation.id }}')">
+            <div class="reservation-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-reservation-active-{{ reservation.id }}"></i>
+                <i class="fas fa-play-circle" style="color: #17a2b8; margin-right: 8px;"></i>
+                {{ reservation.item.property_name }}
+                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-play-circle"></i> {{ reservation.get_status_display }}
+                </span>
+              </h4>
+              <p><strong>Reserver:</strong> 
                 {% with reservation.user.first_name as first_name %}
                 {% with reservation.user.last_name as last_name %}
                   {% if first_name or last_name %}
@@ -185,62 +1091,53 @@
                   {% endif %}
                 {% endwith %}
                 {% endwith %}
-                <br/>
-                <small>Dept: {{ reservation.user.userprofile.department }}</small>
-              </td>
-              <td>{{ reservation.item.property_name }}</td>
-              <td>{{ reservation.quantity }}</td>
-              <td>{{ reservation.start_date|date:"M d, Y H:i" }}</td>
-              <td>{{ reservation.end_date|date:"M d, Y H:i" }}</td>
-              <td>
-                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}">
-                  {% if reservation.status == 'pending' %}
-                    <i class="fas fa-clock"></i>
-                  {% elif reservation.status == 'approved' %}
-                    <i class="fas fa-check-circle"></i>
-                  {% elif reservation.status == 'active' %}
-                    <i class="fas fa-play-circle"></i>
-                  {% elif reservation.status == 'completed' %}
-                    <i class="fas fa-check-double"></i>
-                  {% elif reservation.status == 'rejected' %}
-                    <i class="fas fa-times-circle"></i>
+                <small>({{ reservation.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Quantity:</strong> {{ reservation.quantity }}</p>
+              <p><strong>Purpose:</strong> {{ reservation.purpose|truncatewords:10 }}</p>
+              <p><strong>Start Date:</strong> {{ reservation.start_date|date:"M d, Y H:i" }}</p>
+              <p><strong>End Date:</strong> {{ reservation.end_date|date:"M d, Y H:i" }}</p>
+            </div>
+            <div class="reservation-items" id="reservation-active-{{ reservation.id }}" style="display: none;">
+              <div class="reservation-item">
+                <div class="item-info">
+                  <strong>Additional Details</strong>
+                  <br><small><em>Reservation Date: {{ reservation.reservation_date|date:"M d, Y H:i" }}</em></small>
+                  {% if reservation.approved_date %}
+                    <br><small><em>Approved Date: {{ reservation.approved_date|date:"M d, Y H:i" }}</em></small>
                   {% endif %}
-                  {{ reservation.get_status_display }}
-                </span>
-              </td>
-              <td>
-                <a href="{% url 'reservation_detail' reservation.id %}" class="details-btn" title="View Details">
-                  <i class="fas fa-info-circle"></i>
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7">No active reservations found.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% include 'app/includes/pagination.html' %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'reservation_detail' reservation.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="empty-state">
+            <i class="fas fa-play-circle"></i>
+            <p>No active reservations found.</p>
+          </div>
+        {% endfor %}
       </div>
 
-      <!-- Completed Reservations Table -->
-      <div class="status-table" data-status="completed">
+      <!-- Completed Reservations Tab -->
+      <div id="completed" class="tab-content">
         <h3>Completed Reservations</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Reserver</th>
-              <th>Reserved Item</th>
-              <th>Quantity</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for reservation in completed_reservations %}
-            <tr>
-              <td>
+        {% for reservation in completed_reservations %}
+          <div class="reservation" onclick="toggleReservationItems('reservation-completed-{{ reservation.id }}')">
+            <div class="reservation-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-reservation-completed-{{ reservation.id }}"></i>
+                <i class="fas fa-check-double" style="color: #6c757d; margin-right: 8px;"></i>
+                {{ reservation.item.property_name }}
+                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-check-double"></i> {{ reservation.get_status_display }}
+                </span>
+              </h4>
+              <p><strong>Reserver:</strong> 
                 {% with reservation.user.first_name as first_name %}
                 {% with reservation.user.last_name as last_name %}
                   {% if first_name or last_name %}
@@ -250,62 +1147,53 @@
                   {% endif %}
                 {% endwith %}
                 {% endwith %}
-                <br/>
-                <small>Dept: {{ reservation.user.userprofile.department }}</small>
-              </td>
-              <td>{{ reservation.item.property_name }}</td>
-              <td>{{ reservation.quantity }}</td>
-              <td>{{ reservation.start_date|date:"M d, Y H:i" }}</td>
-              <td>{{ reservation.end_date|date:"M d, Y H:i" }}</td>
-              <td>
-                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}">
-                  {% if reservation.status == 'pending' %}
-                    <i class="fas fa-clock"></i>
-                  {% elif reservation.status == 'approved' %}
-                    <i class="fas fa-check-circle"></i>
-                  {% elif reservation.status == 'active' %}
-                    <i class="fas fa-play-circle"></i>
-                  {% elif reservation.status == 'completed' %}
-                    <i class="fas fa-check-double"></i>
-                  {% elif reservation.status == 'rejected' %}
-                    <i class="fas fa-times-circle"></i>
+                <small>({{ reservation.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Quantity:</strong> {{ reservation.quantity }}</p>
+              <p><strong>Purpose:</strong> {{ reservation.purpose|truncatewords:10 }}</p>
+              <p><strong>Start Date:</strong> {{ reservation.start_date|date:"M d, Y H:i" }}</p>
+              <p><strong>End Date:</strong> {{ reservation.end_date|date:"M d, Y H:i" }}</p>
+            </div>
+            <div class="reservation-items" id="reservation-completed-{{ reservation.id }}" style="display: none;">
+              <div class="reservation-item">
+                <div class="item-info">
+                  <strong>Additional Details</strong>
+                  <br><small><em>Reservation Date: {{ reservation.reservation_date|date:"M d, Y H:i" }}</em></small>
+                  {% if reservation.approved_date %}
+                    <br><small><em>Approved Date: {{ reservation.approved_date|date:"M d, Y H:i" }}</em></small>
                   {% endif %}
-                  {{ reservation.get_status_display }}
-                </span>
-              </td>
-              <td>
-                <a href="{% url 'reservation_detail' reservation.id %}" class="details-btn" title="View Details">
-                  <i class="fas fa-info-circle"></i>
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7">No completed reservations found.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% include 'app/includes/pagination.html' %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'reservation_detail' reservation.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="empty-state">
+            <i class="fas fa-check-double"></i>
+            <p>No completed reservations found.</p>
+          </div>
+        {% endfor %}
       </div>
 
-      <!-- Rejected Reservations Table -->
-      <div class="status-table" data-status="rejected">
+      <!-- Rejected Reservations Tab -->
+      <div id="rejected" class="tab-content">
         <h3>Rejected Reservations</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Reserver</th>
-              <th>Reserved Item</th>
-              <th>Quantity</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for reservation in rejected_reservations %}
-            <tr>
-              <td>
+        {% for reservation in rejected_reservations %}
+          <div class="reservation" onclick="toggleReservationItems('reservation-rejected-{{ reservation.id }}')">
+            <div class="reservation-header">
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-reservation-rejected-{{ reservation.id }}"></i>
+                <i class="fas fa-times-circle" style="color: #dc3545; margin-right: 8px;"></i>
+                {{ reservation.item.property_name }}
+                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}" style="margin-left: auto;">
+                  <i class="fas fa-times-circle"></i> {{ reservation.get_status_display }}
+                </span>
+              </h4>
+              <p><strong>Reserver:</strong> 
                 {% with reservation.user.first_name as first_name %}
                 {% with reservation.user.last_name as last_name %}
                   {% if first_name or last_name %}
@@ -315,45 +1203,146 @@
                   {% endif %}
                 {% endwith %}
                 {% endwith %}
-                <br/>
-                <small>Dept: {{ reservation.user.userprofile.department }}</small>
-              </td>
-              <td>{{ reservation.item.property_name }}</td>
-              <td>{{ reservation.quantity }}</td>
-              <td>{{ reservation.start_date|date:"M d, Y H:i" }}</td>
-              <td>{{ reservation.end_date|date:"M d, Y H:i" }}</td>
-              <td>
-                <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}">
-                  {% if reservation.status == 'pending' %}
-                    <i class="fas fa-clock"></i>
-                  {% elif reservation.status == 'approved' %}
-                    <i class="fas fa-check-circle"></i>
-                  {% elif reservation.status == 'active' %}
-                    <i class="fas fa-play-circle"></i>
-                  {% elif reservation.status == 'completed' %}
-                    <i class="fas fa-check-double"></i>
-                  {% elif reservation.status == 'rejected' %}
-                    <i class="fas fa-times-circle"></i>
+                <small>({{ reservation.user.userprofile.department }})</small>
+              </p>
+              <p><strong>Quantity:</strong> {{ reservation.quantity }}</p>
+              <p><strong>Purpose:</strong> {{ reservation.purpose|truncatewords:10 }}</p>
+              <p><strong>Needed Date:</strong> {{ reservation.needed_date|date:"M d, Y" }}</p>
+              <p><strong>Return Date:</strong> {{ reservation.return_date|date:"M d, Y" }}</p>
+            </div>
+            <div class="reservation-items" id="reservation-rejected-{{ reservation.id }}" style="display: none;">
+              <div class="reservation-item">
+                <div class="item-info">
+                  <strong>Additional Details</strong>
+                  <br><small><em>Reservation Date: {{ reservation.reservation_date|date:"M d, Y H:i" }}</em></small>
+                  {% if reservation.approved_date %}
+                    <br><small><em>Approved Date: {{ reservation.approved_date|date:"M d, Y H:i" }}</em></small>
                   {% endif %}
-                  {{ reservation.get_status_display }}
-                </span>
-              </td>
-              <td>
-                <a href="{% url 'reservation_detail' reservation.id %}" class="details-btn" title="View Details">
-                  <i class="fas fa-info-circle"></i>
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7">No rejected reservations found.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% include 'app/includes/pagination.html' %}
+                  {% if reservation.remarks %}
+                    <br><small><em>Remarks: {{ reservation.remarks }}</em></small>
+                  {% endif %}
+                </div>
+                <div class="item-actions">
+                  <a href="{% url 'reservation_detail' reservation.id %}" class="detail-link" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt"></i> View Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="empty-state">
+            <i class="fas fa-times-circle"></i>
+            <p>No rejected reservations found.</p>
+          </div>
+        {% endfor %}
       </div>
     </main>
   </div>
 
-  <script src="{% static 'scripts/filterStatus.js' %}"></script>
+  <script>
+    // Initialize event listeners when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeFormHandling();
+    });
+
+    function initializeEventListeners() {
+      // Initialize any needed event listeners here
+    }
+    
+    function initializeActiveTab() {
+      // Check if there's a saved tab preference
+      const savedTab = localStorage.getItem('activeReservationTab') || 'all';
+      const tabButton = document.getElementById(savedTab + 'Tab');
+      if (tabButton) {
+        showTab(savedTab, tabButton);
+      }
+    }
+    
+    function initializeFormHandling() {
+      initializeActiveTab();
+      initializeEventListeners();
+    }
+    
+    function updateTabAndSubmit() {
+      const activeTab = document.querySelector('.tab-button.active').onclick.toString().match(/'([^']+)'/)[1];
+      localStorage.setItem('activeReservationTab', activeTab);
+    }
+
+    function showTab(tabName, buttonElement) {
+      // Hide all tab contents
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Remove active class from all buttons
+      const tabButtons = document.querySelectorAll('.tab-button');
+      tabButtons.forEach(button => {
+        button.classList.remove('active');
+      });
+      
+      // Show selected tab content
+      const selectedTab = document.getElementById(tabName);
+      if (selectedTab) {
+        selectedTab.classList.add('active');
+      }
+      
+      // Add active class to clicked button
+      buttonElement.classList.add('active');
+      
+      // Save active tab preference
+      localStorage.setItem('activeReservationTab', tabName);
+    }
+
+    function toggleReservationItems(reservationId) {
+      const reservationItems = document.getElementById(reservationId);
+      const arrow = document.getElementById('arrow-' + reservationId);
+      
+      if (reservationItems.style.display === 'none' || reservationItems.style.display === '') {
+        reservationItems.style.display = 'block';
+        arrow.classList.add('expanded');
+      } else {
+        reservationItems.style.display = 'none';
+        arrow.classList.remove('expanded');
+      }
+    }
+  </script>
+
+  <style>
+    /* Badge styles */
+    .badge {
+      background: rgba(255, 255, 255, 0.3);
+      color: inherit;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+    
+    .tab-button.active .badge {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+    
+    /* Additional responsive adjustments */
+    @media (max-width: 768px) {
+      .reservation-header h4 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .reservation-header h4::after {
+        display: none;
+      }
+      
+      .status-badge {
+        margin-left: 0 !important;
+        align-self: flex-start;
+      }
+    }
+  </style>
 </body>
 </html>

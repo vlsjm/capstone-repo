@@ -20,7 +20,7 @@ from .models import(
 )
 from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm, SupplyRequestBatchForm, SupplyRequestItemForm, SupplyRequestBatchForm, SupplyRequestItemForm
 from django.contrib.auth.forms import AuthenticationForm
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 import json
 from django.utils import timezone
 from django.utils.timezone import now
@@ -813,13 +813,75 @@ class UserBorrowRequestListView(PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        all_requests = self.get_queryset()
         
+        # Get the current tab from request
+        current_tab = self.request.GET.get('tab', 'pending')
+        
+        # Get search and filter parameters
+        search_query = self.request.GET.get('search', '').strip()
+        department_filter = self.request.GET.get('department', '')
+        date_from = self.request.GET.get('date_from', '')
+        date_to = self.request.GET.get('date_to', '')
+        
+        # Base queryset with related data
+        base_queryset = BorrowRequest.objects.select_related('user', 'user__userprofile', 'user__userprofile__department', 'property').order_by('-borrow_date')
+        
+        # Apply search filter
+        if search_query:
+            base_queryset = base_queryset.filter(
+                Q(user__first_name__icontains=search_query) |
+                Q(user__last_name__icontains=search_query) |
+                Q(user__username__icontains=search_query) |
+                Q(property__property_name__icontains=search_query) |
+                Q(purpose__icontains=search_query)
+            )
+        
+        # Apply department filter
+        if department_filter:
+            base_queryset = base_queryset.filter(user__userprofile__department__id=department_filter)
+        
+        # Apply date range filters
+        if date_from:
+            base_queryset = base_queryset.filter(borrow_date__date__gte=date_from)
+        if date_to:
+            base_queryset = base_queryset.filter(borrow_date__date__lte=date_to)
+        
+        # Get filtered requests by status
+        all_requests = base_queryset
         context['pending_requests'] = all_requests.filter(status='pending')
         context['approved_requests'] = all_requests.filter(status='approved')
         context['returned_requests'] = all_requests.filter(status='returned')
         context['overdue_requests'] = all_requests.filter(status='overdue')
         context['declined_requests'] = all_requests.filter(status='declined')
+        
+        # Add search and filter context
+        context['search_query'] = search_query
+        context['department_filter'] = department_filter
+        context['date_from'] = date_from
+        context['date_to'] = date_to
+        context['current_tab'] = current_tab
+        
+        # Get all departments for the filter dropdown
+        from .models import Department
+        context['departments'] = Department.objects.all().order_by('name')
+        
+        # Generate URL parameters string for pagination
+        url_params = ''
+        params = []
+        if search_query:
+            params.append(f'search={search_query}')
+        if department_filter:
+            params.append(f'department={department_filter}')
+        if date_from:
+            params.append(f'date_from={date_from}')
+        if date_to:
+            params.append(f'date_to={date_to}')
+        
+        if params:
+            url_params = '&' + '&'.join(params)
+        
+        context['url_params'] = url_params
+        
         return context
 
 class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
@@ -946,7 +1008,33 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
     paginate_by = 10
     
     def get_queryset(self):
-        return DamageReport.objects.select_related('user', 'user__userprofile', 'item').order_by('-report_date')
+        queryset = DamageReport.objects.select_related('user', 'user__userprofile', 'item').order_by('-report_date')
+        
+        # Search functionality
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
+                Q(user__username__icontains=search) |
+                Q(item__property_name__icontains=search) |
+                Q(description__icontains=search)
+            )
+        
+        # Department filter
+        department = self.request.GET.get('department')
+        if department:
+            queryset = queryset.filter(user__userprofile__department_id=department)
+        
+        # Date range filters
+        date_from = self.request.GET.get('date_from')
+        date_to = self.request.GET.get('date_to')
+        if date_from:
+            queryset = queryset.filter(report_date__date__gte=date_from)
+        if date_to:
+            queryset = queryset.filter(report_date__date__lte=date_to)
+        
+        return queryset
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -955,6 +1043,16 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
         context['pending_reports'] = all_reports.filter(status='pending')
         context['reviewed_reports'] = all_reports.filter(status='reviewed')
         context['resolved_reports'] = all_reports.filter(status='resolved')
+        
+        # Add departments for filter dropdown
+        from .models import Department
+        context['departments'] = Department.objects.all().order_by('name')
+        
+        # Add search parameters for form persistence
+        context['search'] = self.request.GET.get('search', '')
+        context['department_filter'] = self.request.GET.get('department', '')
+        context['date_from'] = self.request.GET.get('date_from', '')
+        context['date_to'] = self.request.GET.get('date_to', '')
 
         return context
 
@@ -967,16 +1065,59 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Reservation.objects.select_related(
+        queryset = Reservation.objects.select_related(
             'user', 'user__userprofile', 'item'
         ).order_by('-reservation_date')
+        
+        # Apply search filter
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(user__first_name__icontains=search_query) |
+                Q(user__last_name__icontains=search_query) |
+                Q(user__username__icontains=search_query) |
+                Q(item__property_name__icontains=search_query) |
+                Q(purpose__icontains=search_query)
+            )
+        
+        # Apply department filter
+        department = self.request.GET.get('department')
+        if department:
+            queryset = queryset.filter(user__userprofile__department_id=department)
+        
+        # Apply date filters
+        date_from = self.request.GET.get('date_from')
+        if date_from:
+            try:
+                date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+                queryset = queryset.filter(reservation_date__date__gte=date_from_obj)
+            except ValueError:
+                pass
+                
+        date_to = self.request.GET.get('date_to')
+        if date_to:
+            try:
+                date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+                queryset = queryset.filter(reservation_date__date__lte=date_to_obj)
+            except ValueError:
+                pass
+        
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         all_reservations = self.get_queryset()
+        
+        # Group reservations by status
         context['pending_reservations'] = all_reservations.filter(status='pending')
         context['approved_reservations'] = all_reservations.filter(status='approved')
+        context['active_reservations'] = all_reservations.filter(status='active')
+        context['completed_reservations'] = all_reservations.filter(status='completed')
         context['rejected_reservations'] = all_reservations.filter(status='rejected')
+        
+        # Add departments for the filter dropdown
+        context['departments'] = Department.objects.all()
+        
         return context
 
 

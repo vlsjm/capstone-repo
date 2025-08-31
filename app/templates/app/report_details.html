@@ -4,60 +4,831 @@
 <head>
   <title>Damage Report Details</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <style>
+    /* Enhanced styles for damage report details */
+    .content {
+      padding: 20px;
+      margin-left: 270px;
+      background-color: #f5f6fa;
+      min-height: 100vh;
+    }
+    
+    .details-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(21, 45, 100, 0.1);
+      overflow: hidden;
+      border-left: 6px solid #152d64;
+    }
+    
+    .details-header {
+      background: linear-gradient(135deg, #152d64 0%, #1e3a8a 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .details-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="75" cy="75" r="1.5" fill="rgba(255,255,255,0.03)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.07)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    
+    .h2title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fbff00;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .report-id-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 10px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .details-p {
+      padding: 40px;
+    }
+    
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+    
+    .detail-item {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 12px;
+      border-left: 4px solid #152d64;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .detail-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(to bottom, #152d64, #28a745);
+      transition: width 0.3s ease;
+    }
+    
+    .detail-item:hover {
+      background: #ffffff;
+      box-shadow: 0 4px 15px rgba(21, 45, 100, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .detail-item:hover::before {
+      width: 6px;
+    }
+    
+    .detail-label {
+      font-weight: 700;
+      color: #152d64;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .detail-value {
+      color: #495057;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    
+    .detail-value.highlight {
+      color: #152d64;
+      font-weight: 600;
+    }
+    
+    /* Status specific styling */
+    .status-display {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 20px 0;
+    }
+    
+    .status-pending {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      color: #856404;
+      border: 2px solid #ffeaa7;
+    }
+    
+    .status-reviewed {
+      background: linear-gradient(135deg, #e2e3e5 0%, #d6d8db 100%);
+      color: #383d41;
+      border: 2px solid #d6d8db;
+    }
+    
+    .status-resolved {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+    
+    /* Messages styling */
+    .messages {
+      margin-bottom: 25px;
+    }
+    
+    .message {
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+    }
+    
+    .message.success {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+    
+    .message.error {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      color: #721c24;
+      border-left: 4px solid #dc3545;
+    }
+    
+    .message.warning {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      color: #856404;
+      border-left: 4px solid #ffc107;
+    }
+    
+    .message.info {
+      background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+      color: #0c5460;
+      border-left: 4px solid #17a2b8;
+    }
+    
+    /* Action buttons styling */
+    .stat-button {
+      margin-top: 30px;
+      padding: 25px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 1px solid #e9ecef;
+    }
+    
+    .stat-button textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    
+    .stat-button textarea:focus {
+      outline: none;
+      border-color: #152d64;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+    }
+    
+    .stat-button textarea::placeholder {
+      color: #6c757d;
+      font-style: italic;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .btn-approve {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn-approve:hover {
+      background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-reviewed {
+      background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn-reviewed:hover {
+      background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+    }
+    
+    .btn-back {
+      background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+      color: white;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn-back:hover {
+      background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+      text-decoration: none;
+      color: white;
+    }
+    
+    /* Remarks section */
+    .remarks-section {
+      background: #fff8e1;
+      border: 2px solid #ffecb3;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      position: relative;
+    }
+    
+    .remarks-section::before {
+      content: '\f075';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: #ff8f00;
+      font-size: 20px;
+      opacity: 0.7;
+    }
+    
+    .remarks-section strong {
+      color: #e65100;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: block;
+    }
+    
+    .remarks-text {
+      color: #bf360c;
+      font-size: 14px;
+      line-height: 1.6;
+      font-style: italic;
+    }
+    
+    /* Icons for detail items */
+    .detail-item .detail-label i {
+      width: 16px;
+      text-align: center;
+      color: #152d64;
+    }
+    
+    /* Description section */
+    .description-section {
+      background: #f0f8ff;
+      border: 2px solid #b8daff;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      position: relative;
+    }
+    
+    .description-section::before {
+      content: '\f15c';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: #0066cc;
+      font-size: 20px;
+      opacity: 0.7;
+    }
+    
+    .description-section strong {
+      color: #0056b3;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: block;
+    }
+    
+    .description-text {
+      color: #004085;
+      font-size: 14px;
+      line-height: 1.6;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #cce5ff;
+    }
+    
+    /* Image section */
+    .image-section {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      position: relative;
+    }
+    
+    .image-section::before {
+      content: '\f03e';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: #6c757d;
+      font-size: 20px;
+      opacity: 0.7;
+    }
+    
+    .image-section strong {
+      color: #495057;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      display: block;
+    }
+    
+    .image-container {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #dee2e6;
+      text-align: center;
+    }
+    
+    .damage-image {
+      max-width: 100%;
+      max-height: 400px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .damage-image:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .image-actions {
+      margin-top: 15px;
+    }
+    
+    .btn-view-full {
+      background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+      color: white;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-view-full:hover {
+      background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+      transform: translateY(-1px);
+      text-decoration: none;
+      color: white;
+    }
+    
+    .no-image-section {
+      background: #fff8e1;
+      border: 2px dashed #ffecb3;
+      border-radius: 12px;
+      padding: 30px;
+      margin: 20px 0;
+      text-align: center;
+      color: #8a6d3b;
+    }
+    
+    .no-image-section i {
+      font-size: 48px;
+      color: #ff8f00;
+      margin-bottom: 10px;
+      opacity: 0.7;
+    }
+    
+    .no-image-section span {
+      font-size: 16px;
+      font-weight: 500;
+      font-style: italic;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .content {
+        margin-left: 0;
+        padding: 15px;
+      }
+      
+      .details-container {
+        max-width: 100%;
+        margin: 0;
+        border-radius: 12px;
+      }
+      
+      .details-header {
+        padding: 20px;
+      }
+      
+      .h2title {
+        font-size: 24px;
+      }
+      
+      .details-p {
+        padding: 25px;
+      }
+      
+      .details-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .button-group {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .btn-approve, .btn-reviewed, .btn-back {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .damage-image {
+        max-height: 250px;
+      }
+      
+      .image-section {
+        padding: 15px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .details-header {
+        padding: 15px;
+      }
+      
+      .details-p {
+        padding: 20px;
+      }
+      
+      .detail-item {
+        padding: 15px;
+      }
+      
+      .stat-button {
+        padding: 20px;
+      }
+      
+      .damage-image {
+        max-height: 200px;
+      }
+    }
+  </style>
 </head>
 <body>
   {% include 'app/navbar.html' %}
+
   <div class="content">
-    <div class="details-p">
-      <h2 class="h2title">Damage Report Details</h2>
+    <div class="details-container">
+      <div class="details-header">
+        <h2 class="h2title">
+          <i class="fas fa-exclamation-triangle"></i>
+          Damage Report Details
+        </h2>
+        <div class="report-id-badge">
+          <i class="fas fa-hashtag"></i>
+          Report #{{ report_obj.id|stringformat:"03d" }}
+        </div>
+      </div>
 
-      <p><span>Reporter:</span>
-        {% with report_obj.user.first_name as first_name %}
-        {% with report_obj.user.last_name as last_name %}
-          {% if first_name or last_name %}
-            {{ first_name }} {{ last_name }}
-          {% else %}
-            {{ report_obj.user.username }}
-          {% endif %}
-        {% endwith %}
-        {% endwith %}
-      </p>
+      <div class="details-p">
+        {% if messages %}
+          <div class="messages">
+            {% for message in messages %}
+              <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-times-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
 
-      <p><span>Department:</span> {{ report_obj.user.userprofile.department }}</p>
-      <p><span>Item:</span> {{ report_obj.item.property_name }}</p>
-      <p><span>Description:</span> {{ report_obj.description }}</p>
-      <p><span>Status:</span> {{ report_obj.get_status_display }}</p>
-      <p><span>Reported Date:</span> {{ report_obj.report_date|date:"M d, Y H:i" }}</p>
+        <div class="details-grid">
+          <div class="detail-item">
+            <div class="detail-label">
+              <i class="fas fa-user"></i>
+              Reporter
+            </div>
+            <div class="detail-value highlight">
+              {% with report_obj.user.first_name as first_name %}
+              {% with report_obj.user.last_name as last_name %}
+                {% if first_name or last_name %}
+                  {{ first_name }} {{ last_name }}
+                {% else %}
+                  {{ report_obj.user.username }}
+                {% endif %}
+              {% endwith %}
+              {% endwith %}
+            </div>
+            <div class="detail-value">
+              <i class="fas fa-building"></i>
+              {{ report_obj.user.userprofile.department }}
+            </div>
+          </div>
 
- {% if report_obj.status == 'pending' %}
-  <form method="post" class="stat-button">
-    {% csrf_token %}
-    <textarea name="remarks" placeholder="Enter remarks or comments here..." required></textarea>
-    <a href="{% url 'user_damage_reports' %}" class="btn-back">← Back to Reports</a>
-    <button type="submit" name="action" value="reviewed" class="btn-reviewed">Mark as Reviewed</button>
-  </form>
+          <div class="detail-item">
+            <div class="detail-label">
+              <i class="fas fa-box"></i>
+              Damaged Item
+            </div>
+            <div class="detail-value highlight">{{ report_obj.item.property_name }}</div>
+          </div>
 
-{% elif report_obj.status == 'reviewed' %}
-  <form method="post" class="stat-button">
-    {% csrf_token %}
-    <textarea name="remarks" placeholder="Enter remarks or comments here..." required></textarea>
-    <a href="{% url 'user_damage_reports' %}" class="btn-back">← Back to Reports</a>
-    <button type="submit" name="action" value="resolved" class="btn-approve">Mark as Resolved</button>
-  </form>
+          <div class="detail-item">
+            <div class="detail-label">
+              <i class="fas fa-calendar-alt"></i>
+              Report Date
+            </div>
+            <div class="detail-value">{{ report_obj.report_date|date:"M d, Y H:i" }}</div>
+          </div>
 
-{% else %}
-  <p><strong>Remarks:</strong> {{ report_obj.remarks }}</p>
-  <form class="stat-button">
+          <div class="detail-item">
+            <div class="detail-label">
+              <i class="fas fa-info-circle"></i>
+              Status
+            </div>
+            <div class="detail-value">
+              <div class="status-display status-{{ report_obj.status|lower }}">
+                {% if report_obj.status == 'pending' %}
+                  <i class="fas fa-clock"></i>
+                {% elif report_obj.status == 'reviewed' %}
+                  <i class="fas fa-eye"></i>
+                {% elif report_obj.status == 'resolved' %}
+                  <i class="fas fa-check-circle"></i>
+                {% endif %}
+                {{ report_obj.get_status_display }}
+              </div>
+            </div>
+          </div>
+        </div>
 
-  <a href="{% url 'user_damage_reports' %}" class="btn-back">← Back to Reports</a>
-  </form>
-{% endif %}
+        <!-- Description Section -->
+        <div class="description-section">
+          <strong>Damage Description</strong>
+          <div class="description-text">{{ report_obj.description }}</div>
+        </div>
 
+        <!-- Image Section -->
+        {% if report_obj.image %}
+          <div class="image-section">
+            <strong>Attached Evidence</strong>
+            <div class="image-container">
+              <img src="{{ report_obj.image.url }}" alt="Damage Report Evidence" class="damage-image">
+              <div class="image-actions">
+                <a href="{{ report_obj.image.url }}" target="_blank" class="btn-view-full">
+                  <i class="fas fa-expand"></i> View Full Size
+                </a>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="no-image-section">
+            <i class="fas fa-image"></i>
+            <span>No image attached to this report</span>
+          </div>
+        {% endif %}
+
+        {% if report_obj.remarks %}
+          <div class="remarks-section">
+            <strong>Remarks / Comments</strong>
+            <div class="remarks-text">{{ report_obj.remarks }}</div>
+          </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        {% if report_obj.status == 'pending' %}
+          <form method="post" class="stat-button">
+            {% csrf_token %}
+            <textarea name="remarks" placeholder="Enter review comments or action taken..." required></textarea>
+            
+            <div class="button-group">
+              <a href="{% url 'user_damage_reports' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Reports
+              </a>
+              <button type="submit" name="action" value="reviewed" class="btn-reviewed">
+                <i class="fas fa-eye"></i> Mark as Reviewed
+              </button>
+            </div>
+          </form>
+
+        {% elif report_obj.status == 'reviewed' %}
+          <form method="post" class="stat-button">
+            {% csrf_token %}
+            <textarea name="remarks" placeholder="Enter resolution details or final comments..." required></textarea>
+            
+            <div class="button-group">
+              <a href="{% url 'user_damage_reports' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Reports
+              </a>
+              <button type="submit" name="action" value="resolved" class="btn-approve">
+                <i class="fas fa-check-circle"></i> Mark as Resolved
+              </button>
+            </div>
+          </form>
+
+        {% else %}
+          <!-- For resolved status -->
+          <div class="stat-button">
+            <div class="button-group">
+              <a href="{% url 'user_damage_reports' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Reports
+              </a>
+            </div>
+          </div>
+        {% endif %}
+
+      </div>
     </div>
   </div>
+
+  <!-- Image Modal -->
+  {% if report_obj.image %}
+  <div id="imageModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <img src="{{ report_obj.image.url }}" alt="Damage Report Evidence - Full Size" id="modalImage">
+    </div>
+  </div>
+  {% endif %}
+
+  <style>
+    /* Modal styles */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+    }
+    
+    .modal-content {
+      position: relative;
+      margin: auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 900px;
+      top: 50%;
+      transform: translateY(-50%);
+      text-align: center;
+    }
+    
+    .modal-content img {
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+    }
+    
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 25px;
+      color: white;
+      font-size: 35px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    
+    .close:hover {
+      color: #fbff00;
+    }
+  </style>
+
+  <script>
+    // Image modal functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const modal = document.getElementById('imageModal');
+      const damageImage = document.querySelector('.damage-image');
+      const closeModal = document.querySelector('.close');
+
+      if (damageImage && modal) {
+        damageImage.addEventListener('click', function() {
+          modal.style.display = 'block';
+        });
+      }
+
+      if (closeModal && modal) {
+        closeModal.addEventListener('click', function() {
+          modal.style.display = 'none';
+        });
+      }
+
+      // Close modal when clicking outside the image
+      if (modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            modal.style.display = 'none';
+          }
+        });
+      }
+
+      // Close modal with Escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal && modal.style.display === 'block') {
+          modal.style.display = 'none';
+        }
+      });
+    });
+  </script>
 </body>
 </html>

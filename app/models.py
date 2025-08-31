@@ -783,6 +783,7 @@ class DamageReport(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     remarks = models.TextField(blank=True, null=True)
     report_date = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to='report_images/', blank=True, null=True)
 
     def __str__(self):
         return f"Damage Report for {self.item.property_name}"

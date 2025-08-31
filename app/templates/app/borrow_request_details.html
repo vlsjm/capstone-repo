@@ -5,92 +5,674 @@
   <title>Borrow Request Details</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <style>
+    /* Enhanced styles for borrow request details */
+    .content {
+      padding: 20px;
+      margin-left: 270px;
+      background-color: #f5f6fa;
+      min-height: 100vh;
+    }
+    
+    .details-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(21, 45, 100, 0.1);
+      overflow: hidden;
+      border-left: 6px solid #152d64;
+    }
+    
+    .details-header {
+      background: linear-gradient(135deg, #152d64 0%, #1e3a8a 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .details-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="75" cy="75" r="1.5" fill="rgba(255,255,255,0.03)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.07)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    
+    .h2title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fbff00;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .request-id-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 10px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .details-p {
+      padding: 40px;
+    }
+    
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+    
+    .detail-item {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 12px;
+      border-left: 4px solid #152d64;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .detail-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(to bottom, #152d64, #28a745);
+      transition: width 0.3s ease;
+    }
+    
+    .detail-item:hover {
+      background: #ffffff;
+      box-shadow: 0 4px 15px rgba(21, 45, 100, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .detail-item:hover::before {
+      width: 6px;
+    }
+    
+    .detail-label {
+      font-weight: 700;
+      color: #152d64;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .detail-value {
+      color: #495057;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    
+    .detail-value.highlight {
+      color: #152d64;
+      font-weight: 600;
+    }
+    
+    /* Status specific styling */
+    .status-display {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 20px 0;
+    }
+    
+    .status-pending {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      color: #856404;
+      border: 2px solid #ffeaa7;
+    }
+    
+    .status-approved {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+    
+    .status-returned {
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+      color: #2d3748;
+      border: 2px solid #cbd5e0;
+    }
+    
+    .status-overdue {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+      animation: pulse-warning 2s infinite;
+    }
+    
+    .status-declined {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+    }
+    
+    @keyframes pulse-warning {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    /* Messages styling */
+    .messages {
+      margin-bottom: 25px;
+    }
+    
+    .message {
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+    }
+    
+    .message.success {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+    
+    .message.error {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      color: #721c24;
+      border-left: 4px solid #dc3545;
+    }
+    
+    .message.warning {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      color: #856404;
+      border-left: 4px solid #ffc107;
+    }
+    
+    .message.info {
+      background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+      color: #0c5460;
+      border-left: 4px solid #17a2b8;
+    }
+    
+    /* Action buttons styling */
+    .stat-button {
+      margin-top: 30px;
+      padding: 25px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 1px solid #e9ecef;
+    }
+    
+    .stat-button textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    
+    .stat-button textarea:focus {
+      outline: none;
+      border-color: #152d64;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+    }
+    
+    .stat-button textarea::placeholder {
+      color: #6c757d;
+      font-style: italic;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .btn-approve {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn-approve:hover {
+      background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-reject {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn-reject:hover {
+      background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+    }
+    
+    .btn-back {
+      background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+      color: white;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn-back:hover {
+      background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+      text-decoration: none;
+      color: white;
+    }
+    
+    /* Remarks section */
+    .remarks-section {
+      background: #fff8e1;
+      border: 2px solid #ffecb3;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      position: relative;
+    }
+    
+    .remarks-section::before {
+      content: '\f075';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: #ff8f00;
+      font-size: 20px;
+      opacity: 0.7;
+    }
+    
+    .remarks-section strong {
+      color: #e65100;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: block;
+    }
+    
+    .remarks-text {
+      color: #bf360c;
+      font-size: 14px;
+      line-height: 1.6;
+      font-style: italic;
+    }
+    
+    /* Icons for detail items */
+    .detail-item .detail-label i {
+      width: 16px;
+      text-align: center;
+      color: #152d64;
+    }
+    
+    /* Special styling for overdue items */
+    .overdue-warning {
+      background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+      border: 2px solid #f8bbd9;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+      position: relative;
+      animation: gentle-pulse 3s infinite;
+    }
+    
+    .overdue-warning::before {
+      content: '\f071';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      font-size: 24px;
+      color: #d32f2f;
+      margin-bottom: 10px;
+      display: block;
+    }
+    
+    .overdue-warning h3 {
+      color: #d32f2f;
+      margin: 0 0 10px 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .overdue-warning p {
+      color: #c62828;
+      margin: 0;
+      font-weight: 500;
+    }
+    
+    @keyframes gentle-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .content {
+        margin-left: 0;
+        padding: 15px;
+      }
+      
+      .details-container {
+        max-width: 100%;
+        margin: 0;
+        border-radius: 12px;
+      }
+      
+      .details-header {
+        padding: 20px;
+      }
+      
+      .h2title {
+        font-size: 24px;
+      }
+      
+      .details-p {
+        padding: 25px;
+      }
+      
+      .details-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .button-group {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .btn-approve, .btn-reject, .btn-back {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .details-header {
+        padding: 15px;
+      }
+      
+      .details-p {
+        padding: 20px;
+      }
+      
+      .detail-item {
+        padding: 15px;
+      }
+      
+      .stat-button {
+        padding: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
   {% include 'app/navbar.html' %}
 
   <div class="content">
-    <div class="details-p">
-      <h2 class="h2title">Borrow Request Details</h2>
-
-      {% if messages %}
-        <div class="messages">
-          {% for message in messages %}
-            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
-              {{ message }}
-            </div>
-          {% endfor %}
+    <div class="details-container">
+      <div class="details-header">
+        <h2 class="h2title">
+          <i class="fas fa-clipboard-list"></i>
+          Borrow Request Details
+        </h2>
+        <div class="request-id-badge">
+          <i class="fas fa-hashtag"></i>
+          Request #{{ borrow_obj.id|stringformat:"03d" }}
         </div>
-      {% endif %}
+      </div>
 
-      <p><span>Borrower:</span> 
-        {% with borrow_obj.user.first_name as first_name %}
-        {% with borrow_obj.user.last_name as last_name %}
-          {% if first_name or last_name %}
-            {{ first_name }} {{ last_name }}
-          {% else %}
-            {{ borrow_obj.user.username }}
-          {% endif %}
-        {% endwith %}
-        {% endwith %}
-      </p>
-
-      <p><span>Department:</span> {{ borrow_obj.user.userprofile.department }}</p>
-      <p><span>Property:</span> {{ borrow_obj.property.property_name }}</p>
-      <p><span>Quantity:</span> {{ borrow_obj.quantity }}</p>
-      <p><span>Purpose:</span> {{ borrow_obj.purpose }}</p>
-      <p><span>Status:</span> {{ borrow_obj.get_status_display }}</p>
-      <p><span>Borrow Date:</span> {{ borrow_obj.borrow_date|date:"M d, Y H:i" }}</p>
-      <p><span>Return Date:</span> {{ borrow_obj.return_date|date:"M d, Y" }}</p>
-      <p><span>Actual Return Date:</span>
-        {% if borrow_obj.actual_return_date %}
-          {{ borrow_obj.actual_return_date|date:"M d, Y" }}
-        {% else %}
-          -
+      <div class="details-p">
+        {% if messages %}
+          <div class="messages">
+            {% for message in messages %}
+              <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-times-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
         {% endif %}
-      </p>
 
-      {% if borrow_obj.status == 'pending' %}
-        <form method="post" class="stat-button">
-          {% csrf_token %}
-          <textarea name="remarks" placeholder="Enter remarks or comments here..."></textarea>
-          <button type="submit" name="action" value="approve" class="btn-approve">Approve</button>
-          <button type="submit" name="action" value="decline" class="btn-reject">Decline</button>
-          <a href="{% url 'user_borrow_requests' %}" class="btn-back">← Back to Borrow Requests</a>
-        </form>
+        <div class="details-grid">
+          <div class="detail-item">
+            <div class="detail-label">
+              <i class="fas fa-user"></i>
+              Borrower
+            </div>
+            <div class="detail-value highlight">
+              {% with borrow_obj.user.first_name as first_name %}
+              {% with borrow_obj.user.last_name as last_name %}
+                {% if first_name or last_name %}
+                  {{ first_name }} {{ last_name }}
+                {% else %}
+                  {{ borrow_obj.user.username }}
+                {% endif %}
+              {% endwith %}
+              {% endwith %}
+            </div>
+            <div class="detail-value">
+              <i class="fas fa-building"></i>
+              {{ borrow_obj.user.userprofile.department }}
+            </div>
+          </div>
 
-      {% elif borrow_obj.status == 'approved' %}
-        <form method="post" class="stat-button">
-          {% csrf_token %}
-          <textarea name="remarks" placeholder="Enter remarks or comments here..."></textarea>
-          <button type="submit" name="action" value="return" class="btn-approve">Mark as Returned</button>
-          <a href="{% url 'user_borrow_requests' %}" class="btn-back">← Back to Borrow Requests</a>
-        </form>
+          <div class="detail-item">
+            <div class="detail-label">
+              <i class="fas fa-box"></i>
+              Property Details
+            </div>
+            <div class="detail-value highlight">{{ borrow_obj.property.property_name }}</div>
+            <div class="detail-value">
+              <i class="fas fa-sort-numeric-up"></i>
+              Quantity: {{ borrow_obj.quantity }}
+            </div>
+          </div>
 
-      {% elif borrow_obj.status in 'declined overdue returned' %}
-        {% if borrow_obj.remarks %}
-          <p><strong>Remarks:</strong> {{ borrow_obj.remarks }}</p>
-        {% endif %}
-        
+          <div class="detail-item">
+            <div class="detail-label">
+              <i class="fas fa-calendar-alt"></i>
+              Borrow Date
+            </div>
+            <div class="detail-value">{{ borrow_obj.borrow_date|date:"M d, Y H:i" }}</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">
+              <i class="fas fa-calendar-check"></i>
+              Expected Return Date
+            </div>
+            <div class="detail-value">{{ borrow_obj.return_date|date:"M d, Y" }}</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">
+              <i class="fas fa-undo-alt"></i>
+              Actual Return Date
+            </div>
+            <div class="detail-value">
+              {% if borrow_obj.actual_return_date %}
+                {{ borrow_obj.actual_return_date|date:"M d, Y" }}
+              {% else %}
+                <span style="color: #6c757d; font-style: italic;">Not yet returned</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">
+              <i class="fas fa-tasks"></i>
+              Purpose
+            </div>
+            <div class="detail-value">{{ borrow_obj.purpose }}</div>
+          </div>
+        </div>
+
+        <!-- Status Display -->
+        <div class="text-center">
+          <div class="status-display status-{{ borrow_obj.status|lower }}">
+            {% if borrow_obj.status == 'pending' %}
+              <i class="fas fa-clock"></i>
+            {% elif borrow_obj.status == 'approved' %}
+              <i class="fas fa-check-circle"></i>
+            {% elif borrow_obj.status == 'returned' %}
+              <i class="fas fa-undo"></i>
+            {% elif borrow_obj.status == 'overdue' %}
+              <i class="fas fa-exclamation-triangle"></i>
+            {% elif borrow_obj.status == 'declined' %}
+              <i class="fas fa-times-circle"></i>
+            {% endif %}
+            {{ borrow_obj.get_status_display }}
+          </div>
+        </div>
+
         {% if borrow_obj.status == 'overdue' %}
+          <div class="overdue-warning">
+            <h3>Overdue Item Alert</h3>
+            <p>This item was expected to be returned on {{ borrow_obj.return_date|date:"M d, Y" }}</p>
+          </div>
+        {% endif %}
+
+        {% if borrow_obj.remarks %}
+          <div class="remarks-section">
+            <strong>Remarks / Comments</strong>
+            <div class="remarks-text">{{ borrow_obj.remarks }}</div>
+          </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        {% if borrow_obj.status == 'pending' %}
           <form method="post" class="stat-button">
             {% csrf_token %}
-            <textarea name="remarks" placeholder="Enter remarks or comments here..."></textarea>
-            <button type="submit" name="action" value="return" class="btn-approve">Mark as Returned</button>
-            <a href="{% url 'user_borrow_requests' %}" class="btn-back">← Back to Borrow Requests</a>
+            <textarea name="remarks" placeholder="Enter remarks or comments here..." required></textarea>
+            
+            <div class="button-group">
+              <a href="{% url 'user_borrow_requests' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Borrow Requests
+              </a>
+              <button type="submit" name="action" value="approve" class="btn-approve">
+                <i class="fas fa-check"></i> Approve Request
+              </button>
+              <button type="submit" name="action" value="decline" class="btn-reject">
+                <i class="fas fa-times"></i> Decline Request
+              </button>
+            </div>
           </form>
-        {% elif borrow_obj.status == 'declined' %}
+
+        {% elif borrow_obj.status == 'approved' %}
+          <form method="post" class="stat-button">
+            {% csrf_token %}
+            <textarea name="remarks" placeholder="Enter return remarks or condition notes..."></textarea>
+            
+            <div class="button-group">
+              <button type="submit" name="action" value="return" class="btn-approve">
+                <i class="fas fa-undo"></i> Mark as Returned
+              </button>
+              <a href="{% url 'user_borrow_requests' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Borrow Requests
+              </a>
+            </div>
+          </form>
+
+        {% elif borrow_obj.status == 'overdue' %}
+          <form method="post" class="stat-button">
+            {% csrf_token %}
+            <textarea name="remarks" placeholder="Enter return remarks or condition notes..."></textarea>
+            
+            <div class="button-group">
+              <button type="submit" name="action" value="return" class="btn-approve">
+                <i class="fas fa-undo"></i> Mark as Returned
+              </button>
+              <a href="{% url 'user_borrow_requests' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Borrow Requests
+              </a>
+            </div>
+          </form>
+
+        {% else %}
+          <!-- For declined and returned status -->
           <div class="stat-button">
-            <a href="{% url 'user_borrow_requests' %}" class="btn-back">← Back to Borrow Requests</a>
-          </div>
-        {% elif borrow_obj.status == 'returned' %}
-          <div class="stat-button">
-            <a href="{% url 'user_borrow_requests' %}" class="btn-back">← Back to Borrow Requests</a>
+            <div class="button-group">
+              <a href="{% url 'user_borrow_requests' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Borrow Requests
+              </a>
+            </div>
           </div>
         {% endif %}
 
-      {% endif %}
-
+      </div>
     </div>
   </div>
 </body>
