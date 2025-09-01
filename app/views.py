@@ -11,7 +11,7 @@ from django.db.models import Count, Q
 from django.views import View
 from django.contrib.auth import login, authenticate, logout
 from .models import(
-    Supply, Property, BorrowRequest,
+    Supply, Property, BorrowRequest, BorrowRequestBatch, BorrowRequestItem,
     SupplyRequest, DamageReport, Reservation,
     ActivityLog, UserProfile, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
@@ -3472,3 +3472,610 @@ def claim_individual_item(request, batch_id, item_id):
     )
     
     return redirect('batch_request_detail', batch_id=batch_id)
+
+# Batch Borrow Request Management Views
+@permission_required('app.view_admin_module')
+@login_required
+def borrow_batch_request_detail(request, batch_id):
+    """View detailed information about a batch borrow request with individual item actions"""
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        item_id = request.POST.get('item_id')
+        remarks = request.POST.get('remarks', '')
+        
+        if item_id:
+            item = get_object_or_404(BorrowRequestItem, id=item_id, batch_request=batch_request)
+            
+            if action == 'approve':
+                # Check availability before approving
+                available_quantity = item.property.quantity or 0
+                approved_quantity = int(request.POST.get('approved_quantity', item.quantity))
+                
+                if approved_quantity > available_quantity:
+                    messages.error(request, f'Only {available_quantity} units of {item.property.property_name} are available.')
+                    return redirect('borrow_batch_request_detail', batch_id=batch_id)
+                
+                item.status = 'approved'
+                item.approved_quantity = approved_quantity
+                if remarks:
+                    item.remarks = remarks
+                item.save()
+                
+                # Create notification
+                Notification.objects.create(
+                    user=batch_request.user,
+                    message=f"Item '{item.property.property_name}' in your batch borrow request #{batch_request.id} has been approved for {approved_quantity} units.",
+                    remarks=remarks
+                )
+                
+                messages.success(request, f'Item "{item.property.property_name}" approved successfully.')
+                
+            elif action == 'reject':
+                item.status = 'rejected'
+                if remarks:
+                    item.remarks = remarks
+                item.save()
+                
+                # Create notification
+                Notification.objects.create(
+                    user=batch_request.user,
+                    message=f"Item '{item.property.property_name}' in your batch borrow request #{batch_request.id} has been rejected.",
+                    remarks=remarks
+                )
+                
+                messages.success(request, f'Item "{item.property.property_name}" rejected successfully.')
+            
+            # Update batch status based on individual item statuses
+            total_items = batch_request.items.count()
+            approved_items = batch_request.items.filter(status='approved').count()
+            rejected_items = batch_request.items.filter(status='rejected').count()
+            pending_items = batch_request.items.filter(status='pending').count()
+            processed_items = approved_items + rejected_items
+            
+            if processed_items == total_items:
+                # All items have been processed (approved or rejected)
+                if approved_items > 0:
+                    # At least some items were approved
+                    batch_request.status = 'for_claiming'
+                    if approved_items == total_items:
+                        batch_request.approved_date = timezone.now()
+                else:
+                    # All items were rejected
+                    batch_request.status = 'rejected'
+            elif approved_items > 0:
+                # Some approved, some still pending
+                batch_request.status = 'partially_approved'
+            else:
+                # No items approved yet (either all pending or all rejected)
+                if rejected_items > 0 and pending_items > 0:
+                    # Some rejected, some pending
+                    batch_request.status = 'pending'
+                else:
+                    # All pending or all rejected
+                    batch_request.status = 'pending' if pending_items > 0 else 'rejected'
+            
+            batch_request.save()
+        
+        return redirect('borrow_batch_request_detail', batch_id=batch_id)
+    
+    context = {
+        'batch': batch_request,
+        'items': batch_request.items.all().order_by('property__property_name')
+    }
+    
+    return render(request, 'app/borrow_batch_request_detail.html', context)
+
+@permission_required('app.view_admin_module')
+@login_required
+@require_POST
+def claim_borrow_batch_items(request, batch_id):
+    """
+    Handle claiming of all approved items in a batch borrow request.
+    This will deduct stock and mark items as active.
+    """
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    
+    # Only allow claiming if batch is in for_claiming status
+    if batch_request.status != 'for_claiming':
+        messages.error(request, 'This request is not available for claiming.')
+        return redirect('user_borrow_requests')
+    
+    # Get all approved items that haven't been claimed yet
+    approved_items = batch_request.items.filter(status='approved', claimed_date__isnull=True)
+    
+    if not approved_items.exists():
+        messages.error(request, 'No approved items available for claiming.')
+        return redirect('user_borrow_requests')
+    
+    # Check stock availability for all items before processing
+    insufficient_stock_items = []
+    for item in approved_items:
+        available_quantity = item.property.quantity or 0
+        approved_qty = item.approved_quantity or item.quantity or 0
+        
+        if available_quantity < approved_qty:
+            insufficient_stock_items.append(f"{item.property.property_name} (need: {approved_qty}, available: {available_quantity})")
+    
+    if insufficient_stock_items:
+        messages.error(request, f"Insufficient stock for: {', '.join(insufficient_stock_items)}")
+        return redirect('user_borrow_requests')
+    
+    # Process all approved items
+    claimed_items = []
+    
+    for item in approved_items:
+        approved_qty = item.approved_quantity or item.quantity or 0
+        
+        # Deduct from property quantity
+        item.property.quantity -= approved_qty
+        item.property.save()
+        
+        # Update the approved_quantity if it was None
+        if item.approved_quantity is None:
+            item.approved_quantity = item.quantity
+        
+        # Mark item as active and claimed
+        item.status = 'active'
+        item.claimed_date = timezone.now()
+        item.save()
+        
+        claimed_items.append(item)
+        
+        # Log activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='claim',
+            model_name='BorrowRequestItem',
+            object_repr=f"Batch #{batch_id} - {item.property.property_name}",
+            description=f"Claimed {approved_qty} units of {item.property.property_name} from batch borrow request #{batch_id}"
+        )
+    
+    # Update batch status and dates
+    batch_request.status = 'active'
+    batch_request.claimed_date = timezone.now()
+    batch_request.claimed_by = request.user
+    batch_request.save()
+    
+    # Create notification for the requester
+    Notification.objects.create(
+        user=batch_request.user,
+        message=f"Your borrow request #{batch_request.id} is now active and items have been claimed.",
+        remarks=f"Total items claimed: {len(claimed_items)}. Please return by: {batch_request.latest_return_date}"
+    )
+    
+    # Log batch activation
+    ActivityLog.log_activity(
+        user=request.user,
+        action='activate',
+        model_name='BorrowRequestBatch',
+        object_repr=f"Batch #{batch_id}",
+        description=f"Activated batch borrow request #{batch_id} with {len(claimed_items)} items claimed"
+    )
+    
+    messages.success(request, f'Successfully claimed {len(claimed_items)} items.')
+    return redirect('user_borrow_requests')
+
+@permission_required('app.view_admin_module')
+@login_required
+@require_POST
+def return_borrow_batch_items(request, batch_id):
+    """
+    Handle returning of all active items in a batch borrow request.
+    This will increase stock and mark items as returned.
+    """
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    
+    # Only allow returning if batch is in active or overdue status
+    if batch_request.status not in ['active', 'overdue']:
+        messages.error(request, 'This request is not available for returning.')
+        return redirect('user_borrow_requests')
+    
+    # Get all active items
+    active_items = batch_request.items.filter(status__in=['active', 'overdue'])
+    
+    if not active_items.exists():
+        messages.error(request, 'No active items available for returning.')
+        return redirect('user_borrow_requests')
+    
+    # Process all active items
+    returned_items = []
+    
+    for item in active_items:
+        approved_qty = item.approved_quantity or item.quantity or 0
+        
+        # Add back to property quantity
+        item.property.quantity += approved_qty
+        item.property.save()
+        
+        # Mark item as returned
+        item.status = 'returned'
+        item.actual_return_date = timezone.now().date()
+        item.save()
+        
+        returned_items.append(item)
+        
+        # Log activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='return',
+            model_name='BorrowRequestItem',
+            object_repr=f"Batch #{batch_id} - {item.property.property_name}",
+            description=f"Returned {approved_qty} units of {item.property.property_name} from batch borrow request #{batch_id}"
+        )
+    
+    # Update batch status and dates
+    batch_request.status = 'returned'
+    batch_request.returned_date = timezone.now()
+    batch_request.completed_date = timezone.now()
+    batch_request.save()
+    
+    # Create notification for the requester
+    Notification.objects.create(
+        user=batch_request.user,
+        message=f"Your borrow request #{batch_request.id} has been marked as returned.",
+        remarks="Thank you for returning all items."
+    )
+    
+    # Log batch completion
+    ActivityLog.log_activity(
+        user=request.user,
+        action='return',
+        model_name='BorrowRequestBatch',
+        object_repr=f"Batch #{batch_id}",
+        description=f"Completed batch borrow request #{batch_id} with {len(returned_items)} items returned"
+    )
+    
+    messages.success(request, f'Successfully returned {len(returned_items)} items.')
+    return redirect('user_borrow_requests')
+
+class UserBorrowRequestBatchListView(PermissionRequiredMixin, ListView):
+    """View for displaying batch borrow requests in admin panel"""
+    model = BorrowRequestBatch
+    template_name = 'app/borrow_batch.html'
+    permission_required = 'app.view_admin_module'
+    context_object_name = 'batch_requests'
+    paginate_by = 10
+
+    def get_queryset(self):
+        # Check for overdue batches before getting the queryset
+        BorrowRequestBatch.check_overdue_batches()
+        return BorrowRequestBatch.objects \
+            .select_related('user', 'user__userprofile', 'claimed_by') \
+            .prefetch_related('items__property') \
+            .order_by('-request_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get the current tab from request
+        current_tab = self.request.GET.get('tab', 'pending')
+        
+        # Get search and filter parameters
+        search_query = self.request.GET.get('search', '').strip()
+        department_filter = self.request.GET.get('department', '')
+        date_from = self.request.GET.get('date_from', '')
+        date_to = self.request.GET.get('date_to', '')
+        
+        # Base queryset with related data
+        base_queryset = BorrowRequestBatch.objects.select_related('user', 'user__userprofile', 'user__userprofile__department').prefetch_related('items__property').order_by('-request_date')
+        
+        # Apply search filter
+        if search_query:
+            base_queryset = base_queryset.filter(
+                Q(user__first_name__icontains=search_query) |
+                Q(user__last_name__icontains=search_query) |
+                Q(user__username__icontains=search_query) |
+                Q(purpose__icontains=search_query) |
+                Q(items__property__property_name__icontains=search_query)
+            ).distinct()
+        
+        # Apply department filter
+        if department_filter:
+            base_queryset = base_queryset.filter(user__userprofile__department__name=department_filter)
+        
+        # Apply date filters
+        if date_from:
+            try:
+                date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+                base_queryset = base_queryset.filter(request_date__date__gte=date_from_obj)
+            except ValueError:
+                pass
+        
+        if date_to:
+            try:
+                date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+                base_queryset = base_queryset.filter(request_date__date__lte=date_to_obj)
+            except ValueError:
+                pass
+        
+        # Get filtered requests by status
+        pending_requests = base_queryset.filter(status='pending')
+        partially_approved_requests = base_queryset.filter(status='partially_approved')
+        for_claiming_requests = base_queryset.filter(status='for_claiming')
+        active_requests = base_queryset.filter(status='active')
+        returned_requests = base_queryset.filter(status='returned')
+        overdue_requests = base_queryset.filter(status='overdue')
+        rejected_requests = base_queryset.filter(status='rejected')
+        
+        # Pagination for each tab
+        paginator_pending = Paginator(pending_requests, self.paginate_by)
+        paginator_partially_approved = Paginator(partially_approved_requests, self.paginate_by)
+        paginator_for_claiming = Paginator(for_claiming_requests, self.paginate_by)
+        paginator_active = Paginator(active_requests, self.paginate_by)
+        paginator_returned = Paginator(returned_requests, self.paginate_by)
+        paginator_overdue = Paginator(overdue_requests, self.paginate_by)
+        paginator_rejected = Paginator(rejected_requests, self.paginate_by)
+        
+        # Get page numbers for each tab
+        page_pending = self.request.GET.get('pending_page', 1)
+        page_partially_approved = self.request.GET.get('partially_approved_page', 1)
+        page_for_claiming = self.request.GET.get('for_claiming_page', 1)
+        page_active = self.request.GET.get('active_page', 1)
+        page_returned = self.request.GET.get('returned_page', 1)
+        page_overdue = self.request.GET.get('overdue_page', 1)
+        page_rejected = self.request.GET.get('rejected_page', 1)
+        
+        context.update({
+            'current_tab': current_tab,
+            'pending_requests': paginator_pending.get_page(page_pending),
+            'partially_approved_requests': paginator_partially_approved.get_page(page_partially_approved),
+            'for_claiming_requests': paginator_for_claiming.get_page(page_for_claiming),
+            'active_requests': paginator_active.get_page(page_active),
+            'returned_requests': paginator_returned.get_page(page_returned),
+            'overdue_requests': paginator_overdue.get_page(page_overdue),
+            'rejected_requests': paginator_rejected.get_page(page_rejected),
+            'search_query': search_query,
+            'department_filter': department_filter,
+            'date_from': date_from,
+            'date_to': date_to,
+            'departments': Department.objects.all(),
+        })
+        
+        return context
+
+
+# Individual Borrow Item Management Views for Batch Requests
+@permission_required('app.view_admin_module')
+@login_required
+@require_POST
+def approve_borrow_item(request, batch_id, item_id):
+    """Approve an individual item in a batch borrow request"""
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    item = get_object_or_404(BorrowRequestItem, id=item_id, batch_request=batch_request)
+    
+    # Get approved quantity from form
+    approved_quantity = request.POST.get('approved_quantity', item.quantity)
+    try:
+        approved_quantity = int(approved_quantity)
+        if approved_quantity <= 0 or approved_quantity > item.quantity:
+            messages.error(request, f'Invalid approved quantity. Must be between 1 and {item.quantity}.')
+            return redirect('borrow_batch_request_detail', batch_id=batch_id)
+    except (ValueError, TypeError):
+        approved_quantity = item.quantity
+    
+    # Check if enough property units are available
+    available_quantity = item.property.quantity or 0
+    if approved_quantity > available_quantity:
+        messages.error(request, f'Only {available_quantity} units of {item.property.property_name} are available.')
+        return redirect('borrow_batch_request_detail', batch_id=batch_id)
+    
+    # Mark item as approved
+    item.approved = True
+    item.status = 'approved'
+    item.approved_quantity = approved_quantity
+    remarks = request.POST.get('remarks', '')
+    if remarks:
+        item.remarks = remarks
+    item.save()
+    
+    # Check if all items in the batch are processed
+    total_items = batch_request.items.count()
+    approved_items = batch_request.items.filter(approved=True).count()
+    rejected_items = batch_request.items.filter(approved=False, status='rejected').count()
+    processed_items = approved_items + rejected_items
+    
+    # Update batch status
+    if processed_items == total_items:
+        # All items have been processed (approved or rejected)
+        if approved_items > 0:
+            batch_request.status = 'for_claiming'
+        else:
+            batch_request.status = 'rejected'
+    elif approved_items > 0:
+        batch_request.status = 'partially_approved'
+    
+    batch_request.save()
+    
+    # Create notification for user
+    Notification.objects.create(
+        user=batch_request.user,
+        message=f"Item '{item.property.property_name}' in your batch borrow request #{batch_request.id} has been approved for {item.approved_quantity} units.",
+        remarks=remarks
+    )
+    
+    # Log activity
+    ActivityLog.log_activity(
+        user=request.user,
+        action='approve',
+        model_name='BorrowRequestItem',
+        object_repr=f"Batch #{batch_id} - {item.property.property_name}",
+        description=f"Approved {item.approved_quantity} out of {item.quantity} units of {item.property.property_name} in batch borrow request #{batch_id}"
+    )
+    
+    return redirect('borrow_batch_request_detail', batch_id=batch_id)
+
+
+@permission_required('app.view_admin_module')
+@login_required
+@require_POST
+def reject_borrow_item(request, batch_id, item_id):
+    """Reject an individual item in a batch borrow request"""
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    item = get_object_or_404(BorrowRequestItem, id=item_id, batch_request=batch_request)
+    
+    # Mark item as not approved and add remarks
+    item.approved = False
+    item.status = 'rejected'
+    remarks = request.POST.get('remarks', '')
+    if remarks:
+        item.remarks = remarks
+    item.save()
+    
+    # Check if all items in the batch are processed
+    total_items = batch_request.items.count()
+    approved_items = batch_request.items.filter(approved=True).count()
+    rejected_items = batch_request.items.filter(approved=False, status='rejected').count()
+    processed_items = approved_items + rejected_items
+    
+    # Update batch status
+    if processed_items == total_items:
+        # All items have been processed (approved or rejected)
+        if approved_items > 0:
+            batch_request.status = 'for_claiming'
+        else:
+            batch_request.status = 'rejected'
+    elif approved_items > 0:
+        batch_request.status = 'partially_approved'
+    
+    batch_request.save()
+    
+    # Create notification for user
+    Notification.objects.create(
+        user=batch_request.user,
+        message=f"Item '{item.property.property_name}' in your batch borrow request #{batch_request.id} has been rejected.",
+        remarks=remarks
+    )
+    
+    # Log activity
+    ActivityLog.log_activity(
+        user=request.user,
+        action='reject',
+        model_name='BorrowRequestItem',
+        object_repr=f"Batch #{batch_id} - {item.property.property_name}",
+        description=f"Rejected {item.quantity} units of {item.property.property_name} in batch borrow request #{batch_id}"
+    )
+    
+    return redirect('borrow_batch_request_detail', batch_id=batch_id)
+
+
+@permission_required('app.view_admin_module')
+@login_required
+@require_POST
+def claim_individual_borrow_item(request, batch_id, item_id):
+    """
+    Handle claiming of an individual approved borrow item.
+    This will deduct stock and mark the specific item as active.
+    """
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    item = get_object_or_404(BorrowRequestItem, id=item_id, batch_request=batch_request)
+    
+    # Only allow claiming if item is approved and not yet claimed
+    if item.status != 'approved' or item.claimed_date is not None:
+        messages.error(request, 'This item is not available for claiming.')
+        return redirect('borrow_batch_request_detail', batch_id=batch_id)
+    
+    # Check stock availability
+    available_quantity = item.property.quantity or 0
+    approved_qty = item.approved_quantity or item.quantity or 0
+    
+    if available_quantity < approved_qty:
+        messages.error(request, f"Insufficient stock for {item.property.property_name}. Available: {available_quantity}, needed: {approved_qty}")
+        return redirect('borrow_batch_request_detail', batch_id=batch_id)
+    
+    # Deduct from property stock
+    item.property.quantity -= approved_qty
+    item.property.save()
+    
+    # Update the approved_quantity if it was None
+    if item.approved_quantity is None:
+        item.approved_quantity = item.quantity
+    
+    # Mark item as active and claimed
+    item.status = 'active'
+    item.claimed_date = timezone.now()
+    item.save()
+    
+    # Check if all approved items in the batch are now active
+    remaining_approved_items = batch_request.items.filter(status='approved', claimed_date__isnull=True)
+    if not remaining_approved_items.exists():
+        # All approved items have been claimed, mark batch as active
+        batch_request.status = 'active'
+        if not batch_request.claimed_date:
+            batch_request.claimed_date = timezone.now()
+        if not batch_request.claimed_by:
+            batch_request.claimed_by = request.user
+        batch_request.save()
+        
+        # Notify user
+        Notification.objects.create(
+            user=batch_request.user,
+            message=f"Your borrow request #{batch_request.id} is now active.",
+            remarks="All approved items have been claimed. Please return by the specified dates."
+        )
+    
+    # Log activity
+    ActivityLog.log_activity(
+        user=request.user,
+        action='claim',
+        model_name='BorrowRequestItem',
+        object_repr=f"Batch #{batch_id} - {item.property.property_name}",
+        description=f"Claimed {item.approved_quantity or item.quantity} units of {item.property.property_name} from batch borrow request #{batch_id}"
+    )
+    
+    return redirect('borrow_batch_request_detail', batch_id=batch_id)
+
+
+@permission_required('app.view_admin_module')
+@login_required
+@require_POST
+def return_individual_borrow_item(request, batch_id, item_id):
+    """
+    Handle returning of an individual active borrow item.
+    This will increase stock and mark the specific item as returned.
+    """
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    item = get_object_or_404(BorrowRequestItem, id=item_id, batch_request=batch_request)
+    
+    # Only allow returning if item is active or overdue
+    if item.status not in ['active', 'overdue']:
+        messages.error(request, 'This item is not available for returning.')
+        return redirect('borrow_batch_request_detail', batch_id=batch_id)
+    
+    # Add back to property stock
+    approved_qty = item.approved_quantity or item.quantity or 0
+    item.property.quantity += approved_qty
+    item.property.save()
+    
+    # Mark item as returned
+    item.status = 'returned'
+    item.actual_return_date = timezone.now().date()
+    item.save()
+    
+    # Check if all active items in the batch are now returned
+    remaining_active_items = batch_request.items.filter(status__in=['active', 'overdue'])
+    if not remaining_active_items.exists():
+        # All items have been returned, mark batch as returned
+        batch_request.status = 'returned'
+        batch_request.returned_date = timezone.now()
+        batch_request.completed_date = timezone.now()
+        batch_request.save()
+        
+        # Notify user
+        Notification.objects.create(
+            user=batch_request.user,
+            message=f"Your borrow request #{batch_request.id} has been completed.",
+            remarks="All items have been successfully returned."
+        )
+    
+    # Log activity
+    ActivityLog.log_activity(
+        user=request.user,
+        action='return',
+        model_name='BorrowRequestItem',
+        object_repr=f"Batch #{batch_id} - {item.property.property_name}",
+        description=f"Returned {approved_qty} units of {item.property.property_name} from batch borrow request #{batch_id}"
+    )
+    
+    return redirect('borrow_batch_request_detail', batch_id=batch_id)

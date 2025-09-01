@@ -1,0 +1,1008 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Borrow Requests</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <style>
+    /* Main container styles matching system theme */
+    .requests-container {
+      padding: 20px;
+      margin-left: 270px;
+      background-color: #f5f6fa;
+      min-height: 100vh;
+    }
+    
+    .requests-title {
+      color: #152d64;
+      margin-bottom: 30px;
+      font-size: 32px;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    /* Search and filter section */
+    .search-filter-section {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+    }
+    
+    .search-form {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .search-input, .filter-select, .date-input {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    .filter-btn, .clear-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .filter-btn {
+      background: #152d64;
+      color: white;
+    }
+    
+    .filter-btn:hover {
+      background: #0f1f45;
+    }
+    
+    .clear-btn {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .clear-btn:hover {
+      background: #5a6268;
+      text-decoration: none;
+      color: white;
+    }
+    
+    /* Tab navigation */
+    .tab-navigation {
+      display: flex;
+      background: white;
+      border-radius: 12px 12px 0 0;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+      margin-bottom: 0;
+    }
+    
+    .tab-button {
+      flex: 1;
+      padding: 15px 20px;
+      border: none;
+      background: #f8f9fa;
+      color: #6c757d;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab-button:hover {
+      background: #e9ecef;
+      color: #152d64;
+    }
+    
+    .tab-button.active {
+      background: white;
+      color: #152d64;
+      border-bottom-color: #152d64;
+      font-weight: 600;
+    }
+    
+    /* Tab content */
+    .tab-content {
+      display: none;
+      background: white;
+      padding: 30px;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+      min-height: 400px;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .tab-content h3 {
+      color: #152d64;
+      margin-bottom: 25px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    
+    /* Request cards with system theme */
+    .request {
+      border: none;
+      border-radius: 12px;
+      margin: 20px 0;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+    }
+    
+    .request:hover {
+      background: white;
+      border-color: transparent;
+      box-shadow: 0 8px 25px rgba(21, 45, 100, 0.15);
+      transform: translateY(-3px);
+    }
+    
+    .request-header {
+      background: #f8f9fa;
+      padding: 20px;
+      border-bottom: 1px solid #e9ecef;
+      border-radius: 12px 12px 0 0;
+      position: relative;
+      user-select: none;
+      transition: all 0.3s ease;
+    }
+    
+    .request-header:hover {
+      background: linear-gradient(135deg, #f8fbff 0%, #e8f4fd 100%);
+    }
+    
+    .request-header h4 {
+      margin: 0 0 15px 0;
+      display: flex;
+      align-items: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: #152d64;
+    }
+    
+    .toggle-arrow {
+      margin-right: 10px;
+      transition: transform 0.3s ease;
+      color: #152d64;
+    }
+    
+    .toggle-arrow.rotated {
+      transform: rotate(180deg);
+    }
+    
+    .request-header p {
+      margin: 5px 0;
+      color: #6c757d;
+      font-size: 14px;
+    }
+    
+    .request-header strong {
+      color: #152d64;
+      font-weight: 600;
+    }
+    
+    /* Status badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .status-partially_approved {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    
+    .status-for_claiming {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .status-active {
+      background: #cce5ff;
+      color: #004085;
+    }
+    
+    .status-returned {
+      background: #e2e3e5;
+      color: #383d41;
+    }
+    
+    .status-overdue {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .status-rejected {
+      background: #f5c6cb;
+      color: #721c24;
+    }
+    
+    /* Detail link and action buttons */
+    .detail-link {
+      color: #152d64;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.2s ease;
+    }
+    
+    .detail-link:hover {
+      color: #0f1f45;
+      text-decoration: none;
+    }
+    
+    .claim-btn, .return-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+    
+    .claim-btn {
+      background: #28a745;
+      color: white;
+    }
+    
+    .claim-btn:hover {
+      background: #218838;
+    }
+    
+    .return-btn {
+      background: #007bff;
+      color: white;
+    }
+    
+    .return-btn:hover {
+      background: #0056b3;
+    }
+    
+    /* Request items */
+    .request-items {
+      padding: 20px;
+      background: #f8f9fa;
+      border-top: 1px solid #e9ecef;
+    }
+    
+    .request-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .request-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .item-info {
+      flex: 1;
+    }
+    
+    .item-info strong {
+      color: #152d64;
+      font-weight: 600;
+    }
+    
+    .item-info small {
+      color: #6c757d;
+      font-size: 12px;
+    }
+    
+    .item-status {
+      margin-left: 15px;
+    }
+    
+    /* No requests message */
+    .no-requests {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6c757d;
+    }
+    
+    .no-requests i {
+      font-size: 48px;
+      margin-bottom: 20px;
+      color: #dee2e6;
+    }
+    
+    .no-requests p {
+      font-size: 16px;
+      margin: 0;
+    }
+    
+    /* Pagination */
+    .pagination-container {
+      margin-top: 30px;
+      text-align: center;
+    }
+    
+    .pagination {
+      display: inline-flex;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .page-item {
+      margin: 0;
+    }
+    
+    .page-link {
+      display: block;
+      padding: 10px 15px;
+      background: white;
+      color: #152d64;
+      text-decoration: none;
+      border: 1px solid #dee2e6;
+      border-right: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    
+    .page-item:last-child .page-link {
+      border-right: 1px solid #dee2e6;
+    }
+    
+    .page-link:hover {
+      background: #e9ecef;
+      color: #152d64;
+      text-decoration: none;
+    }
+    
+    .page-item.active .page-link {
+      background: #152d64;
+      color: white;
+      border-color: #152d64;
+    }
+  </style>
+</head>
+<body>
+  {% include 'app/navbar.html' %}
+  <div class="requests-container">
+    <!-- Page Title -->
+    <h1 class="requests-title">Borrow Requests</h1>
+    
+    <!-- Search and Filter Section -->
+    <div class="search-filter-section">
+      <form method="get" class="search-form">
+        <input type="text" name="search" placeholder="Search by borrower name or property..." value="{{ search_query }}" class="search-input">
+        <select name="department" class="filter-select">
+          <option value="">All Departments</option>
+          {% for department in departments %}
+            <option value="{{ department.name }}" {% if department_filter == department.name %}selected{% endif %}>{{ department.name }}</option>
+          {% endfor %}
+        </select>
+        <input type="date" name="date_from" placeholder="From Date" value="{{ date_from }}" class="date-input">
+        <input type="date" name="date_to" placeholder="To Date" value="{{ date_to }}" class="date-input">
+        <button type="submit" class="filter-btn">
+          <i class="fas fa-filter"></i> Filter
+        </button>
+        <a href="{% url 'user_borrow_requests' %}" class="clear-btn">
+          <i class="fas fa-times"></i> Clear
+        </a>
+      </form>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button class="tab-button {% if current_tab == 'pending' %}active{% endif %}" data-tab="pending">
+        <i class="fas fa-clock"></i> Pending
+      </button>
+      <button class="tab-button {% if current_tab == 'partially_approved' %}active{% endif %}" data-tab="partially_approved">
+        <i class="fas fa-exclamation-triangle"></i> Partially Approved
+      </button>
+      <button class="tab-button {% if current_tab == 'for_claiming' %}active{% endif %}" data-tab="for_claiming">
+        <i class="fas fa-hand-paper"></i> For Claiming
+      </button>
+      <button class="tab-button {% if current_tab == 'active' %}active{% endif %}" data-tab="active">
+        <i class="fas fa-play-circle"></i> Active
+      </button>
+      <button class="tab-button {% if current_tab == 'returned' %}active{% endif %}" data-tab="returned">
+        <i class="fas fa-check-circle"></i> Returned
+      </button>
+      <button class="tab-button {% if current_tab == 'overdue' %}active{% endif %}" data-tab="overdue">
+        <i class="fas fa-exclamation-circle"></i> Overdue
+      </button>
+      <button class="tab-button {% if current_tab == 'rejected' %}active{% endif %}" data-tab="rejected">
+        <i class="fas fa-times-circle"></i> Rejected
+      </button>
+    </div>
+
+    <!-- Request Container -->
+
+    <!-- Pending Requests Tab -->
+    <div id="pending" class="tab-content {% if current_tab == 'pending' %}active{% endif %}">
+      <h3>Pending Borrow Requests</h3>
+      {% for batch_request in pending_requests %}
+      <div class="request" data-request-id="{{ batch_request.id }}">
+        <div class="request-header" data-toggle-id="{{ batch_request.id }}">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-{{ batch_request.id }}"></i>
+                Borrow Request {{ batch_request.id|stringformat:"03d" }}
+              </h4>
+              <p><strong>Borrower:</strong> 
+                {% if batch_request.user.first_name or batch_request.user.last_name %}
+                  {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
+                {% else %}
+                  {{ batch_request.user.username }}
+                {% endif %}
+                ({{ batch_request.user.userprofile.department }})
+              </p>
+              <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
+              <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
+              <p><strong>Total Items:</strong> {{ batch_request.total_items }}</p>
+            </div>
+            <div>
+              <span class="status-badge status-{{ batch_request.status|lower }}">
+                <i class="fas fa-clock"></i> {{ batch_request.get_status_display }}
+              </span>
+              <div style="margin-top: 8px;">
+                <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="detail-link" onclick="event.stopPropagation();">
+                  <i class="fas fa-external-link-alt"></i> View Details
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="request-items" id="items-{{ batch_request.id }}" style="display: none;">
+          {% for item in batch_request.items.all %}
+          <div class="request-item">
+            <div class="item-info">
+              <strong>{{ item.property.property_name }}</strong> - Quantity: {{ item.quantity }}
+              <br><small>Return Date: {{ item.return_date|date:"M d, Y" }}</small>
+            </div>
+            <div class="item-status">
+              <span class="status-badge status-{{ item.status|lower }}">
+                {{ item.get_status_display }}
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="no-requests">
+        <i class="fas fa-inbox"></i>
+        <p>No pending borrow requests found.</p>
+      </div>
+      {% endfor %}
+
+      <!-- Pagination for Pending -->
+      {% if pending_requests.has_other_pages %}
+      <div class="pagination-container">
+        <nav aria-label="Pending requests pagination">
+          <ul class="pagination">
+            {% if pending_requests.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?tab=pending&pending_page=1{{ url_params }}">&laquo; First</a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?tab=pending&pending_page={{ pending_requests.previous_page_number }}{{ url_params }}">&lsaquo; Prev</a>
+              </li>
+            {% endif %}
+            
+            {% for num in pending_requests.paginator.page_range %}
+              {% if pending_requests.number == num %}
+                <li class="page-item active">
+                  <span class="page-link">{{ num }}</span>
+                </li>
+              {% elif num > pending_requests.number|add:'-3' and num < pending_requests.number|add:'3' %}
+                <li class="page-item">
+                  <a class="page-link" href="?tab=pending&pending_page={{ num }}{{ url_params }}">{{ num }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+            
+            {% if pending_requests.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?tab=pending&pending_page={{ pending_requests.next_page_number }}{{ url_params }}">Next &raquo;</a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Partially Approved Requests Tab -->
+    <div id="partially_approved" class="tab-content {% if current_tab == 'partially_approved' %}active{% endif %}">
+      <h3>Partially Approved Borrow Requests</h3>
+      {% for batch_request in partially_approved_requests %}
+      <div class="request" data-request-id="{{ batch_request.id }}">
+        <div class="request-header" data-toggle-id="{{ batch_request.id }}">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-{{ batch_request.id }}"></i>
+                Borrow Request {{ batch_request.id|stringformat:"03d" }}
+              </h4>
+              <p><strong>Borrower:</strong> 
+                {% if batch_request.user.first_name or batch_request.user.last_name %}
+                  {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
+                {% else %}
+                  {{ batch_request.user.username }}
+                {% endif %}
+                ({{ batch_request.user.userprofile.department }})
+              </p>
+              <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
+              <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
+              <p><strong>Total Items:</strong> {{ batch_request.total_items }}</p>
+            </div>
+            <div>
+              <span class="status-badge status-{{ batch_request.status|lower }}">
+                <i class="fas fa-exclamation-triangle"></i> {{ batch_request.get_status_display }}
+              </span>
+              <div style="margin-top: 8px;">
+                <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="detail-link" onclick="event.stopPropagation();">
+                  <i class="fas fa-external-link-alt"></i> View Details
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="request-items" id="items-{{ batch_request.id }}" style="display: none;">
+          {% for item in batch_request.items.all %}
+          <div class="request-item">
+            <div class="item-info">
+              <strong>{{ item.property.property_name }}</strong> - Quantity: {{ item.quantity }}
+              <br><small>Return Date: {{ item.return_date|date:"M d, Y" }}</small>
+              {% if item.approved_quantity and item.status == 'approved' %}
+                <br><small><em>Approved: {{ item.approved_quantity }} units</em></small>
+              {% endif %}
+            </div>
+            <div class="item-status">
+              <span class="status-badge status-{{ item.status|lower }}">
+                {{ item.get_status_display }}
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="no-requests">
+        <i class="fas fa-inbox"></i>
+        <p>No partially approved borrow requests found.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- For Claiming Requests Tab -->
+    <div id="for_claiming" class="tab-content {% if current_tab == 'for_claiming' %}active{% endif %}">
+      <h3>Ready for Claiming</h3>
+      {% for batch_request in for_claiming_requests %}
+      <div class="request" data-request-id="{{ batch_request.id }}">
+        <div class="request-header" data-toggle-id="{{ batch_request.id }}">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-{{ batch_request.id }}"></i>
+                Borrow Request {{ batch_request.id|stringformat:"03d" }}
+              </h4>
+              <p><strong>Borrower:</strong> 
+                {% if batch_request.user.first_name or batch_request.user.last_name %}
+                  {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
+                {% else %}
+                  {{ batch_request.user.username }}
+                {% endif %}
+                ({{ batch_request.user.userprofile.department }})
+              </p>
+              <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
+              <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
+              <p><strong>Total Items:</strong> {{ batch_request.total_items }}</p>
+              {% if batch_request.approved_date %}
+                <p><strong>Approved Date:</strong> {{ batch_request.approved_date|date:"M d, Y H:i" }}</p>
+              {% endif %}
+            </div>
+            <div>
+              <span class="status-badge status-{{ batch_request.status|lower }}">
+                <i class="fas fa-hand-paper"></i> {{ batch_request.get_status_display }}
+              </span>
+              <div style="margin-top: 8px;">
+                <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="detail-link" onclick="event.stopPropagation();">
+                  <i class="fas fa-external-link-alt"></i> View Details
+                </a>
+                <form method="post" action="{% url 'claim_borrow_batch_items' batch_request.id %}" style="display: inline; margin-left: 8px;" onsubmit="return confirm('Are you sure you want to claim all approved items in this request?');">
+                  {% csrf_token %}
+                  <button type="submit" class="claim-btn">
+                    <i class="fas fa-check"></i> Claim Items
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="request-items" id="items-{{ batch_request.id }}" style="display: none;">
+          {% for item in batch_request.items.all %}
+          <div class="request-item">
+            <div class="item-info">
+              <strong>{{ item.property.property_name }}</strong> - Quantity: {{ item.quantity }}
+              <br><small>Return Date: {{ item.return_date|date:"M d, Y" }}</small>
+              {% if item.approved_quantity and item.status == 'approved' %}
+                <br><small><em>Approved: {{ item.approved_quantity }} units</em></small>
+              {% endif %}
+            </div>
+            <div class="item-status">
+              <span class="status-badge status-{{ item.status|lower }}">
+                {{ item.get_status_display }}
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="no-requests">
+        <i class="fas fa-inbox"></i>
+        <p>No requests ready for claiming found.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Active Requests Tab -->
+    <div id="active" class="tab-content {% if current_tab == 'active' %}active{% endif %}">
+      <h3>Active Borrow Requests</h3>
+      {% for batch_request in active_requests %}
+      <div class="request" data-request-id="{{ batch_request.id }}">
+        <div class="request-header" data-toggle-id="{{ batch_request.id }}">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-{{ batch_request.id }}"></i>
+                Borrow Request {{ batch_request.id|stringformat:"03d" }}
+              </h4>
+              <p><strong>Borrower:</strong> 
+                {% if batch_request.user.first_name or batch_request.user.last_name %}
+                  {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
+                {% else %}
+                  {{ batch_request.user.username }}
+                {% endif %}
+                ({{ batch_request.user.userprofile.department }})
+              </p>
+              <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
+              <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
+              <p><strong>Total Items:</strong> {{ batch_request.total_items }}</p>
+              {% if batch_request.claimed_date %}
+                <p><strong>Claimed Date:</strong> {{ batch_request.claimed_date|date:"M d, Y H:i" }}</p>
+              {% endif %}
+              {% if batch_request.latest_return_date %}
+                <p><strong>Expected Return Date:</strong> {{ batch_request.latest_return_date|date:"M d, Y" }}</p>
+              {% endif %}
+            </div>
+            <div>
+              <span class="status-badge status-{{ batch_request.status|lower }}">
+                <i class="fas fa-play-circle"></i> {{ batch_request.get_status_display }}
+              </span>
+              <div style="margin-top: 8px;">
+                <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="detail-link" onclick="event.stopPropagation();">
+                  <i class="fas fa-external-link-alt"></i> View Details
+                </a>
+                <form method="post" action="{% url 'return_borrow_batch_items' batch_request.id %}" style="display: inline; margin-left: 8px;" onsubmit="return confirm('Are you sure you want to mark all items as returned?');">
+                  {% csrf_token %}
+                  <button type="submit" class="return-btn">
+                    <i class="fas fa-undo"></i> Return Items
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="request-items" id="items-{{ batch_request.id }}" style="display: none;">
+          {% for item in batch_request.items.all %}
+          <div class="request-item">
+            <div class="item-info">
+              <strong>{{ item.property.property_name }}</strong> - Quantity: {{ item.approved_quantity|default:item.quantity }}
+              <br><small>Expected Return: {{ item.return_date|date:"M d, Y" }}</small>
+            </div>
+            <div class="item-status">
+              <span class="status-badge status-{{ item.status|lower }}">
+                {{ item.get_status_display }}
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="no-requests">
+        <i class="fas fa-inbox"></i>
+        <p>No active borrow requests found.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Returned Requests Tab -->
+    <div id="returned" class="tab-content {% if current_tab == 'returned' %}active{% endif %}">
+      <h3>Returned Borrow Requests</h3>
+      {% for batch_request in returned_requests %}
+      <div class="request" data-request-id="{{ batch_request.id }}">
+        <div class="request-header" data-toggle-id="{{ batch_request.id }}">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-{{ batch_request.id }}"></i>
+                Borrow Request {{ batch_request.id|stringformat:"03d" }}
+              </h4>
+              <p><strong>Borrower:</strong> 
+                {% if batch_request.user.first_name or batch_request.user.last_name %}
+                  {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
+                {% else %}
+                  {{ batch_request.user.username }}
+                {% endif %}
+                ({{ batch_request.user.userprofile.department }})
+              </p>
+              <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
+              <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
+              <p><strong>Total Items:</strong> {{ batch_request.total_items }}</p>
+              {% if batch_request.returned_date %}
+                <p><strong>Returned Date:</strong> {{ batch_request.returned_date|date:"M d, Y H:i" }}</p>
+              {% endif %}
+            </div>
+            <div>
+              <span class="status-badge status-{{ batch_request.status|lower }}">
+                <i class="fas fa-check-circle"></i> {{ batch_request.get_status_display }}
+              </span>
+              <div style="margin-top: 8px;">
+                <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="detail-link" onclick="event.stopPropagation();">
+                  <i class="fas fa-external-link-alt"></i> View Details
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="request-items" id="items-{{ batch_request.id }}" style="display: none;">
+          {% for item in batch_request.items.all %}
+          <div class="request-item">
+            <div class="item-info">
+              <strong>{{ item.property.property_name }}</strong> - Quantity: {{ item.approved_quantity|default:item.quantity }}
+              <br><small>Return Date: {{ item.return_date|date:"M d, Y" }}</small>
+              {% if item.actual_return_date %}
+                <br><small><em>Actual Return: {{ item.actual_return_date|date:"M d, Y" }}</em></small>
+              {% endif %}
+            </div>
+            <div class="item-status">
+              <span class="status-badge status-{{ item.status|lower }}">
+                {{ item.get_status_display }}
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="no-requests">
+        <i class="fas fa-inbox"></i>
+        <p>No returned borrow requests found.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Overdue Requests Tab -->
+    <div id="overdue" class="tab-content {% if current_tab == 'overdue' %}active{% endif %}">
+      <h3>Overdue Borrow Requests</h3>
+      {% for batch_request in overdue_requests %}
+      <div class="request" data-request-id="{{ batch_request.id }}">
+        <div class="request-header" data-toggle-id="{{ batch_request.id }}">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-{{ batch_request.id }}"></i>
+                Borrow Request {{ batch_request.id|stringformat:"03d" }}
+              </h4>
+              <p><strong>Borrower:</strong> 
+                {% if batch_request.user.first_name or batch_request.user.last_name %}
+                  {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
+                {% else %}
+                  {{ batch_request.user.username }}
+                {% endif %}
+                ({{ batch_request.user.userprofile.department }})
+              </p>
+              <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
+              <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
+              <p><strong>Total Items:</strong> {{ batch_request.total_items }}</p>
+              <p><strong>Expected Return Date:</strong> {{ batch_request.latest_return_date|date:"M d, Y" }} <span style="color: #dc3545; font-weight: 600;">(OVERDUE)</span></p>
+            </div>
+            <div>
+              <span class="status-badge status-{{ batch_request.status|lower }}">
+                <i class="fas fa-exclamation-circle"></i> {{ batch_request.get_status_display }}
+              </span>
+              <div style="margin-top: 8px;">
+                <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="detail-link" onclick="event.stopPropagation();">
+                  <i class="fas fa-external-link-alt"></i> View Details
+                </a>
+                <form method="post" action="{% url 'return_borrow_batch_items' batch_request.id %}" style="display: inline; margin-left: 8px;" onsubmit="return confirm('Are you sure you want to mark all items as returned?');">
+                  {% csrf_token %}
+                  <button type="submit" class="return-btn">
+                    <i class="fas fa-undo"></i> Return Items
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="request-items" id="items-{{ batch_request.id }}" style="display: none;">
+          {% for item in batch_request.items.all %}
+          <div class="request-item">
+            <div class="item-info">
+              <strong>{{ item.property.property_name }}</strong> - Quantity: {{ item.approved_quantity|default:item.quantity }}
+              <br><small>Expected Return: {{ item.return_date|date:"M d, Y" }}</small>
+            </div>
+            <div class="item-status">
+              <span class="status-badge status-{{ item.status|lower }}">
+                {{ item.get_status_display }}
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="no-requests">
+        <i class="fas fa-inbox"></i>
+        <p>No overdue borrow requests found.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Rejected Requests Tab -->
+    <div id="rejected" class="tab-content {% if current_tab == 'rejected' %}active{% endif %}">
+      <h3>Rejected Borrow Requests</h3>
+      {% for batch_request in rejected_requests %}
+      <div class="request" data-request-id="{{ batch_request.id }}">
+        <div class="request-header" data-toggle-id="{{ batch_request.id }}">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h4>
+                <i class="fas fa-chevron-down toggle-arrow" id="arrow-{{ batch_request.id }}"></i>
+                Borrow Request {{ batch_request.id|stringformat:"03d" }}
+              </h4>
+              <p><strong>Borrower:</strong> 
+                {% if batch_request.user.first_name or batch_request.user.last_name %}
+                  {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
+                {% else %}
+                  {{ batch_request.user.username }}
+                {% endif %}
+                ({{ batch_request.user.userprofile.department }})
+              </p>
+              <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
+              <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
+              <p><strong>Total Items:</strong> {{ batch_request.total_items }}</p>
+            </div>
+            <div>
+              <span class="status-badge status-{{ batch_request.status|lower }}">
+                <i class="fas fa-times-circle"></i> {{ batch_request.get_status_display }}
+              </span>
+              <div style="margin-top: 8px;">
+                <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="detail-link" onclick="event.stopPropagation();">
+                  <i class="fas fa-external-link-alt"></i> View Details
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="request-items" id="items-{{ batch_request.id }}" style="display: none;">
+          {% for item in batch_request.items.all %}
+          <div class="request-item">
+            <div class="item-info">
+              <strong>{{ item.property.property_name }}</strong> - Quantity: {{ item.quantity }}
+              <br><small>Return Date: {{ item.return_date|date:"M d, Y" }}</small>
+              {% if item.remarks %}
+                <br><small><em>Remarks: {{ item.remarks }}</em></small>
+              {% endif %}
+            </div>
+            <div class="item-status">
+              <span class="status-badge status-{{ item.status|lower }}">
+                {{ item.get_status_display }}
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="no-requests">
+        <i class="fas fa-inbox"></i>
+        <p>No rejected borrow requests found.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Tab navigation
+  const tabButtons = document.querySelectorAll('.tab-button');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  tabButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const targetTab = this.getAttribute('data-tab');
+      
+      // Remove active class from all buttons and contents
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Add active class to clicked button and corresponding content
+      this.classList.add('active');
+      document.getElementById(targetTab).classList.add('active');
+      
+      // Update URL parameter
+      const url = new URL(window.location);
+      url.searchParams.set('tab', targetTab);
+      window.history.pushState({}, '', url);
+    });
+  });
+
+  // Toggle request items
+  const requestHeaders = document.querySelectorAll('.request-header');
+  requestHeaders.forEach(header => {
+    header.addEventListener('click', function() {
+      const toggleId = this.getAttribute('data-toggle-id');
+      const itemsContainer = document.getElementById('items-' + toggleId);
+      const arrow = document.getElementById('arrow-' + toggleId);
+      
+      if (itemsContainer.style.display === 'none' || itemsContainer.style.display === '') {
+        itemsContainer.style.display = 'block';
+        arrow.classList.add('rotated');
+      } else {
+        itemsContainer.style.display = 'none';
+        arrow.classList.remove('rotated');
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

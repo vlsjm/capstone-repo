@@ -4,9 +4,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm, SupplyRequest, BorrowRequest, Reservation, DamageReport
+from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordChangeDoneView
-from app.models import UserProfile, Notification, Property, ActivityLog, Supply, SupplyRequestBatch, SupplyRequestItem
+from app.models import UserProfile, Notification, Property, ActivityLog, Supply, SupplyRequestBatch, SupplyRequestItem, SupplyRequest, BorrowRequest, BorrowRequestBatch, BorrowRequestItem, Reservation, DamageReport
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import JsonResponse
 from django.utils import timezone
@@ -118,18 +118,49 @@ class UserBorrowView(PermissionRequiredMixin, TemplateView):
         # Get available properties for the dropdown
         available_supplies = Property.objects.filter(is_archived=False, quantity__gt=0)
         
-        recent_requests = BorrowRequest.objects.filter(user=request.user).order_by('-borrow_date')[:5]
+        # Get recent batch borrow requests (new system)
+        recent_batch_requests = BorrowRequestBatch.objects.filter(user=request.user).order_by('-request_date')[:5]
         
-        # Convert requests to dict format for template
-        recent_requests_data = [{
-            'id': req.id,
-            'item': req.property.property_name,
-            'quantity': req.quantity,
-            'status': req.status,
-            'date': req.borrow_date,
-            'return_date': req.return_date,
-            'purpose': req.purpose
-        } for req in recent_requests]
+        # Get recent single requests (legacy system) 
+        recent_single_requests = BorrowRequest.objects.filter(user=request.user).order_by('-borrow_date')[:5]
+        
+        # Combine and format recent requests
+        recent_requests_data = []
+        
+        # Add batch requests
+        for req in recent_batch_requests:
+            items_text = f"{req.total_items} items"
+            if req.total_items <= 3:
+                items_list = ", ".join([f"{item.property.property_name} (x{item.quantity})" for item in req.items.all()])
+                items_text = items_list
+            
+            recent_requests_data.append({
+                'id': req.id,
+                'item': items_text,
+                'quantity': req.total_quantity,
+                'status': req.status,
+                'date': req.request_date,
+                'return_date': req.latest_return_date,
+                'purpose': req.purpose,
+                'type': 'batch'
+            })
+        
+        # Add single requests (for backward compatibility)
+        for req in recent_single_requests:
+            recent_requests_data.append({
+                'id': req.id,
+                'item': req.property.property_name,
+                'quantity': req.quantity,
+                'status': req.status,
+                'date': req.borrow_date,
+                'return_date': req.return_date,
+                'purpose': req.purpose,
+                'type': 'single'
+            })
+        
+        # Sort by date (most recent first)
+        recent_requests_data.sort(key=lambda x: x['date'], reverse=True)
+        recent_requests_data = recent_requests_data[:5]
         
         return render(request, self.template_name, {
             'cart_items': cart_items_data,
@@ -850,7 +881,7 @@ def clear_borrow_list(request):
 
 @login_required
 def submit_borrow_list_request(request):
-    """Submit all items in borrow cart as individual borrow requests"""
+    """Submit all items in borrow cart as a batch borrow request"""
     if request.method == 'POST':
         cart = request.session.get('borrow_cart', [])
         
@@ -863,41 +894,67 @@ def submit_borrow_list_request(request):
         general_purpose = request.POST.get('general_purpose', '')
         
         try:
-            created_requests = []
+            # Create the batch borrow request
+            batch_request = BorrowRequestBatch.objects.create(
+                user=request.user,
+                purpose=general_purpose,
+                status='pending'
+            )
             
+            # Create individual borrow request items
             for item in cart:
-                property_obj = Property.objects.get(id=item['property_id'])
+                try:
+                    property_obj = Property.objects.get(id=item['property_id'])
+                except Property.DoesNotExist:
+                    # Delete the batch request if a property doesn't exist
+                    batch_request.delete()
+                    messages.error(request, f'Property with ID {item["property_id"]} not found')
+                    return redirect('user_borrow')
                 
-                # Create the borrow request
-                borrow_request = BorrowRequest.objects.create(
-                    user=request.user,
-                    property=property_obj,
-                    quantity=item['quantity'],
-                    return_date=datetime.strptime(item['return_date'], '%Y-%m-%d').date(),
-                    purpose=f"{item['purpose']}. {general_purpose}".strip('. '),
-                    status='pending'
-                )
-                
-                created_requests.append(borrow_request)
-                
-                # Log the activity
-                ActivityLog.log_activity(
-                    user=request.user,
-                    action='request',
-                    model_name='BorrowRequest',
-                    object_repr=str(property_obj.property_name),
-                    description=f"Requested to borrow {item['quantity']} units of {property_obj.property_name}"
-                )
+                # Create the borrow request item
+                try:
+                    BorrowRequestItem.objects.create(
+                        batch_request=batch_request,
+                        property=property_obj,
+                        quantity=item['quantity'],
+                        return_date=datetime.strptime(item['return_date'], '%Y-%m-%d').date(),
+                        status='pending'
+                    )
+                except Exception as create_error:
+                    # Delete the batch request if creating an item fails
+                    batch_request.delete()
+                    messages.error(request, f'Error creating borrow request item: {str(create_error)}')
+                    return redirect('user_borrow')
+            
+            # Log activity for the batch request
+            item_list = ", ".join([f"{item['property_name']} (x{item['quantity']})" for item in cart[:3]])
+            if len(cart) > 3:
+                item_list += f" and {len(cart) - 3} more items"
+            
+            ActivityLog.log_activity(
+                user=request.user,
+                action='request',
+                model_name='BorrowRequestBatch',
+                object_repr=f"Batch #{batch_request.id}",
+                description=f"Submitted batch borrow request with {len(cart)} items: {item_list}"
+            )
             
             # Clear the cart
             request.session['borrow_cart'] = []
+            
+            # Add success message
+            messages.success(request, f'Borrow request submitted successfully! Your request ID is #{batch_request.id}.')
+            
+            # Redirect to the borrow page
+            return redirect('user_borrow')
+            
         except Exception as e:
-            return JsonResponse({
-                'status': 'error',
-                'message': f'Error submitting requests: {str(e)}'
-            })
+            messages.error(request, f'Error submitting batch request: {str(e)}')
+            return redirect('user_borrow')
     
-    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+    # For non-POST requests
+    messages.error(request, 'Invalid request method')
+    return redirect('user_borrow')
 
 
 # Reservation Cart Functionality

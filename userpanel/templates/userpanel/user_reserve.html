@@ -148,21 +148,18 @@
     </main>
 
     <aside class="recent-requests">
-        <h2><i class="fas fa-history"></i> Recent Reservations</h2>
+        <h2><i class="fas fa-history"></i> Recent Requests</h2>
         {% if recent_requests %}
             <div class="requests-list">
                 {% for request in recent_requests %}
                 <div class="request-card" data-request-id="{{ request.id }}">
                     <div class="request-header">
-                        <span class="request-date">{{ request.needed_date|date:"M d, Y" }}</span>
+                        <span class="request-date">{{ request.date|date:"M d, Y" }}</span>
                         <span class="status-badge status-{{ request.status|lower }}">{{ request.status|title }}</span>
                     </div>
                     <div class="request-details">
-                        <p class="supply-name">{{ request.item }}</p>
+                        <p class="supply-name">{{ request.item }}{% if request.quantity > 1 %} (x{{ request.quantity }}){% endif %}</p>
                         <p class="quantity">Quantity: {{ request.quantity }}</p>
-                        <p class="needed-date">Needed Date: {{ request.needed_date|date:"M d, Y" }}</p>
-                        <p class="return-date">Return Date: {{ request.return_date|date:"M d, Y" }}</p>
-                        <p class="purpose">Purpose: {{ request.purpose|truncatechars:50 }}</p>
                         {% if request.status == 'pending' %}
                         <button class="btn-cancel-request" data-request-id="{{ request.id }}" data-request-type="reservation">
                             <i class="fas fa-times"></i> Cancel Request
@@ -175,7 +172,7 @@
         {% else %}
             <div class="no-requests">
                 <i class="fas fa-inbox"></i>
-                <p>No recent reservations found</p>
+                <p>No recent requests found</p>
             </div>
         {% endif %}
     </aside>
@@ -462,70 +459,115 @@ body {
 
 /* Recent Requests Styles */
 .recent-requests {
-    width: 320px;
+    width: 400px;
+    min-width: 400px;
     background: white;
     padding: 1.5rem;
     border-radius: 12px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
     height: fit-content;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
 }
 
 .recent-requests h2 {
     color: #152d64;
     font-size: 1.2rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    position: sticky;
+    top: 0;
+    background: white;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.requests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.requests-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.requests-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.requests-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.requests-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 }
 
 .request-card {
     background: #f8f9fa;
-    padding: 1rem;
     border-radius: 8px;
-    margin-bottom: 1rem;
-    border-left: 4px solid #152d64;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.request-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    border: 1px solid #e9ecef;
 }
 
 .request-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
 .request-date {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.request-details {
     font-size: 0.9rem;
-    color: #666;
+}
+
+.request-details p {
+    margin: 0.25rem 0;
+}
+
+.supply-name {
+    color: #152d64;
+    font-weight: 600;
+}
+
+.quantity,
+.purpose {
+    color: #495057;
 }
 
 .status-badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
 }
 
 .status-pending {
-    background: #fff3cd;
+    background-color: #fff3cd;
     color: #856404;
 }
 
 .status-approved {
-    background: #d4edda;
+    background-color: #d4edda;
     color: #155724;
 }
 
 .status-rejected {
-    background: #f8d7da;
+    background-color: #f8d7da;
     color: #721c24;
 }
 
@@ -536,14 +578,14 @@ body {
 
 .no-requests {
     text-align: center;
-    color: #666;
-    padding: 2rem 1rem;
+    padding: 2rem;
+    color: #6c757d;
 }
 
 .no-requests i {
     font-size: 2rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
+    margin-bottom: 0.5rem;
+    color: #adb5bd;
 }
 
 .btn-cancel-request {
@@ -715,10 +757,13 @@ body > .select-dropdown {
     .request-page-layout {
         flex-direction: column;
         margin-left: 0;
+        max-width: calc(100vw - 270px);
+        gap: 1.5rem;
     }
     
     .recent-requests {
         width: 100%;
+        min-width: auto;
     }
 }
 

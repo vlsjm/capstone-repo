@@ -952,6 +952,193 @@ class BorrowRequest(models.Model):
             request.status = 'overdue'
             request.save()
 
+class BorrowRequestBatch(models.Model):
+    """
+    A batch borrow request that can contain multiple property items.
+    This replaces single-item BorrowRequest for new multi-item functionality.
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('partially_approved', 'Partially Approved'),
+        ('for_claiming', 'For Claiming'),
+        ('active', 'Active'),
+        ('returned', 'Returned'),
+        ('overdue', 'Overdue'),
+        ('completed', 'Completed'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    request_date = models.DateTimeField(auto_now_add=True)
+    purpose = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    approved_date = models.DateTimeField(null=True, blank=True)
+    claimed_date = models.DateTimeField(null=True, blank=True)
+    returned_date = models.DateTimeField(null=True, blank=True)
+    completed_date = models.DateTimeField(null=True, blank=True)
+    claimed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='claimed_borrow_requests')
+    remarks = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['-request_date']
+
+    def __str__(self):
+        return f"Borrow Batch #{self.id} by {self.user.username} ({self.request_date.date()})"
+
+    @property
+    def total_items(self):
+        return self.items.count()
+
+    @property
+    def total_quantity(self):
+        return sum(item.quantity for item in self.items.all())
+
+    @property
+    def earliest_return_date(self):
+        """Get the earliest return date among all items"""
+        return_dates = [item.return_date for item in self.items.all() if item.return_date]
+        return min(return_dates) if return_dates else None
+
+    @property
+    def latest_return_date(self):
+        """Get the latest return date among all items"""
+        return_dates = [item.return_date for item in self.items.all() if item.return_date]
+        return max(return_dates) if return_dates else None
+
+    def save(self, *args, **kwargs):
+        # Check if this is a new batch request
+        is_new = self.pk is None
+        
+        # Get the old instance if it exists
+        try:
+            old_instance = BorrowRequestBatch.objects.get(pk=self.pk)
+            old_status = old_instance.status
+        except BorrowRequestBatch.DoesNotExist:
+            old_status = None
+
+        # Save the batch request
+        super().save(*args, **kwargs)
+
+        # If this is a new batch request, notify admin users
+        if is_new:
+            admin_users = User.objects.filter(userprofile__role='ADMIN')
+            item_list = ", ".join([f"{item.property.property_name} (x{item.quantity})" 
+                                 for item in self.items.all()[:3]])
+            if self.items.count() > 3:
+                item_list += f" and {self.items.count() - 3} more items"
+            
+            for admin_user in admin_users:
+                Notification.objects.create(
+                    user=admin_user,
+                    message=f"New batch borrow request submitted by {self.user.username}",
+                    remarks=f"Items: {item_list}. Purpose: {self.purpose[:100]}"
+                )
+
+        # Handle status changes
+        if old_status != self.status:
+            if self.status == 'active':
+                # When items are claimed/borrowed
+                for item in self.items.filter(status='approved'):
+                    item.property.quantity -= item.quantity
+                    item.property.save()
+                    item.status = 'active'
+                    item.save()
+                
+                # Notify the user
+                Notification.objects.create(
+                    user=self.user,
+                    message=f"Your borrow request batch #{self.id} is now active.",
+                    remarks=f"Items have been claimed. Please return by: {self.latest_return_date}"
+                )
+
+            elif self.status == 'returned':
+                # When all items are returned
+                for item in self.items.filter(status='active'):
+                    item.property.quantity += item.quantity
+                    item.property.save()
+                    item.status = 'returned'
+                    item.actual_return_date = timezone.now().date()
+                    item.save()
+                
+                # Notify the user
+                Notification.objects.create(
+                    user=self.user,
+                    message=f"Your borrow request batch #{self.id} has been marked as returned.",
+                    remarks="Thank you for returning all items."
+                )
+
+    @classmethod
+    def check_overdue_batches(cls):
+        """Check and update batch statuses based on return dates"""
+        today = timezone.now().date()
+        
+        # Find active batches where any item is overdue
+        active_batches = cls.objects.filter(status='active')
+        for batch in active_batches:
+            overdue_items = batch.items.filter(
+                status='active',
+                return_date__lt=today
+            )
+            if overdue_items.exists():
+                batch.status = 'overdue'
+                batch.save()
+                
+                # Mark individual items as overdue
+                overdue_items.update(status='overdue')
+
+class BorrowRequestItem(models.Model):
+    """
+    Individual property items within a batch borrow request.
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('active', 'Active'),
+        ('returned', 'Returned'),
+        ('overdue', 'Overdue'),
+        ('completed', 'Completed'),
+    ]
+    
+    batch_request = models.ForeignKey(BorrowRequestBatch, on_delete=models.CASCADE, related_name='items')
+    property = models.ForeignKey(Property, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()  # Requested quantity
+    approved_quantity = models.PositiveIntegerField(null=True, blank=True)  # Approved quantity
+    return_date = models.DateField()  # Expected return date for this item
+    actual_return_date = models.DateField(null=True, blank=True)  # Actual return date
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    approved = models.BooleanField(default=False)  # Keep for backward compatibility
+    claimed_date = models.DateTimeField(null=True, blank=True)  # When item was claimed
+    remarks = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ['batch_request', 'property']  # Prevent duplicate items in same batch
+
+    def __str__(self):
+        return f"{self.property.property_name} (x{self.quantity}) in Borrow Batch #{self.batch_request.id}"
+
+    def save(self, *args, **kwargs):
+        # Keep approved field in sync with status for backward compatibility
+        self.approved = (self.status == 'approved')
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        
+        if self.quantity and self.property:
+            available_quantity = self.property.quantity or 0
+            if self.quantity > available_quantity:
+                raise ValidationError({
+                    'quantity': f'Only {available_quantity} units of {self.property.property_name} are available.'
+                })
+
+        # Validate return date
+        if self.return_date and self.return_date <= timezone.now().date():
+            raise ValidationError({
+                'return_date': 'Return date must be in the future.'
+            })
+
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.TextField()

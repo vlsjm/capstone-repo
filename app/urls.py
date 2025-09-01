@@ -4,6 +4,7 @@ from django.contrib.auth.views import LogoutView
 from .views import (
     DashboardPageView,
     UserBorrowRequestListView,
+    UserBorrowRequestBatchListView,
     UserSupplyRequestListView,
     UserDamageReportListView,
     UserReservationListView,
@@ -18,6 +19,13 @@ from .views import (
     delete_property,
     edit_supply,
     delete_supply,
+    borrow_batch_request_detail,
+    claim_borrow_batch_items,
+    return_borrow_batch_items,
+    approve_borrow_item,
+    reject_borrow_item,
+    claim_individual_borrow_item,
+    return_individual_borrow_item,
     create_user,
     request_detail,
     borrow_request_details,
@@ -110,10 +118,21 @@ urlpatterns = [
     path('edit-department/<int:dept_id>/', views.edit_department, name='edit_department'),
     path('delete-department/<int:dept_id>/', views.delete_department, name='delete_department'),
 
-    path('my-borrow-requests/', UserBorrowRequestListView.as_view(), name='user_borrow_requests'),
+    path('my-borrow-requests/', UserBorrowRequestBatchListView.as_view(), name='user_borrow_requests'),
     path('my-supply-requests/', UserSupplyRequestListView.as_view(), name='user_supply_requests'),
     path('my-damage-reports/', UserDamageReportListView.as_view(), name='user_damage_reports'),
     path('my-reservations/', UserReservationListView.as_view(), name='user_reservations'),
+
+    # Batch borrow request management URLs
+    path('borrow-batch-detail/<int:batch_id>/', borrow_batch_request_detail, name='borrow_batch_request_detail'),
+    path('claim-borrow-batch/<int:batch_id>/', claim_borrow_batch_items, name='claim_borrow_batch_items'),
+    path('return-borrow-batch/<int:batch_id>/', return_borrow_batch_items, name='return_borrow_batch_items'),
+    
+    # Individual borrow item management URLs
+    path('approve-borrow-item/<int:batch_id>/<int:item_id>/', approve_borrow_item, name='approve_borrow_item'),
+    path('reject-borrow-item/<int:batch_id>/<int:item_id>/', reject_borrow_item, name='reject_borrow_item'),
+    path('claim-borrow-item/<int:batch_id>/<int:item_id>/', claim_individual_borrow_item, name='claim_individual_borrow_item'),
+    path('return-borrow-item/<int:batch_id>/<int:item_id>/', return_individual_borrow_item, name='return_individual_borrow_item'),
 
     path('create-supply-request/', create_supply_request, name='create_supply_request'),
     path('add-to-list/', add_to_list, name='add_to_list'),
