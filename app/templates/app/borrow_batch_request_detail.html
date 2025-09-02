@@ -105,73 +105,232 @@
       border: 2px solid #bee5eb;
     }
     
-    /* Item cards with enhanced styling */
-    .item-card {
-      border: none;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      overflow: hidden;
+    /* Table-based layout for better scalability */
+    .items-container {
       background: white;
+      border-radius: 12px;
+      overflow: hidden;
       box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
-      transition: all 0.3s ease;
+      margin-bottom: 30px;
     }
     
-    .item-card:hover {
-      box-shadow: 0 4px 15px rgba(21, 45, 100, 0.15);
-      transform: translateY(-2px);
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
     }
     
-    .item-header {
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      padding: 20px;
-      border-bottom: 1px solid #e9ecef;
-      border-left: 4px solid #152d64;
+    .items-table thead {
+      background: linear-gradient(135deg, #152d64 0%, #1e3a8a 100%);
+      color: white;
     }
     
-    .item-header h3 {
-      color: #152d64;
-      margin: 0 0 10px 0;
-      font-size: 20px;
+    .items-table th {
+      padding: 15px 12px;
+      text-align: left;
       font-weight: 600;
-    }
-    
-    .item-details {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin-top: 15px;
-    }
-    
-    .item-detail {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .item-detail strong {
-      color: #152d64;
-      font-weight: 600;
-      margin-bottom: 5px;
-      font-size: 14px;
+      font-size: 15px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    .item-detail span {
+    .items-table th:last-child {
+      border-right: none;
+    }
+    
+    .items-table tbody tr {
+      border-bottom: 1px solid #e9ecef;
+      transition: background-color 0.2s ease;
+    }
+    
+    .items-table tbody tr:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .items-table tbody tr:last-child {
+      border-bottom: none;
+    }
+    
+    .items-table td {
+      padding: 16px 12px;
+      vertical-align: middle;
+      font-size: 16px;
       color: #495057;
+    }
+    
+    .item-name {
+      font-weight: 600;
+      color: #152d64;
+      display: flex;
+      align-items: flex-start;
+      text-align: left;
+    }
+    
+    .quantity-cell {
+      text-align: center;
+      font-weight: 600;
+    }
+    
+    .stock-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .stock-available {
+      font-weight: 600;
+      color: #28a745;
+    }
+    
+    .approve-input-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    
+    .approve-input {
+      width: 60px;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    
+    .approve-input:focus {
+      outline: none;
+      border-color: #152d64;
+      box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.1);
+    }
+    
+    .qty-indicator {
+      font-size: 13px;
+      color: #6c757d;
+    }
+    
+    .status-cell {
+      text-align: center;
+    }
+    
+    .actions-cell {
+      text-align: center;
+    }
+    
+    .action-buttons-inline {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+    
+    .btn-table {
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    
+    .btn-table:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-approve-table {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+    }
+    
+    .btn-reject-table {
+      background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+      color: white;
+    }
+    
+    .btn-claim-table {
+      background: linear-gradient(135deg, #ffc107 0%, #ffdb4d 100%);
+      color: #212529;
+    }
+    
+    .btn-return-table {
+      background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+      color: white;
+    }
+    
+    /* Compact remarks section */
+    .remarks-row {
+      background: #f8f9fa;
+    }
+    
+    .remarks-container {
+      padding: 12px;
+    }
+    
+    .remarks-input {
+      width: 100%;
+      min-height: 40px;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 12px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    
+    .remarks-input:focus {
+      outline: none;
+      border-color: #152d64;
+      box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.1);
+    }
+    
+    .remarks-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #152d64;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    
+    /* Approved quantity styling */
+    .approved-quantity {
+      color: #28a745;
+      font-weight: 600;
       font-size: 16px;
     }
     
-    /* Status badges for items */
+    /* Enhanced quantity input styling */
+    .approve-input {
+      transition: all 0.2s ease;
+    }
+    
+    .approve-input:valid {
+      border-color: #28a745;
+      background-color: #f8fff9;
+    }
+    
+    .approve-input:invalid {
+      border-color: #dc3545;
+      background-color: #fff5f5;
+    }
     .status-badge {
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 6px 12px;
-      border-radius: 15px;
-      font-weight: 600;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      gap: 4px;
     }
     
     .status-badge.status-pending {
@@ -198,16 +357,17 @@
       border: 1px solid #bee5eb;
     }
     
-    /* Action section styling */
-    .action-section {
-      background: #f8f9fa;
-      padding: 20px;
-      border-top: 1px solid #e9ecef;
+    .status-badge.status-returned {
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+      color: #4a5568;
+      border: 1px solid #cbd5e0;
     }
     
+    /* Enhanced action buttons */
     .action-buttons {
       display: flex;
-      gap: 10px;
+      gap: 12px;
+      margin-top: 15px;
       flex-wrap: wrap;
     }
     
@@ -215,14 +375,21 @@
       padding: 10px 20px;
       border: none;
       border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
       cursor: pointer;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      transition: all 0.3s ease;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     
     .btn-approve {
@@ -436,36 +603,63 @@
       </div>
 
       <h2 style="color: #152d64; font-size: 24px; font-weight: 600; margin: 30px 0 20px 0; padding-bottom: 10px; border-bottom: 3px solid #28a745; display: inline-block;">
-        <i class="fas fa-list"></i> Request Items
+        <i class="fas fa-list"></i> Request Items ({{ batch.items.count }} item{{ batch.items.count|pluralize }})
       </h2>
       
-      {% for item in batch.items.all %}
-      <div class="item-card">
-        <div class="item-header">
-          <h3>
-            <i class="fas fa-box"></i> 
-            {{ item.property.name }}
-          </h3>
-          
-          <div class="item-details">
-            <div class="item-detail">
-              <strong>Description</strong>
-              <span>{{ item.property.description|default:"No description" }}</span>
-            </div>
-            
-            <div class="item-detail">
-              <strong>Requested Quantity</strong>
-              <span>{{ item.quantity }}</span>
-            </div>
-            
-            <div class="item-detail">
-              <strong>Available Stock</strong>
-              <span>{{ item.property.quantity|default:"N/A" }}</span>
-            </div>
-            
-            <div class="item-detail">
-              <strong>Status</strong>
-              <span style="display: flex; align-items: center; gap: 15px;">
+      <div class="items-container">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th><i class="fas fa-box"></i> Item & Description</th>
+              <th><i class="fas fa-hashtag"></i> Requested</th>
+              <th><i class="fas fa-warehouse"></i> Stock</th>
+              <th><i class="fas fa-calendar"></i> Return Date</th>
+              <th><i class="fas fa-info-circle"></i> Status</th>
+              <th><i class="fas fa-cogs"></i> Actions</th>
+              <th><i class="fas fa-comment"></i> Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in batch.items.all %}
+            <tr id="item-row-{{ item.id }}">
+              <td class="item-name">
+                <div>
+                  {{ item.property.property_name }}
+                  <div style="font-size: 12px; color: #6c757d; font-weight: normal; margin-top: 2px;">
+                    {{ item.property.description|default:"No description"|truncatechars:50 }}
+                  </div>
+                </div>
+              </td>
+              <td class="quantity-cell">
+                {% if user.is_staff and item.status == 'pending' %}
+                  <div class="approve-input-container">
+                    <input type="number" 
+                           class="approve-input" 
+                           id="approved-qty-{{ item.id }}"
+                           value="{{ item.approved_quantity|default:item.quantity }}" 
+                           min="1" 
+                           max="{{ item.quantity }}"
+                           data-original="{{ item.quantity }}">
+                    <div class="qty-indicator">/ {{ item.quantity }}</div>
+                  </div>
+                {% else %}
+                  {% if item.approved_quantity and item.approved_quantity != item.quantity %}
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                      <span class="approved-quantity">{{ item.approved_quantity }}</span>
+                      <span style="font-size: 12px; color: #6c757d;">of {{ item.quantity }}</span>
+                    </div>
+                  {% else %}
+                    {{ item.quantity }}
+                  {% endif %}
+                {% endif %}
+              </td>
+              <td class="quantity-cell">
+                <div class="stock-info">
+                  <span class="stock-available">{{ item.property.quantity|default:"N/A" }}</span>
+                </div>
+              </td>
+              <td class="quantity-cell">{{ item.return_date|date:"M d, Y" }}</td>
+              <td class="status-cell">
                 <span class="status-badge status-{{ item.status|lower }}">
                   {% if item.status == 'pending' %}
                     <i class="fas fa-clock"></i>
@@ -480,13 +674,18 @@
                   {% endif %}
                   {{ item.status|title }}
                 </span>
-                
+              </td>
+              <td class="actions-cell">
                 {% if user.is_staff and item.status == 'pending' %}
-                  <div style="display: flex; gap: 10px;">
+                  <div class="action-buttons-inline">
                     <form method="post" action="{% url 'approve_borrow_item' batch.id item.id %}" style="display: inline;">
                       {% csrf_token %}
                       <input type="hidden" name="remarks" id="remarks-approve-{{ item.id }}">
-                      <button type="submit" class="btn btn-approve" onclick="document.getElementById('remarks-approve-{{ item.id }}').value = document.getElementById('remarks-{{ item.id }}').value; return confirm('Approve this item?')" style="padding: 6px 12px; font-size: 12px;">
+                      <input type="hidden" name="approved_quantity" id="approved-quantity-approve-{{ item.id }}">
+                      <button type="submit" class="btn-table btn-approve-table" onclick="
+                        document.getElementById('remarks-approve-{{ item.id }}').value = document.getElementById('remarks-{{ item.id }}') ? document.getElementById('remarks-{{ item.id }}').value : '';
+                        document.getElementById('approved-quantity-approve-{{ item.id }}').value = document.getElementById('approved-qty-{{ item.id }}').value;
+                        return confirm('Approve this item for ' + document.getElementById('approved-qty-{{ item.id }}').value + ' units?')">
                         <i class="fas fa-check"></i> Approve
                       </button>
                     </form>
@@ -494,7 +693,7 @@
                     <form method="post" action="{% url 'reject_borrow_item' batch.id item.id %}" style="display: inline;">
                       {% csrf_token %}
                       <input type="hidden" name="remarks" id="remarks-reject-{{ item.id }}">
-                      <button type="submit" class="btn btn-reject" onclick="document.getElementById('remarks-reject-{{ item.id }}').value = document.getElementById('remarks-{{ item.id }}').value; return confirm('Reject this item?')" style="padding: 6px 12px; font-size: 12px;">
+                      <button type="submit" class="btn-table btn-reject-table" onclick="document.getElementById('remarks-reject-{{ item.id }}').value = document.getElementById('remarks-{{ item.id }}') ? document.getElementById('remarks-{{ item.id }}').value : ''; return confirm('Reject this item?')">
                         <i class="fas fa-times"></i> Reject
                       </button>
                     </form>
@@ -502,7 +701,7 @@
                 {% elif user.is_staff and item.status == 'approved' %}
                   <form method="post" action="{% url 'claim_individual_borrow_item' batch.id item.id %}" style="display: inline;">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-claim" onclick="return confirm('Mark as claimed?')" style="padding: 6px 12px; font-size: 12px;">
+                    <button type="submit" class="btn-table btn-claim-table" onclick="return confirm('Mark as claimed?')">
                       <i class="fas fa-hand-paper"></i> Claim
                     </button>
                   </form>
@@ -510,41 +709,56 @@
                   <form method="post" action="{% url 'return_individual_borrow_item' batch.id item.id %}" style="display: inline;">
                     {% csrf_token %}
                     <input type="hidden" name="remarks" id="remarks-return-{{ item.id }}">
-                    <button type="submit" class="btn btn-return" onclick="document.getElementById('remarks-return-{{ item.id }}').value = document.getElementById('remarks-{{ item.id }}').value; return confirm('Mark as returned?')" style="padding: 6px 12px; font-size: 12px;">
+                    <button type="submit" class="btn-table btn-return-table" onclick="document.getElementById('remarks-return-{{ item.id }}').value = document.getElementById('remarks-{{ item.id }}') ? document.getElementById('remarks-{{ item.id }}').value : ''; return confirm('Mark as returned?')">
                       <i class="fas fa-undo"></i> Return
                     </button>
                   </form>
+                {% else %}
+                  <span style="color: #6c757d; font-size: 12px;">No actions</span>
                 {% endif %}
-              </span>
-            </div>
+              </td>
+              <td class="actions-cell">
+                {% if user.is_staff and item.status == 'pending' or item.status == 'active' or item.remarks %}
+                  <button type="button" class="btn-table" data-item-id="{{ item.id }}" onclick="toggleRemarks(this.getAttribute('data-item-id'))" style="background: #6c757d; color: white;">
+                    <i class="fas fa-comment"></i>
+                  </button>
+                {% else %}
+                  <span style="color: #6c757d; font-size: 12px;">-</span>
+                {% endif %}
+              </td>
+            </tr>
             
-            {% if item.remarks %}
-            <div class="item-detail">
-              <strong>Remarks</strong>
-              <span>{{ item.remarks }}</span>
-            </div>
+            {% if item.status == 'pending' and batch.status == 'pending' or batch.status == 'partially_approved' or item.remarks %}
+            <tr id="remarks-row-{{ item.id }}" class="remarks-row" style="display: none;">
+              <td colspan="7">
+                <div class="remarks-container">
+                  <div class="remarks-label">Remarks</div>
+                  {% if user.is_staff and item.status == 'pending' or item.status == 'active' %}
+                    {% if item.status == 'pending' %}
+                      <input type="text" id="remarks-{{ item.id }}" placeholder="Enter approval/rejection remarks (optional)" class="remarks-input" value="{{ item.remarks|default:'' }}">
+                    {% else %}
+                      <input type="text" id="remarks-{{ item.id }}" placeholder="Enter return remarks (optional)" class="remarks-input" value="{{ item.remarks|default:'' }}">
+                    {% endif %}>
+                  {% else %}
+                    <div class="remarks-input" style="background: #f8f9fa; border: 1px solid #e9ecef; min-height: 20px;">
+                      {{ item.remarks|default:"No remarks" }}
+                    </div>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
             {% endif %}
-          </div>
-          
-          {% if user.is_staff and item.status in 'pending,active' %}
-          <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e9ecef;">
-            <label for="remarks-{{ item.id }}" style="display: block; color: #152d64; font-weight: 600; margin-bottom: 8px; font-size: 14px;">
-              Remarks (optional)
-            </label>
-            <input type="text" id="remarks-{{ item.id }}" placeholder="{% if item.status == 'pending' %}Enter approval/rejection remarks (optional){% else %}Enter return remarks (optional){% endif %}" class="remarks-input" style="width: 100%; max-width: none;">
-          </div>
-          {% endif %}
-        </div>
+            {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 40px; color: #6c757d;">
+                <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                No items found in this batch request.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
-      {% empty %}
-      <div class="item-card">
-        <div class="item-header">
-          <h3 style="text-align: center; color: #6c757d;">
-            <i class="fas fa-inbox"></i> No items found in this batch request.
-          </h3>
-        </div>
-      </div>
-      {% endfor %}
 
     {% else %}
       <div class="batch-header">
@@ -560,5 +774,127 @@
       </div>
     {% endif %}
   </div>
+  
+  <script>
+    // Toggle remarks functionality
+    function toggleRemarks(itemId) {
+      const remarksRow = document.getElementById(`remarks-row-${itemId}`);
+      const isVisible = remarksRow.style.display !== 'none';
+      remarksRow.style.display = isVisible ? 'none' : 'table-row';
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add event listeners for quantity validation
+      const quantityInputs = document.querySelectorAll('.approve-input');
+      quantityInputs.forEach(input => {
+        input.addEventListener('change', function() {
+          const max = parseInt(this.getAttribute('max'));
+          const min = parseInt(this.getAttribute('min'));
+          const value = parseInt(this.value);
+          
+          if (value > max) {
+            this.value = max;
+            alert(`Maximum available quantity is ${max}`);
+          } else if (value < min) {
+            this.value = min;
+            alert(`Minimum quantity is ${min}`);
+          }
+        });
+        
+        input.addEventListener('input', function() {
+          const value = parseInt(this.value) || 0;
+          const max = parseInt(this.getAttribute('max'));
+          
+          // Update the indicator color based on availability
+          const indicator = this.parentNode.querySelector('.qty-indicator');
+          if (value > max) {
+            this.style.borderColor = '#dc3545';
+            this.style.backgroundColor = '#f8d7da';
+          } else {
+            this.style.borderColor = '#28a745';
+            this.style.backgroundColor = '#d4edda';
+          }
+        });
+      });
+      
+      // Add event listeners for approve buttons
+      const approveButtons = document.querySelectorAll('.btn-approve-table');
+      approveButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          const form = this.closest('form');
+          const approveBtn = this;
+          
+          // Extract item ID from the onclick attribute or form action
+          const formAction = form.getAttribute('action');
+          const itemIdMatch = formAction.match(/\/(\d+)\/$/);
+          
+          if (itemIdMatch) {
+            const itemId = itemIdMatch[1];
+            const remarksInput = document.getElementById(`remarks-${itemId}`);
+            const hiddenRemarks = document.getElementById(`remarks-approve-${itemId}`);
+            const quantityInput = document.getElementById(`approved-qty-${itemId}`);
+            const hiddenQuantity = document.getElementById(`approved-quantity-approve-${itemId}`);
+            
+            if (hiddenRemarks && remarksInput) {
+              hiddenRemarks.value = remarksInput.value || '';
+            }
+            
+            if (hiddenQuantity && quantityInput) {
+              const approvedQty = parseInt(quantityInput.value);
+              const maxQty = parseInt(quantityInput.getAttribute('max'));
+              
+              if (approvedQty > maxQty) {
+                e.preventDefault();
+                alert(`Cannot approve ${approvedQty} units. Maximum available is ${maxQty}.`);
+                return false;
+              }
+              
+              hiddenQuantity.value = approvedQty;
+            }
+          }
+        });
+      });
+      
+      // Add event listeners for reject buttons
+      const rejectButtons = document.querySelectorAll('.btn-reject-table');
+      rejectButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          const form = this.closest('form');
+          const formAction = form.getAttribute('action');
+          const itemIdMatch = formAction.match(/\/(\d+)\/$/);
+          
+          if (itemIdMatch) {
+            const itemId = itemIdMatch[1];
+            const remarksInput = document.getElementById(`remarks-${itemId}`);
+            const hiddenRemarks = document.getElementById(`remarks-reject-${itemId}`);
+            
+            if (hiddenRemarks && remarksInput) {
+              hiddenRemarks.value = remarksInput.value || '';
+            }
+          }
+        });
+      });
+      
+      // Add event listeners for return buttons
+      const returnButtons = document.querySelectorAll('.btn-return-table');
+      returnButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          const form = this.closest('form');
+          const formAction = form.getAttribute('action');
+          const itemIdMatch = formAction.match(/\/(\d+)\/$/);
+          
+          if (itemIdMatch) {
+            const itemId = itemIdMatch[1];
+            const remarksInput = document.getElementById(`remarks-${itemId}`);
+            const hiddenRemarks = document.getElementById(`remarks-return-${itemId}`);
+            
+            if (hiddenRemarks && remarksInput) {
+              hiddenRemarks.value = remarksInput.value || '';
+            }
+          }
+        });
+      });
+    });
+  </script>
 </body>
 </html>

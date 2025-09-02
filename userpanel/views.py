@@ -908,8 +908,10 @@ def submit_borrow_list_request(request):
                 except Property.DoesNotExist:
                     # Delete the batch request if a property doesn't exist
                     batch_request.delete()
-                    messages.error(request, f'Property with ID {item["property_id"]} not found')
-                    return redirect('user_borrow')
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': f'Property with ID {item["property_id"]} not found'
+                    })
                 
                 # Create the borrow request item
                 try:
@@ -923,11 +925,22 @@ def submit_borrow_list_request(request):
                 except Exception as create_error:
                     # Delete the batch request if creating an item fails
                     batch_request.delete()
-                    messages.error(request, f'Error creating borrow request item: {str(create_error)}')
-                    return redirect('user_borrow')
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': f'Error creating borrow request item: {str(create_error)}'
+                    })
             
             # Log activity for the batch request
-            item_list = ", ".join([f"{item['property_name']} (x{item['quantity']})" for item in cart[:3]])
+            # Build item list for logging by fetching property names
+            logged_items = []
+            for item in cart[:3]:
+                try:
+                    property_obj = Property.objects.get(id=item['property_id'])
+                    logged_items.append(f"{property_obj.property_name} (x{item['quantity']})")
+                except Property.DoesNotExist:
+                    logged_items.append(f"Unknown Item (x{item['quantity']})")
+            
+            item_list = ", ".join(logged_items)
             if len(cart) > 3:
                 item_list += f" and {len(cart) - 3} more items"
             
@@ -941,20 +954,25 @@ def submit_borrow_list_request(request):
             
             # Clear the cart
             request.session['borrow_cart'] = []
+            request.session.modified = True
             
-            # Add success message
-            messages.success(request, f'Borrow request submitted successfully! Your request ID is #{batch_request.id}.')
-            
-            # Redirect to the borrow page
-            return redirect('user_borrow')
+            # Return success response
+            return JsonResponse({
+                'status': 'success',
+                'message': f'Borrow request submitted successfully! Your request ID is #{batch_request.id}.'
+            })
             
         except Exception as e:
-            messages.error(request, f'Error submitting batch request: {str(e)}')
-            return redirect('user_borrow')
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Error submitting batch request: {str(e)}'
+            })
     
     # For non-POST requests
-    messages.error(request, 'Invalid request method')
-    return redirect('user_borrow')
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method'
+    })
 
 
 # Reservation Cart Functionality

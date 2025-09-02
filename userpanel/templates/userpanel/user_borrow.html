@@ -992,7 +992,9 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.status === 'success') {
-                    location.reload(); // Refresh to show updated list
+                    showMessage(response.message, 'success');
+                    // Instant reload without delay
+                    location.reload();
                 } else {
                     showMessage(response.message, 'error');
                 }
@@ -1045,7 +1047,31 @@ $(document).ready(function() {
                 },
                 success: function(response) {
                     if (response.status === 'success') {
-                        location.reload(); // Refresh to show updated list
+                        showMessage('Item removed from borrow list', 'success');
+                        
+                        // Remove the row from the table immediately
+                        $(`tr[data-supply-id="${supplyId}"]`).fadeOut(300, function() {
+                            $(this).remove();
+                            
+                            // Check if there are any items left
+                            const remainingRows = $('.list-table tbody tr').length;
+                            if (remainingRows === 0) {
+                                // Show empty list message
+                                $('#list-items-container').html(`
+                                    <div class="empty-list">
+                                        <i class="fas fa-list"></i>
+                                        <p>Your borrow list is empty. Add items above to get started.</p>
+                                    </div>
+                                `);
+                                
+                                // Hide the submit section
+                                $('.submit-section').hide();
+                            }
+                            
+                            // Update list count
+                            $('#list-count').text(`(${remainingRows})`);
+                        });
+                        
                     } else {
                         showMessage(response.message, 'error');
                     }
@@ -1057,6 +1083,54 @@ $(document).ready(function() {
         }
     });
     
+    // Submit borrow request
+    $('#submit-request-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        $.ajax({
+            url: '{% url "submit_borrow_list_request" %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    showMessage('Borrow request submitted successfully!', 'success');
+                    
+                    // Immediately clear the list section
+                    $('#list-items-container').html(`
+                        <div class="empty-list">
+                            <i class="fas fa-list"></i>
+                            <p>Your borrow list is empty. Add items above to get started.</p>
+                        </div>
+                    `);
+                    
+                    // Update the list count
+                    $('#list-count').text('(0)');
+                    
+                    // Hide the submit section
+                    $('.submit-section').hide();
+                    
+                    // Clear the form
+                    $('#add-item-form')[0].reset();
+                    $('#supply-select').val('');
+                    $('#supply-search').val('');
+                    
+                } else {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('An error occurred while submitting the request', 'error');
+            }
+        });
+    });
+
     // Clear entire list
     $('.btn-clear-list').on('click', function() {
         if (confirm('Are you sure you want to clear your entire borrow list?')) {
@@ -1068,7 +1142,22 @@ $(document).ready(function() {
                 },
                 success: function(response) {
                     if (response.status === 'success') {
-                        location.reload(); // Refresh to show updated list
+                        showMessage('Borrow list cleared successfully!', 'success');
+                        
+                        // Immediately clear the list section
+                        $('#list-items-container').html(`
+                            <div class="empty-list">
+                                <i class="fas fa-list"></i>
+                                <p>Your borrow list is empty. Add items above to get started.</p>
+                            </div>
+                        `);
+                        
+                        // Update the list count
+                        $('#list-count').text('(0)');
+                        
+                        // Hide the submit section
+                        $('.submit-section').hide();
+                        
                     } else {
                         showMessage(response.message, 'error');
                     }
