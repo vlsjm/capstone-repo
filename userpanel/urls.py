@@ -10,6 +10,7 @@ from .views import (
     UserBorrowView,
     UserPasswordChangeView,
     UserPasswordChangeDoneView,
+    UserProfileView,
 )
 from . import views
 
@@ -20,6 +21,7 @@ urlpatterns = [
     path('user_report/', UserReportView.as_view(), name='user_report'),
     path('login/user/', UserLoginView.as_view(), name='login_user'),  
     path('user_borrow/', UserBorrowView.as_view(), name='user_borrow'),
+    path('user_profile/', UserProfileView.as_view(), name='user_profile'),
     path('get-item-availability/', views.get_item_availability, name='get_item_availability'),
     
     # Password change URLs with custom views

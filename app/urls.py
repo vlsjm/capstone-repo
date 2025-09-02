@@ -183,4 +183,7 @@ urlpatterns = [
     # Claiming workflow URLs
     path('batch-request/<int:batch_id>/claim/', claim_batch_items, name='claim_batch_items'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/claim/', claim_individual_item, name='claim_individual_item'),
+    
+    # Admin Profile
+    path('profile/', views.AdminProfileView.as_view(), name='admin_profile'),
 ]

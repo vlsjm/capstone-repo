@@ -4028,3 +4028,72 @@ def return_individual_borrow_item(request, batch_id, item_id):
     )
     
     return redirect('borrow_batch_request_detail', batch_id=batch_id)
+
+
+class AdminProfileView(PermissionRequiredMixin, View):
+    permission_required = 'auth.view_user'
+    template_name = 'app/admin_profile.html'
+    
+    def get(self, request):
+        from .forms import AdminProfileUpdateForm
+        form = AdminProfileUpdateForm(user=request.user)
+        
+        # Get user profile or create one if it doesn't exist
+        user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+        
+        return render(request, self.template_name, {
+            'form': form,
+            'user_profile': user_profile
+        })
+    
+    def post(self, request):
+        from .forms import AdminProfileUpdateForm
+        form = AdminProfileUpdateForm(user=request.user, data=request.POST)
+        
+        # Get user profile or create one if it doesn't exist
+        user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+        
+        if form.is_valid():
+            # Update user fields
+            request.user.first_name = form.cleaned_data['first_name']
+            request.user.last_name = form.cleaned_data['last_name']
+            request.user.email = form.cleaned_data['email']
+            
+            # Update phone in user profile
+            user_profile.phone = form.cleaned_data['phone']
+            user_profile.save()
+            
+            # Handle password change if provided
+            if form.cleaned_data.get('new_password'):
+                request.user.set_password(form.cleaned_data['new_password'])
+                # Update session auth hash to prevent logout
+                from django.contrib.auth import update_session_auth_hash
+                update_session_auth_hash(request, request.user)
+                
+                # Log password change activity
+                ActivityLog.log_activity(
+                    user=request.user,
+                    action='change_password',
+                    model_name='User',
+                    object_repr=request.user.username,
+                    description="Admin changed their password"
+                )
+            
+            request.user.save()
+            
+            # Log profile update activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='update',
+                model_name='UserProfile',
+                object_repr=f"{request.user.get_full_name() or request.user.username}",
+                description="Admin updated their profile information"
+            )
+            
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('admin_profile')
+        
+        return render(request, self.template_name, {
+            'form': form,
+            'user_profile': user_profile
+        })

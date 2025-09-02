@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm
+from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm, UserProfileUpdateForm
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordChangeDoneView
 from app.models import UserProfile, Notification, Property, ActivityLog, Supply, SupplyRequestBatch, SupplyRequestItem, SupplyRequest, BorrowRequest, BorrowRequestBatch, BorrowRequestItem, Reservation, DamageReport
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -1187,3 +1187,65 @@ def submit_reservation_list_request(request):
             })
     
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+class UserProfileView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
+    """View for users to view and edit their profile information"""
+    template_name = 'userpanel/user_profile.html'
+    permission_required = 'app.view_user_module'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            user_profile = UserProfile.objects.get(user=self.request.user)
+        except UserProfile.DoesNotExist:
+            # Create profile if it doesn't exist
+            user_profile = UserProfile.objects.create(
+                user=self.request.user,
+                role='USER'
+            )
+        
+        context['form'] = UserProfileUpdateForm(instance=user_profile, user=self.request.user)
+        context['user_profile'] = user_profile
+        return context
+
+    def post(self, request, *args, **kwargs):
+        try:
+            user_profile = UserProfile.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
+            user_profile = UserProfile.objects.create(
+                user=request.user,
+                role='USER'
+            )
+
+        form = UserProfileUpdateForm(request.POST, instance=user_profile, user=request.user)
+        
+        if form.is_valid():
+            # Check if password was changed
+            password_changed = bool(form.cleaned_data.get('new_password'))
+            
+            form.save()
+            
+            # Log the activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='update',
+                model_name='UserProfile',
+                object_repr=request.user.username,
+                description=f"User {request.user.username} updated their profile information" + 
+                           (" and changed password" if password_changed else "")
+            )
+            
+            if password_changed:
+                # Update session auth hash to prevent logout after password change
+                from django.contrib.auth import update_session_auth_hash
+                update_session_auth_hash(request, request.user)
+                messages.success(request, 'Your profile and password have been updated successfully!')
+            else:
+                messages.success(request, 'Your profile has been updated successfully!')
+                
+            return redirect('user_profile')
+        
+        context = self.get_context_data()
+        context['form'] = form
+        return render(request, self.template_name, context)

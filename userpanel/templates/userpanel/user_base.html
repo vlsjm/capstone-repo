@@ -104,7 +104,7 @@
   </head>
   <body>
     {% include 'userpanel/user_navbar.html' %} {% if messages %}
-    <!-- wag alisin to pls, na angat yung for na nasa baba -jm -->
+    <!-- Success modal popup -->
     {% for message in messages %} {% if message.tags == 'success' %}
     <div class="success-container">
       <div class="success-message">
@@ -113,7 +113,7 @@
       </div>
     </div>
     {% endif %} {% endfor %} {% endif %}
-
+    
     <div class="content-wrapper">{% block content %} {% endblock %}</div>
 
     {% block extra_js %}{% endblock %}

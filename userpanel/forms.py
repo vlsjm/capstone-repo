@@ -1,7 +1,8 @@
 from django import forms
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from app.models import SupplyRequest, Reservation, DamageReport, BorrowRequest, Supply, Property
+from django.contrib.auth.models import User
+from app.models import SupplyRequest, Reservation, DamageReport, BorrowRequest, Supply, Property, UserProfile
 from datetime import date
 import os
 
@@ -243,3 +244,148 @@ class DamageReportForm(forms.ModelForm):
                 raise ValidationError("Please upload a valid image file (JPG, PNG, GIF, BMP, WebP).")
         
         return image
+
+class UserProfileUpdateForm(forms.ModelForm):
+    """Form for updating user profile information"""
+    first_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your first name'
+        }),
+        label='First Name'
+    )
+    last_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your last name'
+        }),
+        label='Last Name'
+    )
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'yourname@gmail.com'
+        }),
+        label='Email account'
+    )
+    phone = forms.CharField(
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Add number'
+        }),
+        label='Mobile number'
+    )
+    
+    # Password change fields
+    current_password = forms.CharField(
+        max_length=128,
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter current password'
+        }),
+        label='Current Password',
+        help_text='Leave blank if you don\'t want to change your password'
+    )
+    new_password = forms.CharField(
+        max_length=128,
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter new password'
+        }),
+        label='New Password'
+    )
+    confirm_password = forms.CharField(
+        max_length=128,
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirm new password'
+        }),
+        label='Confirm New Password'
+    )
+
+    class Meta:
+        model = UserProfile
+        fields = ['phone']
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        if self.user:
+            self.fields['first_name'].initial = self.user.first_name
+            self.fields['last_name'].initial = self.user.last_name
+            self.fields['email'].initial = self.user.email
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and self.user:
+            # Check if email is already taken by another user
+            existing_user = User.objects.filter(email=email).exclude(pk=self.user.pk).first()
+            if existing_user:
+                raise ValidationError("This email address is already in use.")
+        return email
+
+    def clean_first_name(self):
+        first_name = self.cleaned_data.get('first_name', '').strip()
+        if not first_name:
+            raise ValidationError("First name is required.")
+        return first_name
+
+    def clean_last_name(self):
+        last_name = self.cleaned_data.get('last_name', '').strip()
+        if not last_name:
+            raise ValidationError("Last name is required.")
+        return last_name
+
+    def clean(self):
+        cleaned_data = super().clean()
+        current_password = cleaned_data.get('current_password')
+        new_password = cleaned_data.get('new_password')
+        confirm_password = cleaned_data.get('confirm_password')
+
+        # Password change validation
+        if any([current_password, new_password, confirm_password]):
+            if not current_password:
+                raise ValidationError("Current password is required to change password.")
+            
+            if not self.user.check_password(current_password):
+                raise ValidationError("Current password is incorrect.")
+            
+            if not new_password:
+                raise ValidationError("New password is required.")
+            
+            if new_password != confirm_password:
+                raise ValidationError("New passwords do not match.")
+            
+            if len(new_password) < 8:
+                raise ValidationError("New password must be at least 8 characters long.")
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        if self.user:
+            # Update User model fields
+            self.user.first_name = self.cleaned_data['first_name']
+            self.user.last_name = self.cleaned_data['last_name']
+            self.user.email = self.cleaned_data['email']
+            
+            # Change password if provided
+            new_password = self.cleaned_data.get('new_password')
+            if new_password:
+                self.user.set_password(new_password)
+            
+            if commit:
+                self.user.save()
+                profile.save()
+        return profile

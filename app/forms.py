@@ -345,3 +345,126 @@ class ReservationForm(forms.ModelForm):
         widgets = {
             'purpose': forms.Textarea(attrs={'rows': 3}),
         }
+
+
+class AdminProfileUpdateForm(forms.Form):
+    first_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your first name'
+        })
+    )
+    
+    last_name = forms.CharField(
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your last name'
+        })
+    )
+    
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your email address'
+        })
+    )
+    
+    phone = forms.CharField(
+        max_length=15,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your phone number'
+        })
+    )
+    
+    # Password change fields
+    current_password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your current password'
+        }),
+        help_text="Required to change password"
+    )
+    
+    new_password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter new password'
+        })
+    )
+    
+    confirm_password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirm new password'
+        })
+    )
+    
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+        
+        # Pre-populate fields with current user data
+        if not kwargs.get('data'):
+            self.initial['first_name'] = user.first_name
+            self.initial['last_name'] = user.last_name
+            self.initial['email'] = user.email
+            
+            # Get phone from UserProfile if exists
+            user_profile = getattr(user, 'userprofile', None)
+            if user_profile:
+                self.initial['phone'] = user_profile.phone
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and User.objects.filter(email=email).exclude(pk=self.user.pk).exists():
+            raise forms.ValidationError("This email address is already in use.")
+        return email
+    
+    def clean_first_name(self):
+        first_name = self.cleaned_data.get('first_name')
+        if not first_name or not first_name.strip():
+            raise forms.ValidationError("First name is required.")
+        return first_name.strip()
+    
+    def clean_last_name(self):
+        last_name = self.cleaned_data.get('last_name')
+        if not last_name or not last_name.strip():
+            raise forms.ValidationError("Last name is required.")
+        return last_name.strip()
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        current_password = cleaned_data.get('current_password')
+        new_password = cleaned_data.get('new_password')
+        confirm_password = cleaned_data.get('confirm_password')
+        
+        # If any password field is filled, all password fields are required
+        password_fields_filled = any([current_password, new_password, confirm_password])
+        
+        if password_fields_filled:
+            if not current_password:
+                self.add_error('current_password', 'Current password is required to change password.')
+            elif not self.user.check_password(current_password):
+                self.add_error('current_password', 'Current password is incorrect.')
+            
+            if not new_password:
+                self.add_error('new_password', 'New password is required.')
+            elif len(new_password) < 8:
+                self.add_error('new_password', 'Password must be at least 8 characters long.')
+            
+            if not confirm_password:
+                self.add_error('confirm_password', 'Please confirm your new password.')
+            elif new_password != confirm_password:
+                self.add_error('confirm_password', 'New passwords do not match.')
+        
+        return cleaned_data
