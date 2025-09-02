@@ -27,7 +27,7 @@ from django.utils.timezone import now
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.contrib.auth.decorators import permission_required
 from django.db import models
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -797,99 +797,12 @@ class ActivityPageView(PermissionRequiredMixin, ListView):
 
 
 
-class UserBorrowRequestListView(PermissionRequiredMixin, ListView):
-    model = BorrowRequest
-    template_name = 'app/borrow.html'
-    permission_required = 'app.view_admin_module'
-    context_object_name = 'borrow_requests'
-    paginate_by = 10
-
-    def get_queryset(self):
-        # Check for overdue items before getting the queryset
-        BorrowRequest.check_overdue_items()
-        return BorrowRequest.objects \
-            .select_related('user', 'user__userprofile', 'property') \
-            .order_by('-borrow_date')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-        # Get the current tab from request
-        current_tab = self.request.GET.get('tab', 'pending')
-        
-        # Get search and filter parameters
-        search_query = self.request.GET.get('search', '').strip()
-        department_filter = self.request.GET.get('department', '')
-        date_from = self.request.GET.get('date_from', '')
-        date_to = self.request.GET.get('date_to', '')
-        
-        # Base queryset with related data
-        base_queryset = BorrowRequest.objects.select_related('user', 'user__userprofile', 'user__userprofile__department', 'property').order_by('-borrow_date')
-        
-        # Apply search filter
-        if search_query:
-            base_queryset = base_queryset.filter(
-                Q(user__first_name__icontains=search_query) |
-                Q(user__last_name__icontains=search_query) |
-                Q(user__username__icontains=search_query) |
-                Q(property__property_name__icontains=search_query) |
-                Q(purpose__icontains=search_query)
-            )
-        
-        # Apply department filter
-        if department_filter:
-            base_queryset = base_queryset.filter(user__userprofile__department__id=department_filter)
-        
-        # Apply date range filters
-        if date_from:
-            base_queryset = base_queryset.filter(borrow_date__date__gte=date_from)
-        if date_to:
-            base_queryset = base_queryset.filter(borrow_date__date__lte=date_to)
-        
-        # Get filtered requests by status
-        all_requests = base_queryset
-        context['pending_requests'] = all_requests.filter(status='pending')
-        context['approved_requests'] = all_requests.filter(status='approved')
-        context['returned_requests'] = all_requests.filter(status='returned')
-        context['overdue_requests'] = all_requests.filter(status='overdue')
-        context['declined_requests'] = all_requests.filter(status='declined')
-        
-        # Add search and filter context
-        context['search_query'] = search_query
-        context['department_filter'] = department_filter
-        context['date_from'] = date_from
-        context['date_to'] = date_to
-        context['current_tab'] = current_tab
-        
-        # Get all departments for the filter dropdown
-        from .models import Department
-        context['departments'] = Department.objects.all().order_by('name')
-        
-        # Generate URL parameters string for pagination
-        url_params = ''
-        params = []
-        if search_query:
-            params.append(f'search={search_query}')
-        if department_filter:
-            params.append(f'department={department_filter}')
-        if date_from:
-            params.append(f'date_from={date_from}')
-        if date_to:
-            params.append(f'date_to={date_to}')
-        
-        if params:
-            url_params = '&' + '&'.join(params)
-        
-        context['url_params'] = url_params
-        
-        return context
-
 class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
     model = SupplyRequestBatch
     template_name = 'app/requests.html'
     permission_required = 'app.view_admin_module'
     context_object_name = 'batch_requests'
-    paginate_by = 10
+    paginate_by = 8  # Optimized for table layout - shows 8 requests per page for better UX
     
     def get_queryset(self):
         # Show batch requests ordered by oldest first
@@ -931,9 +844,27 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         
         # Apply date range filters
         if date_from:
-            base_queryset = base_queryset.filter(request_date__gte=date_from)
+            try:
+                from django.utils import timezone
+                from datetime import datetime
+                # Convert string to datetime and make it timezone aware
+                date_from_obj = datetime.strptime(date_from, '%Y-%m-%d')
+                date_from_aware = timezone.make_aware(date_from_obj)
+                base_queryset = base_queryset.filter(request_date__date__gte=date_from_aware.date())
+            except ValueError:
+                # Invalid date format, ignore filter
+                pass
         if date_to:
-            base_queryset = base_queryset.filter(request_date__lte=date_to)
+            try:
+                from django.utils import timezone
+                from datetime import datetime
+                # Convert string to datetime and make it timezone aware
+                date_to_obj = datetime.strptime(date_to, '%Y-%m-%d')
+                date_to_aware = timezone.make_aware(date_to_obj)
+                base_queryset = base_queryset.filter(request_date__date__lte=date_to_aware.date())
+            except ValueError:
+                # Invalid date format, ignore filter
+                pass
         
         # Apply pagination to each status filter
         from django.core.paginator import Paginator
@@ -943,7 +874,8 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         rejected_requests = base_queryset.filter(status='rejected')
         partially_approved_requests = base_queryset.filter(status='partially_approved')
         for_claiming_requests = base_queryset.filter(status='for_claiming')
-        completed_requests = base_queryset.filter(status='completed')
+        # Completed requests ordered by completion date (most recent first)
+        completed_requests = base_queryset.filter(status='completed').order_by('-completed_date')
         
         # Paginate each category
         pending_paginator = Paginator(pending_requests, self.paginate_by)
@@ -1008,7 +940,7 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
     paginate_by = 10
     
     def get_queryset(self):
-        queryset = DamageReport.objects.select_related('user', 'user__userprofile', 'item').order_by('-report_date')
+        queryset = DamageReport.objects.select_related('user', 'user__userprofile', 'item').order_by('report_date')
         
         # Search functionality
         search = self.request.GET.get('search')
@@ -1067,7 +999,7 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
     def get_queryset(self):
         queryset = Reservation.objects.select_related(
             'user', 'user__userprofile', 'item'
-        ).order_by('-reservation_date')
+        ).order_by('reservation_date')
         
         # Apply search filter
         search_query = self.request.GET.get('search')
@@ -3730,21 +3662,30 @@ def return_borrow_batch_items(request, batch_id):
     messages.success(request, f'Successfully returned {len(returned_items)} items.')
     return redirect('user_borrow_requests')
 
-class UserBorrowRequestBatchListView(PermissionRequiredMixin, ListView):
-    """View for displaying batch borrow requests in admin panel"""
+class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
+    """View for displaying batch borrow requests - shows all for admin, user's own for regular users"""
     model = BorrowRequestBatch
     template_name = 'app/borrow_batch.html'
-    permission_required = 'app.view_admin_module'
     context_object_name = 'batch_requests'
     paginate_by = 10
 
     def get_queryset(self):
         # Check for overdue batches before getting the queryset
         BorrowRequestBatch.check_overdue_batches()
-        return BorrowRequestBatch.objects \
+        
+        queryset = BorrowRequestBatch.objects \
             .select_related('user', 'user__userprofile', 'claimed_by') \
             .prefetch_related('items__property') \
-            .order_by('-request_date')
+            .order_by('request_date')
+        
+        # If user has admin permissions, show all requests
+        # If user is regular user, show only their requests
+        if self.request.user.has_perm('app.view_admin_module'):
+            # Admin users see all requests
+            return queryset
+        else:
+            # Regular users see only their own requests
+            return queryset.filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -3759,7 +3700,15 @@ class UserBorrowRequestBatchListView(PermissionRequiredMixin, ListView):
         date_to = self.request.GET.get('date_to', '')
         
         # Base queryset with related data
-        base_queryset = BorrowRequestBatch.objects.select_related('user', 'user__userprofile', 'user__userprofile__department').prefetch_related('items__property').order_by('-request_date')
+        base_queryset = BorrowRequestBatch.objects.select_related('user', 'user__userprofile', 'user__userprofile__department').prefetch_related('items__property').order_by('request_date')
+        
+        # Apply user filtering based on permissions
+        if self.request.user.has_perm('app.view_admin_module'):
+            # Admin users see all requests
+            pass  # No additional filtering needed
+        else:
+            # Regular users see only their own requests
+            base_queryset = base_queryset.filter(user=self.request.user)
         
         # Apply search filter
         if search_query:

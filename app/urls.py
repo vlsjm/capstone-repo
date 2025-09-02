@@ -3,7 +3,6 @@ from . import views
 from django.contrib.auth.views import LogoutView
 from .views import (
     DashboardPageView,
-    UserBorrowRequestListView,
     UserBorrowRequestBatchListView,
     UserSupplyRequestListView,
     UserDamageReportListView,

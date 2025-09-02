@@ -111,60 +111,218 @@
       border: 2px solid #bee5eb;
     }
     
-    /* Item cards with enhanced styling */
-    .item-card {
-      border: none;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      overflow: hidden;
+    /* Table-based layout for better scalability */
+    .items-container {
       background: white;
+      border-radius: 12px;
+      overflow: hidden;
       box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
-      transition: all 0.3s ease;
+      margin-bottom: 30px;
     }
     
-    .item-card:hover {
-      box-shadow: 0 4px 15px rgba(21, 45, 100, 0.15);
-      transform: translateY(-2px);
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
     }
     
-    .item-header {
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      padding: 20px;
-      border-bottom: 1px solid #e9ecef;
-      border-left: 4px solid #152d64;
+    .items-table thead {
+      background: linear-gradient(135deg, #152d64 0%, #1e3a8a 100%);
+      color: white;
     }
     
-    .item-header h3 {
-      color: #152d64;
-      margin: 0 0 10px 0;
-      font-size: 20px;
+    .items-table th {
+      padding: 15px 12px;
+      text-align: left;
       font-weight: 600;
-    }
-    
-    .item-details {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin-top: 15px;
-    }
-    
-    .item-detail {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .item-detail strong {
-      color: #152d64;
-      font-weight: 600;
-      font-size: 12px;
+      font-size: 15px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 5px;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    .item-detail span {
+    .items-table th:last-child {
+      border-right: none;
+    }
+    
+    .items-table tbody tr {
+      border-bottom: 1px solid #e9ecef;
+      transition: background-color 0.2s ease;
+    }
+    
+    .items-table tbody tr:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .items-table tbody tr:last-child {
+      border-bottom: none;
+    }
+    
+    .items-table td {
+      padding: 16px 12px;
+      vertical-align: middle;
+      font-size: 16px;
       color: #495057;
-      font-size: 14px;
+    }
+    
+    .item-name {
+      font-weight: 600;
+      color: #152d64;
+      display: flex;
+      align-items: flex-start;
+      text-align: left;
+    }
+    
+    .category-badge {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      color: #1565c0;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    
+    .quantity-cell {
+      text-align: center;
+      font-weight: 600;
+    }
+    
+    .stock-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .stock-available {
+      font-weight: 600;
+      color: #28a745;
+    }
+    
+    .stock-approved {
+      font-size: 12px;
+      color: #6c757d;
+    }
+    
+    .approve-input-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    
+    .approve-input {
+      width: 60px;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    
+    .approve-input:focus {
+      outline: none;
+      border-color: #152d64;
+      box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.1);
+    }
+    
+    .qty-indicator {
+      font-size: 13px;
+      color: #6c757d;
+    }
+    
+    .status-cell {
+      text-align: center;
+    }
+    
+    .actions-cell {
+      text-align: center;
+    }
+    
+    .action-buttons-inline {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+    
+    .btn-table {
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    
+    .btn-table:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-approve-table {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+    }
+    
+    .btn-reject-table {
+      background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+      color: white;
+    }
+    
+    /* Compact remarks section */
+    .remarks-row {
+      background: #f8f9fa;
+    }
+    
+    .remarks-container {
+      padding: 12px;
+    }
+    
+    .remarks-input {
+      width: 100%;
+      min-height: 40px;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 12px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    
+    .remarks-input:focus {
+      outline: none;
+      border-color: #152d64;
+      box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.1);
+    }
+    
+    .remarks-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #152d64;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    
+    /* Status badge adjustments for table */
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
     
     .item-actions {
@@ -238,18 +396,6 @@
     }
     
     /* Status badges for individual items */
-    .status-badge {
-      padding: 6px 12px;
-      border-radius: 16px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    
     .status-approved {
       background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
       color: #155724;
@@ -277,38 +423,47 @@
     
     /* Enhanced remarks section */
     .remarks-section {
-      margin-top: 20px;
-      padding: 20px;
+      margin-top: 15px;
+      padding: 15px;
       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
       border-radius: 8px;
-      border-left: 4px solid #28a745;
+      border-left: 3px solid #28a745;
     }
     
     .remarks-section h4 {
       color: #152d64;
-      margin: 0 0 15px 0;
-      font-size: 16px;
+      margin: 0 0 10px 0;
+      font-size: 14px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     
     .remarks-section textarea {
       width: 100%;
-      min-height: 60px;
-      padding: 12px;
-      border: 2px solid #e9ecef;
-      border-radius: 8px;
+      min-height: 50px;
+      padding: 10px;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
       resize: vertical;
       font-family: inherit;
-      font-size: 14px;
+      font-size: 13px;
       transition: border-color 0.2s ease;
+      background: white;
     }
     
     .remarks-section textarea:focus {
       outline: none;
       border-color: #152d64;
-      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+      box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.1);
+    }
+    
+    .remarks-section textarea::placeholder {
+      color: #adb5bd;
+      font-style: italic;
     }
     
     /* Approved quantity section */
@@ -416,11 +571,6 @@
   {% include 'app/navbar.html' %}
 
   <div class="batch-details">
-    <h1 class="page-title">
-      <i class="fas fa-clipboard-list"></i> 
-      Supply Request {{ batch_request.id|stringformat:"03d" }} Details
-    </h1>
-    
     <div class="back-button-container">
       <a href="{% url 'user_supply_requests' %}" class="btn btn-back">
         <i class="fas fa-arrow-left"></i> Back to Requests
@@ -511,43 +661,64 @@
     </div>
 
     <h2 style="color: #152d64; font-size: 24px; font-weight: 600; margin: 30px 0 20px 0; padding-bottom: 10px; border-bottom: 3px solid #28a745; display: inline-block;">
-      <i class="fas fa-list"></i> Request Items
+      <i class="fas fa-list"></i> Request Items ({{ items.count }} item{{ items.count|pluralize }})
     </h2>
     
-    {% for item in items %}
-    <div class="item-card">
-      <div class="item-header">
-        <h3>
-          <i class="fas fa-box"></i> 
-          {{ item.supply.supply_name }}
-        </h3>
-        
-        <div class="item-details">
-          <div class="item-detail">
-            <strong>Category</strong>
-            <span>{{ item.supply.category.name }}</span>
-          </div>
-          
-          <div class="item-detail">
-            <strong>Requested Quantity</strong>
-            <span>{{ item.quantity }}</span>
-          </div>
-          
-          {% if item.status == 'approved' and item.approved_quantity %}
-          <div class="item-detail">
-            <strong>Approved Quantity</strong>
-            <span class="approved-quantity">{{ item.approved_quantity }}</span>
-          </div>
-          {% endif %}
-          
-          <div class="item-detail">
-            <strong>Available Stock</strong>
-            <span>{{ item.supply.quantity_info.current_quantity|default:"N/A" }}</span>
-          </div>
-          
-          <div class="item-detail">
-            <strong>Status</strong>
-            <span>
+    <div class="items-container">
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width: 25%;"><i class="fas fa-box"></i> Item & Category</th>
+            <th style="width: 10%;" class="quantity-cell"><i class="fas fa-hashtag"></i> Requested</th>
+            <th style="width: 12%;" class="quantity-cell"><i class="fas fa-warehouse"></i> Stock</th>
+            <th style="width: 12%;" class="quantity-cell"><i class="fas fa-edit"></i> Approve</th>
+            <th style="width: 15%;" class="status-cell"><i class="fas fa-flag"></i> Status</th>
+            <th style="width: 16%;" class="actions-cell"><i class="fas fa-cogs"></i> Actions</th>
+            <th style="width: 10%;" class="actions-cell"><i class="fas fa-comment"></i> Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr id="item-row-{{ item.id }}">
+            <td>
+              <div class="item-name">
+                <div>
+                  <div style="font-weight: 600; color: #152d64; margin-bottom: 4px; font-size: 16px;">{{ item.supply.supply_name }}</div>
+                  <span class="category-badge">{{ item.supply.category.name }}</span>
+                </div>
+              </div>
+            </td>
+            
+            <td class="quantity-cell">
+              <strong>{{ item.quantity }}</strong>
+            </td>
+            
+            <td class="quantity-cell">
+              <div class="stock-info">
+                <span class="stock-available">{{ item.supply.quantity_info.current_quantity|default:"N/A" }}</span>
+              </div>
+            </td>
+            
+            <td class="quantity-cell">
+              {% if item.status == 'pending' and batch_request.status in 'pending,partially_approved' %}
+                <div class="approve-input-container">
+                  <input type="number" 
+                         id="approved-quantity-{{ item.id }}" 
+                         min="1" 
+                         max="{{ item.quantity }}" 
+                         value="{{ item.quantity }}" 
+                         class="approve-input"
+                         data-max-quantity="{{ item.quantity }}">
+                  <span class="qty-indicator">/ {{ item.quantity }}</span>
+                </div>
+              {% elif item.status == 'approved' %}
+                <strong style="color: #28a745;">{{ item.approved_quantity }}</strong>
+              {% else %}
+                <span style="color: #6c757d;">—</span>
+              {% endif %}
+            </td>
+            
+            <td class="status-cell">
               {% if item.status == 'approved' %}
                 <span class="status-badge status-approved">
                   <i class="fas fa-check"></i> Approved
@@ -561,101 +732,95 @@
                   <i class="fas fa-clock"></i> Pending
                 </span>
               {% endif %}
-            </span>
-          </div>
-        </div>
-      </div>
-      
-      {% if item.status == 'pending' and batch_request.status in 'pending,partially_approved' %}
-      <div class="item-actions">
-        <div class="approve-quantity-section">
-          <h4>
-            <i class="fas fa-calculator"></i> 
-            Approved Quantity
-          </h4>
-          <div class="quantity-input-group">
-            <input type="number" 
-                   id="approved-quantity-{{ item.id }}" 
-                   min="1" 
-                   max="{{ item.quantity }}" 
-                   value="{{ item.quantity }}" 
-                   class="quantity-input"
-                   data-max-quantity="{{ item.quantity }}">
-            <span class="quantity-max">/ {{ item.quantity }} requested</span>
-          </div>
-          <small class="quantity-note">Maximum available: {{ item.supply.quantity_info.current_quantity|default:"N/A" }}</small>
-        </div>
-        
-        <div class="remarks-section">
-          <h4>
-            <i class="fas fa-comment"></i> 
-            Remarks
-          </h4>
-          <textarea id="remarks-{{ item.id }}" placeholder="Enter any remarks or comments about this item...">{{ item.remarks|default:"" }}</textarea>
-        </div>
-        
-        <div class="action-buttons">
-          <form method="post" action="{% url 'approve_batch_item' batch_request.id item.id %}" style="display: inline;" id="approve-form-{{ item.id }}">
-            {% csrf_token %}
-            <input type="hidden" name="approved_quantity" id="hidden-quantity-{{ item.id }}" value="{{ item.quantity }}">
-            <input type="hidden" name="remarks" id="hidden-remarks-{{ item.id }}" value="">
-            <button type="submit" class="btn btn-approve" data-item-id="{{ item.id }}">
-              <i class="fas fa-check"></i> Approve Item
-            </button>
-          </form>
+            </td>
+            
+            <td class="actions-cell">
+              {% if item.status == 'pending' and batch_request.status in 'pending,partially_approved' %}
+                <div class="action-buttons-inline">
+                  <form method="post" action="{% url 'approve_batch_item' batch_request.id item.id %}" style="display: inline;" id="approve-form-{{ item.id }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="approved_quantity" id="hidden-quantity-{{ item.id }}" value="{{ item.quantity }}">
+                    <input type="hidden" name="remarks" id="hidden-remarks-{{ item.id }}" value="">
+                    <button type="submit" class="btn-table btn-approve-table" data-item-id="{{ item.id }}">
+                      <i class="fas fa-check"></i> Approve
+                    </button>
+                  </form>
+                  
+                  <form method="post" action="{% url 'reject_batch_item' batch_request.id item.id %}" style="display: inline;" id="reject-form-{{ item.id }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="remarks" id="hidden-reject-remarks-{{ item.id }}" value="">
+                    <button type="submit" class="btn-table btn-reject-table" data-item-id="{{ item.id }}">
+                      <i class="fas fa-times"></i> Reject
+                    </button>
+                  </form>
+                </div>
+              {% elif item.status == 'approved' and batch_request.status == 'for_claiming' and not item.claimed_date %}
+                <form method="post" action="{% url 'claim_individual_item' batch_request.id item.id %}" style="display: inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-table" style="background: #28a745; color: white;" onclick="return confirm('Claim this item?');">
+                    <i class="fas fa-shopping-cart"></i> Claim
+                  </button>
+                </form>
+              {% elif item.status == 'completed' %}
+                <span style="color: #28a745; font-weight: 600; font-size: 11px;">
+                  <i class="fas fa-check-circle"></i> COMPLETED
+                </span>
+              {% else %}
+                <span style="color: #6c757d;">—</span>
+              {% endif %}
+            </td>
+            
+            <td class="actions-cell">
+              {% if item.status == 'pending' and batch_request.status in 'pending,partially_approved' %}
+                <button type="button" 
+                        class="btn-table remarks-toggle-btn" 
+                        style="background: #17a2b8; color: white;" 
+                        data-item-id="{{ item.id }}"
+                        title="Add remarks">
+                  <i class="fas fa-comment"></i>
+                </button>
+              {% elif item.remarks %}
+                <button type="button" 
+                        class="btn-table remarks-toggle-btn" 
+                        style="background: #17a2b8; color: white;" 
+                        data-item-id="{{ item.id }}"
+                        title="View remarks: {{ item.remarks|truncatechars:50 }}">
+                  <i class="fas fa-comment-alt"></i>
+                </button>
+              {% else %}
+                <span style="color: #6c757d;">—</span>
+              {% endif %}
+            </td>
+          </tr>
           
-          <form method="post" action="{% url 'reject_batch_item' batch_request.id item.id %}" style="display: inline;" id="reject-form-{{ item.id }}">
-            {% csrf_token %}
-            <input type="hidden" name="remarks" id="hidden-reject-remarks-{{ item.id }}" value="">
-            <button type="submit" class="btn btn-reject" data-item-id="{{ item.id }}">
-              <i class="fas fa-times"></i> Reject Item
-            </button>
-          </form>
-        </div>
-      </div>
-      {% elif item.status == 'approved' and batch_request.status == 'for_claiming' and not item.claimed_date %}
-      <div class="item-actions">
-        <div class="claiming-section">
-          <h4>
-            <i class="fas fa-shopping-cart"></i> 
-            Ready for Claiming
-          </h4>
-          <p>This item has been approved and is ready to be claimed.</p>
-          <p><strong>Approved Quantity:</strong> {{ item.approved_quantity }}</p>
-          
-          <div class="action-buttons">
-            <form method="post" action="{% url 'claim_individual_item' batch_request.id item.id %}" style="display: inline;">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-claim" onclick="return confirm('Are you sure you want to claim this item? This will deduct {{ item.approved_quantity }} units from stock.');">
-                <i class="fas fa-shopping-cart"></i> Claim Item
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-      {% elif item.status == 'completed' %}
-      <div class="item-actions">
-        <div class="completed-section">
-          <h4>
-            <i class="fas fa-check-circle"></i> 
-            Item Completed
-          </h4>
-          <p>This item has been claimed and completed.</p>
-          <p><strong>Claimed Quantity:</strong> {{ item.approved_quantity }}</p>
-          {% if item.claimed_date %}
-            <p><strong>Claimed Date:</strong> {{ item.claimed_date|date:"M d, Y H:i" }}</p>
+          {% if item.status == 'pending' and batch_request.status in 'pending,partially_approved' or item.remarks %}
+          <tr id="remarks-row-{{ item.id }}" class="remarks-row" style="display: none;">
+            <td colspan="7">
+              <div class="remarks-container">
+                <div class="remarks-label">
+                  {% if item.status == 'pending' %}
+                    Remarks (Optional)
+                  {% else %}
+                    Remarks
+                  {% endif %}
+                </div>
+                {% if item.status == 'pending' and batch_request.status in 'pending,partially_approved' %}
+                  <textarea id="remarks-{{ item.id }}" 
+                            class="remarks-input" 
+                            placeholder="Add any comments or notes about this item approval/rejection...">{{ item.remarks|default:"" }}</textarea>
+                {% else %}
+                  <div style="padding: 10px; background: white; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; color: #495057;">
+                    {{ item.remarks }}
+                  </div>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
           {% endif %}
-        </div>
-      </div>
-      {% elif item.remarks %}
-      <div class="item-actions">
-        <div class="remarks-section">
-          <p><strong>Remarks:</strong> {{ item.remarks }}</p>
-        </div>
-      </div>
-      {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    {% endfor %}
     
     <div style="margin-top: 30px; text-align: center;">
       <a href="{% url 'user_supply_requests' %}" class="btn btn-back">
@@ -665,9 +830,25 @@
   </div>
   
   <script>
+    // Toggle remarks functionality
+    function toggleRemarks(itemId) {
+      const remarksRow = document.getElementById(`remarks-row-${itemId}`);
+      const isVisible = remarksRow.style.display !== 'none';
+      remarksRow.style.display = isVisible ? 'none' : 'table-row';
+    }
+    
     document.addEventListener('DOMContentLoaded', function() {
+      // Add event listeners for remarks toggle buttons
+      const remarksToggleButtons = document.querySelectorAll('.remarks-toggle-btn');
+      remarksToggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const itemId = this.getAttribute('data-item-id');
+          toggleRemarks(itemId);
+        });
+      });
+      
       // Add event listeners for quantity validation
-      const quantityInputs = document.querySelectorAll('.quantity-input');
+      const quantityInputs = document.querySelectorAll('.approve-input');
       quantityInputs.forEach(input => {
         input.addEventListener('change', function() {
           const maxQuantity = parseInt(this.getAttribute('data-max-quantity'));
@@ -681,7 +862,7 @@
       });
       
       // Add event listeners for approve buttons
-      const approveButtons = document.querySelectorAll('.btn-approve');
+      const approveButtons = document.querySelectorAll('.btn-approve-table');
       approveButtons.forEach(button => {
         button.addEventListener('click', function(e) {
           const itemId = this.getAttribute('data-item-id');
@@ -691,19 +872,19 @@
           const hiddenRemarks = document.getElementById(`hidden-remarks-${itemId}`);
           
           hiddenQuantity.value = quantityInput.value;
-          hiddenRemarks.value = remarksInput.value;
+          hiddenRemarks.value = remarksInput ? remarksInput.value : '';
         });
       });
       
       // Add event listeners for reject buttons
-      const rejectButtons = document.querySelectorAll('.btn-reject');
+      const rejectButtons = document.querySelectorAll('.btn-reject-table');
       rejectButtons.forEach(button => {
         button.addEventListener('click', function(e) {
           const itemId = this.getAttribute('data-item-id');
           const remarksInput = document.getElementById(`remarks-${itemId}`);
           const hiddenRemarks = document.getElementById(`hidden-reject-remarks-${itemId}`);
           
-          hiddenRemarks.value = remarksInput.value;
+          hiddenRemarks.value = remarksInput ? remarksInput.value : '';
         });
       });
     });
