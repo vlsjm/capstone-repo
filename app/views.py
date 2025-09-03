@@ -20,8 +20,8 @@ def update_damage_status(request, pk):
     return HttpResponseRedirect(reverse('damaged_items_management'))
 
 @require_POST
-def update_property_condition(request, pk):
-    property_obj = get_object_or_404(Property, pk=pk)
+def update_property_condition(request, property_number):
+    property_obj = get_object_or_404(Property, property_number=property_number)
     new_condition = request.POST.get('condition')
     if new_condition in ['Unserviceable', 'Needing repair', 'Working', 'In good condition']:
         property_obj.condition = new_condition
@@ -350,6 +350,10 @@ def damage_report_detail(request, pk):
             if classification == 'unserviceable':
                 report_obj.status = 'resolved'
                 report_obj.remarks = f"Classified as Unserviceable. {remarks}"
+                # Update property condition
+                report_obj.item.condition = 'Unserviceable'
+                report_obj.item.availability = 'not_available'
+                report_obj.item.save()
                 report_obj.save()
                 Notification.objects.create(
                     user=report_obj.user,
@@ -359,6 +363,10 @@ def damage_report_detail(request, pk):
             elif classification == 'needs_repair':
                 report_obj.status = 'resolved'
                 report_obj.remarks = f"Classified as Needs Repair. {remarks}"
+                # Update property condition
+                report_obj.item.condition = 'Needing repair'
+                report_obj.item.availability = 'not_available'
+                report_obj.item.save()
                 report_obj.save()
                 Notification.objects.create(
                     user=report_obj.user,
@@ -368,6 +376,10 @@ def damage_report_detail(request, pk):
             elif classification == 'good_condition':
                 report_obj.status = 'reviewed'
                 report_obj.remarks = f"Classified as Good Condition. {remarks}"
+                # Update property condition
+                report_obj.item.condition = 'In good condition'
+                report_obj.item.availability = 'available'
+                report_obj.item.save()
                 report_obj.save()
                 Notification.objects.create(
                     user=report_obj.user,

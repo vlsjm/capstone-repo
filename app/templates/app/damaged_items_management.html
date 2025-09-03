@@ -260,11 +260,8 @@
 
         <!-- Unserviceable Items Tab -->
         <div id="unserviceable" class="tab-content active">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
+            <div style="margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
                 <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Unserviceable Items</h3>
-                <span class="badge" style="background: #dc3545; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px;">
-                    {{ unserviceable_items|length }} items
-                </span>
             </div>
             
             {% if unserviceable_items %}
@@ -272,7 +269,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th><i class="fas fa-hashtag"></i> ID</th>
+                            <th><i class="fas fa-hashtag"></i> Property No.</th>
                             <th><i class="fas fa-cube"></i> Item</th>
                             <th><i class="fas fa-user"></i> Updated By</th>
                             <th><i class="fas fa-file-alt"></i> Description</th>
@@ -283,7 +280,15 @@
                     <tbody>
                         {% for item in unserviceable_items %}
                         <tr>
-                            <td><strong>{{ item.id }}</strong></td>
+                            <td>
+                                <strong>
+                                    {% if item.property_number and item.property_number|length > 0 %}
+                                        {{ item.property_number }}
+                                    {% else %}
+                                        ID-{{ item.id }}
+                                    {% endif %}
+                                </strong>
+                            </td>
                             <td>
                                 <strong>{{ item.property_name }}</strong><br>
                                 <small class="text-muted">{{ item.category }}</small>
@@ -296,7 +301,7 @@
                                 </span>
                             </td>
                             <td>
-                                <form method="post" action="{% url 'update_property_condition' item.id %}" style="display: inline;">
+                                <form method="post" action="{% url 'update_property_condition' item.property_number %}" style="display: inline;">
                                     {% csrf_token %}
                                     <input type="hidden" name="condition" value="Needing repair">
                                     <button type="submit" class="action-btn btn-move" title="Move to Repair List">
@@ -320,11 +325,8 @@
 
         <!-- Items Needing Repair Tab -->
         <div id="needs-repair" class="tab-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
+            <div style="margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
                 <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Items Needing Repair</h3>
-                <span class="badge" style="background: #ffc107; color: #856404; padding: 5px 10px; border-radius: 15px; font-size: 12px;">
-                    {{ needs_repair_items|length }} items
-                </span>
             </div>
             
             {% if needs_repair_items %}
@@ -332,7 +334,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th><i class="fas fa-hashtag"></i> ID</th>
+                            <th><i class="fas fa-hashtag"></i> Property No.</th>
                             <th><i class="fas fa-cube"></i> Item</th>
                             <th><i class="fas fa-user"></i> Updated By</th>
                             <th><i class="fas fa-file-alt"></i> Description</th>
@@ -343,7 +345,15 @@
                     <tbody>
                         {% for item in needs_repair_items %}
                         <tr>
-                            <td><strong>{{ item.id }}</strong></td>
+                            <td>
+                                <strong>
+                                    {% if item.property_number and item.property_number|length > 0 %}
+                                        {{ item.property_number }}
+                                    {% else %}
+                                        ID-{{ item.id }}
+                                    {% endif %}
+                                </strong>
+                            </td>
                             <td>
                                 <strong>{{ item.property_name }}</strong><br>
                                 <small class="text-muted">{{ item.category }}</small>
@@ -356,14 +366,14 @@
                                 </span>
                             </td>
                             <td>
-                                <form method="post" action="{% url 'update_property_condition' item.id %}" style="display: inline; margin-right: 5px;">
+                                <form method="post" action="{% url 'update_property_condition' item.property_number %}" style="display: inline; margin-right: 5px;">
                                     {% csrf_token %}
                                     <input type="hidden" name="condition" value="In good condition">
                                     <button type="submit" class="action-btn btn-repaired" title="Mark as Repaired">
                                         <i class="fas fa-check"></i> Repaired
                                     </button>
                                 </form>
-                                <form method="post" action="{% url 'update_property_condition' item.id %}" style="display: inline;">
+                                <form method="post" action="{% url 'update_property_condition' item.property_number %}" style="display: inline;">
                                     {% csrf_token %}
                                     <input type="hidden" name="condition" value="Unserviceable">
                                     <button type="submit" class="action-btn btn-move" title="Move to Unserviceable">

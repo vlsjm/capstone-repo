@@ -3,169 +3,580 @@
 
 {% block title %}Archived Items{% endblock %}
 
-<style>
-/* Action buttons styling */
-.btn-action {
-    padding: 6px 12px;
-    margin: 0 2px;
-    border-radius: 4px;
-    font-size: 14px;
-}
-.title{
-    font-size: 20px;
-    font-weight: bold;
-    color: #1a237e;
-    text-align: center;
-}
-
-.btn-edit {
-    background-color: #1a237e;
-    color: white;
-}
-
-.btn-return {
-    background-color: #6c757d;
-    color: white;
-}
-
-.btn-print {
-    background-color: #28a745;
-    color: white;
-}
-
-.btn-delete {
-    background-color: #dc3545;
-    color: white;
-}
-
-.btn-archive {
-    background-color: #36b9cc;
-    color: white;
-    border: none;
-}
-
-/* Hover effects */
-.btn-action:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.btn-archive:hover {
-    background-color: #2ea7b9;
-    color: white;
-}
-</style>
-
 {% block content %}
 {% include 'app/navbar.html' %}
 
-<div class="container-fluid">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h1title">Archived Items</h1>
+<head>
+    <style>
+        /* Main container styling */
+        .archived-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            margin-left: 270px;
+        }
+        
+        .archived-title {
+            color: #152d64;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 3px solid #152d64;
+        }
+        
+        /* Filter tabs styling */
+        .filter-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+            gap: 6px;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #6c757d;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+        
+        .tab-button:hover {
+            background: #f8f9fa;
+            color: #152d64;
+        }
+        
+        .tab-button.active {
+            background: #152d64;
+            color: white;
+            box-shadow: 0 2px 8px rgba(21, 45, 100, 0.3);
+        }
+
+        /* Category filtering */
+        .category-filters {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #152d64;
+            margin-right: 10px;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            color: #333;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .clear-filters-btn {
+            padding: 8px 16px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s ease;
+        }
+
+        .clear-filters-btn:hover {
+            background: #5a6268;
+        }
+        
+        /* Table styles with system theme */
+        .archived-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+            margin: 20px 0;
+        }
+        
+        .archived-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .archived-table th {
+            background: #152d64;
+            color: white;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #0d1f4a;
+        }
+        
+        .archived-table th:first-child {
+            padding-left: 20px;
+        }
+        
+        .archived-table th:last-child {
+            padding-right: 20px;
+            text-align: center;
+        }
+        
+        .archived-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+        
+        .archived-table td:first-child {
+            padding-left: 20px;
+        }
+        
+        .archived-table td:last-child {
+            padding-right: 20px;
+            text-align: center;
+        }
+        
+        .archived-table tr {
+            transition: background-color 0.2s ease;
+        }
+        
+        .archived-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Tab content styling */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Action buttons */
+        .btn-action {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-unarchive {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-unarchive:hover {
+            background: #218838;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        /* Status badges */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .condition-good { background: #d4edda; color: #155724; }
+        .condition-repair { background: #fff3cd; color: #856404; }
+        .condition-unserviceable { background: #f8d7da; color: #721c24; }
+
+        /* Empty state styling */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+        
+        .empty-state p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .archived-container {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
+            
+            .filter-tabs {
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .tab-button {
+                padding: 12px 16px;
+                width: 100%;
+                text-align: center;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .filter-select {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+
+<div class="archived-container">
+    <h1 class="archived-title">
+        <i class="fas fa-archive"></i> Archived Items
+    </h1>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+        <button class="tab-button active" data-tab="supplies">
+            <i class="fas fa-boxes"></i> Archived Supplies
+        </button>
+        <button class="tab-button" data-tab="properties">
+            <i class="fas fa-cube"></i> Archived Properties
+        </button>
     </div>
 
-    <!-- Archived Supplies -->
-    <div class="card shadow mb-4" style="margin-left: 270px;">
-        <div class="card-header py-3">
-            <h2 class="m-0 font-weight-bold text-primary" style="color: #1a237e;">Archived Supplies</h2>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>Supply Name</th>
-                            <th>Description</th>
-                            <th>Category</th>
-                            <th>Subcategory</th>
-                            <th>Date Received</th>
-                            <th>Expiration Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if supplies_by_category %}
-                            {% for category, supplies in supplies_by_category.items %}
-                                {% for supply in supplies %}
-                                    <tr>
-                                        <td>{{ supply.supply_name }}</td>
-                                        <td>{{ supply.description|default:"N/A" }}</td>
-                                        <td>{{ supply.category|default:"N/A" }}</td>
-                                        <td>{{ supply.subcategory|default:"N/A" }}</td>
-                                        <td>{{ supply.date_received }}</td>
-                                        <td>{{ supply.expiration_date|default:"N/A" }}</td>
-                                        <td>
-                                            <form method="post" action="{% url 'unarchive_supply' supply.id %}" style="display: inline;">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn-action btn-unarchive" style="background-color: #28a745; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-size: 14px; transition: background 0.2s;">
-                                                    <i class="fas fa-box"></i> Unarchive
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            {% endfor %}
-                        {% else %}
-                            <tr>
-                                <td colspan="7" class="text-center">No archived supplies found</td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+    <!-- Supplies Tab -->
+    <div id="supplies" class="tab-content active">
+        <!-- Category Filters for Supplies -->
+        <div class="category-filters">
+            <div class="filter-group">
+                <span class="filter-label">Filter by:</span>
+                <select id="supply-category-filter" class="filter-select">
+                    <option value="">All Categories</option>
+                    {% for category, supplies in supplies_by_category.items %}
+                        <option value="{{ category|default:'Uncategorized' }}">{{ category|default:"Uncategorized" }}</option>
+                    {% endfor %}
+                </select>
+                <select id="supply-subcategory-filter" class="filter-select">
+                    <option value="">All Subcategories</option>
+                </select>
+                <button class="clear-filters-btn" onclick="clearSupplyFilters()">
+                    <i class="fas fa-times"></i> Clear Filters
+                </button>
             </div>
         </div>
+
+        {% if supplies_by_category %}
+        <div class="archived-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-tag"></i> Supply Name</th>
+                        <th><i class="fas fa-file-alt"></i> Description</th>
+                        <th><i class="fas fa-folder"></i> Category</th>
+                        <th><i class="fas fa-folder-open"></i> Subcategory</th>
+                        <th><i class="fas fa-calendar"></i> Date Received</th>
+                        <th><i class="fas fa-clock"></i> Expiration Date</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="supply-table-body">
+                    {% for category, supplies in supplies_by_category.items %}
+                        {% for supply in supplies %}
+                            <tr class="supply-row" data-category="{{ supply.category|default:'Uncategorized' }}" data-subcategory="{{ supply.subcategory|default:'None' }}">
+                                <td><strong>{{ supply.supply_name }}</strong></td>
+                                <td>{{ supply.description|default:"N/A" }}</td>
+                                <td>{{ supply.category|default:"Uncategorized" }}</td>
+                                <td>{{ supply.subcategory|default:"None" }}</td>
+                                <td>{{ supply.date_received }}</td>
+                                <td>{{ supply.expiration_date|default:"N/A" }}</td>
+                                <td>
+                                    <form method="post" action="{% url 'unarchive_supply' supply.id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-action btn-unarchive">
+                                            <i class="fas fa-undo"></i> Unarchive
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-archive"></i>
+            <h3>No Archived Supplies</h3>
+            <p>There are currently no supplies in the archive.</p>
+        </div>
+        {% endif %}
     </div>
 
-    <!-- Archived Properties -->
-    <div class="card shadow mb-4" style="margin-left: 270px;">
-        <div class="card-header py-3">
-            <h2 class="m-0 font-weight-bold text-primary" style="color: #1a237e;">Archived Properties</h2>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>Property Number</th>
-                            <th>Property Name</th>
-                            <th>Description</th>
-                            <th>Category</th>
-                            <th>Location</th>
-                            <th>Condition</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if properties_by_category %}
-                            {% for category, properties in properties_by_category.items %}
-                                {% for property in properties %}
-                                    <tr>
-                                        <td>{{ property.property_number|default:"N/A" }}</td>
-                                        <td>{{ property.property_name }}</td>
-                                        <td>{{ property.description|default:"N/A" }}</td>
-                                        <td>{{ property.category|default:"N/A" }}</td>
-                                        <td>{{ property.location|default:"N/A" }}</td>
-                                        <td>{{ property.get_condition_display }}</td>
-                                        <td>
-                                            <form method="post" action="{% url 'unarchive_property' property.id %}" style="display: inline;">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn-action btn-unarchive" style="background-color: #28a745; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-size: 14px; transition: background 0.2s;">
-                                                    <i class="fas fa-box"></i> Unarchive
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            {% endfor %}
-                        {% else %}
-                            <tr>
-                                <td colspan="7" class="text-center">No archived properties found</td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+    <!-- Properties Tab -->
+    <div id="properties" class="tab-content">
+        <!-- Category Filters for Properties -->
+        <div class="category-filters">
+            <div class="filter-group">
+                <span class="filter-label">Filter by:</span>
+                <select id="property-category-filter" class="filter-select">
+                    <option value="">All Categories</option>
+                    {% for category, properties in properties_by_category.items %}
+                        <option value="{{ category|default:'Uncategorized' }}">{{ category|default:"Uncategorized" }}</option>
+                    {% endfor %}
+                </select>
+                <select id="property-condition-filter" class="filter-select">
+                    <option value="">All Conditions</option>
+                    <option value="In good condition">In Good Condition</option>
+                    <option value="Needing repair">Needing Repair</option>
+                    <option value="Unserviceable">Unserviceable</option>
+                </select>
+                <button class="clear-filters-btn" onclick="clearPropertyFilters()">
+                    <i class="fas fa-times"></i> Clear Filters
+                </button>
             </div>
         </div>
+
+        {% if properties_by_category %}
+        <div class="archived-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-hashtag"></i> Property No.</th>
+                        <th><i class="fas fa-cube"></i> Property Name</th>
+                        <th><i class="fas fa-file-alt"></i> Description</th>
+                        <th><i class="fas fa-folder"></i> Category</th>
+                        <th><i class="fas fa-map-marker-alt"></i> Location</th>
+                        <th><i class="fas fa-info-circle"></i> Condition</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="property-table-body">
+                    {% for category, properties in properties_by_category.items %}
+                        {% for property in properties %}
+                            <tr class="property-row" data-category="{{ property.category|default:'Uncategorized' }}" data-condition="{{ property.condition }}">
+                                <td>
+                                    <strong>
+                                        {% if property.property_number and property.property_number|length > 0 %}
+                                            {{ property.property_number }}
+                                        {% else %}
+                                            ID-{{ property.id }}
+                                        {% endif %}
+                                    </strong>
+                                </td>
+                                <td><strong>{{ property.property_name }}</strong></td>
+                                <td>{{ property.description|default:"N/A" }}</td>
+                                <td>{{ property.category|default:"Uncategorized" }}</td>
+                                <td>{{ property.location|default:"N/A" }}</td>
+                                <td>
+                                    {% if property.condition == 'In good condition' %}
+                                        <span class="status-badge condition-good">{{ property.get_condition_display }}</span>
+                                    {% elif property.condition == 'Needing repair' %}
+                                        <span class="status-badge condition-repair">{{ property.get_condition_display }}</span>
+                                    {% else %}
+                                        <span class="status-badge condition-unserviceable">{{ property.get_condition_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="post" action="{% url 'unarchive_property' property.id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-action btn-unarchive">
+                                            <i class="fas fa-undo"></i> Unarchive
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-archive"></i>
+            <h3>No Archived Properties</h3>
+            <p>There are currently no properties in the archive.</p>
+        </div>
+        {% endif %}
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab functionality
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                this.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+
+        // Initialize filters
+        initializeSupplyFilters();
+        initializePropertyFilters();
+    });
+
+    // Supply filtering functionality
+    function initializeSupplyFilters() {
+        const categoryFilter = document.getElementById('supply-category-filter');
+        const subcategoryFilter = document.getElementById('supply-subcategory-filter');
+        
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', function() {
+                updateSupplySubcategories();
+                filterSupplies();
+            });
+        }
+        
+        if (subcategoryFilter) {
+            subcategoryFilter.addEventListener('change', filterSupplies);
+        }
+    }
+
+    function updateSupplySubcategories() {
+        const categoryFilter = document.getElementById('supply-category-filter');
+        const subcategoryFilter = document.getElementById('supply-subcategory-filter');
+        const selectedCategory = categoryFilter.value;
+        
+        // Clear subcategory options
+        subcategoryFilter.innerHTML = '<option value="">All Subcategories</option>';
+        
+        if (selectedCategory) {
+            const subcategories = new Set();
+            document.querySelectorAll('.supply-row').forEach(row => {
+                if (row.dataset.category === selectedCategory) {
+                    subcategories.add(row.dataset.subcategory);
+                }
+            });
+            
+            subcategories.forEach(subcategory => {
+                if (subcategory && subcategory !== 'None') {
+                    const option = document.createElement('option');
+                    option.value = subcategory;
+                    option.textContent = subcategory;
+                    subcategoryFilter.appendChild(option);
+                }
+            });
+        }
+    }
+
+    function filterSupplies() {
+        const categoryFilter = document.getElementById('supply-category-filter');
+        const subcategoryFilter = document.getElementById('supply-subcategory-filter');
+        const selectedCategory = categoryFilter ? categoryFilter.value : '';
+        const selectedSubcategory = subcategoryFilter ? subcategoryFilter.value : '';
+        
+        document.querySelectorAll('.supply-row').forEach(row => {
+            const categoryMatch = !selectedCategory || row.dataset.category === selectedCategory;
+            const subcategoryMatch = !selectedSubcategory || row.dataset.subcategory === selectedSubcategory;
+            
+            if (categoryMatch && subcategoryMatch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function clearSupplyFilters() {
+        document.getElementById('supply-category-filter').value = '';
+        document.getElementById('supply-subcategory-filter').innerHTML = '<option value="">All Subcategories</option>';
+        filterSupplies();
+    }
+
+    // Property filtering functionality
+    function initializePropertyFilters() {
+        const categoryFilter = document.getElementById('property-category-filter');
+        const conditionFilter = document.getElementById('property-condition-filter');
+        
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', filterProperties);
+        }
+        
+        if (conditionFilter) {
+            conditionFilter.addEventListener('change', filterProperties);
+        }
+    }
+
+    function filterProperties() {
+        const categoryFilter = document.getElementById('property-category-filter');
+        const conditionFilter = document.getElementById('property-condition-filter');
+        const selectedCategory = categoryFilter ? categoryFilter.value : '';
+        const selectedCondition = conditionFilter ? conditionFilter.value : '';
+        
+        document.querySelectorAll('.property-row').forEach(row => {
+            const categoryMatch = !selectedCategory || row.dataset.category === selectedCategory;
+            const conditionMatch = !selectedCondition || row.dataset.condition === selectedCondition;
+            
+            if (categoryMatch && conditionMatch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function clearPropertyFilters() {
+        document.getElementById('property-category-filter').value = '';
+        document.getElementById('property-condition-filter').value = '';
+        filterProperties();
+    }
+</script>
+
 {% endblock %} 
