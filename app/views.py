@@ -1,3 +1,64 @@
+from django.views.decorators.http import require_POST
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
+@require_POST
+def update_damage_status(request, pk):
+    report = get_object_or_404(DamageReport, pk=pk)
+    action = request.POST.get('update_action')
+    remarks = report.remarks or ''
+    if action == 'unserviceable':
+        report.remarks = f"Classified as Unserviceable. {remarks}"
+        report.save()
+    elif action == 'needs_repair':
+        report.remarks = f"Classified as Needs Repair. {remarks}"
+        report.save()
+    elif action == 'back_in_use':
+        report.status = 'reviewed'
+        report.remarks = f"Marked as Back in Use. {remarks}"
+        report.save()
+    return HttpResponseRedirect(reverse('damaged_items_management'))
+
+@require_POST
+def update_property_condition(request, pk):
+    property_obj = get_object_or_404(Property, pk=pk)
+    new_condition = request.POST.get('condition')
+    if new_condition in ['Unserviceable', 'Needing repair', 'Working', 'In good condition']:
+        property_obj.condition = new_condition
+        if new_condition in ['Unserviceable', 'Needing repair']:
+            property_obj.availability = 'not_available'
+        else:
+            property_obj.availability = 'available'
+        property_obj.save()
+    return HttpResponseRedirect(reverse('damaged_items_management'))
+# Damaged Items Management Page (Admin)
+from django.views.generic import TemplateView
+
+from django.contrib.auth.mixins import PermissionRequiredMixin
+
+class DamagedItemsManagementView(PermissionRequiredMixin, TemplateView):
+    permission_required = 'app.view_admin_module'
+    template_name = 'app/damaged_items_management.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get properties with unserviceable condition
+        unserviceable_properties = Property.objects.filter(condition__iexact='Unserviceable')
+        
+        # Get properties needing repair
+        needs_repair_properties = Property.objects.filter(condition__iexact='Needing repair')
+        
+        # Also include damage reports that have been classified (for backward compatibility)
+        unserviceable_reports = DamageReport.objects.filter(status='resolved', remarks__icontains='Unserviceable')
+        needs_repair_reports = DamageReport.objects.filter(status='resolved', remarks__icontains='Needs Repair')
+        
+        context['unserviceable_items'] = unserviceable_properties
+        context['needs_repair_items'] = needs_repair_properties
+        context['unserviceable_reports'] = unserviceable_reports
+        context['needs_repair_reports'] = needs_repair_reports
+        
+        return context
 from collections import defaultdict
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
@@ -284,13 +345,45 @@ def damage_report_detail(request, pk):
         action = request.POST.get('action')
         remarks = request.POST.get('remarks')
         report_obj.remarks = remarks
-        if action == 'reviewed':
+        if action == 'classify':
+            classification = request.POST.get('classification')
+            if classification == 'unserviceable':
+                report_obj.status = 'resolved'
+                report_obj.remarks = f"Classified as Unserviceable. {remarks}"
+                report_obj.save()
+                Notification.objects.create(
+                    user=report_obj.user,
+                    message=f"Your damage report for {report_obj.item.property_name} has been classified as Unserviceable.",
+                    remarks=remarks
+                )
+            elif classification == 'needs_repair':
+                report_obj.status = 'resolved'
+                report_obj.remarks = f"Classified as Needs Repair. {remarks}"
+                report_obj.save()
+                Notification.objects.create(
+                    user=report_obj.user,
+                    message=f"Your damage report for {report_obj.item.property_name} has been classified as Needs Repair.",
+                    remarks=remarks
+                )
+            elif classification == 'good_condition':
+                report_obj.status = 'reviewed'
+                report_obj.remarks = f"Classified as Good Condition. {remarks}"
+                report_obj.save()
+                Notification.objects.create(
+                    user=report_obj.user,
+                    message=f"Your damage report for {report_obj.item.property_name} has been reviewed and marked as Good Condition.",
+                    remarks=remarks
+                )
+            return redirect('user_damage_reports')
+        elif action == 'reviewed':
             report_obj.status = 'reviewed'
             Notification.objects.create(
                 user=report_obj.user,
                 message=f"Your damage report for {report_obj.item.property_name} has been reviewed.",
                 remarks=remarks
             )
+            report_obj.save()
+            return redirect('user_damage_reports')
         elif action == 'resolved':
             report_obj.status = 'resolved'
             Notification.objects.create(
@@ -298,8 +391,8 @@ def damage_report_detail(request, pk):
                 message=f"Your damage report for {report_obj.item.property_name} has been resolved.",
                 remarks=remarks
             )
-        report_obj.save()
-        return redirect('user_damage_reports')
+            report_obj.save()
+            return redirect('user_damage_reports')
     return render(request, 'app/report_details.html', {'report_obj': report_obj})
 
 

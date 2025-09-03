@@ -1,0 +1,411 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Damaged Items Management - ResourceHive</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/userStyle.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+        /* Main container styles matching system theme */
+        .damaged-container {
+            padding: 20px;
+            margin-left: 270px;
+            background-color: #f5f6fa;
+            min-height: 100vh;
+        }
+        
+        .damaged-title {
+            color: #152d64;
+            margin-bottom: 30px;
+            font-size: 32px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        /* Tab styles */
+        .filter-tabs {
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+            display: flex;
+            gap: 4px;
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+        
+        .tab-button:hover {
+            background: #f8f9fa;
+            color: #152d64;
+        }
+        
+        .tab-button.active {
+            background: #152d64;
+            color: white;
+            box-shadow: 0 2px 8px rgba(21, 45, 100, 0.3);
+        }
+        
+        /* Table styles with system theme */
+        .damaged-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+            margin: 20px 0;
+        }
+        
+        .damaged-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .damaged-table th {
+            background: #152d64;
+            color: white;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #0d1f4a;
+        }
+        
+        .damaged-table th:first-child {
+            padding-left: 20px;
+        }
+        
+        .damaged-table th:last-child {
+            padding-right: 20px;
+            text-align: center;
+        }
+        
+        .damaged-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+        
+        .damaged-table td:first-child {
+            padding-left: 20px;
+        }
+        
+        .damaged-table td:last-child {
+            padding-right: 20px;
+            text-align: center;
+        }
+        
+        .damaged-table tr {
+            transition: background-color 0.2s ease;
+        }
+        
+        .damaged-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .damaged-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Status badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-unserviceable {
+            background: #ffe6e6;
+            color: #cc0000;
+        }
+        
+        .status-needs-repair {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        /* Action buttons */
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-move {
+            background: #152d64;
+            color: white;
+        }
+        
+        .btn-move:hover {
+            background: #0d1f4a;
+            color: white;
+        }
+        
+        .btn-repaired {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-repaired:hover {
+            background: #218838;
+            color: white;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .empty-state h3 {
+            margin: 16px 0 8px 0;
+            color: #152d64;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .damaged-container {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .filter-tabs {
+                margin-bottom: 20px;
+                padding: 6px;
+                gap: 3px;
+            }
+            
+            .tab-button {
+                padding: 10px 16px;
+                font-size: 14px;
+                flex: 1;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .filter-tabs {
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .tab-button {
+                padding: 12px 16px;
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'app/navbar.html' %}
+    
+    <div class="damaged-container">
+        <h1 class="damaged-title">
+            <i class="fas fa-tools"></i> Damaged Items Management
+        </h1>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="tab-button active" data-tab="unserviceable">
+                <i class="fas fa-times-circle"></i> Unserviceable Items
+            </button>
+            <button class="tab-button" data-tab="needs-repair">
+                <i class="fas fa-wrench"></i> Items Needing Repair
+            </button>
+        </div>
+
+        <!-- Unserviceable Items Tab -->
+        <div id="unserviceable" class="tab-content active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
+                <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Unserviceable Items</h3>
+                <span class="badge" style="background: #dc3545; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px;">
+                    {{ unserviceable_items|length }} items
+                </span>
+            </div>
+            
+            {% if unserviceable_items %}
+            <div class="damaged-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-hashtag"></i> ID</th>
+                            <th><i class="fas fa-cube"></i> Item</th>
+                            <th><i class="fas fa-user"></i> Updated By</th>
+                            <th><i class="fas fa-file-alt"></i> Description</th>
+                            <th><i class="fas fa-tag"></i> Status</th>
+                            <th><i class="fas fa-cogs"></i> Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in unserviceable_items %}
+                        <tr>
+                            <td><strong>{{ item.id }}</strong></td>
+                            <td>
+                                <strong>{{ item.property_name }}</strong><br>
+                                <small class="text-muted">{{ item.category }}</small>
+                            </td>
+                            <td>System</td>
+                            <td>{{ item.description|truncatechars:50 }}</td>
+                            <td>
+                                <span class="status-badge status-unserviceable">
+                                    <i class="fas fa-times-circle"></i> Unserviceable
+                                </span>
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'update_property_condition' item.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="condition" value="Needing repair">
+                                    <button type="submit" class="action-btn btn-move" title="Move to Repair List">
+                                        <i class="fas fa-arrow-right"></i> Move to Repair
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                <h3>No Unserviceable Items</h3>
+                <p>All items are currently in working condition or being repaired.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Items Needing Repair Tab -->
+        <div id="needs-repair" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
+                <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Items Needing Repair</h3>
+                <span class="badge" style="background: #ffc107; color: #856404; padding: 5px 10px; border-radius: 15px; font-size: 12px;">
+                    {{ needs_repair_items|length }} items
+                </span>
+            </div>
+            
+            {% if needs_repair_items %}
+            <div class="damaged-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-hashtag"></i> ID</th>
+                            <th><i class="fas fa-cube"></i> Item</th>
+                            <th><i class="fas fa-user"></i> Updated By</th>
+                            <th><i class="fas fa-file-alt"></i> Description</th>
+                            <th><i class="fas fa-tag"></i> Status</th>
+                            <th><i class="fas fa-cogs"></i> Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in needs_repair_items %}
+                        <tr>
+                            <td><strong>{{ item.id }}</strong></td>
+                            <td>
+                                <strong>{{ item.property_name }}</strong><br>
+                                <small class="text-muted">{{ item.category }}</small>
+                            </td>
+                            <td>System</td>
+                            <td>{{ item.description|truncatechars:50 }}</td>
+                            <td>
+                                <span class="status-badge status-needs-repair">
+                                    <i class="fas fa-wrench"></i> Needs Repair
+                                </span>
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'update_property_condition' item.id %}" style="display: inline; margin-right: 5px;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="condition" value="In good condition">
+                                    <button type="submit" class="action-btn btn-repaired" title="Mark as Repaired">
+                                        <i class="fas fa-check"></i> Repaired
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'update_property_condition' item.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="condition" value="Unserviceable">
+                                    <button type="submit" class="action-btn btn-move" title="Move to Unserviceable">
+                                        <i class="fas fa-times"></i> Mark Unserviceable
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                <h3>No Items Need Repair</h3>
+                <p>All items are currently in working condition.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab functionality
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all buttons and contents
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding content
+                    this.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

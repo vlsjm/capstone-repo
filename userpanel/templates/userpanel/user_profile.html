@@ -181,12 +181,13 @@
 <style>
 .profile-container {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    margin: 2% auto;
+    margin: 20px auto;
     padding: 0;
     border-radius: 16px;
-    width: 70%;
-    max-width: 700px;
-    margin-left: 300px;
+    width: 85%;
+    max-width: 1000px;
+    margin-left: 270px;
+    margin-right: 20px;
     box-shadow: 0 8px 32px rgba(21, 45, 100, 0.12);
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -251,13 +252,13 @@
 }
 
 .profile-form {
-    padding: 25px 30px;
+    padding: 35px 40px;
 }
 
 .form-row {
     display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
+    gap: 30px;
+    margin-bottom: 25px;
 }
 
 .form-row .form-group {
@@ -266,7 +267,7 @@
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .form-group label {
@@ -287,10 +288,10 @@
 
 .form-control {
     width: 100%;
-    padding: 14px 18px;
+    padding: 16px 20px;
     border: 2px solid #e1e8ed;
     border-radius: 10px;
-    font-size: 14px;
+    font-size: 15px;
     background-color: #ffffff;
     transition: all 0.3s ease;
     box-sizing: border-box;
@@ -411,13 +412,6 @@
     user-select: none;
 }
 
-.password-toggle:hover {
-    background-color: #f8f9fa;
-    border-radius: 5px;
-    padding: 10px;
-    margin: -10px;
-}
-
 .toggle-icon {
     font-size: 16px;
     font-weight: bold;
@@ -499,9 +493,9 @@
 /* Responsive design */
 @media (max-width: 768px) {
     .profile-container {
-        width: 90%;
-        margin-left: 5%;
-        margin-right: 5%;
+        width: 95%;
+        margin-left: 2.5%;
+        margin-right: 2.5%;
     }
     
     .form-row {
@@ -510,7 +504,15 @@
     }
     
     .form-row .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 25px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+    .profile-container {
+        width: 90%;
+        margin-left: 260px;
+        margin-right: 10px;
     }
 }
 </style>
