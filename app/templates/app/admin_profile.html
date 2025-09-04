@@ -48,6 +48,7 @@
                 <label for="{{ form.first_name.id_for_label }}">
                     <i class="fas fa-user icon-label"></i>
                     {{ form.first_name.label }}
+                    <span class="required-asterisk">*</span>
                 </label>
                 <input type="text" 
                        name="{{ form.first_name.name }}" 
@@ -65,6 +66,7 @@
                 <label for="{{ form.last_name.id_for_label }}">
                     <i class="fas fa-user icon-label"></i>
                     {{ form.last_name.label }}
+                    <span class="required-asterisk">*</span>
                 </label>
                 <input type="text" 
                        name="{{ form.last_name.name }}" 
@@ -85,6 +87,7 @@
                 <label for="{{ form.email.id_for_label }}">
                     <i class="fas fa-envelope icon-label"></i>
                     {{ form.email.label }}
+                    <span class="required-asterisk">*</span>
                 </label>
                 <input type="email" 
                        name="{{ form.email.name }}" 

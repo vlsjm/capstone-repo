@@ -838,7 +838,71 @@ tr.hidden {
       <h3>Add New Supply</h3>
       <form method="POST" action="{% url 'add_supply' %}" id="addSupplyForm">
         {% csrf_token %}
-        {{ form.as_p }}
+        
+        <!-- Custom form fields with required asterisks -->
+        <div class="form-group">
+          <label for="{{ form.supply_name.id_for_label }}">
+            <i class="fas fa-box"></i> Supply Name
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.supply_name }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.category.id_for_label }}">
+            <i class="fas fa-folder"></i> Category
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.category }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.subcategory.id_for_label }}">
+            <i class="fas fa-folder-tree"></i> Subcategory
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.subcategory }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.description.id_for_label }}">
+            <i class="fas fa-align-left"></i> Description
+          </label>
+          {{ form.description }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.date_received.id_for_label }}">
+            <i class="fas fa-calendar"></i> Date Received
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.date_received }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.expiration_date.id_for_label }}">
+            <i class="fas fa-clock"></i> Expiration Date
+          </label>
+          {{ form.expiration_date }}
+          <small class="help-text">{{ form.expiration_date.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.current_quantity.id_for_label }}">
+            <i class="fas fa-boxes"></i> Current Quantity
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.current_quantity }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.minimum_threshold.id_for_label }}">
+            <i class="fas fa-exclamation-triangle"></i> Minimum Threshold
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.minimum_threshold }}
+        </div>
+
         <button type="submit" class="submit-btn">Submit</button>
       </form>
     </div>
@@ -854,17 +918,26 @@ tr.hidden {
         <input type="hidden" name="id" id="edit_id" />
         
         <div class="form-group">
-          <label>Supply Name</label>
+          <label>
+            <i class="fas fa-box"></i> Supply Name
+            <span class="required-asterisk">*</span>
+          </label>
           <input type="text" name="supply_name" id="edit_name" required />
         </div>
 
         <div class="form-group">
-          <label>Minimum Threshold</label>
+          <label>
+            <i class="fas fa-exclamation-triangle"></i> Minimum Threshold
+            <span class="required-asterisk">*</span>
+          </label>
           <input type="number" name="minimum_threshold" id="edit_minimum_threshold" required min="0" />
         </div>
 
         <div class="form-group">
-          <label for="edit_category">Category</label>
+          <label for="edit_category">
+            <i class="fas fa-folder"></i> Category
+            <span class="required-asterisk">*</span>
+          </label>
           <select name="category" id="edit_category" class="form-select" required>
             <option value="">Select a category</option>
             {% for category in form.fields.category.queryset %}
@@ -874,8 +947,11 @@ tr.hidden {
         </div>
 
         <div class="form-group">
-          <label for="edit_subcategory">Subcategory</label>
-          <select name="subcategory" id="edit_subcategory" class="form-select">
+          <label for="edit_subcategory">
+            <i class="fas fa-folder-tree"></i> Subcategory
+            <span class="required-asterisk">*</span>
+          </label>
+          <select name="subcategory" id="edit_subcategory" class="form-select" required>
             <option value="">Select a subcategory</option>
             {% for subcategory in form.fields.subcategory.queryset %}
               <option value="{{ subcategory.id }}">{{ subcategory.name }}</option>
@@ -884,17 +960,24 @@ tr.hidden {
         </div>
 
         <div class="form-group">
-          <label>Description</label>
+          <label>
+            <i class="fas fa-align-left"></i> Description
+          </label>
           <textarea name="description" id="edit_description" rows="3"></textarea>
         </div>
 
         <div class="form-group">
-          <label>Date Received</label>
+          <label>
+            <i class="fas fa-calendar"></i> Date Received
+            <span class="required-asterisk">*</span>
+          </label>
           <input type="date" name="date_received" id="edit_date" required />
         </div>
 
         <div class="form-group">
-          <label>Expiration Date (Optional)</label>
+          <label>
+            <i class="fas fa-clock"></i> Expiration Date
+          </label>
           <input type="date" name="expiration_date" id="edit_expiration_date" />
           <small class="help-text">Leave empty if the supply does not expire.</small>
         </div>

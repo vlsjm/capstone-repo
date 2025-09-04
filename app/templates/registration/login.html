@@ -123,6 +123,14 @@
         margin-bottom: 8px;
       }
 
+      /* Required field asterisk styling */
+      .required-asterisk {
+        color: #ff6b6b;
+        font-weight: bold;
+        margin-left: 3px;
+        font-size: 1em;
+      }
+
       .input-wrapper {
         position: relative;
       }
@@ -382,7 +390,9 @@
             </div>
 
             <div class="form-group">
-              <label for="id_username">Username</label>
+              <label for="id_username">
+                <i class="fas fa-user"></i> Username
+              </label>
               <div class="input-wrapper">
                 <input
                   type="text"
@@ -390,6 +400,7 @@
                   name="username"
                   class="inputAut"
                   placeholder="Enter your username"
+                  required
                 />
               </div>
               {% for error in form.username.errors %}
@@ -400,7 +411,9 @@
             </div>
 
             <div class="form-group">
-              <label for="id_password">Password</label>
+              <label for="id_password">
+                <i class="fas fa-lock"></i> Password
+              </label>
               <div class="input-wrapper">
                 <input
                   type="password"
@@ -408,6 +421,7 @@
                   name="password"
                   class="inputAut"
                   placeholder="Enter your password"
+                  required
                 />
               </div>
               {% for error in form.password.errors %}

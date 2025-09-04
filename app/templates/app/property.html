@@ -863,7 +863,8 @@ input:focus {
         <div style="display: flex; gap: 15px; align-items: flex-end;">
           <div style="flex: 1;">
             <label for="categoryName" style="display: block; margin-bottom: 8px; color: #444; font-weight: 500;">
-              Category Name:
+              <i class="fas fa-folder"></i> Category Name
+              <span class="required-asterisk">*</span>
             </label>
             <input type="text" name="name" id="categoryName" required 
                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; transition: border-color 0.3s ease;"
@@ -944,7 +945,8 @@ input:focus {
         <input type="hidden" id="categoryEditId" name="id">
         <div style="margin-bottom: 20px;">
           <label for="categoryEditName" style="display: block; margin-bottom: 8px; color: #444; font-weight: 500;">
-            Category Name:
+            <i class="fas fa-folder"></i> Category Name
+            <span class="required-asterisk">*</span>
           </label>
           <input type="text" id="categoryEditName" name="name" required 
                  style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; transition: border-color 0.3s ease;"
@@ -969,7 +971,79 @@ input:focus {
         <h3>Add New Property</h3>
         <form method="POST" action="{% url 'add_property' %}">
         {% csrf_token %}
-        {{ form.as_p }}
+        
+        <!-- Custom form fields with required asterisks -->
+        <div class="form-group">
+          <label for="{{ form.property_number.id_for_label }}">
+            <i class="fas fa-hashtag"></i> Property Number
+          </label>
+          {{ form.property_number }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.property_name.id_for_label }}">
+            <i class="fas fa-tag"></i> Property Name
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.property_name }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.category.id_for_label }}">
+            <i class="fas fa-folder"></i> Category
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.category }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.description.id_for_label }}">
+            <i class="fas fa-align-left"></i> Description
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.description }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.unit_of_measure.id_for_label }}">
+            <i class="fas fa-ruler"></i> Unit of Measure
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.unit_of_measure }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.unit_value.id_for_label }}">
+            <i class="fas fa-dollar-sign"></i> Unit Value
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.unit_value }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.overall_quantity.id_for_label }}">
+            <i class="fas fa-boxes"></i> Overall Quantity
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.overall_quantity }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.location.id_for_label }}">
+            <i class="fas fa-map-marker-alt"></i> Location
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.location }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.condition.id_for_label }}">
+            <i class="fas fa-info-circle"></i> Condition
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.condition }}
+        </div>
+
         {% if form.errors %}
           <ul class="form-errors">
             {% for field in form %}
@@ -997,32 +1071,50 @@ input:focus {
       <input type="hidden" name="quantity" id="edit_quantity" />
       
       <div class="form-group">
-        <label>Property Name</label>
+        <label>
+          <i class="fas fa-tag"></i> Property Name
+          <span class="required-asterisk">*</span>
+        </label>
         <input type="text" name="property_name" id="edit_name" required />
       </div>
 
       <div class="form-group">
-        <label>Description</label>
-        <textarea name="description" id="edit_description" rows="3"></textarea>
+        <label>
+          <i class="fas fa-align-left"></i> Description
+          <span class="required-asterisk">*</span>
+        </label>
+        <textarea name="description" id="edit_description" rows="3" required></textarea>
       </div>
 
       <div class="form-group">
-        <label>Unit of Measure</label>
+        <label>
+          <i class="fas fa-ruler"></i> Unit of Measure
+          <span class="required-asterisk">*</span>
+        </label>
         <input type="text" name="unit_of_measure" id="edit_unit_of_measure" required />
       </div>
 
       <div class="form-group">
-        <label>Unit Value</label>
+        <label>
+          <i class="fas fa-dollar-sign"></i> Unit Value
+          <span class="required-asterisk">*</span>
+        </label>
         <input type="number" name="unit_value" id="edit_unit_value" step="0.01" min="0" required />
       </div>
 
       <div class="form-group">
-        <label>Location</label>
+        <label>
+          <i class="fas fa-map-marker-alt"></i> Location
+          <span class="required-asterisk">*</span>
+        </label>
         <input type="text" name="location" id="edit_location" required />
       </div>
 
       <div class="form-group">
-        <label>Condition</label>
+        <label>
+          <i class="fas fa-info-circle"></i> Condition
+          <span class="required-asterisk">*</span>
+        </label>
         <select name="condition" id="edit_condition" class="form-select" required>
           <option value="In good condition">In good condition</option>
           <option value="Needing repair">Needing repair</option>
@@ -1034,7 +1126,10 @@ input:focus {
       </div>
 
       <div class="form-group">
-        <label>Category</label>
+        <label>
+          <i class="fas fa-folder"></i> Category
+          <span class="required-asterisk">*</span>
+        </label>
         <select name="category" id="edit_category" class="form-select" required>
           <option value="">Select a category</option>
           {% for category in categories %}
@@ -1044,7 +1139,10 @@ input:focus {
       </div>
 
       <div class="form-group">
-        <label>Availability</label>
+        <label>
+          <i class="fas fa-check-circle"></i> Availability
+          <span class="required-asterisk">*</span>
+        </label>
         <select name="availability" id="edit_availability" class="form-select" required>
           <option value="available">Available</option>
           <option value="not_available">Not Available</option>
