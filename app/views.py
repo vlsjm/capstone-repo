@@ -503,6 +503,7 @@ def request_detail(request, pk):
                 message=f"Your supply request for {request_obj.supply.supply_name} has been approved.",
                 remarks=remarks
             )
+            
         elif action == 'rejected':
             request_obj.status = 'rejected'
             Notification.objects.create(
@@ -1164,7 +1165,7 @@ class SupplyListView(PermissionRequiredMixin, ListView):
     template_name = 'app/supply.html'
     permission_required = 'app.view_admin_module'
     context_object_name = 'supplies'
-    paginate_by = None  # Disable default pagination as we'll handle it per category
+    paginate_by = 15  # Enable pagination with 15 items per page
 
     def get_queryset(self):
         return Supply.objects.filter(is_archived=False).select_related('quantity_info', 'category', 'subcategory').order_by('supply_name')
@@ -1174,47 +1175,34 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         form = SupplyForm()
         context['form'] = form
         context['today'] = date.today()
-        context['supply_list'] = Supply.objects.select_related('quantity_info').all()
         
-        context['categories'] = SupplyCategory.objects.prefetch_related('supply_set').all()
-        context['subcategories'] = SupplySubcategory.objects.prefetch_related('supply_set').all()
+        # Get the paginated supplies from the parent context
+        supplies = context['supplies']
         
-        # Add all supplies for the manual selection dropdown
-        context['all_supplies'] = Supply.objects.filter(is_archived=False).select_related('quantity_info').order_by('supply_name')
-
-        # Get all supplies
-        supplies = self.get_queryset()
-        
-        # Generate barcodes for each supply
+        # Generate barcodes for each supply in the current page
         for supply in supplies:
             supply.barcode = generate_barcode(f"SUP-{supply.id}")
-
-        # Group supplies by category
-        grouped = defaultdict(list)
-        for supply in supplies:
-            category_name = supply.category.name if supply.category else 'Uncategorized'
-            grouped[category_name].append(supply)
             
             # Calculate days until expiration
             if supply.expiration_date:
                 days_until = (supply.expiration_date - date.today()).days
                 supply.days_until_expiration = days_until
         
-        # Create paginated groups
-        paginated_groups = {}
-        for category, category_supplies in grouped.items():
-            page_number = self.request.GET.get(f'page_{category}', 1)
-            paginator = Paginator(category_supplies, 10)  # 10 items per category per page
-            
-            try:
-                paginated_groups[category] = paginator.page(page_number)
-            except PageNotAnInteger:
-                paginated_groups[category] = paginator.page(1)
-            except EmptyPage:
-                paginated_groups[category] = paginator.page(paginator.num_pages)
+        # Get all categories and subcategories for the filter dropdowns
+        context['categories'] = SupplyCategory.objects.prefetch_related('supply_set').all()
+        context['subcategories'] = SupplySubcategory.objects.prefetch_related('supply_set').all()
         
-        # Convert to regular dict and sort categories
-        context['grouped_supplies'] = dict(sorted(paginated_groups.items()))
+        # Keep grouped_supplies for backward compatibility with modals (get all supplies, not just current page)
+        all_supplies = Supply.objects.filter(is_archived=False).select_related('quantity_info', 'category', 'subcategory').order_by('supply_name')
+        context['all_supplies'] = all_supplies
+        
+        # Group supplies by category for modals
+        grouped = defaultdict(list)
+        for supply in all_supplies:
+            category_name = supply.category.name if supply.category else 'Uncategorized'
+            grouped[category_name].append(supply)
+        context['grouped_supplies'] = dict(sorted(grouped.items()))
+        
         return context
 
 @permission_required('app.view_admin_module')
@@ -1370,29 +1358,63 @@ class PropertyListView(PermissionRequiredMixin, ListView):
     template_name = 'app/property.html'
     context_object_name = 'properties'
     permission_required = 'app.view_admin_module'
-    paginate_by = None
+    paginate_by = 15
 
     def get_queryset(self):
-        return Property.objects.filter(is_archived=False).select_related('category').order_by('property_name')
+        queryset = Property.objects.filter(is_archived=False).select_related('category').order_by('property_name')
+        
+        # Apply search filter
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(property_name__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(category__name__icontains=search_query) |
+                Q(property_number__icontains=search_query)
+            )
+        
+        # Apply category filter
+        category_filter = self.request.GET.get('category')
+        if category_filter:
+            queryset = queryset.filter(category__name=category_filter)
+        
+        # Apply availability filter
+        availability_filter = self.request.GET.get('availability')
+        if availability_filter == 'available':
+            queryset = queryset.filter(availability='available')
+        elif availability_filter == 'not_available':
+            queryset = queryset.exclude(availability='available')
+        
+        # Apply condition filter
+        condition_filter = self.request.GET.get('condition')
+        if condition_filter:
+            queryset = queryset.filter(condition=condition_filter)
+        
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        properties = Property.objects.all()
         
-        # Generate barcodes for each property
+        # Get the paginated properties from the parent context
+        properties = context['properties']
+        
+        # Generate barcodes for each property in the current page
         for prop in properties:
             # Use property_number for barcode if available, otherwise use ID
             barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
             prop.barcode = generate_barcode(barcode_number)
-            
-        # Group properties by category
-        properties_by_category = defaultdict(list)
-        for prop in properties:
-            properties_by_category[prop.category].append(prop)
         
-        context['properties_by_category'] = dict(properties_by_category)
+        # Get all categories for the filter dropdown
         context['categories'] = PropertyCategory.objects.all()
         context['form'] = PropertyForm()
+        
+        # Keep properties_by_category for backward compatibility with modals
+        # Get all properties (not just current page) for modals
+        all_properties = Property.objects.filter(is_archived=False).select_related('category').order_by('property_name')
+        properties_by_category = defaultdict(list)
+        for prop in all_properties:
+            properties_by_category[prop.category].append(prop)
+        context['properties_by_category'] = dict(properties_by_category)
         
         return context
 
@@ -3180,12 +3202,19 @@ def approve_batch_item(request, batch_id, item_id):
     
     batch_request.save()
     
-    # Create notification for user
+    # Create notification for user (individual item notification)
     Notification.objects.create(
         user=batch_request.user,
         message=f"Item '{item.supply.supply_name}' in your batch request #{batch_request.id} has been approved for {item.approved_quantity} units.",
         remarks=remarks
     )
+    
+    # Send batch completion email ONLY if all items are now processed
+    if processed_items == total_items:
+        from .utils import send_batch_request_completion_email
+        approved_items = batch_request.items.filter(status='approved')
+        rejected_items = batch_request.items.filter(status='rejected')
+        send_batch_request_completion_email(batch_request, approved_items, rejected_items)
     
     # Log activity
     ActivityLog.log_activity(
@@ -3234,12 +3263,19 @@ def reject_batch_item(request, batch_id, item_id):
     
     batch_request.save()
     
-    # Create notification for user
+    # Create notification for user (individual item notification)
     Notification.objects.create(
         user=batch_request.user,
         message=f"Item '{item.supply.supply_name}' in your batch request #{batch_request.id} has been rejected.",
         remarks=remarks
     )
+    
+    # Send batch completion email ONLY if all items are now processed
+    if processed_items == total_items:
+        from .utils import send_batch_request_completion_email
+        approved_items = batch_request.items.filter(status='approved')
+        rejected_items = batch_request.items.filter(status='rejected')
+        send_batch_request_completion_email(batch_request, approved_items, rejected_items)
     
     # Log activity
     ActivityLog.log_activity(
@@ -3328,6 +3364,13 @@ def batch_request_detail(request, batch_id):
                     batch_request.status = 'pending' if pending_items > 0 else 'rejected'
             
             batch_request.save()
+            
+            # Send batch completion email ONLY if all items are now processed
+            if processed_items == total_items:
+                from .utils import send_batch_request_completion_email
+                approved_items_qs = batch_request.items.filter(status='approved')
+                rejected_items_qs = batch_request.items.filter(status='rejected')
+                send_batch_request_completion_email(batch_request, approved_items_qs, rejected_items_qs)
         
         return redirect('batch_request_detail', batch_id=batch_id)
     

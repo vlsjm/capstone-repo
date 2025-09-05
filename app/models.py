@@ -473,6 +473,19 @@ class SupplyRequest(models.Model):
 
         # Update supply quantity when request is approved
         if old_status != self.status and self.status == 'approved':
+            # Send approval email
+            from .utils import send_supply_request_approval_email
+            send_supply_request_approval_email(
+                user=self.user,
+                supply_name=self.supply.supply_name,
+                requested_quantity=self.quantity,
+                purpose=self.purpose,
+                request_date=self.request_date,
+                approved_date=self.approved_date or timezone.now(),
+                request_id=self.id,
+                remarks=self.remarks or ''
+            )
+            
             try:
                 quantity_info = self.supply.quantity_info
                 if quantity_info.current_quantity >= self.quantity:

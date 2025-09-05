@@ -1,4 +1,5 @@
 {% load static %}
+{% load currency_filters %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -38,6 +39,74 @@
         text-align: center;
         min-width: 280px;
         max-width: 400px;
+      }
+
+      /* Table styles */
+      .table-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      #propertiesTable {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+      }
+
+      #propertiesTable th {
+        background-color: #152d64;
+        color: white;
+        padding: 12px;
+        text-align: left;
+        border: 1px solid #ddd;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+
+      #propertiesTable td {
+        padding: 10px;
+        border: 1px solid #eee;
+        vertical-align: middle;
+      }
+
+      #propertiesTable tbody tr:hover {
+        background-color: #f8f9fa;
+      }
+
+      #propertiesTable tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      #propertiesTable tbody tr:nth-child(even):hover {
+        background-color: #f0f0f0;
+      }
+
+      /* Status badge styles */
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+
+      .status-approved {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status-rejected {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
       }
 
       .success-message {
@@ -389,6 +458,206 @@ tr.hidden {
   padding: 8px;
 }
 
+.top-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  justify-content: space-between;
+}
+
+.top-controls .search-container {
+  flex: 0 0 auto;
+}
+
+.top-controls .simple-filter-container {
+  flex: 0 0 auto;
+}
+
+/* Simple Filter Styles */
+.simple-filter-container {
+  position: relative;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.simple-filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #495057;
+  transition: all 0.2s ease;
+  min-width: 120px;
+  justify-content: space-between;
+}
+
+.simple-filter-toggle:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.simple-filter-toggle.active {
+  background-color: #152d64;
+  color: white;
+  border-color: #152d64;
+}
+
+.filter-count {
+  background-color: #dc3545;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  min-width: 18px;
+  text-align: center;
+  display: none;
+}
+
+.filter-count.show {
+  display: inline-block;
+}
+
+.filter-chevron {
+  transition: transform 0.2s ease;
+  font-size: 12px;
+}
+
+.simple-filter-toggle.active .filter-chevron {
+  transform: rotate(180deg);
+}
+
+.simple-filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: none;
+  padding: 16px;
+  min-width: 280px;
+  max-width: 350px;
+}
+
+.simple-filter-dropdown.show {
+  display: block;
+}
+
+.simple-filter-group {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.simple-filter-group:last-of-type {
+  border-bottom: none;
+  margin-bottom: 12px;
+}
+
+.simple-filter-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #343a40;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.simple-filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.simple-filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+  font-size: 13px;
+  margin: 0;
+}
+
+.simple-filter-option:hover {
+  background-color: #f8f9fa;
+}
+
+.simple-filter-option input[type="checkbox"],
+.simple-filter-option input[type="radio"] {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #152d64;
+}
+
+.filter-text {
+  color: #495057;
+  flex: 1;
+}
+
+.simple-filter-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #e9ecef;
+  justify-content: flex-end;
+}
+
+.simple-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.simple-btn.clear-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.simple-btn.clear-btn:hover {
+  background-color: #5a6268;
+}
+
+.simple-btn.apply-btn {
+  background-color: #152d64;
+  color: white;
+}
+
+.simple-btn.apply-btn:hover {
+  background-color: #1e3d8a;
+}
+
+.filter-result-count {
+  font-size: 11px;
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f3f4;
+}
+
 .table-container::-webkit-scrollbar {
   width: 8px;
 }
@@ -660,6 +929,190 @@ input:focus {
   margin: 0;
 }
 
+/* Actions Dropdown Styles */
+.actions-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.actions-dropdown-toggle {
+  background-color: #152d64;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 36px;
+}
+
+.actions-dropdown-toggle:hover {
+  background-color: #1a3a7a;
+  transform: translateY(-1px);
+}
+
+.actions-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  margin-top: 5px;
+}
+
+.actions-dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.actions-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.actions-dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.actions-dropdown-item.success:hover {
+  background-color: #218838;
+  color: white;
+}
+
+.actions-dropdown-item:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.actions-dropdown-item:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
+.actions-dropdown-item i {
+  width: 16px;
+  text-align: center;
+}
+
+/* Different colors for different action types */
+.actions-dropdown-item.primary { color: #152d64; }
+.actions-dropdown-item.secondary { color: #4a5568; }
+.actions-dropdown-item.success { 
+  color: white; 
+  font-weight: 700; 
+  background-color: #28a745;
+}
+
+/* Table Actions Dropdown - Smaller version */
+.table-actions-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.table-actions-dropdown-toggle {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.table-actions-dropdown-toggle:hover {
+  background-color: #5a6268;
+}
+
+.table-actions-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 150px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  margin-top: 5px;
+}
+
+.table-actions-dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.table-actions-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  color: #333;
+  text-decoration: none;
+  font-size: 13px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.table-actions-dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.table-actions-dropdown-item:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.table-actions-dropdown-item:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
+.table-actions-dropdown-item i {
+  width: 14px;
+  text-align: center;
+}
+
+.table-actions-dropdown-item.edit { color: #152d64; }
+.table-actions-dropdown-item.history { color: #4a5568; }
+.table-actions-dropdown-item.print { color: #28a745; }
+.table-actions-dropdown-item.archive { color: #dc3545; }
+
 .input-method-btn.active {
   background-color: #152d64 !important;
   color: white !important;
@@ -692,87 +1145,194 @@ input:focus {
         <h2>Properties</h2>
       </div>
       <div class="content">
-        <!-- Add search input above the buttons -->
+        <!-- Simplified Filter Controls -->
         <div class="top-controls">
-          <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="searchInput" class="search-input" placeholder="Search properties...">
+          <div class="search-filter-group" style="display: flex; align-items: center; gap: 8px;">
+            <!-- Main Search Bar -->
+            <div class="search-container">
+              <div style="position: relative; display: inline-block; width: 100%; max-width: 420px;">
+                <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; font-size: 14px;"></i>
+                <input type="text" id="searchInput" placeholder="Search properties..." 
+                       style="width: 100%; padding: 10px 16px 10px 40px; border: 2px solid #e1e5e9; border-radius: 6px; font-size: 14px; transition: border-color 0.3s ease;">
+              </div>
+            </div>
+            
+            <div class="simple-filter-container">
+            <button id="filterToggleBtn" class="simple-filter-toggle" type="button">
+              <i class="fas fa-filter"></i> Filters 
+              <span id="activeFilterCount" class="filter-count">0</span>
+              <i class="fas fa-chevron-down filter-chevron"></i>
+            </button>
+            <div id="filterDropdown" class="simple-filter-dropdown">
+
+              <!-- Category Filter -->
+              <div class="simple-filter-group">
+                <div class="simple-filter-header">
+                  <i class="fas fa-tags"></i> Category
+                </div>
+                <div class="simple-filter-options">
+                  <label class="simple-filter-option">
+                    <input type="checkbox" name="category" value="" checked>
+                    <span class="filter-text">All Categories</span>
+                  </label>
+                  {% for category in categories %}
+                  <label class="simple-filter-option">
+                    <input type="checkbox" name="category" value="{{ category.name }}">
+                    <span class="filter-text">{{ category.name }}</span>
+                  </label>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Availability Filter -->
+              <div class="simple-filter-group">
+                <div class="simple-filter-header">
+                  <i class="fas fa-check-circle"></i> Availability
+                </div>
+                <div class="simple-filter-options">
+                  <label class="simple-filter-option">
+                    <input type="radio" name="availability" value="" checked>
+                    <span class="filter-text">All</span>
+                  </label>
+                  <label class="simple-filter-option">
+                    <input type="radio" name="availability" value="available">
+                    <span class="filter-text">Available</span>
+                  </label>
+                  <label class="simple-filter-option">
+                    <input type="radio" name="availability" value="not_available">
+                    <span class="filter-text">Not Available</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Condition Filter -->
+              <div class="simple-filter-group">
+                <div class="simple-filter-header">
+                  <i class="fas fa-clipboard-check"></i> Condition
+                </div>
+                <div class="simple-filter-options">
+                  <label class="simple-filter-option">
+                    <input type="checkbox" name="condition" value="" checked>
+                    <span class="filter-text">All Conditions</span>
+                  </label>
+                  <label class="simple-filter-option">
+                    <input type="checkbox" name="condition" value="In good condition">
+                    <span class="filter-text">In Good Condition</span>
+                  </label>
+                  <label class="simple-filter-option">
+                    <input type="checkbox" name="condition" value="Needing repair">
+                    <span class="filter-text">Needing Repair</span>
+                  </label>
+                  <label class="simple-filter-option">
+                    <input type="checkbox" name="condition" value="Unserviceable">
+                    <span class="filter-text">Unserviceable</span>
+                  </label>
+                  <label class="simple-filter-option">
+                    <input type="checkbox" name="condition" value="Obsolete">
+                    <span class="filter-text">Obsolete</span>
+                  </label>
+                  <label class="simple-filter-option">
+                    <input type="checkbox" name="condition" value="No longer needed">
+                    <span class="filter-text">No Longer Needed</span>
+                  </label>
+                  <label class="simple-filter-option">
+                    <input type="checkbox" name="condition" value="Not used since purchased">
+                    <span class="filter-text">Not Used Since Purchased</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Filter Actions -->
+              <div class="simple-filter-actions">
+                <button type="button" id="clearFiltersBtn" class="simple-btn clear-btn">
+                  <i class="fas fa-times"></i> Clear All
+                </button>
+                <button type="button" id="applyFiltersBtn" class="simple-btn apply-btn">
+                  <i class="fas fa-check"></i> Apply
+                </button>
+              </div>
+              
+              <div id="filterResultCount" class="filter-result-count"></div>
+            </div>
           </div>
-          <div class="filter-container">
-            <select id="availabilityFilter" class="filter-select">
-              <option value="">Filter by Availability</option>
-              <option value="available">Available</option>
-              <option value="not_available">Not Available</option>
-            </select>
-            <select id="conditionFilter" class="filter-select">
-              <option value="">Filter by Condition</option>
-              <option value="In good condition">In Good Condition</option>
-              <option value="Needing repair">Needing Repair</option>
-              <option value="Unserviceable">Unserviceable</option>
-              <option value="Obsolete">Obsolete</option>
-              <option value="No longer needed">No Longer Needed</option>
-              <option value="Not used since purchased">Not Used Since Purchased</option>
-            </select>
           </div>
-          <div class="button-group" style="display: flex; gap: 8px;">
+          
+          <div class="button-group" style="display: flex; gap: 8px; align-items: center;">
             <button id="openModalBtn" class="action-btn primary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-plus"></i> Add Property
             </button>
             <button id="openModifyQuantityModalBtn" class="action-btn secondary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #4a5568; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-edit"></i> Property Inventory
             </button>
-            <button id="openCategoryModalBtn" class="action-btn primary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
-              <i class="fas fa-folder-plus"></i> Add Category
-            </button>
-            <button id="openExportModalBtn" class="action-btn success-btn" style="display: flex; align-items: center; gap: 6px; background-color: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
-              <i class="fas fa-file-excel"></i> Export to Excel
-            </button>
-            <button onclick="openBarcodeSelectionModal()" class="action-btn primary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
-              <i class="fas fa-print"></i> Print Barcodes
-            </button>
+            
+            <div class="actions-dropdown">
+              <button class="actions-dropdown-toggle" type="button" id="actionsDropdownToggle">
+                <i class="fas fa-ellipsis-h"></i>
+              </button>
+              <div class="actions-dropdown-menu" id="actionsDropdownMenu">
+                <button id="openCategoryModalBtn" class="actions-dropdown-item primary">
+                  <i class="fas fa-folder-plus"></i> Add Category
+                </button>
+                <button id="openExportModalBtn" class="actions-dropdown-item success">
+                  <i class="fas fa-file-excel"></i> Export to Excel
+                </button>
+                <button onclick="openBarcodeSelectionModal()" class="actions-dropdown-item primary">
+                  <i class="fas fa-print"></i> Print Barcodes
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {% if properties_by_category %}
-          {% for category, properties in properties_by_category.items %}
-            <h3>{{ category.name }}</h3>
-            <table border="1" class="searchable-table">
+        {% if properties %}
+          <div class="table-container" style="overflow-x: auto; margin-top: 20px;">
+            <table border="1" class="searchable-table" id="propertiesTable" 
+                   data-start-number="{% if is_paginated %}{{ page_obj.start_index }}{% else %}1{% endif %}"
+                   style="width: 100%; border-collapse: collapse; background: white;">
               <thead>
-                <tr>
-                  <th>No.</th>
-                  <th>Property Number</th>
-                  <th>Property Name</th>
-                  <th>Description</th>
-                  <th>Barcode</th>
-                  <th>Unit of Measure</th>
-                  <th>Unit Value</th>
-                  <th>Overall Qty</th>
-                  <th>Current Qty</th>
-                  <th>Location</th>
-                  <th>Condition</th>
-                  <th>Availability</th>
-                  <th>Actions</th>
+                <tr style="background-color: #152d64; color: white;">
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">No.</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Property Number</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Property Name</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Category</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Description</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Barcode</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Unit of Measure</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Unit Value</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Overall Qty</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Current Qty</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Location</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Condition</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Availability</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {% for property in properties %}
-                <tr>
-                  <td>{{ forloop.counter }}</td>
-                  <td>{{ property.property_number|default:"N/A" }}</td>
-                  <td>{{ property.property_name|default:"N/A" }}</td>
-                  <td>{{ property.description|default:"N/A" }}</td>
-                  <td>
+                <tr data-category="{{ property.category.name }}">
+                  <td style="padding: 8px; border: 1px solid #ddd;">
+                    {% if is_paginated %}
+                      {{ forloop.counter|add:page_obj.start_index|add:"-1" }}
+                    {% else %}
+                      {{ forloop.counter }}
+                    {% endif %}
+                  </td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.property_number|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.property_name|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.category.name|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.description|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">
                     <div class="barcode-container">
                       <img src="{{ property.barcode }}" alt="Barcode for {{ property.property_name }}" class="barcode-image">
                     </div>
                   </td>
-                  <td>{{ property.unit_of_measure|default:"N/A" }}</td>
-                  <td>{{ property.unit_value|default:"N/A" }}</td>
-                  <td>{{ property.overall_quantity|default:"N/A" }}</td>
-                  <td>{{ property.quantity|default:"N/A" }}</td>
-                  <td>{{ property.location|default:"N/A" }}</td>
-                  <td>{{ property.get_condition_display|default:"N/A" }}</td>
-                  <td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.unit_of_measure|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.unit_value|peso }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.overall_quantity|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.quantity|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.location|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.get_condition_display|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">
                     <span class="status-badge {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' or property.availability == 'not_available' %}status-rejected{% else %}status-approved{% endif %}">
                       {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' %}
                         <i class="fas fa-times-circle"></i>
@@ -788,63 +1348,80 @@ input:focus {
                       {% endif %}
                     </span>
                   </td>
-                  <td>
-                    <div class="button-group" style="display: flex; gap: 6px; justify-content: flex-start;">
-                      <button class="action-btn edit-btn" 
-                        data-id="{{ property.id }}"
-                        data-property-number="{{ property.property_number }}"
-                        data-property-name="{{ property.property_name }}"
-                        data-description="{{ property.description|default:'' }}"
-                        data-unit-measure="{{ property.unit_of_measure|default:'' }}"
-                        data-unit-value="{{ property.unit_value|default:0 }}"
-                        data-overall-quantity="{{ property.overall_quantity }}"
-                        data-quantity="{{ property.quantity }}"
-                        data-location="{{ property.location|default:'' }}"
-                        data-condition="{{ property.condition }}"
-                        data-category="{{ property.category.id|default:'' }}"
-                        data-availability="{{ property.availability }}"
-                        title="Edit"
-                        style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #152d64; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
-                        <i class="fas fa-edit"></i>
+                  <td style="padding: 8px; border: 1px solid #ddd;">
+                    <div class="table-actions-dropdown">
+                      <button class="table-actions-dropdown-toggle" type="button">
+                        <i class="fas fa-ellipsis-h"></i>
                       </button>
-
-                      <button class="action-btn history-btn" 
-                        data-id="{{ property.id }}"
-                        title="View History"
-                        style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #4a5568; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
-                        <i class="fas fa-history"></i>
-                      </button>
-
-                      <button class="action-btn print-btn" 
-                        onclick="printSingleBarcode(this)" 
-                        data-barcode="{{ property.barcode }}"
-                        data-name="{{ property.property_name }}"
-                        title="Print Barcode"
-                        style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
-                        <i class="fas fa-print"></i>
-                      </button>
-
-                      <form method="post" action="{% url 'archive_property' property.id %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="action-btn" 
-                          onclick="return confirm('Are you sure you want to archive this property? This will only be possible if the quantity is zero.');"
-                          title="Archive"
-                          {% if property.quantity > 0 %}disabled{% endif %}
-                          style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #36b9cc; color: white; border: none; border-radius: 4px; cursor: {% if property.quantity > 0 %}not-allowed{% else %}pointer{% endif %}; transition: all 0.2s; {% if property.quantity > 0 %}opacity: 0.6{% endif %}">
-                          <i class="fas fa-archive"></i>
+                      <div class="table-actions-dropdown-menu">
+                        <button class="table-actions-dropdown-item edit edit-btn" 
+                          data-id="{{ property.id }}"
+                          data-property-number="{{ property.property_number }}"
+                          data-property-name="{{ property.property_name }}"
+                          data-description="{{ property.description|default:'' }}"
+                          data-unit-measure="{{ property.unit_of_measure|default:'' }}"
+                          data-unit-value="{{ property.unit_value|default:0 }}"
+                          data-overall-quantity="{{ property.overall_quantity }}"
+                          data-quantity="{{ property.quantity }}"
+                          data-location="{{ property.location|default:'' }}"
+                          data-condition="{{ property.condition }}"
+                          data-category="{{ property.category.id|default:'' }}"
+                          data-availability="{{ property.availability }}">
+                          <i class="fas fa-edit"></i> Edit
                         </button>
-                      </form>
+                        
+                        <button class="table-actions-dropdown-item history history-btn" 
+                          data-id="{{ property.id }}">
+                          <i class="fas fa-history"></i> View History
+                        </button>
+                        
+                        <button class="table-actions-dropdown-item print print-btn" 
+                          onclick="printSingleBarcode(this)" 
+                          data-barcode="{{ property.barcode }}"
+                          data-name="{{ property.property_name }}">
+                          <i class="fas fa-print"></i> Print Barcode
+                        </button>
+                        
+                        <form method="post" action="{% url 'archive_property' property.id %}" style="display: contents;">
+                          {% csrf_token %}
+                          <button type="submit" class="table-actions-dropdown-item archive" 
+                            onclick="return confirm('Are you sure you want to archive this property? This will only be possible if the quantity is zero.');"
+                            {% if property.quantity > 0 %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>
+                            <i class="fas fa-archive"></i> Archive
+                          </button>
+                        </form>
+                      </div>
                     </div>
                   </td>
                 </tr>
                 {% empty %}
                 <tr>
-                  <td colspan="13">No properties available in this category.</td>
+                  <td colspan="14" style="padding: 20px; text-align: center; color: #6c757d;">No properties available.</td>
                 </tr>
                 {% endfor %}
               </tbody>
             </table>
-          {% endfor %}
+          </div>
+          
+          <!-- Pagination Controls -->
+          {% if is_paginated %}
+          <div class="actlog-pagination">
+            {% if page_obj.has_previous %}
+              <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}">&laquo; First</a>
+              <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+              <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}">Next</a>
+              <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}">Last &raquo;</a>
+            {% endif %}
+          </div>
+          {% endif %}
+          
         {% else %}
           <p>No properties available.</p>
         {% endif %}
@@ -1014,7 +1591,7 @@ input:focus {
 
         <div class="form-group">
           <label for="{{ form.unit_value.id_for_label }}">
-            <i class="fas fa-dollar-sign"></i> Unit Value
+            ₱ Unit Value
             <span class="required-asterisk">*</span>
           </label>
           {{ form.unit_value }}
@@ -1096,7 +1673,7 @@ input:focus {
 
       <div class="form-group">
         <label>
-          <i class="fas fa-dollar-sign"></i> Unit Value
+          ₱ Unit Value
           <span class="required-asterisk">*</span>
         </label>
         <input type="number" name="unit_value" id="edit_unit_value" step="0.01" min="0" required />
@@ -1324,6 +1901,66 @@ input:focus {
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {
+        // Actions Dropdown Functionality
+        const dropdownToggle = document.getElementById('actionsDropdownToggle');
+        const dropdownMenu = document.getElementById('actionsDropdownMenu');
+
+        dropdownToggle.addEventListener('click', function(e) {
+          e.stopPropagation();
+          dropdownMenu.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.remove('show');
+          }
+        });
+
+        // Close dropdown when an item is clicked
+        const dropdownItems = dropdownMenu.querySelectorAll('.actions-dropdown-item');
+        dropdownItems.forEach(item => {
+          item.addEventListener('click', function() {
+            dropdownMenu.classList.remove('show');
+          });
+        });
+
+        // Table Actions Dropdown Functionality
+        document.addEventListener('click', function(e) {
+          // Handle table dropdown toggles
+          if (e.target.closest('.table-actions-dropdown-toggle')) {
+            e.stopPropagation();
+            const toggle = e.target.closest('.table-actions-dropdown-toggle');
+            const menu = toggle.nextElementSibling;
+            
+            // Close all other table dropdowns
+            document.querySelectorAll('.table-actions-dropdown-menu.show').forEach(otherMenu => {
+              if (otherMenu !== menu) {
+                otherMenu.classList.remove('show');
+              }
+            });
+            
+            // Toggle current dropdown
+            menu.classList.toggle('show');
+          }
+          // Close table dropdowns when clicking outside
+          else if (!e.target.closest('.table-actions-dropdown')) {
+            document.querySelectorAll('.table-actions-dropdown-menu.show').forEach(menu => {
+              menu.classList.remove('show');
+            });
+          }
+        });
+
+        // Close table dropdown when an item is clicked
+        document.addEventListener('click', function(e) {
+          if (e.target.closest('.table-actions-dropdown-item')) {
+            const menu = e.target.closest('.table-actions-dropdown-menu');
+            if (menu) {
+              menu.classList.remove('show');
+            }
+          }
+        });
+
         // Auto-hide success messages after 2 seconds
         const successMessage = document.querySelector('.success-container');
         if (successMessage) {
@@ -1839,91 +2476,361 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- Filter and Search functionality -->
+<!-- Simple Filter JavaScript with Search -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const searchInput = document.getElementById('searchInput');
-  const availabilityFilter = document.getElementById('availabilityFilter');
-  const conditionFilter = document.getElementById('conditionFilter');
-  const tables = document.getElementsByClassName('searchable-table');
+  const table = document.getElementById('propertiesTable');
 
+  // Filter elements
+  const filterToggleBtn = document.getElementById('filterToggleBtn');
+  const filterDropdown = document.getElementById('filterDropdown');
+  const activeFilterCount = document.getElementById('activeFilterCount');
+  const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+  const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+  const filterResultCount = document.getElementById('filterResultCount');
+  
+  // Filter inputs
+  const categoryCheckboxes = document.querySelectorAll('input[name="category"]');
+  const availabilityRadios = document.querySelectorAll('input[name="availability"]');
+  const conditionCheckboxes = document.querySelectorAll('input[name="condition"]');
+
+  // URL parameter functions
+  function getUrlParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name) || '';
+  }
+
+  function getUrlParameterArray(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.getAll(name) || [];
+  }
+
+  function updateUrlParameters(params) {
+    const url = new URL(window.location);
+    const urlParams = new URLSearchParams();
+    
+    Object.keys(params).forEach(key => {
+      if (Array.isArray(params[key])) {
+        params[key].forEach(value => {
+          if (value && value !== '') {
+            urlParams.append(key, value);
+          }
+        });
+      } else if (params[key] && params[key] !== '') {
+        urlParams.set(key, params[key]);
+      }
+    });
+
+    const newUrl = url.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+    window.history.replaceState({}, '', newUrl);
+  }
+
+  // LocalStorage functions
+  function saveFiltersToStorage() {
+    const filters = {
+      search: searchInput.value,
+      categories: getSelectedValues(categoryCheckboxes),
+      availability: getSelectedValue(availabilityRadios),
+      conditions: getSelectedValues(conditionCheckboxes)
+    };
+    localStorage.setItem('propertyFilters', JSON.stringify(filters));
+  }
+
+  function loadFiltersFromStorage() {
+    try {
+      const saved = localStorage.getItem('propertyFilters');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  // Helper functions
+  function getSelectedValues(elements) {
+    return Array.from(elements)
+      .filter(el => el.checked && el.value !== '')
+      .map(el => el.value);
+  }
+
+  function getSelectedValue(elements) {
+    const selected = Array.from(elements).find(el => el.checked);
+    return selected ? selected.value : '';
+  }
+
+  function setSelectedValues(elements, values) {
+    Array.from(elements).forEach(el => {
+      if (Array.isArray(values)) {
+        el.checked = values.includes(el.value) || (values.length === 0 && el.value === '');
+      } else {
+        el.checked = el.value === values;
+      }
+    });
+  }
+
+  // Update filter count
+  function updateFilterCount() {
+    let count = 0;
+    
+    // Count search
+    if (searchInput.value.trim() !== '') count++;
+    
+    const selectedCategories = getSelectedValues(categoryCheckboxes);
+    if (selectedCategories.length > 0) count++;
+    
+    const selectedAvailability = getSelectedValue(availabilityRadios);
+    if (selectedAvailability !== '') count++;
+    
+    const selectedConditions = getSelectedValues(conditionCheckboxes);
+    if (selectedConditions.length > 0) count++;
+
+    if (activeFilterCount) {
+      activeFilterCount.textContent = count;
+      if (count > 0) {
+        activeFilterCount.classList.add('show');
+      } else {
+        activeFilterCount.classList.remove('show');
+      }
+    }
+  }
+
+  // Filter and search function
   function filterAndSearch() {
+    if (!table) return;
+
     const searchTerm = searchInput.value.toLowerCase();
-    const availabilityValue = availabilityFilter.value;
-    const conditionValue = conditionFilter.value;
+    const selectedCategories = getSelectedValues(categoryCheckboxes);
+    const selectedAvailability = getSelectedValue(availabilityRadios);
+    const selectedConditions = getSelectedValues(conditionCheckboxes);
 
-    for (let table of tables) {
-      const rows = table.getElementsByTagName('tr');
-      let hasVisibleRows = false;
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return;
 
-      // Start from 1 to skip header row
-      for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
-        const cells = row.getElementsByTagName('td');
-        if (cells.length === 0) continue;
+    const rows = tbody.getElementsByTagName('tr');
+    let visibleCount = 0;
+    let totalCount = 0;
 
-        // Get availability and condition cells
-        const availabilityCell = cells[11]; // Availability column
-        const conditionCell = cells[10]; // Condition column
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const cells = row.getElementsByTagName('td');
+      if (cells.length === 0) continue;
 
-        let matchesSearch = false;
-        let matchesAvailability = !availabilityValue;
-        let matchesCondition = !conditionValue;
+      totalCount++;
 
-        // Check search term
+      const categoryCell = cells[3];
+      const availabilityCell = cells[12];
+      const conditionCell = cells[11];
+
+      let matchesSearch = true;
+      let matchesCategory = true;
+      let matchesAvailability = true;
+      let matchesCondition = true;
+
+      // Search functionality
+      if (searchTerm) {
+        matchesSearch = false;
         for (let cell of cells) {
           if (cell.textContent.toLowerCase().includes(searchTerm)) {
             matchesSearch = true;
             break;
           }
         }
+      }
 
-        // Check availability
-        if (availabilityValue) {
-          const availabilityText = availabilityCell.textContent.trim().toLowerCase();
-          if (availabilityValue === 'available') {
-            matchesAvailability = availabilityText.includes('available');
-          } else if (availabilityValue === 'not_available') {
-            matchesAvailability = availabilityText.includes('not available');
-          }
-        }
+      // Category filter
+      if (selectedCategories.length > 0 && categoryCell) {
+        const categoryText = categoryCell.textContent.trim();
+        matchesCategory = selectedCategories.includes(categoryText);
+      }
 
-        // Check condition
-        if (conditionValue) {
-          const conditionText = conditionCell.textContent.trim();
-          matchesCondition = conditionText === conditionValue;
-        }
-
-        // Show/hide row based on all filters
-        const shouldShow = matchesSearch && matchesAvailability && matchesCondition;
-        row.style.display = shouldShow ? '' : 'none';
-
-        if (shouldShow) {
-          hasVisibleRows = true;
+      // Availability filter
+      if (selectedAvailability && availabilityCell) {
+        const availabilityText = availabilityCell.textContent.trim().toLowerCase();
+        if (selectedAvailability === 'available') {
+          matchesAvailability = availabilityText.includes('available');
+        } else if (selectedAvailability === 'not_available') {
+          matchesAvailability = !availabilityText.includes('available') || availabilityText.includes('not available');
         }
       }
 
-      // Show/hide category headers based on whether any rows are visible
-      const categoryHeader = table.previousElementSibling;
-      if (categoryHeader && categoryHeader.tagName === 'H3') {
-        categoryHeader.style.display = hasVisibleRows ? 'block' : 'none';
+      // Condition filter
+      if (selectedConditions.length > 0 && conditionCell) {
+        const conditionText = conditionCell.textContent.trim();
+        matchesCondition = selectedConditions.includes(conditionText);
       }
-      table.style.display = hasVisibleRows ? 'table' : 'none';
+
+      // Show/hide row
+      const shouldShow = matchesSearch && matchesCategory && matchesAvailability && matchesCondition;
+      row.style.display = shouldShow ? '' : 'none';
+
+      if (shouldShow) {
+        visibleCount++;
+        const rowNumberCell = cells[0];
+        if (rowNumberCell && rowNumberCell.classList.contains('row-number')) {
+          rowNumberCell.textContent = visibleCount;
+        }
+      }
+    }
+
+    // Update result count
+    if (filterResultCount) {
+      if (visibleCount === totalCount) {
+        filterResultCount.textContent = `Showing all ${totalCount} items`;
+      } else {
+        filterResultCount.textContent = `Showing ${visibleCount} of ${totalCount} items`;
+      }
     }
   }
 
-  // Add event listeners for filters and search
-  if (searchInput) {
-    searchInput.addEventListener('input', filterAndSearch);
-  }
-  if (availabilityFilter) {
-    availabilityFilter.addEventListener('change', filterAndSearch);
-  }
-  if (conditionFilter) {
-    conditionFilter.addEventListener('change', filterAndSearch);
+  // Load filter values on page load
+  function loadFilterValues() {
+    const urlSearch = getUrlParameter('search');
+    const urlCategories = getUrlParameterArray('category');
+    const urlAvailability = getUrlParameter('availability');
+    const urlConditions = getUrlParameterArray('condition');
+
+    if (urlSearch || urlCategories.length || urlAvailability || urlConditions.length) {
+      searchInput.value = urlSearch;
+      setSelectedValues(categoryCheckboxes, urlCategories);
+      setSelectedValues(availabilityRadios, urlAvailability);
+      setSelectedValues(conditionCheckboxes, urlConditions);
+    } else {
+      const savedFilters = loadFiltersFromStorage();
+      searchInput.value = savedFilters.search || '';
+      setSelectedValues(categoryCheckboxes, savedFilters.categories || []);
+      setSelectedValues(availabilityRadios, savedFilters.availability || '');
+      setSelectedValues(conditionCheckboxes, savedFilters.conditions || []);
+    }
   }
 
-  // Initialize filtering
+  // Handle filter changes
+  function handleFilterChange() {
+    const params = {
+      search: searchInput.value,
+      category: getSelectedValues(categoryCheckboxes),
+      availability: getSelectedValue(availabilityRadios),
+      condition: getSelectedValues(conditionCheckboxes)
+    };
+    
+    updateUrlParameters(params);
+    saveFiltersToStorage();
+    updateFilterCount();
+    filterAndSearch();
+  }
+
+  // Toggle filter dropdown
+  if (filterToggleBtn && filterDropdown) {
+    filterToggleBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      filterDropdown.classList.toggle('show');
+      filterToggleBtn.classList.toggle('active');
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!filterToggleBtn.contains(e.target) && !filterDropdown.contains(e.target)) {
+        filterDropdown.classList.remove('show');
+        filterToggleBtn.classList.remove('active');
+      }
+    });
+
+    filterDropdown.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  }
+
+  // Clear all filters
+  if (clearFiltersBtn) {
+    clearFiltersBtn.addEventListener('click', function() {
+      searchInput.value = '';
+      setSelectedValues(categoryCheckboxes, []);
+      setSelectedValues(availabilityRadios, '');
+      setSelectedValues(conditionCheckboxes, []);
+      
+      // Check "all" options
+      const categoryAll = document.querySelector('input[name="category"][value=""]');
+      const availabilityAll = document.querySelector('input[name="availability"][value=""]');
+      const conditionAll = document.querySelector('input[name="condition"][value=""]');
+      if (categoryAll) categoryAll.checked = true;
+      if (availabilityAll) availabilityAll.checked = true;
+      if (conditionAll) conditionAll.checked = true;
+      
+      updateUrlParameters({search: '', category: [], availability: '', condition: []});
+      saveFiltersToStorage();
+      updateFilterCount();
+      filterAndSearch();
+    });
+  }
+
+  // Apply filters button
+  if (applyFiltersBtn) {
+    applyFiltersBtn.addEventListener('click', function() {
+      handleFilterChange();
+      filterDropdown.classList.remove('show');
+      filterToggleBtn.classList.remove('active');
+    });
+  }
+
+  // Search input functionality
+  if (searchInput) {
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(handleFilterChange, 300);
+    });
+
+    // Add focus styling to search input
+    searchInput.addEventListener('focus', function() {
+      this.style.borderColor = '#152d64';
+      this.style.boxShadow = '0 0 5px rgba(21, 45, 100, 0.2)';
+    });
+
+    searchInput.addEventListener('blur', function() {
+      this.style.borderColor = '#e1e5e9';
+      this.style.boxShadow = 'none';
+    });
+  }
+
+  // Add event listeners for filter changes
+  categoryCheckboxes.forEach(cb => {
+    cb.addEventListener('change', function() {
+      if (this.value === '' && this.checked) {
+        categoryCheckboxes.forEach(other => {
+          if (other.value !== '') other.checked = false;
+        });
+      } else if (this.value !== '' && this.checked) {
+        const allOption = document.querySelector('input[name="category"][value=""]');
+        if (allOption) allOption.checked = false;
+      }
+      updateFilterCount();
+      filterAndSearch();
+    });
+  });
+
+  availabilityRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      updateFilterCount();
+      filterAndSearch();
+    });
+  });
+
+  conditionCheckboxes.forEach(cb => {
+    cb.addEventListener('change', function() {
+      if (this.value === '' && this.checked) {
+        conditionCheckboxes.forEach(other => {
+          if (other.value !== '') other.checked = false;
+        });
+      } else if (this.value !== '' && this.checked) {
+        const allOption = document.querySelector('input[name="condition"][value=""]');
+        if (allOption) allOption.checked = false;
+      }
+      updateFilterCount();
+      filterAndSearch();
+    });
+  });
+
+  // Initialize
+  loadFilterValues();
+  updateFilterCount();
   filterAndSearch();
 });
 </script>
