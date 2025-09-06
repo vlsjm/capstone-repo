@@ -3637,6 +3637,14 @@ def borrow_batch_request_detail(request, batch_id):
                     batch_request.status = 'pending' if pending_items > 0 else 'rejected'
             
             batch_request.save()
+            
+            # Send borrow batch completion email ONLY if all items are now processed
+            if processed_items == total_items:
+                # All items have been processed, send completion email
+                from .utils import send_borrow_batch_request_completion_email
+                approved_items_qs = batch_request.items.filter(status='approved')
+                rejected_items_qs = batch_request.items.filter(status='rejected')
+                send_borrow_batch_request_completion_email(batch_request, approved_items_qs, rejected_items_qs)
         
         return redirect('borrow_batch_request_detail', batch_id=batch_id)
     
@@ -3985,6 +3993,14 @@ def approve_borrow_item(request, batch_id, item_id):
     
     batch_request.save()
     
+    # Send borrow batch completion email ONLY if all items are now processed
+    if processed_items == total_items:
+        # All items have been processed, send completion email
+        from .utils import send_borrow_batch_request_completion_email
+        approved_items_qs = batch_request.items.filter(status='approved')
+        rejected_items_qs = batch_request.items.filter(status='rejected')
+        send_borrow_batch_request_completion_email(batch_request, approved_items_qs, rejected_items_qs)
+    
     # Create notification for user
     Notification.objects.create(
         user=batch_request.user,
@@ -4037,6 +4053,14 @@ def reject_borrow_item(request, batch_id, item_id):
         batch_request.status = 'partially_approved'
     
     batch_request.save()
+    
+    # Send borrow batch completion email ONLY if all items are now processed
+    if processed_items == total_items:
+        # All items have been processed, send completion email
+        from .utils import send_borrow_batch_request_completion_email
+        approved_items_qs = batch_request.items.filter(status='approved')
+        rejected_items_qs = batch_request.items.filter(status='rejected')
+        send_borrow_batch_request_completion_email(batch_request, approved_items_qs, rejected_items_qs)
     
     # Create notification for user
     Notification.objects.create(
