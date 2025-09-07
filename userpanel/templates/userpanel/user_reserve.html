@@ -125,7 +125,7 @@
         <!-- Submit Request Section -->
         {% if cart_items %}
         <div class="submit-section">
-            <form id="submit-request-form" method="post" action="{% url 'submit_reservation_list' %}">
+            <form id="submit-request-form" method="post" action="{% url 'submit_reservation_list_request' %}">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="submit_request">
                 <div class="form-group">
@@ -994,7 +994,7 @@ $(document).ready(function() {
         formData.append('action', 'add_to_cart');
         
         $.ajax({
-            url: '{% url "add_to_borrow_list" %}',
+            url: '{% url "add_to_reservation_list" %}',
             type: 'POST',
             data: formData,
             processData: false,
@@ -1019,14 +1019,16 @@ $(document).ready(function() {
     $('.btn-update').on('click', function() {
         const supplyId = $(this).data('supply-id');
         const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
+        const newNeededDate = $(`.needed-date-edit[data-supply-id="${supplyId}"]`).val();
         const newReturnDate = $(`.return-date-edit[data-supply-id="${supplyId}"]`).val();
         
         $.ajax({
-            url: '{% url "update_borrow_list_item" %}',
+            url: '{% url "update_reservation_list_item" %}',
             type: 'POST',
             data: {
-                'supply_id': supplyId,
+                'property_id': supplyId,
                 'quantity': newQuantity,
+                'needed_date': newNeededDate,
                 'return_date': newReturnDate,
                 'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
             },
@@ -1047,12 +1049,12 @@ $(document).ready(function() {
     $('.btn-remove').on('click', function() {
         const supplyId = $(this).data('supply-id');
         
-        if (confirm('Are you sure you want to remove this item from your borrow list?')) {
+        if (confirm('Are you sure you want to remove this item from your reservation list?')) {
             $.ajax({
-                url: '{% url "remove_from_borrow_list" %}',
+                url: '{% url "remove_from_reservation_list" %}',
                 type: 'POST',
                 data: {
-                    'supply_id': supplyId,
+                    'property_id': supplyId,
                     'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
                 },
                 success: function(response) {
@@ -1071,9 +1073,9 @@ $(document).ready(function() {
     
     // Clear entire list
     $('.btn-clear-list').on('click', function() {
-        if (confirm('Are you sure you want to clear your entire borrow list?')) {
+        if (confirm('Are you sure you want to clear your entire reservation list?')) {
             $.ajax({
-                url: '{% url "clear_borrow_list" %}',
+                url: '{% url "clear_reservation_list" %}',
                 type: 'POST',
                 data: {
                     'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
@@ -1174,7 +1176,7 @@ function showToast(message, type = 'success') {
 }
 
 function cancelRequest(requestId, type) {
-    if (!confirm('Are you sure you want to cancel this borrow request?')) {
+    if (!confirm('Are you sure you want to cancel this reservation request?')) {
         return;
     }
 
@@ -1209,7 +1211,7 @@ function cancelRequest(requestId, type) {
         }
     })
     .catch(error => {
-        showToast('An error occurred while cancelling the borrow request', 'error');
+        showToast('An error occurred while cancelling the reservation request', 'error');
     });
 }
 

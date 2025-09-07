@@ -13,6 +13,608 @@
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
+      /* Header Notification Integration - Internal CSS */
+      
+      /* Button Reset - Higher Specificity */
+      .notification-actions button.action-btn {
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        background: none !important;
+        background-color: transparent !important;
+        border: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font: inherit !important;
+        color: inherit !important;
+        text-align: inherit !important;
+        text-decoration: none !important;
+        cursor: pointer !important;
+        outline: none !important;
+        box-shadow: none !important;
+      }
+      
+      /* Ensure sidebar stays on top */
+      .sidebar {
+        z-index: 1000 !important;
+      }
+      
+      .parent {
+        display: block !important;
+        margin-left: 270px !important;
+        padding: 0 20px 20px 20px !important;
+        margin-top: 0 !important;
+      }
+
+      .div1 {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        position: relative !important;
+        padding: 15px 20px !important;
+        margin-top: 0 !important;
+        background-color: #d5d5d5 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        z-index: 1 !important;
+      }
+
+      .div1 h2 {
+        margin: 0 !important;
+        flex: 1 !important;
+        text-align: center !important;
+        background-color: transparent !important;
+        padding: 0 !important;
+        color: #152d64 !important;
+        font-size: 24px !important;
+        font-weight: bold !important;
+      }
+
+      .div1 h2 span {
+        color: #1d4c92 !important;
+        font-weight: bolder !important;
+      }
+
+      .notification-container {
+        position: absolute;
+        right: 70px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-block;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+
+      .logout-container {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-block;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+
+      .logout-wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .logout-wrapper:hover {
+        background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      }
+
+      .logout-icon {
+        font-size: 18px;
+        color: white;
+        transition: all 0.3s ease;
+      }
+
+      .logout-wrapper:hover .logout-icon {
+        color: #fef2f2;
+        transform: scale(1.1);
+      }
+
+      .bell-wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, #152d64 0%, #1a3575 100%);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(21, 45, 100, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .bell-wrapper:hover {
+        background: linear-gradient(135deg, #1a3575 0%, #2147a3 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(21, 45, 100, 0.3);
+      }
+
+      .bell-icon {
+        font-size: 18px;
+        color: white;
+        transition: all 0.3s ease;
+      }
+
+      .bell-wrapper:hover .bell-icon {
+        color: #fbff00;
+        animation: bellShake 0.5s ease-in-out;
+      }
+
+      @keyframes bellShake {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(-10deg); }
+        75% { transform: rotate(10deg); }
+      }
+
+      .notification-count {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 7px;
+        border-radius: 12px;
+        min-width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid white;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+      }
+
+      .notifications-dropdown {
+        display: none;
+        position: absolute;
+        top: 55px;
+        right: 0;
+        width: 380px;
+        max-height: 480px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 
+          0 20px 40px rgba(0, 0, 0, 0.15),
+          0 0 0 1px rgba(0, 0, 0, 0.08);
+        z-index: 100;
+        overflow: hidden;
+        transform: translateY(-15px) scale(0.9);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid #e5e7eb;
+      }
+      
+
+      @media (max-width: 480px) {
+        .notifications-dropdown {
+          width: 320px;
+          right: -15px;
+          border-radius: 12px;
+        }
+
+        .notification-header {
+          padding: 16px;
+          border-radius: 12px 12px 0 0;
+        }
+
+        .notification-title {
+          font-size: 16px;
+          margin-bottom: 12px;
+        }
+
+        .action-btn {
+          padding: 6px 12px;
+          font-size: 12px;
+        }
+
+        .notification-item {
+          padding: 14px;
+          margin-bottom: 6px;
+        }
+
+        .notification-message {
+          font-size: 14px;
+        }
+
+        .notification-remarks {
+          font-size: 11px;
+          padding: 6px 10px;
+        }
+      }
+
+      .notifications-dropdown.active {
+        display: block;
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+
+      .notification-header {
+        background: #152d64;
+        color: white;
+        padding: 20px;
+        border-radius: 12px 12px 0 0;
+      }
+
+      .notification-title {
+        margin: 0 0 0 0;
+        font-size: 18px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .notification-title i {
+        font-size: 20px;
+        color: #fbbf24;
+      }
+
+      .notification-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .notification-actions {
+        position: relative;
+      }
+
+      .actions-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+      }
+
+      .actions-toggle:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: scale(1.1);
+      }
+
+      .actions-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        min-width: 160px;
+        z-index: 1000;
+        overflow: hidden;
+        margin-top: 8px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .actions-dropdown.active {
+        display: block;
+        animation: dropdownSlide 0.3s ease;
+      }
+
+      @keyframes dropdownSlide {
+        from {
+          opacity: 0;
+          transform: translateY(-10px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      /* Multiple selectors for maximum specificity */
+      .actions-dropdown .action-btn,
+      .actions-dropdown button.action-btn,
+      #notificationsDropdown .actions-dropdown .action-btn,
+      #notificationsDropdown .actions-dropdown button.action-btn {
+        background: none !important;
+        border: none !important;
+        color: #374151 !important;
+        padding: 12px 16px !important;
+        cursor: pointer !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        transition: all 0.3s ease !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+        text-align: left !important;
+        border-bottom: 1px solid #f3f4f6 !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        text-decoration: none !important;
+        font-family: inherit !important;
+        transform: none !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        outline: none !important;
+      }
+
+      .actions-dropdown .action-btn:last-child,
+      .actions-dropdown button.action-btn:last-child {
+        border-bottom: none !important;
+      }
+
+      .actions-dropdown .action-btn:hover,
+      .actions-dropdown button.action-btn:hover,
+      #notificationsDropdown .actions-dropdown .action-btn:hover,
+      #notificationsDropdown .actions-dropdown button.action-btn:hover {
+        background: #f9fafb !important;
+        transform: translateX(4px) !important;
+        color: #374151 !important;
+      }
+
+      .actions-dropdown .mark-read-btn:hover,
+      .actions-dropdown button.mark-read-btn:hover,
+      #notificationsDropdown .actions-dropdown .mark-read-btn:hover,
+      #notificationsDropdown .actions-dropdown button.mark-read-btn:hover {
+        background: rgba(34, 197, 94, 0.1) !important;
+        color: #22c55e !important;
+      }
+
+      .actions-dropdown .clear-btn:hover,
+      .actions-dropdown button.clear-btn:hover,
+      #notificationsDropdown .actions-dropdown .clear-btn:hover,
+      #notificationsDropdown .actions-dropdown button.clear-btn:hover {
+        background: rgba(239, 68, 68, 0.1) !important;
+        color: #ef4444 !important;
+      }
+
+      .notifications-body {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 10px;
+        background: #ffffff;
+      }
+
+      .notifications-body::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .notifications-body::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 3px;
+      }
+
+      .notifications-body::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+      }
+
+      .notifications-body::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+
+      .notification-item {
+        padding: 16px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+      }
+
+      .notification-item:hover {
+        background: #f8fafc;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #d1d5db;
+      }
+
+      .notification-item.unread {
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        border-color: #bfdbfe;
+      }
+
+      .notification-item.unread:hover {
+        background: #dbeafe;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+      }
+
+      .notification-content {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+      }
+
+      .notification-text {
+        flex: 1;
+      }
+
+      .notification-message {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 8px;
+        line-height: 1.5;
+        letter-spacing: -0.01em;
+      }
+
+      .notification-remarks {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 8px;
+        font-style: italic;
+        padding: 8px 12px;
+        background: linear-gradient(135deg, rgba(148, 163, 184, 0.1) 0%, rgba(203, 213, 225, 0.1) 100%);
+        border-radius: 10px;
+        border-left: 3px solid #cbd5e1;
+        backdrop-filter: blur(5px);
+      }
+
+      .notification-timestamp {
+        font-size: 12px;
+        color: #94a3b8;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .notification-timestamp::before {
+        content: '•';
+        color: #cbd5e1;
+        font-weight: bold;
+      }
+
+      .unread-indicator {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 10px;
+        height: 10px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+        animation: pulseGlow 2s infinite;
+      }
+
+      @keyframes pulseGlow {
+        0%, 100% { 
+          transform: scale(1);
+          box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+        }
+        50% { 
+          transform: scale(1.2);
+          box-shadow: 0 0 25px rgba(59, 130, 246, 0.8);
+        }
+      }
+
+      .no-notifications {
+        padding: 40px 24px !important;
+        text-align: center;
+        cursor: default !important;
+        background: linear-gradient(135deg, rgba(248,250,252,0.8) 0%, rgba(255,255,255,0.9) 100%) !important;
+        border-radius: 16px !important;
+        margin: 8px !important;
+        border: 2px dashed rgba(203, 213, 225, 0.5) !important;
+      }
+
+      .no-notifications:hover {
+        background: linear-gradient(135deg, rgba(248,250,252,0.8) 0%, rgba(255,255,255,0.9) 100%) !important;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        color: #94a3b8;
+      }
+
+      .empty-state i {
+        font-size: 36px;
+        opacity: 0.6;
+        color: #cbd5e1;
+      }
+
+      .empty-state p {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 500;
+        color: #64748b;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .div1 {
+          justify-content: center !important;
+          padding: 15px !important;
+        }
+
+        .div1 h2 {
+          font-size: 1.2rem !important;
+          text-align: center !important;
+        }
+
+        .notification-container {
+          right: 75px;
+        }
+
+        .logout-container {
+          right: 15px;
+        }
+
+        .bell-wrapper {
+          width: 40px;
+          height: 40px;
+        }
+
+        .logout-wrapper {
+          width: 40px;
+          height: 40px;
+        }
+
+        .bell-icon {
+          font-size: 16px;
+        }
+
+        .logout-icon {
+          font-size: 16px;
+        }
+
+        .notifications-dropdown {
+          width: 320px;
+          right: -10px;
+        }
+
+        .actions-dropdown {
+          min-width: 140px;
+          right: -10px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .notifications-dropdown {
+          width: calc(100vw - 30px);
+          right: -15px;
+        }
+      }
+
       /* Additional styles for the requests preview table */
       .requests-preview {
         margin-top: 30px;
@@ -245,62 +847,99 @@
     </style>
   </head>
   <body>
+    {% csrf_token %}
     {% block content %} {% include 'app/navbar.html' %}
     <div class="parent">
       <div class="div1">
         <h2>Hello, <span>{{ request.user.username }}</span></h2>
-      </div>
-
-      <!-- Notification Bell -->
-      <div
-        class="notification-container"
-        id="notificationBell"
-        aria-label="Notifications"
-        tabindex="0"
-        role="button"
-      >
-        <span class="bell-icon" title="Notifications">🔔</span>
-        {% if unread_count > 0 %}
-        <span class="notification-count" id="notificationCount"
-          >{{ unread_count }}</span
-        >
-        {% endif %}
-
+        
+        <!-- Notification Bell - Integrated in Header -->
         <div
-          class="notifications-dropdown"
-          id="notificationsDropdown"
-          role="list"
-          aria-live="polite"
-          aria-relevant="additions"
+          class="notification-container"
+          id="notificationBell"
+          aria-label="Notifications"
+          tabindex="0"
+          role="button"
         >
-          <div class="notification-actions">
-            <button id="markAllReadBtn" type="button">Mark all read</button>
-            <button id="clearAllBtn" type="button">Clear all</button>
+          <div class="bell-wrapper">
+            <i class="fas fa-bell bell-icon" title="Notifications"></i>
+            {% if unread_count > 0 %}
+            <span class="notification-count" id="notificationCount">{{ unread_count }}</span>
+            {% endif %}
           </div>
 
-          <div id="notificationsContainer">
-            {% if notifications %} {% for notification in notifications %}
-            <div
-              class="notification-item {% if not notification.is_read %}unread{% endif %}"
-              tabindex="0"
-              data-id="{{ notification.id }}"
-            >
-              <span>{{ notification.message }}</span>
-              <div class="notification-remarks">
-                Remarks: <span>{{ notification.remarks }}</span>
+          <div
+            class="notifications-dropdown"
+            id="notificationsDropdown"
+            role="list"
+            aria-live="polite"
+            aria-relevant="additions"
+          >
+            <div class="notification-header">
+              <h4 class="notification-title">
+                <i class="fas fa-bell"></i>
+                Notifications
+              </h4>
+              <div class="notification-actions">
+                <button type="button" class="actions-toggle" id="actionsToggle" aria-label="Notification actions">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="actions-dropdown" id="actionsDropdown">
+                  <button id="markAllReadBtn" type="button" class="action-btn mark-read-btn">
+                    <i class="fas fa-check"></i>
+                    Mark all read
+                  </button>
+                  <button id="clearAllBtn" type="button" class="action-btn clear-btn">
+                    <i class="fas fa-trash"></i>
+                    Clear all
+                  </button>
+                </div>
               </div>
-              <span class="notification-timestamp"
-                >{{ notification.timestamp|date:"M d, Y H:i" }}</span
+            </div>
+
+            <div id="notificationsContainer" class="notifications-body">
+              {% if notifications %} {% for notification in notifications %}
+              <div
+                class="notification-item {% if not notification.is_read %}unread{% endif %} clickable-notification"
+                tabindex="0"
+                data-id="{{ notification.id }}"
+                data-message="{{ notification.message }}"
+                style="cursor: pointer;"
               >
+                <div class="notification-content">
+                  <div class="notification-text">
+                    <div class="notification-message">{{ notification.message }}</div>
+                    <div class="notification-timestamp">
+                      {{ notification.timestamp|date:"M d, Y H:i" }}
+                    </div>
+                  </div>
+                </div>
+                {% if not notification.is_read %}
+                <div class="unread-indicator"></div>
+                {% endif %}
+              </div>
+              {% endfor %} {% else %}
+              <div
+                class="notification-item no-notifications"
+                id="noNotificationsMsg"
+              >
+                <div class="empty-state">
+                  <i class="fas fa-bell-slash"></i>
+                  <p>No notifications</p>
+                </div>
+              </div>
+              {% endif %}
             </div>
-            {% endfor %} {% else %}
-            <div
-              class="notification-item no-notifications"
-              id="noNotificationsMsg"
-            >
-              No notifications.
-            </div>
-            {% endif %}
+          </div>
+        </div>
+
+        <!-- Logout Button - Integrated in Header -->
+        <div class="logout-container">
+          <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+            {% csrf_token %}
+          </form>
+          <div class="logout-wrapper" onclick="if (confirm('Are you sure you want to log out?')) { document.getElementById('logout-form').submit(); }" title="Logout">
+            <i class="fas fa-sign-out-alt logout-icon"></i>
           </div>
         </div>
       </div>
@@ -551,6 +1190,29 @@
             openRequestModal(this);
           });
         });
+
+        // Handle three-dot actions dropdown
+        const actionsToggle = document.getElementById('actionsToggle');
+        const actionsDropdown = document.getElementById('actionsDropdown');
+        
+        if (actionsToggle && actionsDropdown) {
+          actionsToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            actionsDropdown.classList.toggle('active');
+          });
+
+          // Close dropdown when clicking outside
+          document.addEventListener('click', function(e) {
+            if (!actionsToggle.contains(e.target) && !actionsDropdown.contains(e.target)) {
+              actionsDropdown.classList.remove('active');
+            }
+          });
+
+          // Close dropdown when an action is clicked
+          actionsDropdown.addEventListener('click', function() {
+            actionsDropdown.classList.remove('active');
+          });
+        }
       });
       
       function openRequestModal(row) {
@@ -612,6 +1274,334 @@
       document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
           closeRequestModal();
+        }
+      });
+
+      // Handle notification clicks to redirect to request details
+      document.addEventListener('DOMContentLoaded', function() {
+        const notificationItems = document.querySelectorAll('.clickable-notification');
+        console.log('Found notification items:', notificationItems.length);
+        
+        notificationItems.forEach(item => {
+          item.addEventListener('click', function(e) {
+            console.log('Notification clicked!');
+            
+            // Don't trigger if clicking on action buttons
+            if (e.target.closest('.action-btn')) {
+              console.log('Action button clicked, ignoring');
+              return;
+            }
+            
+            const message = this.getAttribute('data-message');
+            const notificationId = this.getAttribute('data-id');
+            console.log('Notification clicked, message:', message);
+            
+            // Handle different notification types
+            if (message.includes('borrow request')) {
+              // Handle borrow requests
+              const batchMatch = message.match(/#(\d+)/i);
+              if (batchMatch) {
+                window.location.href = `/borrow-batch-detail/${batchMatch[1]}/`;
+              } else {
+                const usernameMatch = message.match(/by (\w+)/i);
+                if (usernameMatch) {
+                  fetch(`/get-latest-batch-request/?username=${usernameMatch[1]}`)
+                    .then(response => response.json())
+                    .then(data => {
+                      if (data.batch_id) {
+                        window.location.href = `/borrow-batch-detail/${data.batch_id}/`;
+                      } else {
+                        window.location.href = '/my-borrow-requests/';
+                      }
+                    })
+                    .catch(error => {
+                      window.location.href = '/my-borrow-requests/';
+                    });
+                }
+              }
+            } else if (message.includes('supply request')) {
+              // Handle supply requests
+              const idMatch = message.match(/#(\d+)/i);
+              if (idMatch) {
+                if (message.includes('batch supply request')) {
+                  window.location.href = `/batch-request/${idMatch[1]}/`;
+                } else {
+                  window.location.href = `/request/${idMatch[1]}/`;
+                }
+              } else {
+                window.location.href = '/my-supply-requests/';
+              }
+            } else if (message.includes('damage report')) {
+              // Handle damage reports
+              const idMatch = message.match(/#(\d+)/i);
+              if (idMatch) {
+                window.location.href = `/damage-report/${idMatch[1]}/`;
+              } else {
+                const usernameMatch = message.match(/by (\w+)/i);
+                if (usernameMatch) {
+                  fetch(`/get-latest-damage-report/?username=${usernameMatch[1]}`)
+                    .then(response => response.json())
+                    .then(data => {
+                      if (data.report_id) {
+                        window.location.href = `/damage-report/${data.report_id}/`;
+                      } else {
+                        window.location.href = '/my-damage-reports/';
+                      }
+                    })
+                    .catch(error => {
+                      window.location.href = '/my-damage-reports/';
+                    });
+                }
+              }
+            } else if (message.includes('reservation')) {
+              // Handle reservations
+              const idMatch = message.match(/#(\d+)/i);
+              if (idMatch) {
+                window.location.href = `/reservation/${idMatch[1]}/`;
+              } else {
+                window.location.href = '/my-reservations/';
+              }
+            }
+          });
+        });
+        
+        // Handle borrow request notifications
+        function handleBorrowRequestNotification(message, notificationId) {
+          let requestId = null;
+          let redirectUrl = null;
+          
+          // Try to extract batch ID from message first
+          const batchMatch = message.match(/batch.*request #(\d+)/i) || message.match(/#(\d+)/i);
+          
+          if (batchMatch) {
+            requestId = batchMatch[1];
+            redirectUrl = `/borrow-batch-detail/${requestId}/`;
+            console.log('Found batch ID from message:', requestId);
+            markReadAndRedirect(notificationId, redirectUrl);
+          } else if (message.includes('batch borrow request submitted')) {
+            // For notifications without ID, extract username and redirect based on username
+            const usernameMatch = message.match(/submitted by (\w+)/i);
+            
+            if (usernameMatch) {
+              const username = usernameMatch[1];
+              console.log('Found borrow request from user:', username);
+              
+              // Make an AJAX call to get the latest batch request ID for this user
+              fetch(`/get-latest-batch-request/?username=${username}`, {
+                method: 'GET',
+                headers: {
+                  'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                }
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.batch_id) {
+                  console.log('Found batch ID:', data.batch_id);
+                  markReadAndRedirect(notificationId, `/borrow-batch-detail/${data.batch_id}/`);
+                } else {
+                  console.log('No batch ID found, redirecting to requests list');
+                  markReadAndRedirect(notificationId, '/my-borrow-requests/');
+                }
+              })
+              .catch(error => {
+                console.error('Error fetching batch ID:', error);
+                markReadAndRedirect(notificationId, '/my-borrow-requests/');
+              });
+            }
+          } else {
+            // Default fallback for other borrow request types
+            markReadAndRedirect(notificationId, '/my-borrow-requests/');
+          }
+        }
+        
+        // Handle supply request notifications
+        function handleSupplyRequestNotification(message, notificationId) {
+          console.log('Handling supply request notification');
+          
+          let requestId = null;
+          let redirectUrl = null;
+          
+          // Try to extract ID from message first (like borrow requests)
+          const idMatch = message.match(/supply request #(\d+)/i) || message.match(/#(\d+)/i);
+          
+          if (idMatch) {
+            requestId = idMatch[1];
+            // Check if it's a batch or individual supply request
+            if (message.includes('batch supply request')) {
+              redirectUrl = `/batch-request/${requestId}/`;
+            } else {
+              redirectUrl = `/request/${requestId}/`;
+            }
+            console.log('Found supply request ID from message:', requestId);
+            markReadAndRedirect(notificationId, redirectUrl);
+          } else {
+            // Fallback to username lookup for older notifications without IDs
+            const usernameMatch = message.match(/submitted.*by (\w+)/i);
+            
+            if (usernameMatch) {
+              const username = usernameMatch[1];
+              console.log('Found supply request from user:', username);
+              
+              // Make an AJAX call to get the latest supply request ID for this user
+              fetch(`/get-latest-supply-request/?username=${username}`, {
+                method: 'GET',
+                headers: {
+                  'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                }
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.batch_id) {
+                  console.log('Found supply batch ID:', data.batch_id);
+                  markReadAndRedirect(notificationId, `/batch-request/${data.batch_id}/`);
+                } else if (data.supply_id) {
+                  console.log('Found supply ID:', data.supply_id);
+                  markReadAndRedirect(notificationId, `/request/${data.supply_id}/`);
+                } else {
+                  console.log('No supply request found, redirecting to requests list');
+                  markReadAndRedirect(notificationId, '/my-supply-requests/');
+                }
+              })
+              .catch(error => {
+                console.error('Error fetching supply request ID:', error);
+                markReadAndRedirect(notificationId, '/my-supply-requests/');
+              });
+            } else {
+              // Default fallback
+              markReadAndRedirect(notificationId, '/my-supply-requests/');
+            }
+          }
+        }
+        
+        // Handle damage report notifications
+        function handleDamageReportNotification(message, notificationId) {
+          console.log('=== DAMAGE REPORT HANDLER ===');
+          console.log('Message content:', message);
+          console.log('Notification ID:', notificationId);
+          
+          let requestId = null;
+          let redirectUrl = null;
+          
+          // Try to extract ID from message first (like borrow requests)
+          const idMatch = message.match(/damage report #(\d+)/i);
+          console.log('ID match result:', idMatch);
+          
+          if (idMatch) {
+            requestId = idMatch[1];
+            redirectUrl = `/damage-report/${requestId}/`;
+            console.log('SUCCESS: Found damage report ID from message:', requestId);
+            console.log('SUCCESS: Redirecting to:', redirectUrl);
+            markReadAndRedirect(notificationId, redirectUrl);
+          } else {
+            console.log('FALLBACK: No ID found in message, trying username fallback');
+            // Fallback to username lookup for older notifications without IDs
+            const usernameMatch = message.match(/submitted.*by (\w+)/i);
+            console.log('Username match result:', usernameMatch);
+            
+            if (usernameMatch) {
+              const username = usernameMatch[1];
+              console.log('FALLBACK: Found damage report from user:', username);
+              
+              // Make an AJAX call to get the latest damage report ID for this user
+              fetch(`/get-latest-damage-report/?username=${username}`, {
+                method: 'GET',
+                headers: {
+                  'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                }
+              })
+              .then(response => response.json())
+              .then(data => {
+                console.log('AJAX response:', data);
+                if (data.report_id) {
+                  console.log('FALLBACK: Found damage report ID:', data.report_id);
+                  markReadAndRedirect(notificationId, `/damage-report/${data.report_id}/`);
+                } else {
+                  console.log('FALLBACK: No damage report found, redirecting to reports list');
+                  markReadAndRedirect(notificationId, '/my-damage-reports/');
+                }
+              })
+              .catch(error => {
+                console.error('FALLBACK: Error fetching damage report ID:', error);
+                markReadAndRedirect(notificationId, '/my-damage-reports/');
+              });
+            } else {
+              console.log('FALLBACK: No username found, using default fallback');
+              // Default fallback
+              markReadAndRedirect(notificationId, '/my-damage-reports/');
+            }
+          }
+        }
+        
+        // Handle reservation notifications
+        function handleReservationNotification(message, notificationId) {
+          console.log('Handling reservation notification');
+          
+          let requestId = null;
+          let redirectUrl = null;
+          
+          // Try to extract ID from message first (like borrow requests)
+          const idMatch = message.match(/reservation #(\d+)/i) || message.match(/#(\d+)/i);
+          
+          if (idMatch) {
+            requestId = idMatch[1];
+            redirectUrl = `/reservation/${requestId}/`;
+            console.log('Found reservation ID from message:', requestId);
+            markReadAndRedirect(notificationId, redirectUrl);
+          } else {
+            // Fallback to username lookup for older notifications without IDs
+            const usernameMatch = message.match(/submitted.*by (\w+)/i);
+            
+            if (usernameMatch) {
+              const username = usernameMatch[1];
+              console.log('Found reservation from user:', username);
+              
+              // Make an AJAX call to get the latest reservation ID for this user
+              fetch(`/get-latest-reservation/?username=${username}`, {
+                method: 'GET',
+                headers: {
+                  'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                }
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.reservation_id) {
+                  console.log('Found reservation ID:', data.reservation_id);
+                  markReadAndRedirect(notificationId, `/reservation/${data.reservation_id}/`);
+                } else {
+                  console.log('No reservation found, redirecting to reservations list');
+                  markReadAndRedirect(notificationId, '/my-reservations/');
+                }
+              })
+              .catch(error => {
+                console.error('Error fetching reservation ID:', error);
+                markReadAndRedirect(notificationId, '/my-reservations/');
+              });
+            } else {
+              // Default fallback
+              markReadAndRedirect(notificationId, '/my-reservations/');
+            }
+          }
+        }
+        
+        // Helper function to mark notification as read and redirect
+        function markReadAndRedirect(notificationId, redirectUrl) {
+          console.log('Marking notification as read and redirecting to:', redirectUrl);
+          
+          fetch(`/mark-notification-read/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+            },
+            body: JSON.stringify({ 'notification_id': notificationId })
+          }).then(() => {
+            console.log('Redirecting to:', redirectUrl);
+            window.location.href = redirectUrl;
+          }).catch(error => {
+            console.error('Error marking notification as read:', error);
+            console.log('Still redirecting to:', redirectUrl);
+            window.location.href = redirectUrl;
+          });
         }
       });
     </script>

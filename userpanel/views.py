@@ -1050,10 +1050,12 @@ def add_to_reservation_list(request):
 
 @login_required
 def update_reservation_list_item(request):
-    """Update quantity of item in reservation cart"""
+    """Update quantity, needed_date, and return_date of item in reservation cart"""
     if request.method == 'POST':
         property_id = request.POST.get('property_id')
         new_quantity = int(request.POST.get('quantity', 1))
+        needed_date = request.POST.get('needed_date')
+        return_date = request.POST.get('return_date')
         
         cart = request.session.get('reservation_cart', [])
         
@@ -1071,12 +1073,17 @@ def update_reservation_list_item(request):
                         })
                     
                     cart[i]['quantity'] = new_quantity
+                    if needed_date:
+                        cart[i]['needed_date'] = needed_date
+                    if return_date:
+                        cart[i]['return_date'] = return_date
+                        
                     request.session['reservation_cart'] = cart
                     request.session.modified = True
                     
                     return JsonResponse({
                         'status': 'success',
-                        'message': 'Quantity updated successfully'
+                        'message': 'Item updated successfully'
                     })
                     
                 except Property.DoesNotExist:

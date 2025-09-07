@@ -324,129 +324,6 @@ h1 {
   /* Slightly lighter shade */
 }
 
-/* Notification Bell styles aligned with your theme */
-.notification-container {
-  position: fixed;
-  top: 11PX;
-  right: 2%;
-  display: inline-flex;
-  align-items: center;
-  font-family: Arial, sans-serif;
-  z-index: 1100;
-}
-
-.bell-icon {
-  font-size: 25px;
-  color: #152d64;
-  /* match sidebar blue */
-  transition: color 0.3s ease;
-  cursor: pointer;
-}
-
-.notification-container:hover .bell-icon,
-.notification-container:focus .bell-icon {
-  color: #fbff00;
-  /* your sidebar hover yellow */
-  outline: none;
-}
-
-.notification-count {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background: #dc3545;
-  /* yellow badge to match sidebar highlight */
-  color: white;
-  /* sidebar dark text */
-  font-size: 12px;
-  font-weight: 700;
-  padding: 3px 6px;
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-.notifications-dropdown {
-  display: none;
-  position: absolute;
-  top: 38px;
-  right: 0;
-  width: 320px;
-  max-height: 350px;
-  overflow-y: auto;
-  background-color: white;
-  border: 2px solid #152d64;
-  /* border matches sidebar color */
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(21, 45, 100, 0.4);
-  z-index: 1200;
-  font-size: 14px;
-  font-family: Arial, sans-serif;
-}
-
-.notifications-dropdown.active {
-  display: block;
-}
-
-.notification-item {
-  border-bottom: 1px solid #ddd;
-  padding: 12px 16px;
-  color: #152d64;
-  background-color: #fff;
-  transition: background-color 0.3s ease;
-  font-weight: normal;
-}
-
-.notification-item:hover {
-  background-color: #d5d5d5;
-  /* subtle highlight like your .div1 background */
-}
-
-.notification-item.unread {
-  font-weight: 520;
-  background-color: #e9f5ff;
-  /* light subtle blue for unread */
-}
-
-.notification-timestamp {
-  display: block;
-  font-size: 12px;
-  color: #999;
-  margin-top: 6px;
-}
-
-.no-notifications {
-  padding: 20px;
-  color: #666;
-  font-style: italic;
-  text-align: center;
-}
-
-.notification-actions {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 16px;
-  border-bottom: 1px solid #ccc;
-  background-color: #f7f7f7;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-}
-
-.notification-actions button {
-  background-color: #152d64;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: background-color 0.3s ease, transform 0.2s;
-}
-
-.notification-actions button:hover {
-  background-color: #0f224a;
-  transform: translateY(-1px);
-}
-
 /* Additional styles for the requests preview table */
 .requests-preview {
   margin-top: 30px;
@@ -557,21 +434,6 @@ h1 {
   color: #6c757d;
   font-style: italic;
   padding: 40px 20px;
-}
-
-/* Styles for remarks inside notifications */
-.notification-remarks {
-  margin-top: 6px;
-  font-size: 13px;
-  color: #721c24;
-  /* blue shade to match your theme */
-  line-height: 1.4;
-  white-space: pre-wrap;
-  /* preserves line breaks */
-}
-
-.notification-remarks span {
-  color: #1d4c92;
 }
 
 /* Reservation Form and Calendar Styles */
@@ -949,7 +811,7 @@ input[type="date"]:focus {
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   border-left: 5px solid #152d64;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   margin-right: 20px;
 }
 

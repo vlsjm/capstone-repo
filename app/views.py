@@ -1,4 +1,4 @@
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
@@ -86,7 +86,7 @@ import json
 from django.utils import timezone
 from django.utils.timezone import now
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.contrib.auth.decorators import permission_required
@@ -1046,7 +1046,7 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
     paginate_by = 10
     
     def get_queryset(self):
-        queryset = DamageReport.objects.select_related('user', 'user__userprofile', 'item').order_by('report_date')
+        queryset = DamageReport.objects.select_related('user', 'user__userprofile', 'item').order_by('-report_date')
         
         # Search functionality
         search = self.request.GET.get('search')
@@ -1105,7 +1105,7 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
     def get_queryset(self):
         queryset = Reservation.objects.select_related(
             'user', 'user__userprofile', 'item'
-        ).order_by('reservation_date')
+        ).order_by('-reservation_date')
         
         # Apply search filter
         search_query = self.request.GET.get('search')
@@ -3195,10 +3195,16 @@ def approve_batch_item(request, batch_id, item_id):
         # All items have been processed (approved or rejected)
         if approved_items > 0:
             batch_request.status = 'for_claiming'
+            # Set approved_date if not already set
+            if not batch_request.approved_date:
+                batch_request.approved_date = timezone.now()
         else:
             batch_request.status = 'rejected'
     elif approved_items > 0:
         batch_request.status = 'partially_approved'
+        # Set approved_date when first item is approved
+        if not batch_request.approved_date:
+            batch_request.approved_date = timezone.now()
     
     batch_request.save()
     
@@ -3256,10 +3262,16 @@ def reject_batch_item(request, batch_id, item_id):
         # All items have been processed (approved or rejected)
         if approved_items > 0:
             batch_request.status = 'for_claiming'
+            # Set approved_date if not already set
+            if not batch_request.approved_date:
+                batch_request.approved_date = timezone.now()
         else:
             batch_request.status = 'rejected'
     elif approved_items > 0:
         batch_request.status = 'partially_approved'
+        # Set approved_date when first item is approved
+        if not batch_request.approved_date:
+            batch_request.approved_date = timezone.now()
     
     batch_request.save()
     
@@ -4269,3 +4281,179 @@ class AdminProfileView(PermissionRequiredMixin, View):
             'form': form,
             'user_profile': user_profile
         })
+
+@require_http_methods(["GET"])
+def get_latest_batch_request(request):
+    """Get the latest batch request ID for a user"""
+    from django.contrib.auth.models import User
+    from django.http import JsonResponse
+    
+    username = request.GET.get('username')
+    if not username:
+        return JsonResponse({'error': 'Username required'}, status=400)
+    
+    try:
+        user = User.objects.get(username=username)
+        latest_batch = BorrowRequestBatch.objects.filter(user=user).order_by('-request_date').first()
+        
+        if latest_batch:
+            return JsonResponse({'batch_id': latest_batch.id, 'user': username})
+        else:
+            return JsonResponse({'error': 'No batch requests found'}, status=404)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@require_http_methods(["GET"])
+def get_latest_supply_request(request):
+    """Get the latest supply request ID for a user"""
+    from django.contrib.auth.models import User
+    from django.http import JsonResponse
+    
+    username = request.GET.get('username')
+    if not username:
+        return JsonResponse({'error': 'Username required'}, status=400)
+    
+    try:
+        user = User.objects.get(username=username)
+        # Try batch supply requests first
+        latest_batch = SupplyRequestBatch.objects.filter(user=user).order_by('-request_date').first()
+        
+        if latest_batch:
+            return JsonResponse({'batch_id': latest_batch.id, 'user': username, 'type': 'batch'})
+        else:
+            # Try individual supply requests
+            latest_supply = SupplyRequest.objects.filter(user=user).order_by('-request_date').first()
+            if latest_supply:
+                return JsonResponse({'supply_id': latest_supply.id, 'user': username, 'type': 'individual'})
+            else:
+                return JsonResponse({'error': 'No supply requests found'}, status=404)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@require_http_methods(["GET"])
+def get_latest_damage_report(request):
+    """Get the latest damage report ID for a user"""
+    from django.contrib.auth.models import User
+    from django.http import JsonResponse
+    
+    username = request.GET.get('username')
+    if not username:
+        return JsonResponse({'error': 'Username required'}, status=400)
+    
+    try:
+        user = User.objects.get(username=username)
+        latest_report = DamageReport.objects.filter(user=user).order_by('-date_reported').first()
+        
+        if latest_report:
+            return JsonResponse({'report_id': latest_report.id, 'user': username})
+        else:
+            return JsonResponse({'error': 'No damage reports found'}, status=404)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@require_http_methods(["GET"])
+def get_latest_reservation(request):
+    """Get the latest reservation ID for a user"""
+    from django.contrib.auth.models import User
+    from django.http import JsonResponse
+    
+    username = request.GET.get('username')
+    if not username:
+        return JsonResponse({'error': 'Username required'}, status=400)
+    
+    try:
+        user = User.objects.get(username=username)
+        latest_reservation = Reservation.objects.filter(user=user).order_by('-reservation_date').first()
+        
+        if latest_reservation:
+            return JsonResponse({'reservation_id': latest_reservation.id, 'user': username})
+        else:
+            return JsonResponse({'error': 'No reservations found'}, status=404)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+# Requisition and Issue Slip PDF Generation Views
+@login_required
+def download_requisition_slip(request, batch_id):
+    """
+    Download the requisition and issue slip PDF for a supply request batch.
+    Available for both admin users and the requester.
+    """
+    batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
+    
+    # Check permissions: admin users can download any slip, regular users can only download their own
+    if not (request.user.userprofile.role == 'ADMIN' or batch_request.user == request.user):
+        messages.error(request, 'You do not have permission to access this requisition slip.')
+        return redirect('user_supply_requests')
+    
+    # Only generate slip for approved, partially approved, for_claiming, or completed requests
+    if batch_request.status not in ['approved', 'partially_approved', 'for_claiming', 'completed']:
+        messages.error(request, 'Requisition slip is only available for approved requests.')
+        return redirect('batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_supply_requests', batch_id=batch_id)
+    
+    try:
+        from .pdf_utils import download_requisition_slip
+        
+        # Log the download activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='view',
+            model_name='SupplyRequestBatch',
+            object_repr=f"Requisition Slip #{batch_id}",
+            description=f"Downloaded requisition slip for batch request #{batch_id}"
+        )
+        
+        return download_requisition_slip(batch_request)
+        
+    except Exception as e:
+        messages.error(request, f'Error generating requisition slip: {str(e)}')
+        return redirect('batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_supply_requests', batch_id=batch_id)
+
+
+@login_required
+def view_requisition_slip(request, batch_id):
+    """
+    View the requisition and issue slip PDF in browser for a supply request batch.
+    Available for both admin users and the requester.
+    """
+    batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
+    
+    # Check permissions: admin users can view any slip, regular users can only view their own
+    if not (request.user.userprofile.role == 'ADMIN' or batch_request.user == request.user):
+        messages.error(request, 'You do not have permission to access this requisition slip.')
+        return redirect('user_supply_requests')
+    
+    # Only generate slip for approved, partially approved, for_claiming, or completed requests
+    if batch_request.status not in ['approved', 'partially_approved', 'for_claiming', 'completed']:
+        messages.error(request, 'Requisition slip is only available for approved requests.')
+        return redirect('batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_supply_requests', batch_id=batch_id)
+    
+    try:
+        from .pdf_utils import view_requisition_slip
+        
+        # Log the view activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='view',
+            model_name='SupplyRequestBatch',
+            object_repr=f"Requisition Slip #{batch_id}",
+            description=f"Viewed requisition slip for batch request #{batch_id}"
+        )
+        
+        return view_requisition_slip(batch_request)
+        
+    except Exception as e:
+        messages.error(request, f'Error generating requisition slip: {str(e)}')
+        return redirect('batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_supply_requests', batch_id=batch_id)

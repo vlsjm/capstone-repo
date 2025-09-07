@@ -467,7 +467,7 @@ class SupplyRequest(models.Model):
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
-                    message=f"New supply request submitted for {self.supply.supply_name} by {self.user.username}",
+                    message=f"New supply request #{self.id} submitted for {self.supply.supply_name} by {self.user.username}",
                     remarks=f"Quantity: {self.quantity}, Purpose: {self.purpose}"
                 )
 
@@ -572,7 +572,7 @@ class SupplyRequestBatch(models.Model):
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
-                    message=f"New batch supply request submitted by {self.user.username}",
+                    message=f"New batch supply request #{self.id} submitted by {self.user.username}",
                     remarks=f"Items: {item_list}. Purpose: {self.purpose[:100]}"
                 )
 
@@ -690,7 +690,7 @@ class Reservation(models.Model):
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
-                    message=f"New reservation submitted for {self.item.property_name} by {self.user.username}",
+                    message=f"New reservation #{self.id} submitted for {self.item.property_name} by {self.user.username}",
                     remarks=f"Quantity: {self.quantity}, Needed Date: {self.needed_date}, Return Date: {self.return_date}, Purpose: {self.purpose}"
                 )
 
@@ -814,7 +814,7 @@ class DamageReport(models.Model):
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
-                    message=f"New damage report submitted for {self.item.property_name} by {self.user.username}",
+                    message=f"New damage report #{self.id} submitted for {self.item.property_name} by {self.user.username}",
                     remarks=f"Description: {self.description}"
                 )
 
@@ -1044,7 +1044,7 @@ class BorrowRequestBatch(models.Model):
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
-                    message=f"New batch borrow request submitted by {self.user.username}",
+                    message=f"New batch borrow request #{self.id} submitted by {self.user.username}",
                     remarks=f"Items: {item_list}. Purpose: {self.purpose[:100]}"
                 )
 

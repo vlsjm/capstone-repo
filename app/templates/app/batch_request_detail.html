@@ -658,6 +658,31 @@
         </form>
       </div>
       {% endif %}
+      
+      <!-- Requisition Slip Download Section -->
+      {% if batch_request.status in 'approved,partially_approved,for_claiming,completed' %}
+      <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 8px; border-left: 4px solid #152d64;">
+        <h4 style="color: #152d64; margin: 0 0 15px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+          <i class="fas fa-file-pdf"></i> Requisition & Issue Slip
+        </h4>
+        <p style="margin: 0 0 15px 0; font-size: 12px; color: #495057; line-height: 1.4;">
+          Download or view the official requisition and issue slip for this approved supply request. This document serves as a receipt and record of the transaction.
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <a href="{% url 'download_requisition_slip' batch_request.id %}" 
+             class="btn" 
+             style="background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%); color: white; font-size: 12px; padding: 8px 16px; text-decoration: none;">
+            <i class="fas fa-download"></i> Download PDF
+          </a>
+          <a href="{% url 'view_requisition_slip' batch_request.id %}" 
+             target="_blank"
+             class="btn" 
+             style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; font-size: 12px; padding: 8px 16px; text-decoration: none;">
+            <i class="fas fa-eye"></i> View PDF
+          </a>
+        </div>
+      </div>
+      {% endif %}
     </div>
 
     <h2 style="color: #152d64; font-size: 24px; font-weight: 600; margin: 30px 0 20px 0; padding-bottom: 10px; border-bottom: 3px solid #28a745; display: inline-block;">
@@ -711,8 +736,8 @@
                          data-max-quantity="{{ item.quantity }}">
                   <span class="qty-indicator">/ {{ item.quantity }}</span>
                 </div>
-              {% elif item.status == 'approved' %}
-                <strong style="color: #28a745;">{{ item.approved_quantity }}</strong>
+              {% elif item.status == 'approved' or item.status == 'completed' %}
+                <strong style="color: #28a745;">{{ item.approved_quantity|default:item.quantity }}</strong>
               {% else %}
                 <span style="color: #6c757d;">—</span>
               {% endif %}
@@ -726,6 +751,10 @@
               {% elif item.status == 'rejected' %}
                 <span class="status-badge status-rejected">
                   <i class="fas fa-times"></i> Rejected
+                </span>
+              {% elif item.status == 'completed' %}
+                <span class="status-badge status-approved" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);">
+                  <i class="fas fa-check-circle"></i> Completed
                 </span>
               {% else %}
                 <span class="status-badge status-pending">
@@ -763,7 +792,7 @@
                 </form>
               {% elif item.status == 'completed' %}
                 <span style="color: #28a745; font-weight: 600; font-size: 11px;">
-                  <i class="fas fa-check-circle"></i> COMPLETED
+                  <i class="fas fa-check-circle"></i> CLAIMED
                 </span>
               {% else %}
                 <span style="color: #6c757d;">—</span>
