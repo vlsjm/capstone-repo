@@ -321,6 +321,8 @@ class Property(models.Model):
     overall_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
     location = models.CharField(max_length=255, null=True, blank=True)
+    accountable_person = models.CharField(max_length=255, null=True, blank=True)
+    year_acquired = models.DateField(null=True, blank=True)
     condition = models.CharField(max_length=100, choices=CONDITION_CHOICES, default='In good condition')
     availability = models.CharField(max_length=20, choices=AVAILABILITY_CHOICES, default='available')
     is_archived = models.BooleanField(default=False)
@@ -386,7 +388,7 @@ class Property(models.Model):
             old_obj = Property.objects.get(pk=self.pk)
             fields_to_track = ['property_number', 'property_name', 'category', 'description', 'barcode', 
                              'unit_of_measure', 'unit_value', 'overall_quantity', 'quantity', 
-                             'location', 'condition', 'availability']
+                             'location', 'accountable_person', 'year_acquired', 'condition', 'availability']
             
             for field in fields_to_track:
                 old_value = getattr(old_obj, field)

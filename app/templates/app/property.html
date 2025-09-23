@@ -1302,6 +1302,8 @@ input:focus {
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Overall Qty</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Current Qty</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Location</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Accountable Person</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Year Acquired</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Condition</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Availability</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Actions</th>
@@ -1331,6 +1333,8 @@ input:focus {
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.overall_quantity|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.quantity|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.location|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.accountable_person|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.year_acquired|date:"M d, Y"|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.get_condition_display|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">
                     <span class="status-badge {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' or property.availability == 'not_available' %}status-rejected{% else %}status-approved{% endif %}">
@@ -1364,6 +1368,8 @@ input:focus {
                           data-overall-quantity="{{ property.overall_quantity }}"
                           data-quantity="{{ property.quantity }}"
                           data-location="{{ property.location|default:'' }}"
+                          data-accountable-person="{{ property.accountable_person|default:'' }}"
+                          data-year-acquired="{{ property.year_acquired|date:'Y-m-d'|default:'' }}"
                           data-condition="{{ property.condition }}"
                           data-category="{{ property.category.id|default:'' }}"
                           data-availability="{{ property.availability }}">
@@ -1614,6 +1620,20 @@ input:focus {
         </div>
 
         <div class="form-group">
+          <label for="{{ form.accountable_person.id_for_label }}">
+            <i class="fas fa-user"></i> Accountable Person
+          </label>
+          {{ form.accountable_person }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.year_acquired.id_for_label }}">
+            <i class="fas fa-calendar"></i> Year Acquired
+          </label>
+          {{ form.year_acquired }}
+        </div>
+
+        <div class="form-group">
           <label for="{{ form.condition.id_for_label }}">
             <i class="fas fa-info-circle"></i> Condition
             <span class="required-asterisk">*</span>
@@ -1685,6 +1705,20 @@ input:focus {
           <span class="required-asterisk">*</span>
         </label>
         <input type="text" name="location" id="edit_location" required />
+      </div>
+
+      <div class="form-group">
+        <label>
+          <i class="fas fa-user"></i> Accountable Person
+        </label>
+        <input type="text" name="accountable_person" id="edit_accountable_person" placeholder="Enter responsible person's name" />
+      </div>
+
+      <div class="form-group">
+        <label>
+          <i class="fas fa-calendar"></i> Year Acquired
+        </label>
+        <input type="date" name="year_acquired" id="edit_year_acquired" />
       </div>
 
       <div class="form-group">
@@ -1854,6 +1888,12 @@ input:focus {
                     </label>
                     <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
                         <input type="checkbox" name="fields" value="location" checked style="margin: 0; width: 16px; height: 16px;"> Location
+                    </label>
+                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="fields" value="accountable_person" checked style="margin: 0; width: 16px; height: 16px;"> Accountable Person
+                    </label>
+                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="fields" value="year_acquired" checked style="margin: 0; width: 16px; height: 16px;"> Year Acquired
                     </label>
                     <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
                         <input type="checkbox" name="fields" value="condition" checked style="margin: 0; width: 16px; height: 16px;"> Condition
@@ -2034,6 +2074,8 @@ input:focus {
                 document.getElementById('edit_unit_of_measure').value = this.dataset.unitMeasure;
                 document.getElementById('edit_unit_value').value = this.dataset.unitValue;
                 document.getElementById('edit_location').value = this.dataset.location;
+                document.getElementById('edit_accountable_person').value = this.dataset.accountablePerson || '';
+                document.getElementById('edit_year_acquired').value = this.dataset.yearAcquired || '';
                 document.getElementById('edit_condition').value = this.dataset.condition;
                 document.getElementById('edit_category').value = this.dataset.category;
                 document.getElementById('edit_availability').value = this.dataset.availability;

@@ -11,6 +11,7 @@ from .views import (
     UserPasswordChangeView,
     UserPasswordChangeDoneView,
     UserProfileView,
+    UserAllRequestsView,
 )
 from . import views
 
@@ -22,6 +23,7 @@ urlpatterns = [
     path('login/user/', UserLoginView.as_view(), name='login_user'),  
     path('user_borrow/', UserBorrowView.as_view(), name='user_borrow'),
     path('user_profile/', UserProfileView.as_view(), name='user_profile'),
+    path('all_requests/', UserAllRequestsView.as_view(), name='user_all_requests'),
     path('get-item-availability/', views.get_item_availability, name='get_item_availability'),
     
     # Password change URLs with custom views
@@ -32,9 +34,15 @@ urlpatterns = [
          UserPasswordChangeDoneView.as_view(), 
          name='user_password_change_done'),
     path('cancel-supply-request/<int:request_id>/', views.cancel_supply_request, name='cancel_supply_request'),
+    path('cancel-batch-supply-request/<int:request_id>/', views.cancel_batch_supply_request, name='cancel_batch_supply_request'),
     path('cancel-borrow-request/<int:request_id>/', views.cancel_borrow_request, name='cancel_borrow_request'),
+    path('cancel-batch-borrow-request/<int:request_id>/', views.cancel_batch_borrow_request, name='cancel_batch_borrow_request'),
     path('cancel-reservation/<int:request_id>/', views.cancel_reservation, name='cancel_reservation'),
     path('cancel-damage-report/<int:request_id>/', views.cancel_damage_report, name='cancel_damage_report'),
+    
+    # Request detail and request again URLs
+    path('request-detail/<str:type>/<int:request_id>/', views.request_detail, name='request_detail'),
+    path('request-again/', views.request_again, name='request_again'),
     
     # Borrow cart URLs
     path('add-to-borrow-list/', views.add_to_borrow_list, name='add_to_borrow_list'),

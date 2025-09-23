@@ -1571,6 +1571,8 @@ def edit_property(request):
                 'overall_quantity': property_obj.overall_quantity,
                 'quantity': property_obj.quantity,
                 'location': property_obj.location,
+                'accountable_person': property_obj.accountable_person,
+                'year_acquired': property_obj.year_acquired,
                 'condition': property_obj.condition,
                 'category': property_obj.category,
                 'availability': property_obj.availability
@@ -1596,6 +1598,18 @@ def edit_property(request):
                 property_obj.overall_quantity = 0
 
             property_obj.location = request.POST.get('location')
+            property_obj.accountable_person = request.POST.get('accountable_person')
+            
+            # Handle year_acquired date field
+            year_acquired_str = request.POST.get('year_acquired')
+            if year_acquired_str:
+                try:
+                    from datetime import datetime
+                    property_obj.year_acquired = datetime.strptime(year_acquired_str, '%Y-%m-%d').date()
+                except ValueError as e:
+                    property_obj.year_acquired = None
+            else:
+                property_obj.year_acquired = None
 
             # Handle ForeignKey category assignment
             category_id = request.POST.get('category')
@@ -1617,6 +1631,10 @@ def edit_property(request):
 
             # Save the updated property, assuming your model's save method accepts user param
             property_obj.save(user=request.user)
+            
+            # Debug: Print the saved values
+            print(f"DEBUG: After save - accountable_person: '{property_obj.accountable_person}'")
+            print(f"DEBUG: After save - year_acquired: '{property_obj.year_acquired}'")
 
             # Create activity log for changes
             changes = []
@@ -1907,6 +1925,24 @@ def remove_from_list(request):
         })
 
 @login_required
+def clear_supply_list(request):
+    """Clear all items from the supply request list"""
+    if request.method == 'POST':
+        request.session['supply_cart'] = []
+        request.session.modified = True
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'List cleared successfully.',
+            'cart_count': 0
+        })
+    
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method.'
+    })
+
+@login_required
 def update_list_item(request):
     """Update quantity of an item in the list"""
     if request.method == 'POST':
@@ -1976,8 +2012,16 @@ def submit_list_request(request):
                     quantity=cart_item['quantity']
                 )
             
-            # Log activity
-            item_list = ", ".join([f"{item['supply_name']} (x{item['quantity']})" for item in cart[:3]])
+            # Log activity - build item list from supply objects, not cart data
+            supplies_for_logging = []
+            for cart_item in cart[:3]:
+                try:
+                    supply = Supply.objects.get(id=cart_item['supply_id'])
+                    supplies_for_logging.append(f"{supply.supply_name} (x{cart_item['quantity']})")
+                except Supply.DoesNotExist:
+                    supplies_for_logging.append(f"Unknown Item (x{cart_item['quantity']})")
+            
+            item_list = ", ".join(supplies_for_logging)
             if len(cart) > 3:
                 item_list += f" and {len(cart) - 3} more items"
             
@@ -1991,13 +2035,14 @@ def submit_list_request(request):
             
             # Clear the cart
             request.session['supply_cart'] = []
+            request.session.modified = True
             
             messages.success(request, f'Supply request submitted successfully! Your request ID is #{batch_request.id}.')
-            return redirect('create_supply_request')
+            return redirect('user_request')
             
         except Exception as e:
             messages.error(request, f'Error submitting request: {str(e)}')
-            return redirect('create_supply_request')
+            return redirect('user_request')
 
 
 @login_required
@@ -2496,7 +2541,7 @@ def export_property_to_excel(request):
     selected_fields = request.POST.getlist('fields', [
         'property_number', 'property_name', 'description', 'unit_of_measure',
         'unit_value', 'overall_quantity', 'current_quantity', 'location',
-        'condition', 'category'
+        'accountable_person', 'year_acquired', 'condition', 'category'
     ])
 
     # Define all possible fields and their display names
@@ -2509,6 +2554,8 @@ def export_property_to_excel(request):
         'overall_quantity': 'Overall Quantity',
         'current_quantity': 'Current Quantity',
         'location': 'Location',
+        'accountable_person': 'Accountable Person',
+        'year_acquired': 'Year Acquired',
         'condition': 'Condition',
         'category': 'Category'
     }
@@ -2586,6 +2633,10 @@ def export_property_to_excel(request):
                     row_data.append(prop.quantity or 0)
                 elif field == 'location':
                     row_data.append(prop.location or 'N/A')
+                elif field == 'accountable_person':
+                    row_data.append(prop.accountable_person or 'N/A')
+                elif field == 'year_acquired':
+                    row_data.append(prop.year_acquired.strftime('%B %d, %Y') if prop.year_acquired else 'N/A')
                 elif field == 'condition':
                     row_data.append(prop.get_condition_display() if prop.condition else 'N/A')
                 elif field == 'category':
@@ -4239,6 +4290,7 @@ class AdminProfileView(PermissionRequiredMixin, View):
         
         if form.is_valid():
             # Update user fields
+            request.user.username = form.cleaned_data['username']
             request.user.first_name = form.cleaned_data['first_name']
             request.user.last_name = form.cleaned_data['last_name']
             request.user.email = form.cleaned_data['email']

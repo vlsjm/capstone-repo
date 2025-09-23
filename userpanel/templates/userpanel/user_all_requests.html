@@ -1,0 +1,1237 @@
+{% extends 'userpanel/user_base.html' %}
+
+{% block title %}All My Requests{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="request-page-layout">
+    <main class="request-form-container">
+        <h1><i class="fas fa-history"></i> All My Requests</h1>
+        <p class="form-description">View and manage all your supply requests, borrow requests, and reservations in one place.</p>
+
+        <!-- Filters Section -->
+        <div class="top-controls">
+            <div class="search-filter-group" style="display: flex; align-items: center; gap: 8px;">
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <div style="position: relative; display: inline-block; width: 100%; max-width: 420px;">
+                        <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; font-size: 14px;"></i>
+                        <input type="text" id="searchInput" placeholder="Search requests..." value="{{ search_query }}"
+                               style="width: 100%; padding: 10px 16px 10px 40px; border: 2px solid #e1e5e9; border-radius: 6px; font-size: 14px; transition: border-color 0.3s ease;">
+                    </div>
+                </div>
+                
+                <!-- Filter Dropdown -->
+                <div class="simple-filter-container">
+                    <button id="filterToggleBtn" class="simple-filter-toggle" type="button">
+                        <i class="fas fa-filter"></i> Filters 
+                        <span id="activeFilterCount" class="filter-count">0</span>
+                        <i class="fas fa-chevron-down filter-chevron"></i>
+                    </button>
+                    <div id="filterDropdown" class="simple-filter-dropdown">
+                        <!-- Request Type Filter -->
+                        <div class="simple-filter-group">
+                            <div class="simple-filter-header">
+                                <i class="fas fa-list"></i> Request Type
+                            </div>
+                            <div class="simple-filter-options">
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="request_type" value="all" {% if request_type == 'all' %}checked{% endif %}>
+                                    <span class="filter-text">All Types</span>
+                                </label>
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="request_type" value="supply" {% if request_type == 'supply' %}checked{% endif %}>
+                                    <span class="filter-text">Supply Requests</span>
+                                </label>
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="request_type" value="borrow" {% if request_type == 'borrow' %}checked{% endif %}>
+                                    <span class="filter-text">Borrow Requests</span>
+                                </label>
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="request_type" value="reservation" {% if request_type == 'reservation' %}checked{% endif %}>
+                                    <span class="filter-text">Reservations</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div class="simple-filter-group">
+                            <div class="simple-filter-header">
+                                <i class="fas fa-flag"></i> Status
+                            </div>
+                            <div class="simple-filter-options">
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="status" value="all" {% if status_filter == 'all' %}checked{% endif %}>
+                                    <span class="filter-text">All Statuses</span>
+                                </label>
+                                {% for status_code, status_display in unique_statuses %}
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="status" value="{{ status_code }}" {% if status_filter == status_code %}checked{% endif %}>
+                                    <span class="filter-text">{{ status_display }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Summary -->
+        <div class="results-summary">
+            <div class="summary-stats">
+                <span class="total-count">
+                    <i class="fas fa-clipboard-list"></i>
+                    {% if page_obj %}
+                        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ total_requests }} requests
+                        {% if paginator.num_pages > 1 %}(Page {{ page_obj.number }} of {{ paginator.num_pages }}){% endif %}
+                    {% else %}
+                        Total Requests: {{ total_requests }}
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="requests-table-section">
+            {% if all_requests %}
+                <div class="table-container">
+                    <table class="requests-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Item(s)</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Request Date</th>
+                                <th>Return Date</th>
+                                <th>Purpose</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in all_requests %}
+                                <tr class="request-row" data-status="{{ request.status_raw }}">
+                                    <td class="request-id">{{ request.id }}</td>
+                                    <td class="request-type">
+                                        <span class="type-badge type-{{ request.model_type }}">
+                                            {{ request.type }}
+                                        </span>
+                                    </td>
+                                    <td class="item-name">
+                                        <div class="item-info">
+                                            <span class="item-title" title="{{ request.item_name }}">
+                                                {{ request.item_name|truncatechars:40 }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="quantity">{{ request.quantity }}</td>
+                                    <td class="status">
+                                        <span class="status-badge status-{{ request.status_raw }}">
+                                            {% if request.status_raw == 'pending' %}
+                                                <i class="fas fa-clock"></i>
+                                            {% elif request.status_raw == 'approved' %}
+                                                <i class="fas fa-check-circle"></i>
+                                            {% elif request.status_raw == 'rejected' or request.status_raw == 'declined' %}
+                                                <i class="fas fa-times-circle"></i>
+                                            {% elif request.status_raw == 'returned' %}
+                                                <i class="fas fa-undo"></i>
+                                            {% elif request.status_raw == 'overdue' %}
+                                                <i class="fas fa-exclamation-circle"></i>
+                                            {% elif request.status_raw == 'completed' %}
+                                                <i class="fas fa-check-double"></i>
+                                            {% elif request.status_raw == 'active' %}
+                                                <i class="fas fa-play-circle"></i>
+                                            {% elif request.status_raw == 'for_claiming' %}
+                                                <i class="fas fa-hand-holding"></i>
+                                            {% elif request.status_raw == 'partially_approved' %}
+                                                <i class="fas fa-check-circle"></i>
+                                            {% endif %}
+                                            {{ request.status }}
+                                        </span>
+                                    </td>
+                                    <td class="date">{{ request.date|date:"M d, Y" }}</td>
+                                    <td class="return-date">
+                                        {% if request.return_date %}
+                                            {{ request.return_date|date:"M d, Y" }}
+                                        {% elif request.needed_date %}
+                                            {{ request.needed_date|date:"M d, Y" }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td class="purpose">
+                                        <span title="{{ request.purpose }}">
+                                            {{ request.purpose|truncatechars:30 }}
+                                        </span>
+                                    </td>
+                                    <td class="actions">
+                                        {% if request.can_cancel %}
+                                            <button class="btn-action btn-cancel" 
+                                                    data-request-id="{{ request.real_id }}" 
+                                                    data-model-type="{{ request.model_type }}"
+                                                    title="Cancel Request">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        {% endif %}
+                                        <button class="btn-action btn-view" 
+                                                data-request-id="{{ request.real_id }}" 
+                                                data-model-type="{{ request.model_type }}"
+                                                title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-action btn-request-again" 
+                                                data-request-id="{{ request.real_id }}" 
+                                                data-model-type="{{ request.model_type }}"
+                                                title="Request Again">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="actlog-pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1">&laquo; First</a>
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">Previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">Next</a>
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h3>No Requests Found</h3>
+                    <p>
+                        {% if search_query or status_filter != 'all' or request_type != 'all' %}
+                            No requests match your current filters. Try adjusting your search criteria.
+                        {% else %}
+                            You haven't made any requests yet. Start by creating a new request.
+                        {% endif %}
+                    </p>
+                    <div class="empty-actions">
+                        <a href="{% url 'user_request' %}" class="btn-submit">
+                            <i class="fas fa-plus"></i> New Supply Request
+                        </a>
+                        <a href="{% url 'user_borrow' %}" class="btn-secondary">
+                            <i class="fas fa-handshake"></i> New Borrow Request
+                        </a>
+                        <a href="{% url 'user_reserve' %}" class="btn-tertiary">
+                            <i class="fas fa-calendar-alt"></i> New Reservation
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+
+<!-- Cancel Request Modal -->
+<div id="cancelModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Cancel Request</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to cancel this request? This action cannot be undone.</p>
+            <p class="cancel-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                Only pending requests can be cancelled.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel-modal">Cancel</button>
+            <button class="btn-confirm-cancel">Yes, Cancel Request</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.request-page-layout {
+    margin-left: 250px;
+    padding: 20px;
+    background-color: whitesmoke;
+    min-height: 100vh;
+}
+
+/* Override container styles to match existing design */
+.request-form-container {
+    background-color: white;
+    margin: 2% auto;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 1400px;
+    max-height: none;
+    overflow-y: visible;
+    position: relative;
+    margin-left: 50px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.form-description {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 16px;
+}
+
+/* Filters Section */
+.filters-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-left: 4px solid #152d64;
+}
+
+.filters-section h3 {
+    color: #152d64;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+}
+
+.search-group {
+    flex: 1;
+    min-width: 250px;
+}
+
+.filter-actions {
+    min-width: auto;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #152d64;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.form-control {
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #152d64;
+    box-shadow: 0 0 5px rgba(21, 45, 100, 0.3);
+}
+
+.btn-clear {
+    background-color: #6c757d;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-clear:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+/* Results Summary */
+.results-summary {
+    background: linear-gradient(135deg, #152d64 0%, #1a3575 100%);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.summary-stats {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.total-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Table Section */
+.requests-table-section {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.requests-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.requests-table th {
+    background: #152d64;
+    color: white;
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.requests-table td {
+    padding: 12px;
+    border-bottom: 1px solid #ecf0f1;
+    vertical-align: middle;
+}
+
+.request-row:hover {
+    background: #f8f9fa;
+}
+
+.request-id {
+    font-family: monospace;
+    font-weight: 600;
+    color: #152d64;
+}
+
+/* Type badges */
+.type-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.type-supply, .type-batch_supply {
+    background: #d4edda;
+    color: #155724;
+}
+
+.type-borrow, .type-batch_borrow {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.type-reservation {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-approved, .status-partially_approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-rejected, .status-declined {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-returned, .status-completed {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-overdue {
+    background: #f5c6cb;
+    color: #721c24;
+}
+
+.status-active {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-for_claiming {
+    background: #e2e3e5;
+    color: #495057;
+}
+
+/* Action buttons */
+.btn-action {
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 0 2px;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.btn-cancel {
+    color: #dc3545;
+}
+
+.btn-cancel:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-view {
+    color: #152d64;
+}
+
+.btn-view:hover {
+    background: #152d64;
+    color: white;
+}
+
+.btn-request-again {
+    color: #28a745;
+}
+
+.btn-request-again:hover {
+    background: #28a745;
+    color: white;
+}
+
+/* Top Controls and Filter Styles */
+.top-controls {
+    margin-bottom: 20px;
+}
+
+.search-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-container {
+    flex: 1;
+}
+
+.simple-filter-container {
+    position: relative;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.simple-filter-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #495057;
+    transition: all 0.2s ease;
+    min-width: 120px;
+    justify-content: space-between;
+}
+
+.simple-filter-toggle:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.simple-filter-toggle.active {
+    background-color: #152d64;
+    color: white;
+    border-color: #152d64;
+}
+
+.filter-count {
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 11px;
+    min-width: 18px;
+    text-align: center;
+    display: none;
+}
+
+.filter-count.show {
+    display: inline-block;
+}
+
+.filter-chevron {
+    transition: transform 0.2s ease;
+    font-size: 12px;
+}
+
+.simple-filter-toggle.active .filter-chevron {
+    transform: rotate(180deg);
+}
+
+.simple-filter-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none;
+    padding: 16px;
+    min-width: 280px;
+    max-width: 350px;
+}
+
+.simple-filter-dropdown.show {
+    display: block;
+}
+
+.simple-filter-group {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.simple-filter-group:last-of-type {
+    border-bottom: none;
+    margin-bottom: 12px;
+}
+
+.simple-filter-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.simple-filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.simple-filter-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+    font-size: 13px;
+    margin: 0;
+}
+
+.simple-filter-option:hover {
+    background-color: #f8f9fa;
+}
+
+.simple-filter-option input[type="checkbox"],
+.simple-filter-option input[type="radio"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #152d64;
+}
+
+.filter-text {
+    color: #495057;
+    flex: 1;
+}
+
+/* Pagination Styles */
+.actlog-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.actlog-pagination a {
+  color: #152d64;
+  text-decoration: none;
+  padding: 8px 16px;
+  border: 1px solid #152d64;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.actlog-pagination a:hover {
+  background-color: #152d64;
+  color: white;
+}
+
+.actlog-pagination .current {
+  background-color: #152d64;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.empty-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+    opacity: 0.5;
+    color: #152d64;
+}
+
+.empty-state h3 {
+    margin-bottom: 15px;
+    color: #152d64;
+}
+
+.empty-actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-secondary {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+}
+
+.btn-tertiary {
+    background-color: #ffc107;
+    color: #212529;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+}
+
+.btn-tertiary:hover {
+    background-color: #e0a800;
+    transform: translateY(-1px);
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    padding: 20px 25px 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #152d64;
+}
+
+.close-modal {
+    font-size: 24px;
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.close-modal:hover {
+    color: #152d64;
+}
+
+.modal-body {
+    padding: 20px 25px;
+}
+
+.cancel-warning {
+    background: #fff3cd;
+    padding: 10px;
+    border-radius: 6px;
+    color: #856404;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-footer {
+    padding: 15px 25px 20px;
+    text-align: right;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.btn-cancel-modal, .btn-confirm-cancel {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-cancel-modal {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-cancel-modal:hover {
+    background: #5a6268;
+}
+
+.btn-confirm-cancel {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-confirm-cancel:hover {
+    background: #c82333;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .requests-table th:nth-child(8),
+    .requests-table td:nth-child(8) {
+        display: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .requests-table th:nth-child(7),
+    .requests-table td:nth-child(7) {
+        display: none;
+    }
+    
+    .requests-table th:nth-child(4),
+    .requests-table td:nth-child(4) {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .request-page-layout {
+        margin-left: 0;
+        padding: 15px;
+    }
+    
+    .request-form-container {
+        margin-left: 0;
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .form-group {
+        min-width: auto;
+    }
+    
+    .requests-table {
+        font-size: 13px;
+    }
+    
+    .requests-table th,
+    .requests-table td {
+        padding: 8px 6px;
+    }
+    
+    .empty-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .actlog-pagination {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 600px) {
+    .requests-table th:nth-child(6),
+    .requests-table td:nth-child(6) {
+        display: none;
+    }
+    
+    .requests-table th:nth-child(3),
+    .requests-table td:nth-child(3) {
+        max-width: 150px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter Dropdown Toggle
+    const filterToggleBtn = document.getElementById('filterToggleBtn');
+    const filterDropdown = document.getElementById('filterDropdown');
+    const activeFilterCount = document.getElementById('activeFilterCount');
+
+    if (filterToggleBtn && filterDropdown) {
+        filterToggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            filterDropdown.classList.toggle('show');
+            filterToggleBtn.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!filterToggleBtn.contains(e.target) && !filterDropdown.contains(e.target)) {
+                filterDropdown.classList.remove('show');
+                filterToggleBtn.classList.remove('active');
+            }
+        });
+    }
+
+    // Handle filter changes
+    const filterInputs = document.querySelectorAll('.simple-filter-dropdown input[type="radio"]');
+    filterInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            applyFilters();
+        });
+    });
+
+    // Search functionality
+    let searchTimeout;
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                applyFilters();
+            }, 500);
+        });
+    }
+
+    // Function to apply filters and update URL
+    function applyFilters() {
+        const currentUrl = new URL(window.location);
+        
+        // Remove page parameter when filters change
+        currentUrl.searchParams.delete('page');
+        
+        // Get request type
+        const requestTypeInput = document.querySelector('input[name="request_type"]:checked');
+        if (requestTypeInput && requestTypeInput.value !== 'all') {
+            currentUrl.searchParams.set('type', requestTypeInput.value);
+        } else {
+            currentUrl.searchParams.delete('type');
+        }
+        
+        // Get status
+        const statusInput = document.querySelector('input[name="status"]:checked');
+        if (statusInput && statusInput.value !== 'all') {
+            currentUrl.searchParams.set('status', statusInput.value);
+        } else {
+            currentUrl.searchParams.delete('status');
+        }
+        
+        // Get search
+        const searchValue = searchInput ? searchInput.value.trim() : '';
+        if (searchValue) {
+            currentUrl.searchParams.set('search', searchValue);
+        } else {
+            currentUrl.searchParams.delete('search');
+        }
+        
+        // Update active filter count
+        updateActiveFilterCount();
+        
+        // Navigate to new URL
+        window.location.href = currentUrl.toString();
+    }
+
+    // Function to update active filter count
+    function updateActiveFilterCount() {
+        let count = 0;
+        
+        // Count request type filter
+        const requestTypeInput = document.querySelector('input[name="request_type"]:checked');
+        if (requestTypeInput && requestTypeInput.value !== 'all') {
+            count++;
+        }
+        
+        // Count status filter
+        const statusInput = document.querySelector('input[name="status"]:checked');
+        if (statusInput && statusInput.value !== 'all') {
+            count++;
+        }
+        
+        // Count search filter
+        const searchValue = searchInput ? searchInput.value.trim() : '';
+        if (searchValue) {
+            count++;
+        }
+        
+        if (activeFilterCount) {
+            activeFilterCount.textContent = count;
+            if (count > 0) {
+                activeFilterCount.classList.add('show');
+            } else {
+                activeFilterCount.classList.remove('show');
+            }
+        }
+    }
+
+    // Initialize filter count on page load
+    updateActiveFilterCount();
+
+    // Cancel request functionality
+    const cancelBtns = document.querySelectorAll('.btn-cancel');
+    const modal = document.getElementById('cancelModal');
+    const closeModal = document.querySelector('.close-modal');
+    const cancelModalBtn = document.querySelector('.btn-cancel-modal');
+    const confirmCancelBtn = document.querySelector('.btn-confirm-cancel');
+    let currentRequestId = null;
+    let currentModelType = null;
+
+    cancelBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            currentRequestId = this.dataset.requestId;
+            currentModelType = this.dataset.modelType;
+            modal.style.display = 'block';
+        });
+    });
+
+    function closeModalFunc() {
+        modal.style.display = 'none';
+        currentRequestId = null;
+        currentModelType = null;
+    }
+
+    if (closeModal) closeModal.addEventListener('click', closeModalFunc);
+    if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModalFunc);
+
+    if (confirmCancelBtn) {
+        confirmCancelBtn.addEventListener('click', function() {
+            if (currentRequestId && currentModelType) {
+                // Determine the correct URL based on model type
+                let cancelUrl = '';
+                switch(currentModelType) {
+                    case 'supply':
+                        cancelUrl = `{% url 'cancel_supply_request' 0 %}`.replace('0', currentRequestId);
+                        break;
+                    case 'batch_supply':
+                        cancelUrl = `{% url 'cancel_batch_supply_request' 0 %}`.replace('0', currentRequestId);
+                        break;
+                    case 'borrow':
+                        cancelUrl = `{% url 'cancel_borrow_request' 0 %}`.replace('0', currentRequestId);
+                        break;
+                    case 'batch_borrow':
+                        cancelUrl = `{% url 'cancel_batch_borrow_request' 0 %}`.replace('0', currentRequestId);
+                        break;
+                    case 'reservation':
+                        cancelUrl = `{% url 'cancel_reservation' 0 %}`.replace('0', currentRequestId);
+                        break;
+                }
+
+                if (cancelUrl) {
+                    // Use AJAX to cancel the request
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+                    
+                    fetch(cancelUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken ? csrfToken.value : '',
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Show success message
+                            alert(data.message);
+                            // Reload the page to reflect changes
+                            window.location.reload();
+                        } else {
+                            // Show error message
+                            alert(data.message || 'An error occurred while cancelling the request.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while cancelling the request.');
+                    });
+                }
+            }
+            closeModalFunc();
+        });
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeModalFunc();
+        }
+    });
+
+    // View details functionality
+    const viewBtns = document.querySelectorAll('.btn-view');
+    viewBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const requestId = this.dataset.requestId;
+            const modelType = this.dataset.modelType;
+            
+            // Navigate to detail view
+            let detailUrl = '';
+            switch(modelType) {
+                case 'supply':
+                    detailUrl = `{% url 'request_detail' 'supply' 0 %}`.replace('0', requestId);
+                    break;
+                case 'batch_supply':
+                    detailUrl = `{% url 'request_detail' 'batch_supply' 0 %}`.replace('0', requestId);
+                    break;
+                case 'borrow':
+                    detailUrl = `{% url 'request_detail' 'borrow' 0 %}`.replace('0', requestId);
+                    break;
+                case 'batch_borrow':
+                    detailUrl = `{% url 'request_detail' 'batch_borrow' 0 %}`.replace('0', requestId);
+                    break;
+                case 'reservation':
+                    detailUrl = `{% url 'request_detail' 'reservation' 0 %}`.replace('0', requestId);
+                    break;
+            }
+
+            if (detailUrl) {
+                window.location.href = detailUrl;
+            }
+        });
+    });
+
+    // Request again functionality
+    const requestAgainBtns = document.querySelectorAll('.btn-request-again');
+    requestAgainBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const requestId = this.dataset.requestId;
+            const modelType = this.dataset.modelType;
+            
+            // Determine the correct URL based on model type
+            let requestAgainUrl = '';
+            switch(modelType) {
+                case 'supply':
+                    requestAgainUrl = `{% url 'request_again' %}?type=supply&id=${requestId}`;
+                    break;
+                case 'batch_supply':
+                    requestAgainUrl = `{% url 'request_again' %}?type=batch_supply&id=${requestId}`;
+                    break;
+                case 'borrow':
+                    requestAgainUrl = `{% url 'request_again' %}?type=borrow&id=${requestId}`;
+                    break;
+                case 'batch_borrow':
+                    requestAgainUrl = `{% url 'request_again' %}?type=batch_borrow&id=${requestId}`;
+                    break;
+                case 'reservation':
+                    requestAgainUrl = `{% url 'request_again' %}?type=reservation&id=${requestId}`;
+                    break;
+            }
+
+            if (requestAgainUrl) {
+                window.location.href = requestAgainUrl;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

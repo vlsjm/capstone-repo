@@ -247,6 +247,16 @@ class DamageReportForm(forms.ModelForm):
 
 class UserProfileUpdateForm(forms.ModelForm):
     """Form for updating user profile information"""
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your username'
+        }),
+        label='Username',
+        help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'
+    )
     first_name = forms.CharField(
         max_length=30,
         required=True,
@@ -322,9 +332,28 @@ class UserProfileUpdateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
         if self.user:
+            self.fields['username'].initial = self.user.username
             self.fields['first_name'].initial = self.user.first_name
             self.fields['last_name'].initial = self.user.last_name
             self.fields['email'].initial = self.user.email
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '').strip()
+        if not username:
+            raise ValidationError("Username is required.")
+        
+        if self.user:
+            # Check if username is already taken by another user
+            existing_user = User.objects.filter(username=username).exclude(pk=self.user.pk).first()
+            if existing_user:
+                raise ValidationError("This username is already taken.")
+        
+        # Validate username format (Django's default validation)
+        import re
+        if not re.match(r'^[\w.@+-]+$', username):
+            raise ValidationError("Username may only contain letters, numbers, and @/./+/-/_ characters.")
+        
+        return username
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -376,6 +405,7 @@ class UserProfileUpdateForm(forms.ModelForm):
         profile = super().save(commit=False)
         if self.user:
             # Update User model fields
+            self.user.username = self.cleaned_data['username']
             self.user.first_name = self.cleaned_data['first_name']
             self.user.last_name = self.cleaned_data['last_name']
             self.user.email = self.cleaned_data['email']

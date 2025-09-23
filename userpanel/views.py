@@ -33,6 +33,25 @@ class UserRequestView(PermissionRequiredMixin, TemplateView):
         # Get cart items from session
         cart_items = request.session.get('supply_cart', [])
         
+        # Convert cart items to objects with supply details
+        cart_items_data = []
+        for item in cart_items:
+            try:
+                if 'supply_id' not in item:
+                    continue
+                    
+                supply_obj = Supply.objects.select_related('quantity_info').get(id=item['supply_id'])
+                enriched_item = {
+                    'supply_id': supply_obj.id,
+                    'supply_name': supply_obj.supply_name,
+                    'quantity': item['quantity'],
+                    'available_quantity': supply_obj.quantity_info.current_quantity if supply_obj.quantity_info else 0,
+                    'supply': supply_obj  # For template consistency
+                }
+                cart_items_data.append(enriched_item)
+            except (Supply.DoesNotExist, KeyError, ValueError) as e:
+                continue
+        
         # Get available supplies
         available_supplies = Supply.objects.filter(
             available_for_request=True,
@@ -82,7 +101,7 @@ class UserRequestView(PermissionRequiredMixin, TemplateView):
         recent_requests_data = recent_requests_data[:5]  # Keep only 5 most recent
         
         return render(request, self.template_name, {
-            'cart_items': cart_items,
+            'cart_items': cart_items_data,
             'available_supplies': available_supplies,
             'recent_requests': recent_requests_data
         })
@@ -106,13 +125,16 @@ class UserBorrowView(PermissionRequiredMixin, TemplateView):
         for item in cart_items:
             try:
                 property_obj = Property.objects.get(id=item['property_id'])
-                cart_items_data.append({
+                enriched_item = {
                     'supply': property_obj,  # Using 'supply' for template consistency
                     'quantity': item['quantity'],
                     'return_date': datetime.strptime(item['return_date'], '%Y-%m-%d').date() if item['return_date'] else None,
                     'purpose': item['purpose']
-                })
+                }
+                cart_items_data.append(enriched_item)
             except Property.DoesNotExist:
+                continue
+            except Exception as e:
                 continue
         
         # Get available properties for the dropdown
@@ -179,74 +201,6 @@ class UserBorrowView(PermissionRequiredMixin, TemplateView):
         })
 
 
-class UserRequestView(PermissionRequiredMixin, TemplateView):
-    template_name = 'userpanel/user_request.html'
-    permission_required = 'app.view_user_module'
-
-    def get(self, request):
-        # Get cart items from session
-        cart_items = request.session.get('supply_cart', [])
-        
-        # Get available supplies
-        available_supplies = Supply.objects.filter(
-            available_for_request=True,
-            quantity_info__current_quantity__gt=0
-        ).select_related('quantity_info')
-        
-        # Get recent batch requests (new system)
-        recent_batch_requests = SupplyRequestBatch.objects.filter(user=request.user).order_by('-request_date')[:5]
-        
-        # Get recent single requests (legacy system) 
-        recent_single_requests = SupplyRequest.objects.filter(user=request.user).order_by('-request_date')[:5]
-        
-        # Combine and format recent requests
-        recent_requests_data = []
-        
-        # Add batch requests
-        for req in recent_batch_requests:
-            items_text = f"{req.total_items} items"
-            if req.total_items <= 3:
-                items_list = ", ".join([f"{item.supply.supply_name} (x{item.quantity})" for item in req.items.all()])
-                items_text = items_list
-            
-            recent_requests_data.append({
-                'id': req.id,
-                'item': items_text,
-                'quantity': req.total_quantity,
-                'status': req.status,
-                'date': req.request_date,
-                'purpose': req.purpose,
-                'type': 'batch'
-            })
-        
-        # Add single requests (for backward compatibility)
-        for req in recent_single_requests:
-            recent_requests_data.append({
-                'id': req.id,
-                'item': req.supply.supply_name,
-                'quantity': req.quantity,
-                'status': req.status,
-                'date': req.request_date,
-                'purpose': req.purpose,
-                'type': 'single'
-            })
-        
-        # Sort by date
-        recent_requests_data.sort(key=lambda x: x['date'], reverse=True)
-        recent_requests_data = recent_requests_data[:5]  # Keep only 5 most recent
-        
-        return render(request, self.template_name, {
-            'cart_items': cart_items,
-            'available_supplies': available_supplies,
-            'recent_requests': recent_requests_data
-        })
-
-    def post(self, request):
-        # This method is now handled by the new cart-based views in app.views
-        # Redirect to the main supply request page
-        return redirect('create_supply_request')
-
-
 class UserReserveView(PermissionRequiredMixin, TemplateView):
     template_name = 'userpanel/user_reserve.html'
     permission_required = 'app.view_user_module'
@@ -259,15 +213,19 @@ class UserReserveView(PermissionRequiredMixin, TemplateView):
         cart_items_data = []
         for item in cart_items:
             try:
+                if 'property_id' not in item:
+                    continue
+                    
                 property_obj = Property.objects.get(id=item['property_id'])
-                cart_items_data.append({
+                enriched_item = {
                     'supply': property_obj,  # Using 'supply' for template consistency
                     'quantity': item['quantity'],
-                    'needed_date': datetime.strptime(item['needed_date'], '%Y-%m-%d').date() if item['needed_date'] else None,
-                    'return_date': datetime.strptime(item['return_date'], '%Y-%m-%d').date() if item['return_date'] else None,
-                    'purpose': item['purpose']
-                })
-            except Property.DoesNotExist:
+                    'needed_date': datetime.strptime(item['needed_date'], '%Y-%m-%d').date() if item.get('needed_date') else None,
+                    'return_date': datetime.strptime(item['return_date'], '%Y-%m-%d').date() if item.get('return_date') else None,
+                    'purpose': item.get('purpose', '')
+                }
+                cart_items_data.append(enriched_item)
+            except (Property.DoesNotExist, KeyError, ValueError) as e:
                 continue
         
         # Get available properties for the dropdown
@@ -633,6 +591,35 @@ def cancel_supply_request(request, request_id):
 
 @login_required
 @require_POST
+def cancel_batch_supply_request(request, request_id):
+    batch_request = get_object_or_404(SupplyRequestBatch, id=request_id, user=request.user)
+    
+    # Only allow cancellation if request is pending
+    if batch_request.status == 'pending':
+        batch_request.status = 'cancelled'
+        batch_request.save()
+        
+        # Log the cancellation
+        ActivityLog.log_activity(
+            user=request.user,
+            action='cancel',
+            model_name='SupplyRequestBatch',
+            object_repr=f"Batch Request #{batch_request.id}",
+            description=f"Cancelled batch supply request with {batch_request.items.count()} items"
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Batch request cancelled successfully'
+        })
+    
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Request cannot be cancelled'
+    }, status=400)
+
+@login_required
+@require_POST
 def cancel_borrow_request(request, request_id):
     borrow_request = get_object_or_404(BorrowRequest, id=request_id, user=request.user)
     
@@ -646,6 +633,33 @@ def cancel_borrow_request(request, request_id):
             model_name='BorrowRequest',
             object_repr=str(borrow_request.property.property_name),
             description=f"Cancelled borrow request for {borrow_request.quantity} units of {borrow_request.property.property_name}"
+        )
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Request cancelled successfully'
+        })
+    
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Request cannot be cancelled'
+    }, status=400)
+
+@login_required
+@require_POST
+def cancel_batch_borrow_request(request, request_id):
+    batch_request = get_object_or_404(BorrowRequestBatch, id=request_id, user=request.user)
+    
+    if batch_request.status == 'pending':
+        batch_request.status = 'cancelled'
+        batch_request.save()
+        
+        ActivityLog.log_activity(
+            user=request.user,
+            action='cancel',
+            model_name='BorrowRequestBatch',
+            object_repr=f"Batch Request #{batch_request.id}",
+            description=f"Cancelled batch borrow request with {batch_request.items.count()} items"
         )
         
         return JsonResponse({
@@ -1256,3 +1270,349 @@ class UserProfileView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView)
         context = self.get_context_data()
         context['form'] = form
         return render(request, self.template_name, context)
+
+
+class UserAllRequestsView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
+    """View for users to view all their requests with filtering capabilities"""
+    template_name = 'userpanel/user_all_requests.html'
+    permission_required = 'app.view_user_module'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get filter parameters from request
+        request_type = self.request.GET.get('type', 'all')
+        status_filter = self.request.GET.get('status', 'all')
+        search_query = self.request.GET.get('search', '')
+        
+        # Initialize combined requests list
+        all_requests = []
+        
+        # Get Supply Requests (batch and single)
+        if request_type in ['all', 'supply']:
+            # Batch supply requests
+            batch_supply_requests = SupplyRequestBatch.objects.filter(
+                user=self.request.user
+            ).select_related('user').prefetch_related('items__supply')
+            
+            for req in batch_supply_requests:
+                # Create items summary
+                items_summary = []
+                for item in req.items.all()[:3]:  # Show first 3 items
+                    items_summary.append(f"{item.supply.supply_name} (x{item.quantity})")
+                
+                if req.items.count() > 3:
+                    items_summary.append(f"and {req.items.count() - 3} more items")
+                
+                request_data = {
+                    'id': f"SB-{req.id}",
+                    'type': 'Supply Request (Batch)',
+                    'item_name': ", ".join(items_summary),
+                    'quantity': req.total_quantity,
+                    'status': req.get_status_display(),
+                    'status_raw': req.status,
+                    'date': req.request_date,
+                    'purpose': req.purpose,
+                    'can_cancel': req.status == 'pending',
+                    'model_type': 'batch_supply',
+                    'real_id': req.id
+                }
+                all_requests.append(request_data)
+            
+            # Single supply requests (legacy)
+            single_supply_requests = SupplyRequest.objects.filter(
+                user=self.request.user
+            ).select_related('user', 'supply')
+            
+            for req in single_supply_requests:
+                request_data = {
+                    'id': f"S-{req.id}",
+                    'type': 'Supply Request',
+                    'item_name': req.supply.supply_name,
+                    'quantity': req.quantity,
+                    'status': req.get_status_display(),
+                    'status_raw': req.status,
+                    'date': req.request_date,
+                    'purpose': req.purpose,
+                    'can_cancel': req.status == 'pending',
+                    'model_type': 'supply',
+                    'real_id': req.id
+                }
+                all_requests.append(request_data)
+        
+        # Get Borrow Requests (batch and single)
+        if request_type in ['all', 'borrow']:
+            # Batch borrow requests
+            batch_borrow_requests = BorrowRequestBatch.objects.filter(
+                user=self.request.user
+            ).select_related('user').prefetch_related('items__property')
+            
+            for req in batch_borrow_requests:
+                # Create items summary
+                items_summary = []
+                for item in req.items.all()[:3]:  # Show first 3 items
+                    items_summary.append(f"{item.property.property_name} (x{item.quantity})")
+                
+                if req.items.count() > 3:
+                    items_summary.append(f"and {req.items.count() - 3} more items")
+                
+                request_data = {
+                    'id': f"BB-{req.id}",
+                    'type': 'Borrow Request (Batch)',
+                    'item_name': ", ".join(items_summary),
+                    'quantity': req.total_quantity,
+                    'status': req.get_status_display(),
+                    'status_raw': req.status,
+                    'date': req.request_date,
+                    'purpose': req.purpose,
+                    'return_date': req.latest_return_date,
+                    'can_cancel': req.status == 'pending',
+                    'model_type': 'batch_borrow',
+                    'real_id': req.id
+                }
+                all_requests.append(request_data)
+            
+            # Single borrow requests (legacy)
+            single_borrow_requests = BorrowRequest.objects.filter(
+                user=self.request.user
+            ).select_related('user', 'property')
+            
+            for req in single_borrow_requests:
+                request_data = {
+                    'id': f"B-{req.id}",
+                    'type': 'Borrow Request',
+                    'item_name': req.property.property_name,
+                    'quantity': req.quantity,
+                    'status': req.get_status_display(),
+                    'status_raw': req.status,
+                    'date': req.borrow_date,
+                    'purpose': req.purpose,
+                    'return_date': req.return_date,
+                    'can_cancel': req.status == 'pending',
+                    'model_type': 'borrow',
+                    'real_id': req.id
+                }
+                all_requests.append(request_data)
+        
+        # Get Reservations
+        if request_type in ['all', 'reservation']:
+            reservations = Reservation.objects.filter(
+                user=self.request.user
+            ).select_related('user', 'item')
+            
+            for req in reservations:
+                request_data = {
+                    'id': f"R-{req.id}",
+                    'type': 'Reservation',
+                    'item_name': req.item.property_name,
+                    'quantity': req.quantity,
+                    'status': req.get_status_display(),
+                    'status_raw': req.status,
+                    'date': req.reservation_date,
+                    'purpose': req.purpose,
+                    'needed_date': req.needed_date,
+                    'return_date': req.return_date,
+                    'can_cancel': req.status == 'pending',
+                    'model_type': 'reservation',
+                    'real_id': req.id
+                }
+                all_requests.append(request_data)
+        
+        # Apply status filter
+        if status_filter != 'all':
+            all_requests = [req for req in all_requests if req['status_raw'] == status_filter]
+        
+        # Apply search filter
+        if search_query:
+            search_query = search_query.lower()
+            all_requests = [
+                req for req in all_requests
+                if (search_query in req['item_name'].lower() or 
+                    search_query in req['purpose'].lower() or
+                    search_query in req['type'].lower())
+            ]
+        
+        # Sort by date (most recent first)
+        all_requests.sort(key=lambda x: x['date'], reverse=True)
+        
+        # Get unique statuses for filter dropdown
+        unique_statuses = set()
+        for req in all_requests:
+            unique_statuses.add((req['status_raw'], req['status']))
+        unique_statuses = sorted(list(unique_statuses))
+        
+        # Pagination
+        paginator = Paginator(all_requests, 10)  # Show 10 requests per page
+        page_number = self.request.GET.get('page', 1)
+        
+        try:
+            page_obj = paginator.get_page(page_number)
+        except:
+            page_obj = paginator.get_page(1)
+        
+        context.update({
+            'all_requests': page_obj.object_list,
+            'page_obj': page_obj,
+            'paginator': paginator,
+            'is_paginated': paginator.num_pages > 1,
+            'request_type': request_type,
+            'status_filter': status_filter,
+            'search_query': search_query,
+            'unique_statuses': unique_statuses,
+            'total_requests': len(all_requests)
+        })
+        
+        return context
+
+
+@login_required
+def request_detail(request, type, request_id):
+    """View to show detailed information about a specific request"""
+    try:
+        if type == 'supply':
+            request_obj = get_object_or_404(SupplyRequest, id=request_id, user=request.user)
+            template = 'userpanel/request_detail.html'
+            context = {
+                'request_obj': request_obj,
+                'request_type': 'Supply Request',
+                'items': [{'item': request_obj.supply, 'quantity': request_obj.quantity}],
+                'is_batch': False
+            }
+        elif type == 'batch_supply':
+            request_obj = get_object_or_404(SupplyRequestBatch, id=request_id, user=request.user)
+            template = 'userpanel/request_detail.html'
+            items = request_obj.items.select_related('supply').all()
+            context = {
+                'request_obj': request_obj,
+                'request_type': 'Supply Request (Batch)',
+                'items': [{'item': item.supply, 'quantity': item.quantity} for item in items],
+                'is_batch': True
+            }
+        elif type == 'borrow':
+            request_obj = get_object_or_404(BorrowRequest, id=request_id, user=request.user)
+            template = 'userpanel/request_detail.html'
+            context = {
+                'request_obj': request_obj,
+                'request_type': 'Borrow Request',
+                'items': [{'item': request_obj.property, 'quantity': request_obj.quantity}],
+                'is_batch': False
+            }
+        elif type == 'batch_borrow':
+            request_obj = get_object_or_404(BorrowRequestBatch, id=request_id, user=request.user)
+            template = 'userpanel/request_detail.html'
+            items = request_obj.items.select_related('property').all()
+            context = {
+                'request_obj': request_obj,
+                'request_type': 'Borrow Request (Batch)',
+                'items': [{'item': item.property, 'quantity': item.quantity} for item in items],
+                'is_batch': True
+            }
+        elif type == 'reservation':
+            request_obj = get_object_or_404(Reservation, id=request_id, user=request.user)
+            template = 'userpanel/request_detail.html'
+            context = {
+                'request_obj': request_obj,
+                'request_type': 'Reservation',
+                'items': [{'item': request_obj.item, 'quantity': request_obj.quantity}],
+                'is_batch': False
+            }
+        else:
+            messages.error(request, 'Invalid request type.')
+            return redirect('user_all_requests')
+            
+        return render(request, template, context)
+        
+    except Exception as e:
+        messages.error(request, f'Request not found or access denied.')
+        return redirect('user_all_requests')
+
+
+@login_required 
+def request_again(request):
+    """View to handle request again functionality"""
+    request_type = request.GET.get('type')
+    request_id = request.GET.get('id')
+    
+    if not request_type or not request_id:
+        messages.error(request, 'Invalid request parameters.')
+        return redirect('user_all_requests')
+    
+    try:
+        if request_type == 'supply':
+            original_request = get_object_or_404(SupplyRequest, id=request_id, user=request.user)
+            # Clear existing cart and add this item
+            cart_item = {
+                'supply_id': original_request.supply.id,
+                'quantity': original_request.quantity
+            }
+            request.session['supply_cart'] = [cart_item]
+            request.session.modified = True
+            messages.success(request, f'Added {original_request.supply.supply_name} to your cart.')
+            return redirect('user_request')
+            
+        elif request_type == 'batch_supply':
+            original_request = get_object_or_404(SupplyRequestBatch, id=request_id, user=request.user)
+            # Clear existing cart and add all items from the batch
+            cart_items = []
+            for item in original_request.items.all():
+                cart_items.append({
+                    'supply_id': item.supply.id,
+                    'quantity': item.quantity
+                })
+            request.session['supply_cart'] = cart_items
+            request.session.modified = True
+            messages.success(request, f'Added {original_request.items.count()} items to your cart.')
+            return redirect('user_request')
+            
+        elif request_type == 'borrow':
+            original_request = get_object_or_404(BorrowRequest, id=request_id, user=request.user)
+            # Clear existing borrow cart and add this item
+            cart_item = {
+                'property_id': original_request.property.id,
+                'quantity': original_request.quantity,
+                'return_date': original_request.return_date.strftime('%Y-%m-%d') if original_request.return_date else None,
+                'purpose': original_request.purpose if hasattr(original_request, 'purpose') else ''
+            }
+            request.session['borrow_cart'] = [cart_item]
+            request.session.modified = True
+            messages.success(request, f'Added {original_request.property.property_name} to your borrow list.')
+            return redirect('user_borrow')
+            
+        elif request_type == 'batch_borrow':
+            original_request = get_object_or_404(BorrowRequestBatch, id=request_id, user=request.user)
+            # Clear existing borrow cart and add all items from the batch
+            borrow_items = []
+            for item in original_request.items.all():
+                borrow_items.append({
+                    'property_id': item.property.id,
+                    'quantity': item.quantity,
+                    'return_date': item.return_date.strftime('%Y-%m-%d') if item.return_date else None,
+                    'purpose': original_request.purpose if hasattr(original_request, 'purpose') else ''
+                })
+            request.session['borrow_cart'] = borrow_items
+            request.session.modified = True
+            messages.success(request, f'Added {original_request.items.count()} items to your borrow list.')
+            return redirect('user_borrow')
+            
+        elif request_type == 'reservation':
+            original_request = get_object_or_404(Reservation, id=request_id, user=request.user)
+            # Clear existing reservation cart and add this item
+            cart_item = {
+                'property_id': original_request.item.id,
+                'quantity': original_request.quantity,
+                'needed_date': original_request.needed_date.strftime('%Y-%m-%d') if original_request.needed_date else None,
+                'return_date': original_request.return_date.strftime('%Y-%m-%d') if original_request.return_date else None,
+                'purpose': original_request.purpose if hasattr(original_request, 'purpose') else ''
+            }
+            request.session['reservation_cart'] = [cart_item]
+            request.session.modified = True
+            messages.success(request, f'Added {original_request.item.property_name} to your reservation list.')
+            return redirect('user_reserve')
+            
+        else:
+            messages.error(request, 'Invalid request type.')
+            return redirect('user_all_requests')
+            
+    except Exception as e:
+        messages.error(request, 'Original request not found or access denied.')
+        return redirect('user_all_requests')
