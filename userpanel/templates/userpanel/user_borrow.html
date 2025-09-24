@@ -148,11 +148,16 @@
                     <div class="request-details">
                         <p class="supply-name">{{ request.item }}{% if request.quantity > 1 %} (x{{ request.quantity }}){% endif %}</p>
                         <p class="quantity">Quantity: {{ request.quantity }}</p>
-                        {% if request.status == 'pending' %}
-                        <button class="btn-cancel-request" data-request-id="{{ request.id }}" data-request-type="borrow">
-                            <i class="fas fa-times"></i> Cancel Request
-                        </button>
-                        {% endif %}
+                        <div class="request-actions">
+                            <button class="btn-request-again" data-request-id="{{ request.id }}" data-request-type="{% if request.type == 'batch' %}batch_borrow{% else %}borrow{% endif %}">
+                                <i class="fas fa-redo"></i> Request Again
+                            </button>
+                            {% if request.status == 'pending' %}
+                            <button class="btn-cancel-request" data-request-id="{{ request.id }}" data-request-type="borrow">
+                                <i class="fas fa-times"></i> Cancel Request
+                            </button>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -577,7 +582,6 @@ body {
 }
 
 .btn-cancel-request {
-    margin-top: 0.75rem;
     padding: 0.5rem 1rem;
     background-color: #dc3545;
     color: white;
@@ -589,10 +593,39 @@ body {
     align-items: center;
     gap: 0.5rem;
     transition: background-color 0.2s ease;
+    min-width: 120px;
+    width: 120px;
 }
 
 .btn-cancel-request:hover {
     background-color: #c82333;
+}
+
+.request-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.btn-request-again {
+    padding: 0.5rem 1rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s ease;
+    min-width: 120px;
+    width: 120px;
+}
+
+.btn-request-again:hover {
+    background-color: #218838;
 }
 
 /* Error styles */
@@ -1222,15 +1255,23 @@ $(document).ready(function() {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Event delegation for cancel buttons
+    // Event delegation for buttons
     const requestsList = document.querySelector('.requests-list');
     if (requestsList) {
         requestsList.addEventListener('click', function(e) {
             const cancelButton = e.target.closest('.btn-cancel-request');
+            const requestAgainButton = e.target.closest('.btn-request-again');
+            
             if (cancelButton) {
                 const requestId = cancelButton.dataset.requestId;
                 const requestType = cancelButton.dataset.requestType;
                 cancelRequest(requestId, requestType);
+            }
+            
+            if (requestAgainButton) {
+                const requestId = requestAgainButton.dataset.requestId;
+                const requestType = requestAgainButton.dataset.requestType;
+                requestAgain(requestId, requestType);
             }
         });
     }
@@ -1288,6 +1329,12 @@ function cancelRequest(requestId, type) {
     .catch(error => {
         showToast('An error occurred while cancelling the borrow request', 'error');
     });
+}
+
+function requestAgain(requestId, type) {
+    // Redirect to the request again URL
+    const url = `{% url 'request_again' %}?type=${type}&id=${requestId}`;
+    window.location.href = url;
 }
 
 // Searchable dropdown functionality

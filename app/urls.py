@@ -38,6 +38,7 @@ from .views import (
     add_to_list,
     remove_from_list,
     update_list_item,
+    clear_supply_list,
     submit_list_request,
     create_borrow_request,
     approve_borrow_request,
@@ -68,6 +69,8 @@ from .views import (
     get_property_by_barcode,
     archive_supply,
     unarchive_supply,
+    download_requisition_slip,
+    view_requisition_slip,
     archive_property,
     unarchive_property,
     ArchivedItemsView,
@@ -140,6 +143,7 @@ urlpatterns = [
     path('add-to-list/', add_to_list, name='add_to_list'),
     path('remove-from-list/', remove_from_list, name='remove_from_list'),
     path('update-list-item/', update_list_item, name='update_list_item'),
+    path('clear-supply-list/', clear_supply_list, name='clear_supply_list'),
     path('submit-list-request/', submit_list_request, name='submit_list_request'),
     path('create-borrow-request/', create_borrow_request, name='create_borrow_request'),
     path('approve-borrow-request/<int:request_id>/', approve_borrow_request, name='approve_borrow_request'),
@@ -153,6 +157,10 @@ urlpatterns = [
     path('mark-notification-read/', mark_notification_as_read_ajax, name='mark_notification_read'),
     path('mark-all-notifications-read/', mark_all_notifications_as_read, name='mark_all_notifications_read'),
     path('clear-all-notifications/', clear_all_notifications, name='clear_all_notifications'),
+    path('get-latest-batch-request/', views.get_latest_batch_request, name='get_latest_batch_request'),
+    path('get-latest-supply-request/', views.get_latest_supply_request, name='get_latest_supply_request'),
+    path('get-latest-damage-report/', views.get_latest_damage_report, name='get_latest_damage_report'),
+    path('get-latest-reservation/', views.get_latest_reservation, name='get_latest_reservation'),
 
     path('api/supply/<int:supply_id>/history/', get_supply_history, name='supply_history'),
     path('api/property/<int:property_id>/history/', get_property_history, name='property_history'),
@@ -186,6 +194,10 @@ urlpatterns = [
     # Claiming workflow URLs
     path('batch-request/<int:batch_id>/claim/', claim_batch_items, name='claim_batch_items'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/claim/', claim_individual_item, name='claim_individual_item'),
+    
+    # Requisition slip PDF URLs
+    path('batch-request/<int:batch_id>/requisition-slip/download/', download_requisition_slip, name='download_requisition_slip'),
+    path('batch-request/<int:batch_id>/requisition-slip/view/', view_requisition_slip, name='view_requisition_slip'),
     
     # Admin Profile
     path('profile/', views.AdminProfileView.as_view(), name='admin_profile'),

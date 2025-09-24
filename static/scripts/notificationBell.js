@@ -10,29 +10,42 @@
     }
 
     function updateBadgeCount(newCount) {
+        const bellWrapper = bell; // Since bell IS the bell-wrapper now
+        const existingBadge = bellWrapper.querySelector('.notification-count');
+        
         if (newCount > 0) {
-            if (countBadge) {
-                countBadge.textContent = newCount;
+            if (existingBadge) {
+                existingBadge.textContent = newCount;
             } else {
                 // Create badge if missing
                 const badge = document.createElement('span');
                 badge.id = 'notificationCount';
                 badge.className = 'notification-count';
                 badge.textContent = newCount;
-                bell.appendChild(badge);
+                bellWrapper.appendChild(badge);
             }
         } else {
-            if (countBadge) countBadge.remove();
+            if (existingBadge) existingBadge.remove();
         }
     }
 
     function markAsRead(notificationItem) {
         if (notificationItem.classList.contains('unread')) {
             notificationItem.classList.remove('unread');
-            let count = countBadge ? parseInt(countBadge.textContent) : 0;
+            
+            // Remove unread indicator
+            const unreadIndicator = notificationItem.querySelector('.unread-indicator');
+            if (unreadIndicator) {
+                unreadIndicator.remove();
+            }
+            
+            // Update count
+            const currentBadge = document.getElementById('notificationCount');
+            let count = currentBadge ? parseInt(currentBadge.textContent) : 0;
             updateBadgeCount(count - 1);
+            
             const notificationId = notificationItem.dataset.id;
-            fetch('/notifications/mark-as-read/', {
+            fetch('/mark-notification-read/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -51,10 +64,21 @@
     function markAllRead() {
         const unreadItems = dropdown.querySelectorAll('.notification-item.unread');
         if (unreadItems.length === 0) return;
+        
         const ids = Array.from(unreadItems).map(item => item.dataset.id);
-        unreadItems.forEach(item => item.classList.remove('unread'));
+        
+        // Update UI immediately
+        unreadItems.forEach(item => {
+            item.classList.remove('unread');
+            const unreadIndicator = item.querySelector('.unread-indicator');
+            if (unreadIndicator) {
+                unreadIndicator.remove();
+            }
+        });
         updateBadgeCount(0);
-        fetch('/notifications/mark-all-read/', {
+        
+        // Send request to backend
+        fetch('/mark-all-notifications-read/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -64,21 +88,40 @@
         })
         .then(response => response.json())
         .then(data => {
-            if (!data.success) console.error('Failed to mark all notifications as read:', data.error);
+            if (!data.success) {
+                console.error('Failed to mark all notifications as read:', data.error);
+                // Revert UI changes if request failed
+                location.reload();
+            }
         })
-        .catch(error => console.error('Error marking all notifications as read:', error));
+        .catch(error => {
+            console.error('Error marking all notifications as read:', error);
+            // Revert UI changes if request failed
+            location.reload();
+        });
     }
 
     function clearAll() {
         const container = document.getElementById('notificationsContainer');
-        dropdown.querySelectorAll('.notification-item').forEach(item => item.remove());
+        const allItems = dropdown.querySelectorAll('.notification-item');
+        
+        // Update UI immediately
+        allItems.forEach(item => item.remove());
+        
         const noMsg = document.createElement('div');
         noMsg.className = 'notification-item no-notifications';
         noMsg.id = 'noNotificationsMsg';
-        noMsg.textContent = 'No notifications.';
+        noMsg.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-bell-slash"></i>
+                <p>No notifications</p>
+            </div>
+        `;
         container.appendChild(noMsg);
         updateBadgeCount(0);
-        fetch('/notifications/clear-all/', {
+        
+        // Send request to backend
+        fetch('/clear-all-notifications/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -87,9 +130,17 @@
         })
         .then(response => response.json())
         .then(data => {
-            if (!data.success) console.error('Failed to clear notifications:', data.error);
+            if (!data.success) {
+                console.error('Failed to clear notifications:', data.error);
+                // Revert UI changes if request failed
+                location.reload();
+            }
         })
-        .catch(error => console.error('Error clearing notifications:', error));
+        .catch(error => {
+            console.error('Error clearing notifications:', error);
+            // Revert UI changes if request failed
+            location.reload();
+        });
     }
 
     // **Add stopPropagation here!**

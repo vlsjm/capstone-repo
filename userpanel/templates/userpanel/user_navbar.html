@@ -22,6 +22,11 @@
       </a>
     </li>
     <li>
+      <a href="{% url 'user_all_requests' %}">
+        <i class="fas fa-history"></i> All My Requests
+      </a>
+    </li>
+    <li>
       <a href="{% url 'user_report' %}">
         <i class="fas fa-exclamation-triangle"></i> Report
       </a>
@@ -29,22 +34,6 @@
     <li>
       <a href="{% url 'user_profile' %}">
         <i class="fas fa-user"></i> Profile
-      </a>
-    </li>
-    <li>
-      <form
-        id="logout-form"
-        action="{% url 'logout' %}"
-        method="post"
-        style="display: none"
-      >
-        {% csrf_token %}
-      </form>
-      <a
-        href="#"
-        onclick="event.preventDefault(); if (confirm('Are you sure you want to log out?')) { document.getElementById('logout-form').submit(); }"
-      >
-        <i class="fas fa-sign-out-alt"></i> Logout
       </a>
     </li>
   </ul>

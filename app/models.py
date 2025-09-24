@@ -321,6 +321,8 @@ class Property(models.Model):
     overall_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
     location = models.CharField(max_length=255, null=True, blank=True)
+    accountable_person = models.CharField(max_length=255, null=True, blank=True)
+    year_acquired = models.DateField(null=True, blank=True)
     condition = models.CharField(max_length=100, choices=CONDITION_CHOICES, default='In good condition')
     availability = models.CharField(max_length=20, choices=AVAILABILITY_CHOICES, default='available')
     is_archived = models.BooleanField(default=False)
@@ -386,7 +388,7 @@ class Property(models.Model):
             old_obj = Property.objects.get(pk=self.pk)
             fields_to_track = ['property_number', 'property_name', 'category', 'description', 'barcode', 
                              'unit_of_measure', 'unit_value', 'overall_quantity', 'quantity', 
-                             'location', 'condition', 'availability']
+                             'location', 'accountable_person', 'year_acquired', 'condition', 'availability']
             
             for field in fields_to_track:
                 old_value = getattr(old_obj, field)
@@ -467,12 +469,25 @@ class SupplyRequest(models.Model):
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
-                    message=f"New supply request submitted for {self.supply.supply_name} by {self.user.username}",
+                    message=f"New supply request #{self.id} submitted for {self.supply.supply_name} by {self.user.username}",
                     remarks=f"Quantity: {self.quantity}, Purpose: {self.purpose}"
                 )
 
         # Update supply quantity when request is approved
         if old_status != self.status and self.status == 'approved':
+            # Send approval email
+            from .utils import send_supply_request_approval_email
+            send_supply_request_approval_email(
+                user=self.user,
+                supply_name=self.supply.supply_name,
+                requested_quantity=self.quantity,
+                purpose=self.purpose,
+                request_date=self.request_date,
+                approved_date=self.approved_date or timezone.now(),
+                request_id=self.id,
+                remarks=self.remarks or ''
+            )
+            
             try:
                 quantity_info = self.supply.quantity_info
                 if quantity_info.current_quantity >= self.quantity:
@@ -559,7 +574,7 @@ class SupplyRequestBatch(models.Model):
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
-                    message=f"New batch supply request submitted by {self.user.username}",
+                    message=f"New batch supply request #{self.id} submitted by {self.user.username}",
                     remarks=f"Items: {item_list}. Purpose: {self.purpose[:100]}"
                 )
 
@@ -677,7 +692,7 @@ class Reservation(models.Model):
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
-                    message=f"New reservation submitted for {self.item.property_name} by {self.user.username}",
+                    message=f"New reservation #{self.id} submitted for {self.item.property_name} by {self.user.username}",
                     remarks=f"Quantity: {self.quantity}, Needed Date: {self.needed_date}, Return Date: {self.return_date}, Purpose: {self.purpose}"
                 )
 
@@ -801,7 +816,7 @@ class DamageReport(models.Model):
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
-                    message=f"New damage report submitted for {self.item.property_name} by {self.user.username}",
+                    message=f"New damage report #{self.id} submitted for {self.item.property_name} by {self.user.username}",
                     remarks=f"Description: {self.description}"
                 )
 
@@ -1031,7 +1046,7 @@ class BorrowRequestBatch(models.Model):
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
-                    message=f"New batch borrow request submitted by {self.user.username}",
+                    message=f"New batch borrow request #{self.id} submitted by {self.user.username}",
                     remarks=f"Items: {item_list}. Purpose: {self.purpose[:100]}"
                 )
 

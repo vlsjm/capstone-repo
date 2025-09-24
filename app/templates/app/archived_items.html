@@ -393,6 +393,8 @@
                         <th><i class="fas fa-file-alt"></i> Description</th>
                         <th><i class="fas fa-folder"></i> Category</th>
                         <th><i class="fas fa-map-marker-alt"></i> Location</th>
+                        <th><i class="fas fa-user"></i> Accountable Person</th>
+                        <th><i class="fas fa-calendar"></i> Year Acquired</th>
                         <th><i class="fas fa-info-circle"></i> Condition</th>
                         <th><i class="fas fa-cogs"></i> Actions</th>
                     </tr>
@@ -414,6 +416,8 @@
                                 <td>{{ property.description|default:"N/A" }}</td>
                                 <td>{{ property.category|default:"Uncategorized" }}</td>
                                 <td>{{ property.location|default:"N/A" }}</td>
+                                <td>{{ property.accountable_person|default:"N/A" }}</td>
+                                <td>{{ property.year_acquired|date:"M d, Y"|default:"N/A" }}</td>
                                 <td>
                                     {% if property.condition == 'In good condition' %}
                                         <span class="status-badge condition-good">{{ property.get_condition_display }}</span>

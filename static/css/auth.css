@@ -34,9 +34,10 @@ body {
 
 .body-register .auth-container form {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Two columns for register form */
+  grid-template-columns: 1fr 1fr;
+  /* Two columns for register form */
   gap: 20px;
-  grid-auto-rows: minmax(40px, auto); 
+  grid-auto-rows: minmax(40px, auto);
 }
 
 
@@ -48,6 +49,14 @@ body {
 .form-group label {
   margin-bottom: 5px;
   font-weight: bold;
+}
+
+/* Required field asterisk styling */
+.required-asterisk {
+  color: #dc3545;
+  font-weight: bold;
+  margin-left: 3px;
+  font-size: 1em;
 }
 
 .form-group input {
@@ -67,9 +76,11 @@ body {
 .errorlist li {
   list-style-type: none;
 }
+
 .errorlist li::before {
-  content: "⚠️ "; 
+  content: "⚠️ ";
 }
+
 button {
   padding: 12px;
   font-size: 16px;
@@ -78,13 +89,15 @@ button {
   cursor: pointer;
 }
 
-.register-btn, .login-btn {
-  grid-column: span 2; 
+.register-btn,
+.login-btn {
+  grid-column: span 2;
   background-color: #152d64;
   color: white;
 }
 
-.register-btn:hover, .login-btn:hover {
+.register-btn:hover,
+.login-btn:hover {
   background-color: #152d64;
 }
 

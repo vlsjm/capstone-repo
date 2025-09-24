@@ -68,6 +68,8 @@ class PropertyForm(forms.ModelForm):
             'overall_quantity',
             'quantity',
             'location',
+            'accountable_person',
+            'year_acquired',
             'condition',
         ]
         widgets = {
@@ -78,6 +80,8 @@ class PropertyForm(forms.ModelForm):
             'quantity': forms.NumberInput(attrs={'min': 0, 'readonly': True}),
             'category': forms.Select(attrs={'class': 'select2'}), 
             'condition': forms.Select(attrs={'class': 'form-select'}),
+            'accountable_person': forms.TextInput(attrs={'placeholder': 'Enter accountable person name'}),
+            'year_acquired': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -89,6 +93,8 @@ class PropertyForm(forms.ModelForm):
             self.fields[field].required = True
 
         self.fields['property_number'].required = False
+        self.fields['accountable_person'].required = False
+        self.fields['year_acquired'].required = False
 
         # Handle quantity logic
         if not self.instance.pk:
@@ -348,6 +354,16 @@ class ReservationForm(forms.ModelForm):
 
 
 class AdminProfileUpdateForm(forms.Form):
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your username'
+        }),
+        help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'
+    )
+    
     first_name = forms.CharField(
         max_length=30,
         required=True,
@@ -415,6 +431,7 @@ class AdminProfileUpdateForm(forms.Form):
         
         # Pre-populate fields with current user data
         if not kwargs.get('data'):
+            self.initial['username'] = user.username
             self.initial['first_name'] = user.first_name
             self.initial['last_name'] = user.last_name
             self.initial['email'] = user.email
@@ -424,6 +441,22 @@ class AdminProfileUpdateForm(forms.Form):
             if user_profile:
                 self.initial['phone'] = user_profile.phone
     
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '').strip()
+        if not username:
+            raise forms.ValidationError("Username is required.")
+        
+        # Check if username is already taken by another user
+        if User.objects.filter(username=username).exclude(pk=self.user.pk).exists():
+            raise forms.ValidationError("This username is already taken.")
+        
+        # Validate username format (Django's default validation)
+        import re
+        if not re.match(r'^[\w.@+-]+$', username):
+            raise forms.ValidationError("Username may only contain letters, numbers, and @/./+/-/_ characters.")
+        
+        return username
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if email and User.objects.filter(email=email).exclude(pk=self.user.pk).exists():

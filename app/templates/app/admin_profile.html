@@ -42,12 +42,35 @@
             </div>
         {% endif %}
 
+        <!-- Username Field -->
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}">
+                <i class="fas fa-at icon-label"></i>
+                {{ form.username.label }}
+                <span class="required-asterisk">*</span>
+            </label>
+            <input type="text" 
+                   name="{{ form.username.name }}" 
+                   id="{{ form.username.id_for_label }}"
+                   value="{{ form.username.value|default:'' }}"
+                   placeholder="{{ form.username.field.widget.attrs.placeholder }}"
+                   class="form-control {% if form.username.errors %}error{% endif %}"
+                   required>
+            {% if form.username.help_text %}
+                <small class="form-text text-muted">{{ form.username.help_text }}</small>
+            {% endif %}
+            {% if form.username.errors %}
+                <span class="error-text">{{ form.username.errors.0 }}</span>
+            {% endif %}
+        </div>
+
         <!-- Name Fields in a Row -->
         <div class="form-row">
             <div class="form-group">
                 <label for="{{ form.first_name.id_for_label }}">
                     <i class="fas fa-user icon-label"></i>
                     {{ form.first_name.label }}
+                    <span class="required-asterisk">*</span>
                 </label>
                 <input type="text" 
                        name="{{ form.first_name.name }}" 
@@ -65,6 +88,7 @@
                 <label for="{{ form.last_name.id_for_label }}">
                     <i class="fas fa-user icon-label"></i>
                     {{ form.last_name.label }}
+                    <span class="required-asterisk">*</span>
                 </label>
                 <input type="text" 
                        name="{{ form.last_name.name }}" 
@@ -85,6 +109,7 @@
                 <label for="{{ form.email.id_for_label }}">
                     <i class="fas fa-envelope icon-label"></i>
                     {{ form.email.label }}
+                    <span class="required-asterisk">*</span>
                 </label>
                 <input type="email" 
                        name="{{ form.email.name }}" 

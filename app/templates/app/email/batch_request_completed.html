@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Batch Request Processed - ResourceHive</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #152d64;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .content {
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .info-box {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+        }
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .button {
+            display: inline-block;
+            background-color: #152d64;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .details-table th,
+        .details-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .details-table th {
+            background-color: #f2f2f2;
+        }
+        .item-list {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .item-approved {
+            color: #155724;
+            font-weight: bold;
+        }
+        .item-rejected {
+            color: #721c24;
+            font-weight: bold;
+        }
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .stat-box {
+            text-align: center;
+            padding: 10px;
+        }
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ResourceHive</h1>
+        <h2>Batch Request Processed</h2>
+    </div>
+
+    <div class="content">
+        {% if has_approved_items and not has_rejected_items %}
+            <div class="success">
+                <strong>Great news!</strong> All items in your batch request have been approved and are ready for claiming.
+            </div>
+        {% elif has_approved_items and has_rejected_items %}
+            <div class="warning">
+                <strong>Partial approval:</strong> Some items in your batch request have been approved, while others were rejected.
+            </div>
+        {% else %}
+            <div class="danger">
+                <strong>Request rejected:</strong> Unfortunately, all items in your batch request have been rejected.
+            </div>
+        {% endif %}
+
+        <p>Dear {{ user.first_name }} {{ user.last_name }},</p>
+
+        <p>Your batch supply request has been fully processed by our team. Here's a summary of the results:</p>
+
+        <div class="info-box">
+            <h3>Batch Request Details:</h3>
+            <table class="details-table">
+                <tr>
+                    <th>Batch Request ID</th>
+                    <td>#{{ batch_request.id }}</td>
+                </tr>
+                <tr>
+                    <th>Purpose</th>
+                    <td>{{ batch_request.purpose }}</td>
+                </tr>
+                <tr>
+                    <th>Request Date</th>
+                    <td>{{ batch_request.request_date|date:"F j, Y g:i A" }}</td>
+                </tr>
+                <tr>
+                    <th>Processed Date</th>
+                    <td>{{ batch_request.approved_date|date:"F j, Y g:i A"|default:"Today" }}</td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td>{{ batch_request.get_status_display }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="summary-stats">
+            <div class="stat-box">
+                <span class="stat-number" style="color: #155724;">{{ total_approved }}</span>
+                <span>Approved</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" style="color: #721c24;">{{ total_rejected }}</span>
+                <span>Rejected</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" style="color: #333;">{{ total_items }}</span>
+                <span>Total Items</span>
+            </div>
+        </div>
+
+        {% if has_approved_items %}
+        <div class="info-box">
+            <h3>✅ Approved Items:</h3>
+            <div class="item-list">
+                {% for item in approved_items %}
+                <p class="item-approved">
+                    • {{ item.supply.supply_name }} 
+                    (Requested: {{ item.quantity }}, Approved: {{ item.approved_quantity|default:item.quantity }})
+                    {% if item.remarks %}
+                    <br><small><em>Note: {{ item.remarks }}</em></small>
+                    {% endif %}
+                </p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if has_rejected_items %}
+        <div class="info-box">
+            <h3>❌ Rejected Items:</h3>
+            <div class="item-list">
+                {% for item in rejected_items %}
+                <p class="item-rejected">
+                    • {{ item.supply.supply_name }} ({{ item.quantity }} units)
+                    {% if item.remarks %}
+                    <br><small><em>Reason: {{ item.remarks }}</em></small>
+                    {% endif %}
+                </p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if has_approved_items %}
+        <div class="info-box">
+            <h3>Next Steps:</h3>
+            {% if batch_request.status == 'for_claiming' %}
+            <p>Your approved items are now ready for claiming. Please visit the Supply Office to claim your supplies.</p>
+            <p><strong>Important:</strong> Please claim your approved supplies promptly to ensure availability.</p>
+            {% else %}
+            <p>You can view the full details of your batch request in your dashboard.</p>
+            {% endif %}
+            
+            <!-- Requisition Slip Information -->
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-top: 15px; border-left: 4px solid #152d64;">
+                <h4 style="margin: 0 0 10px 0; color: #152d64;">📄 Requisition & Issue Slip Available</h4>
+                <p style="margin: 0;">Your official requisition and issue slip has been automatically generated and is now available for download. This document serves as your receipt and proof of the approved supply request.</p>
+                <p style="margin: 10px 0 0 0;"><strong>Access your slip:</strong> Log in to your dashboard to download or view the requisition slip PDF document.</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        <p>This is an automated message from ResourceHive.</p>
+        <p>If you have any questions about this batch request, please contact the system administrator.</p>
+        <p>&copy; {{ current_year }} ResourceHive. All rights reserved.</p>
+    </div>
+</body>
+</html>

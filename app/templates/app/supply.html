@@ -1,4 +1,5 @@
 {% load static %}
+{% load currency_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -277,10 +278,153 @@ tr.hidden {
 /* Update search container styles */
 .top-controls {
   display: flex;
-  justify-content: space-between;
+  flex-direction: row;
   align-items: center;
-  margin: 20px 0;
-  gap: 20px;
+  gap: 15px;
+  margin-bottom: 20px;
+  justify-content: space-between;
+}
+
+.top-controls .search-container {
+  flex: 0 0 auto;
+}
+
+.top-controls .simple-filter-container {
+  flex: 0 0 auto;
+}
+
+/* Simple Filter Styles */
+.simple-filter-container {
+  position: relative;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.simple-filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #f8f9fa;
+  border: 2px solid #e1e5e9;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.simple-filter-toggle:hover {
+  background: #fff;
+  border-color: #152d64;
+  color: #152d64;
+}
+
+.simple-filter-toggle.active {
+  background: #152d64;
+  border-color: #152d64;
+  color: white;
+}
+
+.filter-count {
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+}
+
+.filter-count:empty {
+  display: none;
+}
+
+.filter-chevron {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.simple-filter-toggle.active .filter-chevron {
+  transform: rotate(180deg);
+}
+
+.simple-filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 280px;
+  max-height: 400px;
+  overflow-y: auto;
+  display: none;
+  margin-top: 4px;
+}
+
+.simple-filter-dropdown.show {
+  display: block;
+}
+
+.simple-filter-group {
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.simple-filter-group:last-child {
+  border-bottom: none;
+}
+
+.simple-filter-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  font-weight: 600;
+  font-size: 13px;
+  color: #495057;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.simple-filter-options {
+  padding: 8px 0;
+}
+
+.simple-filter-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin: 0;
+  font-weight: normal;
+}
+
+.simple-filter-option:hover {
+  background: #f8f9fa;
+}
+
+.simple-filter-option input[type="checkbox"],
+.simple-filter-option input[type="radio"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.filter-text {
+  font-size: 14px;
+  color: #495057;
+  user-select: none;
 }
 
 .button-container {
@@ -621,6 +765,190 @@ tr.hidden {
 .button-group form {
   margin: 0;
 }
+
+/* Actions Dropdown Styles */
+.actions-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.actions-dropdown-toggle {
+  background-color: #152d64;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 36px;
+}
+
+.actions-dropdown-toggle:hover {
+  background-color: #1a3a7a;
+  transform: translateY(-1px);
+}
+
+.actions-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  margin-top: 5px;
+}
+
+.actions-dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.actions-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.actions-dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.actions-dropdown-item.success:hover {
+  background-color: #218838;
+  color: white;
+}
+
+.actions-dropdown-item:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.actions-dropdown-item:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
+.actions-dropdown-item i {
+  width: 16px;
+  text-align: center;
+}
+
+/* Different colors for different action types */
+.actions-dropdown-item.primary { color: #152d64; }
+.actions-dropdown-item.secondary { color: #4a5568; }
+.actions-dropdown-item.success { 
+  color: white; 
+  font-weight: 700; 
+  background-color: #28a745;
+}
+
+/* Table Actions Dropdown - Smaller version */
+.table-actions-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.table-actions-dropdown-toggle {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.table-actions-dropdown-toggle:hover {
+  background-color: #5a6268;
+}
+
+.table-actions-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 150px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  margin-top: 5px;
+}
+
+.table-actions-dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.table-actions-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  color: #333;
+  text-decoration: none;
+  font-size: 13px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.table-actions-dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.table-actions-dropdown-item:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.table-actions-dropdown-item:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
+.table-actions-dropdown-item i {
+  width: 14px;
+  text-align: center;
+}
+
+.table-actions-dropdown-item.edit { color: #152d64; }
+.table-actions-dropdown-item.history { color: #4a5568; }
+.table-actions-dropdown-item.print { color: #28a745; }
+.table-actions-dropdown-item.modify { color: #28a745; }
   </style>
 </head>
 <body>
@@ -649,129 +977,233 @@ tr.hidden {
       <div class="content">
         <!-- Add search input above the buttons -->
         <div class="top-controls">
-          <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="searchInput" class="search-input" placeholder="Search supplies...">
+          <div class="search-filter-group" style="display: flex; align-items: center; gap: 8px;">
+            <!-- Main Search Bar -->
+            <div class="search-container">
+              <div style="position: relative; display: inline-block; width: 100%; max-width: 420px;">
+                <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; font-size: 14px;"></i>
+                <input type="text" id="searchInput" placeholder="Search supplies..." 
+                       style="width: 100%; padding: 10px 16px 10px 40px; border: 2px solid #e1e5e9; border-radius: 6px; font-size: 14px; transition: border-color 0.3s ease;">
+              </div>
+            </div>
+            
+            <div class="simple-filter-container">
+              <button id="filterToggleBtn" class="simple-filter-toggle" type="button">
+                <i class="fas fa-filter"></i> Filters 
+                <span id="activeFilterCount" class="filter-count">0</span>
+                <i class="fas fa-chevron-down filter-chevron"></i>
+              </button>
+              <div id="filterDropdown" class="simple-filter-dropdown">
+
+                <!-- Category Filter -->
+                <div class="simple-filter-group">
+                  <div class="simple-filter-header">
+                    <i class="fas fa-tags"></i> Category
+                  </div>
+                  <div class="simple-filter-options">
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="category" value="" checked>
+                      <span class="filter-text">All Categories</span>
+                    </label>
+                    {% for category in categories %}
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="category" value="{{ category.name }}">
+                      <span class="filter-text">{{ category.name }}</span>
+                    </label>
+                    {% endfor %}
+                  </div>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="simple-filter-group">
+                  <div class="simple-filter-header">
+                    <i class="fas fa-circle"></i> Status
+                  </div>
+                  <div class="simple-filter-options">
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="status" value="" checked>
+                      <span class="filter-text">All Status</span>
+                    </label>
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="status" value="available">
+                      <span class="filter-text">Available</span>
+                    </label>
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="status" value="low_stock">
+                      <span class="filter-text">Low Stock</span>
+                    </label>
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="status" value="out_of_stock">
+                      <span class="filter-text">Out of Stock</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Availability Filter -->
+                <div class="simple-filter-group">
+                  <div class="simple-filter-header">
+                    <i class="fas fa-check-circle"></i> Availability
+                  </div>
+                  <div class="simple-filter-options">
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="availability" value="" checked>
+                      <span class="filter-text">All Availability</span>
+                    </label>
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="availability" value="Yes">
+                      <span class="filter-text">Available for Request</span>
+                    </label>
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="availability" value="No">
+                      <span class="filter-text">Not Available for Request</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Expiry Filter -->
+                <div class="simple-filter-group">
+                  <div class="simple-filter-header">
+                    <i class="fas fa-clock"></i> Expiry
+                  </div>
+                  <div class="simple-filter-options">
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="expiry" value="" checked>
+                      <span class="filter-text">All Expiry</span>
+                    </label>
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="expiry" value="expired">
+                      <span class="filter-text">Expired</span>
+                    </label>
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="expiry" value="expiring_soon">
+                      <span class="filter-text">Expiring Soon (30 days)</span>
+                    </label>
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="expiry" value="not_expired">
+                      <span class="filter-text">Not Expired</span>
+                    </label>
+                    <label class="simple-filter-option">
+                      <input type="checkbox" name="expiry" value="no_expiry">
+                      <span class="filter-text">No Expiry Date</span>
+                    </label>
+                  </div>
+                </div>
+
+              </div>
+            </div>
           </div>
-          <div class="filter-container">
-            <select id="statusFilter" class="filter-select">
-              <option value="">Filter by Status</option>
-              <option value="available">Available</option>
-              <option value="low_stock">Low Stock</option>
-              <option value="out_of_stock">Out of Stock</option>
-            </select>
-            <select id="availabilityFilter" class="filter-select">
-              <option value="">Filter by Availability</option>
-              <option value="Yes">Available for Request</option>
-              <option value="No">Not Available for Request</option>
-            </select>
-            <select id="expiryFilter" class="filter-select">
-              <option value="">Filter by Expiry</option>
-              <option value="expired">Expired</option>
-              <option value="expiring_soon">Expiring Soon (30 days)</option>
-              <option value="not_expired">Not Expired</option>
-              <option value="no_expiry">No Expiry Date</option>
-            </select>
-          </div>
-          <div class="button-group" style="display: flex; gap: 8px;">
+          
+          <div class="button-group" style="display: flex; gap: 8px; align-items: center;">
             <button id="openModalBtn" class="action-btn primary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-plus"></i> Add Supply
             </button>
             <button id="openModifyQuantityModalBtn" class="action-btn secondary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #4a5568; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-edit"></i> Manage Stocks
             </button>
-            <button id="openCategoryModalBtn" class="action-btn primary-btn" onclick="openCategoryModal()" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
-              <i class="fas fa-folder-plus"></i> Add Category
-            </button>
-            <button id="openSubcategoryModalBtn" class="action-btn primary-btn" onclick="openSubcategoryModal()" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
-              <i class="fas fa-folder-tree"></i> Add Subcategory
-            </button>
-            <button id="openExportModalBtn" class="action-btn success-btn" style="display: flex; align-items: center; gap: 6px; background-color: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
-              <i class="fas fa-file-excel"></i> Export to Excel
-            </button>
-            <button onclick="openBarcodeSelectionModal()" class="action-btn primary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
-              <i class="fas fa-print"></i> Print Barcodes
-            </button>
+            
+            <div class="actions-dropdown">
+              <button class="actions-dropdown-toggle" type="button" id="actionsDropdownToggle">
+                <i class="fas fa-ellipsis-h"></i>
+              </button>
+              <div class="actions-dropdown-menu" id="actionsDropdownMenu">
+                <button id="openCategoryModalBtn" class="actions-dropdown-item primary" onclick="openCategoryModal()">
+                  <i class="fas fa-folder-plus"></i> Add Category
+                </button>
+                <button id="openSubcategoryModalBtn" class="actions-dropdown-item primary" onclick="openSubcategoryModal()">
+                  <i class="fas fa-folder-tree"></i> Add Subcategory
+                </button>
+                <button id="openExportModalBtn" class="actions-dropdown-item success">
+                  <i class="fas fa-file-excel"></i> Export to Excel
+                </button>
+                <button onclick="openBarcodeSelectionModal()" class="actions-dropdown-item primary">
+                  <i class="fas fa-print"></i> Print Barcodes
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-    {% if grouped_supplies %}
-      {% for category, page_obj in grouped_supplies.items %}
-        <h3>{{ category }}</h3>
-        <table border="1" class="searchable-table">
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th>Supply Name</th>
-              <th>Description</th>
-              <th>Sub Category</th>
-              <th>Current Quantity</th>
-              <th>Expiration Date</th>
-              <th>Min. Threshold</th>
-              <th>Status</th>
-              <th>Available</th>
-              <th>Barcode</th>
-              <th>Date Received</th>
-              <th>Last Updated</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for supply in page_obj %}
-            <tr>
-              <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
-              <td>{{ supply.supply_name|default:"----" }}</td>
-              <td>{{ supply.description|default:"----" }}</td>
-              <td><strong>{{ supply.subcategory.name|default:"----" }}</strong></td>
-              <td>{{ supply.quantity_info.current_quantity|default:"----" }}</td>
-              <td>
-                {% if supply.expiration_date %}
-                  <div class="expiration-badge 
-                    {% if supply.days_until_expiration < 0 %}expired
-                    {% elif supply.days_until_expiration <= 30 %}nearly-expired
-                    {% else %}not-expired{% endif %}">
-                    {% if supply.days_until_expiration < 0 %}
-                      <i class="fas fa-exclamation-triangle"></i> Expired
-                    {% elif supply.days_until_expiration <= 30 %}
-                      <i class="fas fa-clock"></i> Expires in {{ supply.days_until_expiration }} days
-                    {% else %}
-                      <i class="fas fa-check"></i> {{ supply.expiration_date|date:"M d, Y" }}
-                    {% endif %}
-                  </div>
-                {% else %}
-                  N/A
-                {% endif %}
-              </td>
-              <td>{{ supply.quantity_info.minimum_threshold|default:"----" }}</td>
-              <td>
-                <span class="status-badge status-{{ supply.status }}">
-                  {% if supply.status == 'available' %}
-                    <i class="fas fa-check-circle"></i>
-                  {% elif supply.status == 'low_stock' %}
-                    <i class="fas fa-exclamation-circle"></i>
-                  {% elif supply.status == 'out_of_stock' %}
-                    <i class="fas fa-times-circle"></i>
+    {% if page_obj %}
+      <table border="1" class="searchable-table supply-table">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Supply Name</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Sub Category</th>
+            <th>Current Quantity</th>
+            <th>Expiration Date</th>
+            <th>Min. Threshold</th>
+            <th>Status</th>
+            <th>Available</th>
+            <th>Barcode</th>
+            <th>Date Received</th>
+            <th>Last Updated</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="supply-table-body">
+          {% for supply in page_obj %}
+          <tr data-category="{{ supply.category.name }}">
+            <td class="row-number">{{ page_obj.start_index|add:forloop.counter0 }}</td>
+            <td>{{ supply.supply_name|default:"----" }}</td>
+            <td>{{ supply.description|default:"----" }}</td>
+            <td><strong>{{ supply.category.name|default:"----" }}</strong></td>
+            <td><strong>{{ supply.subcategory.name|default:"----" }}</strong></td>
+            <td>{{ supply.quantity_info.current_quantity|default:"----" }}</td>
+            <td>
+              {% if supply.expiration_date %}
+                <div class="expiration-badge 
+                  {% if supply.days_until_expiration < 0 %}expired
+                  {% elif supply.days_until_expiration <= 30 %}nearly-expired
+                  {% else %}not-expired{% endif %}">
+                  {% if supply.days_until_expiration < 0 %}
+                    <i class="fas fa-exclamation-triangle"></i> Expired
+                  {% elif supply.days_until_expiration <= 30 %}
+                    <i class="fas fa-clock"></i> Expires in {{ supply.days_until_expiration }} days
+                  {% else %}
+                    <i class="fas fa-check"></i> {{ supply.expiration_date|date:"M d, Y" }}
                   {% endif %}
-                  {{ supply.get_status_display }}
-                </span>
-              </td>
-              <td>
-                {% if supply.is_expired %}
-                  Not Available
-                {% else %}
-                  {{ supply.available_for_request|yesno:"Yes,No" }}
+                </div>
+              {% else %}
+                N/A
+              {% endif %}
+            </td>
+            <td>{{ supply.quantity_info.minimum_threshold|default:"----" }}</td>
+            <td>
+              <span class="status-badge status-{{ supply.status }}">
+                {% if supply.status == 'available' %}
+                  <i class="fas fa-check-circle"></i>
+                {% elif supply.status == 'low_stock' %}
+                  <i class="fas fa-exclamation-circle"></i>
+                {% elif supply.status == 'out_of_stock' %}
+                  <i class="fas fa-times-circle"></i>
                 {% endif %}
-              </td>
-               <td>
-                    <div class="barcode-container">
-                      <img src="{{ supply.barcode }}" alt="Barcode for {{ supply.supply_name }}" class="barcode-image">
-                    </div>
-                  </td>
-              <td>{{ supply.date_received|default:"----" }}</td>
-              <td>{{ supply.last_updated|default:"----" }}</td>
-              <td>
-                <div class="button-group" style="display: flex; gap: 6px; justify-content: flex-start;">
-                  <button class="action-btn edit-btn" 
+                {{ supply.get_status_display }}
+              </span>
+            </td>
+            <td>
+              {% if supply.is_expired %}
+                Not Available
+              {% else %}
+                {{ supply.available_for_request|yesno:"Yes,No" }}
+              {% endif %}
+            </td>
+             <td>
+                  <div class="barcode-container">
+                    <img src="{{ supply.barcode }}" alt="Barcode for {{ supply.supply_name }}" class="barcode-image">
+                  </div>
+                </td>
+            <td>{{ supply.date_received|default:"----" }}</td>
+            <td>{{ supply.last_updated|default:"----" }}</td>
+            <td>
+              <div class="table-actions-dropdown">
+                <button class="table-actions-dropdown-toggle" type="button">
+                  <i class="fas fa-ellipsis-h"></i>
+                </button>
+                <div class="table-actions-dropdown-menu">
+                  <button class="table-actions-dropdown-item edit edit-btn" 
                     data-id="{{ supply.id }}"
                     data-name="{{ supply.supply_name }}"
                     data-current-quantity="{{ supply.quantity_info.current_quantity }}"
@@ -780,52 +1212,60 @@ tr.hidden {
                     data-subcategory="{{ supply.subcategory.id }}"
                     data-description="{{ supply.description|default:'' }}"
                     data-date="{{ supply.date_received|date:'Y-m-d' }}"
-                    data-expiration-date="{{ supply.expiration_date|date:'Y-m-d'|default:'' }}"
-                    title="Edit"
-                    style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #152d64; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
-                    <i class="fas fa-edit"></i>
+                    data-expiration-date="{{ supply.expiration_date|date:'Y-m-d'|default:'' }}">
+                    <i class="fas fa-edit"></i> Edit
                   </button>
-
-                  <button class="action-btn history-btn" 
-                    data-id="{{ supply.id }}"
-                    title="View History"
-                    style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #4a5568; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
-                    <i class="fas fa-history"></i>
+                  
+                  <button class="table-actions-dropdown-item history history-btn" 
+                    data-id="{{ supply.id }}">
+                    <i class="fas fa-history"></i> View History
                   </button>
-
-                  <button class="action-btn print-btn" 
+                  
+                  <button class="table-actions-dropdown-item print print-btn" 
                     onclick="printSingleBarcode(this)" 
                     data-barcode="{{ supply.barcode }}"
-                    data-name="{{ supply.supply_name }}"
-                    title="Print Barcode"
-                    style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
-                    <i class="fas fa-print"></i>
+                    data-name="{{ supply.supply_name }}">
+                    <i class="fas fa-print"></i> Print Barcode
                   </button>
-
-                  <form method="post" action="{% url 'archive_supply' supply.id %}" style="display: inline;">
+                  
+                  <form method="post" action="{% url 'archive_supply' supply.id %}" style="display: contents;">
                     {% csrf_token %}
-                    <button type="submit" class="action-btn" 
+                    <button type="submit" class="table-actions-dropdown-item archive" 
                       onclick="return confirm('{% if supply.is_expired %}Are you sure you want to archive this expired supply? This action is allowed even if the quantity is not zero.{% else %}Are you sure you want to archive this supply? This will only be possible if the quantity is zero.{% endif %}');"
-                      title="Archive"
-                      {% if not supply.is_expired and supply.quantity_info.current_quantity > 0 %}disabled{% endif %}
-                      style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background-color: #36b9cc; color: white; border: none; border-radius: 4px; cursor: {% if not supply.is_expired and supply.quantity_info.current_quantity > 0 %}not-allowed{% else %}pointer{% endif %}; transition: all 0.2s; {% if not supply.is_expired and supply.quantity_info.current_quantity > 0 %}opacity: 0.6{% endif %}">
-                      <i class="fas fa-archive"></i>
+                      {% if not supply.is_expired and supply.quantity_info.current_quantity > 0 %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>
+                      <i class="fas fa-archive"></i> Archive
                     </button>
                   </form>
                 </div>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="12">No supplies available in this category.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% with category=category %}
-          {% include 'app/includes/pagination.html' %}
-        {% endwith %}
-      {% endfor %}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="14">No supplies available.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      
+      <!-- Pagination -->
+      <div class="actlog-pagination" style="margin-top: 20px;">
+        <span class="step-links">
+          {% if page_obj.has_previous %}
+            <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">previous</a>
+          {% endif %}
+
+          <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </span>
+
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">last &raquo;</a>
+          {% endif %}
+        </span>
+      </div>
     {% else %}
       <p>No supplies available.</p>
     {% endif %}
@@ -838,7 +1278,71 @@ tr.hidden {
       <h3>Add New Supply</h3>
       <form method="POST" action="{% url 'add_supply' %}" id="addSupplyForm">
         {% csrf_token %}
-        {{ form.as_p }}
+        
+        <!-- Custom form fields with required asterisks -->
+        <div class="form-group">
+          <label for="{{ form.supply_name.id_for_label }}">
+            <i class="fas fa-box"></i> Supply Name
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.supply_name }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.category.id_for_label }}">
+            <i class="fas fa-folder"></i> Category
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.category }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.subcategory.id_for_label }}">
+            <i class="fas fa-folder-tree"></i> Subcategory
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.subcategory }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.description.id_for_label }}">
+            <i class="fas fa-align-left"></i> Description
+          </label>
+          {{ form.description }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.date_received.id_for_label }}">
+            <i class="fas fa-calendar"></i> Date Received
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.date_received }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.expiration_date.id_for_label }}">
+            <i class="fas fa-clock"></i> Expiration Date
+          </label>
+          {{ form.expiration_date }}
+          <small class="help-text">{{ form.expiration_date.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.current_quantity.id_for_label }}">
+            <i class="fas fa-boxes"></i> Current Quantity
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.current_quantity }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.minimum_threshold.id_for_label }}">
+            <i class="fas fa-exclamation-triangle"></i> Minimum Threshold
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.minimum_threshold }}
+        </div>
+
         <button type="submit" class="submit-btn">Submit</button>
       </form>
     </div>
@@ -854,17 +1358,26 @@ tr.hidden {
         <input type="hidden" name="id" id="edit_id" />
         
         <div class="form-group">
-          <label>Supply Name</label>
+          <label>
+            <i class="fas fa-box"></i> Supply Name
+            <span class="required-asterisk">*</span>
+          </label>
           <input type="text" name="supply_name" id="edit_name" required />
         </div>
 
         <div class="form-group">
-          <label>Minimum Threshold</label>
+          <label>
+            <i class="fas fa-exclamation-triangle"></i> Minimum Threshold
+            <span class="required-asterisk">*</span>
+          </label>
           <input type="number" name="minimum_threshold" id="edit_minimum_threshold" required min="0" />
         </div>
 
         <div class="form-group">
-          <label for="edit_category">Category</label>
+          <label for="edit_category">
+            <i class="fas fa-folder"></i> Category
+            <span class="required-asterisk">*</span>
+          </label>
           <select name="category" id="edit_category" class="form-select" required>
             <option value="">Select a category</option>
             {% for category in form.fields.category.queryset %}
@@ -874,8 +1387,11 @@ tr.hidden {
         </div>
 
         <div class="form-group">
-          <label for="edit_subcategory">Subcategory</label>
-          <select name="subcategory" id="edit_subcategory" class="form-select">
+          <label for="edit_subcategory">
+            <i class="fas fa-folder-tree"></i> Subcategory
+            <span class="required-asterisk">*</span>
+          </label>
+          <select name="subcategory" id="edit_subcategory" class="form-select" required>
             <option value="">Select a subcategory</option>
             {% for subcategory in form.fields.subcategory.queryset %}
               <option value="{{ subcategory.id }}">{{ subcategory.name }}</option>
@@ -884,17 +1400,24 @@ tr.hidden {
         </div>
 
         <div class="form-group">
-          <label>Description</label>
+          <label>
+            <i class="fas fa-align-left"></i> Description
+          </label>
           <textarea name="description" id="edit_description" rows="3"></textarea>
         </div>
 
         <div class="form-group">
-          <label>Date Received</label>
+          <label>
+            <i class="fas fa-calendar"></i> Date Received
+            <span class="required-asterisk">*</span>
+          </label>
           <input type="date" name="date_received" id="edit_date" required />
         </div>
 
         <div class="form-group">
-          <label>Expiration Date (Optional)</label>
+          <label>
+            <i class="fas fa-clock"></i> Expiration Date
+          </label>
           <input type="date" name="expiration_date" id="edit_expiration_date" />
           <small class="help-text">Leave empty if the supply does not expire.</small>
         </div>
@@ -1360,6 +1883,58 @@ tr.hidden {
 
 
     document.addEventListener('DOMContentLoaded', function() {
+      // Actions Dropdown Functionality
+      const dropdownToggle = document.getElementById('actionsDropdownToggle');
+      const dropdownMenu = document.getElementById('actionsDropdownMenu');
+
+      if (dropdownToggle && dropdownMenu) {
+        dropdownToggle.addEventListener('click', function(e) {
+          e.stopPropagation();
+          dropdownMenu.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.remove('show');
+          }
+        });
+
+        // Close dropdown when an item is clicked
+        const dropdownItems = dropdownMenu.querySelectorAll('.actions-dropdown-item');
+        dropdownItems.forEach(item => {
+          item.addEventListener('click', function() {
+            dropdownMenu.classList.remove('show');
+          });
+        });
+      }
+
+      // Table Actions Dropdown Functionality
+      document.addEventListener('click', function(e) {
+        // Handle table dropdown toggles
+        if (e.target.closest('.table-actions-dropdown-toggle')) {
+          e.stopPropagation();
+          const toggle = e.target.closest('.table-actions-dropdown-toggle');
+          const menu = toggle.nextElementSibling;
+          
+          // Close all other table dropdowns
+          document.querySelectorAll('.table-actions-dropdown-menu.show').forEach(otherMenu => {
+            if (otherMenu !== menu) {
+              otherMenu.classList.remove('show');
+            }
+          });
+          
+          // Toggle current dropdown
+          menu.classList.toggle('show');
+        }
+        // Close table dropdowns when clicking outside
+        else if (!e.target.closest('.table-actions-dropdown')) {
+          document.querySelectorAll('.table-actions-dropdown-menu.show').forEach(menu => {
+            menu.classList.remove('show');
+          });
+        }
+      });
+
       // Modal Elements
       const addModal = document.getElementById("addSupplyModal");
       const editModal = document.getElementById("editSupplyModal");
@@ -1586,11 +2161,13 @@ tr.hidden {
       const closeExportBtn = document.getElementById("closeExportModalBtn");
 
       // Filter and Search Elements
-      const statusFilter = document.getElementById('statusFilter');
-      const availabilityFilter = document.getElementById('availabilityFilter');
-      const expiryFilter = document.getElementById('expiryFilter');
       const searchInput = document.getElementById('searchInput');
-      const tables = document.getElementsByClassName('searchable-table');
+      const tableBody = document.getElementById('supply-table-body');
+      
+      // Simple Filter Elements
+      const filterToggleBtn = document.getElementById('filterToggleBtn');
+      const filterDropdown = document.getElementById('filterDropdown');
+      const activeFilterCount = document.getElementById('activeFilterCount');
 
       // Function to close all modals
       function closeAllModals() {
@@ -1610,110 +2187,183 @@ tr.hidden {
         });
       }
 
+      // Simple Filter System
+      let activeFilters = {
+        category: [],
+        status: [],
+        availability: [],
+        expiry: []
+      };
+
+      // Toggle filter dropdown
+      if (filterToggleBtn) {
+        filterToggleBtn.addEventListener('click', function() {
+          filterDropdown.classList.toggle('show');
+          filterToggleBtn.classList.toggle('active');
+        });
+      }
+
+      // Close filter dropdown when clicking outside
+      document.addEventListener('click', function(event) {
+        if (!event.target.closest('.simple-filter-container')) {
+          filterDropdown.classList.remove('show');
+          filterToggleBtn.classList.remove('active');
+        }
+      });
+
+      // Handle filter changes
+      document.addEventListener('change', function(event) {
+        if (event.target.matches('.simple-filter-option input')) {
+          const filterType = event.target.name;
+          const filterValue = event.target.value.trim(); // Trim whitespace
+          const isChecked = event.target.checked;
+
+          // Handle "All" options
+          if (filterValue === '') {
+            if (isChecked) {
+              // Uncheck all other options in this group
+              document.querySelectorAll(`input[name="${filterType}"]:not([value=""])`).forEach(input => {
+                input.checked = false;
+              });
+              activeFilters[filterType] = [];
+            }
+          } else {
+            // Uncheck "All" option when selecting specific filters
+            const allOption = document.querySelector(`input[name="${filterType}"][value=""]`);
+            if (allOption) allOption.checked = false;
+
+            if (isChecked) {
+              if (!activeFilters[filterType].includes(filterValue)) {
+                activeFilters[filterType].push(filterValue);
+              }
+            } else {
+              activeFilters[filterType] = activeFilters[filterType].filter(val => val !== filterValue);
+            }
+
+            // If no specific filters selected, check "All"
+            if (activeFilters[filterType].length === 0) {
+              const allOption = document.querySelector(`input[name="${filterType}"][value=""]`);
+              if (allOption) allOption.checked = true;
+            }
+          }
+
+          updateActiveFilterCount();
+          filterAndSearch();
+        }
+      });
+
+      // Update active filter count
+      function updateActiveFilterCount() {
+        const totalActiveFilters = Object.values(activeFilters).reduce((sum, filters) => sum + filters.length, 0);
+        activeFilterCount.textContent = totalActiveFilters;
+        activeFilterCount.style.display = totalActiveFilters > 0 ? 'flex' : 'none';
+      }
+
       // Filter and Search functionality
       function filterAndSearch() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const statusValue = statusFilter.value;
-        const availabilityValue = availabilityFilter.value;
-        const expiryValue = expiryFilter.value;
+        if (!tableBody) return;
 
-        for (let table of tables) {
-          const rows = table.getElementsByTagName('tr');
-          let hasVisibleRows = false;
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const rows = tableBody.getElementsByTagName('tr');
+        let visibleCount = 0;
 
-          // Start from 1 to skip header row
-          for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            const cells = row.getElementsByTagName('td');
-            if (cells.length === 0) continue;
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          const cells = row.getElementsByTagName('td');
+          if (cells.length === 0) continue;
 
-            // Get relevant cells
-            const statusCell = cells[7]; // Status column
-            const availabilityCell = cells[8]; // Availability column
-            const expiryCell = cells[5]; // Expiry Date column
+          let matchesSearch = true;
+          let matchesCategory = true;
+          let matchesStatus = true;
+          let matchesAvailability = true;
+          let matchesExpiry = true;
 
-            let matchesSearch = false;
-            let matchesStatus = !statusValue;
-            let matchesAvailability = !availabilityValue;
-            let matchesExpiry = !expiryValue;
-
-            // Check search term
+          // Search functionality
+          if (searchTerm) {
+            matchesSearch = false;
             for (let cell of cells) {
               if (cell.textContent.toLowerCase().includes(searchTerm)) {
                 matchesSearch = true;
                 break;
               }
             }
+          }
 
-            // Check status
-            if (statusValue) {
-              const statusText = statusCell.textContent.trim().toLowerCase();
-              const statusBadge = statusCell.querySelector('.status-badge');
-              const statusClass = statusBadge ? statusBadge.className : '';
+          // Category filter
+          if (activeFilters.category.length > 0) {
+            const categoryCell = cells[3]; // Category column
+            const categoryText = categoryCell ? categoryCell.textContent.trim() : '';
+            console.log('Category filter - Cell text:', categoryText, 'Active filters:', activeFilters.category);
+            matchesCategory = activeFilters.category.includes(categoryText);
+            console.log('Category match result:', matchesCategory);
+          }
 
-              matchesStatus = statusClass.includes(`status-${statusValue}`) || 
-                            statusText.includes(statusValue.replace('_', ' '));
+          // Status filter
+          if (activeFilters.status.length > 0) {
+            const statusCell = cells[8]; // Status column
+            const statusBadge = statusCell ? statusCell.querySelector('.status-badge') : null;
+            if (statusBadge) {
+              const statusClass = statusBadge.className;
+              matchesStatus = activeFilters.status.some(status => statusClass.includes(`status-${status}`));
+            } else {
+              matchesStatus = false;
             }
+          }
 
-            // Check availability
-            if (availabilityValue) {
-              const availabilityText = availabilityCell.textContent.trim();
-              matchesAvailability = availabilityText === availabilityValue;
-            }
+          // Availability filter
+          if (activeFilters.availability.length > 0) {
+            const availabilityCell = cells[9]; // Availability column
+            const availabilityText = availabilityCell ? availabilityCell.textContent.trim() : '';
+            matchesAvailability = activeFilters.availability.includes(availabilityText);
+          }
 
-            // Check expiry
-            if (expiryValue) {
-              const expiryDiv = expiryCell.querySelector('.expiration-badge');
-              if (expiryValue === 'no_expiry') {
-                matchesExpiry = expiryCell.textContent.trim() === 'N/A';
+          // Expiry filter
+          if (activeFilters.expiry.length > 0) {
+            const expiryCell = cells[6]; // Expiry Date column
+            const expiryDiv = expiryCell ? expiryCell.querySelector('.expiration-badge') : null;
+            matchesExpiry = false;
+
+            activeFilters.expiry.forEach(expiryFilter => {
+              if (expiryFilter === 'no_expiry' && expiryCell && expiryCell.textContent.trim() === 'N/A') {
+                matchesExpiry = true;
               } else if (expiryDiv) {
-                switch(expiryValue) {
+                switch(expiryFilter) {
                   case 'expired':
-                    matchesExpiry = expiryDiv.classList.contains('expired');
+                    if (expiryDiv.classList.contains('expired')) matchesExpiry = true;
                     break;
                   case 'expiring_soon':
-                    matchesExpiry = expiryDiv.classList.contains('nearly-expired');
+                    if (expiryDiv.classList.contains('nearly-expired')) matchesExpiry = true;
                     break;
                   case 'not_expired':
-                    matchesExpiry = expiryDiv.classList.contains('not-expired');
+                    if (expiryDiv.classList.contains('not-expired')) matchesExpiry = true;
                     break;
                 }
               }
-            }
-
-            // Show/hide row based on all filters
-            const shouldShow = matchesSearch && matchesStatus && matchesAvailability && matchesExpiry;
-            row.style.display = shouldShow ? '' : 'none';
-
-            if (shouldShow) {
-              hasVisibleRows = true;
-            }
+            });
           }
 
-          // Show/hide category headers based on whether any rows are visible
-          const categoryHeader = table.previousElementSibling;
-          if (categoryHeader && categoryHeader.tagName === 'H3') {
-            categoryHeader.style.display = hasVisibleRows ? 'block' : 'none';
+          // Show/hide row based on all filters
+          const shouldShow = matchesSearch && matchesCategory && matchesStatus && matchesAvailability && matchesExpiry;
+          row.style.display = shouldShow ? '' : 'none';
+
+          if (shouldShow) {
+            visibleCount++;
+            // Update row number for visible rows
+            const rowNumberCell = cells[0];
+            if (rowNumberCell && rowNumberCell.classList.contains('row-number')) {
+              rowNumberCell.textContent = visibleCount;
+            }
           }
-          table.style.display = hasVisibleRows ? 'table' : 'none';
         }
       }
 
-      // Add event listeners for filters and search
+      // Add event listeners for search
       if (searchInput) {
         searchInput.addEventListener('input', filterAndSearch);
       }
-      if (statusFilter) {
-        statusFilter.addEventListener('change', filterAndSearch);
-      }
-      if (availabilityFilter) {
-        availabilityFilter.addEventListener('change', filterAndSearch);
-      }
-      if (expiryFilter) {
-        expiryFilter.addEventListener('change', filterAndSearch);
-      }
 
       // Initialize filtering
+      updateActiveFilterCount();
       filterAndSearch();
 
       // Add Supply Modal Handling
