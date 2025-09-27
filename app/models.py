@@ -307,7 +307,8 @@ class Property(models.Model):
         ('not_available', 'Not Available'),
     ]
 
-    property_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    property_number = models.CharField(max_length=100, unique=True, null=True, blank=True)  # Old Property Number Assigned
+    new_property_number = models.CharField(max_length=100, unique=True, null=True, blank=True)  # New Property Number
     property_name = models.CharField(max_length=100)
     category = models.ForeignKey(PropertyCategory, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
@@ -320,6 +321,8 @@ class Property(models.Model):
     )
     overall_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
+    quantity_per_physical_count = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
+    quantity_per_property_card = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
     location = models.CharField(max_length=255, null=True, blank=True)
     accountable_person = models.CharField(max_length=255, null=True, blank=True)
     year_acquired = models.DateField(null=True, blank=True)
@@ -334,21 +337,17 @@ class Property(models.Model):
         return self.property_name
 
     def update_availability(self):
-        """Update availability based on condition and quantity"""
+        """Update availability based on condition only"""
         unavailable_conditions = ['Needing repair', 'Unserviceable', 'Obsolete', 'No longer needed']
         
-        # First check condition
+        # Check condition only
         if self.condition in unavailable_conditions:
             if self.availability != 'not_available':
                 self.availability = 'not_available'
                 self.save(update_fields=['availability'])
         else:
-            # Then check quantity (handle None as 0)
-            current_quantity = self.quantity or 0
-            if current_quantity == 0 and self.availability != 'not_available':
-                self.availability = 'not_available'
-                self.save(update_fields=['availability'])
-            elif current_quantity > 0 and self.availability != 'available':
+            # Set to available if condition is good (quantity no longer affects availability)
+            if self.availability != 'available':
                 self.availability = 'available'
                 self.save(update_fields=['availability'])
 
@@ -356,23 +355,22 @@ class Property(models.Model):
         # Get the user from kwargs
         user = kwargs.pop('user', None)
         
-        # If this is a new property or overall_quantity has changed
-        if not self.pk or (self.pk and Property.objects.get(pk=self.pk).overall_quantity != self.overall_quantity):
-            # Set the current quantity equal to overall_quantity if it's a new property
-            # or if overall_quantity has been updated
-            self.quantity = self.overall_quantity
-        
         # Check if this is a new property
         is_new = self.pk is None
 
         if is_new:
-            # Set initial availability based on condition and quantity
+            # Set initial availability based on condition only
             unavailable_conditions = ['Needing repair', 'Unserviceable', 'Obsolete', 'No longer needed']
             if self.condition in unavailable_conditions:
                 self.availability = 'not_available'
             else:
-                self.availability = 'available' if self.quantity >= 1 else 'not_available'
+                self.availability = 'available'
             super().save(*args, **kwargs)
+            
+            # Auto-generate barcode for new properties
+            from .utils import generate_barcode
+            self.barcode = generate_barcode(f"PROP-{self.pk}")
+            super().save(update_fields=['barcode'], *args, **kwargs)
             
             # Create history entry for new property
             if user:
@@ -386,8 +384,8 @@ class Property(models.Model):
         else:
             # For existing properties, track changes
             old_obj = Property.objects.get(pk=self.pk)
-            fields_to_track = ['property_number', 'property_name', 'category', 'description', 'barcode', 
-                             'unit_of_measure', 'unit_value', 'overall_quantity', 'quantity', 
+            fields_to_track = ['property_number', 'new_property_number', 'property_name', 'category', 'description', 'barcode', 
+                             'unit_of_measure', 'unit_value', 'quantity_per_physical_count', 'quantity_per_property_card', 
                              'location', 'accountable_person', 'year_acquired', 'condition', 'availability']
             
             for field in fields_to_track:
@@ -397,7 +395,7 @@ class Property(models.Model):
                 if old_value != new_value:
                     # Add specific remarks for quantity changes
                     remarks = None
-                    if field in ['quantity', 'overall_quantity']:
+                    if field in ['quantity_per_physical_count', 'quantity_per_property_card']:
                         change = (new_value or 0) - (old_value or 0)
                         if change > 0:
                             remarks = f"{field.replace('_', ' ').title()} increased by {abs(change)}"

@@ -60,13 +60,14 @@ class PropertyForm(forms.ModelForm):
         model = Property
         fields = [
             'property_number',
+            'new_property_number', 
             'property_name',
             'category',
             'description',
             'unit_of_measure',
             'unit_value',
-            'overall_quantity',
-            'quantity',
+            'quantity_per_physical_count',
+            'quantity_per_property_card',
             'location',
             'accountable_person',
             'year_acquired',
@@ -74,10 +75,11 @@ class PropertyForm(forms.ModelForm):
         ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
-            'property_number': forms.TextInput(attrs={'placeholder': 'Enter unique property number'}),
+            'property_number': forms.TextInput(attrs={'placeholder': 'Enter old property number'}),
+            'new_property_number': forms.TextInput(attrs={'placeholder': 'Enter new property number'}),
             'unit_value': forms.NumberInput(attrs={'min': 0, 'step': '0.01'}),
-            'overall_quantity': forms.NumberInput(attrs={'min': 0}),
-            'quantity': forms.NumberInput(attrs={'min': 0, 'readonly': True}),
+            'quantity_per_physical_count': forms.NumberInput(attrs={'min': 0}),
+            'quantity_per_property_card': forms.NumberInput(attrs={'min': 0}),
             'category': forms.Select(attrs={'class': 'select2'}), 
             'condition': forms.Select(attrs={'class': 'form-select'}),
             'accountable_person': forms.TextInput(attrs={'placeholder': 'Enter accountable person name'}),
@@ -89,20 +91,13 @@ class PropertyForm(forms.ModelForm):
 
         # Set required fields
         for field in ['property_name', 'description', 'unit_of_measure', 
-                      'unit_value', 'overall_quantity', 'location', 'condition', 'category']:
+                      'unit_value', 'quantity_per_physical_count', 'quantity_per_property_card', 'location', 'condition', 'category']:
             self.fields[field].required = True
 
         self.fields['property_number'].required = False
+        self.fields['new_property_number'].required = False
         self.fields['accountable_person'].required = False
         self.fields['year_acquired'].required = False
-
-        # Handle quantity logic
-        if not self.instance.pk:
-            self.fields['quantity'].required = False
-            self.fields['quantity'].widget.attrs['disabled'] = True
-        else:
-            self.fields['quantity'].required = True
-            self.fields['quantity'].widget.attrs['readonly'] = True
 
         # Optional: reorder categories or set placeholder
         self.fields['category'].queryset = PropertyCategory.objects.all().order_by('name')
@@ -110,15 +105,6 @@ class PropertyForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        overall_quantity = cleaned_data.get('overall_quantity')
-        quantity = cleaned_data.get('quantity')
-
-        if not self.instance.pk:
-            cleaned_data['quantity'] = overall_quantity
-        elif overall_quantity is not None and quantity is not None:
-            if quantity > overall_quantity:
-                self.add_error('overall_quantity', 'Overall quantity cannot be less than current quantity.')
-
         return cleaned_data
 
 class SupplyForm(forms.ModelForm):

@@ -509,21 +509,6 @@ tr.hidden {
   border-color: #152d64;
 }
 
-.filter-count {
-  background-color: #dc3545;
-  color: white;
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 11px;
-  min-width: 18px;
-  text-align: center;
-  display: none;
-}
-
-.filter-count.show {
-  display: inline-block;
-}
-
 .filter-chevron {
   transition: transform 0.2s ease;
   font-size: 12px;
@@ -830,21 +815,156 @@ input:focus {
   cursor: pointer;
 }
 
-/* Export button styles */
-#openExportModalBtn {
-  background-color: #28a745;
-  border-color: #28a745;
+/* Export Modal Styles - Override global modal styles */
+#exportModal .modal-content {
+  max-width: 600px !important;
+  width: 95% !important;
+  padding: 25px !important;
 }
 
-#openExportModalBtn:hover {
-  background-color: #218838;
-  border-color: #218838;
+#exportModal .modal-content form {
+  display: block !important; /* Override the global grid layout */
+  grid-template-columns: unset !important;
+  gap: unset !important;
+  align-items: unset !important;
 }
 
-.export-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
+/* Prevent external CSS from interfering */
+#exportModal * {
+  box-sizing: border-box;
+}
+
+#exportModal .export-fields-container {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 15px !important;
+  margin-bottom: 25px !important;
+}
+
+@media (max-width: 768px) {
+  #exportModal .export-fields-container {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+#exportModal .export-field-group {
+  background-color: #fff !important;
+  border: 1px solid #e9ecef !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  transition: box-shadow 0.2s ease !important;
+}
+
+#exportModal .export-field-group:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+#exportModal .export-group-header {
+  color: #152d64 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  margin: 0 0 12px 0 !important;
+  padding-bottom: 8px !important;
+  border-bottom: 2px solid #e9ecef !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+#exportModal .export-group-header i {
+  font-size: 14px !important;
+}
+
+#exportModal .export-checkbox-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+#exportModal .export-field-label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  padding: 6px 8px !important;
+  border-radius: 4px !important;
+  transition: background-color 0.2s ease !important;
+  margin: 0 !important;
+  user-select: none !important;
+  font-weight: normal !important;
+}
+
+#exportModal .export-field-label:hover {
+  background-color: #f8f9fa !important;
+}
+
+#exportModal .export-checkbox {
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  accent-color: #152d64 !important;
+  flex-shrink: 0 !important;
+}
+
+#exportModal .export-field-label span {
+  flex: 1 !important;
+  line-height: 1.3 !important;
+}
+
+#exportModal .export-action-btn {
+  transition: all 0.2s ease !important;
+}
+
+#exportModal .export-action-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+}
+
+#exportModal #selectAllFields:hover {
+  background-color: #218838 !important;
+}
+
+#exportModal #selectNoneFields:hover {
+  background-color: #5a6268 !important;
+}
+
+#exportModal #selectEssentialFields:hover {
+  background-color: #e0a800 !important;
+}
+
+#exportModal #cancelExportBtn:hover {
+  background-color: #5a6268 !important;
+}
+
+#exportModal .submit-btn:hover {
+  background-color: #1e3d8a !important;
+}
+
+/* Override global submit-btn styles specifically for export modal */
+#exportModal .submit-btn {
+  grid-column: unset !important;
+  padding: 10px 24px !important;
+  font-size: 14px !important;
+  font-weight: normal !important;
+  margin-top: 0 !important;
+  width: 160px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+#exportModal #cancelExportBtn {
+  width: 160px !important;
+  padding: 10px 24px !important;
+  font-size: 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
 }
 
 .template-btn {
@@ -1160,7 +1280,6 @@ input:focus {
             <div class="simple-filter-container">
             <button id="filterToggleBtn" class="simple-filter-toggle" type="button">
               <i class="fas fa-filter"></i> Filters 
-              <span id="activeFilterCount" class="filter-count">0</span>
               <i class="fas fa-chevron-down filter-chevron"></i>
             </button>
             <div id="filterDropdown" class="simple-filter-dropdown">
@@ -1242,6 +1361,27 @@ input:focus {
                 </div>
               </div>
 
+              <!-- Price Filter -->
+              <div class="simple-filter-group">
+                <div class="simple-filter-header">
+                  <i class="fas fa-peso-sign"></i> Price Range
+                </div>
+                <div class="simple-filter-options">
+                  <label class="simple-filter-option">
+                    <input type="checkbox" name="price" value="" checked>
+                    <span class="filter-text">All Prices</span>
+                  </label>
+                  <label class="simple-filter-option">
+                    <input type="checkbox" name="price" value="below_50k">
+                    <span class="filter-text">Below ₱50,000</span>
+                  </label>
+                  <label class="simple-filter-option">
+                    <input type="checkbox" name="price" value="50k_above">
+                    <span class="filter-text">₱50,000 and Above</span>
+                  </label>
+                </div>
+              </div>
+
               <!-- Filter Actions -->
               <div class="simple-filter-actions">
                 <button type="button" id="clearFiltersBtn" class="simple-btn clear-btn">
@@ -1292,19 +1432,13 @@ input:focus {
               <thead>
                 <tr style="background-color: #152d64; color: white;">
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">No.</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Property Number</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Article/Item</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Category</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Article/Item</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Assigned Property Number</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Description</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Barcode</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Unit of Measure</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Unit Value</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Overall Qty</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Current Qty</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Location</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Accountable Person</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Year Acquired</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Condition</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Quantity Per Physical Count</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Quantity Per Property Card</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Availability</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Actions</th>
                 </tr>
@@ -1319,23 +1453,17 @@ input:focus {
                       {{ forloop.counter }}
                     {% endif %}
                   </td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.property_number|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.property_name|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.category.name|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.property_name|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.new_property_number|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.description|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">
                     <div class="barcode-container">
                       <img src="{{ property.barcode }}" alt="Barcode for {{ property.property_name }}" class="barcode-image">
                     </div>
                   </td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.unit_of_measure|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.unit_value|peso }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.overall_quantity|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.quantity|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.location|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.accountable_person|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.year_acquired|date:"M d, Y"|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.get_condition_display|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.quantity_per_physical_count|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.quantity_per_property_card|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">
                     <span class="status-badge {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' or property.availability == 'not_available' %}status-rejected{% else %}status-approved{% endif %}">
                       {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' %}
@@ -1358,15 +1486,35 @@ input:focus {
                         <i class="fas fa-ellipsis-h"></i>
                       </button>
                       <div class="table-actions-dropdown-menu">
-                        <button class="table-actions-dropdown-item edit edit-btn" 
+                        <button class="table-actions-dropdown-item info info-btn" 
                           data-id="{{ property.id }}"
                           data-property-number="{{ property.property_number }}"
+                          data-new-property-number="{{ property.new_property_number }}"
                           data-property-name="{{ property.property_name }}"
                           data-description="{{ property.description|default:'' }}"
                           data-unit-measure="{{ property.unit_of_measure|default:'' }}"
                           data-unit-value="{{ property.unit_value|default:0 }}"
-                          data-overall-quantity="{{ property.overall_quantity }}"
-                          data-quantity="{{ property.quantity }}"
+                          data-quantity-per-property-card="{{ property.quantity_per_property_card }}"
+                          data-quantity-per-physical-count="{{ property.quantity_per_physical_count }}"
+                          data-location="{{ property.location|default:'' }}"
+                          data-accountable-person="{{ property.accountable_person|default:'' }}"
+                          data-year-acquired="{{ property.year_acquired|date:'Y-m-d'|default:'' }}"
+                          data-condition="{{ property.condition }}"
+                          data-category="{{ property.category.name|default:'' }}"
+                          data-availability="{{ property.availability }}">
+                          <i class="fas fa-info-circle"></i> Info
+                        </button>
+                        
+                        <button class="table-actions-dropdown-item edit edit-btn" 
+                          data-id="{{ property.id }}"
+                          data-property-number="{{ property.property_number }}"
+                          data-new-property-number="{{ property.new_property_number }}"
+                          data-property-name="{{ property.property_name }}"
+                          data-description="{{ property.description|default:'' }}"
+                          data-unit-measure="{{ property.unit_of_measure|default:'' }}"
+                          data-unit-value="{{ property.unit_value|default:0 }}"
+                          data-quantity-per-property-card="{{ property.quantity_per_property_card }}"
+                          data-quantity-per-physical-count="{{ property.quantity_per_physical_count }}"
                           data-location="{{ property.location|default:'' }}"
                           data-accountable-person="{{ property.accountable_person|default:'' }}"
                           data-year-acquired="{{ property.year_acquired|date:'Y-m-d'|default:'' }}"
@@ -1391,8 +1539,7 @@ input:focus {
                         <form method="post" action="{% url 'archive_property' property.id %}" style="display: contents;">
                           {% csrf_token %}
                           <button type="submit" class="table-actions-dropdown-item archive" 
-                            onclick="return confirm('Are you sure you want to archive this property? This will only be possible if the quantity is zero.');"
-                            {% if property.quantity > 0 %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>
+                            onclick="return confirm('Are you sure you want to archive this property?');">
                             <i class="fas fa-archive"></i> Archive
                           </button>
                         </form>
@@ -1402,7 +1549,7 @@ input:focus {
                 </tr>
                 {% empty %}
                 <tr>
-                  <td colspan="14" style="padding: 20px; text-align: center; color: #6c757d;">No properties available.</td>
+                  <td colspan="10" style="padding: 20px; text-align: center; color: #6c757d;">No properties available.</td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -1558,9 +1705,16 @@ input:focus {
         <!-- Custom form fields with required asterisks -->
         <div class="form-group">
           <label for="{{ form.property_number.id_for_label }}">
-            <i class="fas fa-hashtag"></i> Property Number
+            <i class="fas fa-hashtag"></i> Old Property Number
           </label>
           {{ form.property_number }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.new_property_number.id_for_label }}">
+            <i class="fas fa-hashtag"></i> New Property Number
+          </label>
+          {{ form.new_property_number }}
         </div>
 
         <div class="form-group">
@@ -1604,11 +1758,19 @@ input:focus {
         </div>
 
         <div class="form-group">
-          <label for="{{ form.overall_quantity.id_for_label }}">
-            <i class="fas fa-boxes"></i> Overall Quantity
+          <label for="{{ form.quantity_per_physical_count.id_for_label }}">
+            <i class="fas fa-boxes"></i> Quantity Per Physical Count
             <span class="required-asterisk">*</span>
           </label>
-          {{ form.overall_quantity }}
+          {{ form.quantity_per_physical_count }}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.quantity_per_property_card.id_for_label }}">
+            <i class="fas fa-id-card"></i> Quantity Per Property Card
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.quantity_per_property_card }}
         </div>
 
         <div class="form-group">
@@ -1664,8 +1826,9 @@ input:focus {
       {% csrf_token %}
       <input type="hidden" name="id" id="edit_id" />
       <input type="hidden" name="property_number" id="edit_property_number" />
-      <input type="hidden" name="overall_quantity" id="edit_overall_quantity" />
-      <input type="hidden" name="quantity" id="edit_quantity" />
+      <input type="hidden" name="new_property_number" id="edit_new_property_number" />
+      <input type="hidden" name="quantity_per_physical_count" id="edit_quantity_per_physical_count" />
+      <input type="hidden" name="quantity_per_property_card" id="edit_quantity_per_property_card" />
       
       <div class="form-group">
         <label>
@@ -1801,7 +1964,7 @@ input:focus {
           {% for category, properties in properties_by_category.items %}
             <optgroup label="{{ category.name }}">
               {% for property in properties %}
-                <option value="{{ property.id }}" data-name="{{ property.property_name }}" data-quantity="{{ property.quantity }}">{{ property.property_name }} ({{ property.property_number }})</option>
+                <option value="{{ property.id }}" data-name="{{ property.property_name }}" data-quantity="{{ property.quantity_per_physical_count }}">{{ property.property_name }} ({{ property.new_property_number|default:property.property_number|default:"No Number" }})</option>
               {% endfor %}
             </optgroup>
           {% endfor %}
@@ -1857,58 +2020,252 @@ input:focus {
 
 <!-- Export Modal -->
 <div id="exportModal" class="modal">
-    <div class="modal-content" style="max-width: 450px; width: auto; padding: 20px;">
-        <span class="close" id="closeExportModalBtn" style="position: absolute; right: 15px; top: 10px;">&times;</span>
-        <h3 style="font-size: 18px; margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 1px solid #dee2e6;">Export Property Inventory</h3>
+    <div class="modal-content" style="max-width: 600px; width: 95%; padding: 25px;">
+        <span class="close" id="closeExportModalBtn" style="position: absolute; right: 20px; top: 15px; font-size: 24px; color: #666; cursor: pointer;">&times;</span>
+        
+        <!-- Modal Header -->
+        <div style="margin-bottom: 25px;">
+            <h3 style="color: #152d64; font-size: 20px; margin: 0 0 8px 0; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-download" style="color: #152d64;"></i>
+                Export Property Inventory
+            </h3>
+            <p style="color: #6c757d; font-size: 14px; margin: 0;">Select the fields you want to include in your export report</p>
+        </div>
+
         <form method="POST" action="{% url 'export_property' %}" id="exportForm">
             {% csrf_token %}
-            <div class="form-group">
-                <p style="margin: 0 0 10px 0; font-size: 14px;">Select fields to include in the report:</p>
-                <div class="checkbox-group" style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="property_number" checked style="margin: 0; width: 16px; height: 16px;"> Property Number
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="property_name" checked style="margin: 0; width: 16px; height: 16px;"> Property Name
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="description" checked style="margin: 0; width: 16px; height: 16px;"> Description
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="unit_of_measure" checked style="margin: 0; width: 16px; height: 16px;"> Unit of Measure
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="unit_value" checked style="margin: 0; width: 16px; height: 16px;"> Unit Value
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="overall_quantity" checked style="margin: 0; width: 16px; height: 16px;"> Overall Quantity
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="current_quantity" checked style="margin: 0; width: 16px; height: 16px;"> Current Quantity
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="location" checked style="margin: 0; width: 16px; height: 16px;"> Location
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="accountable_person" checked style="margin: 0; width: 16px; height: 16px;"> Accountable Person
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="year_acquired" checked style="margin: 0; width: 16px; height: 16px;"> Year Acquired
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="condition" checked style="margin: 0; width: 16px; height: 16px;"> Condition
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="category" checked style="margin: 0; width: 16px; height: 16px;"> Category
-                    </label>
+            
+            <!-- Quick Actions -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 6px; border-left: 4px solid #152d64;">
+                <button type="button" id="selectAllFields" class="export-action-btn" style="background-color: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: background-color 0.3s;">
+                    <i class="fas fa-check-double"></i> Select All
+                </button>
+                <button type="button" id="selectNoneFields" class="export-action-btn" style="background-color: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: background-color 0.3s;">
+                    <i class="fas fa-times"></i> Select None
+                </button>
+                <button type="button" id="selectEssentialFields" class="export-action-btn" style="background-color: #ffc107; color: #212529; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: background-color 0.3s;">
+                    <i class="fas fa-star"></i> Essential Only
+                </button>
+            </div>
+
+            <!-- Field Categories -->
+            <div class="export-fields-container">
+                
+                <!-- Basic Information -->
+                <div class="export-field-group">
+                    <h4 class="export-group-header">
+                        <i class="fas fa-info-circle" style="color: #17a2b8;"></i>
+                        Basic Information
+                    </h4>
+                    <div class="export-checkbox-group">
+                        <label class="export-field-label">
+                            <input type="checkbox" name="fields" value="property_number" checked class="export-checkbox"> 
+                            <span>Old Property Number</span>
+                        </label>
+                        <label class="export-field-label">
+                            <input type="checkbox" name="fields" value="new_property_number" checked class="export-checkbox"> 
+                            <span>New Property Number</span>
+                        </label>
+                        <label class="export-field-label">
+                            <input type="checkbox" name="fields" value="property_name" checked class="export-checkbox"> 
+                            <span>Property Name</span>
+                        </label>
+                        <label class="export-field-label">
+                            <input type="checkbox" name="fields" value="description" checked class="export-checkbox"> 
+                            <span>Description</span>
+                        </label>
+                        <label class="export-field-label">
+                            <input type="checkbox" name="fields" value="category" checked class="export-checkbox"> 
+                            <span>Category</span>
+                        </label>
+                    </div>
                 </div>
-                <div style="text-align: left;">
-                    <button type="submit" class="submit-btn" style="background-color: #0A2647; padding: 8px 16px; font-size: 14px; border-radius: 4px;">Generate Report</button>
+
+                <!-- Quantity & Value -->
+                <div class="export-field-group">
+                    <h4 class="export-group-header">
+                        <i class="fas fa-calculator" style="color: #28a745;"></i>
+                        Quantity & Value
+                    </h4>
+                    <div class="export-checkbox-group">
+                        <label class="export-field-label">
+                            <input type="checkbox" name="fields" value="unit_of_measure" checked class="export-checkbox"> 
+                            <span>Unit of Measure</span>
+                        </label>
+                        <label class="export-field-label">
+                            <input type="checkbox" name="fields" value="unit_value" checked class="export-checkbox"> 
+                            <span>Unit Value</span>
+                        </label>
+                        <label class="export-field-label">
+                            <input type="checkbox" name="fields" value="quantity_per_property_card" checked class="export-checkbox"> 
+                            <span>Quantity Per Property Card</span>
+                        </label>
+                        <label class="export-field-label">
+                            <input type="checkbox" name="fields" value="quantity_per_physical_count" checked class="export-checkbox"> 
+                            <span>Quantity Per Physical Count</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Location & Responsibility -->
+                <div class="export-field-group">
+                    <h4 class="export-group-header">
+                        <i class="fas fa-map-marker-alt" style="color: #dc3545;"></i>
+                        Location & Responsibility
+                    </h4>
+                    <div class="export-checkbox-group">
+                        <label class="export-field-label">
+                            <input type="checkbox" name="fields" value="location" checked class="export-checkbox"> 
+                            <span>Location</span>
+                        </label>
+                        <label class="export-field-label">
+                            <input type="checkbox" name="fields" value="accountable_person" checked class="export-checkbox"> 
+                            <span>Accountable Person</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Additional Details -->
+                <div class="export-field-group">
+                    <h4 class="export-group-header">
+                        <i class="fas fa-clipboard-list" style="color: #6f42c1;"></i>
+                        Additional Details
+                    </h4>
+                    <div class="export-checkbox-group">
+                        <label class="export-field-label">
+                            <input type="checkbox" name="fields" value="year_acquired" checked class="export-checkbox"> 
+                            <span>Year Acquired</span>
+                        </label>
+                        <label class="export-field-label">
+                            <input type="checkbox" name="fields" value="condition" checked class="export-checkbox"> 
+                            <span>Condition</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selection Summary -->
+            <div id="exportSelectionSummary" style="background-color: #e3f2fd; border: 1px solid #90caf9; border-radius: 4px; padding: 12px; margin-bottom: 20px; font-size: 13px; color: #1565c0;">
+                <i class="fas fa-info-circle"></i> <span id="selectedFieldsCount">13</span> fields selected for export
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+                <div style="font-size: 12px; color: #6c757d;">
+                    <i class="fas fa-file-excel" style="color: #28a745;"></i> Export will be generated as Excel file
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" id="cancelExportBtn" style="background-color: #6c757d; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: background-color 0.3s; width: 160px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="submit-btn" style="background-color: #152d64; color: white; border: none; padding: 10px 24px; font-size: 14px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; width: 160px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="fas fa-download"></i> Generate Report
+                    </button>
                 </div>
             </div>
         </form>
     </div>
 </div>
+
+<!-- Property Info Modal -->
+<div id="propertyInfoModal" class="modal">
+    <div class="modal-content" style="max-width: 700px; width: 90%;">
+        <span class="close" id="closePropertyInfoModalBtn">&times;</span>
+        <h3 style="color: #152d64; margin-bottom: 20px;">Property Information</h3>
+        
+        <div class="table-container">
+            <table class="info-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <tbody>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64; width: 40%;">No.:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-number">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Old Property Number Assigned:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-old-property-number">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">New Property Number:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-new-property-number">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Property Name:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-property-name">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Description:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-description">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Category:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-category">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Unit Of Measure:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-unit-measure">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Unit Value:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-unit-value">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Quantity Per Physical Count:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-quantity-per-physical-count">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Quantity Per Property Card:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-quantity-per-property-card">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Location:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-location">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Condition:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-condition">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Remarks:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-remarks">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Accountable Person:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-accountable-person">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Year Acquired:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-year-acquired">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: #f8f9fa; font-weight: 600; color: #152d64;">Availability:</td>
+                        <td style="padding: 12px; border: 1px solid #ddd; background-color: white;" id="info-availability">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+.table-actions-dropdown-item.info {
+    color: #17a2b8;
+}
+
+.table-actions-dropdown-item.info:hover {
+    background-color: #17a2b8;
+    color: white;
+}
+
+/* Info Table Styles */
+.info-table tr:hover td {
+    background-color: #f1f3f4 !important;
+}
+
+.info-table td:first-child {
+    min-width: 200px;
+}
+</style>
+
 {% block extra_scripts %}
 
 <!-- jQuery (required by Select2 and your scripts) -->
@@ -2065,8 +2422,9 @@ input:focus {
                 // Set hidden fields
                 document.getElementById('edit_id').value = this.dataset.id;
                 document.getElementById('edit_property_number').value = this.dataset.propertyNumber;
-                document.getElementById('edit_overall_quantity').value = this.dataset.overallQuantity;
-                document.getElementById('edit_quantity').value = this.dataset.quantity;
+                document.getElementById('edit_new_property_number').value = this.dataset.newPropertyNumber;
+                document.getElementById('edit_quantity_per_physical_count').value = this.dataset.quantityPerPhysicalCount;
+                document.getElementById('edit_quantity_per_property_card').value = this.dataset.quantityPerPropertyCard;
                 
                 // Set visible fields
                 document.getElementById('edit_name').value = this.dataset.propertyName;
@@ -2114,10 +2472,52 @@ input:focus {
             editModal.style.display = 'none';
         }
 
+        // Info button functionality
+        const infoBtns = document.querySelectorAll('.info-btn');
+        const infoModal = document.getElementById('propertyInfoModal');
+        const closeInfoModalBtn = document.getElementById('closePropertyInfoModalBtn');
+
+        infoBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Get row number from the table
+                const row = this.closest('tr');
+                const rowNumber = row.querySelector('td:first-child').textContent.trim();
+                
+                // Populate the info modal with data
+                document.getElementById('info-number').textContent = rowNumber;
+                document.getElementById('info-old-property-number').textContent = this.dataset.propertyNumber || 'N/A';
+                document.getElementById('info-new-property-number').textContent = this.dataset.newPropertyNumber || 'N/A';
+                document.getElementById('info-property-name').textContent = this.dataset.propertyName || 'N/A';
+                document.getElementById('info-description').textContent = this.dataset.description || 'N/A';
+                document.getElementById('info-category').textContent = this.dataset.category || 'N/A';
+                document.getElementById('info-unit-measure').textContent = this.dataset.unitMeasure || 'N/A';
+                document.getElementById('info-unit-value').textContent = this.dataset.unitValue ? '₱' + parseFloat(this.dataset.unitValue).toLocaleString('en-US', {minimumFractionDigits: 2}) : 'N/A';
+                document.getElementById('info-quantity-per-physical-count').textContent = this.dataset.quantityPerPhysicalCount || 'N/A';
+                document.getElementById('info-quantity-per-property-card').textContent = this.dataset.quantityPerPropertyCard || 'N/A';
+                document.getElementById('info-location').textContent = this.dataset.location || 'N/A';
+                document.getElementById('info-condition').textContent = this.dataset.condition || 'N/A';
+                document.getElementById('info-remarks').textContent = this.dataset.description || 'N/A';
+                document.getElementById('info-accountable-person').textContent = this.dataset.accountablePerson || 'N/A';
+                document.getElementById('info-year-acquired').textContent = this.dataset.yearAcquired ? new Date(this.dataset.yearAcquired).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'}) : 'N/A';
+                document.getElementById('info-availability').textContent = this.dataset.availability || 'N/A';
+
+                // Show the modal
+                infoModal.style.display = 'block';
+            });
+        });
+
+        // Close info modal when clicking the close button
+        closeInfoModalBtn.onclick = function() {
+            infoModal.style.display = 'none';
+        }
+
         // Close edit modal when clicking outside
         window.onclick = function(event) {
             if (event.target == editModal) {
                 editModal.style.display = 'none';
+            }
+            if (event.target == infoModal) {
+                infoModal.style.display = 'none';
             }
         }
 
@@ -2218,10 +2618,13 @@ input:focus {
 const exportModal = document.getElementById("exportModal");
 const openExportBtn = document.getElementById("openExportModalBtn");
 const closeExportBtn = document.getElementById("closeExportModalBtn");
+const cancelExportBtn = document.getElementById("cancelExportBtn");
 
+// Modal open/close functionality
 if (openExportBtn) {
     openExportBtn.onclick = function() {
         exportModal.style.display = "block";
+        updateExportSelectionCount();
     }
 }
 
@@ -2231,12 +2634,99 @@ if (closeExportBtn) {
     }
 }
 
+if (cancelExportBtn) {
+    cancelExportBtn.onclick = function() {
+        exportModal.style.display = "none";
+    }
+}
+
+// Enhanced functionality for new export modal structure
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllBtn = document.getElementById('selectAllFields');
+    const selectNoneBtn = document.getElementById('selectNoneFields');
+    const selectEssentialBtn = document.getElementById('selectEssentialFields');
+    const exportCheckboxes = document.querySelectorAll('.export-checkbox');
+    
+    // Essential fields (core property information)
+    const essentialFields = [
+        'property_number',
+        'new_property_number', 
+        'property_name',
+        'category',
+        'unit_value',
+        'quantity_per_physical_count',
+        'location',
+        'condition'
+    ];
+    
+    // Update selection count
+    function updateExportSelectionCount() {
+        const checkedBoxes = document.querySelectorAll('.export-checkbox:checked');
+        const countElement = document.getElementById('selectedFieldsCount');
+        if (countElement) {
+            countElement.textContent = checkedBoxes.length;
+        }
+    }
+    
+    // Select All button
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function() {
+            exportCheckboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            updateExportSelectionCount();
+        });
+    }
+    
+    // Select None button
+    if (selectNoneBtn) {
+        selectNoneBtn.addEventListener('click', function() {
+            exportCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateExportSelectionCount();
+        });
+    }
+    
+    // Select Essential button
+    if (selectEssentialBtn) {
+        selectEssentialBtn.addEventListener('click', function() {
+            exportCheckboxes.forEach(checkbox => {
+                checkbox.checked = essentialFields.includes(checkbox.value);
+            });
+            updateExportSelectionCount();
+        });
+    }
+    
+    // Update count when individual checkboxes change
+    exportCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateExportSelectionCount);
+    });
+    
+    // Initial count update
+    updateExportSelectionCount();
+});
+
 // Ensure at least one checkbox is selected
 document.getElementById('exportForm').addEventListener('submit', function(e) {
     const checkboxes = this.querySelectorAll('input[type="checkbox"]:checked');
     if (checkboxes.length === 0) {
         e.preventDefault();
         alert('Please select at least one field to include in the report.');
+        return false;
+    }
+    
+    // Show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        submitBtn.disabled = true;
+        
+        // Reset button after 3 seconds (in case of error)
+        setTimeout(() => {
+            submitBtn.innerHTML = '<i class="fas fa-download"></i> Generate Report';
+            submitBtn.disabled = false;
+        }, 3000);
     }
 });
 
@@ -2527,7 +3017,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Filter elements
   const filterToggleBtn = document.getElementById('filterToggleBtn');
   const filterDropdown = document.getElementById('filterDropdown');
-  const activeFilterCount = document.getElementById('activeFilterCount');
   const clearFiltersBtn = document.getElementById('clearFiltersBtn');
   const applyFiltersBtn = document.getElementById('applyFiltersBtn');
   const filterResultCount = document.getElementById('filterResultCount');
@@ -2536,6 +3025,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const categoryCheckboxes = document.querySelectorAll('input[name="category"]');
   const availabilityRadios = document.querySelectorAll('input[name="availability"]');
   const conditionCheckboxes = document.querySelectorAll('input[name="condition"]');
+  const priceCheckboxes = document.querySelectorAll('input[name="price"]');
 
   // URL parameter functions
   function getUrlParameter(name) {
@@ -2574,7 +3064,8 @@ document.addEventListener('DOMContentLoaded', function() {
       search: searchInput.value,
       categories: getSelectedValues(categoryCheckboxes),
       availability: getSelectedValue(availabilityRadios),
-      conditions: getSelectedValues(conditionCheckboxes)
+      conditions: getSelectedValues(conditionCheckboxes),
+      prices: getSelectedValues(priceCheckboxes)
     };
     localStorage.setItem('propertyFilters', JSON.stringify(filters));
   }
@@ -2610,8 +3101,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Update filter count
+  // Update filter count (simplified - no visual indicator)
   function updateFilterCount() {
+    // Count logic kept for potential future use but no visual update
     let count = 0;
     
     // Count search
@@ -2625,25 +3117,22 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const selectedConditions = getSelectedValues(conditionCheckboxes);
     if (selectedConditions.length > 0) count++;
-
-    if (activeFilterCount) {
-      activeFilterCount.textContent = count;
-      if (count > 0) {
-        activeFilterCount.classList.add('show');
-      } else {
-        activeFilterCount.classList.remove('show');
-      }
-    }
+    
+    const selectedPrices = getSelectedValues(priceCheckboxes);
+    if (selectedPrices.length > 0) count++;
+    
+    // No visual update - badge removed
   }
 
   // Filter and search function
   function filterAndSearch() {
     if (!table) return;
 
-    const searchTerm = searchInput.value.toLowerCase();
+    const searchTerm = searchInput.value.toLowerCase().trim();
     const selectedCategories = getSelectedValues(categoryCheckboxes);
     const selectedAvailability = getSelectedValue(availabilityRadios);
     const selectedConditions = getSelectedValues(conditionCheckboxes);
+    const selectedPrices = getSelectedValues(priceCheckboxes);
 
     const tbody = table.querySelector('tbody');
     if (!tbody) return;
@@ -2659,17 +3148,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
       totalCount++;
 
-      const categoryCell = cells[3];
-      const availabilityCell = cells[12];
-      const conditionCell = cells[11];
+      const categoryCell = cells[1]; // Category is now column 2 (index 1)
+      const unitValueCell = null; // Unit Value not directly shown in table, will use data attributes
+      const availabilityCell = cells[8]; // Availability is now column 9 (index 8)
+      const conditionCell = null; // Condition not directly shown, will use data attributes
 
       let matchesSearch = true;
       let matchesCategory = true;
       let matchesAvailability = true;
       let matchesCondition = true;
+      let matchesPrice = true;
 
-      // Search functionality
-      if (searchTerm) {
+      // Search functionality - if search term is empty, show all
+      if (searchTerm && searchTerm !== '') {
         matchesSearch = false;
         for (let cell of cells) {
           if (cell.textContent.toLowerCase().includes(searchTerm)) {
@@ -2695,14 +3186,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
 
-      // Condition filter
-      if (selectedConditions.length > 0 && conditionCell) {
-        const conditionText = conditionCell.textContent.trim();
-        matchesCondition = selectedConditions.includes(conditionText);
+      // Condition filter - get condition from action button data attribute
+      if (selectedConditions.length > 0) {
+        const actionBtn = row.querySelector('.info-btn');
+        if (actionBtn && actionBtn.dataset.condition) {
+          const conditionText = actionBtn.dataset.condition.trim();
+          matchesCondition = selectedConditions.includes(conditionText);
+        }
+      }
+
+      // Price filter - get unit value from action button data attribute  
+      if (selectedPrices.length > 0) {
+        const actionBtn = row.querySelector('.info-btn');
+        if (actionBtn && actionBtn.dataset.unitValue) {
+          const priceValue = parseFloat(actionBtn.dataset.unitValue);
+          
+          matchesPrice = false;
+          selectedPrices.forEach(priceRange => {
+            if (priceRange === 'below_50k' && priceValue < 50000) {
+              matchesPrice = true;
+            } else if (priceRange === '50k_above' && priceValue >= 50000) {
+              matchesPrice = true;
+            }
+          });
+        }
       }
 
       // Show/hide row
-      const shouldShow = matchesSearch && matchesCategory && matchesAvailability && matchesCondition;
+      const shouldShow = matchesSearch && matchesCategory && matchesAvailability && matchesCondition && matchesPrice;
       row.style.display = shouldShow ? '' : 'none';
 
       if (shouldShow) {
@@ -2730,18 +3241,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const urlCategories = getUrlParameterArray('category');
     const urlAvailability = getUrlParameter('availability');
     const urlConditions = getUrlParameterArray('condition');
+    const urlPrices = getUrlParameterArray('price');
 
-    if (urlSearch || urlCategories.length || urlAvailability || urlConditions.length) {
+    if (urlSearch || urlCategories.length || urlAvailability || urlConditions.length || urlPrices.length) {
       searchInput.value = urlSearch;
       setSelectedValues(categoryCheckboxes, urlCategories);
       setSelectedValues(availabilityRadios, urlAvailability);
       setSelectedValues(conditionCheckboxes, urlConditions);
+      setSelectedValues(priceCheckboxes, urlPrices);
     } else {
       const savedFilters = loadFiltersFromStorage();
       searchInput.value = savedFilters.search || '';
       setSelectedValues(categoryCheckboxes, savedFilters.categories || []);
       setSelectedValues(availabilityRadios, savedFilters.availability || '');
       setSelectedValues(conditionCheckboxes, savedFilters.conditions || []);
+      setSelectedValues(priceCheckboxes, savedFilters.prices || []);
     }
   }
 
@@ -2751,7 +3265,8 @@ document.addEventListener('DOMContentLoaded', function() {
       search: searchInput.value,
       category: getSelectedValues(categoryCheckboxes),
       availability: getSelectedValue(availabilityRadios),
-      condition: getSelectedValues(conditionCheckboxes)
+      condition: getSelectedValues(conditionCheckboxes),
+      price: getSelectedValues(priceCheckboxes)
     };
     
     updateUrlParameters(params);
@@ -2787,16 +3302,19 @@ document.addEventListener('DOMContentLoaded', function() {
       setSelectedValues(categoryCheckboxes, []);
       setSelectedValues(availabilityRadios, '');
       setSelectedValues(conditionCheckboxes, []);
+      setSelectedValues(priceCheckboxes, []);
       
       // Check "all" options
       const categoryAll = document.querySelector('input[name="category"][value=""]');
       const availabilityAll = document.querySelector('input[name="availability"][value=""]');
       const conditionAll = document.querySelector('input[name="condition"][value=""]');
+      const priceAll = document.querySelector('input[name="price"][value=""]');
       if (categoryAll) categoryAll.checked = true;
       if (availabilityAll) availabilityAll.checked = true;
       if (conditionAll) conditionAll.checked = true;
+      if (priceAll) priceAll.checked = true;
       
-      updateUrlParameters({search: '', category: [], availability: '', condition: []});
+      updateUrlParameters({search: '', category: [], availability: '', condition: [], price: []});
       saveFiltersToStorage();
       updateFilterCount();
       filterAndSearch();
@@ -2817,7 +3335,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let searchTimeout;
     searchInput.addEventListener('input', function() {
       clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(handleFilterChange, 300);
+      searchTimeout = setTimeout(function() {
+        updateFilterCount();
+        filterAndSearch();
+      }, 300);
     });
 
     // Add focus styling to search input
@@ -2844,14 +3365,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (allOption) allOption.checked = false;
       }
       updateFilterCount();
-      filterAndSearch();
     });
   });
 
   availabilityRadios.forEach(radio => {
     radio.addEventListener('change', function() {
       updateFilterCount();
-      filterAndSearch();
     });
   });
 
@@ -2866,7 +3385,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (allOption) allOption.checked = false;
       }
       updateFilterCount();
-      filterAndSearch();
+    });
+  });
+
+  priceCheckboxes.forEach(cb => {
+    cb.addEventListener('change', function() {
+      if (this.value === '' && this.checked) {
+        priceCheckboxes.forEach(other => {
+          if (other.value !== '') other.checked = false;
+        });
+      } else if (this.value !== '' && this.checked) {
+        const allOption = document.querySelector('input[name="price"][value=""]');
+        if (allOption) allOption.checked = false;
+      }
+      updateFilterCount();
     });
   });
 
