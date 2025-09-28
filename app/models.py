@@ -308,6 +308,7 @@ class Property(models.Model):
     ]
 
     property_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    old_property_number = models.CharField(max_length=100, null=True, blank=True, help_text="Previous property number before change")
     property_name = models.CharField(max_length=100)
     category = models.ForeignKey(PropertyCategory, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
@@ -320,6 +321,7 @@ class Property(models.Model):
     )
     overall_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
+    quantity_per_physical_count = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0, help_text="Quantity based on physical count/inventory")
     location = models.CharField(max_length=255, null=True, blank=True)
     accountable_person = models.CharField(max_length=255, null=True, blank=True)
     year_acquired = models.DateField(null=True, blank=True)
@@ -356,6 +358,14 @@ class Property(models.Model):
         # Get the user from kwargs
         user = kwargs.pop('user', None)
         
+        # Format property number to uppercase if it has characters
+        if self.property_number:
+            self.property_number = self.property_number.upper()
+        
+        # Format old property number to uppercase if it has characters
+        if self.old_property_number:
+            self.old_property_number = self.old_property_number.upper()
+        
         # If this is a new property or overall_quantity has changed
         if not self.pk or (self.pk and Property.objects.get(pk=self.pk).overall_quantity != self.overall_quantity):
             # Set the current quantity equal to overall_quantity if it's a new property
@@ -386,8 +396,16 @@ class Property(models.Model):
         else:
             # For existing properties, track changes
             old_obj = Property.objects.get(pk=self.pk)
+            
+            # Handle property number change - store old value if property number is being changed
+            if old_obj.property_number != self.property_number and old_obj.property_number:
+                # Only update old_property_number if we don't already have one stored
+                # or if the current old_property_number is the same as the old property_number
+                if not self.old_property_number or self.old_property_number == old_obj.property_number:
+                    self.old_property_number = old_obj.property_number
+            
             fields_to_track = ['property_number', 'property_name', 'category', 'description', 'barcode', 
-                             'unit_of_measure', 'unit_value', 'overall_quantity', 'quantity', 
+                             'unit_of_measure', 'unit_value', 'overall_quantity', 'quantity', 'quantity_per_physical_count',
                              'location', 'accountable_person', 'year_acquired', 'condition', 'availability']
             
             for field in fields_to_track:
@@ -397,7 +415,7 @@ class Property(models.Model):
                 if old_value != new_value:
                     # Add specific remarks for quantity changes
                     remarks = None
-                    if field in ['quantity', 'overall_quantity']:
+                    if field in ['quantity', 'overall_quantity', 'quantity_per_physical_count']:
                         change = (new_value or 0) - (old_value or 0)
                         if change > 0:
                             remarks = f"{field.replace('_', ' ').title()} increased by {abs(change)}"

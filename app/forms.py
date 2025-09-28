@@ -67,6 +67,7 @@ class PropertyForm(forms.ModelForm):
             'unit_value',
             'overall_quantity',
             'quantity',
+            'quantity_per_physical_count',
             'location',
             'accountable_person',
             'year_acquired',
@@ -78,6 +79,7 @@ class PropertyForm(forms.ModelForm):
             'unit_value': forms.NumberInput(attrs={'min': 0, 'step': '0.01'}),
             'overall_quantity': forms.NumberInput(attrs={'min': 0}),
             'quantity': forms.NumberInput(attrs={'min': 0, 'readonly': True}),
+            'quantity_per_physical_count': forms.NumberInput(attrs={'min': 0}),
             'category': forms.Select(attrs={'class': 'select2'}), 
             'condition': forms.Select(attrs={'class': 'form-select'}),
             'accountable_person': forms.TextInput(attrs={'placeholder': 'Enter accountable person name'}),
@@ -95,6 +97,7 @@ class PropertyForm(forms.ModelForm):
         self.fields['property_number'].required = False
         self.fields['accountable_person'].required = False
         self.fields['year_acquired'].required = False
+        self.fields['quantity_per_physical_count'].required = False
 
         # Handle quantity logic
         if not self.instance.pk:
@@ -120,6 +123,74 @@ class PropertyForm(forms.ModelForm):
                 self.add_error('overall_quantity', 'Overall quantity cannot be less than current quantity.')
 
         return cleaned_data
+    
+    def clean_property_number(self):
+        property_number = self.cleaned_data.get('property_number')
+        if property_number:
+            return property_number.upper()
+        return property_number
+
+class PropertyNumberChangeForm(forms.ModelForm):
+    new_property_number = forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter new property number'
+        })
+    )
+    
+    class Meta:
+        model = Property
+        fields = ['new_property_number']
+    
+    def __init__(self, *args, **kwargs):
+        self.instance = kwargs.get('instance')
+        super().__init__(*args, **kwargs)
+        
+        # Add current property number as readonly field for reference
+        if self.instance and self.instance.property_number:
+            self.fields['current_property_number'] = forms.CharField(
+                initial=self.instance.property_number,
+                widget=forms.TextInput(attrs={
+                    'class': 'form-control',
+                    'readonly': True,
+                    'disabled': True
+                }),
+                required=False,
+                label='Current Property Number'
+            )
+    
+    def clean_new_property_number(self):
+        new_property_number = self.cleaned_data['new_property_number']
+        
+        # Convert to uppercase if it has characters
+        if new_property_number:
+            new_property_number = new_property_number.upper()
+        
+        # Check if the new property number already exists (excluding current property)
+        existing = Property.objects.filter(property_number=new_property_number)
+        if self.instance:
+            existing = existing.exclude(pk=self.instance.pk)
+        
+        if existing.exists():
+            raise ValidationError(f'Property number "{new_property_number}" already exists.')
+        
+        return new_property_number
+    
+    def save(self, commit=True, user=None):
+        if commit:
+            # Store old property number before changing
+            old_number = self.instance.property_number
+            self.instance.property_number = self.cleaned_data['new_property_number']
+            
+            # The model's save method will handle storing the old number in old_property_number
+            if user:
+                self.instance.save(user=user)
+            else:
+                self.instance.save()
+                
+        return self.instance
 
 class SupplyForm(forms.ModelForm):
     current_quantity = forms.IntegerField(min_value=0, widget=forms.NumberInput(attrs={'class': 'form-control'}))

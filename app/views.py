@@ -79,7 +79,7 @@ from .models import(
     Department, PropertyCategory, SupplyCategory, SupplySubcategory,
     SupplyRequestBatch, SupplyRequestItem
 )
-from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm, SupplyRequestBatchForm, SupplyRequestItemForm, SupplyRequestBatchForm, SupplyRequestItemForm
+from .forms import PropertyForm, PropertyNumberChangeForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm, SupplyRequestBatchForm, SupplyRequestItemForm, SupplyRequestBatchForm, SupplyRequestItemForm
 from django.contrib.auth.forms import AuthenticationForm
 from datetime import timedelta, date, datetime
 import json
@@ -1579,7 +1579,8 @@ def edit_property(request):
             }
 
             # Update property fields from POST data
-            property_obj.property_number = request.POST.get('property_number')
+            property_number = request.POST.get('property_number')
+            property_obj.property_number = property_number.upper() if property_number else property_number
             property_obj.property_name = request.POST.get('property_name')
             property_obj.description = request.POST.get('description')
             property_obj.barcode = request.POST.get('barcode')
@@ -1674,6 +1675,50 @@ def edit_property(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 @permission_required('app.view_admin_module')
+def change_property_number(request, pk):
+    """View to handle changing property numbers"""
+    property_obj = get_object_or_404(Property, pk=pk)
+    
+    if request.method == 'POST':
+        form = PropertyNumberChangeForm(request.POST, instance=property_obj)
+        if form.is_valid():
+            old_number = property_obj.property_number
+            new_number = form.cleaned_data['new_property_number']
+            
+            # Save with user context for proper history tracking
+            form.save(user=request.user)
+            
+            # Create specific activity log for property number change
+            ActivityLog.log_activity(
+                user=request.user,
+                action='update',
+                model_name='Property',
+                object_repr=str(property_obj),
+                description=f"Changed property number from '{old_number}' to '{new_number}' for property '{property_obj.property_name}'"
+            )
+            
+            return JsonResponse({
+                'success': True, 
+                'message': f'Property number changed from {old_number} to {new_number}',
+                'new_number': new_number,
+                'old_number': old_number
+            })
+        else:
+            return JsonResponse({
+                'success': False, 
+                'errors': form.errors
+            })
+    
+    else:
+        form = PropertyNumberChangeForm(instance=property_obj)
+    
+    # For GET requests or form errors, return the form data
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method' if request.method != 'POST' else 'Form validation failed'
+    })
+
+@permission_required('app.view_admin_module')
 def delete_property(request, pk):
     prop = get_object_or_404(Property, pk=pk)
     if request.method == 'POST':
@@ -1697,22 +1742,61 @@ def delete_property(request, pk):
 def add_property_category(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        
+        # Check if this is an AJAX request
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
         if name:
-            try:
-                category = PropertyCategory.objects.create(name=name)
-                
-                # Log the activity
-                ActivityLog.log_activity(
-                    user=request.user,
-                    action='create',
-                    model_name='PropertyCategory',
-                    object_repr=str(category),
-                    description=f"Added new property category '{name}'"
-                )
-                
-                messages.success(request, 'Category added successfully.')
-            except Exception as e:
-                messages.error(request, f'Error adding category: {str(e)}')
+            # Check if category already exists
+            if PropertyCategory.objects.filter(name=name).exists():
+                if is_ajax:
+                    return JsonResponse({
+                        'success': False, 
+                        'error': f'Category "{name}" already exists.'
+                    })
+                else:
+                    messages.error(request, f'Category "{name}" already exists.')
+            else:
+                try:
+                    category = PropertyCategory.objects.create(name=name)
+                    
+                    # Log the activity
+                    ActivityLog.log_activity(
+                        user=request.user,
+                        action='create',
+                        model_name='PropertyCategory',
+                        object_repr=str(category),
+                        description=f"Added new property category '{name}'"
+                    )
+                    
+                    if is_ajax:
+                        return JsonResponse({
+                            'success': True, 
+                            'message': 'Category added successfully.',
+                            'category': {
+                                'id': category.id,
+                                'name': category.name
+                            }
+                        })
+                    else:
+                        messages.success(request, 'Category added successfully.')
+                except Exception as e:
+                    if is_ajax:
+                        return JsonResponse({
+                            'success': False, 
+                            'error': f'Error adding category: {str(e)}'
+                        })
+                    else:
+                        messages.error(request, f'Error adding category: {str(e)}')
+        else:
+            if is_ajax:
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Category name is required.'
+                })
+            else:
+                messages.error(request, 'Category name is required.')
+    
     return redirect('property_list')
 
 class CheckOutPageView(PermissionRequiredMixin, TemplateView):
@@ -2547,12 +2631,14 @@ def export_property_to_excel(request):
     # Define all possible fields and their display names
     field_mapping = {
         'property_number': 'Property Number',
+        'old_property_number': 'Old Property Number',
         'property_name': 'Property Name',
         'description': 'Description',
         'unit_of_measure': 'Unit of Measure',
         'unit_value': 'Unit Value',
         'overall_quantity': 'Overall Quantity',
         'current_quantity': 'Current Quantity',
+        'quantity_per_physical_count': 'Quantity Per Physical Count',
         'location': 'Location',
         'accountable_person': 'Accountable Person',
         'year_acquired': 'Year Acquired',
@@ -2619,6 +2705,8 @@ def export_property_to_excel(request):
             for field in selected_fields:
                 if field == 'property_number':
                     row_data.append(prop.property_number or 'N/A')
+                elif field == 'old_property_number':
+                    row_data.append(prop.old_property_number or '-')
                 elif field == 'property_name':
                     row_data.append(prop.property_name)
                 elif field == 'description':
@@ -2631,6 +2719,8 @@ def export_property_to_excel(request):
                     row_data.append(prop.overall_quantity or 0)
                 elif field == 'current_quantity':
                     row_data.append(prop.quantity or 0)
+                elif field == 'quantity_per_physical_count':
+                    row_data.append(prop.quantity_per_physical_count or 0)
                 elif field == 'location':
                     row_data.append(prop.location or 'N/A')
                 elif field == 'accountable_person':

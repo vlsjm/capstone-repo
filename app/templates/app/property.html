@@ -1108,7 +1108,9 @@ input:focus {
   text-align: center;
 }
 
+.table-actions-dropdown-item.info { color: #17a2b8; }
 .table-actions-dropdown-item.edit { color: #152d64; }
+.table-actions-dropdown-item.change-number { color: #6f42c1; }
 .table-actions-dropdown-item.history { color: #4a5568; }
 .table-actions-dropdown-item.print { color: #28a745; }
 .table-actions-dropdown-item.archive { color: #dc3545; }
@@ -1120,6 +1122,138 @@ input:focus {
 .input-method-btn {
   background-color: #e9ecef;
   color: #333;
+}
+
+/* Information Modal Styles */
+.info-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.info-modal-content {
+  background-color: #fff;
+  margin: 2% auto;
+  padding: 30px;
+  border: 1px solid #888;
+  width: 95%;
+  max-width: 1200px;
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.info-modal h3 {
+  color: #152d64;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e9ecef;
+  font-size: 24px;
+}
+
+.info-table-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.info-table tr {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.info-table tr:last-child {
+  border-bottom: none;
+}
+
+.info-table td {
+  padding: 10px 12px;
+  vertical-align: top;
+}
+
+.info-table td:first-child {
+  font-weight: 600;
+  color: #495057;
+  width: 40%;
+  background-color: #f8f9fa;
+  font-size: 14px;
+}
+
+.info-table td:last-child {
+  color: #212529;
+  font-weight: 400;
+  word-break: break-word;
+  font-size: 14px;
+}
+
+/* Full width items that should span both columns */
+.info-full-width {
+  grid-column: 1 / -1;
+}
+
+.info-full-width .info-table {
+  margin-bottom: 0;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .info-table-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .info-modal-content {
+    width: 98%;
+    margin: 1% auto;
+    padding: 20px;
+  }
+}
+
+.info-close {
+  color: #152d64;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  position: absolute;
+  right: 20px;
+  top: 15px;
+}
+
+.info-close:hover {
+  color: #1e3d8a;
+}
+
+.info-modal-content {
+  animation: slideIn 0.3s ease-out;
+}
+
+.barcode-display {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 0;
+}
+
+.barcode-display img {
+  max-height: 60px;
+  max-width: 250px;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 5px;
+  background-color: white;
 }
     </style>
   </head>
@@ -1242,6 +1376,27 @@ input:focus {
                 </div>
               </div>
 
+              <!-- Price Range Filter -->
+              <div class="simple-filter-group">
+                <div class="simple-filter-header">
+                  <i class="fas fa-money-bill-wave"></i> Price Range
+                </div>
+                <div class="simple-filter-options">
+                  <label class="simple-filter-option">
+                    <input type="radio" name="priceRange" value="" checked>
+                    <span class="filter-text">All Prices</span>
+                  </label>
+                  <label class="simple-filter-option">
+                    <input type="radio" name="priceRange" value="below50000">
+                    <span class="filter-text">Below ₱50,000</span>
+                  </label>
+                  <label class="simple-filter-option">
+                    <input type="radio" name="priceRange" value="above50000">
+                    <span class="filter-text">Above ₱50,000</span>
+                  </label>
+                </div>
+              </div>
+
               <!-- Filter Actions -->
               <div class="simple-filter-actions">
                 <button type="button" id="clearFiltersBtn" class="simple-btn clear-btn">
@@ -1292,19 +1447,13 @@ input:focus {
               <thead>
                 <tr style="background-color: #152d64; color: white;">
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">No.</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Property Number</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Article/Item</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Category</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Article/Item</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Assigned Property Number</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Description</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Barcode</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Unit of Measure</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Unit Value</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Overall Qty</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Current Qty</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Location</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Accountable Person</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Year Acquired</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Condition</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Quantity Per Property Card</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Quantity Per Physical Count</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Availability</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Actions</th>
                 </tr>
@@ -1319,23 +1468,13 @@ input:focus {
                       {{ forloop.counter }}
                     {% endif %}
                   </td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.property_number|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.property_name|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.category.name|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.property_name|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.property_number|default:"Not assigned" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.description|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">
-                    <div class="barcode-container">
-                      <img src="{{ property.barcode }}" alt="Barcode for {{ property.property_name }}" class="barcode-image">
-                    </div>
-                  </td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.unit_of_measure|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.unit_value|peso }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.overall_quantity|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.quantity|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.location|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.accountable_person|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.year_acquired|date:"M d, Y"|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.get_condition_display|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.quantity_per_physical_count|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">
                     <span class="status-badge {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' or property.availability == 'not_available' %}status-rejected{% else %}status-approved{% endif %}">
                       {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' %}
@@ -1358,6 +1497,27 @@ input:focus {
                         <i class="fas fa-ellipsis-h"></i>
                       </button>
                       <div class="table-actions-dropdown-menu">
+                        <button class="table-actions-dropdown-item info info-btn" 
+                          data-id="{{ property.id }}"
+                          data-property-number="{{ property.property_number|default:'Not assigned' }}"
+                          data-old-property-number="{{ property.old_property_number|default:'N/A' }}"
+                          data-property-name="{{ property.property_name }}"
+                          data-category="{{ property.category.name|default:'N/A' }}"
+                          data-description="{{ property.description|default:'N/A' }}"
+                          data-barcode="{{ property.barcode }}"
+                          data-unit-measure="{{ property.unit_of_measure|default:'N/A' }}"
+                          data-unit-value="{{ property.unit_value|peso }}"
+                          data-overall-quantity="{{ property.overall_quantity|default:'N/A' }}"
+                          data-current-quantity="{{ property.quantity|default:'N/A' }}"
+                          data-quantity-physical-count="{{ property.quantity_per_physical_count|default:'N/A' }}"
+                          data-location="{{ property.location|default:'N/A' }}"
+                          data-accountable-person="{{ property.accountable_person|default:'N/A' }}"
+                          data-year-acquired="{{ property.year_acquired|date:'M d, Y'|default:'N/A' }}"
+                          data-condition="{{ property.get_condition_display|default:'N/A' }}"
+                          data-availability="{% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' %}Not Available{% else %}{% if property.availability == 'available' %}Available{% else %}Not Available{% endif %}{% endif %}">
+                          <i class="fas fa-info-circle"></i> View Information
+                        </button>
+                        
                         <button class="table-actions-dropdown-item edit edit-btn" 
                           data-id="{{ property.id }}"
                           data-property-number="{{ property.property_number }}"
@@ -1367,6 +1527,7 @@ input:focus {
                           data-unit-value="{{ property.unit_value|default:0 }}"
                           data-overall-quantity="{{ property.overall_quantity }}"
                           data-quantity="{{ property.quantity }}"
+                          data-quantity-physical-count="{{ property.quantity_per_physical_count }}"
                           data-location="{{ property.location|default:'' }}"
                           data-accountable-person="{{ property.accountable_person|default:'' }}"
                           data-year-acquired="{{ property.year_acquired|date:'Y-m-d'|default:'' }}"
@@ -1374,6 +1535,14 @@ input:focus {
                           data-category="{{ property.category.id|default:'' }}"
                           data-availability="{{ property.availability }}">
                           <i class="fas fa-edit"></i> Edit
+                        </button>
+                        
+                        <button class="table-actions-dropdown-item change-number change-number-btn" 
+                          data-id="{{ property.id }}"
+                          data-property-number="{{ property.property_number|default:'' }}"
+                          data-old-property-number="{{ property.old_property_number|default:'' }}"
+                          data-property-name="{{ property.property_name }}">
+                          <i class="fas fa-tag"></i> Change Number
                         </button>
                         
                         <button class="table-actions-dropdown-item history history-btn" 
@@ -1402,7 +1571,7 @@ input:focus {
                 </tr>
                 {% empty %}
                 <tr>
-                  <td colspan="14" style="padding: 20px; text-align: center; color: #6c757d;">No properties available.</td>
+                  <td colspan="10" style="padding: 20px; text-align: center; color: #6c757d;">No properties available.</td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -1612,6 +1781,13 @@ input:focus {
         </div>
 
         <div class="form-group">
+          <label for="{{ form.quantity_per_physical_count.id_for_label }}">
+            <i class="fas fa-clipboard-check"></i> Quantity Per Physical Count
+          </label>
+          {{ form.quantity_per_physical_count }}
+        </div>
+
+        <div class="form-group">
           <label for="{{ form.location.id_for_label }}">
             <i class="fas fa-map-marker-alt"></i> Location
             <span class="required-asterisk">*</span>
@@ -1751,6 +1927,13 @@ input:focus {
 
       <div class="form-group">
         <label>
+          <i class="fas fa-clipboard-check"></i> Quantity Per Physical Count
+        </label>
+        <input type="number" name="quantity_per_physical_count" id="edit_quantity_per_physical_count" min="0" />
+      </div>
+
+      <div class="form-group">
+        <label>
           <i class="fas fa-check-circle"></i> Availability
           <span class="required-asterisk">*</span>
         </label>
@@ -1869,6 +2052,9 @@ input:focus {
                         <input type="checkbox" name="fields" value="property_number" checked style="margin: 0; width: 16px; height: 16px;"> Property Number
                     </label>
                     <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="fields" value="old_property_number" style="margin: 0; width: 16px; height: 16px;"> Old Property Number
+                    </label>
+                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
                         <input type="checkbox" name="fields" value="property_name" checked style="margin: 0; width: 16px; height: 16px;"> Property Name
                     </label>
                     <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
@@ -1885,6 +2071,9 @@ input:focus {
                     </label>
                     <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
                         <input type="checkbox" name="fields" value="current_quantity" checked style="margin: 0; width: 16px; height: 16px;"> Current Quantity
+                    </label>
+                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="fields" value="quantity_per_physical_count" style="margin: 0; width: 16px; height: 16px;"> Quantity Per Physical Count
                     </label>
                     <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
                         <input type="checkbox" name="fields" value="location" checked style="margin: 0; width: 16px; height: 16px;"> Location
@@ -1909,6 +2098,154 @@ input:focus {
         </form>
     </div>
 </div>
+
+<!-- Change Property Number Modal -->
+<div id="changePropertyNumberModal" class="modal">
+  <div class="modal-content" style="max-width: 500px;">
+    <span class="close" id="closeChangePropertyNumberModalBtn">&times;</span>
+    <h3 style="color: #152d64; margin-bottom: 20px;">Change Property Number</h3>
+    
+    <form id="changePropertyNumberForm">
+      {% csrf_token %}
+      <input type="hidden" id="change_property_id" name="property_id">
+      
+      <div class="form-group" style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Property Name:</label>
+        <input type="text" id="change_property_name" readonly 
+               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f8f9fa;">
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Current Property Number:</label>
+        <input type="text" id="current_property_number" readonly 
+               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f8f9fa;">
+      </div>
+      
+      <div class="form-group" id="oldPropertyNumberGroup" style="margin-bottom: 15px; display: none;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #6c757d;">Previous Property Number:</label>
+        <input type="text" id="old_property_number" readonly 
+               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f8f9fa; color: #6c757d;">
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+          New Property Number: <span style="color: red;">*</span>
+        </label>
+        <input type="text" id="new_property_number" name="new_property_number" required
+               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
+               placeholder="Enter new property number">
+        <small style="color: #6c757d; font-size: 12px;">
+          The old property number will be stored for reference.
+        </small>
+      </div>
+      
+      <div id="changePropertyNumberError" style="color: #dc3545; margin-bottom: 15px; display: none;">
+      </div>
+      
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" class="cancel-btn" onclick="closeChangePropertyNumberModal()">
+          Cancel
+        </button>
+        <button type="submit" class="submit-btn">
+          Change Property Number
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Property Information Modal -->
+<div id="infoModal" class="info-modal">
+  <div class="info-modal-content">
+    <span class="info-close" id="closeInfoModalBtn">&times;</span>
+    <h3>Complete Property Information</h3>
+    
+    <div class="info-table-container">
+      <!-- Left Column -->
+      <div>
+        <table class="info-table">
+          <tr>
+            <td>Property Number</td>
+            <td id="info-property-number">-</td>
+          </tr>
+          <tr>
+            <td>Old Property Number</td>
+            <td id="info-old-property-number">-</td>
+          </tr>
+          <tr>
+            <td>Article/Item</td>
+            <td id="info-article">-</td>
+          </tr>
+          <tr>
+            <td>Category</td>
+            <td id="info-category">-</td>
+          </tr>
+          <tr>
+            <td>Unit of Measure</td>
+            <td id="info-unit-measure">-</td>
+          </tr>
+          <tr>
+            <td>Unit Value</td>
+            <td id="info-unit-value">-</td>
+          </tr>
+          <tr>
+            <td>Overall Quantity</td>
+            <td id="info-overall-quantity">-</td>
+          </tr>
+          <tr>
+            <td>Current Quantity</td>
+            <td id="info-current-quantity">-</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Right Column -->
+      <div>
+        <table class="info-table">
+          <tr>
+            <td>Quantity Per Physical Count</td>
+            <td id="info-physical-count">-</td>
+          </tr>
+          <tr>
+            <td>Location</td>
+            <td id="info-location">-</td>
+          </tr>
+          <tr>
+            <td>Accountable Person</td>
+            <td id="info-accountable-person">-</td>
+          </tr>
+          <tr>
+            <td>Year Acquired</td>
+            <td id="info-year-acquired">-</td>
+          </tr>
+          <tr>
+            <td>Condition</td>
+            <td id="info-condition">-</td>
+          </tr>
+          <tr>
+            <td>Availability</td>
+            <td id="info-availability">-</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Full Width Items -->
+      <div class="info-full-width">
+        <table class="info-table">
+          <tr>
+            <td>Description</td>
+            <td id="info-description">-</td>
+          </tr>
+          <tr>
+            <td>Barcode</td>
+            <td id="info-barcode" class="barcode-display">-</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% block extra_scripts %}
 
 <!-- jQuery (required by Select2 and your scripts) -->
@@ -2040,12 +2377,66 @@ input:focus {
               method: 'POST',
               body: formData,
               headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
               }
             })
             .then(response => {
-              if (response.redirected) {
-                window.location.href = response.url;
+              // Parse JSON response
+              return response.json();
+            })
+            .then(data => {
+              const categoryName = document.getElementById('categoryName').value;
+              
+              // Clear any existing messages
+              const existingMessage = document.querySelector('.category-success-message, .category-error-message');
+              if (existingMessage) {
+                existingMessage.remove();
+              }
+              
+              if (data.success) {
+                // Success - category was added
+                
+                // Clear the form input
+                document.getElementById('categoryName').value = '';
+                
+                // Show success message
+                const successMessage = document.createElement('div');
+                successMessage.className = 'category-success-message';
+                successMessage.style.cssText = 'color: green; margin: 10px 0; padding: 8px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px;';
+                successMessage.textContent = data.message || 'Category "' + categoryName + '" added successfully!';
+                
+                // Insert success message after the form
+                addCategoryForm.insertAdjacentElement('afterend', successMessage);
+                
+                // Remove success message after 3 seconds
+                setTimeout(function() {
+                  if (successMessage && successMessage.parentNode) {
+                    successMessage.remove();
+                  }
+                }, 3000);
+                
+                // Refresh only the categories table in the modal
+                refreshCategoriesTable();
+                
+                // Focus back to the input field for easy continuation
+                document.getElementById('categoryName').focus();
+                
+              } else {
+                // Error occurred - show error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'category-error-message';
+                errorDiv.style.cssText = 'color: #721c24; margin: 10px 0; padding: 8px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;';
+                errorDiv.textContent = data.error || 'Error adding category. Please try again.';
+                
+                addCategoryForm.insertAdjacentElement('afterend', errorDiv);
+                
+                // Remove error message after 5 seconds
+                setTimeout(function() {
+                  if (errorDiv && errorDiv.parentNode) {
+                    errorDiv.remove();
+                  }
+                }, 5000);
               }
             })
             .catch(error => {
@@ -2053,6 +2444,34 @@ input:focus {
               alert('Error adding category. Please try again.');
             });
           };
+        }
+
+        // Function to refresh only the categories table in the modal
+        function refreshCategoriesTable() {
+          fetch(window.location.href, {
+            method: 'GET',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+          .then(response => response.text())
+          .then(html => {
+            // Create a temporary element to parse the response HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // Find the categories table in the response
+            const newCategoriesTable = tempDiv.querySelector('#categoryModal .table-container');
+            const currentCategoriesTable = document.querySelector('#categoryModal .table-container');
+            
+            if (newCategoriesTable && currentCategoriesTable) {
+              // Replace the current table with the new one
+              currentCategoriesTable.innerHTML = newCategoriesTable.innerHTML;
+            }
+          })
+          .catch(error => {
+            console.error('Error refreshing categories table:', error);
+          });
         }
 
         // Edit button functionality
@@ -2069,6 +2488,7 @@ input:focus {
                 document.getElementById('edit_quantity').value = this.dataset.quantity;
                 
                 // Set visible fields
+                document.getElementById('edit_quantity_per_physical_count').value = this.dataset.quantityPhysicalCount || 0;
                 document.getElementById('edit_name').value = this.dataset.propertyName;
                 document.getElementById('edit_description').value = this.dataset.description;
                 document.getElementById('edit_unit_of_measure').value = this.dataset.unitMeasure;
@@ -2119,6 +2539,81 @@ input:focus {
             if (event.target == editModal) {
                 editModal.style.display = 'none';
             }
+        }
+
+        // Information Modal functionality
+        const infoModal = document.getElementById('infoModal');
+        const infoBtns = document.querySelectorAll('.info-btn');
+        const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
+
+        if (!infoModal || !infoBtns.length || !closeInfoModalBtn) {
+            console.error('Information modal elements not found');
+        } else {
+            infoBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Get data from the button's data attributes
+                    const propertyNumber = this.getAttribute('data-property-number') || 'Not assigned';
+                    const oldPropertyNumber = this.getAttribute('data-old-property-number') || 'N/A';
+                    const propertyName = this.getAttribute('data-property-name') || 'N/A';
+                    const category = this.getAttribute('data-category') || 'N/A';
+                    const description = this.getAttribute('data-description') || 'N/A';
+                    const barcode = this.getAttribute('data-barcode') || '';
+                    const unitMeasure = this.getAttribute('data-unit-measure') || 'N/A';
+                    const unitValue = this.getAttribute('data-unit-value') || 'N/A';
+                    const overallQuantity = this.getAttribute('data-overall-quantity') || 'N/A';
+                    const currentQuantity = this.getAttribute('data-current-quantity') || 'N/A';
+                    const quantityPhysicalCount = this.getAttribute('data-quantity-physical-count') || 'N/A';
+                    const location = this.getAttribute('data-location') || 'N/A';
+                    const accountablePerson = this.getAttribute('data-accountable-person') || 'N/A';
+                    const yearAcquired = this.getAttribute('data-year-acquired') || 'N/A';
+                    const condition = this.getAttribute('data-condition') || 'N/A';
+                    const availability = this.getAttribute('data-availability') || 'N/A';
+
+                    // Populate the modal with the data
+                    document.getElementById('info-property-number').textContent = propertyNumber;
+                    document.getElementById('info-old-property-number').textContent = oldPropertyNumber;
+                    document.getElementById('info-article').textContent = propertyName;
+                    document.getElementById('info-category').textContent = category;
+                    document.getElementById('info-description').textContent = description || 'No description available';
+                    
+                    // Handle barcode display
+                    const barcodeCell = document.getElementById('info-barcode');
+                    if (barcode) {
+                        barcodeCell.innerHTML = `<div class="barcode-display"><img src="${barcode}" alt="Barcode" /></div>`;
+                    } else {
+                        barcodeCell.textContent = 'N/A';
+                    }
+                    
+                    document.getElementById('info-unit-measure').textContent = unitMeasure;
+                    document.getElementById('info-unit-value').textContent = unitValue;
+                    document.getElementById('info-overall-quantity').textContent = overallQuantity;
+                    document.getElementById('info-current-quantity').textContent = currentQuantity;
+                    document.getElementById('info-physical-count').textContent = quantityPhysicalCount;
+                    document.getElementById('info-location').textContent = location;
+                    document.getElementById('info-accountable-person').textContent = accountablePerson;
+                    document.getElementById('info-year-acquired').textContent = yearAcquired;
+                    document.getElementById('info-condition').textContent = condition;
+                    document.getElementById('info-availability').textContent = availability;
+
+                    // Show the modal
+                    infoModal.style.display = 'block';
+                });
+            });
+
+            // Close information modal when clicking the close button
+            closeInfoModalBtn.addEventListener('click', function() {
+                infoModal.style.display = 'none';
+            });
+
+            // Close information modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === infoModal) {
+                    infoModal.style.display = 'none';
+                }
+            });
         }
 
         // History Modal functionality
@@ -2240,17 +2735,17 @@ document.getElementById('exportForm').addEventListener('submit', function(e) {
     }
 });
 
-// Add exportModal to the list of modals in your closeAllModals function
+// Add exportModal and infoModal to the list of modals in your closeAllModals function
 function closeAllModals() {
-    const modals = [addModal, editModal, modifyQuantityModal, historyModal, categoryModal, exportModal];
+    const modals = [addModal, editModal, modifyQuantityModal, historyModal, categoryModal, exportModal, infoModal];
     modals.forEach(modal => {
         if (modal) modal.style.display = "none";
     });
 }
 
-// Add exportModal to your window click handler
+// Add exportModal and infoModal to your window click handler
 window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
+    if (event.target.classList.contains('modal') || event.target.classList.contains('info-modal')) {
         event.target.style.display = "none";
     }
 }
@@ -2305,7 +2800,7 @@ function printBarcodes() {
     // Add each barcode with its name to the content
     propertyRows.forEach((row, index) => {
         const barcodeImg = row.querySelector('.barcode-container img');
-        const propertyNameCell = row.cells[2]; // Property name is in the third column
+        const propertyNameCell = row.cells[3]; // Property name is now in the fourth column
         
         if (barcodeImg && propertyNameCell) {
             const propertyName = propertyNameCell.textContent.trim();
@@ -2536,6 +3031,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const categoryCheckboxes = document.querySelectorAll('input[name="category"]');
   const availabilityRadios = document.querySelectorAll('input[name="availability"]');
   const conditionCheckboxes = document.querySelectorAll('input[name="condition"]');
+  const priceRangeRadios = document.querySelectorAll('input[name="priceRange"]');
 
   // URL parameter functions
   function getUrlParameter(name) {
@@ -2574,7 +3070,8 @@ document.addEventListener('DOMContentLoaded', function() {
       search: searchInput.value,
       categories: getSelectedValues(categoryCheckboxes),
       availability: getSelectedValue(availabilityRadios),
-      conditions: getSelectedValues(conditionCheckboxes)
+      conditions: getSelectedValues(conditionCheckboxes),
+      priceRange: getSelectedValue(priceRangeRadios)
     };
     localStorage.setItem('propertyFilters', JSON.stringify(filters));
   }
@@ -2625,6 +3122,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const selectedConditions = getSelectedValues(conditionCheckboxes);
     if (selectedConditions.length > 0) count++;
+    
+    const selectedPriceRange = getSelectedValue(priceRangeRadios);
+    if (selectedPriceRange !== '') count++;
 
     if (activeFilterCount) {
       activeFilterCount.textContent = count;
@@ -2644,6 +3144,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedCategories = getSelectedValues(categoryCheckboxes);
     const selectedAvailability = getSelectedValue(availabilityRadios);
     const selectedConditions = getSelectedValues(conditionCheckboxes);
+    const selectedPriceRange = getSelectedValue(priceRangeRadios);
 
     const tbody = table.querySelector('tbody');
     if (!tbody) return;
@@ -2659,14 +3160,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
       totalCount++;
 
-      const categoryCell = cells[3];
-      const availabilityCell = cells[12];
-      const conditionCell = cells[11];
+      const categoryCell = cells[1]; // Category is now in the 2nd column (index 1)
+      const unitValueCell = cells[5]; // Unit Value is now in the 6th column (index 5)
+      const availabilityCell = cells[8]; // Availability is now in the 9th column (index 8)
 
       let matchesSearch = true;
       let matchesCategory = true;
       let matchesAvailability = true;
-      let matchesCondition = true;
+      let matchesPriceRange = true;
 
       // Search functionality
       if (searchTerm) {
@@ -2695,14 +3196,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
 
-      // Condition filter
-      if (selectedConditions.length > 0 && conditionCell) {
-        const conditionText = conditionCell.textContent.trim();
-        matchesCondition = selectedConditions.includes(conditionText);
+      // Price range filter
+      if (selectedPriceRange && unitValueCell) {
+        const unitValueText = unitValueCell.textContent.trim();
+        // Extract numeric value from formatted currency (remove ₱, commas, etc.)
+        const numericValue = parseFloat(unitValueText.replace(/[₱,\s]/g, '').replace(/[^\d.]/g, ''));
+        
+        if (!isNaN(numericValue)) {
+          if (selectedPriceRange === 'below50000') {
+            matchesPriceRange = numericValue < 50000;
+          } else if (selectedPriceRange === 'above50000') {
+            matchesPriceRange = numericValue >= 50000;
+          }
+        }
       }
 
       // Show/hide row
-      const shouldShow = matchesSearch && matchesCategory && matchesAvailability && matchesCondition;
+      const shouldShow = matchesSearch && matchesCategory && matchesAvailability && matchesPriceRange;
       row.style.display = shouldShow ? '' : 'none';
 
       if (shouldShow) {
@@ -2730,18 +3240,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const urlCategories = getUrlParameterArray('category');
     const urlAvailability = getUrlParameter('availability');
     const urlConditions = getUrlParameterArray('condition');
+    const urlPriceRange = getUrlParameter('priceRange');
 
-    if (urlSearch || urlCategories.length || urlAvailability || urlConditions.length) {
+    if (urlSearch || urlCategories.length || urlAvailability || urlConditions.length || urlPriceRange) {
       searchInput.value = urlSearch;
       setSelectedValues(categoryCheckboxes, urlCategories);
       setSelectedValues(availabilityRadios, urlAvailability);
       setSelectedValues(conditionCheckboxes, urlConditions);
+      setSelectedValues(priceRangeRadios, urlPriceRange);
     } else {
       const savedFilters = loadFiltersFromStorage();
       searchInput.value = savedFilters.search || '';
       setSelectedValues(categoryCheckboxes, savedFilters.categories || []);
       setSelectedValues(availabilityRadios, savedFilters.availability || '');
       setSelectedValues(conditionCheckboxes, savedFilters.conditions || []);
+      setSelectedValues(priceRangeRadios, savedFilters.priceRange || '');
     }
   }
 
@@ -2751,7 +3264,8 @@ document.addEventListener('DOMContentLoaded', function() {
       search: searchInput.value,
       category: getSelectedValues(categoryCheckboxes),
       availability: getSelectedValue(availabilityRadios),
-      condition: getSelectedValues(conditionCheckboxes)
+      condition: getSelectedValues(conditionCheckboxes),
+      priceRange: getSelectedValue(priceRangeRadios)
     };
     
     updateUrlParameters(params);
@@ -2787,16 +3301,19 @@ document.addEventListener('DOMContentLoaded', function() {
       setSelectedValues(categoryCheckboxes, []);
       setSelectedValues(availabilityRadios, '');
       setSelectedValues(conditionCheckboxes, []);
+      setSelectedValues(priceRangeRadios, '');
       
       // Check "all" options
       const categoryAll = document.querySelector('input[name="category"][value=""]');
       const availabilityAll = document.querySelector('input[name="availability"][value=""]');
       const conditionAll = document.querySelector('input[name="condition"][value=""]');
+      const priceRangeAll = document.querySelector('input[name="priceRange"][value=""]');
       if (categoryAll) categoryAll.checked = true;
       if (availabilityAll) availabilityAll.checked = true;
       if (conditionAll) conditionAll.checked = true;
+      if (priceRangeAll) priceRangeAll.checked = true;
       
-      updateUrlParameters({search: '', category: [], availability: '', condition: []});
+      updateUrlParameters({search: '', category: [], availability: '', condition: [], priceRange: ''});
       saveFiltersToStorage();
       updateFilterCount();
       filterAndSearch();
@@ -2870,10 +3387,141 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  priceRangeRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      updateFilterCount();
+      filterAndSearch();
+    });
+  });
+
   // Initialize
   loadFilterValues();
   updateFilterCount();
   filterAndSearch();
+});
+</script>
+
+<!-- Change Property Number JavaScript -->
+<script>
+// Change Property Number Modal functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const changePropertyNumberModal = document.getElementById('changePropertyNumberModal');
+    const changePropertyNumberBtns = document.querySelectorAll('.change-number-btn');
+    const closeChangePropertyNumberModalBtn = document.getElementById('closeChangePropertyNumberModalBtn');
+    const changePropertyNumberForm = document.getElementById('changePropertyNumberForm');
+
+    // Open change property number modal
+    changePropertyNumberBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const propertyId = this.getAttribute('data-id');
+            const propertyNumber = this.getAttribute('data-property-number');
+            const oldPropertyNumber = this.getAttribute('data-old-property-number');
+            const propertyName = this.getAttribute('data-property-name');
+
+            // Populate modal fields
+            document.getElementById('change_property_id').value = propertyId;
+            document.getElementById('change_property_name').value = propertyName;
+            document.getElementById('current_property_number').value = propertyNumber || 'Not assigned';
+            document.getElementById('new_property_number').value = '';
+            
+            // Show/hide old property number field
+            const oldPropertyNumberGroup = document.getElementById('oldPropertyNumberGroup');
+            const oldPropertyNumberInput = document.getElementById('old_property_number');
+            if (oldPropertyNumber) {
+                oldPropertyNumberInput.value = oldPropertyNumber;
+                oldPropertyNumberGroup.style.display = 'block';
+            } else {
+                oldPropertyNumberGroup.style.display = 'none';
+            }
+            
+            // Clear any previous errors
+            document.getElementById('changePropertyNumberError').style.display = 'none';
+            
+            // Show modal
+            changePropertyNumberModal.style.display = 'block';
+        });
+    });
+
+    // Close modal functionality
+    closeChangePropertyNumberModalBtn.addEventListener('click', function() {
+        closeChangePropertyNumberModal();
+    });
+
+    // Form submission
+    changePropertyNumberForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const propertyId = document.getElementById('change_property_id').value;
+        
+        fetch(`/change-property-number/${propertyId}/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                alert(data.message);
+                
+                // Close modal
+                closeChangePropertyNumberModal();
+                
+                // Reload page to show updated property number
+                window.location.reload();
+            } else {
+                // Show error message
+                const errorDiv = document.getElementById('changePropertyNumberError');
+                if (data.errors && data.errors.new_property_number) {
+                    errorDiv.textContent = data.errors.new_property_number[0];
+                } else {
+                    errorDiv.textContent = data.message || 'An error occurred while changing the property number.';
+                }
+                errorDiv.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const errorDiv = document.getElementById('changePropertyNumberError');
+            errorDiv.textContent = 'An error occurred while processing your request.';
+            errorDiv.style.display = 'block';
+        });
+    });
+});
+
+// Function to close change property number modal
+function closeChangePropertyNumberModal() {
+    const modal = document.getElementById('changePropertyNumberModal');
+    const form = document.getElementById('changePropertyNumberForm');
+    const errorDiv = document.getElementById('changePropertyNumberError');
+    
+    modal.style.display = 'none';
+    form.reset();
+    errorDiv.style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.addEventListener('click', function(event) {
+    const modal = document.getElementById('changePropertyNumberModal');
+    if (event.target === modal) {
+        closeChangePropertyNumberModal();
+    }
+});
+
+// Auto-uppercase property number inputs
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle property number inputs in all forms
+    const propertyNumberInputs = document.querySelectorAll('input[name="property_number"], input[name="new_property_number"], #new_property_number');
+    
+    propertyNumberInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            // Convert to uppercase as user types
+            this.value = this.value.toUpperCase();
+        });
+    });
 });
 </script>
 
@@ -2895,8 +3543,8 @@ function openBarcodeSelectionModal() {
     
     propertyRows.forEach((row, index) => {
         const barcodeImg = row.querySelector('.barcode-container img');
-        const propertyNameCell = row.cells[2]; // Property name is in the third column
-        const propertyNumberCell = row.cells[1]; // Property number is in the second column
+        const propertyNameCell = row.cells[3]; // Property name is now in the fourth column
+        const propertyNumberCell = row.cells[1]; // Property number is still in the second column
         
         if (barcodeImg && propertyNameCell) {
             const propertyName = propertyNameCell.textContent.trim();
