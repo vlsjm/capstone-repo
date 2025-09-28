@@ -1400,8 +1400,9 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         
         # Generate barcodes for each property in the current page
         for prop in properties:
-            # Always auto-generate barcode using PROP-{ID} format
-            prop.barcode = generate_barcode(f"PROP-{prop.id}")
+            # Use property_number for barcode if available, otherwise use ID
+            barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+            prop.barcode = generate_barcode(barcode_number)
         
         # Get all categories for the filter dropdown
         context['categories'] = PropertyCategory.objects.all()
@@ -1515,16 +1516,25 @@ def add_property(request):
                 # First save the property
                 prop = form.save(commit=False)
                 
+                # Set initial quantity equal to overall_quantity for new properties
+                if not prop.pk:
+                    prop.quantity = form.cleaned_data['overall_quantity']
+                
                 prop._logged_in_user = request.user
                 prop.save(user=request.user)  # Pass the user to save method
 
+
+            # Generate barcode based on property_number or ID
+                barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+                prop.barcode = generate_barcode(barcode_number)
+                prop.save(user=request.user)
                 # Create activity log using log_activity method
                 ActivityLog.log_activity(
                     user=request.user,
                     action='create',
                     model_name='Property',
                     object_repr=str(prop),
-                    description=f"Added new property '{prop.property_name}' with property number {prop.property_number}, physical count {prop.quantity_per_physical_count}, and property card {prop.quantity_per_property_card}"
+                    description=f"Added new property '{prop.property_name}' with property number {prop.property_number}, overall quantity {prop.overall_quantity}, and initial quantity {prop.quantity}"
                 )
                 messages.success(request, 'Property added successfully.')
             except Exception as e:
@@ -1553,14 +1563,13 @@ def edit_property(request):
             # Store old values for activity log
             old_values = {
                 'property_number': property_obj.property_number,
-                'new_property_number': property_obj.new_property_number,
                 'property_name': property_obj.property_name,
                 'description': property_obj.description,
                 'barcode': property_obj.barcode,
                 'unit_of_measure': property_obj.unit_of_measure,
                 'unit_value': property_obj.unit_value,
-                'quantity_per_physical_count': property_obj.quantity_per_physical_count,
-                'quantity_per_property_card': property_obj.quantity_per_property_card,
+                'overall_quantity': property_obj.overall_quantity,
+                'quantity': property_obj.quantity,
                 'location': property_obj.location,
                 'accountable_person': property_obj.accountable_person,
                 'year_acquired': property_obj.year_acquired,
@@ -1571,10 +1580,9 @@ def edit_property(request):
 
             # Update property fields from POST data
             property_obj.property_number = request.POST.get('property_number')
-            property_obj.new_property_number = request.POST.get('new_property_number')
             property_obj.property_name = request.POST.get('property_name')
             property_obj.description = request.POST.get('description')
-            # Note: barcode is auto-generated and not editable
+            property_obj.barcode = request.POST.get('barcode')
             property_obj.unit_of_measure = request.POST.get('unit_of_measure')
 
             # Convert unit_value to float safely
@@ -1583,16 +1591,11 @@ def edit_property(request):
             except (TypeError, ValueError):
                 property_obj.unit_value = 0
 
-            # Convert quantity fields to int safely
+            # Convert overall_quantity to int safely
             try:
-                property_obj.quantity_per_physical_count = int(request.POST.get('quantity_per_physical_count', 0))
+                property_obj.overall_quantity = int(request.POST.get('overall_quantity', 0))
             except (TypeError, ValueError):
-                property_obj.quantity_per_physical_count = 0
-
-            try:
-                property_obj.quantity_per_property_card = int(request.POST.get('quantity_per_property_card', 0))
-            except (TypeError, ValueError):
-                property_obj.quantity_per_property_card = 0
+                property_obj.overall_quantity = 0
 
             property_obj.location = request.POST.get('location')
             property_obj.accountable_person = request.POST.get('accountable_person')
@@ -1645,9 +1648,8 @@ def edit_property(request):
                         changes.append(f"category: {old_val_repr} → {new_val_repr}")
                 else:
                     if str(old_value) != str(new_value):
-                        if field in ['quantity_per_physical_count', 'quantity_per_property_card']:
-                            field_display = field.replace('_', ' ').title()
-                            changes.append(f"{field_display}: {old_value} → {new_value}")
+                        if field == 'overall_quantity':
+                            changes.append(f"overall quantity: {old_value} → {new_value} (current quantity updated accordingly)")
                         elif field == 'condition' and new_value in unavailable_conditions:
                             changes.append(f"condition: {old_value} → {new_value} (automatically set availability to Not Available)")
                         else:
@@ -2537,21 +2539,20 @@ def export_property_to_excel(request):
 
     # Get selected fields from request
     selected_fields = request.POST.getlist('fields', [
-        'property_number', 'new_property_number', 'property_name', 'description', 'unit_of_measure',
-        'unit_value', 'quantity_per_physical_count', 'quantity_per_property_card', 'location',
+        'property_number', 'property_name', 'description', 'unit_of_measure',
+        'unit_value', 'overall_quantity', 'current_quantity', 'location',
         'accountable_person', 'year_acquired', 'condition', 'category'
     ])
 
     # Define all possible fields and their display names
     field_mapping = {
-        'property_number': 'Old Property Number',
-        'new_property_number': 'New Property Number',
+        'property_number': 'Property Number',
         'property_name': 'Property Name',
         'description': 'Description',
         'unit_of_measure': 'Unit of Measure',
         'unit_value': 'Unit Value',
-        'quantity_per_physical_count': 'Quantity Per Physical Count',
-        'quantity_per_property_card': 'Quantity Per Property Card',
+        'overall_quantity': 'Overall Quantity',
+        'current_quantity': 'Current Quantity',
         'location': 'Location',
         'accountable_person': 'Accountable Person',
         'year_acquired': 'Year Acquired',
@@ -2618,8 +2619,6 @@ def export_property_to_excel(request):
             for field in selected_fields:
                 if field == 'property_number':
                     row_data.append(prop.property_number or 'N/A')
-                elif field == 'new_property_number':
-                    row_data.append(prop.new_property_number or 'N/A')
                 elif field == 'property_name':
                     row_data.append(prop.property_name)
                 elif field == 'description':
@@ -2628,10 +2627,10 @@ def export_property_to_excel(request):
                     row_data.append(prop.unit_of_measure or 'N/A')
                 elif field == 'unit_value':
                     row_data.append(prop.unit_value or 0)
-                elif field == 'quantity_per_physical_count':
-                    row_data.append(prop.quantity_per_physical_count or 0)
-                elif field == 'quantity_per_property_card':
-                    row_data.append(prop.quantity_per_property_card or 0)
+                elif field == 'overall_quantity':
+                    row_data.append(prop.overall_quantity or 0)
+                elif field == 'current_quantity':
+                    row_data.append(prop.quantity or 0)
                 elif field == 'location':
                     row_data.append(prop.location or 'N/A')
                 elif field == 'accountable_person':
@@ -2859,19 +2858,20 @@ def modify_property_quantity_generic(request):
         amount = int(request.POST.get("amount", 0))
 
         prop = get_object_or_404(Property, pk=property_id)
-        old_quantity = prop.quantity_per_physical_count
+        old_quantity = prop.quantity
 
-        # Always add the quantity to physical count since this is for inventory management
-        prop.quantity_per_physical_count += amount
+        # Always add the quantity since we removed the action type selection
+        prop.quantity += amount
+        prop.overall_quantity += amount
         prop.save()
 
         PropertyHistory.objects.create(
             property=prop,
             user=request.user,
             action='quantity_update',
-            field_name='quantity_per_physical_count',
+            field_name='quantity',
             old_value=str(old_quantity),
-            new_value=str(prop.quantity_per_physical_count),
+            new_value=str(prop.quantity),
             remarks=f"add {amount}"
         )
 
@@ -2881,7 +2881,7 @@ def modify_property_quantity_generic(request):
             action='quantity_update',
             model_name='Property',
             object_repr=str(prop),
-            description=f"Added {amount} units to property '{prop.property_name}'. Changed physical count from {old_quantity} to {prop.quantity_per_physical_count}"
+            description=f"Added {amount} units to property '{prop.property_name}'. Changed quantity from {old_quantity} to {prop.quantity}"
         )
 
         messages.success(request, f"Quantity successfully added.")
@@ -2932,7 +2932,7 @@ def get_property_by_barcode(request, barcode):
         'property': {
             'id': property.id,
             'name': property.property_name,
-            'current_quantity': property.quantity_per_physical_count
+            'current_quantity': property.quantity
         }
     })
 
@@ -2982,6 +2982,11 @@ def unarchive_supply(request, pk):
 def archive_property(request, pk):
     property_obj = get_object_or_404(Property, pk=pk)
     if request.method == 'POST':
+        # Check if property has zero quantity
+        if property_obj.quantity > 0:
+            messages.error(request, f"Cannot archive property '{property_obj.property_name}' because it still has {property_obj.quantity} units.")
+            return redirect('property_list')
+        
         property_obj.is_archived = True
         property_obj.save(user=request.user)
         
@@ -3627,8 +3632,13 @@ def borrow_batch_request_detail(request, batch_id):
             item = get_object_or_404(BorrowRequestItem, id=item_id, batch_request=batch_request)
             
             if action == 'approve':
-                # Get approved quantity
+                # Check availability before approving
+                available_quantity = item.property.quantity or 0
                 approved_quantity = int(request.POST.get('approved_quantity', item.quantity))
+                
+                if approved_quantity > available_quantity:
+                    messages.error(request, f'Only {available_quantity} units of {item.property.property_name} are available.')
+                    return redirect('borrow_batch_request_detail', batch_id=batch_id)
                 
                 item.status = 'approved'
                 item.approved_quantity = approved_quantity
@@ -3730,11 +3740,28 @@ def claim_borrow_batch_items(request, batch_id):
         messages.error(request, 'No approved items available for claiming.')
         return redirect('user_borrow_requests')
     
+    # Check stock availability for all items before processing
+    insufficient_stock_items = []
+    for item in approved_items:
+        available_quantity = item.property.quantity or 0
+        approved_qty = item.approved_quantity or item.quantity or 0
+        
+        if available_quantity < approved_qty:
+            insufficient_stock_items.append(f"{item.property.property_name} (need: {approved_qty}, available: {available_quantity})")
+    
+    if insufficient_stock_items:
+        messages.error(request, f"Insufficient stock for: {', '.join(insufficient_stock_items)}")
+        return redirect('user_borrow_requests')
+    
     # Process all approved items
     claimed_items = []
     
     for item in approved_items:
         approved_qty = item.approved_quantity or item.quantity or 0
+        
+        # Deduct from property quantity
+        item.property.quantity -= approved_qty
+        item.property.save()
         
         # Update the approved_quantity if it was None
         if item.approved_quantity is None:
@@ -3808,6 +3835,10 @@ def return_borrow_batch_items(request, batch_id):
     
     for item in active_items:
         approved_qty = item.approved_quantity or item.quantity or 0
+        
+        # Add back to property quantity
+        item.property.quantity += approved_qty
+        item.property.save()
         
         # Mark item as returned
         item.status = 'returned'
@@ -3992,6 +4023,12 @@ def approve_borrow_item(request, batch_id, item_id):
     except (ValueError, TypeError):
         approved_quantity = item.quantity
     
+    # Check if enough property units are available
+    available_quantity = item.property.quantity or 0
+    if approved_quantity > available_quantity:
+        messages.error(request, f'Only {available_quantity} units of {item.property.property_name} are available.')
+        return redirect('borrow_batch_request_detail', batch_id=batch_id)
+    
     # Mark item as approved
     item.approved = True
     item.status = 'approved'
@@ -4123,6 +4160,18 @@ def claim_individual_borrow_item(request, batch_id, item_id):
         messages.error(request, 'This item is not available for claiming.')
         return redirect('borrow_batch_request_detail', batch_id=batch_id)
     
+    # Check stock availability
+    available_quantity = item.property.quantity or 0
+    approved_qty = item.approved_quantity or item.quantity or 0
+    
+    if available_quantity < approved_qty:
+        messages.error(request, f"Insufficient stock for {item.property.property_name}. Available: {available_quantity}, needed: {approved_qty}")
+        return redirect('borrow_batch_request_detail', batch_id=batch_id)
+    
+    # Deduct from property stock
+    item.property.quantity -= approved_qty
+    item.property.save()
+    
     # Update the approved_quantity if it was None
     if item.approved_quantity is None:
         item.approved_quantity = item.quantity
@@ -4177,6 +4226,11 @@ def return_individual_borrow_item(request, batch_id, item_id):
     if item.status not in ['active', 'overdue']:
         messages.error(request, 'This item is not available for returning.')
         return redirect('borrow_batch_request_detail', batch_id=batch_id)
+    
+    # Add back to property stock
+    approved_qty = item.approved_quantity or item.quantity or 0
+    item.property.quantity += approved_qty
+    item.property.save()
     
     # Mark item as returned
     item.status = 'returned'
