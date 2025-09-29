@@ -1223,9 +1223,7 @@ def add_supply(request):
                     minimum_threshold=form.cleaned_data['minimum_threshold']
                 )
 
-                # Update available_for_request based on quantity
-                supply.available_for_request = (quantity_info.current_quantity > 0)
-                supply.save(user=request.user)
+                # available_for_request is already set from the form, no need to override
 
                 # Create activity log
                 ActivityLog.log_activity(
@@ -1257,6 +1255,7 @@ def edit_supply(request):
             old_values = {
                 'supply_name': supply.supply_name,
                 'description': supply.description,
+                'available_for_request': supply.available_for_request,
                 'category': supply.category.id if supply.category else None,
                 'subcategory': supply.subcategory.id if supply.subcategory else None,
                 'date_received': supply.date_received,
@@ -1268,6 +1267,7 @@ def edit_supply(request):
             # Update supply fields
             supply.supply_name = request.POST.get('supply_name')
             supply.description = request.POST.get('description')
+            supply.available_for_request = request.POST.get('available_for_request') == 'on'
             
             # Handle category and subcategory
             category_id = request.POST.get('category')
@@ -1411,6 +1411,12 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         # Keep properties_by_category for backward compatibility with modals
         # Get all properties (not just current page) for modals
         all_properties = Property.objects.filter(is_archived=False).select_related('category').order_by('property_name')
+        
+        # Generate barcodes for all properties (needed for barcode selection modal)
+        for prop in all_properties:
+            barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+            prop.barcode = generate_barcode(barcode_number)
+        
         properties_by_category = defaultdict(list)
         for prop in all_properties:
             properties_by_category[prop.category].append(prop)

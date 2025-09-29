@@ -153,11 +153,7 @@ class Supply(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
     is_archived = models.BooleanField(default=False)
 
-    def save(self, *args, **kwargs):
-        # Generate barcode if not set
-        if not self.barcode and self.pk:
-            self.barcode = f"SUP-{self.pk}"
-        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return self.supply_name
@@ -181,14 +177,6 @@ class Supply(models.Model):
         return status_dict.get(self.status, 'Unknown')
     
     def save(self, *args, **kwargs):
-        # Update available_for_request based on quantity
-        try:
-            quantity_info = self.quantity_info
-            self.available_for_request = (quantity_info.current_quantity > 0)
-        except SupplyQuantity.DoesNotExist:
-            # For new supplies, we'll set this after creating SupplyQuantity
-            pass
-
         # Get the user from kwargs
         user = kwargs.pop('user', None)
 
@@ -223,6 +211,11 @@ class Supply(models.Model):
                     )
 
         super().save(*args, **kwargs)
+        
+        # Generate barcode if not set (after initial save to have an ID)
+        if not self.barcode:
+            self.barcode = f"SUP-{self.pk}"
+            super().save(update_fields=['barcode'])
     
     @property
     def is_expired(self):

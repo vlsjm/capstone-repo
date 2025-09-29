@@ -365,11 +365,11 @@ tr.hidden {
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  min-width: 280px;
-  max-height: 400px;
-  overflow-y: auto;
+  min-width: 650px;
+  max-width: 800px;
   display: none;
   margin-top: 4px;
+  padding: 24px;
 }
 
 .simple-filter-dropdown.show {
@@ -425,6 +425,46 @@ tr.hidden {
   font-size: 14px;
   color: #495057;
   user-select: none;
+}
+
+/* Filter Grid Layout */
+.filter-grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.filter-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Category Filter Scrollable */
+.category-filter-options {
+  max-height: 600px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+.category-filter-options::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-filter-options::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 6px;
+}
+
+.category-filter-options::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 6px;
+}
+
+.category-filter-options::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
 }
 
 .button-container {
@@ -522,7 +562,7 @@ tr.hidden {
 .print-btn {
     width: 35px;
     height: 35px;
-    border-radius: 50%;
+    border-radius: 4px;
     border: none;
     display: inline-flex;
     align-items: center;
@@ -536,8 +576,8 @@ tr.hidden {
 
 .print-btn:hover {
     background-color: #218838;
-    transform: translateY(-2px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: none !important;
 }
 
 .print-btn i {
@@ -618,6 +658,26 @@ tr.hidden {
   padding: 8px;
 }
 
+/* Checkbox styling for forms */
+.form-check {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.form-check-input {
+  width: 18px !important;
+  height: 18px !important;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.form-check-label {
+  cursor: pointer;
+  font-size: 14px;
+  color: #555;
+}
+
 /* Add Supply Modal specific styles */
 #addSupplyModal .modal-content {
   padding: 40px;
@@ -642,6 +702,7 @@ tr.hidden {
 #addSupplyModal input[type="text"],
 #addSupplyModal input[type="number"],
 #addSupplyModal input[type="date"],
+#addSupplyModal input[type="checkbox"],
 #addSupplyModal textarea,
 #addSupplyModal select {
   width: 95%;
@@ -994,98 +1055,106 @@ tr.hidden {
                 <i class="fas fa-chevron-down filter-chevron"></i>
               </button>
               <div id="filterDropdown" class="simple-filter-dropdown">
+                <div class="filter-grid-container">
+                  
+                  <!-- Left Column -->
+                  <div class="filter-column">
+                    <!-- Category Filter -->
+                    <div class="simple-filter-group">
+                      <div class="simple-filter-header">
+                        <i class="fas fa-tags"></i> Category
+                      </div>
+                      <div class="simple-filter-options category-filter-options">
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="category" value="" checked>
+                          <span class="filter-text">All Categories</span>
+                        </label>
+                        {% for category in categories %}
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="category" value="{{ category.name }}">
+                          <span class="filter-text">{{ category.name }}</span>
+                        </label>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
 
-                <!-- Category Filter -->
-                <div class="simple-filter-group">
-                  <div class="simple-filter-header">
-                    <i class="fas fa-tags"></i> Category
-                  </div>
-                  <div class="simple-filter-options">
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="category" value="" checked>
-                      <span class="filter-text">All Categories</span>
-                    </label>
-                    {% for category in categories %}
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="category" value="{{ category.name }}">
-                      <span class="filter-text">{{ category.name }}</span>
-                    </label>
-                    {% endfor %}
-                  </div>
-                </div>
+                  <!-- Right Column -->
+                  <div class="filter-column">
+                    <!-- Status Filter -->
+                    <div class="simple-filter-group">
+                      <div class="simple-filter-header">
+                        <i class="fas fa-circle"></i> Status
+                      </div>
+                      <div class="simple-filter-options">
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="status" value="" checked>
+                          <span class="filter-text">All Status</span>
+                        </label>
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="status" value="available">
+                          <span class="filter-text">Available</span>
+                        </label>
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="status" value="low_stock">
+                          <span class="filter-text">Low Stock</span>
+                        </label>
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="status" value="out_of_stock">
+                          <span class="filter-text">Out of Stock</span>
+                        </label>
+                      </div>
+                    </div>
 
-                <!-- Status Filter -->
-                <div class="simple-filter-group">
-                  <div class="simple-filter-header">
-                    <i class="fas fa-circle"></i> Status
-                  </div>
-                  <div class="simple-filter-options">
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="status" value="" checked>
-                      <span class="filter-text">All Status</span>
-                    </label>
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="status" value="available">
-                      <span class="filter-text">Available</span>
-                    </label>
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="status" value="low_stock">
-                      <span class="filter-text">Low Stock</span>
-                    </label>
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="status" value="out_of_stock">
-                      <span class="filter-text">Out of Stock</span>
-                    </label>
-                  </div>
-                </div>
+                    <!-- Availability Filter -->
+                    <div class="simple-filter-group">
+                      <div class="simple-filter-header">
+                        <i class="fas fa-check-circle"></i> Availability
+                      </div>
+                      <div class="simple-filter-options">
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="availability" value="" checked>
+                          <span class="filter-text">All Availability</span>
+                        </label>
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="availability" value="Yes">
+                          <span class="filter-text">Available for Request</span>
+                        </label>
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="availability" value="No">
+                          <span class="filter-text">Not Available for Request</span>
+                        </label>
+                      </div>
+                    </div>
 
-                <!-- Availability Filter -->
-                <div class="simple-filter-group">
-                  <div class="simple-filter-header">
-                    <i class="fas fa-check-circle"></i> Availability
-                  </div>
-                  <div class="simple-filter-options">
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="availability" value="" checked>
-                      <span class="filter-text">All Availability</span>
-                    </label>
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="availability" value="Yes">
-                      <span class="filter-text">Available for Request</span>
-                    </label>
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="availability" value="No">
-                      <span class="filter-text">Not Available for Request</span>
-                    </label>
-                  </div>
-                </div>
-
-                <!-- Expiry Filter -->
-                <div class="simple-filter-group">
-                  <div class="simple-filter-header">
-                    <i class="fas fa-clock"></i> Expiry
-                  </div>
-                  <div class="simple-filter-options">
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="expiry" value="" checked>
-                      <span class="filter-text">All Expiry</span>
-                    </label>
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="expiry" value="expired">
-                      <span class="filter-text">Expired</span>
-                    </label>
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="expiry" value="expiring_soon">
-                      <span class="filter-text">Expiring Soon (30 days)</span>
-                    </label>
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="expiry" value="not_expired">
-                      <span class="filter-text">Not Expired</span>
-                    </label>
-                    <label class="simple-filter-option">
-                      <input type="checkbox" name="expiry" value="no_expiry">
-                      <span class="filter-text">No Expiry Date</span>
-                    </label>
+                    <!-- Expiry Filter -->
+                    <div class="simple-filter-group">
+                      <div class="simple-filter-header">
+                        <i class="fas fa-clock"></i> Expiry
+                      </div>
+                      <div class="simple-filter-options">
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="expiry" value="" checked>
+                          <span class="filter-text">All Expiry</span>
+                        </label>
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="expiry" value="expired">
+                          <span class="filter-text">Expired</span>
+                        </label>
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="expiry" value="expiring_soon">
+                          <span class="filter-text">Expiring Soon (30 days)</span>
+                        </label>
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="expiry" value="not_expired">
+                          <span class="filter-text">Not Expired</span>
+                        </label>
+                        <label class="simple-filter-option">
+                          <input type="checkbox" name="expiry" value="no_expiry">
+                          <span class="filter-text">No Expiry Date</span>
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1136,7 +1205,7 @@ tr.hidden {
             <th>Expiration Date</th>
             <th>Min. Threshold</th>
             <th>Status</th>
-            <th>Available</th>
+            <th>Available for Request</th>
             <th>Barcode</th>
             <th>Date Received</th>
             <th>Last Updated</th>
@@ -1211,6 +1280,7 @@ tr.hidden {
                     data-category="{{ supply.category.id }}"
                     data-subcategory="{{ supply.subcategory.id }}"
                     data-description="{{ supply.description|default:'' }}"
+                    data-available-for-request="{{ supply.available_for_request|yesno:'true,false' }}"
                     data-date="{{ supply.date_received|date:'Y-m-d' }}"
                     data-expiration-date="{{ supply.expiration_date|date:'Y-m-d'|default:'' }}">
                     <i class="fas fa-edit"></i> Edit
@@ -1312,6 +1382,18 @@ tr.hidden {
         </div>
 
         <div class="form-group">
+          <label for="{{ form.available_for_request.id_for_label }}">
+            <i class="fas fa-check-circle"></i> Available for Request
+          </label>
+          <div class="form-check">
+            {{ form.available_for_request }}
+            <label for="{{ form.available_for_request.id_for_label }}" class="form-check-label">
+              Allow this supply to be requested by users
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
           <label for="{{ form.date_received.id_for_label }}">
             <i class="fas fa-calendar"></i> Date Received
             <span class="required-asterisk">*</span>
@@ -1404,6 +1486,18 @@ tr.hidden {
             <i class="fas fa-align-left"></i> Description
           </label>
           <textarea name="description" id="edit_description" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <i class="fas fa-check-circle"></i> Available for Request
+          </label>
+          <div class="form-check">
+            <input type="checkbox" name="available_for_request" id="edit_available_for_request" class="form-check-input" />
+            <label for="edit_available_for_request" class="form-check-label">
+              Allow this supply to be requested by users
+            </label>
+          </div>
         </div>
 
         <div class="form-group">
@@ -1879,6 +1973,90 @@ tr.hidden {
         return false;
       }
       return confirm('Are you sure you want to delete this subcategory?');
+    }
+
+    // Function to delete category via AJAX
+    function deleteCategory(categoryId) {
+      if (!confirm('Are you sure you want to delete this category?')) {
+        return;
+      }
+      
+      $.ajax({
+        url: '/delete-supply-category/',
+        type: 'POST',
+        data: {
+          'id': categoryId,
+          'csrfmiddlewaretoken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        success: function(response) {
+          if (response.success) {
+            alert('Category deleted successfully!');
+            // Remove the row from the table - improved logic
+            const rows = document.querySelectorAll('#categoryModal tbody tr');
+            rows.forEach(row => {
+              // Check for edit button with data-id attribute or onclick with categoryId
+              const editButton = row.querySelector('button[data-id="' + categoryId + '"], button.category-edit-btn[data-id="' + categoryId + '"]');
+              const deleteButton = row.querySelector('button[onclick*="deleteCategory(' + categoryId + ')"]');
+              
+              if (editButton || deleteButton) {
+                row.remove();
+                return;
+              }
+            });
+            
+            // Also update the dropdowns by removing the option
+            $('#id_category option[value="' + categoryId + '"]').remove();
+            $('#edit_category option[value="' + categoryId + '"]').remove();
+          } else {
+            alert('Error: ' + response.error);
+          }
+        },
+        error: function() {
+          alert('Error deleting category. Please try again.');
+        }
+      });
+    }
+
+    // Function to delete subcategory via AJAX
+    function deleteSubcategory(subcategoryId) {
+      if (!confirm('Are you sure you want to delete this subcategory?')) {
+        return;
+      }
+      
+      $.ajax({
+        url: '/delete-supply-subcategory/',
+        type: 'POST',
+        data: {
+          'id': subcategoryId,
+          'csrfmiddlewaretoken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        success: function(response) {
+          if (response.success) {
+            alert('Subcategory deleted successfully!');
+            // Remove the row from the table - improved logic
+            const rows = document.querySelectorAll('#subcategoryModal tbody tr');
+            rows.forEach(row => {
+              // Check for edit button with data-id attribute or onclick with subcategoryId
+              const editButton = row.querySelector('button[data-id="' + subcategoryId + '"], button.subcategory-edit-btn[data-id="' + subcategoryId + '"]');
+              const deleteButton = row.querySelector('button[onclick*="deleteSubcategory(' + subcategoryId + ')"]');
+              
+              if (editButton || deleteButton) {
+                row.remove();
+                return;
+              }
+            });
+            
+            // Also update the dropdowns by removing the option
+            $('#id_subcategory option[value="' + subcategoryId + '"]').remove();
+            $('#edit_subcategory option[value="' + subcategoryId + '"]').remove();
+          } else {
+            alert('Error: ' + response.error);
+          }
+        },
+        error: function() {
+          alert('Error deleting subcategory. Please try again.');
+        }
+      });
     }
 
 
@@ -2630,6 +2808,7 @@ tr.hidden {
           document.getElementById("edit_name").value = button.dataset.name;
           document.getElementById("edit_minimum_threshold").value = button.dataset.minimumThreshold;
           document.getElementById("edit_description").value = button.dataset.description || '';
+          document.getElementById("edit_available_for_request").checked = button.dataset.availableForRequest === 'true';
           document.getElementById("edit_date").value = button.dataset.date;
           document.getElementById("edit_expiration_date").value = button.dataset.expirationDate || '';
 
@@ -2758,12 +2937,54 @@ tr.hidden {
               $('#edit_category').append(newOption).trigger('change');
               $('#id_category').append(newOption.cloneNode(true)).trigger('change');
               
-              // Close the modal and reset form
-              closeCategoryModal();
+              // Reset form but keep modal open
               $('#categoryForm')[0].reset();
               
               // Show success message
-              alert('Category added successfully!');
+              alert('Category added successfully! You can add another category or close the modal.');
+              
+              // Dynamically add the new category to the table in the modal
+              const categoryTable = document.querySelector('#categoryModal tbody');
+              if (categoryTable && response.category) {
+                // Remove "No categories available" row if it exists
+                const noDataRow = categoryTable.querySelector('td[colspan="4"]');
+                if (noDataRow) {
+                  noDataRow.closest('tr').remove();
+                }
+                
+                // Get the current row count for numbering
+                const currentRows = categoryTable.querySelectorAll('tr').length;
+                const rowNumber = currentRows + 1;
+                
+                const newRow = document.createElement('tr');
+                newRow.style.transition = 'background-color 0.2s ease';
+                newRow.innerHTML = `
+                  <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">${rowNumber}</td>
+                  <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">
+                    <span class="category-name" style="font-weight: 500;">${response.category.name}</span>
+                  </td>
+                  <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                    <span class="badge badge-inactive">0</span>
+                  </td>
+                  <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                    <div class="button-group" style="display: flex; gap: 8px; justify-content: center;">
+                      <button type="button" class="category-edit-btn"
+                              data-id="${response.category.id}"
+                              data-name="${response.category.name}"
+                              onclick="editCategory(this.dataset.id, this.dataset.name)"
+                              style="background-color: #152d64; color: white; border: none; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button type="button" class="del-btn"
+                              onclick="deleteCategory(${response.category.id})"
+                              style="background-color: #dc3545; color: white; border: none; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </div>
+                  </td>
+                `;
+                categoryTable.appendChild(newRow);
+              }
             } else {
               alert('Error: ' + response.error);
             }
@@ -2829,11 +3050,53 @@ tr.hidden {
               $('#id_subcategory').append(newOption.cloneNode(true)).trigger('change');
              
               // Show success message
-              alert('Subcategory added successfully!');
+              alert('Subcategory added successfully! You can add another subcategory or close the modal.');
              
-              // Close modal and reset form
-              closeSubcategoryModal();
+              // Reset form but keep modal open
               subcategoryForm.reset();
+              
+              // Dynamically add the new subcategory to the table in the modal
+              const subcategoryTable = document.querySelector('#subcategoryModal tbody');
+              if (subcategoryTable && data.subcategory) {
+                // Remove "No subcategories available" row if it exists
+                const noDataRow = subcategoryTable.querySelector('td[colspan="4"]');
+                if (noDataRow) {
+                  noDataRow.closest('tr').remove();
+                }
+                
+                // Get the current row count for numbering
+                const currentRows = subcategoryTable.querySelectorAll('tr').length;
+                const rowNumber = currentRows + 1;
+                
+                const newRow = document.createElement('tr');
+                newRow.style.transition = 'background-color 0.2s ease';
+                newRow.innerHTML = `
+                  <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">${rowNumber}</td>
+                  <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">
+                    <span class="subcategory-name" style="font-weight: 500;">${data.subcategory.name}</span>
+                  </td>
+                  <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                    <span class="badge badge-inactive">0</span>
+                  </td>
+                  <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                    <div class="button-group" style="display: flex; gap: 8px; justify-content: center;">
+                      <button type="button" class="subcategory-edit-btn"
+                              data-id="${data.subcategory.id}"
+                              data-name="${data.subcategory.name}"
+                              onclick="editSubcategory(this.dataset.id, this.dataset.name)"
+                              style="background-color: #152d64; color: white; border: none; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button type="button" class="del-btn"
+                              onclick="deleteSubcategory(${data.subcategory.id})"
+                              style="background-color: #dc3545; color: white; border: none; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </div>
+                  </td>
+                `;
+                subcategoryTable.appendChild(newRow);
+              }
             } else {
               alert('Error: ' + (data.error || 'Unknown error'));
             }

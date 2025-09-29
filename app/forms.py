@@ -72,6 +72,7 @@ class PropertyForm(forms.ModelForm):
             'accountable_person',
             'year_acquired',
             'condition',
+            'availability',
         ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
@@ -82,6 +83,7 @@ class PropertyForm(forms.ModelForm):
             'quantity_per_physical_count': forms.NumberInput(attrs={'min': 0}),
             'category': forms.Select(attrs={'class': 'select2'}), 
             'condition': forms.Select(attrs={'class': 'form-select'}),
+            'availability': forms.Select(attrs={'class': 'form-select'}),
             'accountable_person': forms.TextInput(attrs={'placeholder': 'Enter accountable person name'}),
             'year_acquired': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         }
@@ -203,6 +205,7 @@ class SupplyForm(forms.ModelForm):
             'category',
             'subcategory',
             'description',
+            'available_for_request',
             'date_received',
             'expiration_date'
         ]
@@ -213,6 +216,7 @@ class SupplyForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control custom-select'}),
             'subcategory': forms.Select(attrs={'class': 'form-control custom-select'}),
+            'available_for_request': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         help_texts = {
             'expiration_date': 'Optional. Leave empty if the supply does not expire.',

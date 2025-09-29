@@ -409,7 +409,7 @@ tr.hidden {
 .print-btn {
   width: 35px;
   height: 35px;
-  border-radius: 50%;
+  border-radius: 4px;
   border: none;
   display: inline-flex;
   align-items: center;
@@ -423,8 +423,8 @@ tr.hidden {
 
 .print-btn:hover {
   background-color: #218838;
-  transform: translateY(-2px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: none !important;
 }
 
 .print-btn i {
@@ -539,13 +539,13 @@ tr.hidden {
   left: 0;
   background-color: white;
   border: 1px solid #dee2e6;
-  border-radius: 4px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
   display: none;
-  padding: 16px;
-  min-width: 280px;
-  max-width: 350px;
+  padding: 20px;
+  min-width: 600px;
+  max-width: 750px;
 }
 
 .simple-filter-dropdown.show {
@@ -607,6 +607,46 @@ tr.hidden {
 .filter-text {
   color: #495057;
   flex: 1;
+}
+
+/* Filter Grid Layout */
+.filter-grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.filter-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Category Filter Scrollable */
+.category-filter-options {
+  max-height: 600px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+.category-filter-options::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-filter-options::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 6px;
+}
+
+.category-filter-options::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 6px;
+}
+
+.category-filter-options::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
 }
 
 .simple-filter-actions {
@@ -1298,102 +1338,110 @@ input:focus {
               <i class="fas fa-chevron-down filter-chevron"></i>
             </button>
             <div id="filterDropdown" class="simple-filter-dropdown">
+              <div class="filter-grid-container">
+                
+                <!-- Left Column -->
+                <div class="filter-column">
+                  <!-- Category Filter -->
+                  <div class="simple-filter-group">
+                    <div class="simple-filter-header">
+                      <i class="fas fa-tags"></i> Category
+                    </div>
+                    <div class="simple-filter-options category-filter-options">
+                      <label class="simple-filter-option">
+                        <input type="checkbox" name="category" value="" checked>
+                        <span class="filter-text">All Categories</span>
+                      </label>
+                      {% for category in categories %}
+                      <label class="simple-filter-option">
+                        <input type="checkbox" name="category" value="{{ category.name }}">
+                        <span class="filter-text">{{ category.name }}</span>
+                      </label>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
 
-              <!-- Category Filter -->
-              <div class="simple-filter-group">
-                <div class="simple-filter-header">
-                  <i class="fas fa-tags"></i> Category
-                </div>
-                <div class="simple-filter-options">
-                  <label class="simple-filter-option">
-                    <input type="checkbox" name="category" value="" checked>
-                    <span class="filter-text">All Categories</span>
-                  </label>
-                  {% for category in categories %}
-                  <label class="simple-filter-option">
-                    <input type="checkbox" name="category" value="{{ category.name }}">
-                    <span class="filter-text">{{ category.name }}</span>
-                  </label>
-                  {% endfor %}
-                </div>
-              </div>
+                <!-- Right Column -->
+                <div class="filter-column">
+                  <!-- Availability Filter -->
+                  <div class="simple-filter-group">
+                    <div class="simple-filter-header">
+                      <i class="fas fa-check-circle"></i> Availability
+                    </div>
+                    <div class="simple-filter-options">
+                      <label class="simple-filter-option">
+                        <input type="radio" name="availability" value="" checked>
+                        <span class="filter-text">All</span>
+                      </label>
+                      <label class="simple-filter-option">
+                        <input type="radio" name="availability" value="available">
+                        <span class="filter-text">Available</span>
+                      </label>
+                      <label class="simple-filter-option">
+                        <input type="radio" name="availability" value="not_available">
+                        <span class="filter-text">Not Available</span>
+                      </label>
+                    </div>
+                  </div>
 
-              <!-- Availability Filter -->
-              <div class="simple-filter-group">
-                <div class="simple-filter-header">
-                  <i class="fas fa-check-circle"></i> Availability
-                </div>
-                <div class="simple-filter-options">
-                  <label class="simple-filter-option">
-                    <input type="radio" name="availability" value="" checked>
-                    <span class="filter-text">All</span>
-                  </label>
-                  <label class="simple-filter-option">
-                    <input type="radio" name="availability" value="available">
-                    <span class="filter-text">Available</span>
-                  </label>
-                  <label class="simple-filter-option">
-                    <input type="radio" name="availability" value="not_available">
-                    <span class="filter-text">Not Available</span>
-                  </label>
-                </div>
-              </div>
+                  <!-- Condition Filter -->
+                  <div class="simple-filter-group">
+                    <div class="simple-filter-header">
+                      <i class="fas fa-clipboard-check"></i> Condition
+                    </div>
+                    <div class="simple-filter-options">
+                      <label class="simple-filter-option">
+                        <input type="checkbox" name="condition" value="" checked>
+                        <span class="filter-text">All Conditions</span>
+                      </label>
+                      <label class="simple-filter-option">
+                        <input type="checkbox" name="condition" value="In good condition">
+                        <span class="filter-text">In Good Condition</span>
+                      </label>
+                      <label class="simple-filter-option">
+                        <input type="checkbox" name="condition" value="Needing repair">
+                        <span class="filter-text">Needing Repair</span>
+                      </label>
+                      <label class="simple-filter-option">
+                        <input type="checkbox" name="condition" value="Unserviceable">
+                        <span class="filter-text">Unserviceable</span>
+                      </label>
+                      <label class="simple-filter-option">
+                        <input type="checkbox" name="condition" value="Obsolete">
+                        <span class="filter-text">Obsolete</span>
+                      </label>
+                      <label class="simple-filter-option">
+                        <input type="checkbox" name="condition" value="No longer needed">
+                        <span class="filter-text">No Longer Needed</span>
+                      </label>
+                      <label class="simple-filter-option">
+                        <input type="checkbox" name="condition" value="Not used since purchased">
+                        <span class="filter-text">Not Used Since Purchased</span>
+                      </label>
+                    </div>
+                  </div>
 
-              <!-- Condition Filter -->
-              <div class="simple-filter-group">
-                <div class="simple-filter-header">
-                  <i class="fas fa-clipboard-check"></i> Condition
-                </div>
-                <div class="simple-filter-options">
-                  <label class="simple-filter-option">
-                    <input type="checkbox" name="condition" value="" checked>
-                    <span class="filter-text">All Conditions</span>
-                  </label>
-                  <label class="simple-filter-option">
-                    <input type="checkbox" name="condition" value="In good condition">
-                    <span class="filter-text">In Good Condition</span>
-                  </label>
-                  <label class="simple-filter-option">
-                    <input type="checkbox" name="condition" value="Needing repair">
-                    <span class="filter-text">Needing Repair</span>
-                  </label>
-                  <label class="simple-filter-option">
-                    <input type="checkbox" name="condition" value="Unserviceable">
-                    <span class="filter-text">Unserviceable</span>
-                  </label>
-                  <label class="simple-filter-option">
-                    <input type="checkbox" name="condition" value="Obsolete">
-                    <span class="filter-text">Obsolete</span>
-                  </label>
-                  <label class="simple-filter-option">
-                    <input type="checkbox" name="condition" value="No longer needed">
-                    <span class="filter-text">No Longer Needed</span>
-                  </label>
-                  <label class="simple-filter-option">
-                    <input type="checkbox" name="condition" value="Not used since purchased">
-                    <span class="filter-text">Not Used Since Purchased</span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Price Range Filter -->
-              <div class="simple-filter-group">
-                <div class="simple-filter-header">
-                  <i class="fas fa-money-bill-wave"></i> Price Range
-                </div>
-                <div class="simple-filter-options">
-                  <label class="simple-filter-option">
-                    <input type="radio" name="priceRange" value="" checked>
-                    <span class="filter-text">All Prices</span>
-                  </label>
-                  <label class="simple-filter-option">
-                    <input type="radio" name="priceRange" value="below50000">
-                    <span class="filter-text">Below ₱50,000</span>
-                  </label>
-                  <label class="simple-filter-option">
-                    <input type="radio" name="priceRange" value="above50000">
-                    <span class="filter-text">Above ₱50,000</span>
-                  </label>
+                  <!-- Price Range Filter -->
+                  <div class="simple-filter-group">
+                    <div class="simple-filter-header">
+                      <i class="fas fa-money-bill-wave"></i> Price Range
+                    </div>
+                    <div class="simple-filter-options">
+                      <label class="simple-filter-option">
+                        <input type="radio" name="priceRange" value="" checked>
+                        <span class="filter-text">All Prices</span>
+                      </label>
+                      <label class="simple-filter-option">
+                        <input type="radio" name="priceRange" value="below50000">
+                        <span class="filter-text">Below ₱50,000</span>
+                      </label>
+                      <label class="simple-filter-option">
+                        <input type="radio" name="priceRange" value="above50000">
+                        <span class="filter-text">Above ₱50,000</span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1454,7 +1502,7 @@ input:focus {
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Unit Value</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Quantity Per Property Card</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Quantity Per Physical Count</th>
-                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Availability</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Available for Request</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Actions</th>
                 </tr>
               </thead>
@@ -1817,6 +1865,14 @@ input:focus {
           {{ form.condition }}
         </div>
 
+        <div class="form-group">
+          <label for="{{ form.availability.id_for_label }}">
+            <i class="fas fa-check-circle"></i> Available for Request
+            <span class="required-asterisk">*</span>
+          </label>
+          {{ form.availability }}
+        </div>
+
         {% if form.errors %}
           <ul class="form-errors">
             {% for field in form %}
@@ -1934,7 +1990,7 @@ input:focus {
 
       <div class="form-group">
         <label>
-          <i class="fas fa-check-circle"></i> Availability
+          <i class="fas fa-check-circle"></i> Available for Request
           <span class="required-asterisk">*</span>
         </label>
         <select name="availability" id="edit_availability" class="form-select" required>
@@ -3542,14 +3598,13 @@ function openBarcodeSelectionModal() {
     let rowIndex = 0;
     
     propertyRows.forEach((row, index) => {
-        const barcodeImg = row.querySelector('.barcode-container img');
-        const propertyNameCell = row.cells[3]; // Property name is now in the fourth column
-        const propertyNumberCell = row.cells[1]; // Property number is still in the second column
+        // Look for the info button which has the barcode data
+        const infoButton = row.querySelector('.info-btn');
         
-        if (barcodeImg && propertyNameCell) {
-            const propertyName = propertyNameCell.textContent.trim();
-            const propertyNumber = propertyNumberCell.textContent.trim();
-            const barcodeSrc = barcodeImg.src;
+        if (infoButton && infoButton.dataset.barcode) {
+            const propertyName = infoButton.dataset.propertyName;
+            const propertyNumber = infoButton.dataset.propertyNumber;
+            const barcodeSrc = infoButton.dataset.barcode;
             
             const tableRow = document.createElement('tr');
             tableRow.style.transition = 'background-color 0.2s ease';
