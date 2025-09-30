@@ -1156,6 +1156,43 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         # Add departments for the filter dropdown
         context['departments'] = Department.objects.all()
         
+        # Prepare reservation data for JavaScript calendar
+        reservation_data = []
+        for reservation in all_reservations:
+            # Get user display name
+            if reservation.user.first_name or reservation.user.last_name:
+                user_name = f"{reservation.user.first_name} {reservation.user.last_name}".strip()
+            else:
+                user_name = reservation.user.username
+            
+            # Prepare reservation object
+            reservation_obj = {
+                'id': reservation.id,
+                'status': reservation.status,
+                'statusDisplay': reservation.get_status_display(),
+                'itemName': reservation.item.property_name,
+                'userName': user_name,
+                'department': str(reservation.user.userprofile.department) if reservation.user.userprofile.department else '',
+                'quantity': reservation.quantity,
+                'purpose': reservation.purpose[:50] + ('...' if len(reservation.purpose) > 50 else ''),
+                'neededDate': reservation.needed_date.strftime('%Y-%m-%d') if reservation.needed_date else '',
+                'returnDate': reservation.return_date.strftime('%Y-%m-%d'),
+                'reservationDate': reservation.reservation_date.strftime('%Y-%m-%d %H:%M') if reservation.reservation_date else '',
+                'approvedDate': reservation.approved_date.strftime('%Y-%m-%d %H:%M') if reservation.approved_date else None,
+            }
+            
+            # Add additional fields for active/completed reservations
+            if hasattr(reservation, 'start_date') and reservation.start_date:
+                reservation_obj['startDate'] = reservation.start_date.strftime('%Y-%m-%d %H:%M')
+            if hasattr(reservation, 'end_date') and reservation.end_date:
+                reservation_obj['endDate'] = reservation.end_date.strftime('%Y-%m-%d %H:%M')
+            if hasattr(reservation, 'remarks') and reservation.remarks:
+                reservation_obj['remarks'] = reservation.remarks
+                
+            reservation_data.append(reservation_obj)
+        
+        context['reservation_data'] = json.dumps(reservation_data)
+        
         return context
 
 
