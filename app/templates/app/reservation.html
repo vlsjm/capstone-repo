@@ -235,6 +235,12 @@
       border: 1px solid #f5c6cb;
     }
     
+    .status-expired, .status-badge.status-expired {
+      background: linear-gradient(135deg, #e2e3e5 0%, #d6d8db 100%);
+      color: #383d41;
+      border: 1px solid #d6d8db;
+    }
+    
     .status-pending, .status-badge.status-pending {
       background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
       color: #856404;
@@ -737,6 +743,11 @@
     .legend-color.status-rejected {
       background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
       border-color: #f5c6cb;
+    }
+    
+    .legend-color.status-expired {
+      background: linear-gradient(135deg, #e2e3e5 0%, #d6d8db 100%);
+      border-color: #d6d8db;
     }
     
     .calendar-container {
@@ -1337,7 +1348,7 @@
       <button class="tab-button active" onclick="showTab('all', this)" id="allTab">
         <i class="fas fa-list"></i>
         All Reservations
-        <span class="badge">{{ pending_reservations.count|add:approved_reservations.count|add:active_reservations.count|add:completed_reservations.count|add:rejected_reservations.count }}</span>
+        <span class="badge">{{ pending_reservations.count|add:approved_reservations.count|add:active_reservations.count|add:completed_reservations.count|add:rejected_reservations.count|add:expired_reservations.count }}</span>
       </button>
       <button class="tab-button" onclick="showTab('pending', this)" id="pendingTab">
         <i class="fas fa-clock"></i>
@@ -1364,6 +1375,11 @@
         Rejected
         <span class="badge">{{ rejected_reservations.count }}</span>
       </button>
+      <button class="tab-button" onclick="showTab('expired', this)" id="expiredTab">
+        <i class="fas fa-calendar-times"></i>
+        Expired
+        <span class="badge">{{ expired_reservations.count }}</span>
+      </button>
       <button class="tab-button" onclick="showTab('calendar', this)" id="calendarTab">
         <i class="fas fa-calendar-alt"></i>
         Calendar View
@@ -1376,7 +1392,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
           <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">All Reservations</h3>
         </div>
-        {% if pending_reservations or approved_reservations or active_reservations or completed_reservations or rejected_reservations %}
+        {% if pending_reservations or approved_reservations or active_reservations or completed_reservations or rejected_reservations or expired_reservations %}
         <div class="reservations-table">
           <table>
             <thead>
@@ -2065,6 +2081,67 @@
         {% endif %}
       </div>
 
+      <!-- Expired Reservations Tab -->
+      <div id="expired" class="tab-content">
+        <div class="tab-header">
+          <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Expired Reservations</h3>
+        </div>
+        {% if expired_reservations %}
+        <div class="table-container">
+          <table class="reservations-table">
+            <thead>
+              <tr>
+                <th>Reservation Details</th>
+                <th>Dates</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for reservation in expired_reservations %}
+              <tr>
+                <td>
+                  <div class="reservation-item">
+                    <h4>{{ reservation.item.property_name }}</h4>
+                    <p><strong>User:</strong> {{ reservation.user.get_full_name|default:reservation.user.username }}</p>
+                    <p><strong>Quantity:</strong> {{ reservation.quantity }}</p>
+                    <p><strong>Purpose:</strong> {{ reservation.purpose }}</p>
+                  </div>
+                </td>
+                <td>
+                  <div class="date-info">
+                    <p><strong>Reserved:</strong> {{ reservation.reservation_date|date:"M d, Y H:i" }}</p>
+                    {% if reservation.needed_date %}
+                      <p><strong>Needed:</strong> {{ reservation.needed_date|date:"M d, Y" }}</p>
+                    {% endif %}
+                    <p><strong>Return:</strong> {{ reservation.return_date|date:"M d, Y" }}</p>
+                  </div>
+                </td>
+                <td>
+                  <div class="status-info">
+                    <span class="status-badge status-expired">
+                      <i class="fas fa-calendar-times"></i>
+                      {{ reservation.get_status_display }}
+                    </span>
+                    <div class="additional-info">
+                      <h5>Status Information</h5>
+                      <p><strong>Current Status:</strong> {{ reservation.get_status_display }}</p>
+                      <p><strong>Department:</strong> {{ reservation.user.userprofile.department }}</p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <i class="fas fa-calendar-times"></i>
+          <p>No expired reservations found.</p>
+        </div>
+        {% endif %}
+      </div>
+
       <!-- Calendar View Tab -->
       <div id="calendar" class="tab-content">
         <h3>Reservations Calendar</h3>
@@ -2107,6 +2184,10 @@
           <div class="legend-item">
             <div class="legend-color status-rejected"></div>
             <span>Rejected</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color status-expired"></div>
+            <span>Expired</span>
           </div>
         </div>
 

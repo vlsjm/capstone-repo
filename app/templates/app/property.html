@@ -1784,17 +1784,20 @@ input:focus {
           {% if is_paginated %}
           <div class="actlog-pagination">
             {% if page_obj.has_previous %}
-              <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}">&laquo; First</a>
-              <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}">Previous</a>
+              <a href="#" data-page="1" class="pagination-link">&laquo; First</a>
+              <a href="#" data-page="{{ page_obj.previous_page_number }}" class="pagination-link">Previous</a>
             {% endif %}
 
             <span class="current">
               Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+              <span style="margin-left: 10px; color: #666; font-size: 0.9em;">
+                (Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} items)
+              </span>
             </span>
 
             {% if page_obj.has_next %}
-              <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}">Next</a>
-              <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.availability %}&availability={{ request.GET.availability }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}">Last &raquo;</a>
+              <a href="#" data-page="{{ page_obj.next_page_number }}" class="pagination-link">Next</a>
+              <a href="#" data-page="{{ page_obj.paginator.num_pages }}" class="pagination-link">Last &raquo;</a>
             {% endif %}
           </div>
           {% endif %}
@@ -3475,102 +3478,53 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Filter and search function
-  function filterAndSearch() {
-    if (!table) return;
-
-    const searchTerm = searchInput.value.toLowerCase();
+  // Server-side Filter and search function
+  function applyFilters() {
+    const params = new URLSearchParams();
+    
+    // Add search parameter
+    const searchTerm = searchInput.value.trim();
+    if (searchTerm) {
+      params.append('search', searchTerm);
+    }
+    
+    // Add category filters
     const selectedCategories = getSelectedValues(categoryCheckboxes);
+    selectedCategories.forEach(category => {
+      params.append('category', category);
+    });
+    
+    // Add availability filter
     const selectedAvailability = getSelectedValue(availabilityRadios);
+    if (selectedAvailability) {
+      params.append('availability', selectedAvailability);
+    }
+    
+    // Add condition filters
     const selectedConditions = getSelectedValues(conditionCheckboxes);
+    selectedConditions.forEach(condition => {
+      params.append('condition', condition);
+    });
+    
+    // Add price range filter
     const selectedPriceRange = getSelectedValue(priceRangeRadios);
-
-    const tbody = table.querySelector('tbody');
-    if (!tbody) return;
-
-    const rows = tbody.getElementsByTagName('tr');
-    let visibleCount = 0;
-    let totalCount = 0;
-
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      const cells = row.getElementsByTagName('td');
-      if (cells.length === 0) continue;
-
-      totalCount++;
-
-      const categoryCell = cells[1]; // Category is now in the 2nd column (index 1)
-      const unitValueCell = cells[5]; // Unit Value is now in the 6th column (index 5)
-      const availabilityCell = cells[8]; // Availability is now in the 9th column (index 8)
-
-      let matchesSearch = true;
-      let matchesCategory = true;
-      let matchesAvailability = true;
-      let matchesPriceRange = true;
-
-      // Search functionality
-      if (searchTerm) {
-        matchesSearch = false;
-        for (let cell of cells) {
-          if (cell.textContent.toLowerCase().includes(searchTerm)) {
-            matchesSearch = true;
-            break;
-          }
-        }
-      }
-
-      // Category filter
-      if (selectedCategories.length > 0 && categoryCell) {
-        const categoryText = categoryCell.textContent.trim();
-        matchesCategory = selectedCategories.includes(categoryText);
-      }
-
-      // Availability filter
-      if (selectedAvailability && availabilityCell) {
-        const availabilityText = availabilityCell.textContent.trim().toLowerCase();
-        if (selectedAvailability === 'available') {
-          matchesAvailability = availabilityText.includes('available');
-        } else if (selectedAvailability === 'not_available') {
-          matchesAvailability = !availabilityText.includes('available') || availabilityText.includes('not available');
-        }
-      }
-
-      // Price range filter
-      if (selectedPriceRange && unitValueCell) {
-        const unitValueText = unitValueCell.textContent.trim();
-        // Extract numeric value from formatted currency (remove ₱, commas, etc.)
-        const numericValue = parseFloat(unitValueText.replace(/[₱,\s]/g, '').replace(/[^\d.]/g, ''));
-        
-        if (!isNaN(numericValue)) {
-          if (selectedPriceRange === 'below50000') {
-            matchesPriceRange = numericValue < 50000;
-          } else if (selectedPriceRange === 'above50000') {
-            matchesPriceRange = numericValue >= 50000;
-          }
-        }
-      }
-
-      // Show/hide row
-      const shouldShow = matchesSearch && matchesCategory && matchesAvailability && matchesPriceRange;
-      row.style.display = shouldShow ? '' : 'none';
-
-      if (shouldShow) {
-        visibleCount++;
-        const rowNumberCell = cells[0];
-        if (rowNumberCell && rowNumberCell.classList.contains('row-number')) {
-          rowNumberCell.textContent = visibleCount;
-        }
-      }
+    if (selectedPriceRange) {
+      params.append('priceRange', selectedPriceRange);
     }
-
-    // Update result count
-    if (filterResultCount) {
-      if (visibleCount === totalCount) {
-        filterResultCount.textContent = `Showing all ${totalCount} items`;
-      } else {
-        filterResultCount.textContent = `Showing ${visibleCount} of ${totalCount} items`;
-      }
-    }
+    
+    // Reload page with new parameters
+    const baseUrl = window.location.pathname;
+    const newUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+    window.location.href = newUrl;
+  }
+  
+  // Debounced search function
+  let searchTimeout;
+  function debouncedSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      applyFilters();
+    }, 500); // 500ms delay
   }
 
   // Load filter values on page load
@@ -3599,6 +3553,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Handle filter changes
   function handleFilterChange() {
+    // Update local storage for persistence
     const params = {
       search: searchInput.value,
       category: getSelectedValues(categoryCheckboxes),
@@ -3607,10 +3562,9 @@ document.addEventListener('DOMContentLoaded', function() {
       priceRange: getSelectedValue(priceRangeRadios)
     };
     
-    updateUrlParameters(params);
     saveFiltersToStorage();
     updateFilterCount();
-    filterAndSearch();
+    applyFilters();
   }
 
   // Toggle filter dropdown
@@ -3652,10 +3606,9 @@ document.addEventListener('DOMContentLoaded', function() {
       if (conditionAll) conditionAll.checked = true;
       if (priceRangeAll) priceRangeAll.checked = true;
       
-      updateUrlParameters({search: '', category: [], availability: '', condition: [], priceRange: ''});
       saveFiltersToStorage();
       updateFilterCount();
-      filterAndSearch();
+      applyFilters();
     });
   }
 
@@ -3670,11 +3623,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Search input functionality
   if (searchInput) {
-    let searchTimeout;
-    searchInput.addEventListener('input', function() {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(handleFilterChange, 300);
-    });
+    searchInput.addEventListener('input', debouncedSearch);
 
     // Add focus styling to search input
     searchInput.addEventListener('focus', function() {
@@ -3700,14 +3649,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (allOption) allOption.checked = false;
       }
       updateFilterCount();
-      filterAndSearch();
+      applyFilters();
     });
   });
 
   availabilityRadios.forEach(radio => {
     radio.addEventListener('change', function() {
       updateFilterCount();
-      filterAndSearch();
+      applyFilters();
     });
   });
 
@@ -3722,21 +3671,38 @@ document.addEventListener('DOMContentLoaded', function() {
         if (allOption) allOption.checked = false;
       }
       updateFilterCount();
-      filterAndSearch();
+      applyFilters();
     });
   });
 
   priceRangeRadios.forEach(radio => {
     radio.addEventListener('change', function() {
       updateFilterCount();
-      filterAndSearch();
+      applyFilters();
     });
+  });
+
+  // Function to handle pagination while preserving filters
+  window.goToPage = function(pageNumber) {
+    const params = new URLSearchParams(window.location.search);
+    params.set('page', pageNumber);
+    window.location.href = `${window.location.pathname}?${params.toString()}`;
+  };
+
+  // Handle pagination link clicks
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('pagination-link')) {
+      e.preventDefault();
+      const pageNumber = e.target.getAttribute('data-page');
+      if (pageNumber) {
+        goToPage(pageNumber);
+      }
+    }
   });
 
   // Initialize
   loadFilterValues();
   updateFilterCount();
-  filterAndSearch();
 });
 </script>
 

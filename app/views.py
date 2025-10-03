@@ -41,22 +41,59 @@ class DamagedItemsManagementView(PermissionRequiredMixin, TemplateView):
     template_name = 'app/damaged_items_management.html'
 
     def get_context_data(self, **kwargs):
+        from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
         context = super().get_context_data(**kwargs)
         
         # Get properties with unserviceable condition
-        unserviceable_properties = Property.objects.filter(condition__iexact='Unserviceable')
+        unserviceable_properties = Property.objects.filter(condition__iexact='Unserviceable').order_by('-id')
         
         # Get properties needing repair
-        needs_repair_properties = Property.objects.filter(condition__iexact='Needing repair')
+        needs_repair_properties = Property.objects.filter(condition__iexact='Needing repair').order_by('-id')
+        
+        # Get URL parameters for building pagination links
+        url_params = ""
+        
+        # Paginate each tab separately with 15 items per page
+        paginate_by = 15
+        
+        # Get page numbers for each tab
+        unserviceable_page = self.request.GET.get('unserviceable_page', 1)
+        needs_repair_page = self.request.GET.get('needs_repair_page', 1)
+        
+        # Paginate unserviceable items
+        unserviceable_paginator = Paginator(unserviceable_properties, paginate_by)
+        try:
+            unserviceable_page_obj = unserviceable_paginator.page(unserviceable_page)
+        except PageNotAnInteger:
+            unserviceable_page_obj = unserviceable_paginator.page(1)
+        except EmptyPage:
+            unserviceable_page_obj = unserviceable_paginator.page(unserviceable_paginator.num_pages)
+        
+        # Paginate needs repair items
+        needs_repair_paginator = Paginator(needs_repair_properties, paginate_by)
+        try:
+            needs_repair_page_obj = needs_repair_paginator.page(needs_repair_page)
+        except PageNotAnInteger:
+            needs_repair_page_obj = needs_repair_paginator.page(1)
+        except EmptyPage:
+            needs_repair_page_obj = needs_repair_paginator.page(needs_repair_paginator.num_pages)
         
         # Also include damage reports that have been classified (for backward compatibility)
         unserviceable_reports = DamageReport.objects.filter(status='resolved', remarks__icontains='Unserviceable')
         needs_repair_reports = DamageReport.objects.filter(status='resolved', remarks__icontains='Needs Repair')
         
-        context['unserviceable_items'] = unserviceable_properties
-        context['needs_repair_items'] = needs_repair_properties
+        # Add paginated objects to context
+        context['unserviceable_items'] = unserviceable_page_obj
+        context['needs_repair_items'] = needs_repair_page_obj
+        
+        # Add total counts for badges
+        context['unserviceable_count'] = unserviceable_properties.count()
+        context['needs_repair_count'] = needs_repair_properties.count()
+        
+        # Add legacy reports for backward compatibility
         context['unserviceable_reports'] = unserviceable_reports
         context['needs_repair_reports'] = needs_repair_reports
+        context['url_params'] = url_params
         
         return context
 from collections import defaultdict
@@ -1043,7 +1080,7 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
     template_name = 'app/reports.html'
     permission_required = 'app.view_admin_module'
     context_object_name = 'damage_reports'
-    paginate_by = 10
+    paginate_by = 15  # Changed from 10 to 15
     
     def get_queryset(self):
         queryset = DamageReport.objects.select_related('user', 'user__userprofile', 'item').order_by('-report_date')
@@ -1075,22 +1112,103 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
         return queryset
     
     def get_context_data(self, **kwargs):
+        from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
         context = super().get_context_data(**kwargs)
         all_reports = self.get_queryset()
 
-        context['pending_reports'] = all_reports.filter(status='pending')
-        context['reviewed_reports'] = all_reports.filter(status='reviewed')
-        context['resolved_reports'] = all_reports.filter(status='resolved')
+        # Get URL parameters for building pagination links
+        url_params = ""
+        search = self.request.GET.get('search', '')
+        department = self.request.GET.get('department', '')
+        date_from = self.request.GET.get('date_from', '')
+        date_to = self.request.GET.get('date_to', '')
+        
+        params = []
+        if search:
+            params.append(f'search={search}')
+        if department:
+            params.append(f'department={department}')
+        if date_from:
+            params.append(f'date_from={date_from}')
+        if date_to:
+            params.append(f'date_to={date_to}')
+        
+        if params:
+            url_params = "&" + "&".join(params)
+
+        # Paginate each tab separately with 15 items per page
+        paginate_by = 15
+        
+        # Get page numbers for each tab
+        all_page = self.request.GET.get('all_page', 1)
+        pending_page = self.request.GET.get('pending_page', 1)
+        reviewed_page = self.request.GET.get('reviewed_page', 1)
+        resolved_page = self.request.GET.get('resolved_page', 1)
+        
+        # Create paginators for each tab
+        pending_reports = all_reports.filter(status='pending')
+        reviewed_reports = all_reports.filter(status='reviewed')
+        resolved_reports = all_reports.filter(status='resolved')
+        
+        # Paginate pending reports
+        pending_paginator = Paginator(pending_reports, paginate_by)
+        try:
+            pending_page_obj = pending_paginator.page(pending_page)
+        except PageNotAnInteger:
+            pending_page_obj = pending_paginator.page(1)
+        except EmptyPage:
+            pending_page_obj = pending_paginator.page(pending_paginator.num_pages)
+        
+        # Paginate reviewed reports
+        reviewed_paginator = Paginator(reviewed_reports, paginate_by)
+        try:
+            reviewed_page_obj = reviewed_paginator.page(reviewed_page)
+        except PageNotAnInteger:
+            reviewed_page_obj = reviewed_paginator.page(1)
+        except EmptyPage:
+            reviewed_page_obj = reviewed_paginator.page(reviewed_paginator.num_pages)
+        
+        # Paginate resolved reports
+        resolved_paginator = Paginator(resolved_reports, paginate_by)
+        try:
+            resolved_page_obj = resolved_paginator.page(resolved_page)
+        except PageNotAnInteger:
+            resolved_page_obj = resolved_paginator.page(1)
+        except EmptyPage:
+            resolved_page_obj = resolved_paginator.page(resolved_paginator.num_pages)
+        
+        # Create combined all reports (mix of all statuses) and paginate
+        all_reports_combined = all_reports
+        all_paginator = Paginator(all_reports_combined, paginate_by)
+        try:
+            all_page_obj = all_paginator.page(all_page)
+        except PageNotAnInteger:
+            all_page_obj = all_paginator.page(1)
+        except EmptyPage:
+            all_page_obj = all_paginator.page(all_paginator.num_pages)
+
+        # Add paginated objects to context
+        context['pending_reports'] = pending_page_obj
+        context['reviewed_reports'] = reviewed_page_obj
+        context['resolved_reports'] = resolved_page_obj
+        context['all_reports'] = all_page_obj
+        
+        # Add total counts for badges
+        context['pending_count'] = pending_reports.count()
+        context['reviewed_count'] = reviewed_reports.count()
+        context['resolved_count'] = resolved_reports.count()
+        context['all_count'] = all_reports_combined.count()
         
         # Add departments for filter dropdown
         from .models import Department
         context['departments'] = Department.objects.all().order_by('name')
         
-        # Add search parameters for form persistence
-        context['search'] = self.request.GET.get('search', '')
-        context['department_filter'] = self.request.GET.get('department', '')
-        context['date_from'] = self.request.GET.get('date_from', '')
-        context['date_to'] = self.request.GET.get('date_to', '')
+        # Add search parameters for form persistence and URL building
+        context['search'] = search
+        context['department_filter'] = department
+        context['date_from'] = date_from
+        context['date_to'] = date_to
+        context['url_params'] = url_params
 
         return context
 
@@ -1143,6 +1261,9 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         return queryset
 
     def get_context_data(self, **kwargs):
+        # Update reservation statuses before displaying
+        Reservation.check_and_update_reservations()
+        
         context = super().get_context_data(**kwargs)
         all_reservations = self.get_queryset()
         
@@ -1152,6 +1273,7 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         context['active_reservations'] = all_reservations.filter(status='active')
         context['completed_reservations'] = all_reservations.filter(status='completed')
         context['rejected_reservations'] = all_reservations.filter(status='rejected')
+        context['expired_reservations'] = all_reservations.filter(status='expired')
         
         # Add departments for the filter dropdown
         context['departments'] = Department.objects.all()
@@ -1205,7 +1327,79 @@ class SupplyListView(PermissionRequiredMixin, ListView):
     paginate_by = 15  # Enable pagination with 15 items per page
 
     def get_queryset(self):
-        return Supply.objects.filter(is_archived=False).select_related('quantity_info', 'category', 'subcategory').order_by('supply_name')
+        queryset = Supply.objects.filter(is_archived=False).select_related('quantity_info', 'category', 'subcategory').order_by('supply_name')
+        
+        # Apply search filter
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(supply_name__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(category__name__icontains=search_query) |
+                Q(subcategory__name__icontains=search_query)
+            )
+        
+        # Apply category filter
+        category_filters = self.request.GET.getlist('category')
+        if category_filters:
+            queryset = queryset.filter(category__name__in=category_filters)
+        
+        # Apply status filter
+        status_filters = self.request.GET.getlist('status')
+        if status_filters:
+            status_conditions = []
+            for status in status_filters:
+                if status == 'active':
+                    status_conditions.append(Q(status='active'))
+                elif status == 'inactive':
+                    status_conditions.append(Q(status='inactive'))
+            
+            if status_conditions:
+                status_q = status_conditions[0]
+                for condition in status_conditions[1:]:
+                    status_q |= condition
+                queryset = queryset.filter(status_q)
+        
+        # Apply availability filter
+        availability_filters = self.request.GET.getlist('availability')
+        if availability_filters:
+            availability_conditions = []
+            for availability in availability_filters:
+                if availability == 'Available':
+                    availability_conditions.append(Q(quantity_info__current_quantity__gt=0))
+                elif availability == 'Out of Stock':
+                    availability_conditions.append(Q(quantity_info__current_quantity=0))
+            
+            if availability_conditions:
+                availability_q = availability_conditions[0]
+                for condition in availability_conditions[1:]:
+                    availability_q |= condition
+                queryset = queryset.filter(availability_q)
+        
+        # Apply expiry filter
+        expiry_filters = self.request.GET.getlist('expiry')
+        if expiry_filters:
+            today = timezone.now().date()
+            
+            expiry_conditions = []
+            for expiry in expiry_filters:
+                if expiry == 'expired':
+                    expiry_conditions.append(Q(expiration_date__lt=today))
+                elif expiry == 'expiring_soon':
+                    # Expires within 30 days
+                    expiry_conditions.append(Q(expiration_date__gte=today, expiration_date__lte=today + timezone.timedelta(days=30)))
+                elif expiry == 'not_expired':
+                    expiry_conditions.append(Q(expiration_date__gt=today + timezone.timedelta(days=30)) | Q(expiration_date__isnull=True))
+                elif expiry == 'no_expiry':
+                    expiry_conditions.append(Q(expiration_date__isnull=True))
+            
+            if expiry_conditions:
+                expiry_q = expiry_conditions[0]
+                for condition in expiry_conditions[1:]:
+                    expiry_q |= condition
+                queryset = queryset.filter(expiry_q)
+        
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1410,10 +1604,10 @@ class PropertyListView(PermissionRequiredMixin, ListView):
                 Q(property_number__icontains=search_query)
             )
         
-        # Apply category filter
-        category_filter = self.request.GET.get('category')
-        if category_filter:
-            queryset = queryset.filter(category__name=category_filter)
+        # Apply category filter (support multiple categories)
+        category_filters = self.request.GET.getlist('category')
+        if category_filters:
+            queryset = queryset.filter(category__name__in=category_filters)
         
         # Apply availability filter
         availability_filter = self.request.GET.get('availability')
@@ -1422,10 +1616,17 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         elif availability_filter == 'not_available':
             queryset = queryset.exclude(availability='available')
         
-        # Apply condition filter
-        condition_filter = self.request.GET.get('condition')
-        if condition_filter:
-            queryset = queryset.filter(condition=condition_filter)
+        # Apply condition filter (support multiple conditions)
+        condition_filters = self.request.GET.getlist('condition')
+        if condition_filters:
+            queryset = queryset.filter(condition__in=condition_filters)
+        
+        # Apply price range filter
+        price_range_filter = self.request.GET.get('priceRange')
+        if price_range_filter == 'below50000':
+            queryset = queryset.filter(unit_value__lt=50000)
+        elif price_range_filter == 'above50000':
+            queryset = queryset.filter(unit_value__gte=50000)
         
         return queryset
 

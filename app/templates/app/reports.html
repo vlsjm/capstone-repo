@@ -898,22 +898,22 @@
       <button class="tab-button active" onclick="showTab('all', this)" id="allTab">
         <i class="fas fa-list"></i>
         All Reports
-        <span class="badge">{{ pending_reports.count|add:reviewed_reports.count|add:resolved_reports.count }}</span>
+        <span class="badge">{{ all_count }}</span>
       </button>
       <button class="tab-button" onclick="showTab('pending', this)" id="pendingTab">
         <i class="fas fa-clock"></i>
         Pending
-        <span class="badge">{{ pending_reports.count }}</span>
+        <span class="badge">{{ pending_count }}</span>
       </button>
       <button class="tab-button" onclick="showTab('reviewed', this)" id="reviewedTab">
         <i class="fas fa-eye"></i>
         Reviewed
-        <span class="badge">{{ reviewed_reports.count }}</span>
+        <span class="badge">{{ reviewed_count }}</span>
       </button>
       <button class="tab-button" onclick="showTab('resolved', this)" id="resolvedTab">
         <i class="fas fa-check-circle"></i>
         Resolved
-        <span class="badge">{{ resolved_reports.count }}</span>
+        <span class="badge">{{ resolved_count }}</span>
       </button>
     </div>
 
@@ -923,7 +923,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
           <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">All Damage Reports</h3>
         </div>
-        {% if pending_reports or reviewed_reports or resolved_reports %}
+        {% if all_reports %}
         <div class="reports-table">
           <table>
             <thead>
@@ -938,10 +938,10 @@
               </tr>
             </thead>
             <tbody>
-              {% for report in pending_reports|slice:":5" %}
+              {% for report in all_reports %}
               <tr class="expandable-row" data-report-id="{{ report.id }}">
                 <td>
-                  <i class="fas fa-chevron-right expand-icon" id="icon-{{ report.id }}"></i>
+                  <i class="fas fa-chevron-right expand-icon" id="icon-all-{{ report.id }}"></i>
                   RPT-{{ report.id|stringformat:"03d" }}
                 </td>
                 <td>
@@ -963,7 +963,14 @@
                 <td>{{ report.description|truncatechars:50 }}</td>
                 <td>
                   <span class="status-badge status-{{ report.status|lower|cut:' ' }}">
-                    <i class="fas fa-clock"></i> {{ report.get_status_display }}
+                    {% if report.status == 'pending' %}
+                      <i class="fas fa-clock"></i>
+                    {% elif report.status == 'reviewed' %}
+                      <i class="fas fa-eye"></i>
+                    {% elif report.status == 'resolved' %}
+                      <i class="fas fa-check-circle"></i>
+                    {% endif %}
+                    {{ report.get_status_display }}
                   </span>
                 </td>
                 <td>{{ report.report_date|date:"M d, Y" }}</td>
@@ -973,121 +980,7 @@
                   </a>
                 </td>
               </tr>
-              <tr class="details-row" id="details-{{ report.id }}">
-                <td colspan="7">
-                  <div class="details-content">
-                    <div class="details-section">
-                      <h5>Report Information</h5>
-                      <p><strong>Full Description:</strong> {{ report.description }}</p>
-                      <p><strong>Report Date:</strong> {{ report.report_date|date:"M d, Y H:i" }}</p>
-                      <p><strong>Item:</strong> {{ report.item.property_name }}</p>
-                    </div>
-                    <div class="details-section">
-                      <h5>Status Information</h5>
-                      <p><strong>Current Status:</strong> {{ report.get_status_display }}</p>
-                      <p><strong>Department:</strong> {{ report.user.userprofile.department }}</p>
-                      {% if report.remarks %}
-                        <p><strong>Remarks:</strong> {{ report.remarks }}</p>
-                      {% endif %}
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              {% endfor %}
-              
-              {% for report in reviewed_reports|slice:":5" %}
-              <tr class="expandable-row" data-report-id="{{ report.id }}">
-                <td>
-                  <i class="fas fa-chevron-right expand-icon" id="icon-{{ report.id }}"></i>
-                  RPT-{{ report.id|stringformat:"03d" }}
-                </td>
-                <td>
-                  <strong>
-                    {% with report.user.first_name as first_name %}
-                    {% with report.user.last_name as last_name %}
-                      {% if first_name or last_name %}
-                        {{ first_name }} {{ last_name }}
-                      {% else %}
-                        {{ report.user.username }}
-                      {% endif %}
-                    {% endwith %}
-                    {% endwith %}
-                  </strong>
-                  <br>
-                  <small class="text-muted">{{ report.user.userprofile.department }}</small>
-                </td>
-                <td>{{ report.item.property_name }}</td>
-                <td>{{ report.description|truncatechars:50 }}</td>
-                <td>
-                  <span class="status-badge status-{{ report.status|lower|cut:' ' }}">
-                    <i class="fas fa-eye"></i> {{ report.get_status_display }}
-                  </span>
-                </td>
-                <td>{{ report.report_date|date:"M d, Y" }}</td>
-                <td>
-                  <a href="{% url 'damage_report_detail' report.id %}" class="detail-link">
-                    <i class="fas fa-eye"></i> View
-                  </a>
-                </td>
-              </tr>
-              <tr class="details-row" id="details-{{ report.id }}">
-                <td colspan="7">
-                  <div class="details-content">
-                    <div class="details-section">
-                      <h5>Report Information</h5>
-                      <p><strong>Full Description:</strong> {{ report.description }}</p>
-                      <p><strong>Report Date:</strong> {{ report.report_date|date:"M d, Y H:i" }}</p>
-                      <p><strong>Item:</strong> {{ report.item.property_name }}</p>
-                    </div>
-                    <div class="details-section">
-                      <h5>Status Information</h5>
-                      <p><strong>Current Status:</strong> {{ report.get_status_display }}</p>
-                      <p><strong>Department:</strong> {{ report.user.userprofile.department }}</p>
-                      {% if report.remarks %}
-                        <p><strong>Remarks:</strong> {{ report.remarks }}</p>
-                      {% endif %}
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              {% endfor %}
-              
-              {% for report in resolved_reports|slice:":5" %}
-              <tr class="expandable-row" data-report-id="{{ report.id }}">
-                <td>
-                  <i class="fas fa-chevron-right expand-icon" id="icon-{{ report.id }}"></i>
-                  RPT-{{ report.id|stringformat:"03d" }}
-                </td>
-                <td>
-                  <strong>
-                    {% with report.user.first_name as first_name %}
-                    {% with report.user.last_name as last_name %}
-                      {% if first_name or last_name %}
-                        {{ first_name }} {{ last_name }}
-                      {% else %}
-                        {{ report.user.username }}
-                      {% endif %}
-                    {% endwith %}
-                    {% endwith %}
-                  </strong>
-                  <br>
-                  <small class="text-muted">{{ report.user.userprofile.department }}</small>
-                </td>
-                <td>{{ report.item.property_name }}</td>
-                <td>{{ report.description|truncatechars:50 }}</td>
-                <td>
-                  <span class="status-badge status-{{ report.status|lower|cut:' ' }}">
-                    <i class="fas fa-check-circle"></i> {{ report.get_status_display }}
-                  </span>
-                </td>
-                <td>{{ report.report_date|date:"M d, Y" }}</td>
-                <td>
-                  <a href="{% url 'damage_report_detail' report.id %}" class="detail-link">
-                    <i class="fas fa-eye"></i> View
-                  </a>
-                </td>
-              </tr>
-              <tr class="details-row" id="details-{{ report.id }}">
+              <tr class="details-row" id="details-all-{{ report.id }}">
                 <td colspan="7">
                   <div class="details-content">
                     <div class="details-section">
@@ -1111,6 +1004,27 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination for All Reports -->
+        {% if all_reports.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination">
+            {% if all_reports.has_previous %}
+              <a href="?tab=all&all_page=1{{ url_params }}">&laquo; First</a>
+              <a href="?tab=all&all_page={{ all_reports.previous_page_number }}{{ url_params }}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ all_reports.number }} of {{ all_reports.paginator.num_pages }}
+            </span>
+
+            {% if all_reports.has_next %}
+              <a href="?tab=all&all_page={{ all_reports.next_page_number }}{{ url_params }}">Next</a>
+              <a href="?tab=all&all_page={{ all_reports.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
         {% else %}
         <div class="empty-state">
           <i class="fas fa-exclamation-triangle"></i>
@@ -1195,6 +1109,27 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination for Pending Reports -->
+        {% if pending_reports.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination">
+            {% if pending_reports.has_previous %}
+              <a href="?tab=pending&pending_page=1{{ url_params }}">&laquo; First</a>
+              <a href="?tab=pending&pending_page={{ pending_reports.previous_page_number }}{{ url_params }}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ pending_reports.number }} of {{ pending_reports.paginator.num_pages }}
+            </span>
+
+            {% if pending_reports.has_next %}
+              <a href="?tab=pending&pending_page={{ pending_reports.next_page_number }}{{ url_params }}">Next</a>
+              <a href="?tab=pending&pending_page={{ pending_reports.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
         {% else %}
         <div class="empty-state">
           <i class="fas fa-clock"></i>
@@ -1282,6 +1217,27 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination for Reviewed Reports -->
+        {% if reviewed_reports.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination">
+            {% if reviewed_reports.has_previous %}
+              <a href="?tab=reviewed&reviewed_page=1{{ url_params }}">&laquo; First</a>
+              <a href="?tab=reviewed&reviewed_page={{ reviewed_reports.previous_page_number }}{{ url_params }}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ reviewed_reports.number }} of {{ reviewed_reports.paginator.num_pages }}
+            </span>
+
+            {% if reviewed_reports.has_next %}
+              <a href="?tab=reviewed&reviewed_page={{ reviewed_reports.next_page_number }}{{ url_params }}">Next</a>
+              <a href="?tab=reviewed&reviewed_page={{ reviewed_reports.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
         {% else %}
         <div class="empty-state">
           <i class="fas fa-eye"></i>
@@ -1369,6 +1325,27 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination for Resolved Reports -->
+        {% if resolved_reports.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination">
+            {% if resolved_reports.has_previous %}
+              <a href="?tab=resolved&resolved_page=1{{ url_params }}">&laquo; First</a>
+              <a href="?tab=resolved&resolved_page={{ resolved_reports.previous_page_number }}{{ url_params }}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ resolved_reports.number }} of {{ resolved_reports.paginator.num_pages }}
+            </span>
+
+            {% if resolved_reports.has_next %}
+              <a href="?tab=resolved&resolved_page={{ resolved_reports.next_page_number }}{{ url_params }}">Next</a>
+              <a href="?tab=resolved&resolved_page={{ resolved_reports.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
         {% else %}
         <div class="empty-state">
           <i class="fas fa-check-circle"></i>
@@ -1390,8 +1367,10 @@
     }
     
     function initializeActiveTab() {
-      // Check if there's a saved tab preference
-      const savedTab = localStorage.getItem('activeReportTab') || 'all';
+      // Check if there's a tab parameter in the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabFromUrl = urlParams.get('tab');
+      const savedTab = tabFromUrl || localStorage.getItem('activeReportTab') || 'all';
       const tabButton = document.getElementById(savedTab + 'Tab');
       if (tabButton) {
         showTab(savedTab, tabButton);
@@ -1432,6 +1411,11 @@
       
       // Save active tab preference
       localStorage.setItem('activeReportTab', tabName);
+      
+      // Update URL to maintain tab state
+      const url = new URL(window.location);
+      url.searchParams.set('tab', tabName);
+      window.history.replaceState({}, '', url);
     }
 
     function toggleReportDetails(reportId) {
@@ -1455,13 +1439,24 @@
       reportsTables.forEach(table => {
         table.addEventListener('click', function(e) {
           const expandableRow = e.target.closest('.expandable-row');
-          if (expandableRow) {
+          if (expandableRow && !e.target.closest('.detail-link')) {
             const reportId = expandableRow.getAttribute('data-report-id');
-            const detailsRow = document.getElementById('details-all-' + reportId) || 
-                               document.getElementById('details-pending-' + reportId) ||
-                               document.getElementById('details-reviewed-' + reportId) ||
-                               document.getElementById('details-resolved-' + reportId);
             const expandIcon = expandableRow.querySelector('.expand-icon');
+            const iconId = expandIcon.getAttribute('id');
+            let detailsId = '';
+            
+            // Determine the correct details row ID based on the icon ID
+            if (iconId.includes('all-')) {
+              detailsId = 'details-all-' + reportId;
+            } else if (iconId.includes('pending-')) {
+              detailsId = 'details-pending-' + reportId;
+            } else if (iconId.includes('reviewed-')) {
+              detailsId = 'details-reviewed-' + reportId;
+            } else if (iconId.includes('resolved-')) {
+              detailsId = 'details-resolved-' + reportId;
+            }
+            
+            const detailsRow = document.getElementById(detailsId);
             
             if (detailsRow) {
               if (detailsRow.style.display === 'none' || detailsRow.style.display === '') {
@@ -1513,6 +1508,45 @@
         margin-left: 0 !important;
         align-self: flex-start;
       }
+    }
+
+    /* Pagination Styles matching supply request format */
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    
+    .pagination a {
+      color: #152d64;
+      text-decoration: none;
+      padding: 8px 16px;
+      border: 1px solid #152d64;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+    
+    .pagination a:hover {
+      background-color: #152d64;
+      color: white;
+    }
+    
+    .pagination .current {
+      background-color: #152d64;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: 500;
     }
   </style>
 </body>

@@ -667,6 +667,7 @@ class Reservation(models.Model):
         ('rejected', 'Rejected'),
         ('active', 'Active'),  # When the reservation period has started
         ('completed', 'Completed'),  # When the reservation period has ended
+        ('expired', 'Expired'),  # When the reservation period has passed without being activated
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -679,6 +680,9 @@ class Reservation(models.Model):
     purpose = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     remarks = models.TextField(blank=True, null=True)
+    
+    # Link to the auto-generated borrow request
+    generated_borrow_batch = models.ForeignKey('BorrowRequestBatch', on_delete=models.SET_NULL, null=True, blank=True, related_name='source_reservation')
 
     def __str__(self):
         return f"Reservation by {self.user.username} for {self.item.property_name}"
@@ -709,24 +713,22 @@ class Reservation(models.Model):
 
         # Handle status changes
         if old_status != self.status:
-            # When a reservation becomes active
-            if self.status == 'active' and old_status in ['approved', None]:
-                # Decrease the item's quantity
-                self.item.quantity -= self.quantity
-                self.item.save()
+            # When a reservation becomes active (auto-generated borrow request created)
+            if self.status == 'active' and old_status == 'approved':
+                # Don't decrease quantity here - it will be handled when borrow request becomes active
                 
-                # Notify the user
+                # Notify the user that borrow request has been created
+                borrow_batch_info = f"Borrow Request #{self.generated_borrow_batch.id} has been created for you." if self.generated_borrow_batch else "Please visit the office to claim your items."
+                
                 Notification.objects.create(
                     user=self.user,
-                    message=f"Your reservation for {self.item.property_name} is now active.",
-                    remarks=f"Please collect your items. Return date: {self.return_date}"
+                    message=f"Your reservation for {self.item.property_name} is ready for claiming!",
+                    remarks=f"{borrow_batch_info} Return date: {self.return_date}"
                 )
             
             # When a reservation is completed
             elif self.status == 'completed' and old_status == 'active':
-                # Increase the item's quantity
-                self.item.quantity += self.quantity
-                self.item.save()
+                # Don't increase quantity here - it will be handled by the borrow request system
                 
                 # Notify the user
                 Notification.objects.create(
@@ -761,15 +763,84 @@ class Reservation(models.Model):
         """
         today = timezone.now().date()
         
-        # Update approved reservations to active when needed_date is reached
+        # Update pending reservations to expired when return_date has passed
+        pending_to_expired = cls.objects.filter(
+            status='pending',
+            return_date__lt=today
+        )
+        for reservation in pending_to_expired:
+            reservation.status = 'expired'
+            reservation.save()
+            
+            # Notify the user about the expired reservation
+            Notification.objects.create(
+                user=reservation.user,
+                message=f"Your reservation request for {reservation.item.property_name} has expired.",
+                remarks=f"The reservation period ended on {reservation.return_date} before approval."
+            )
+        
+        # Update approved reservations to expired when return_date has passed without becoming active
+        approved_to_expired = cls.objects.filter(
+            status='approved',
+            return_date__lt=today
+        )
+        for reservation in approved_to_expired:
+            reservation.status = 'expired'
+            reservation.save()
+            
+            # Notify the user about the expired reservation
+            Notification.objects.create(
+                user=reservation.user,
+                message=f"Your reservation for {reservation.item.property_name} has expired.",
+                remarks=f"The reservation period ended on {reservation.return_date} without activation."
+            )
+        
+        # AUTO-GENERATE BORROW REQUESTS: Update approved reservations to active when needed_date is reached
+        from django.db import transaction
+        
         approved_to_active = cls.objects.filter(
             status='approved',
             needed_date__lte=today,
-            return_date__gte=today
+            return_date__gte=today,
+            generated_borrow_batch__isnull=True  # Only if borrow request hasn't been created yet
         )
+        
         for reservation in approved_to_active:
-            reservation.status = 'active'
-            reservation.save()
+            with transaction.atomic():
+                # Create a new BorrowRequestBatch for the reservation
+                borrow_batch = BorrowRequestBatch.objects.create(
+                    user=reservation.user,
+                    purpose=f"Auto-generated from Reservation #{reservation.id}: {reservation.purpose}",
+                    status='for_claiming',  # Set directly to for_claiming status
+                    approved_date=timezone.now(),  # Mark as approved since reservation was already approved
+                    remarks=f"Automatically created from approved reservation #{reservation.id}"
+                )
+                
+                # Create the BorrowRequestItem for this reservation
+                BorrowRequestItem.objects.create(
+                    batch_request=borrow_batch,
+                    property=reservation.item,
+                    quantity=reservation.quantity,
+                    approved_quantity=reservation.quantity,  # Same as requested since reservation was approved
+                    return_date=reservation.return_date,
+                    status='approved',  # Set as approved since reservation was already approved
+                    approved=True,  # For backward compatibility
+                    remarks=f"Auto-generated from reservation #{reservation.id}"
+                )
+                
+                # Link the borrow batch to the reservation
+                reservation.generated_borrow_batch = borrow_batch
+                reservation.status = 'active'
+                reservation.save()
+                
+                # Notify admins about the auto-generated borrow request
+                admin_users = User.objects.filter(userprofile__role='ADMIN')
+                for admin_user in admin_users:
+                    Notification.objects.create(
+                        user=admin_user,
+                        message=f"Borrow request #{borrow_batch.id} auto-generated from reservation #{reservation.id}",
+                        remarks=f"User: {reservation.user.username}, Item: {reservation.item.property_name} (x{reservation.quantity}), Status: For Claiming"
+                    )
         
         # Update active reservations to completed when return_date is passed
         active_to_completed = cls.objects.filter(

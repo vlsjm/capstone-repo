@@ -1158,6 +1158,12 @@ tr.hidden {
                   </div>
                 </div>
 
+                <!-- Filter Actions -->
+                <div class="simple-filter-actions">
+                  <button id="clearFiltersBtn" class="simple-btn clear-btn" type="button">
+                    <i class="fas fa-times"></i> Clear All
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1322,17 +1328,20 @@ tr.hidden {
       <div class="actlog-pagination" style="margin-top: 20px;">
         <span class="step-links">
           {% if page_obj.has_previous %}
-            <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">&laquo; first</a>
-            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">previous</a>
+            <a href="#" data-page="1" class="pagination-link">&laquo; first</a>
+            <a href="#" data-page="{{ page_obj.previous_page_number }}" class="pagination-link">previous</a>
           {% endif %}
 
           <span class="current">
             Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            <span style="margin-left: 10px; color: #666; font-size: 0.9em;">
+              (Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} items)
+            </span>
           </span>
 
           {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">next</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">last &raquo;</a>
+            <a href="#" data-page="{{ page_obj.next_page_number }}" class="pagination-link">next</a>
+            <a href="#" data-page="{{ page_obj.paginator.num_pages }}" class="pagination-link">last &raquo;</a>
           {% endif %}
         </span>
       </div>
@@ -2426,7 +2435,7 @@ tr.hidden {
           }
 
           updateActiveFilterCount();
-          filterAndSearch();
+          applyFilters();
         }
       });
 
@@ -2437,112 +2446,171 @@ tr.hidden {
         activeFilterCount.style.display = totalActiveFilters > 0 ? 'flex' : 'none';
       }
 
-      // Filter and Search functionality
-      function filterAndSearch() {
-        if (!tableBody) return;
-
-        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-        const rows = tableBody.getElementsByTagName('tr');
-        let visibleCount = 0;
-
-        for (let i = 0; i < rows.length; i++) {
-          const row = rows[i];
-          const cells = row.getElementsByTagName('td');
-          if (cells.length === 0) continue;
-
-          let matchesSearch = true;
-          let matchesCategory = true;
-          let matchesStatus = true;
-          let matchesAvailability = true;
-          let matchesExpiry = true;
-
-          // Search functionality
-          if (searchTerm) {
-            matchesSearch = false;
-            for (let cell of cells) {
-              if (cell.textContent.toLowerCase().includes(searchTerm)) {
-                matchesSearch = true;
-                break;
-              }
-            }
-          }
-
-          // Category filter
-          if (activeFilters.category.length > 0) {
-            const categoryCell = cells[3]; // Category column
-            const categoryText = categoryCell ? categoryCell.textContent.trim() : '';
-            console.log('Category filter - Cell text:', categoryText, 'Active filters:', activeFilters.category);
-            matchesCategory = activeFilters.category.includes(categoryText);
-            console.log('Category match result:', matchesCategory);
-          }
-
-          // Status filter
-          if (activeFilters.status.length > 0) {
-            const statusCell = cells[8]; // Status column
-            const statusBadge = statusCell ? statusCell.querySelector('.status-badge') : null;
-            if (statusBadge) {
-              const statusClass = statusBadge.className;
-              matchesStatus = activeFilters.status.some(status => statusClass.includes(`status-${status}`));
-            } else {
-              matchesStatus = false;
-            }
-          }
-
-          // Availability filter
-          if (activeFilters.availability.length > 0) {
-            const availabilityCell = cells[9]; // Availability column
-            const availabilityText = availabilityCell ? availabilityCell.textContent.trim() : '';
-            matchesAvailability = activeFilters.availability.includes(availabilityText);
-          }
-
-          // Expiry filter
-          if (activeFilters.expiry.length > 0) {
-            const expiryCell = cells[6]; // Expiry Date column
-            const expiryDiv = expiryCell ? expiryCell.querySelector('.expiration-badge') : null;
-            matchesExpiry = false;
-
-            activeFilters.expiry.forEach(expiryFilter => {
-              if (expiryFilter === 'no_expiry' && expiryCell && expiryCell.textContent.trim() === 'N/A') {
-                matchesExpiry = true;
-              } else if (expiryDiv) {
-                switch(expiryFilter) {
-                  case 'expired':
-                    if (expiryDiv.classList.contains('expired')) matchesExpiry = true;
-                    break;
-                  case 'expiring_soon':
-                    if (expiryDiv.classList.contains('nearly-expired')) matchesExpiry = true;
-                    break;
-                  case 'not_expired':
-                    if (expiryDiv.classList.contains('not-expired')) matchesExpiry = true;
-                    break;
-                }
-              }
-            });
-          }
-
-          // Show/hide row based on all filters
-          const shouldShow = matchesSearch && matchesCategory && matchesStatus && matchesAvailability && matchesExpiry;
-          row.style.display = shouldShow ? '' : 'none';
-
-          if (shouldShow) {
-            visibleCount++;
-            // Update row number for visible rows
-            const rowNumberCell = cells[0];
-            if (rowNumberCell && rowNumberCell.classList.contains('row-number')) {
-              rowNumberCell.textContent = visibleCount;
-            }
-          }
+      // Server-side Filter and Search functionality
+      function applyFilters() {
+        const params = new URLSearchParams();
+        
+        // Add search parameter
+        const searchTerm = searchInput ? searchInput.value.trim() : '';
+        if (searchTerm) {
+          params.append('search', searchTerm);
         }
+        
+        // Add category filters
+        activeFilters.category.forEach(category => {
+          params.append('category', category);
+        });
+        
+        // Add status filters
+        activeFilters.status.forEach(status => {
+          params.append('status', status);
+        });
+        
+        // Add availability filters
+        activeFilters.availability.forEach(availability => {
+          params.append('availability', availability);
+        });
+        
+        // Add expiry filters
+        activeFilters.expiry.forEach(expiry => {
+          params.append('expiry', expiry);
+        });
+        
+        // Reload page with new parameters
+        const baseUrl = window.location.pathname;
+        const newUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+        window.location.href = newUrl;
+      }
+      
+      // Debounced search function
+      let searchTimeout;
+      function debouncedSearch() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          applyFilters();
+        }, 500); // 500ms delay
       }
 
-      // Add event listeners for search
+      // Add event listeners for search with debounce
       if (searchInput) {
-        searchInput.addEventListener('input', filterAndSearch);
+        searchInput.addEventListener('input', debouncedSearch);
+      }
+
+      // Load filter values from URL parameters on page load
+      function loadFiltersFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        
+        // Load search value
+        const searchQuery = params.get('search');
+        if (searchQuery && searchInput) {
+          searchInput.value = searchQuery;
+        }
+        
+        // Load category filters
+        const categoryFilters = params.getAll('category');
+        categoryFilters.forEach(category => {
+          const checkbox = document.querySelector(`input[name="category"][value="${category}"]`);
+          if (checkbox) {
+            checkbox.checked = true;
+            if (!activeFilters.category.includes(category)) {
+              activeFilters.category.push(category);
+            }
+          }
+        });
+        
+        // Load status filters
+        const statusFilters = params.getAll('status');
+        statusFilters.forEach(status => {
+          const checkbox = document.querySelector(`input[name="status"][value="${status}"]`);
+          if (checkbox) {
+            checkbox.checked = true;
+            if (!activeFilters.status.includes(status)) {
+              activeFilters.status.push(status);
+            }
+          }
+        });
+        
+        // Load availability filters
+        const availabilityFilters = params.getAll('availability');
+        availabilityFilters.forEach(availability => {
+          const checkbox = document.querySelector(`input[name="availability"][value="${availability}"]`);
+          if (checkbox) {
+            checkbox.checked = true;
+            if (!activeFilters.availability.includes(availability)) {
+              activeFilters.availability.push(availability);
+            }
+          }
+        });
+        
+        // Load expiry filters
+        const expiryFilters = params.getAll('expiry');
+        expiryFilters.forEach(expiry => {
+          const checkbox = document.querySelector(`input[name="expiry"][value="${expiry}"]`);
+          if (checkbox) {
+            checkbox.checked = true;
+            if (!activeFilters.expiry.includes(expiry)) {
+              activeFilters.expiry.push(expiry);
+            }
+          }
+        });
+        
+        updateActiveFilterCount();
+      }
+
+      // Function to handle pagination while preserving filters
+      window.goToPage = function(pageNumber) {
+        const params = new URLSearchParams(window.location.search);
+        params.set('page', pageNumber);
+        window.location.href = `${window.location.pathname}?${params.toString()}`;
+      };
+
+      // Handle pagination link clicks
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('pagination-link')) {
+          e.preventDefault();
+          const pageNumber = e.target.getAttribute('data-page');
+          if (pageNumber) {
+            goToPage(pageNumber);
+          }
+        }
+      });
+
+      // Clear filters functionality
+      const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+      if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', function() {
+          // Clear search input
+          if (searchInput) {
+            searchInput.value = '';
+          }
+          
+          // Clear all filter checkboxes
+          document.querySelectorAll('.simple-filter-option input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+          });
+          
+          // Check all "All" options
+          document.querySelectorAll('input[name="category"][value=""], input[name="status"][value=""], input[name="availability"][value=""], input[name="expiry"][value=""]').forEach(checkbox => {
+            checkbox.checked = true;
+          });
+          
+          // Reset active filters
+          activeFilters = {
+            category: [],
+            status: [],
+            availability: [],
+            expiry: []
+          };
+          
+          updateActiveFilterCount();
+          
+          // Navigate to base URL without any parameters
+          window.location.href = window.location.pathname;
+        });
       }
 
       // Initialize filtering
-      updateActiveFilterCount();
-      filterAndSearch();
+      loadFiltersFromURL();
 
       // Add Supply Modal Handling
       if (openAddBtn) {

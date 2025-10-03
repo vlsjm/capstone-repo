@@ -238,6 +238,61 @@
                 text-align: center;
             }
         }
+
+        /* Pagination Styles matching supply request format */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .pagination a {
+            color: #152d64;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid #152d64;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .pagination a:hover {
+            background-color: #152d64;
+            color: white;
+        }
+        
+        .pagination .current {
+            background-color: #152d64;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        /* Badge styles */
+        .badge {
+            background: rgba(255, 255, 255, 0.3);
+            color: inherit;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+        
+        .tab-button.active .badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -252,9 +307,11 @@
         <div class="filter-tabs">
             <button class="tab-button active" data-tab="unserviceable">
                 <i class="fas fa-times-circle"></i> Unserviceable Items
+                <span class="badge">{{ unserviceable_count }}</span>
             </button>
             <button class="tab-button" data-tab="needs-repair">
                 <i class="fas fa-wrench"></i> Items Needing Repair
+                <span class="badge">{{ needs_repair_count }}</span>
             </button>
         </div>
 
@@ -314,6 +371,27 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination for Unserviceable Items -->
+            {% if unserviceable_items.has_other_pages %}
+            <div class="pagination-container">
+                <div class="pagination">
+                    {% if unserviceable_items.has_previous %}
+                        <a href="?tab=unserviceable&unserviceable_page=1{{ url_params }}">&laquo; First</a>
+                        <a href="?tab=unserviceable&unserviceable_page={{ unserviceable_items.previous_page_number }}{{ url_params }}">Previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ unserviceable_items.number }} of {{ unserviceable_items.paginator.num_pages }}
+                    </span>
+
+                    {% if unserviceable_items.has_next %}
+                        <a href="?tab=unserviceable&unserviceable_page={{ unserviceable_items.next_page_number }}{{ url_params }}">Next</a>
+                        <a href="?tab=unserviceable&unserviceable_page={{ unserviceable_items.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
             {% else %}
             <div class="empty-state">
                 <i class="fas fa-check-circle" style="color: #28a745;"></i>
@@ -386,6 +464,27 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination for Needs Repair Items -->
+            {% if needs_repair_items.has_other_pages %}
+            <div class="pagination-container">
+                <div class="pagination">
+                    {% if needs_repair_items.has_previous %}
+                        <a href="?tab=needs-repair&needs_repair_page=1{{ url_params }}">&laquo; First</a>
+                        <a href="?tab=needs-repair&needs_repair_page={{ needs_repair_items.previous_page_number }}{{ url_params }}">Previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ needs_repair_items.number }} of {{ needs_repair_items.paginator.num_pages }}
+                    </span>
+
+                    {% if needs_repair_items.has_next %}
+                        <a href="?tab=needs-repair&needs_repair_page={{ needs_repair_items.next_page_number }}{{ url_params }}">Next</a>
+                        <a href="?tab=needs-repair&needs_repair_page={{ needs_repair_items.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
             {% else %}
             <div class="empty-state">
                 <i class="fas fa-check-circle" style="color: #28a745;"></i>
@@ -398,6 +497,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tab from URL parameter
+            initializeActiveTab();
+            
             // Tab functionality
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
@@ -405,17 +507,42 @@
             tabButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const targetTab = this.getAttribute('data-tab');
-                    
-                    // Remove active class from all buttons and contents
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    tabContents.forEach(content => content.classList.remove('active'));
-                    
-                    // Add active class to clicked button and corresponding content
-                    this.classList.add('active');
-                    document.getElementById(targetTab).classList.add('active');
+                    showTab(targetTab, this);
                 });
             });
         });
+
+        function initializeActiveTab() {
+            // Check if there's a tab parameter in the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabFromUrl = urlParams.get('tab');
+            const savedTab = tabFromUrl || localStorage.getItem('activeDamagedTab') || 'unserviceable';
+            const tabButton = document.querySelector(`[data-tab="${savedTab}"]`);
+            if (tabButton) {
+                showTab(savedTab, tabButton);
+            }
+        }
+
+        function showTab(tabName, buttonElement) {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked button and corresponding content
+            buttonElement.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            // Save active tab preference
+            localStorage.setItem('activeDamagedTab', tabName);
+            
+            // Update URL to maintain tab state
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabName);
+            window.history.replaceState({}, '', url);
+        }
     </script>
 </body>
 </html>
