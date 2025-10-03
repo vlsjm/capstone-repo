@@ -172,67 +172,235 @@
 
 .history-modal-content {
   background-color: #fff;
-  margin: 5% auto;
-  padding: 20px;
+  margin: 2% auto;
+  padding: 25px;
   border: 1px solid #888;
-  width: 80%;  /* Increased from 60% to 80% to give more space */
-  max-width: 1000px;  /* Increased from 700px to 1000px */
-  border-radius: 8px;
+  width: 90%;
+  max-width: 1400px;
+  border-radius: 12px;
   position: relative;
-  max-height: 80vh;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.history-header h3 {
+  color: #152d64;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.history-filter-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.history-search-input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 250px;
+  transition: all 0.3s ease;
+}
+
+.history-search-input:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 5px rgba(21, 45, 100, 0.2);
+}
+
+.history-filter-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+  min-width: 150px;
+}
+
+.history-filter-select:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 5px rgba(21, 45, 100, 0.2);
+}
+
+.history-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #495057;
+}
+
+.history-count, .history-filtered-count {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+#historyContent {
+  max-height: 650px;
   overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background-color: #fff;
 }
 
 .history-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
+  margin: 0;
   table-layout: fixed;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .history-table th {
   background-color: #152d64;
   color: white;
-  padding: 8px;
+  padding: 12px 10px;
   text-align: left;
   font-size: 13px;
+  font-weight: 600;
+  border-bottom: 2px solid #1a3a7a;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .history-table td {
-  padding: 8px;
-  border-bottom: 1px solid #ddd;
+  padding: 12px 10px;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 13px;
+  line-height: 1.5;
+  vertical-align: top;
   word-wrap: break-word;
-  overflow-wrap: break-word;
+}
+
+/* Enhanced column widths for better information display */
+.history-table .col-datetime { width: 12%; }
+.history-table .col-action { width: 12%; }
+.history-table .col-description { width: 30%; }
+.history-table .col-values { width: 28%; }
+.history-table .col-user { width: 10%; }
+.history-table .col-remarks { width: 8%; }
+
+/* Action type badges */
+.action-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.action-badge.create {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.action-badge.update {
+  background-color: #cce7ff;
+  color: #004085;
+  border: 1px solid #b3d7ff;
+}
+
+.action-badge.quantity_update {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+/* Value change styling */
+.value-change {
+  font-family: 'Courier New', monospace;
   font-size: 12px;
-  line-height: 1.4;
-  max-width: 0;
-  white-space: pre-wrap;
-}
-
-/* Column widths */
-.history-table th:nth-child(1), .history-table td:nth-child(1) { width: 12%; }  /* Date */
-.history-table th:nth-child(2), .history-table td:nth-child(2) { width: 8%; }   /* Action */
-.history-table th:nth-child(3), .history-table td:nth-child(3) { width: 10%; }  /* Field */
-.history-table th:nth-child(4), .history-table td:nth-child(4) { width: 30%; }  /* Previous Value */
-.history-table th:nth-child(5), .history-table td:nth-child(5) { width: 30%; }  /* New Value */
-.history-table th:nth-child(6), .history-table td:nth-child(6) { width: 10%; }  /* User */
-
-/* Make the history content section more compact */
-#historyContent {
-  max-height: 600px;
-  overflow-y: auto;
-  border: 1px solid #ddd;
+  padding: 4px 6px;
+  background-color: #f8f9fa;
   border-radius: 4px;
-  margin-top: 10px;
-  font-family: monospace;
+  border-left: 3px solid #007bff;
 }
 
-/* Keep the header sticky when scrolling through history */
-#historyContent .history-table thead th {
-  position: sticky;
-  top: 0;
-  background-color: #152d64;
-  z-index: 1;
+.value-old {
+  color: #dc3545;
+  text-decoration: line-through;
+}
+
+.value-new {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.value-arrow {
+  color: #6c757d;
+  margin: 0 6px;
+}
+
+/* Row hover effects */
+.history-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.history-table tbody tr:nth-child(even) {
+  background-color: #fbfbfb;
+}
+
+.history-table tbody tr:nth-child(even):hover {
+  background-color: #f0f0f0;
+}
+
+/* No results styling */
+.history-no-results {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+}
+
+.history-no-results i {
+  font-size: 48px;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+.history-no-results p {
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .history-modal-content {
+    width: 95%;
+    margin: 1% auto;
+  }
+  
+  .history-filter-controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .history-search-input {
+    width: 200px;
+  }
 }
 
 /* Custom scrollbar styling for history section */
@@ -252,25 +420,6 @@
 
 #historyContent::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
-}
-
-/* Add hover effect for better readability */
-.history-table tr:hover td {
-  background-color: #f5f5f5;
-}
-
-/* Add text ellipsis for very long content */
-.history-table td.truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-}
-
-/* Style for expanded content */
-.history-table td.expanded {
-  white-space: pre-wrap;
-  cursor: pointer;
 }
 
 .close {
@@ -1500,6 +1649,8 @@ input:focus {
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Assigned Property Number</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Description</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Unit Value</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Overall Quantity</th>
+                  <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Current Quantity</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Quantity Per Property Card</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Quantity Per Physical Count</th>
                   <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Available for Request</th>
@@ -1521,6 +1672,8 @@ input:focus {
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.property_number|default:"Not assigned" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.description|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.unit_value|peso }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.overall_quantity|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.quantity|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.overall_quantity|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.quantity_per_physical_count|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">
@@ -1594,7 +1747,8 @@ input:focus {
                         </button>
                         
                         <button class="table-actions-dropdown-item history history-btn" 
-                          data-id="{{ property.id }}">
+                          data-id="{{ property.id }}"
+                          data-property-id="{{ property.id }}">
                           <i class="fas fa-history"></i> View History
                         </button>
                         
@@ -2072,24 +2226,43 @@ input:focus {
 <div id="historyModal" class="history-modal">
   <div class="history-modal-content">
     <span class="close" id="closeHistoryModalBtn">&times;</span>
-    <h3>Property History</h3>
+    <div class="history-header">
+      <h3>Property History</h3>
+      <div class="history-filter-controls">
+        <input type="text" id="historySearchInput" placeholder="Search history..." class="history-search-input">
+        <select id="historyActionFilter" class="history-filter-select">
+          <option value="">All Actions</option>
+          <option value="create">Created</option>
+          <option value="update">Updated</option>
+          <option value="quantity_update">Quantity Changes</option>
+        </select>
+      </div>
+    </div>
     
     <div id="historyContent">
+      <div class="history-summary" id="historySummary">
+        <span class="history-count">Total entries: <strong id="historyTotalCount">0</strong></span>
+        <span class="history-filtered-count" id="historyFilteredCount" style="display: none;">Showing: <strong id="historyVisibleCount">0</strong></span>
+      </div>
       <table class="history-table">
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Action</th>
-            <th>Field</th>
-            <th>Previous Value</th>
-            <th>New Value</th>
-            <th>Transacted by</th>
+            <th class="col-datetime">Date & Time</th>
+            <th class="col-action">Action Type</th>
+            <th class="col-description">Change Description</th>
+            <th class="col-values">Value Changes</th>
+            <th class="col-user">User</th>
+            <th class="col-remarks">Remarks</th>
           </tr>
         </thead>
         <tbody id="historyTableBody">
           <!-- History data will be populated here -->
         </tbody>
       </table>
+      <div id="historyNoResults" class="history-no-results" style="display: none;">
+        <i class="fas fa-search"></i>
+        <p>No history entries match your search criteria.</p>
+      </div>
     </div>
   </div>
 </div>
@@ -2676,91 +2849,201 @@ input:focus {
         const historyModal = document.getElementById('historyModal');
         const historyBtns = document.querySelectorAll('.history-btn');
         const closeHistoryModalBtn = document.getElementById('closeHistoryModalBtn');
+        const historySearchInput = document.getElementById('historySearchInput');
+        const historyActionFilter = document.getElementById('historyActionFilter');
+        let currentHistoryData = [];
 
         if (!historyModal || !historyBtns.length || !closeHistoryModalBtn) {
-            console.error('Missing required elements:', {
-                historyModal: !!historyModal,
-                historyBtns: historyBtns.length,
-                closeHistoryModalBtn: !!closeHistoryModalBtn
-            });
-            return;
-        }
+            console.error('History modal elements not found');
+        } else {
+            // Function to filter and display history
+            function filterAndDisplayHistory() {
+                const searchTerm = historySearchInput ? historySearchInput.value.toLowerCase() : '';
+                const actionFilter = historyActionFilter ? historyActionFilter.value : '';
+                const tableBody = document.getElementById('historyTableBody');
+                const noResults = document.getElementById('historyNoResults');
+                const totalCount = document.getElementById('historyTotalCount');
+                const visibleCount = document.getElementById('historyVisibleCount');
+                const filteredCountContainer = document.getElementById('historyFilteredCount');
 
-        historyBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const propertyId = this.dataset.id;
-                historyModal.style.display = 'block';
-                
-                // Clear existing content
-                const historyTableBody = document.getElementById('historyTableBody');
-                historyTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
-                
-                // Fetch history data
-                fetch(`/get_property_history/${propertyId}/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Populate history table
-                        historyTableBody.innerHTML = '';
-                        if (data.history.length === 0) {
-                            historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No changes have been made to this property yet.</td></tr>';
-                        } else {
-                            data.history.forEach(entry => {
-                                const row = document.createElement('tr');
-                                
-                                // Helper function to create truncatable cell
-                                const createTruncatableCell = (content) => {
-                                    const td = document.createElement('td');
-                                    if (content && content.length > 100) {
-                                        td.classList.add('truncate');
-                                        td.setAttribute('data-full-content', content);
-                                        td.textContent = content.substring(0, 100) + '...';
-                                        td.addEventListener('click', function() {
-                                            if (this.classList.contains('truncate')) {
-                                                this.classList.remove('truncate');
-                                                this.classList.add('expanded');
-                                                this.textContent = this.getAttribute('data-full-content');
-                                            } else {
-                                                this.classList.remove('expanded');
-                                                this.classList.add('truncate');
-                                                this.textContent = this.getAttribute('data-full-content').substring(0, 100) + '...';
-                                            }
-                                        });
-                                    } else {
-                                        td.textContent = content || '';
-                                    }
-                                    return td;
-                                };
+                if (!tableBody) {
+                    console.error('History table body not found');
+                    return;
+                }
 
-                                // Add cells to the row
-                                row.appendChild(createTruncatableCell(entry.date));
-                                row.appendChild(createTruncatableCell(entry.action));
-                                row.appendChild(createTruncatableCell(entry.field_name));
-                                row.appendChild(createTruncatableCell(entry.old_value));
-                                row.appendChild(createTruncatableCell(entry.new_value));
-                                row.appendChild(createTruncatableCell(entry.user));
-                                
-                                historyTableBody.appendChild(row);
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching history:', error);
-                        historyTableBody.innerHTML = '<tr><td colspan="6">Error loading history data</td></tr>';
+                let filteredData = [...currentHistoryData]; // Create a copy
+
+                // Apply action filter
+                if (actionFilter) {
+                    filteredData = filteredData.filter(entry => entry.action === actionFilter);
+                }
+
+                // Apply search filter
+                if (searchTerm) {
+                    filteredData = filteredData.filter(entry => {
+                        const searchFields = [
+                            entry.change_description || '',
+                            entry.field_display || '',
+                            entry.user || '',
+                            entry.value_change || '',
+                            entry.remarks || ''
+                        ];
+                        return searchFields.some(field => 
+                            field.toLowerCase().includes(searchTerm)
+                        );
                     });
-            });
-        });
+                }
 
-        // Close history modal when clicking the close button
-        closeHistoryModalBtn.addEventListener('click', function() {
-            historyModal.style.display = 'none';
-        });
+                // Update counts safely
+                if (totalCount) totalCount.textContent = currentHistoryData.length;
+                if (visibleCount) visibleCount.textContent = filteredData.length;
+                
+                if (filteredCountContainer) {
+                    if (filteredData.length !== currentHistoryData.length) {
+                        filteredCountContainer.style.display = 'inline';
+                    } else {
+                        filteredCountContainer.style.display = 'none';
+                    }
+                }
 
-        // Close history modal when clicking outside
-        window.addEventListener('click', function(event) {
-            if (event.target == historyModal) {
-                historyModal.style.display = 'none';
+                // Clear table body
+                tableBody.innerHTML = '';
+
+                if (filteredData.length === 0) {
+                    if (noResults) noResults.style.display = 'block';
+                    tableBody.style.display = 'none';
+                } else {
+                    if (noResults) noResults.style.display = 'none';
+                    tableBody.style.display = 'table-row-group';
+
+                    // Populate table with filtered data
+                    filteredData.forEach(entry => {
+                        const row = document.createElement('tr');
+                        
+                        // Create action badge
+                        const actionBadge = `<span class="action-badge ${entry.action || 'update'}">${entry.action_display || 'Updated'}</span>`;
+                        
+                        // Format value change with styling and escape HTML
+                        let valueChange = entry.value_change || 'No change';
+                        if (valueChange.includes('→')) {
+                            valueChange = valueChange.replace('→', '<span class="value-arrow">→</span>');
+                        }
+                        const valueChangeDiv = `<div class="value-change">${valueChange}</div>`;
+
+                        row.innerHTML = `
+                            <td class="col-datetime">${entry.datetime || '-'}</td>
+                            <td class="col-action">${actionBadge}</td>
+                            <td class="col-description">${entry.change_description || '-'}</td>
+                            <td class="col-values">${valueChangeDiv}</td>
+                            <td class="col-user">${entry.user || 'Unknown'}</td>
+                            <td class="col-remarks">${entry.remarks || '-'}</td>
+                        `;
+
+                        tableBody.appendChild(row);
+                    });
+                }
             }
-        });
+
+            // Add search and filter event listeners
+            if (historySearchInput) {
+                let searchTimeout;
+                historySearchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(filterAndDisplayHistory, 300);
+                });
+            }
+
+            if (historyActionFilter) {
+                historyActionFilter.addEventListener('change', filterAndDisplayHistory);
+            }
+
+            historyBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Get property ID from data-id attribute
+                    const propertyId = this.getAttribute('data-id') || this.dataset.id;
+                    
+                    console.log('History button clicked, property ID:', propertyId);
+                    
+                    if (!propertyId) {
+                        console.error('Property ID not found. Button element:', this);
+                        alert('Error: Property ID not found. Please refresh the page and try again.');
+                        return;
+                    }
+
+                    // Clear previous data
+                    currentHistoryData = [];
+                    const tableBody = document.getElementById('historyTableBody');
+                    if (tableBody) {
+                        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Loading history...</td></tr>';
+                    }
+
+                    // Reset filters
+                    if (historySearchInput) historySearchInput.value = '';
+                    if (historyActionFilter) historyActionFilter.value = '';
+
+                    // Show modal
+                    historyModal.style.display = 'block';
+
+                    // Fetch history data
+                    console.log('Fetching history for property ID:', propertyId);
+                    fetch(`/get_property_history/${propertyId}/`)
+                        .then(response => {
+                            console.log('History response status:', response.status);
+                            if (!response.ok) {
+                                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('History data received:', data);
+                            
+                            // Check if the response indicates success
+                            if (data.success === false) {
+                                throw new Error(data.error || 'Failed to fetch history data');
+                            }
+                            
+                            // Validate that history data exists
+                            if (!data.history || !Array.isArray(data.history)) {
+                                throw new Error('Invalid history data received from server');
+                            }
+                            
+                            currentHistoryData = data.history;
+                            
+                            // Update modal title with property info
+                            const modalTitle = historyModal.querySelector('h3');
+                            if (modalTitle && data.property_name) {
+                                modalTitle.textContent = `Property History - ${data.property_name}`;
+                                if (data.property_number) {
+                                    modalTitle.textContent += ` (${data.property_number})`;
+                                }
+                            }
+
+                            // Display the data
+                            filterAndDisplayHistory();
+                        })
+                        .catch(error => {
+                            console.error('Error fetching history:', error);
+                            if (tableBody) {
+                                tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Error loading history: ${error.message}</td></tr>`;
+                            }
+                        });
+                });
+            });
+
+            // Close history modal when clicking the close button
+            closeHistoryModalBtn.addEventListener('click', function() {
+                historyModal.style.display = 'none';
+            });
+
+            // Close history modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === historyModal) {
+                    historyModal.style.display = 'none';
+                }
+            });
+        }
     });
 </script>
 

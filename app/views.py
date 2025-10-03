@@ -1613,6 +1613,7 @@ def edit_property(request):
                 'unit_value': property_obj.unit_value,
                 'overall_quantity': property_obj.overall_quantity,
                 'quantity': property_obj.quantity,
+                'quantity_per_physical_count': property_obj.quantity_per_physical_count,
                 'location': property_obj.location,
                 'accountable_person': property_obj.accountable_person,
                 'year_acquired': property_obj.year_acquired,
@@ -1640,6 +1641,12 @@ def edit_property(request):
                 property_obj.overall_quantity = int(request.POST.get('overall_quantity', 0))
             except (TypeError, ValueError):
                 property_obj.overall_quantity = 0
+
+            # Convert quantity_per_physical_count to int safely
+            try:
+                property_obj.quantity_per_physical_count = int(request.POST.get('quantity_per_physical_count', 0))
+            except (TypeError, ValueError):
+                property_obj.quantity_per_physical_count = 0
 
             property_obj.location = request.POST.get('location')
             property_obj.accountable_person = request.POST.get('accountable_person')
@@ -1694,6 +1701,8 @@ def edit_property(request):
                     if str(old_value) != str(new_value):
                         if field == 'overall_quantity':
                             changes.append(f"overall quantity: {old_value} → {new_value} (current quantity updated accordingly)")
+                        elif field == 'quantity_per_physical_count':
+                            changes.append(f"quantity per physical count: {old_value} → {new_value}")
                         elif field == 'condition' and new_value in unavailable_conditions:
                             changes.append(f"condition: {old_value} → {new_value} (automatically set availability to Not Available)")
                         else:
@@ -2264,24 +2273,173 @@ def get_supply_history(request, supply_id):
 
 @login_required
 def get_property_history(request, property_id):
-    property_obj = get_object_or_404(Property, id=property_id)
-    history = property_obj.history.all().order_by('-timestamp')
-    
-    history_data = []
-    for entry in history:
-        history_data.append({
-            'date': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            'action': entry.action,
-            'field_name': entry.field_name,
-            'old_value': entry.old_value if entry.old_value is not None else '-',
-            'new_value': entry.new_value if entry.new_value is not None else '-',
-            'user': entry.user.username if entry.user else 'System',
-            'remarks': entry.remarks if entry.remarks else ''
+    try:
+        property_obj = get_object_or_404(Property, id=property_id)
+        history = property_obj.history.all().order_by('-timestamp')
+        
+        def get_field_display_name(field_name):
+            """Convert field names to user-friendly display names"""
+            field_mapping = {
+                'property_number': 'Property Number',
+                'property_name': 'Property Name',
+                'category': 'Category',
+                'description': 'Description',
+                'barcode': 'Barcode',
+                'unit_of_measure': 'Unit of Measure',
+                'unit_value': 'Unit Value',
+                'overall_quantity': 'Overall Quantity',
+                'quantity': 'Current Quantity',
+                'quantity_per_physical_count': 'Physical Count Quantity',
+                'location': 'Location',
+                'accountable_person': 'Accountable Person',
+                'year_acquired': 'Year Acquired',
+                'condition': 'Condition',
+                'availability': 'Availability',
+                'initial_creation': 'Property Creation'
+            }
+            return field_mapping.get(field_name, field_name.replace('_', ' ').title())
+        
+        def get_action_display(action):
+            """Convert action codes to user-friendly display names"""
+            action_mapping = {
+                'create': 'Created',
+                'update': 'Updated',
+                'quantity_update': 'Quantity Changed'
+            }
+            return action_mapping.get(action, action.replace('_', ' ').title())
+        
+        def format_change_description(entry):
+            """Create a descriptive change summary"""
+            try:
+                field_display = get_field_display_name(entry.field_name)
+                
+                if entry.action == 'create':
+                    return f"Property was created in the system"
+                elif entry.action == 'quantity_update':
+                    if entry.remarks:
+                        return f"{field_display}: {entry.remarks}"
+                    else:
+                        return f"{field_display} was modified"
+                elif entry.action == 'update':
+                    if entry.field_name == 'condition':
+                        return f"Condition changed from '{entry.old_value}' to '{entry.new_value}'"
+                    elif entry.field_name == 'availability':
+                        old_display = 'Available' if entry.old_value == 'available' else 'Not Available'
+                        new_display = 'Available' if entry.new_value == 'available' else 'Not Available'
+                        return f"Availability changed from '{old_display}' to '{new_display}'"
+                    elif entry.field_name == 'category':
+                        return f"Category changed from '{entry.old_value or 'None'}' to '{entry.new_value or 'None'}'"
+                    elif entry.field_name == 'quantity_per_physical_count':
+                        return f"Physical Count Quantity changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    elif entry.field_name == 'overall_quantity':
+                        return f"Overall Quantity changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    elif entry.field_name == 'quantity':
+                        return f"Current Quantity changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    elif 'quantity' in entry.field_name:
+                        return f"{field_display} changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    else:
+                        return f"{field_display} was updated"
+                else:
+                    return f"{field_display} was modified"
+            except Exception as e:
+                return f"Property change recorded"
+        
+        def format_value_change(entry):
+            """Format the value change display"""
+            try:
+                if entry.action == 'create':
+                    return entry.new_value if entry.new_value else 'Property created'
+                elif entry.old_value and entry.new_value and entry.old_value != entry.new_value:
+                    # Handle special formatting for different field types
+                    if entry.field_name == 'unit_value':
+                        try:
+                            old_val = f"₱{float(entry.old_value):,.2f}"
+                            new_val = f"₱{float(entry.new_value):,.2f}"
+                            return f"{old_val} → {new_val}"
+                        except (ValueError, TypeError):
+                            return f"{entry.old_value} → {entry.new_value}"
+                    elif 'quantity' in entry.field_name:
+                        return f"{entry.old_value} → {entry.new_value}"
+                    elif entry.field_name == 'availability':
+                        old_display = 'Available' if entry.old_value == 'available' else 'Not Available'
+                        new_display = 'Available' if entry.new_value == 'available' else 'Not Available'
+                        return f"{old_display} → {new_display}"
+                    else:
+                        # Escape HTML and limit length for long values
+                        old_val = str(entry.old_value)[:100] + ('...' if len(str(entry.old_value)) > 100 else '')
+                        new_val = str(entry.new_value)[:100] + ('...' if len(str(entry.new_value)) > 100 else '')
+                        return f"{old_val} → {new_val}"
+                elif entry.new_value:
+                    new_val = str(entry.new_value)[:100] + ('...' if len(str(entry.new_value)) > 100 else '')
+                    return f"Set to: {new_val}"
+                elif entry.old_value:
+                    # Field was cleared/removed
+                    # Only show "Removed" for fields where it makes sense (not quantities)
+                    if 'quantity' in entry.field_name.lower():
+                        return f"{entry.old_value} → 0"
+                    else:
+                        old_val = str(entry.old_value)[:100] + ('...' if len(str(entry.old_value)) > 100 else '')
+                        return f"Removed: {old_val}"
+                else:
+                    return "No value change"
+            except Exception as e:
+                return "Value changed"
+        
+        history_data = []
+        for entry in history:
+            try:
+                # Debug logging for quantity-related entries
+                if 'quantity' in entry.field_name.lower():
+                    print(f"DEBUG: Processing quantity entry - Field: {entry.field_name}, Old: {entry.old_value}, New: {entry.new_value}, Action: {entry.action}")
+                
+                # Format timestamp for better readability
+                formatted_date = entry.timestamp.strftime('%m/%d/%Y')
+                formatted_time = entry.timestamp.strftime('%I:%M %p')
+                formatted_datetime = f"{formatted_date}<br><small style='color: #6c757d;'>{formatted_time}</small>"
+                
+                history_data.append({
+                    'id': entry.id,
+                    'datetime': formatted_datetime,
+                    'action': entry.action,
+                    'action_display': get_action_display(entry.action),
+                    'field_name': entry.field_name,
+                    'field_display': get_field_display_name(entry.field_name),
+                    'old_value': entry.old_value if entry.old_value is not None else '',
+                    'new_value': entry.new_value if entry.new_value is not None else '',
+                    'value_change': format_value_change(entry),
+                    'change_description': format_change_description(entry),
+                    'user': entry.user.get_full_name() if entry.user and entry.user.get_full_name() else (entry.user.username if entry.user else 'System'),
+                    'remarks': entry.remarks if entry.remarks else '',
+                    'timestamp_iso': entry.timestamp.isoformat(),
+                    'raw_timestamp': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                    # Debug information
+                    'debug_field': entry.field_name,
+                    'debug_old': entry.old_value,
+                    'debug_new': entry.new_value
+                })
+            except Exception as e:
+                # Log error but continue processing other entries
+                print(f"Error processing history entry {entry.id}: {str(e)}")
+                continue
+        
+        return JsonResponse({
+            'success': True,
+            'history': history_data,
+            'property_name': property_obj.property_name,
+            'property_number': property_obj.property_number
         })
-    
-    return JsonResponse({
-        'history': history_data
-    })
+        
+    except Property.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Property not found'
+        }, status=404)
+    except Exception as e:
+        print(f"Error in get_property_history: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': 'An error occurred while fetching property history'
+        }, status=500)
 
 @require_POST
 def modify_supply_quantity_generic(request):
