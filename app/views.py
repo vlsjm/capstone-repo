@@ -1814,7 +1814,6 @@ def edit_property(request):
                 'unit_value': property_obj.unit_value,
                 'overall_quantity': property_obj.overall_quantity,
                 'quantity': property_obj.quantity,
-                'quantity_per_physical_count': property_obj.quantity_per_physical_count,
                 'location': property_obj.location,
                 'accountable_person': property_obj.accountable_person,
                 'year_acquired': property_obj.year_acquired,
@@ -1831,23 +1830,21 @@ def edit_property(request):
             property_obj.barcode = request.POST.get('barcode')
             property_obj.unit_of_measure = request.POST.get('unit_of_measure')
 
-            # Convert unit_value to float safely
-            try:
-                property_obj.unit_value = float(request.POST.get('unit_value', 0))
-            except (TypeError, ValueError):
-                property_obj.unit_value = 0
+            # Convert unit_value to float safely - only if provided
+            unit_value_str = request.POST.get('unit_value')
+            if unit_value_str is not None and unit_value_str != '':
+                try:
+                    new_unit_value = float(unit_value_str)
+                    property_obj.unit_value = new_unit_value
+                except (TypeError, ValueError):
+                    # Keep the existing value if conversion fails
+                    pass
 
             # Convert overall_quantity to int safely
             try:
                 property_obj.overall_quantity = int(request.POST.get('overall_quantity', 0))
             except (TypeError, ValueError):
                 property_obj.overall_quantity = 0
-
-            # Convert quantity_per_physical_count to int safely
-            try:
-                property_obj.quantity_per_physical_count = int(request.POST.get('quantity_per_physical_count', 0))
-            except (TypeError, ValueError):
-                property_obj.quantity_per_physical_count = 0
 
             property_obj.location = request.POST.get('location')
             property_obj.accountable_person = request.POST.get('accountable_person')
@@ -2453,24 +2450,157 @@ def reject_borrow_request(request, request_id):
 
 @login_required
 def get_supply_history(request, supply_id):
-    supply = get_object_or_404(Supply, id=supply_id)
-    history = supply.history.all().order_by('-timestamp')
-    
-    history_data = []
-    for entry in history:
-        history_data.append({
-            'date': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            'action': entry.action,
-            'field_name': entry.field_name,
-            'old_value': entry.old_value if entry.old_value is not None else '-',
-            'new_value': entry.new_value if entry.new_value is not None else '-',
-            'user': entry.user.username if entry.user else 'System',
-            'remarks': entry.remarks if entry.remarks else ''
+    try:
+        supply = get_object_or_404(Supply, id=supply_id)
+        history = supply.history.all().order_by('-timestamp')
+        
+        def get_field_display_name(field_name):
+            """Convert field names to user-friendly display names"""
+            field_mapping = {
+                'supply_name': 'Supply Name',
+                'category': 'Category',
+                'subcategory': 'Subcategory',
+                'description': 'Description',
+                'minimum_threshold': 'Minimum Threshold',
+                'current_quantity': 'Current Quantity',
+                'available_for_request': 'Available for Request',
+                'date_received': 'Date Received',
+                'expiration_date': 'Expiration Date',
+                'initial_creation': 'Supply Creation'
+            }
+            return field_mapping.get(field_name, field_name.replace('_', ' ').title())
+        
+        def get_action_display(action):
+            """Convert action codes to user-friendly display names"""
+            action_mapping = {
+                'create': 'Created',
+                'update': 'Updated',
+                'quantity_update': 'Quantity Changed'
+            }
+            return action_mapping.get(action, action.replace('_', ' ').title())
+        
+        def format_change_description(entry):
+            """Create a descriptive change summary"""
+            try:
+                field_display = get_field_display_name(entry.field_name)
+                
+                if entry.action == 'create':
+                    return f"Supply was created in the system"
+                elif entry.action == 'quantity_update':
+                    if entry.remarks:
+                        return f"{field_display}: {entry.remarks}"
+                    else:
+                        return f"{field_display} was modified"
+                elif entry.action == 'update':
+                    if entry.field_name == 'available_for_request':
+                        old_display = 'Available' if entry.old_value == 'True' else 'Not Available'
+                        new_display = 'Available' if entry.new_value == 'True' else 'Not Available'
+                        return f"Availability changed from '{old_display}' to '{new_display}'"
+                    elif entry.field_name == 'category':
+                        return f"Category changed from '{entry.old_value or 'None'}' to '{entry.new_value or 'None'}'"
+                    elif entry.field_name == 'subcategory':
+                        return f"Subcategory changed from '{entry.old_value or 'None'}' to '{entry.new_value or 'None'}'"
+                    elif entry.field_name == 'current_quantity':
+                        return f"Current Quantity changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    elif entry.field_name == 'minimum_threshold':
+                        return f"Minimum Threshold changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    elif 'quantity' in entry.field_name:
+                        return f"{field_display} changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    else:
+                        return f"{field_display} was updated"
+                else:
+                    return f"{field_display} was modified"
+            except Exception as e:
+                return f"Supply change recorded"
+        
+        def format_value_change(entry):
+            """Format the value change display"""
+            try:
+                if entry.action == 'create':
+                    return entry.new_value if entry.new_value else 'Supply created'
+                elif entry.old_value and entry.new_value and entry.old_value != entry.new_value:
+                    # Handle special formatting for different field types
+                    if 'quantity' in entry.field_name:
+                        return f"{entry.old_value} → {entry.new_value}"
+                    elif entry.field_name == 'available_for_request':
+                        old_display = 'Available' if entry.old_value == 'True' else 'Not Available'
+                        new_display = 'Available' if entry.new_value == 'True' else 'Not Available'
+                        return f"{old_display} → {new_display}"
+                    else:
+                        # Escape HTML and limit length for long values
+                        old_val = str(entry.old_value)[:100] + ('...' if len(str(entry.old_value)) > 100 else '')
+                        new_val = str(entry.new_value)[:100] + ('...' if len(str(entry.new_value)) > 100 else '')
+                        return f"{old_val} → {new_val}"
+                elif entry.new_value:
+                    new_val = str(entry.new_value)[:100] + ('...' if len(str(entry.new_value)) > 100 else '')
+                    return f"Set to: {new_val}"
+                elif entry.old_value:
+                    # Field was cleared/removed
+                    if 'quantity' in entry.field_name.lower():
+                        return f"{entry.old_value} → 0"
+                    else:
+                        old_val = str(entry.old_value)[:100] + ('...' if len(str(entry.old_value)) > 100 else '')
+                        return f"Removed: {old_val}"
+                else:
+                    return "No value change"
+            except Exception as e:
+                return "Value changed"
+        
+        history_data = []
+        for entry in history:
+            try:
+                # Debug logging for quantity-related entries
+                if 'quantity' in entry.field_name.lower():
+                    print(f"DEBUG: Processing supply quantity entry - Field: {entry.field_name}, Old: {entry.old_value}, New: {entry.new_value}, Action: {entry.action}")
+                
+                # Format timestamp for better readability
+                formatted_date = entry.timestamp.strftime('%m/%d/%Y')
+                formatted_time = entry.timestamp.strftime('%I:%M %p')
+                formatted_datetime = f"{formatted_date}<br><small style='color: #6c757d;'>{formatted_time}</small>"
+                
+                history_data.append({
+                    'id': entry.id,
+                    'datetime': formatted_datetime,
+                    'action': entry.action,
+                    'action_display': get_action_display(entry.action),
+                    'field_name': entry.field_name,
+                    'field_display': get_field_display_name(entry.field_name),
+                    'old_value': entry.old_value if entry.old_value is not None else '',
+                    'new_value': entry.new_value if entry.new_value is not None else '',
+                    'value_change': format_value_change(entry),
+                    'change_description': format_change_description(entry),
+                    'user': entry.user.get_full_name() if entry.user and entry.user.get_full_name() else (entry.user.username if entry.user else 'System'),
+                    'remarks': entry.remarks if entry.remarks else '',
+                    'timestamp_iso': entry.timestamp.isoformat(),
+                    'raw_timestamp': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                    # Debug information
+                    'debug_field': entry.field_name,
+                    'debug_old': entry.old_value,
+                    'debug_new': entry.new_value
+                })
+            except Exception as e:
+                # Log error but continue processing other entries
+                print(f"Error processing supply history entry {entry.id}: {str(e)}")
+                continue
+        
+        return JsonResponse({
+            'success': True,
+            'history': history_data,
+            'supply_name': supply.supply_name,
+            'supply_id': supply.id
         })
-    
-    return JsonResponse({
-        'history': history_data
-    })
+        
+    except Supply.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Supply not found'
+        }, status=404)
+    except Exception as e:
+        print(f"Error in get_supply_history: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': 'An error occurred while fetching supply history'
+        }, status=500)
 
 @login_required
 def get_property_history(request, property_id):

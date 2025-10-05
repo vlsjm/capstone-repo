@@ -2140,13 +2140,6 @@ input:focus {
 
       <div class="form-group">
         <label>
-          <i class="fas fa-clipboard-check"></i> Quantity Per Physical Count
-        </label>
-        <input type="number" name="quantity_per_physical_count" id="edit_quantity_per_physical_count" min="0" />
-      </div>
-
-      <div class="form-group">
-        <label>
           <i class="fas fa-check-circle"></i> Available for Request
           <span class="required-asterisk">*</span>
         </label>
@@ -2720,7 +2713,6 @@ input:focus {
                 document.getElementById('edit_quantity').value = this.dataset.quantity;
                 
                 // Set visible fields
-                document.getElementById('edit_quantity_per_physical_count').value = this.dataset.quantityPhysicalCount || 0;
                 document.getElementById('edit_name').value = this.dataset.propertyName;
                 document.getElementById('edit_description').value = this.dataset.description;
                 document.getElementById('edit_unit_of_measure').value = this.dataset.unitMeasure;

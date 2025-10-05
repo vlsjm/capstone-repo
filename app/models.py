@@ -360,10 +360,14 @@ class Property(models.Model):
             self.old_property_number = self.old_property_number.upper()
         
         # If this is a new property or overall_quantity has changed
-        if not self.pk or (self.pk and Property.objects.get(pk=self.pk).overall_quantity != self.overall_quantity):
-            # Set the current quantity equal to overall_quantity if it's a new property
-            # or if overall_quantity has been updated
+        if not self.pk:
+            # For new properties, set current quantity equal to overall_quantity
             self.quantity = self.overall_quantity
+        elif self.pk:
+            # For existing properties, only update quantity if overall_quantity actually changed
+            old_obj = Property.objects.get(pk=self.pk)
+            if old_obj.overall_quantity != self.overall_quantity:
+                self.quantity = self.overall_quantity
         
         # Check if this is a new property
         is_new = self.pk is None
@@ -405,7 +409,24 @@ class Property(models.Model):
                 old_value = getattr(old_obj, field)
                 new_value = getattr(self, field)
                 
-                if old_value != new_value:
+                # Handle special comparisons for different data types
+                values_different = False
+                if field == 'unit_value':
+                    # Compare decimal values with proper precision
+                    from decimal import Decimal
+                    old_decimal = Decimal(str(old_value)) if old_value is not None else Decimal('0')
+                    new_decimal = Decimal(str(new_value)) if new_value is not None else Decimal('0')
+                    values_different = old_decimal != new_decimal
+                elif field == 'category':
+                    # Compare category objects properly
+                    old_cat_id = old_value.id if old_value else None
+                    new_cat_id = new_value.id if new_value else None
+                    values_different = old_cat_id != new_cat_id
+                else:
+                    # Standard comparison for other fields
+                    values_different = old_value != new_value
+                
+                if values_different:
                     # Add specific remarks for quantity changes
                     remarks = None
                     if field in ['quantity', 'overall_quantity', 'quantity_per_physical_count']:
