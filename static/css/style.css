@@ -22,6 +22,17 @@ h1 {
   left: 0;
 }
 
+.sidebar h1 {
+  color: #fbff00;
+  text-align: center;
+  padding: 30px 20px;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
 .sidebar ul {
   list-style-type: none;
   padding: 0;

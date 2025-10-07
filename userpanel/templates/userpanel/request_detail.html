@@ -123,7 +123,7 @@
                     <tbody>
                         {% for item_data in items %}
                         <tr>
-                            <td>
+                            <td data-label="Item Name">
                                 <div class="item-info">
                                     {% if 'Supply' in request_type %}
                                         <strong class="item-name">{{ item_data.item.supply_name }}</strong>
@@ -138,9 +138,9 @@
                                     {% endif %}
                                 </div>
                             </td>
-                            <td class="quantity">{{ item_data.quantity }}</td>
+                            <td class="quantity" data-label="Quantity">{{ item_data.quantity }}</td>
                             {% if not 'Supply' in request_type %}
-                            <td>
+                            <td data-label="Available">
                                 {% if item_data.item.is_available %}
                                     <span class="availability-badge available">Available</span>
                                 {% else %}
@@ -148,7 +148,7 @@
                                 {% endif %}
                             </td>
                             {% endif %}
-                            <td class="description">
+                            <td class="description" data-label="Description">
                                 {% if 'Supply' in request_type %}
                                     {{ item_data.item.description|default:"No description available" }}
                                 {% else %}

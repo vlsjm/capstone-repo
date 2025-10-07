@@ -1,39 +1,53 @@
-<nav class="sidebar">
+<nav class="sidebar" role="navigation" aria-label="Main navigation">
   <h1>Resource Hive</h1>
-  <ul>
-    <li>
-      <a href="{% url 'user_dashboard' %}">
-        <i class="fas fa-home"></i> Dashboard
+  <ul role="menubar">
+    <li role="none">
+      <a href="{% url 'user_dashboard' %}" role="menuitem" tabindex="0">
+        <i class="fas fa-home" aria-hidden="true"></i> 
+        <span>Dashboard</span>
       </a>
     </li>
-    <li>
-      <a href="{% url 'user_request' %}">
-        <i class="fas fa-tasks"></i> Make a request
+    <li role="none">
+      <a href="{% url 'user_request' %}" role="menuitem" tabindex="0">
+        <i class="fas fa-tasks" aria-hidden="true"></i> 
+        <span>Make a request</span>
       </a>
     </li>
-    <li>
-      <a href="{% url 'user_borrow' %}">
-        <i class="fas fa-handshake"></i> Borrow
+    <li role="none">
+      <a href="{% url 'user_borrow' %}" role="menuitem" tabindex="0">
+        <i class="fas fa-handshake" aria-hidden="true"></i> 
+        <span>Borrow</span>
       </a>
     </li>
-    <li>
-      <a href="{% url 'user_reserve' %}">
-        <i class="fas fa-calendar-alt"></i> Reserve
+    <li role="none">
+      <a href="{% url 'user_reserve' %}" role="menuitem" tabindex="0">
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i> 
+        <span>Reserve</span>
       </a>
     </li>
-    <li>
-      <a href="{% url 'user_all_requests' %}">
-        <i class="fas fa-history"></i> All My Requests
+    <li role="none">
+      <a href="{% url 'user_all_requests' %}" role="menuitem" tabindex="0">
+        <i class="fas fa-history" aria-hidden="true"></i> 
+        <span>All My Requests</span>
       </a>
     </li>
-    <li>
-      <a href="{% url 'user_report' %}">
-        <i class="fas fa-exclamation-triangle"></i> Report
+    <li role="none">
+      <a href="{% url 'user_report' %}" role="menuitem" tabindex="0">
+        <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> 
+        <span>Report</span>
       </a>
     </li>
-    <li>
-      <a href="{% url 'user_profile' %}">
-        <i class="fas fa-user"></i> Profile
+    <li role="none">
+      <a href="{% url 'user_profile' %}" role="menuitem" tabindex="0">
+        <i class="fas fa-user" aria-hidden="true"></i> 
+        <span>Profile</span>
+      </a>
+    </li>
+    <!-- Mobile-only logout button -->
+    <li role="none" class="mobile-only">
+      <a href="#" role="menuitem" tabindex="0" onclick="handleMobileLogout(event)" class="mobile-logout-btn">
+        <i class="fas fa-sign-out-alt" aria-hidden="true"></i> 
+        <span>Logout</span>
       </a>
     </li>
   </ul>

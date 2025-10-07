@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/userStyle.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/mobile.css' %}" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
@@ -14,17 +15,20 @@
 
   </head>
   <body>
-    {% block content %} 
-    
-    <!-- Top Header with Notifications -->
-    <div class="top-header">
-      <div class="header-greeting">
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      
+      <!-- Greeting in Mobile Header -->
+      <div class="mobile-header-greeting">
         Hello, <span>{{ request.user.username }}</span>
       </div>
       
-      <!-- Notification Bell -->
+      <!-- Notification Bell in Mobile Header -->
       <div
-        class="notification-container"
+        class="notification-container mobile-notification"
         id="notificationBell"
         aria-label="Notifications"
         tabindex="0"
@@ -105,22 +109,117 @@
           </div>
         </div>
       </div>
+    </header>
 
-      <!-- Logout Button -->
-      <div class="logout-container">
-        <form
-          id="logout-form"
-          action="{% url 'logout' %}"
-          method="post"
-          class="hidden"
+    <!-- Desktop Top Header -->
+    <div class="top-header">
+      <div class="header-greeting">
+        Hello, <span>{{ request.user.username }}</span>
+      </div>
+      
+      <!-- Notification Bell for Desktop -->
+      <div
+        class="notification-container"
+        id="notificationBellDesktop"
+        aria-label="Notifications"
+        tabindex="0"
+        role="button"
+      >
+        <div class="bell-wrapper">
+          <i class="fas fa-bell bell-icon" title="Notifications"></i>
+          {% if unread_count > 0 %}
+          <span class="notification-count" id="notificationCountDesktop">{{ unread_count }}</span>
+          {% endif %}
+        </div>
+
+        <div
+          class="notifications-dropdown"
+          id="notificationsDropdownDesktop"
+          role="list"
+          aria-live="polite"
+          aria-relevant="additions"
         >
-          {% csrf_token %}
-        </form>
+          <div class="notification-header">
+            <h4 class="notification-title">
+              <i class="fas fa-bell"></i>
+              Notifications
+            </h4>
+            <div class="notification-actions">
+              <button type="button" class="actions-toggle desktop-actions-toggle" aria-label="Notification actions">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+              <div class="actions-dropdown desktop-actions-dropdown">
+                <button type="button" class="action-btn mark-read-btn desktop-mark-all">
+                  <i class="fas fa-check"></i>
+                  Mark all read
+                </button>
+                <button type="button" class="action-btn clear-btn desktop-clear-all">
+                  <i class="fas fa-trash"></i>
+                  Clear all
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="notifications-body desktop-notifications-body">
+            {% if notifications %} {% for notification in notifications %}
+            <div
+              class="notification-item {% if not notification.is_read %}unread{% endif %} clickable-notification"
+              tabindex="0"
+              data-id="{{ notification.id }}"
+              data-message="{{ notification.message|escape }}"
+            >
+              <div class="notification-content">
+                <div class="notification-message">{{ notification.message }}</div>
+                <div class="notification-details">
+                  {% if notification.remarks %}
+                  <div class="notification-remarks">
+                    <strong>Remarks:</strong> <span>{{ notification.remarks }}</span>
+                  </div>
+                  {% endif %}
+                  <div class="notification-timestamp">
+                    {{ notification.timestamp|date:"M d, Y H:i" }}
+                  </div>
+                </div>
+              </div>
+              {% if not notification.is_read %}
+              <div class="unread-indicator"></div>
+              {% endif %}
+            </div>
+            {% endfor %} {% else %}
+            <div class="notification-item no-notifications">
+              <div class="empty-state">
+                <i class="fas fa-bell-slash"></i>
+                <p>No notifications</p>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Logout Button for Desktop -->
+      <div class="logout-container">
         <div class="logout-wrapper" onclick="handleLogout()" title="Logout">
           <i class="fas fa-sign-out-alt logout-icon"></i>
         </div>
       </div>
     </div>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    
+    <!-- Logout Form (Hidden) -->
+    <form
+      id="logout-form"
+      action="{% url 'logout' %}"
+      method="post"
+      class="hidden"
+    >
+      {% csrf_token %}
+    </form>
+
+    {% block content %} 
 
     {% include 'userpanel/user_navbar.html' %}
 
@@ -162,10 +261,9 @@
           {% endif %}
         </ul>
       </div>
-    </div>
 
-    <!-- History Tables Section -->
-    <div class="history-section">
+      <!-- History Tables Section -->
+      <div class="history-section">
       <!-- Request History -->
       <div class="history-table-container">
         <h3><i class="fas fa-file-alt"></i> Request History</h3>
@@ -417,6 +515,8 @@
         {% endif %}
       </div>
     </div>
+    
+    </div>
 
     {% endblock content %}
     <script src="{% static 'scripts/notificationBell.js' %}"></script>
@@ -527,6 +627,105 @@
         if (confirm('Are you sure you want to log out?')) {
           document.getElementById('logout-form').submit();
         }
+      }
+
+      // Mobile logout function
+      function handleMobileLogout(event) {
+        event.preventDefault();
+        if (confirm('Are you sure you want to log out?')) {
+          document.getElementById('logout-form').submit();
+        }
+      }
+
+      // Mobile navigation functionality
+      const mobileMenuToggle = document.getElementById("mobileMenuToggle");
+      const mobileOverlay = document.getElementById("mobileOverlay");
+      const sidebar = document.querySelector(".sidebar");
+      
+      if (mobileMenuToggle && sidebar) {
+        mobileMenuToggle.addEventListener("click", function() {
+          sidebar.classList.toggle("mobile-open");
+          mobileOverlay.classList.toggle("active");
+          document.body.classList.toggle("mobile-menu-open");
+        });
+
+        mobileOverlay.addEventListener("click", function() {
+          sidebar.classList.remove("mobile-open");
+          mobileOverlay.classList.remove("active");
+          document.body.classList.remove("mobile-menu-open");
+        });
+
+        // Close menu when clicking a sidebar link on mobile
+        const sidebarLinks = sidebar.querySelectorAll("a");
+        sidebarLinks.forEach(link => {
+          link.addEventListener("click", function() {
+            if (window.innerWidth <= 768) {
+              sidebar.classList.remove("mobile-open");
+              mobileOverlay.classList.remove("active");
+              document.body.classList.remove("mobile-menu-open");
+            }
+          });
+        });
+
+        // Close sidebar when clicking the close button
+        const sidebarClose = document.getElementById("sidebarClose");
+        if (sidebarClose) {
+          sidebarClose.addEventListener("click", function() {
+            sidebar.classList.remove("mobile-open");
+            mobileOverlay.classList.remove("active");
+            document.body.classList.remove("mobile-menu-open");
+          });
+        }
+      }
+
+      // Desktop notification bell handling
+      const desktopBell = document.getElementById('notificationBellDesktop');
+      const desktopDropdown = document.getElementById('notificationsDropdownDesktop');
+      
+      if (desktopBell && desktopDropdown) {
+        // Toggle dropdown on bell click
+        desktopBell.addEventListener('click', function(e) {
+          e.stopPropagation();
+          desktopDropdown.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!desktopBell.contains(e.target) && !desktopDropdown.contains(e.target)) {
+            desktopDropdown.classList.remove('active');
+          }
+        });
+
+        // Desktop three-dot actions
+        const desktopActionsToggle = document.querySelector('.desktop-actions-toggle');
+        const desktopActionsDropdown = document.querySelector('.desktop-actions-dropdown');
+        
+        if (desktopActionsToggle && desktopActionsDropdown) {
+          desktopActionsToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            desktopActionsDropdown.classList.toggle('active');
+          });
+
+          document.addEventListener('click', function(e) {
+            if (!desktopActionsToggle.contains(e.target) && !desktopActionsDropdown.contains(e.target)) {
+              desktopActionsDropdown.classList.remove('active');
+            }
+          });
+
+          desktopActionsDropdown.addEventListener('click', function() {
+            desktopActionsDropdown.classList.remove('active');
+          });
+        }
+
+        // Desktop notification click handlers
+        document.querySelector('.desktop-notifications-body').addEventListener('click', function(e) {
+          const notificationItem = e.target.closest('.clickable-notification');
+          if (notificationItem) {
+            const message = notificationItem.dataset.message;
+            const notificationId = notificationItem.dataset.id;
+            handleNotificationClick(notificationItem, message, parseInt(notificationId));
+          }
+        });
       }
     </script>
   </body>

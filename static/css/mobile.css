@@ -1,0 +1,556 @@
+/* 
+   Mobile-Specific CSS for Resource Hive User Panel
+   This file contains additional mobile optimizations and utilities
+*/
+
+/* ==============================================
+   MOBILE UTILITY CLASSES
+   ============================================== */
+
+/* Hide/Show utilities for different screen sizes */
+.mobile-only {
+    display: none !important;
+}
+
+.desktop-only {
+    display: block !important;
+}
+
+@media (max-width: 768px) {
+    .mobile-only {
+        display: block !important;
+    }
+
+    .desktop-only {
+        display: none !important;
+    }
+
+    .mobile-flex {
+        display: flex !important;
+    }
+
+    .mobile-grid {
+        display: grid !important;
+    }
+
+    .mobile-inline {
+        display: inline !important;
+    }
+
+    .mobile-inline-block {
+        display: inline-block !important;
+    }
+}
+
+/* ==============================================
+   MOBILE TOUCH OPTIMIZATIONS
+   ============================================== */
+
+/* Ensure all interactive elements meet minimum touch target size */
+@media (max-width: 768px) {
+
+    button,
+    .btn,
+    a.btn,
+    input[type="submit"],
+    input[type="button"],
+    .btn-action,
+    .pagination-btn {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 8px 12px;
+        font-size: 16px;
+        border-radius: 6px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    }
+
+    /* Form controls */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="search"],
+    input[type="date"],
+    input[type="datetime-local"],
+    select,
+    textarea {
+        min-height: 44px;
+        padding: 12px;
+        font-size: 16px !important;
+        /* Prevent iOS zoom */
+        border-radius: 6px;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        touch-action: manipulation;
+    }
+
+    /* Links */
+    a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    /* Checkbox and radio inputs */
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-height: 20px;
+        min-width: 20px;
+        transform: scale(1.2);
+    }
+}
+
+/* ==============================================
+   MOBILE LAYOUT IMPROVEMENTS
+   ============================================== */
+
+@media (max-width: 768px) {
+
+    /* Container improvements */
+    .container,
+    .main-container,
+    .content-container {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 15px;
+    }
+
+    /* Grid layouts */
+    .grid,
+    .dashboard-grid,
+    .card-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px;
+    }
+
+    /* Flex layouts */
+    .flex-row {
+        flex-direction: column !important;
+        gap: 15px;
+    }
+
+    .flex-wrap {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    /* Card components */
+    .card,
+    .info-card,
+    .stat-card {
+        margin-bottom: 15px;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* ==============================================
+   MOBILE NAVIGATION ENHANCEMENTS
+   ============================================== */
+
+@media (max-width: 768px) {
+
+    /* Breadcrumb navigation */
+    .breadcrumb,
+    .breadcrumb-nav {
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .breadcrumb a,
+    .breadcrumb-nav a {
+        padding: 10px 15px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    /* Tab navigation */
+    .nav-tabs,
+    .tab-navigation {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .nav-tabs .nav-link,
+    .tab-navigation a {
+        width: 100%;
+        text-align: center;
+        padding: 12px 15px;
+        border-radius: 6px;
+        margin-bottom: 5px;
+    }
+}
+
+/* ==============================================
+   MOBILE TABLE IMPROVEMENTS
+   ============================================== */
+
+@media (max-width: 480px) {
+
+    /* Generic table stacking for any table */
+    .responsive-table,
+    .mobile-stack-table {
+        display: block;
+        width: 100%;
+    }
+
+    .responsive-table thead,
+    .mobile-stack-table thead {
+        display: none;
+    }
+
+    .responsive-table tbody,
+    .mobile-stack-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .responsive-table tr,
+    .mobile-stack-table tr {
+        display: block;
+        border: 1px solid #ddd;
+        margin-bottom: 15px;
+        padding: 15px;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .responsive-table td,
+    .mobile-stack-table td {
+        display: block;
+        text-align: left;
+        border: none;
+        padding: 8px 8px 8px 35%;
+        position: relative;
+    }
+
+    .responsive-table td:before,
+    .mobile-stack-table td:before {
+        content: attr(data-label) ": ";
+        position: absolute;
+        left: 8px;
+        width: 30%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+        color: #152d64;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+}
+
+/* ==============================================
+   MOBILE FORM ENHANCEMENTS
+   ============================================== */
+
+@media (max-width: 768px) {
+
+    /* Form groups */
+    .form-group,
+    .form-field {
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* Labels */
+    .form-group label,
+    .form-field label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #152d64;
+        font-size: 14px;
+    }
+
+    /* Select dropdowns */
+    select {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 12px;
+        padding-right: 40px;
+    }
+
+    /* File inputs */
+    input[type="file"] {
+        padding: 12px;
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        background: #f8f9fa;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    /* Form actions */
+    .form-actions,
+    .form-buttons {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .form-actions button,
+    .form-buttons button {
+        width: 100%;
+        order: initial;
+    }
+
+    /* Primary buttons should appear first on mobile */
+    .form-actions .btn-primary,
+    .form-buttons .btn-primary {
+        order: -1;
+    }
+}
+
+/* ==============================================
+   MOBILE MODAL IMPROVEMENTS
+   ============================================== */
+
+@media (max-width: 768px) {
+    .modal-overlay {
+        padding: 20px 10px;
+    }
+
+    .modal-content {
+        width: calc(100% - 20px);
+        max-width: 400px;
+        margin: auto;
+        border-radius: 12px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        padding: 20px;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .modal-header h3 {
+        font-size: 18px;
+        margin: 0;
+    }
+
+    .modal-body {
+        padding: 20px;
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    .modal-footer {
+        padding: 20px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .modal-footer button {
+        width: 100%;
+        min-height: 44px;
+        font-size: 16px;
+    }
+}
+
+/* ==============================================
+   MOBILE NOTIFICATION IMPROVEMENTS
+   ============================================== */
+
+@media (max-width: 768px) {
+    .notification-container {
+        position: relative;
+    }
+
+    .notifications-dropdown {
+        position: fixed;
+        top: 60px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        max-height: calc(100vh - 80px);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+    }
+
+    .notification-item {
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .notification-message {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .notification-timestamp {
+        font-size: 12px;
+        margin-top: 5px;
+    }
+}
+
+/* ==============================================
+   MOBILE ACCESSIBILITY IMPROVEMENTS
+   ============================================== */
+
+@media (max-width: 768px) {
+
+    /* Focus indicators for touch devices */
+    button:focus,
+    input:focus,
+    select:focus,
+    textarea:focus,
+    a:focus {
+        outline: 3px solid #fbff00;
+        outline-offset: 2px;
+        box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.2);
+    }
+
+    /* Skip navigation for screen readers */
+    .skip-nav {
+        position: absolute;
+        top: -40px;
+        left: 6px;
+        background: #152d64;
+        color: white;
+        padding: 8px;
+        text-decoration: none;
+        border-radius: 4px;
+        z-index: 1000;
+    }
+
+    .skip-nav:focus {
+        top: 6px;
+    }
+
+    /* Screen reader only text */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+}
+
+/* ==============================================
+   MOBILE PERFORMANCE OPTIMIZATIONS
+   ============================================== */
+
+@media (max-width: 768px) {
+
+    /* Reduce animations for better performance */
+    .reduced-motion * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    /* Optimize image loading */
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* Prevent horizontal scrolling */
+    body {
+        overflow-x: hidden;
+    }
+
+    /* Optimize font loading */
+    body {
+        font-display: swap;
+    }
+}
+
+/* ==============================================
+   MOBILE DARK MODE SUPPORT
+   ============================================== */
+
+@media (max-width: 768px) and (prefers-color-scheme: dark) {
+
+    /* Dark mode adjustments for mobile */
+    body {
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+    }
+
+    .card,
+    .info-card,
+    .modal-content {
+        background-color: #2d2d2d;
+        color: #e0e0e0;
+        border-color: #444;
+    }
+
+    .sidebar {
+        background-color: #152d64;
+    }
+
+    .mobile-header {
+        background-color: #152d64;
+    }
+
+    input,
+    select,
+    textarea {
+        background-color: #333;
+        color: #e0e0e0;
+        border-color: #555;
+    }
+
+    .btn-primary {
+        background-color: #1a365d;
+    }
+}
+
+/* ==============================================
+   MOBILE PRINT STYLES
+   ============================================== */
+
+@media print {
+
+    .mobile-header,
+    .sidebar,
+    .btn,
+    button,
+    .pagination,
+    .filter-container {
+        display: none !important;
+    }
+
+    .content-wrapper {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .table-responsive {
+        overflow: visible !important;
+    }
+
+    .requests-table,
+    .items-table {
+        width: 100% !important;
+        font-size: 12px !important;
+    }
+}
