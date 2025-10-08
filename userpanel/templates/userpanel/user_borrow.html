@@ -2,6 +2,148 @@
 
 {% block title %}Borrow Request{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Enhanced Search Styles */
+.search-input-wrapper {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.supply-search-input {
+    padding-left: 36px !important;
+    padding-right: 36px !important;
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    z-index: 1;
+}
+
+.clear-search-btn:hover {
+    background-color: #f8f9fa;
+    color: #dc3545;
+}
+
+#category-filter {
+    margin-bottom: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.dropdown-header {
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.results-count {
+    font-style: italic;
+}
+
+/* Enhanced Option Styles */
+.select-option {
+    padding: 12px !important;
+    display: flex !important;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.option-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.option-name {
+    font-weight: 500;
+    color: #2c3e50;
+    flex: 1;
+}
+
+.option-stock {
+    font-size: 12px;
+    color: #28a745;
+    font-weight: 600;
+    background-color: #d4edda;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.option-stock.low-stock {
+    color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.option-details {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    color: #6c757d;
+}
+
+.option-category {
+    background-color: #e7f3ff;
+    color: #0056b3;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.option-code {
+    color: #6c757d;
+}
+
+/* Highlight matching text */
+.highlight-match {
+    background-color: #fff3cd;
+    font-weight: 600;
+    padding: 0 2px;
+}
+
+/* Loading state */
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #152D64;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="request-page-layout">
     <main class="request-form-container">
@@ -17,15 +159,53 @@
                     <div class="form-group">
                         <label for="supply-select">Equipment/Item:</label>
                         <div class="searchable-select-container">
-                            <input type="text" id="supply-search" class="supply-search-input form-control" 
-                                   placeholder="Search for equipment or items..."
-                                   autocomplete="off">
+                            <!-- Category Filter -->
+                            <select id="category-filter" class="form-control mb-2">
+                                <option value="">All Categories</option>
+                                {% regroup available_supplies by category as supplies_by_category %}
+                                {% for category in supplies_by_category %}
+                                    <option value="{{ category.grouper.id }}">{{ category.grouper.name }}</option>
+                                {% endfor %}
+                            </select>
+                            
+                            <!-- Search Input with Icon -->
+                            <div class="search-input-wrapper">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" id="supply-search" class="supply-search-input form-control" 
+                                       placeholder="Search by name, description, or property number..."
+                                       autocomplete="off">
+                                <button type="button" id="clear-search" class="clear-search-btn" style="display: none;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Enhanced Dropdown -->
                             <div id="supply-dropdown" class="select-dropdown">
+                                <div class="dropdown-header">
+                                    <span class="results-count"></span>
+                                </div>
                                 <div class="select-option" data-value="">Select an item...</div>
                                 {% for supply in available_supplies %}
-                                <div class="select-option" data-value="{{ supply.id }}" 
-                                     data-available="{{ supply.quantity }}">
-                                    {{ supply.property_name }} (Available: {{ supply.quantity }})
+                                <div class="select-option" 
+                                     data-value="{{ supply.id }}" 
+                                     data-available="{{ supply.quantity }}"
+                                     data-name="{{ supply.property_name }}"
+                                     data-category="{{ supply.category.id }}"
+                                     data-category-name="{{ supply.category.name }}"
+                                     data-description="{{ supply.description|default:'' }}"
+                                     data-number="{{ supply.property_number|default:'' }}">
+                                    <div class="option-main">
+                                        <span class="option-name">{{ supply.property_name }}</span>
+                                        <span class="option-stock {% if supply.quantity < 5 %}low-stock{% endif %}">
+                                            {{ supply.quantity }} available
+                                        </span>
+                                    </div>
+                                    <div class="option-details">
+                                        <span class="option-category">{{ supply.category.name }}</span>
+                                        {% if supply.property_number %}
+                                        <span class="option-code">No: {{ supply.property_number }}</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 {% endfor %}
                                 <div class="select-option no-results" style="display: none;">No items found</div>
@@ -153,7 +333,7 @@
                                 <i class="fas fa-redo"></i> Request Again
                             </button>
                             {% if request.status == 'pending' %}
-                            <button class="btn-cancel-request" data-request-id="{{ request.id }}" data-request-type="borrow">
+                            <button class="btn-cancel-request" data-request-id="{{ request.id }}" data-request-type="{% if request.type == 'batch' %}batch-borrow{% else %}borrow{% endif %}">
                                 <i class="fas fa-times"></i> Cancel Request
                             </button>
                             {% endif %}
@@ -515,10 +695,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('supply-search');
     const dropdown = document.getElementById('supply-dropdown');
     const hiddenInput = document.getElementById('supply-select');
-    const options = dropdown.querySelectorAll('.select-option');
+    const categoryFilter = document.getElementById('category-filter');
+    const clearSearchBtn = document.getElementById('clear-search');
+    const options = dropdown.querySelectorAll('.select-option:not(.no-results):not(.dropdown-header)');
     
     let isDropdownOpen = false;
     let highlightedIndex = -1;
+    let allOptions = Array.from(options);
+    
+    // Utility function to highlight matching text
+    function highlightMatch(text, searchTerm) {
+        if (!searchTerm) return text;
+        const regex = new RegExp(`(${searchTerm})`, 'gi');
+        return text.replace(regex, '<span class="highlight-match">$1</span>');
+    }
+    
+    // Update results count
+    function updateResultsCount() {
+        const visibleOptions = Array.from(options).filter(opt => 
+            opt.style.display !== 'none' && opt.dataset.value !== ''
+        );
+        const count = visibleOptions.length;
+        const resultsCount = dropdown.querySelector('.results-count');
+        if (resultsCount) {
+            resultsCount.textContent = `${count} item${count !== 1 ? 's' : ''} found`;
+        }
+    }
     
     // Toggle dropdown visibility
     function toggleDropdown() {
@@ -572,37 +774,82 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Filter options based on search
+    // Filter options based on search and category
     function filterOptions() {
-        const searchTerm = searchInput.value.toLowerCase();
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedCategory = categoryFilter.value;
         let hasVisibleOptions = false;
         highlightedIndex = -1;
         
-        options.forEach((option, index) => {
-            if (index === 0 || option.classList.contains('no-results')) return; // Skip placeholder and no-results
+        // Show/hide clear button
+        clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
+        
+        // Get all option elements
+        const currentOptions = dropdown.querySelectorAll('.select-option:not(.dropdown-header):not(.no-results)');
+        
+        currentOptions.forEach((option, index) => {
+            if (index === 0 && option.dataset.value === '') return; // Skip placeholder
             
-            const text = option.textContent.toLowerCase();
-            if (text.includes(searchTerm)) {
-                option.style.display = 'block';
+            const name = (option.dataset.name || '').toLowerCase();
+            const description = (option.dataset.description || '').toLowerCase();
+            const number = (option.dataset.number || '').toLowerCase();
+            const categoryId = option.dataset.category;
+            const categoryName = (option.dataset.categoryName || '').toLowerCase();
+            
+            // Check if option matches search term
+            const matchesSearch = !searchTerm || 
+                name.includes(searchTerm) || 
+                description.includes(searchTerm) ||
+                number.includes(searchTerm) ||
+                categoryName.includes(searchTerm);
+            
+            // Check if option matches category filter
+            const matchesCategory = !selectedCategory || categoryId === selectedCategory;
+            
+            const isVisible = matchesSearch && matchesCategory && option.dataset.value !== '';
+            option.style.display = isVisible ? 'flex' : 'none';
+            
+            if (isVisible && option.dataset.value !== '') {
                 hasVisibleOptions = true;
-            } else {
-                option.style.display = 'none';
+                
+                // Highlight matching text if there's a search term
+                if (searchTerm) {
+                    const optionName = option.querySelector('.option-name');
+                    if (optionName) {
+                        const originalName = option.dataset.name;
+                        optionName.innerHTML = highlightMatch(originalName, searchTerm);
+                    }
+                } else {
+                    // Reset to original text
+                    const optionName = option.querySelector('.option-name');
+                    if (optionName) {
+                        optionName.textContent = option.dataset.name;
+                    }
+                }
             }
         });
         
         // Show/hide no results message
         const noResultsOption = dropdown.querySelector('.no-results');
-        if (!hasVisibleOptions && searchTerm) {
-            noResultsOption.style.display = 'block';
-        } else {
+        if (!hasVisibleOptions && (searchTerm || selectedCategory)) {
+            if (noResultsOption) {
+                noResultsOption.style.display = 'block';
+                noResultsOption.textContent = searchTerm 
+                    ? `No items found for "${searchInput.value}"` 
+                    : 'No items in this category';
+            }
+        } else if (noResultsOption) {
             noResultsOption.style.display = 'none';
         }
+        
+        // Update results count
+        updateResultsCount();
     }
     
     // Select an option
     function selectOption(option) {
         const value = option.dataset.value;
-        const text = option.textContent;
+        const text = option.dataset.name || option.textContent;
         const available = option.dataset.available;
         
         hiddenInput.value = value;
@@ -615,6 +862,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         toggleDropdown();
+        
+        // Reset options display
+        const currentOptions = dropdown.querySelectorAll('.select-option:not(.dropdown-header):not(.no-results)');
+        currentOptions.forEach(opt => {
+            opt.style.display = 'flex';
+            // Reset highlighted text
+            const optionName = opt.querySelector('.option-name');
+            if (optionName) {
+                optionName.textContent = opt.dataset.name;
+            }
+        });
+        
+        // Reset filters
+        if (categoryFilter) {
+            categoryFilter.value = '';
+        }
+        searchInput.value = text;
+        clearSearchBtn.style.display = 'none';
     }
     
     // Event listeners
@@ -626,10 +891,27 @@ document.addEventListener('DOMContentLoaded', function() {
     
     searchInput.addEventListener('input', filterOptions);
     
+    // Category filter change event
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', filterOptions);
+    }
+    
+    // Clear search button
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            hiddenInput.value = '';
+            clearSearchBtn.style.display = 'none';
+            filterOptions();
+            searchInput.focus();
+        });
+    }
+    
     // Handle option clicks
     dropdown.addEventListener('click', function(e) {
-        if (e.target.classList.contains('select-option') && !e.target.classList.contains('no-results')) {
-            selectOption(e.target);
+        const option = e.target.closest('.select-option');
+        if (option && !option.classList.contains('no-results') && !option.classList.contains('dropdown-header')) {
+            selectOption(option);
         }
     });
     

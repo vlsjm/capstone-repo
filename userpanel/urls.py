@@ -51,6 +51,13 @@ urlpatterns = [
     path('clear-borrow-list/', views.clear_borrow_list, name='clear_borrow_list'),
     path('submit-borrow-list-request/', views.submit_borrow_list_request, name='submit_borrow_list_request'),
     
+    # Supply request cart URLs
+    path('add-to-list/', views.add_to_list, name='add_to_list'),
+    path('remove-from-list/', views.remove_from_list, name='remove_from_list'),
+    path('update-list-item/', views.update_list_item, name='update_list_item'),
+    path('clear-supply-list/', views.clear_supply_list, name='clear_supply_list'),
+    path('submit-list-request/', views.submit_list_request, name='submit_list_request'),
+    
     # Reservation cart URLs
     path('add-to-reservation-list/', views.add_to_reservation_list, name='add_to_reservation_list'),
     path('remove-from-reservation-list/', views.remove_from_reservation_list, name='remove_from_reservation_list'),

@@ -19,6 +19,32 @@ class DepartmentForm(forms.ModelForm):
         }
 
 
+class PropertyCategoryForm(forms.ModelForm):
+    class Meta:
+        model = PropertyCategory
+        fields = ['name', 'uacs']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter category name',
+                'maxlength': 100,
+                'required': True
+            }),
+            'uacs': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter UACS code (e.g., 13124324)',
+                'min': 0
+            })
+        }
+        labels = {
+            'name': 'Category Name',
+            'uacs': 'UACS'
+        }
+        help_texts = {
+            'uacs': 'Unified Account Code Structure (optional)'
+        }
+
+
 class UserRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)

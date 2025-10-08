@@ -16,22 +16,14 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="supply-select">Equipment/Item:</label>
-                        <div class="searchable-select-container">
-                            <input type="text" id="supply-search" class="supply-search-input form-control" 
-                                   placeholder="Search for equipment or items..."
-                                   autocomplete="off">
-                            <div id="supply-dropdown" class="select-dropdown">
-                                <div class="select-option" data-value="">Select an item...</div>
-                                {% for supply in available_supplies %}
-                                <div class="select-option" data-value="{{ supply.id }}" 
-                                     data-available="{{ supply.quantity }}">
-                                    {{ supply.property_name }} (Available: {{ supply.quantity }})
-                                </div>
-                                {% endfor %}
-                                <div class="select-option no-results" style="display: none;">No items found</div>
-                            </div>
-                            <input type="hidden" id="supply-select" name="supply" required>
-                        </div>
+                        <select id="supply-select" name="supply" class="form-control" required>
+                            <option value="">Select an item...</option>
+                            {% for supply in available_supplies %}
+                            <option value="{{ supply.id }}" data-available="{{ supply.quantity }}">
+                                {{ supply.property_name }} (Available: {{ supply.quantity }})
+                            </option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="quantity-input">Quantity:</label>
@@ -209,100 +201,234 @@ $(document).ready(function() {
                 'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
             },
             success: function(response) {
-                if (response.success) {
-                    location.reload();
+                if (response.status === 'success') {
+                    // Check if the list is currently empty
+                    const emptyList = $('.empty-list');
+                    const listTable = $('.list-table');
+                    
+                    if (emptyList.length > 0) {
+                        // Remove empty state and create table
+                        emptyList.remove();
+                        const tableHtml = `
+                            <table class="list-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Quantity</th>
+                                        <th>Needed Date</th>
+                                        <th>Return Date</th>
+                                        <th>Purpose</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        `;
+                        $('#list-items-container').html(tableHtml);
+                        
+                        // Show submit section
+                        if ($('.submit-section').length === 0) {
+                            const submitHtml = `
+                                <div class="submit-section">
+                                    <form id="submit-request-form" method="post" action="{% url 'submit_reservation_list_request' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="submit_request">
+                                        <div class="form-group">
+                                            <label for="general-purpose">General Purpose/Notes (Optional):</label>
+                                            <textarea id="general-purpose" name="general_purpose" class="form-control" 
+                                                      rows="3" placeholder="Add any general notes about this reservation request..."></textarea>
+                                        </div>
+                                        <div class="form-actions">
+                                            <button type="submit" class="btn-submit">
+                                                <i class="fas fa-paper-plane"></i> Submit Reservation Request (<span class="cart-count">1</span> items)
+                                            </button>
+                                            <button type="button" class="btn-clear-list">
+                                                <i class="fas fa-trash"></i> Clear List
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            `;
+                            $('.list-section').after(submitHtml);
+                            
+                            // Re-attach event handlers
+                            attachClearListHandler();
+                        }
+                    }
+                    
+                    // Add new row to table
+                    const item = response.item;
+                    const newRow = `
+                        <tr data-supply-id="${item.property_id}">
+                            <td class="supply-name">${item.property_name}</td>
+                            <td>
+                                <input type="number" class="quantity-edit form-control" 
+                                       data-supply-id="${item.property_id}" 
+                                       value="${item.quantity}" 
+                                       min="1" max="${item.available_quantity}">
+                            </td>
+                            <td>
+                                <input type="date" class="needed-date-edit form-control" 
+                                       data-supply-id="${item.property_id}" 
+                                       value="${item.needed_date}">
+                            </td>
+                            <td>
+                                <input type="date" class="return-date-edit form-control" 
+                                       data-supply-id="${item.property_id}" 
+                                       value="${item.return_date}">
+                            </td>
+                            <td>${item.purpose.length > 30 ? item.purpose.substring(0, 27) + '...' : item.purpose}</td>
+                            <td>
+                                <button type="button" class="btn-update" data-supply-id="${item.property_id}">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                                <button type="button" class="btn-remove" data-supply-id="${item.property_id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    
+                    $('.list-table tbody').append(newRow);
+                    
+                    // Update cart count
+                    $('#list-count').text(`(${response.cart_count})`);
+                    $('.cart-count').text(response.cart_count);
+                    
+                    // Re-attach event handlers for new buttons
+                    attachUpdateHandler();
+                    attachRemoveHandler();
+                    
+                    // Clear form
+                    $('#add-item-form')[0].reset();
+                    $('#supply-select').val('');
+                    $('#quantity-input').attr('max', '').attr('placeholder', 'Enter quantity');
+                    
+                    // Show success message
+                    showMessage(response.message, 'success');
                 } else {
-                    alert(response.message || 'Error adding item');
+                    showMessage(response.message || 'Error adding item', 'error');
                 }
             },
             error: function() {
-                alert('An error occurred while adding the item');
+                showMessage('An error occurred while adding the item', 'error');
             }
         });
     });
     
     // Update list item quantity and return date
-    $('.btn-update').on('click', function() {
-        const supplyId = $(this).data('supply-id');
-        const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
-        const newNeededDate = $(`.needed-date-edit[data-supply-id="${supplyId}"]`).val();
-        const newReturnDate = $(`.return-date-edit[data-supply-id="${supplyId}"]`).val();
-        
-        $.ajax({
-            url: '{% url "update_reservation_list_item" %}',
-            type: 'POST',
-            data: {
-                'property_id': supplyId,
-                'quantity': newQuantity,
-                'needed_date': newNeededDate,
-                'return_date': newReturnDate,
-                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                    showMessage('Item updated successfully', 'success');
-                } else {
-                    showMessage(response.message, 'error');
-                }
-            },
-            error: function() {
-                showMessage('An error occurred while updating the item', 'error');
-            }
-        });
-    });
-    
-    // Remove item from list
-    $('.btn-remove').on('click', function() {
-        const supplyId = $(this).data('supply-id');
-        
-        if (confirm('Are you sure you want to remove this item from your reservation list?')) {
+    function attachUpdateHandler() {
+        $('.btn-update').off('click').on('click', function() {
+            const supplyId = $(this).data('supply-id');
+            const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
+            const newNeededDate = $(`.needed-date-edit[data-supply-id="${supplyId}"]`).val();
+            const newReturnDate = $(`.return-date-edit[data-supply-id="${supplyId}"]`).val();
+            
             $.ajax({
-                url: '{% url "remove_from_reservation_list" %}',
+                url: '{% url "update_reservation_list_item" %}',
                 type: 'POST',
                 data: {
                     'property_id': supplyId,
+                    'quantity': newQuantity,
+                    'needed_date': newNeededDate,
+                    'return_date': newReturnDate,
                     'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
                 },
                 success: function(response) {
                     if (response.status === 'success') {
-                        location.reload();
+                        showMessage('Item updated successfully', 'success');
                     } else {
                         showMessage(response.message, 'error');
                     }
                 },
                 error: function() {
-                    showMessage('An error occurred while removing the item', 'error');
+                    showMessage('An error occurred while updating the item', 'error');
                 }
             });
-        }
-    });
+        });
+    }
+    
+    // Remove item from list
+    function attachRemoveHandler() {
+        $('.btn-remove').off('click').on('click', function() {
+            const supplyId = $(this).data('supply-id');
+            
+            if (confirm('Are you sure you want to remove this item from your reservation list?')) {
+                $.ajax({
+                    url: '{% url "remove_from_reservation_list" %}',
+                    type: 'POST',
+                    data: {
+                        'property_id': supplyId,
+                        'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            // Remove the row
+                            $(`tr[data-supply-id="${supplyId}"]`).remove();
+                            
+                            // Update cart count
+                            const newCount = $('.list-table tbody tr').length;
+                            $('#list-count').text(`(${newCount})`);
+                            $('.cart-count').text(newCount);
+                            
+                            // If no items left, show empty state
+                            if (newCount === 0) {
+                                $('#list-items-container').html(`
+                                    <div class="empty-list">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <p>Your reservation list is empty. Add items above to get started.</p>
+                                    </div>
+                                `);
+                                $('.submit-section').remove();
+                            }
+                            
+                            showMessage('Item removed from list', 'success');
+                        } else {
+                            showMessage(response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        showMessage('An error occurred while removing the item', 'error');
+                    }
+                });
+            }
+        });
+    }
     
     // Clear entire list
-    $('.btn-clear-list').on('click', function() {
-        if (confirm('Are you sure you want to clear your entire reservation list?')) {
-            $.ajax({
-                url: '{% url "clear_reservation_list" %}',
-                type: 'POST',
-                data: {
-                    'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
-                },
-                success: function(response) {
-                    if (response.status === 'success') {
-                        location.reload();
-                    } else {
-                        showMessage(response.message, 'error');
+    function attachClearListHandler() {
+        $('.btn-clear-list').off('click').on('click', function() {
+            if (confirm('Are you sure you want to clear your entire reservation list?')) {
+                $.ajax({
+                    url: '{% url "clear_reservation_list" %}',
+                    type: 'POST',
+                    data: {
+                        'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            location.reload();
+                        } else {
+                            showMessage(response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        showMessage('An error occurred while clearing the list', 'error');
                     }
-                },
-                error: function() {
-                    showMessage('An error occurred while clearing the list', 'error');
-                }
-            });
-        }
-    });
+                });
+            }
+        });
+    }
+    
+    // Attach initial handlers
+    attachUpdateHandler();
+    attachRemoveHandler();
+    attachClearListHandler();
     
     // Update quantity limits based on selected supply
     $('#supply-select').on('change', function() {
-        const selectedOption = $('#supply-dropdown .select-option[data-value="' + $(this).val() + '"]');
+        const selectedOption = $(this).find('option:selected');
         const available = selectedOption.data('available');
         
         if (available) {
@@ -386,11 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Request again function
     function requestAgain(requestId, requestType) {
-        if (requestType === 'reservation') {
-            window.location.href = `/user/reserve/?copy=${requestId}`;
-        } else {
-            window.location.href = `/user/request/?copy=${requestId}`;
-        }
+        window.location.href = `{% url 'request_again' %}?type=${requestType}&id=${requestId}`;
     }
 
     // Show toast function
@@ -475,127 +597,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    /* Old searchable dropdown code - replaced with simple select
     // Searchable dropdown functionality for supply search
     const searchInput = document.getElementById('supply-search');
     const dropdown = document.getElementById('supply-dropdown');
     const hiddenInput = document.getElementById('supply-select');
     const options = dropdown.querySelectorAll('.select-option');
-    
-    if (searchInput && dropdown && hiddenInput) {
-        let isDropdownOpen = false;
-        let highlightedIndex = -1;
-        
-        // Toggle dropdown visibility
-        function toggleDropdown() {
-            isDropdownOpen = !isDropdownOpen;
-            dropdown.style.display = isDropdownOpen ? 'block' : 'none';
-        }
-        
-        // Filter options based on search
-        function filterOptions() {
-            const searchTerm = searchInput.value.toLowerCase();
-            let hasVisibleOptions = false;
-            highlightedIndex = -1;
-            
-            options.forEach((option, index) => {
-                if (index === 0 || option.classList.contains('no-results')) return;
-                
-                const text = option.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    option.style.display = 'block';
-                    hasVisibleOptions = true;
-                } else {
-                    option.style.display = 'none';
-                }
-            });
-            
-            // Show/hide no results message
-            const noResultsOption = dropdown.querySelector('.no-results');
-            if (!hasVisibleOptions && searchTerm) {
-                noResultsOption.style.display = 'block';
-            } else {
-                noResultsOption.style.display = 'none';
-            }
-        }
-        
-        // Select an option
-        function selectOption(option) {
-            const value = option.dataset.value;
-            const text = option.textContent;
-            const available = option.dataset.available;
-            
-            hiddenInput.value = value;
-            searchInput.value = text;
-            
-            // Update quantity field max value
-            if (available) {
-                document.getElementById('quantity-input').setAttribute('max', available);
-                document.getElementById('quantity-input').setAttribute('placeholder', `Enter quantity (max ${available})`);
-            }
-            
-            toggleDropdown();
-        }
-        
-        // Event listeners
-        searchInput.addEventListener('click', function() {
-            if (!isDropdownOpen) {
-                toggleDropdown();
-            }
-        });
-        
-        searchInput.addEventListener('input', filterOptions);
-        
-        // Handle option clicks
-        dropdown.addEventListener('click', function(e) {
-            if (e.target.classList.contains('select-option') && !e.target.classList.contains('no-results')) {
-                selectOption(e.target);
-            }
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                if (isDropdownOpen) {
-                    toggleDropdown();
-                }
-            }
-        });
-        
-        // Keyboard navigation
-        searchInput.addEventListener('keydown', function(e) {
-            const visibleOptions = Array.from(options).filter(opt => opt.style.display !== 'none' && !opt.classList.contains('no-results'));
-            
-            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                e.preventDefault();
-                
-                if (!isDropdownOpen) {
-                    toggleDropdown();
-                    return;
-                }
-                
-                // Remove previous highlight
-                options.forEach(opt => opt.classList.remove('highlighted'));
-                
-                if (e.key === 'ArrowDown') {
-                    highlightedIndex = Math.min(highlightedIndex + 1, visibleOptions.length - 1);
-                } else {
-                    highlightedIndex = Math.max(highlightedIndex - 1, 0);
-                }
-                
-                if (visibleOptions[highlightedIndex]) {
-                    visibleOptions[highlightedIndex].classList.add('highlighted');
-                    visibleOptions[highlightedIndex].scrollIntoView({ block: 'nearest' });
-                }
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                if (highlightedIndex >= 0 && visibleOptions[highlightedIndex]) {
-                    selectOption(visibleOptions[highlightedIndex]);
-                }
-            } else if (e.key === 'Escape') {
-                toggleDropdown();
-            }
-        });
-    }
+    ... removed for simplicity ...
+    */
 });
 </script>
 {% endblock %}

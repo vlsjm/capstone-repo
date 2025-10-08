@@ -281,6 +281,7 @@ class Supply(models.Model):
         ]
 class PropertyCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    uacs = models.BigIntegerField(null=True, blank=True, help_text="UACS (e.g., 13124324)")
 
     def __str__(self):
         return self.name

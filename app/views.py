@@ -144,6 +144,13 @@ from datetime import datetime
 from openpyxl.styles import PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.cell.cell import MergedCell
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, landscape, A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
+from io import BytesIO
 # Create a logger
 logger = logging.getLogger(__name__)
 
@@ -672,10 +679,20 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
             else:
                 end_date = now_date.replace(day=1) - timedelta(days=30*(i-1))
 
-            count = BorrowRequest.objects.filter(
+            # Count old borrow requests
+            old_count = BorrowRequest.objects.filter(
                 borrow_date__date__gte=start_date,
                 borrow_date__date__lt=end_date
             ).count()
+            
+            # Count new batch borrow requests
+            batch_count = BorrowRequestBatch.objects.filter(
+                request_date__date__gte=start_date,
+                request_date__date__lt=end_date
+            ).count()
+            
+            # Total count combines both systems
+            count = old_count + batch_count
 
             month_str = start_date.strftime('%b %Y')
 
@@ -1992,6 +2009,7 @@ def delete_property(request, pk):
 def add_property_category(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        uacs = request.POST.get('uacs')  # Get UACS field
         
         # Check if this is an AJAX request
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -2008,7 +2026,22 @@ def add_property_category(request):
                     messages.error(request, f'Category "{name}" already exists.')
             else:
                 try:
-                    category = PropertyCategory.objects.create(name=name)
+                    # Convert UACS to integer if provided, otherwise set to None
+                    uacs_value = None
+                    if uacs and uacs.strip():
+                        try:
+                            uacs_value = int(uacs)
+                        except ValueError:
+                            if is_ajax:
+                                return JsonResponse({
+                                    'success': False, 
+                                    'error': 'UACS must be a valid number.'
+                                })
+                            else:
+                                messages.error(request, 'UACS must be a valid number.')
+                                return redirect('add_property_category')
+                    
+                    category = PropertyCategory.objects.create(name=name, uacs=uacs_value)
                     
                     # Log the activity
                     ActivityLog.log_activity(
@@ -2016,7 +2049,7 @@ def add_property_category(request):
                         action='create',
                         model_name='PropertyCategory',
                         object_repr=str(category),
-                        description=f"Added new property category '{name}'"
+                        description=f"Added new property category '{name}'" + (f" with UACS {uacs_value}" if uacs_value else "")
                     )
                     
                     if is_ajax:
@@ -2025,7 +2058,8 @@ def add_property_category(request):
                             'message': 'Category added successfully.',
                             'category': {
                                 'id': category.id,
-                                'name': category.name
+                                'name': category.name,
+                                'uacs': category.uacs
                             }
                         })
                     else:
@@ -2928,20 +2962,42 @@ def update_property_category(request):
     if request.method == 'POST':
         category_id = request.POST.get('id')
         new_name = request.POST.get('name')
+        new_uacs = request.POST.get('uacs')
        
         try:
             category = PropertyCategory.objects.get(id=category_id)
             old_name = category.name
+            old_uacs = category.uacs
+            
+            # Update name
             category.name = new_name
+            
+            # Update UACS - convert to int if provided, otherwise set to None
+            if new_uacs and new_uacs.strip():
+                try:
+                    category.uacs = int(new_uacs)
+                except ValueError:
+                    return JsonResponse({'success': False, 'error': 'UACS must be a valid number'})
+            else:
+                category.uacs = None
+            
             category.save()
            
-            # Log the activity
+            # Log the activity with details
+            changes = []
+            if old_name != new_name:
+                changes.append(f"name from '{old_name}' to '{new_name}'")
+            if old_uacs != category.uacs:
+                changes.append(f"UACS from '{old_uacs}' to '{category.uacs}'")
+            
+            description = f"Updated category {' and '.join(changes)}" if changes else f"Updated category '{category.name}'"
+            
             ActivityLog.log_activity(
                 user=request.user,
                 action='update',
                 model_name='PropertyCategory',
                 object_repr=str(category),
-                description=f"Updated category name from '{old_name}' to '{new_name}'"
+                description=description
             )
            
             return JsonResponse({'success': True})
@@ -3317,6 +3373,179 @@ def export_property_to_excel(request):
     response['Content-Disposition'] = f'attachment; filename=property_inventory_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
     
     wb.save(response)
+    return response
+
+
+@login_required
+def export_property_to_pdf_ics(request):
+    """Export properties with unit value below 50,000 as PDF Inventory Custodian Slip (ICS)"""
+    
+    # Get form data
+    college_campus = request.POST.get('college_campus', 'BACOOR')
+    accountable_person_filter = request.POST.get('accountable_person_ics', '(All)')
+    
+    # Get all properties
+    properties = Property.objects.select_related('category').all()
+    
+    # Filter properties with unit value (unit cost) below 50,000
+    filtered_properties = []
+    for prop in properties:
+        unit_cost = float(prop.unit_value or 0)
+        qty_per_card = int(prop.overall_quantity or 0)  # Use overall_quantity instead of quantity
+        total_value = unit_cost * qty_per_card
+        
+        # Filter based on unit cost being below 50,000
+        if unit_cost < 50000:
+            # Apply accountable person filter if specified
+            if accountable_person_filter == '(All)' or prop.accountable_person == accountable_person_filter:
+                filtered_properties.append({
+                    'article': prop.property_name or 'N/A',  # Property name as Article
+                    'description': prop.description or '',
+                    'property_number': prop.property_number or 'N/A',
+                    'unit_of_measure': prop.unit_of_measure or 'unit',
+                    'unit_cost': unit_cost,
+                    'total_value': total_value,
+                    'qty_per_card': qty_per_card,
+                    'qty_per_physical_count': prop.quantity_per_physical_count or qty_per_card,
+                    'remarks': 'test',
+                    'accountable_person': prop.accountable_person or 'N/A',
+                    'year_acquired': prop.year_acquired.strftime('%m/%d/%Y') if prop.year_acquired else 'N/A'
+                })
+    
+    # Create PDF with A4 landscape for more width
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), 
+                           topMargin=0.4*inch, bottomMargin=0.4*inch,
+                           leftMargin=0.3*inch, rightMargin=0.3*inch)
+    
+    # Container for PDF elements
+    elements = []
+    
+    # Styles
+    styles = getSampleStyleSheet()
+    
+    # Style for table content - smaller for data cells
+    normal_style = ParagraphStyle(
+        'Normal',
+        fontName='Helvetica',
+        fontSize=8,
+        leading=10
+    )
+    
+    # Style for header cells - black text to be visible
+    header_style = ParagraphStyle(
+        'Header',
+        fontName='Helvetica-Bold',
+        fontSize=9,
+        textColor=colors.black,  # Changed from white to black
+        alignment=1  # Center
+    )
+    
+    # Header information with title - using simple Paragraphs aligned to left
+    title_para = Paragraph("<b>List of Inventories / Inventory Custodian Slip (ICS)</b>", normal_style)
+    elements.append(title_para)
+    elements.append(Spacer(1, 0.1*inch))
+    
+    campus_para = Paragraph(f"<b>College / Campus:</b> {college_campus}", normal_style)
+    elements.append(campus_para)
+    elements.append(Spacer(1, 0.05*inch))
+    
+    person_para = Paragraph(f"<b>Accountable Person:</b> {accountable_person_filter}", normal_style)
+    elements.append(person_para)
+    elements.append(Spacer(1, 0.2*inch))
+    
+    # Table data
+    table_data = [
+        [Paragraph('Article', header_style), 
+         Paragraph('Description', header_style), 
+         Paragraph('Property Number', header_style), 
+         Paragraph('Unit Of Measure', header_style), 
+         Paragraph('Unit Cost', header_style), 
+         Paragraph('Total Value', header_style), 
+         Paragraph('QTY Per card', header_style), 
+         Paragraph('Qty Per Physical Count', header_style), 
+         Paragraph('Remarks', header_style), 
+         Paragraph('Accountable Person', header_style), 
+         Paragraph('Year Acquired', header_style)]
+    ]
+    
+    # Add property data
+    for prop in filtered_properties:
+        table_data.append([
+            Paragraph(str(prop['article']), normal_style),
+            Paragraph(str(prop['description'])[:80], normal_style),  # Increased description length
+            Paragraph(str(prop['property_number']), normal_style),
+            Paragraph(str(prop['unit_of_measure']), normal_style),
+            Paragraph(f"{prop['unit_cost']:.2f}", normal_style),
+            Paragraph(f"{prop['total_value']:.2f}", normal_style),
+            Paragraph(str(prop['qty_per_card']), normal_style),
+            Paragraph(str(prop['qty_per_physical_count']), normal_style),
+            Paragraph(str(prop['remarks']), normal_style),
+            Paragraph(str(prop['accountable_person']), normal_style),
+            Paragraph(str(prop['year_acquired']), normal_style)
+        ])
+    
+    # If no properties found
+    if len(table_data) == 1:
+        table_data.append([
+            Paragraph('No properties found with unit cost below ₱50,000.00', normal_style),
+            '', '', '', '', '', '', '', '', '', ''
+        ])
+    
+    # Create table with adjusted column widths for A4 landscape (11.69 x 8.27 inches)
+    # A4 landscape provides approximately 11 inches of usable width
+    # Increased Remarks column from 0.6 to 1.0 inch
+    col_widths = [1.5*inch, 2.0*inch, 1.0*inch, 0.7*inch, 0.7*inch, 
+                  0.8*inch, 0.7*inch, 0.8*inch, 1.0*inch, 1.0*inch, 0.8*inch]
+    
+    property_table = Table(table_data, colWidths=col_widths, repeatRows=1)
+    
+    # Table style - matching the simple format from the image
+    property_table.setStyle(TableStyle([
+        # Header styling - simple black text on white background
+        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+        ('TOPPADDING', (0, 0), (-1, 0), 6),
+        
+        # Data cells
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 1), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
+        
+        # Align numbers to center/right
+        ('ALIGN', (4, 1), (5, -1), 'RIGHT'),  # Unit Cost, Total Value
+        ('ALIGN', (6, 1), (7, -1), 'CENTER'),  # QTY columns
+        ('ALIGN', (2, 1), (2, -1), 'CENTER'),  # Property Number
+        ('ALIGN', (3, 1), (3, -1), 'CENTER'),  # Unit of Measure
+        
+        # Grid - simple black lines
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('LINEBELOW', (0, 0), (-1, 0), 2, colors.black),  # Thicker line below header
+    ]))
+    
+    elements.append(property_table)
+    
+    # Build PDF
+    doc.build(elements)
+    
+    # Get PDF from buffer
+    pdf = buffer.getvalue()
+    buffer.close()
+    
+    # Create response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=ICS_Below_50000_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+    response.write(pdf)
+    
     return response
 
 # def generate_sample_inventory_report(request):

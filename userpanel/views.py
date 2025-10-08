@@ -56,7 +56,7 @@ class UserRequestView(PermissionRequiredMixin, TemplateView):
         available_supplies = Supply.objects.filter(
             available_for_request=True,
             quantity_info__current_quantity__gt=0
-        ).select_related('quantity_info')
+        ).select_related('quantity_info', 'category')
         
         # Get recent batch requests (new system)
         recent_batch_requests = SupplyRequestBatch.objects.filter(user=request.user).order_by('-request_date')[:5]
@@ -368,7 +368,50 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
 
         # Querysets ordered by date descending
         request_history_qs = SupplyRequest.objects.filter(user=user).order_by('-request_date')
-        borrow_history_qs = BorrowRequest.objects.filter(user=user).order_by('-borrow_date')
+        
+        # Combine old BorrowRequest and new BorrowRequestBatch systems
+        # Get old borrow requests
+        old_borrow_requests = BorrowRequest.objects.filter(user=user).select_related('property')
+        # Get new batch borrow items
+        batch_borrow_items = BorrowRequestItem.objects.filter(
+            batch_request__user=user
+        ).select_related('property', 'batch_request')
+        
+        # Create a combined list with unified structure
+        combined_borrows = []
+        
+        # Add old borrow requests
+        for borrow in old_borrow_requests:
+            combined_borrows.append({
+                'property': borrow.property,
+                'quantity': borrow.quantity,
+                'status': borrow.status,
+                'borrow_date': borrow.borrow_date,
+                'return_date': borrow.return_date,
+                'sort_date': borrow.borrow_date,
+                'type': 'old'
+            })
+        
+        # Add batch borrow items
+        for item in batch_borrow_items:
+            # Use approved_quantity if available, otherwise quantity
+            qty = item.approved_quantity if item.approved_quantity else item.quantity
+            combined_borrows.append({
+                'property': item.property,
+                'quantity': qty,
+                'status': item.status,
+                'borrow_date': item.claimed_date if item.claimed_date else item.batch_request.request_date,
+                'return_date': item.return_date,
+                'sort_date': item.claimed_date if item.claimed_date else item.batch_request.request_date,
+                'type': 'batch'
+            })
+        
+        # Sort combined list by date descending
+        combined_borrows.sort(key=lambda x: x['sort_date'], reverse=True)
+        
+        # Convert to queryset-like list for pagination
+        borrow_history_qs = combined_borrows
+        
         reservation_history_qs = Reservation.objects.filter(user=user).order_by('-reservation_date')
         damage_history_qs = DamageReport.objects.filter(user=user).order_by('-report_date')
 
@@ -395,13 +438,24 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
             }
 
         def borrow_to_dict(borrow):
-            return {
-                'item': borrow.property.property_name,
-                'quantity': borrow.quantity,
-                'status': borrow.status,
-                'borrow_date': borrow.borrow_date,
-                'return_date': borrow.return_date,
-            }
+            # Handle both old BorrowRequest objects and new combined dict format
+            if isinstance(borrow, dict):
+                return {
+                    'item': borrow['property'].property_name,
+                    'quantity': borrow['quantity'],
+                    'status': borrow['status'],
+                    'borrow_date': borrow['borrow_date'],
+                    'return_date': borrow['return_date'],
+                }
+            else:
+                # Old BorrowRequest object
+                return {
+                    'item': borrow.property.property_name,
+                    'quantity': borrow.quantity,
+                    'status': borrow.status,
+                    'borrow_date': borrow.borrow_date,
+                    'return_date': borrow.return_date,
+                }
 
         def reservation_to_dict(res):
             return {
@@ -423,7 +477,7 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
 
         # Calculate stats counts
         request_count = request_history_qs.count()
-        borrow_count = borrow_history_qs.count()
+        borrow_count = len(borrow_history_qs)  # Now it's a list, not a queryset
         reservation_count = reservation_history_qs.count()
         damage_count = damage_history_qs.count()
 
@@ -438,13 +492,20 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
                 'type': 'request'
             })
         
-        # Add recent borrows
+        # Add recent borrows (from combined list)
         for borrow in borrow_history_qs[:3]:
-            recent_activity.append({
-                'message': f'Borrowed {borrow.property.property_name} (x{borrow.quantity})',
-                'timestamp': borrow.borrow_date,
-                'type': 'borrow'
-            })
+            if isinstance(borrow, dict):
+                recent_activity.append({
+                    'message': f'Borrowed {borrow["property"].property_name} (x{borrow["quantity"]})',
+                    'timestamp': borrow['borrow_date'],
+                    'type': 'borrow'
+                })
+            else:
+                recent_activity.append({
+                    'message': f'Borrowed {borrow.property.property_name} (x{borrow.quantity})',
+                    'timestamp': borrow.borrow_date,
+                    'type': 'borrow'
+                })
         
         # Add recent reservations
         for res in reservation_history_qs[:3]:
@@ -1056,7 +1117,16 @@ def add_to_reservation_list(request):
         return JsonResponse({
             'status': 'success',
             'message': f'{property_obj.property_name} added to reservation list',
-            'cart_count': len(cart)
+            'cart_count': len(cart),
+            'item': {
+                'property_id': property_id,
+                'property_name': property_obj.property_name,
+                'quantity': quantity,
+                'needed_date': needed_date,
+                'return_date': return_date,
+                'purpose': purpose,
+                'available_quantity': property_obj.quantity
+            }
         })
     
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
@@ -1306,7 +1376,7 @@ class UserAllRequestsView(LoginRequiredMixin, PermissionRequiredMixin, TemplateV
                 
                 request_data = {
                     'id': f"SB-{req.id}",
-                    'type': 'Supply Request (Batch)',
+                    'type': 'Supply Request',
                     'item_name': ", ".join(items_summary),
                     'quantity': req.total_quantity,
                     'status': req.get_status_display(),
@@ -1358,7 +1428,7 @@ class UserAllRequestsView(LoginRequiredMixin, PermissionRequiredMixin, TemplateV
                 
                 request_data = {
                     'id': f"BB-{req.id}",
-                    'type': 'Borrow Request (Batch)',
+                    'type': 'Borrow Request',
                     'item_name': ", ".join(items_summary),
                     'quantity': req.total_quantity,
                     'status': req.get_status_display(),
@@ -1484,7 +1554,7 @@ def request_detail(request, type, request_id):
             items = request_obj.items.select_related('supply').all()
             context = {
                 'request_obj': request_obj,
-                'request_type': 'Supply Request (Batch)',
+                'request_type': 'Supply Request',
                 'items': [{'item': item.supply, 'quantity': item.quantity} for item in items],
                 'is_batch': True
             }
@@ -1503,7 +1573,7 @@ def request_detail(request, type, request_id):
             items = request_obj.items.select_related('property').all()
             context = {
                 'request_obj': request_obj,
-                'request_type': 'Borrow Request (Batch)',
+                'request_type': 'Borrow Request',
                 'items': [{'item': item.property, 'quantity': item.quantity} for item in items],
                 'is_batch': True
             }
@@ -1616,3 +1686,208 @@ def request_again(request):
     except Exception as e:
         messages.error(request, 'Original request not found or access denied.')
         return redirect('user_all_requests')
+
+
+@login_required
+@require_POST
+def add_to_list(request):
+    """Add an item to the supply request list"""
+    supply_id = request.POST.get('supply_id')
+    quantity = int(request.POST.get('quantity', 0))
+    
+    try:
+        supply = Supply.objects.get(id=supply_id)
+        
+        # Validate quantity
+        available_quantity = supply.quantity_info.current_quantity
+        if quantity > available_quantity:
+            return JsonResponse({
+                'success': False,
+                'message': f'Only {available_quantity} units of {supply.supply_name} are available.'
+            })
+        
+        # Get or create cart in session
+        cart = request.session.get('supply_cart', [])
+        
+        # Check if item already exists in cart
+        item_exists = False
+        for item in cart:
+            if item['supply_id'] == supply_id:
+                # Update quantity (prevent duplicates)
+                new_quantity = item['quantity'] + quantity
+                if new_quantity > available_quantity:
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Cannot add {quantity} more. Total would exceed available quantity ({available_quantity}).'
+                    })
+                item['quantity'] = new_quantity
+                item_exists = True
+                break
+        
+        if not item_exists:
+            cart.append({
+                'supply_id': supply_id,
+                'supply_name': supply.supply_name,
+                'quantity': quantity,
+                'available_quantity': available_quantity
+            })
+        
+        request.session['supply_cart'] = cart
+        request.session.modified = True
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Added {supply.supply_name} to list.',
+            'list_count': len(cart)
+        })
+        
+    except Supply.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Supply item not found.'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error adding item to cart: {str(e)}'
+        })
+
+
+@login_required
+@require_POST
+def remove_from_list(request):
+    """Remove an item from the supply request list"""
+    supply_id = request.POST.get('supply_id')
+    
+    cart = request.session.get('supply_cart', [])
+    cart = [item for item in cart if item['supply_id'] != supply_id]
+    
+    request.session['supply_cart'] = cart
+    request.session.modified = True
+    
+    return JsonResponse({
+        'success': True,
+        'message': 'Item removed from cart.',
+        'cart_count': len(cart)
+    })
+
+
+@login_required
+@require_POST
+def clear_supply_list(request):
+    """Clear all items from the supply request list"""
+    request.session['supply_cart'] = []
+    request.session.modified = True
+    
+    return JsonResponse({
+        'success': True,
+        'message': 'List cleared successfully.',
+        'cart_count': 0
+    })
+
+
+@login_required
+@require_POST
+def update_list_item(request):
+    """Update quantity of an item in the list"""
+    supply_id = request.POST.get('supply_id')
+    new_quantity = int(request.POST.get('quantity', 0))
+    
+    try:
+        supply = Supply.objects.get(id=supply_id)
+        available_quantity = supply.quantity_info.current_quantity
+        
+        if new_quantity > available_quantity:
+            return JsonResponse({
+                'success': False,
+                'message': f'Only {available_quantity} units available.'
+            })
+        
+        cart = request.session.get('supply_cart', [])
+        
+        for item in cart:
+            if item['supply_id'] == supply_id:
+                item['quantity'] = new_quantity
+                break
+        
+        request.session['supply_cart'] = cart
+        request.session.modified = True
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Cart updated.',
+            'cart_count': len(cart)
+        })
+        
+    except Supply.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Supply item not found.'
+        })
+
+
+@login_required
+def submit_list_request(request):
+    """Submit the list as a batch supply request"""
+    if request.method == 'POST':
+        purpose = request.POST.get('purpose', '').strip()
+        cart = request.session.get('supply_cart', [])
+        
+        if not cart:
+            messages.error(request, 'Your request list is empty. Please add items before submitting.')
+            return redirect('user_request')
+        
+        if not purpose:
+            messages.error(request, 'Please provide a purpose for your request.')
+            return redirect('user_request')
+        
+        try:
+            # Create the batch request
+            batch_request = SupplyRequestBatch.objects.create(
+                user=request.user,
+                purpose=purpose,
+                status='pending'
+            )
+            
+            # Create individual items
+            for cart_item in cart:
+                supply = Supply.objects.get(id=cart_item['supply_id'])
+                SupplyRequestItem.objects.create(
+                    batch_request=batch_request,
+                    supply=supply,
+                    quantity=cart_item['quantity']
+                )
+            
+            # Log activity
+            supplies_for_logging = []
+            for cart_item in cart[:3]:
+                try:
+                    supply = Supply.objects.get(id=cart_item['supply_id'])
+                    supplies_for_logging.append(f"{supply.supply_name} (x{cart_item['quantity']})")
+                except Supply.DoesNotExist:
+                    supplies_for_logging.append(f"Unknown Item (x{cart_item['quantity']})")
+            
+            item_list = ", ".join(supplies_for_logging)
+            if len(cart) > 3:
+                item_list += f" and {len(cart) - 3} more items"
+            
+            ActivityLog.log_activity(
+                user=request.user,
+                action='request',
+                model_name='SupplyRequestBatch',
+                object_repr=f"Batch #{batch_request.id}",
+                description=f"Submitted batch supply request with {len(cart)} items: {item_list}"
+            )
+            
+            # Clear the cart
+            request.session['supply_cart'] = []
+            request.session.modified = True
+            
+            messages.success(request, f'Supply request submitted successfully! Your request ID is #{batch_request.id}.')
+            return redirect('user_request')
+            
+        except Exception as e:
+            messages.error(request, f'Error submitting request: {str(e)}')
+            return redirect('user_request')
+    
+    return redirect('user_request')

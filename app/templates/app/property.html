@@ -1817,8 +1817,8 @@ input:focus {
       <form id="addCategoryForm" method="POST" action="{% url 'add_property_category' %}" 
             style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid #eee;">
         {% csrf_token %}
-        <div style="display: flex; gap: 15px; align-items: flex-end;">
-          <div style="flex: 1;">
+        <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 200px;">
             <label for="categoryName" style="display: block; margin-bottom: 8px; color: #444; font-weight: 500;">
               <i class="fas fa-folder"></i> Category Name
               <span class="required-asterisk">*</span>
@@ -1827,8 +1827,16 @@ input:focus {
                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; transition: border-color 0.3s ease;"
                    placeholder="Enter category name">
           </div>
+          <div style="flex: 1; min-width: 200px;">
+            <label for="categoryUACS" style="display: block; margin-bottom: 8px; color: #444; font-weight: 500;">
+              <i class="fas fa-hashtag"></i> UACS
+            </label>
+            <input type="number" name="uacs" id="categoryUACS"
+                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; transition: border-color 0.3s ease;"
+                   placeholder="e.g., 13124324" min="0">
+          </div>
           <button type="submit" class="submit-btn" 
-                  style="background-color: #152d64; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-left:15px; transition: background-color 0.3s ease;">
+                  style="background-color: #152d64; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease; margin-left: 10px;">
             Add Category
           </button>
         </div>
@@ -1841,6 +1849,7 @@ input:focus {
             <tr>
               <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: left; font-weight: 500;">No.</th>
               <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: left; font-weight: 500;">Category Name</th>
+              <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: left; font-weight: 500;">UACS</th>
               <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: center; font-weight: 500;">Properties Count</th>
               <th style="background-color: #152d64; color: white; padding: 12px 15px; text-align: center; font-weight: 500;">Actions</th>
             </tr>
@@ -1852,6 +1861,9 @@ input:focus {
               <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">
                 <span class="category-name" style="font-weight: 500;">{{ category.name }}</span>
               </td>
+              <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">
+                <span style="color: #666;">{{ category.uacs|default:"N/A" }}</span>
+              </td>
               <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
                 <span class="badge {% if category.property_set.count > 0 %}badge-active{% else %}badge-inactive{% endif %}">
                   {{ category.property_set.count }}
@@ -1862,7 +1874,8 @@ input:focus {
                   <button type="button" class="category-edit-btn" 
                           data-id="{{ category.id }}"
                           data-name="{{ category.name|escapejs }}"
-                          onclick="editCategory(this.dataset.id, this.dataset.name)"
+                          data-uacs="{{ category.uacs|default:'' }}"
+                          onclick="editCategory(this.dataset.id, this.dataset.name, this.dataset.uacs)"
                           style="background-color: #152d64; color: white; border: none; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: center;">
                     <i class="fas fa-edit"></i>
                   </button>
@@ -1908,6 +1921,14 @@ input:focus {
           <input type="text" id="categoryEditName" name="name" required 
                  style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; transition: border-color 0.3s ease;"
                  placeholder="Enter category name">
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label for="categoryEditUACS" style="display: block; margin-bottom: 8px; color: #444; font-weight: 500;">
+            <i class="fas fa-hashtag"></i> UACS
+          </label>
+          <input type="number" id="categoryEditUACS" name="uacs"
+                 style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; transition: border-color 0.3s ease;"
+                 placeholder="e.g., 13124324" min="0">
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 10px;">
           <button type="button" class="cancel-btn" onclick="closeCategoryEditModal()" >
@@ -2265,12 +2286,32 @@ input:focus {
 
 <!-- Export Modal -->
 <div id="exportModal" class="modal">
-    <div class="modal-content" style="max-width: 450px; width: auto; padding: 20px;">
+    <div class="modal-content" style="max-width: 650px; width: auto; padding: 20px;">
         <span class="close" id="closeExportModalBtn" style="position: absolute; right: 15px; top: 10px;">&times;</span>
         <h3 style="font-size: 18px; margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 1px solid #dee2e6;">Export Property Inventory</h3>
+        
+        <!-- Export Format Selection -->
+        <div style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
+            <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">Select Export Format:</p>
+            <div style="display: flex; gap: 15px;">
+                <label style="font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="radio" name="exportFormat" value="excel" checked style="margin: 0; width: 18px; height: 18px; cursor: pointer;"> 
+                    <span style="font-weight: 500;">Excel Report (All Properties)</span>
+                </label>
+                <label style="font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="radio" name="exportFormat" value="pdf" style="margin: 0; width: 18px; height: 18px; cursor: pointer;"> 
+                    <span style="font-weight: 500;">PDF ICS (Unit Cost Below ₱50,000.00)</span>
+                </label>
+            </div>
+            <p style="margin: 8px 0 0 0; font-size: 12px; color: #6c757d; font-style: italic;">
+                <i class="fas fa-info-circle"></i> PDF generates Inventory Custodian Slip for items with unit cost below ₱50,000.00
+            </p>
+        </div>
+
+        <!-- Excel Form -->
         <form method="POST" action="{% url 'export_property' %}" id="exportForm">
             {% csrf_token %}
-            <div class="form-group">
+            <div class="form-group" id="excelFieldsSection">
                 <p style="margin: 0 0 10px 0; font-size: 14px;">Select fields to include in the report:</p>
                 <div class="checkbox-group" style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
                     <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
@@ -2316,9 +2357,34 @@ input:focus {
                         <input type="checkbox" name="fields" value="category" checked style="margin: 0; width: 16px; height: 16px;"> Category
                     </label>
                 </div>
-                <div style="text-align: left;">
-                    <button type="submit" class="submit-btn" style="background-color: #0A2647; padding: 8px 16px; font-size: 14px; border-radius: 4px;">Generate Report</button>
+            </div>
+
+            <!-- PDF Form Fields (Hidden by default) -->
+            <div class="form-group" id="pdfFieldsSection" style="display: none;">
+                <div style="background-color: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                    <p style="margin: 0; font-size: 13px; color: #856404;">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        <strong>Note:</strong> This will generate an Inventory Custodian Slip (ICS) for all properties with a Unit Cost below ₱50,000.00
+                    </p>
                 </div>
+                <div style="padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
+                    <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">College / Campus:</p>
+                    <input type="text" name="college_campus" id="collegeCampus" value="BACOOR" 
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; margin-bottom: 15px;">
+                    
+                    <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">Accountable Person:</p>
+                    <input type="text" name="accountable_person_ics" id="accountablePersonICS" value="(All)" 
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #6c757d; font-style: italic;">
+                        Leave as "(All)" to include all accountable persons, or specify a name to filter
+                    </p>
+                </div>
+            </div>
+
+            <div style="text-align: left;">
+                <button type="submit" class="submit-btn" id="generateReportBtn" style="background-color: #0A2647; padding: 8px 16px; font-size: 14px; border-radius: 4px;">
+                    <i class="fas fa-file-excel"></i> Generate Excel Report
+                </button>
             </div>
         </form>
     </div>
@@ -3047,6 +3113,31 @@ input:focus {
 const exportModal = document.getElementById("exportModal");
 const openExportBtn = document.getElementById("openExportModalBtn");
 const closeExportBtn = document.getElementById("closeExportModalBtn");
+const exportForm = document.getElementById("exportForm");
+const generateReportBtn = document.getElementById("generateReportBtn");
+const excelFieldsSection = document.getElementById("excelFieldsSection");
+const pdfFieldsSection = document.getElementById("pdfFieldsSection");
+
+// Handle export format radio buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const exportFormatRadios = document.querySelectorAll('input[name="exportFormat"]');
+    
+    exportFormatRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'excel') {
+                excelFieldsSection.style.display = 'block';
+                pdfFieldsSection.style.display = 'none';
+                generateReportBtn.innerHTML = '<i class="fas fa-file-excel"></i> Generate Excel Report';
+                exportForm.action = "{% url 'export_property' %}";
+            } else if (this.value === 'pdf') {
+                excelFieldsSection.style.display = 'none';
+                pdfFieldsSection.style.display = 'block';
+                generateReportBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Generate PDF ICS';
+                exportForm.action = "{% url 'export_property_pdf_ics' %}";
+            }
+        });
+    });
+});
 
 if (openExportBtn) {
     openExportBtn.onclick = function() {
@@ -3062,10 +3153,14 @@ if (closeExportBtn) {
 
 // Ensure at least one checkbox is selected
 document.getElementById('exportForm').addEventListener('submit', function(e) {
-    const checkboxes = this.querySelectorAll('input[type="checkbox"]:checked');
-    if (checkboxes.length === 0) {
-        e.preventDefault();
-        alert('Please select at least one field to include in the report.');
+    const selectedFormat = document.querySelector('input[name="exportFormat"]:checked');
+    
+    if (selectedFormat && selectedFormat.value === 'excel') {
+        const checkboxes = this.querySelectorAll('input[name="fields"]:checked');
+        if (checkboxes.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one field to include in the report.');
+        }
     }
 });
 
@@ -3231,17 +3326,19 @@ function validateDelete(propertyCount) {
     return confirm('Are you sure you want to delete this category?');
 }
 
-function editCategory(categoryId, categoryName) {
+function editCategory(categoryId, categoryName, categoryUACS) {
     event.preventDefault();
     event.stopPropagation();
     
     const editModal = document.getElementById('categoryEditModal');
     const idInput = document.getElementById('categoryEditId');
     const nameInput = document.getElementById('categoryEditName');
+    const uacsInput = document.getElementById('categoryEditUACS');
 
-    if (editModal && idInput && nameInput) {
+    if (editModal && idInput && nameInput && uacsInput) {
         idInput.value = categoryId;
         nameInput.value = categoryName;
+        uacsInput.value = categoryUACS || '';  // Set UACS value or empty string if null
         editModal.style.display = 'block';
     }
 }
@@ -3289,6 +3386,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = new URLSearchParams();
             data.append('id', formData.get('id'));
             data.append('name', formData.get('name'));
+            data.append('uacs', formData.get('uacs') || '');  // Include UACS field
 
             fetch('/update_property_category/', {
                 method: 'POST',
@@ -3304,6 +3402,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Find and update the category in the table
                     const categoryId = formData.get('id');
                     const newName = formData.get('name');
+                    const newUACS = formData.get('uacs') || '';
                     const editButton = document.querySelector(`button.category-edit-btn[data-id="${categoryId}"]`);
                     
                     if (editButton) {
@@ -3314,6 +3413,16 @@ document.addEventListener('DOMContentLoaded', function() {
                             if (nameSpan) {
                                 nameSpan.textContent = newName;
                             }
+                            
+                            // Update the UACS in the table
+                            const uacsCell = row.querySelectorAll('td')[2]; // Third column (0-indexed)
+                            if (uacsCell) {
+                                uacsCell.innerHTML = `<span style="color: #666;">${newUACS || 'N/A'}</span>`;
+                            }
+                            
+                            // Update the data attributes on the edit button
+                            editButton.setAttribute('data-name', newName);
+                            editButton.setAttribute('data-uacs', newUACS);
                             
                             // Update the edit button's data
                             editButton.setAttribute('data-name', newName);

@@ -9,6 +9,136 @@
 
 <!-- Request Detail Styles -->
 <link rel="stylesheet" href="{% static 'css/request-detail.css' %}" />
+<style>
+/* Modern Header Layout */
+.modern-header {
+    background: white;
+    border-bottom: 1px solid #e1e5e9;
+    padding: 24px 0;
+    margin-bottom: 32px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.title-section {
+    flex: 1;
+    min-width: 0;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 8px 0;
+    line-height: 1.25;
+}
+
+.status-indicator {
+    margin-top: 8px;
+}
+
+.action-section {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    flex-shrink: 0;
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #f8fafc;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+    background: #f1f5f9;
+    border-color: #9ca3af;
+    color: #1f2937;
+}
+
+.btn-secondary:active {
+    background: #e2e8f0;
+}
+
+.btn-secondary i {
+    font-size: 13px;
+}
+
+/* Enhanced Status Badge */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-approved {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-rejected, .status-declined {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-cancelled {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modern-header {
+        padding: 20px 0;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .page-title {
+        font-size: 1.75rem;
+    }
+    
+    .action-section {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .btn-secondary {
+        font-size: 16px;
+        padding: 12px 20px;
+        min-height: 44px;
+    }
+}
+</style>
 <div class="container">
     <div class="request-detail-wrapper">
         <!-- Navigation Section -->
@@ -21,89 +151,113 @@
         
         <!-- Main Content -->
         <main class="request-content">
-            <!-- Header Section -->
-            <header class="page-header">
-                <div class="header-info">
-                    <h1><i class="fas fa-file-alt"></i> Request Details</h1>
-                    <div class="request-id-badge">
-                        {% if request_obj.id %}
-                            {{ request_type }} #{{ request_obj.id }}
+            
+            <!-- Enhanced Header Layout -->
+            <div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 24px 32px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <!-- Title Row -->
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    <h1 style="font-size: 2.25rem !important; font-weight: 700 !important; color: #152d64 !important; margin: 0 !important; line-height: 1.2 !important; display: block !important;">
+                        {{ request_type|cut:" (Batch)" }} #{{ request_obj.id }}
+                    </h1>
+                </div>
+            </div>
+
+        <!-- Request Details -->
+        <div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f8f9fa; padding-bottom: 12px;">
+                <h2 style="font-size: 1.25rem; font-weight: 600; color: #152d64; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-info-circle" style="color: #152d64;"></i>
+                    Request Details
+                </h2>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="btn-request-again" 
+                            data-request-id="{{ request_obj.id }}" 
+                            data-model-type="{% if 'Batch' in request_type %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}"
+                            style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #152d64; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;"
+                            onmouseover="this.style.background='#0f1f4a'"
+                            onmouseout="this.style.background='#152d64'"
+                            title="Request Again">
+                        <i class="fas fa-redo" style="font-size: 14px;"></i>
+                    </button>
+                    {% if request_obj.status == 'pending' %}
+                    <button class="btn-cancel-request" 
+                            data-request-id="{{ request_obj.id }}" 
+                            data-model-type="{% if 'Batch' in request_type %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}"
+                            style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;"
+                            onmouseover="this.style.background='#c82333'"
+                            onmouseout="this.style.background='#dc3545'"
+                            title="Cancel Request">
+                        <i class="fas fa-times" style="font-size: 14px;"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div style="padding: 16px; background: #f8f9fa; border-radius: 6px;">
+                    <div style="font-size: 12px; color: #6c757d; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Current Status</div>
+                    <div style="font-size: 16px; font-weight: 600; color: #152d64;">
+                        <span class="status-badge status-{{ request_obj.status }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 500;">
+                            {% if request_obj.status == 'pending' %}
+                                <i class="fas fa-clock"></i>
+                            {% elif request_obj.status == 'approved' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% elif request_obj.status == 'rejected' or request_obj.status == 'declined' %}
+                                <i class="fas fa-times-circle"></i>
+                            {% elif request_obj.status == 'returned' %}
+                                <i class="fas fa-undo"></i>
+                            {% elif request_obj.status == 'overdue' %}
+                                <i class="fas fa-exclamation-circle"></i>
+                            {% elif request_obj.status == 'completed' %}
+                                <i class="fas fa-check-double"></i>
+                            {% elif request_obj.status == 'active' %}
+                                <i class="fas fa-play-circle"></i>
+                            {% elif request_obj.status == 'for_claiming' %}
+                                <i class="fas fa-hand-holding"></i>
+                            {% elif request_obj.status == 'partially_approved' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% endif %}
+                            {{ request_obj.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div style="padding: 16px; background: #f8f9fa; border-radius: 6px;">
+                    <div style="font-size: 12px; color: #6c757d; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Request Date</div>
+                    <div style="font-size: 16px; font-weight: 600; color: #152d64;">
+                        {% if request_obj.request_date %}
+                            {{ request_obj.request_date|date:"M d, Y g:i A" }}
+                        {% elif request_obj.borrow_date %}
+                            {{ request_obj.borrow_date|date:"M d, Y g:i A" }}
+                        {% elif request_obj.reservation_date %}
+                            {{ request_obj.reservation_date|date:"M d, Y g:i A" }}
                         {% endif %}
                     </div>
                 </div>
-                <div class="header-actions">
-                    <button class="btn-primary btn-request-again" 
-                            data-request-id="{{ request_obj.id }}" 
-                            data-model-type="{% if 'Batch' in request_type %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}">
-                        <i class="fas fa-redo"></i>
-                        <span>Request Again</span>
-                    </button>
-                </div>
-            </header>
-
-        <!-- Status Section -->
-        <section class="content-section">
-            <h2><i class="fas fa-flag"></i> Status Information</h2>
-            <div class="status-grid">
-                <div class="info-card">
-                    <label>Current Status</label>
-                    <span class="status-badge status-{{ request_obj.status }}">
-                        {% if request_obj.status == 'pending' %}
-                            <i class="fas fa-clock"></i>
-                        {% elif request_obj.status == 'approved' %}
-                            <i class="fas fa-check-circle"></i>
-                        {% elif request_obj.status == 'rejected' or request_obj.status == 'declined' %}
-                            <i class="fas fa-times-circle"></i>
-                        {% elif request_obj.status == 'returned' %}
-                            <i class="fas fa-undo"></i>
-                        {% elif request_obj.status == 'overdue' %}
-                            <i class="fas fa-exclamation-circle"></i>
-                        {% elif request_obj.status == 'completed' %}
-                            <i class="fas fa-check-double"></i>
-                        {% elif request_obj.status == 'active' %}
-                            <i class="fas fa-play-circle"></i>
-                        {% elif request_obj.status == 'for_claiming' %}
-                            <i class="fas fa-hand-holding"></i>
-                        {% elif request_obj.status == 'partially_approved' %}
-                            <i class="fas fa-check-circle"></i>
-                        {% endif %}
-                        {{ request_obj.get_status_display }}
-                    </span>
-                </div>
-                <div class="info-card">
-                    <label>Request Date</label>
-                    <span>
-                        {% if request_obj.request_date %}
-                            {{ request_obj.request_date|date:"F d, Y g:i A" }}
-                        {% elif request_obj.borrow_date %}
-                            {{ request_obj.borrow_date|date:"F d, Y g:i A" }}
-                        {% elif request_obj.reservation_date %}
-                            {{ request_obj.reservation_date|date:"F d, Y g:i A" }}
-                        {% endif %}
-                    </span>
-                </div>
+                
                 {% if request_obj.return_date or request_obj.needed_date %}
-                <div class="info-card">
-                    <label>
+                <div style="padding: 16px; background: #f8f9fa; border-radius: 6px;">
+                    <div style="font-size: 12px; color: #6c757d; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
                         {% if request_obj.return_date %}Return Date{% else %}Needed Date{% endif %}
-                    </label>
-                    <span>
+                    </div>
+                    <div style="font-size: 16px; font-weight: 600; color: #152d64;">
                         {% if request_obj.return_date %}
-                            {{ request_obj.return_date|date:"F d, Y" }}
+                            {{ request_obj.return_date|date:"M d, Y" }}
                         {% elif request_obj.needed_date %}
-                            {{ request_obj.needed_date|date:"F d, Y" }}
+                            {{ request_obj.needed_date|date:"M d, Y" }}
                         {% endif %}
-                    </span>
+                    </div>
                 </div>
                 {% endif %}
+                
                 {% if request_obj.approved_date %}
-                <div class="info-card">
-                    <label>Approved Date</label>
-                    <span>{{ request_obj.approved_date|date:"F d, Y g:i A" }}</span>
+                <div style="padding: 16px; background: #f8f9fa; border-radius: 6px;">
+                    <div style="font-size: 12px; color: #6c757d; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Approved Date</div>
+                    <div style="font-size: 16px; font-weight: 600; color: #152d64;">{{ request_obj.approved_date|date:"M d, Y g:i A" }}</div>
                 </div>
                 {% endif %}
             </div>
-        </section>
+        </div>
 
         <!-- Items Section -->
         <section class="content-section">
@@ -202,20 +356,7 @@
             </div>
         </section>
 
-        <!-- Actions Section -->
-        {% if request_obj.status == 'pending' %}
-        <section class="content-section">
-            <h2><i class="fas fa-cogs"></i> Actions</h2>
-            <div class="actions-container">
-                <button class="btn-danger btn-cancel-request" 
-                        data-request-id="{{ request_obj.id }}" 
-                        data-model-type="{% if 'Batch' in request_type %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}">
-                    <i class="fas fa-times"></i>
-                    <span>Cancel Request</span>
-                </button>
-            </div>
-        </section>
-        {% endif %}
+
         </main>
     </div>
 </div>

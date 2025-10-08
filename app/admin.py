@@ -36,6 +36,12 @@ class PropertyAdmin(admin.ModelAdmin):
         }),
     )
 
+@admin.register(PropertyCategory)
+class PropertyCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'uacs']
+    search_fields = ['name', 'uacs']
+    fields = ['name', 'uacs']
+
 admin.site.register(Supply)
 admin.site.register(SupplyRequest)
 admin.site.register(Reservation)
@@ -48,7 +54,6 @@ admin.site.register(SupplyQuantity)
 admin.site.register(SupplyHistory)
 admin.site.register(PropertyHistory)
 admin.site.register(Department)
-admin.site.register(PropertyCategory)
 admin.site.register(SupplyCategory)
 admin.site.register(SupplySubcategory)
 admin.site.register(SupplyRequestBatch)

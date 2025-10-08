@@ -65,6 +65,7 @@ from .views import (
     delete_property_category,
     export_supply_to_excel,
     export_property_to_excel,
+    export_property_to_pdf_ics,
     # generate_sample_inventory_report,
     get_supply_by_barcode,
     get_property_by_barcode,
@@ -180,6 +181,7 @@ urlpatterns = [
     path('get_property_by_barcode/<str:barcode>/', get_property_by_barcode, name='get_property_by_barcode'),
     path('export-supply/', export_supply_to_excel, name='export_supply'),
     path('export-property/', export_property_to_excel, name='export_property'),
+    path('export-property-pdf-ics/', export_property_to_pdf_ics, name='export_property_pdf_ics'),
     # path('sample-inventory-template/', generate_sample_inventory_report, name='sample_inventory_template'),
 
     path('supply/<int:pk>/archive/', archive_supply, name='archive_supply'),
