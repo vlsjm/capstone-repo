@@ -21,12 +21,14 @@ class ActivityLog(models.Model):
         ('borrow', 'Borrowed'),
         ('return', 'Returned'),
         ('report', 'Reported'),
+        ('activate', 'Activated'),
+        ('change_password', 'Changed Password'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    action = models.CharField(max_length=10, choices=ACTION_CHOICES)
+    action = models.CharField(max_length=50, choices=ACTION_CHOICES)
     model_name = models.CharField(max_length=100)
-    object_repr = models.CharField(max_length=255)
+    object_repr = models.TextField()  # Changed to TextField for unlimited length
     description = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -146,7 +148,7 @@ class Supply(models.Model):
     category = models.ForeignKey(SupplyCategory, on_delete=models.SET_NULL, null=True, blank=True)
     subcategory = models.ForeignKey(SupplySubcategory, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(blank=True, null=True)
-    barcode = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    barcode = models.TextField(null=True, blank=True)  # Removed unique constraint - too large for indexing
     available_for_request = models.BooleanField(default=True)
     date_received = models.DateField()
     expiration_date = models.DateField(null=True, blank=True)
@@ -306,7 +308,7 @@ class Property(models.Model):
     property_name = models.CharField(max_length=100)
     category = models.ForeignKey(PropertyCategory, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    barcode = models.CharField(max_length=150, unique=True, null=True, blank=True)
+    barcode = models.TextField(null=True, blank=True)  # Removed unique constraint - too large for indexing
     unit_of_measure = models.CharField(max_length=50, null=True, blank=True)
     unit_value = models.DecimalField(
         max_digits=10, decimal_places=2,
