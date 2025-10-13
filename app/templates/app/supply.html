@@ -1448,7 +1448,11 @@ tr.hidden {
             </td>
              <td>
                   <div class="barcode-container">
-                    <img src="{{ supply.barcode }}" alt="Barcode for {{ supply.supply_name }}" class="barcode-image">
+                    {% if supply.barcode_image %}
+                      <img src="{{ supply.barcode_image.url }}" alt="Barcode for {{ supply.supply_name }}" class="barcode-image">
+                    {% else %}
+                      <span>{{ supply.barcode|default:"No barcode" }}</span>
+                    {% endif %}
                   </div>
                 </td>
             <td>{{ supply.date_received|default:"----" }}</td>
@@ -3712,62 +3716,72 @@ function openBarcodeSelectionModal() {
     const modal = document.getElementById('barcodeSelectionModal');
     const tableBody = document.getElementById('barcodeSelectionTableBody');
     
-    // Clear existing content
-    tableBody.innerHTML = '';
+    // Clear existing content and show loading message
+    tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px;"><i class="fas fa-spinner fa-spin"></i> Loading all supplies...</td></tr>';
     
-    // Get all supply rows
-    const supplyRows = document.querySelectorAll('tbody tr');
-    let rowIndex = 0;
-    
-    supplyRows.forEach((row, index) => {
-        const barcodeImg = row.querySelector('.barcode-container img');
-        const supplyNameCell = row.cells[1]; // Supply name is in the second column
-        const categoryCell = row.cells[2]; // Category is in the third column
-        
-        if (barcodeImg && supplyNameCell) {
-            const supplyName = supplyNameCell.textContent.trim();
-            const category = categoryCell.textContent.trim();
-            const barcodeSrc = barcodeImg.src;
-            
-            const tableRow = document.createElement('tr');
-            tableRow.style.transition = 'background-color 0.2s ease';
-            tableRow.className = 'barcode-row'; // Add class for search filtering
-            tableRow.innerHTML = `
-                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
-                    <input type="checkbox" class="barcode-checkbox" data-index="${rowIndex}" 
-                           style="width: 18px; height: 18px; cursor: pointer;">
-                </td>
-                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-weight: 500;" class="supply-name-cell">
-                    ${supplyName}
-                </td>
-                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;" class="category-cell">
-                    ${category}
-                </td>
-                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
-                    <input type="number" class="quantity-input" data-index="${rowIndex}" 
-                           value="1" min="1" max="100" disabled
-                           style="width: 80px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; text-align: center; background-color: #f8f9fa;">
-                </td>
-            `;
-            
-            // Store barcode data for later use
-            tableRow.dataset.barcodeSrc = barcodeSrc;
-            tableRow.dataset.supplyName = supplyName;
-            tableRow.dataset.category = category;
-            
-            tableBody.appendChild(tableRow);
-            rowIndex++;
-        }
-    });
-    
-    // Reset modal state
-    document.getElementById('selectAllBarcodes').checked = false;
-    document.getElementById('defaultQuantity').value = 1;
-    document.getElementById('barcodeSearchInput').value = ''; // Clear search
-    updateSelectionSummary();
-    
-    // Show modal
+    // Show modal immediately
     modal.style.display = 'block';
+    
+    // Fetch all supply barcodes from server
+    fetch('{% url "get_all_supply_barcodes" %}')
+        .then(response => response.json())
+        .then(data => {
+            // Clear loading message
+            tableBody.innerHTML = '';
+            
+            if (!data.success) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #dc3545;"><i class="fas fa-exclamation-circle"></i> Error loading supplies: ' + (data.error || 'Unknown error') + '</td></tr>';
+                return;
+            }
+            
+            if (data.barcodes.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #6c757d;"><i class="fas fa-info-circle"></i> No supplies found.</td></tr>';
+                return;
+            }
+            
+            console.log(`Loaded ${data.count} supplies from server`);
+            
+            // Populate table with all supplies
+            data.barcodes.forEach((item, index) => {
+                const tableRow = document.createElement('tr');
+                tableRow.style.transition = 'background-color 0.2s ease';
+                tableRow.className = 'barcode-row'; // Add class for search filtering
+                tableRow.innerHTML = `
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                        <input type="checkbox" class="barcode-checkbox" data-index="${index}" 
+                               style="width: 18px; height: 18px; cursor: pointer;">
+                    </td>
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-weight: 500;" class="supply-name-cell">
+                        ${item.supply_name}
+                    </td>
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;" class="category-cell">
+                        ${item.category}
+                    </td>
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                        <input type="number" class="quantity-input" data-index="${index}" 
+                               value="1" min="1" max="100" disabled
+                               style="width: 80px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; text-align: center; background-color: #f8f9fa;">
+                    </td>
+                `;
+                
+                // Store barcode data for later use
+                tableRow.dataset.barcodeSrc = item.barcode;
+                tableRow.dataset.supplyName = item.supply_name;
+                tableRow.dataset.category = item.category;
+                
+                tableBody.appendChild(tableRow);
+            });
+            
+            // Reset modal state
+            document.getElementById('selectAllBarcodes').checked = false;
+            document.getElementById('defaultQuantity').value = 1;
+            document.getElementById('barcodeSearchInput').value = ''; // Clear search
+            updateSelectionSummary();
+        })
+        .catch(error => {
+            console.error('Error fetching supplies:', error);
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #dc3545;"><i class="fas fa-exclamation-circle"></i> Error loading supplies: ' + error.message + '</td></tr>';
+        });
 }
 
 // Search functionality for supply barcode selection modal

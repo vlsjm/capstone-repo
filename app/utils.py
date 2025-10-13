@@ -7,12 +7,16 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
 from django.utils import timezone
+from django.core.files.base import ContentFile
 import logging
 
 logger = logging.getLogger(__name__)
 
 def generate_barcode(code):
-    """Generate a Code128 barcode and return it as a base64 encoded string."""
+    """
+    Generate a Code128 barcode and return it as a base64 encoded string.
+    Deprecated: Use generate_barcode_image() for new implementations.
+    """
     # Create barcode instance
     code128 = barcode.get_barcode_class('code128')
     
@@ -23,6 +27,23 @@ def generate_barcode(code):
     # Convert to base64
     image_base64 = base64.b64encode(rv.getvalue()).decode()
     return f"data:image/png;base64,{image_base64}"
+
+
+def generate_barcode_image(code):
+    """
+    Generate a Code128 barcode and return it as a ContentFile for ImageField.
+    Returns a tuple: (filename, ContentFile)
+    """
+    # Create barcode instance
+    code128 = barcode.get_barcode_class('code128')
+    
+    # Generate the barcode
+    rv = BytesIO()
+    code128(code, writer=ImageWriter()).write(rv)
+    
+    # Return as ContentFile with appropriate filename
+    filename = f"{code}.png"
+    return filename, ContentFile(rv.getvalue())
 
 
 

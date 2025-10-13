@@ -1705,7 +1705,7 @@ input:focus {
                           data-property-name="{{ property.property_name }}"
                           data-category="{{ property.category.name|default:'N/A' }}"
                           data-description="{{ property.description|default:'N/A' }}"
-                          data-barcode="{{ property.barcode }}"
+                          data-barcode="{% if property.barcode_image %}{{ property.barcode_image.url }}{% else %}{{ property.barcode }}{% endif %}"
                           data-unit-measure="{{ property.unit_of_measure|default:'N/A' }}"
                           data-unit-value="{{ property.unit_value|peso }}"
                           data-overall-quantity="{{ property.overall_quantity|default:'N/A' }}"
@@ -1754,7 +1754,7 @@ input:focus {
                         
                         <button class="table-actions-dropdown-item print print-btn" 
                           onclick="printSingleBarcode(this)" 
-                          data-barcode="{{ property.barcode }}"
+                          data-barcode="{% if property.barcode_image %}{{ property.barcode_image.url }}{% else %}{{ property.barcode }}{% endif %}"
                           data-name="{{ property.property_name }}">
                           <i class="fas fa-print"></i> Print Barcode
                         </button>
@@ -2293,10 +2293,14 @@ input:focus {
         <!-- Export Format Selection -->
         <div style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
             <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">Select Export Format:</p>
-            <div style="display: flex; gap: 15px;">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
                 <label style="font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
                     <input type="radio" name="exportFormat" value="excel" checked style="margin: 0; width: 18px; height: 18px; cursor: pointer;"> 
                     <span style="font-weight: 500;">Excel Report (All Properties)</span>
+                </label>
+                <label style="font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="radio" name="exportFormat" value="excel_above_50k" style="margin: 0; width: 18px; height: 18px; cursor: pointer;"> 
+                    <span style="font-weight: 500;">Excel Report (Properties Above ₱50,000.00)</span>
                 </label>
                 <label style="font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
                     <input type="radio" name="exportFormat" value="pdf" style="margin: 0; width: 18px; height: 18px; cursor: pointer;"> 
@@ -2304,7 +2308,7 @@ input:focus {
                 </label>
             </div>
             <p style="margin: 8px 0 0 0; font-size: 12px; color: #6c757d; font-style: italic;">
-                <i class="fas fa-info-circle"></i> PDF generates Inventory Custodian Slip for items with unit cost below ₱50,000.00
+                <i class="fas fa-info-circle"></i> Excel above 50k uses a specialized template for high-value properties
             </p>
         </div>
 
@@ -3129,6 +3133,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 pdfFieldsSection.style.display = 'none';
                 generateReportBtn.innerHTML = '<i class="fas fa-file-excel"></i> Generate Excel Report';
                 exportForm.action = "{% url 'export_property' %}";
+            } else if (this.value === 'excel_above_50k') {
+                excelFieldsSection.style.display = 'none';
+                pdfFieldsSection.style.display = 'none';
+                generateReportBtn.innerHTML = '<i class="fas fa-file-excel"></i> Generate Excel Report (Above ₱50k)';
+                exportForm.action = "{% url 'export_property_above_50k' %}";
             } else if (this.value === 'pdf') {
                 excelFieldsSection.style.display = 'none';
                 pdfFieldsSection.style.display = 'block';
@@ -3940,61 +3949,72 @@ function openBarcodeSelectionModal() {
     const modal = document.getElementById('barcodeSelectionModal');
     const tableBody = document.getElementById('barcodeSelectionTableBody');
     
-    // Clear existing content
-    tableBody.innerHTML = '';
+    // Clear existing content and show loading message
+    tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px;"><i class="fas fa-spinner fa-spin"></i> Loading all properties...</td></tr>';
     
-    // Get all property rows
-    const propertyRows = document.querySelectorAll('tbody tr');
-    let rowIndex = 0;
-    
-    propertyRows.forEach((row, index) => {
-        // Look for the info button which has the barcode data
-        const infoButton = row.querySelector('.info-btn');
-        
-        if (infoButton && infoButton.dataset.barcode) {
-            const propertyName = infoButton.dataset.propertyName;
-            const propertyNumber = infoButton.dataset.propertyNumber;
-            const barcodeSrc = infoButton.dataset.barcode;
-            
-            const tableRow = document.createElement('tr');
-            tableRow.style.transition = 'background-color 0.2s ease';
-            tableRow.className = 'barcode-row'; // Add class for search filtering
-            tableRow.innerHTML = `
-                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
-                    <input type="checkbox" class="barcode-checkbox" data-index="${rowIndex}" 
-                           style="width: 18px; height: 18px; cursor: pointer;">
-                </td>
-                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-weight: 500;" class="property-name-cell">
-                    ${propertyName}
-                </td>
-                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;" class="property-number-cell">
-                    ${propertyNumber}
-                </td>
-                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
-                    <input type="number" class="quantity-input" data-index="${rowIndex}" 
-                           value="1" min="1" max="100" disabled
-                           style="width: 80px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; text-align: center; background-color: #f8f9fa;">
-                </td>
-            `;
-            
-            // Store barcode data for later use
-            tableRow.dataset.barcodeSrc = barcodeSrc;
-            tableRow.dataset.propertyName = propertyName;
-            tableRow.dataset.propertyNumber = propertyNumber;
-            
-            tableBody.appendChild(tableRow);
-            rowIndex++;
-        }
-    });
-    
-    // Reset modal state
-    document.getElementById('selectAllBarcodes').checked = false;
-    document.getElementById('defaultQuantity').value = 1;
-    document.getElementById('barcodeSearchInput').value = ''; // Clear search
-    updateSelectionSummary();
-    
-    // Show modal
+    // Show modal immediately
     modal.style.display = 'block';
+    
+    // Fetch all property barcodes from server
+    fetch('{% url "get_all_property_barcodes" %}')
+        .then(response => response.json())
+        .then(data => {
+            // Clear loading message
+            tableBody.innerHTML = '';
+            
+            if (!data.success) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #dc3545;"><i class="fas fa-exclamation-circle"></i> Error loading properties: ' + (data.error || 'Unknown error') + '</td></tr>';
+                return;
+            }
+            
+            if (data.barcodes.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #6c757d;"><i class="fas fa-info-circle"></i> No properties found.</td></tr>';
+                return;
+            }
+            
+            console.log(`Loaded ${data.count} properties from server`);
+            
+            // Populate table with all properties
+            data.barcodes.forEach((item, index) => {
+                const tableRow = document.createElement('tr');
+                tableRow.style.transition = 'background-color 0.2s ease';
+                tableRow.className = 'barcode-row'; // Add class for search filtering
+                tableRow.innerHTML = `
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                        <input type="checkbox" class="barcode-checkbox" data-index="${index}" 
+                               style="width: 18px; height: 18px; cursor: pointer;">
+                    </td>
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-weight: 500;" class="property-name-cell">
+                        ${item.property_name}
+                    </td>
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;" class="property-number-cell">
+                        ${item.property_number}
+                    </td>
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #eee; text-align: center;">
+                        <input type="number" class="quantity-input" data-index="${index}" 
+                               value="1" min="1" max="100" disabled
+                               style="width: 80px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; text-align: center; background-color: #f8f9fa;">
+                    </td>
+                `;
+                
+                // Store barcode data for later use
+                tableRow.dataset.barcodeSrc = item.barcode;
+                tableRow.dataset.propertyName = item.property_name;
+                tableRow.dataset.propertyNumber = item.property_number;
+                
+                tableBody.appendChild(tableRow);
+            });
+            
+            // Reset modal state
+            document.getElementById('selectAllBarcodes').checked = false;
+            document.getElementById('defaultQuantity').value = 1;
+            document.getElementById('barcodeSearchInput').value = ''; // Clear search
+            updateSelectionSummary();
+        })
+        .catch(error => {
+            console.error('Error fetching properties:', error);
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #dc3545;"><i class="fas fa-exclamation-circle"></i> Error loading properties: ' + error.message + '</td></tr>';
+        });
 }
 
 // Search functionality for barcode selection modal

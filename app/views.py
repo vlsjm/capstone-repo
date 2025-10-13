@@ -138,7 +138,7 @@ from django.conf import settings
 import logging
 import os
 from .utils import generate_barcode
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from django.http import HttpResponse
 from datetime import datetime
 from openpyxl.styles import PatternFill, Border, Side
@@ -1424,12 +1424,18 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         context['form'] = form
         context['today'] = date.today()
         
-        # Get the paginated supplies from the parent context
+        # Get the paginated supplies from the current page
         supplies = context['supplies']
         
-        # Generate barcodes for each supply in the current page
+        # Ensure barcodes are generated for supplies that don't have them
+        from .utils import generate_barcode_image
         for supply in supplies:
-            supply.barcode = generate_barcode(f"SUP-{supply.id}")
+            if not supply.barcode or not supply.barcode_image:
+                barcode_text = f"SUP-{supply.id}"
+                supply.barcode = barcode_text
+                filename, content = generate_barcode_image(barcode_text)
+                supply.barcode_image.save(filename, content, save=False)
+                supply.save(update_fields=['barcode', 'barcode_image'])
             
             # Calculate days until expiration
             if supply.expiration_date:
@@ -1653,11 +1659,15 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         # Get the paginated properties from the parent context
         properties = context['properties']
         
-        # Generate barcodes for each property in the current page
+        # Ensure barcodes are generated for properties that don't have them
+        from .utils import generate_barcode_image
         for prop in properties:
-            # Use property_number for barcode if available, otherwise use ID
-            barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
-            prop.barcode = generate_barcode(barcode_number)
+            if not prop.barcode or not prop.barcode_image:
+                barcode_text = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+                prop.barcode = barcode_text
+                filename, content = generate_barcode_image(barcode_text)
+                prop.barcode_image.save(filename, content, save=False)
+                prop.save(update_fields=['barcode', 'barcode_image'])
         
         # Get all categories for the filter dropdown
         context['categories'] = PropertyCategory.objects.all()
@@ -1667,10 +1677,14 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         # Get all properties (not just current page) for modals
         all_properties = Property.objects.filter(is_archived=False).select_related('category').order_by('property_name')
         
-        # Generate barcodes for all properties (needed for barcode selection modal)
+        # Ensure barcodes are generated for all properties (needed for barcode selection modal)
         for prop in all_properties:
-            barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
-            prop.barcode = generate_barcode(barcode_number)
+            if not prop.barcode or not prop.barcode_image:
+                barcode_text = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+                prop.barcode = barcode_text
+                filename, content = generate_barcode_image(barcode_text)
+                prop.barcode_image.save(filename, content, save=False)
+                prop.save(update_fields=['barcode', 'barcode_image'])
         
         properties_by_category = defaultdict(list)
         for prop in all_properties:
@@ -1784,11 +1798,15 @@ def add_property(request):
                 prop._logged_in_user = request.user
                 prop.save(user=request.user)  # Pass the user to save method
 
-
-            # Generate barcode based on property_number or ID
-                barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
-                prop.barcode = generate_barcode(barcode_number)
-                prop.save(user=request.user)
+                # Ensure barcode and barcode image are generated
+                if not prop.barcode or not prop.barcode_image:
+                    from .utils import generate_barcode_image
+                    barcode_text = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+                    prop.barcode = barcode_text
+                    filename, content = generate_barcode_image(barcode_text)
+                    prop.barcode_image.save(filename, content, save=False)
+                    prop.save(update_fields=['barcode', 'barcode_image'], user=request.user)
+                
                 # Create activity log using log_activity method
                 ActivityLog.log_activity(
                     user=request.user,
@@ -3548,6 +3566,179 @@ def export_property_to_pdf_ics(request):
     
     return response
 
+
+@login_required
+def export_property_above_50k(request):
+    """Export properties with unit value above 50,000 using Excel template - organized by category"""
+    from django.conf import settings
+    from collections import OrderedDict
+    from copy import copy
+    
+    # Helper function to safely set cell value (skip merged cells)
+    def safe_set_cell(worksheet, cell_ref, value):
+        """Safely set a cell value, skipping merged cells"""
+        try:
+            cell = worksheet[cell_ref]
+            if not isinstance(cell, MergedCell):
+                cell.value = value
+        except:
+            pass  # Skip if there's any error
+    
+    # Path to your template
+    template_path = os.path.join(
+        settings.BASE_DIR, 
+        'app', 
+        'templates', 
+        'excel', 
+        'property_above_50k_template.xlsx'
+    )
+    
+    # Check if template exists
+    if not os.path.exists(template_path):
+        # If template doesn't exist, return an error response
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename=property_above_50k_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+        
+        # Create a simple workbook with error message
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Error"
+        ws['A1'] = 'Template file not found. Please contact administrator.'
+        ws['A2'] = f'Expected path: {template_path}'
+        wb.save(response)
+        return response
+    
+    # Load the template
+    wb = load_workbook(template_path)
+    ws = wb.active  # or specify sheet: wb['SheetName']
+    
+    # Filter properties with unit_value above 50,000 and group by category
+    properties = Property.objects.filter(
+        unit_value__gt=50000
+    ).select_related('category').order_by('category__name', 'property_name')
+    
+    # Group properties by category
+    properties_by_category = OrderedDict()
+    for prop in properties:
+        if prop.category:
+            category_key = prop.category.id
+            if category_key not in properties_by_category:
+                properties_by_category[category_key] = {
+                    'category': prop.category,
+                    'properties': []
+                }
+            properties_by_category[category_key]['properties'].append(prop)
+        else:
+            # Handle properties without category
+            if 'uncategorized' not in properties_by_category:
+                properties_by_category['uncategorized'] = {
+                    'category': None,
+                    'properties': []
+                }
+            properties_by_category['uncategorized']['properties'].append(prop)
+    
+    # Starting row - this is where the first table template begins
+    # Adjust this based on where your template table starts
+    template_start_row = 6  # The row where the category header is
+    template_data_row = 7   # The row where data starts in template
+    
+    # Get the number of rows in the template table (to know how many rows to copy)
+    # Based on your template: Row 6 (category) + rows 7-11 (data/spacing) = 6 rows per category
+    template_row_count = 6  # Adjust this to match your template structure
+    
+    current_row = template_start_row
+    overall_item_number = 1
+    
+    # Process each category
+    for idx, (cat_key, cat_data) in enumerate(properties_by_category.items()):
+        category = cat_data['category']
+        category_properties = cat_data['properties']
+        
+        # If this is not the first category, we need to insert the template again
+        if idx > 0:
+            # Insert rows for the new category table
+            ws.insert_rows(current_row, template_row_count)
+            
+            # Copy template formatting from the original template rows
+            for i in range(template_row_count):
+                source_row = template_start_row + i
+                target_row = current_row + i
+                
+                # Copy each cell's style from template
+                for col in range(1, 15):  # Adjust range based on your columns
+                    source_cell = ws.cell(row=source_row, column=col)
+                    target_cell = ws.cell(row=target_row, column=col)
+                    
+                    # Skip if target cell is part of a merged cell (read-only)
+                    if isinstance(target_cell, MergedCell):
+                        continue
+                    
+                    # Copy value if it's a header row (first row of template)
+                    if i == 0:
+                        if not isinstance(source_cell, MergedCell):
+                            target_cell.value = source_cell.value
+                    
+                    # Copy formatting (only if source has style)
+                    if source_cell.has_style:
+                        target_cell.font = copy(source_cell.font)
+                        target_cell.border = copy(source_cell.border)
+                        target_cell.fill = copy(source_cell.fill)
+                        target_cell.number_format = copy(source_cell.number_format)
+                        target_cell.protection = copy(source_cell.protection)
+                        target_cell.alignment = copy(source_cell.alignment)
+        
+        # Update the Category header (appears in column A based on your template)
+        # The format should be: "Don Severino de las Alas Ca [UACS] - [CATEGORY NAME]"
+        category_header_row = current_row
+        
+        if category:
+            uacs_code = category.uacs if category.uacs else 'N/A'
+            category_name = category.name
+            # Match the template format
+            category_label = f"Don Severino de las Alas Ca {uacs_code} - {category_name}"
+        else:
+            category_label = "Don Severino de las Alas Ca N/A - Uncategorized"
+        
+        # Update the category label in column A (based on your template structure)
+        safe_set_cell(ws, f'A{category_header_row}', category_label)
+        
+        # Populate data for this category
+        data_start_row = current_row + 1  # Data starts in the next row after category header
+        
+        for item_idx, prop in enumerate(category_properties):
+            row = data_start_row + item_idx
+            
+            # Map data to columns based on your template structure
+            # Columns: A=No, B=Property#, C=Name, D=Description, E=Value, F=Qty, G=Location, H=Person, I=Year, J=Condition
+            safe_set_cell(ws, f'A{row}', overall_item_number)
+            safe_set_cell(ws, f'B{row}', prop.property_number or 'N/A')
+            safe_set_cell(ws, f'C{row}', prop.property_name)
+            safe_set_cell(ws, f'D{row}', prop.description or '')
+            safe_set_cell(ws, f'E{row}', prop.unit_value)
+            safe_set_cell(ws, f'F{row}', prop.quantity or 0)
+            safe_set_cell(ws, f'G{row}', prop.location or '')
+            safe_set_cell(ws, f'H{row}', prop.accountable_person or '')
+            safe_set_cell(ws, f'I{row}', prop.year_acquired.strftime('%Y') if prop.year_acquired else '')
+            safe_set_cell(ws, f'J{row}', prop.condition or '')
+            
+            overall_item_number += 1
+        
+        # Move to the next category position
+        # Each category uses template_row_count rows
+        current_row += template_row_count
+    
+    # Create response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename=property_above_50k_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    
+    wb.save(response)
+    return response
+
+
 # def generate_sample_inventory_report(request):
 #     """Generate a sample inventory report template"""
 #     wb = Workbook()
@@ -3701,6 +3892,41 @@ def get_supply_by_barcode(request, barcode):
         }
     })
 
+@login_required
+def get_all_supply_barcodes(request):
+    """
+    Returns all supply barcodes as JSON for the barcode selection modal
+    """
+    try:
+        # Get all non-archived supplies
+        supplies = Supply.objects.filter(is_archived=False).order_by('supply_name')
+        
+        barcodes_data = []
+        for supply in supplies:
+            # Get barcode URL - prefer barcode_image if available
+            barcode_url = supply.barcode_image.url if supply.barcode_image else supply.barcode
+            
+            # Get category name
+            category_name = supply.category.name if supply.category else 'N/A'
+            
+            barcodes_data.append({
+                'id': supply.id,
+                'supply_name': supply.supply_name,
+                'category': category_name,
+                'barcode': barcode_url
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'count': len(barcodes_data),
+            'barcodes': barcodes_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
 @permission_required('app.view_admin_module')
 @require_POST
 def modify_property_quantity_generic(request):
@@ -3786,6 +4012,38 @@ def get_property_by_barcode(request, barcode):
             'current_quantity': property.quantity
         }
     })
+
+@login_required
+def get_all_property_barcodes(request):
+    """
+    Returns all property barcodes as JSON for the barcode selection modal
+    """
+    try:
+        # Get all non-archived properties
+        properties = Property.objects.filter(is_archived=False).order_by('property_name')
+        
+        barcodes_data = []
+        for prop in properties:
+            # Get barcode URL - prefer barcode_image if available
+            barcode_url = prop.barcode_image.url if prop.barcode_image else prop.barcode
+            
+            barcodes_data.append({
+                'id': prop.id,
+                'property_name': prop.property_name,
+                'property_number': prop.property_number or 'Not assigned',
+                'barcode': barcode_url
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'count': len(barcodes_data),
+            'barcodes': barcodes_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 @permission_required('app.view_admin_module')
 @login_required
@@ -3881,9 +4139,8 @@ class ArchivedItemsView(PermissionRequiredMixin, TemplateView):
             'category', 'subcategory', 'quantity_info'
         ).order_by('supply_name')
         
-        # Generate barcodes for supplies
-        for supply in supplies:
-            supply.barcode = generate_barcode(f"SUP-{supply.id}")
+        # Barcodes are already stored in database, no need to generate
+        # They will be displayed using barcode_image field
         
         # Group supplies by category
         supplies_by_category = defaultdict(list)
@@ -3894,10 +4151,8 @@ class ArchivedItemsView(PermissionRequiredMixin, TemplateView):
         # Get archived properties
         properties = Property.objects.filter(is_archived=True).select_related('category').order_by('property_name')
         
-        # Generate barcodes for properties
-        for prop in properties:
-            barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
-            prop.barcode = generate_barcode(barcode_number)
+        # Barcodes are already stored in database, no need to generate
+        # They will be displayed using barcode_image field
         
         # Group properties by category
         properties_by_category = defaultdict(list)
@@ -5360,3 +5615,24 @@ def view_requisition_slip(request, batch_id):
     except Exception as e:
         messages.error(request, f'Error generating requisition slip: {str(e)}')
         return redirect('batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_supply_requests', batch_id=batch_id)
+
+
+# Barcode Inventory Management Views
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class ManagePropertyInventoryView(PermissionRequiredMixin, TemplateView):
+    template_name = 'app/manage_property_inventory.html'
+    permission_required = 'app.view_admin_module'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+class ManageSupplyInventoryView(PermissionRequiredMixin, TemplateView):
+    template_name = 'app/manage_supply_inventory.html'
+    permission_required = 'app.view_admin_module'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context

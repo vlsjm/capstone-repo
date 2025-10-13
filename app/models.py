@@ -148,7 +148,8 @@ class Supply(models.Model):
     category = models.ForeignKey(SupplyCategory, on_delete=models.SET_NULL, null=True, blank=True)
     subcategory = models.ForeignKey(SupplySubcategory, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(blank=True, null=True)
-    barcode = models.TextField(null=True, blank=True)  # Removed unique constraint - too large for indexing
+    barcode = models.CharField(max_length=100, unique=True, null=True, blank=True)  # Unique barcode text (e.g., "SUP-001")
+    barcode_image = models.ImageField(upload_to='barcodes/supplies/', null=True, blank=True)  # Barcode image file
     available_for_request = models.BooleanField(default=True)
     date_received = models.DateField()
     expiration_date = models.DateField(null=True, blank=True)
@@ -216,8 +217,12 @@ class Supply(models.Model):
         
         # Generate barcode if not set (after initial save to have an ID)
         if not self.barcode:
+            from .utils import generate_barcode_image
             self.barcode = f"SUP-{self.pk}"
-            super().save(update_fields=['barcode'])
+            # Generate and save barcode image
+            filename, content = generate_barcode_image(self.barcode)
+            self.barcode_image.save(filename, content, save=False)
+            super().save(update_fields=['barcode', 'barcode_image'])
     
     @property
     def is_expired(self):
@@ -308,7 +313,8 @@ class Property(models.Model):
     property_name = models.CharField(max_length=100)
     category = models.ForeignKey(PropertyCategory, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    barcode = models.TextField(null=True, blank=True)  # Removed unique constraint - too large for indexing
+    barcode = models.CharField(max_length=100, unique=True, null=True, blank=True)  # Unique barcode text (e.g., "PROP-001")
+    barcode_image = models.ImageField(upload_to='barcodes/properties/', null=True, blank=True)  # Barcode image file
     unit_of_measure = models.CharField(max_length=50, null=True, blank=True)
     unit_value = models.DecimalField(
         max_digits=10, decimal_places=2,
