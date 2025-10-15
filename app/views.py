@@ -3983,6 +3983,15 @@ def modify_property_quantity_generic(request):
 
 @login_required
 def get_property_by_barcode(request, barcode):
+    # Check if request is AJAX/JSON
+    if not request.headers.get('Content-Type') == 'application/json' and not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # For non-AJAX requests, handle authentication differently
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                'success': False,
+                'error': 'Authentication required'
+            }, status=401)
+    
     try:
         # Try to find the property by the exact barcode first
         property = Property.objects.get(barcode=barcode)
@@ -3998,20 +4007,106 @@ def get_property_by_barcode(request, barcode):
                     property = Property.objects.get(id=property_id)
                 else:
                     raise Property.DoesNotExist
-            except (Property.DoesNotExist, IndexError):
+            except (Property.DoesNotExist, IndexError, ValueError):
                 return JsonResponse({
                     'success': False,
                     'error': 'Property not found'
                 })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Database error: {str(e)}'
+        })
     
     return JsonResponse({
         'success': True,
         'property': {
             'id': property.id,
-            'name': property.property_name,
-            'current_quantity': property.quantity
+            'property_name': property.property_name,
+            'property_number': property.property_number,
+            'quantity': property.quantity
         }
     })
+
+@login_required
+def modify_property_quantity_batch(request):
+    """
+    Handle batch property quantity modifications from barcode scanning
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+    
+    try:
+        import json
+        data = json.loads(request.body)
+        items = data.get('items', [])
+        
+        if not items:
+            return JsonResponse({'success': False, 'error': 'No items provided'})
+        
+        updated_count = 0
+        errors = []
+        
+        for item_data in items:
+            try:
+                property_id = item_data.get('property_id')
+                quantity_to_add = int(item_data.get('quantity_to_add', 0))
+                
+                if quantity_to_add <= 0:
+                    continue
+                    
+                prop = get_object_or_404(Property, pk=property_id)
+                old_quantity = prop.quantity
+                
+                # Add the quantity
+                prop.quantity += quantity_to_add
+                prop.overall_quantity += quantity_to_add
+                prop.save()
+                
+                # Create history record
+                PropertyHistory.objects.create(
+                    property=prop,
+                    user=request.user,
+                    action='quantity_update',
+                    field_name='quantity',
+                    old_value=str(old_quantity),
+                    new_value=str(prop.quantity),
+                    remarks=f"Batch add: {quantity_to_add} units"
+                )
+                
+                # Add activity log
+                ActivityLog.log_activity(
+                    user=request.user,
+                    action='quantity_update',
+                    model_name='Property',
+                    object_repr=str(prop),
+                    description=f"Batch added {quantity_to_add} units to property '{prop.property_name}'. Changed quantity from {old_quantity} to {prop.quantity}"
+                )
+                
+                updated_count += 1
+                
+            except Exception as e:
+                errors.append(f"Error updating property {property_id}: {str(e)}")
+                continue
+        
+        if updated_count > 0:
+            return JsonResponse({
+                'success': True,
+                'updated_count': updated_count,
+                'message': f'Successfully updated {updated_count} properties',
+                'errors': errors if errors else None
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'No properties were updated',
+                'errors': errors
+            })
+            
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @login_required
 def get_all_property_barcodes(request):

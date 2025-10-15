@@ -1191,6 +1191,79 @@ tr.hidden {
 .table-actions-dropdown-item.history { color: #4a5568; }
 .table-actions-dropdown-item.print { color: #28a745; }
 .table-actions-dropdown-item.modify { color: #28a745; }
+
+/* Supply Inventory Modal Enhancements */
+.input-method-btn.active {
+  background-color: #152d64 !important;
+  color: white !important;
+  border: 2px solid #152d64 !important;
+}
+.input-method-btn {
+  background-color: #e9ecef;
+  color: #333;
+  transition: all 0.1s ease;
+}
+.input-method-btn:hover {
+  background-color: #152d64;
+  color: white;
+  border: 2px solid #152d64;
+}
+
+/* Enhanced Button Styles for Supply Modal */
+#clearAllItems:hover:not(:disabled) {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+#cancelInventory:hover {
+  background-color: #5a6268 !important;
+}
+#submitInventory:hover:not(:disabled) {
+  background-color: #0d1f4b !important;
+}
+
+/* Input Focus Styles for Supply Modal */
+#barcode_input:focus {
+  border-color: #152d64 !important;
+  box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1) !important;
+  outline: none;
+}
+#manual_supply_select:focus {
+  border-color: #152d64 !important;
+  box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1) !important;
+  outline: none;
+}
+
+/* Supply Scanned Items Styles */
+.scanned-item {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.scanned-item:hover {
+  background-color: #f8f9fa !important;
+  border-left: 4px solid #152d64;
+  padding-left: 16px !important;
+}
+
+.scanned-item:first-child {
+  border-top: 1px solid #eee;
+}
+
+.scanned-item:last-child {
+  border-bottom: none;
+}
+
+/* Supply item quantity controls hover effects */
+.scanned-item button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.scanned-item input[type="number"]:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.1);
+}
   </style>
 </head>
 <body>
@@ -1484,7 +1557,7 @@ tr.hidden {
                   
                   <button class="table-actions-dropdown-item print print-btn" 
                     onclick="printSingleBarcode(this)" 
-                    data-barcode="{{ supply.barcode }}"
+                    data-barcode="{% if supply.barcode_image %}{{ supply.barcode_image.url }}{% else %}{{ supply.barcode }}{% endif %}"
                     data-name="{{ supply.supply_name }}">
                     <i class="fas fa-print"></i> Print Barcode
                   </button>
@@ -1715,64 +1788,115 @@ tr.hidden {
     </div>
   </div>
 
-  <!-- Modify Quantity Modal -->
+  <!-- Enhanced Supply Stocks Management Modal -->
   <div id="modifyQuantityModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeModifyQuantityModalBtn">&times;</span>
-      <h3>Supply Stocks</h3>
+    <div class="modal-content" style="width: 95%; max-width: 1200px; height: 85vh; margin: 5vh auto; display: flex; flex-direction: column;">
+      
+      <!-- Modal Header -->
+      <div style="display: flex; justify-content: center; align-items: center; padding: 20px; background: #152d64; color: white; border-radius: 8px 8px 0 0; position: relative;">
+        <div style="text-align: center;">
+          <h2 style="margin: 0; font-size: 22px; font-weight: 600; color: #fbff00;">Supply Stocks Management</h2>
+        </div>
+        <span class="close" id="closeModifyQuantityModalBtn" style="color: white; font-size: 28px; cursor: pointer; padding: 5px; position: absolute; right: 20px;">&times;</span>
+      </div>
 
-      <form method="post" action="{% url 'modify_supply_quantity_generic' %}" id="modifyQuantityForm">
-        {% csrf_token %}
+      <div style="display: flex; flex: 1; overflow: hidden;">
+        
+        <!-- Left Panel - Input Controls -->
+        <div style="width: 320px; padding: 20px; border-right: 1px solid #eee; background: #fafafa; position: relative; z-index: 5;">
+          
+          <!-- Mode Toggle -->
+          <div style="margin-bottom: 15px; position: relative; z-index: 6;">
+            <div style="display: flex; border-radius: 4px; overflow: hidden; border: 1px solid #ddd;">
+              <button type="button" id="barcodeModeBtn" class="input-method-btn active" data-method="barcode" style="flex: 1; padding: 8px; background: #152d64; color: white; border: none; font-size: 13px; position: relative; z-index: 7;">
+                Scan Mode
+              </button>
+              <button type="button" id="manualModeBtn" class="input-method-btn" data-method="manual" style="flex: 1; padding: 8px; background: white; color: #666; border: none; font-size: 13px; position: relative; z-index: 7;">
+                Select Mode
+              </button>
+            </div>
+          </div>
 
-        <!-- Input Method Selection -->
-        <div class="form-group">
-          <label>Select Input Method</label>
-          <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <button type="button" class="input-method-btn active" data-method="barcode" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; background: #152d64; color: white;">
-              <i class="fas fa-barcode"></i> Barcode Scanner
-            </button>
-            <button type="button" class="input-method-btn" data-method="manual" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; background: #f8f9fa; color: #333;">
-              <i class="fas fa-keyboard"></i> Manual Selection
+          <!-- Barcode Input -->
+          <div id="barcodeInputGroup" style="position: relative; z-index: 10;">
+            <label style="display: block; margin-bottom: 6px; font-weight: 500; color: #333; font-size: 14px;">Barcode Scanner</label>
+            <input type="text" id="barcode_input" placeholder="Scan here..." autofocus 
+                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; margin-bottom: 8px; position: relative; z-index: 11; background: white; box-sizing: border-box;">
+            <div style="font-size: 11px; color: #666; background: #f0f8ff; padding: 6px; border-radius: 4px; position: relative; z-index: 10;">
+              Position cursor here and scan barcode
+            </div>
+          </div>
+
+          <!-- Manual Input -->
+          <div id="manualInputGroup" style="display: none; position: relative; z-index: 10;">
+            <label style="display: block; margin-bottom: 6px; font-weight: 500; color: #333; font-size: 14px;">Select Supply</label>
+            <select id="manual_supply_select" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 15px; position: relative; z-index: 11; background: white; box-sizing: border-box;">
+              <option value="">Choose supply...</option>
+              {% for supply in all_supplies %}
+                <option value="{{ supply.id }}" data-name="{{ supply.supply_name }}" data-quantity="{{ supply.quantity_info.current_quantity }}" data-description="{{ supply.description|default:''|escapejs }}" data-barcode="{{ supply.barcode|default:'' }}">
+                  {{ supply.supply_name }}
+                </option>
+              {% endfor %}
+            </select>
+            <button type="button" id="addManualItem" style="width: 100%; padding: 10px; background: #152d64; color: white; border: none; border-radius: 4px; position: relative; z-index: 11; box-sizing: border-box; margin-top: 5px;">
+              Add Selected Item
             </button>
           </div>
+
+          <!-- Quick Stats -->
+          <div style="margin-top: 20px; padding: 12px; background: white; border-radius: 4px; border: 1px solid #eee;">
+            <div style="text-align: center;">
+              <div style="font-size: 20px; font-weight: bold; color: #152d64;"><span id="itemCount">0</span></div>
+              <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Items Ready</div>
+            </div>
+          </div>
+
         </div>
 
-        <!-- Barcode Scanner Input -->
-        <div id="barcode-input-section" class="form-group">
-          <label for="barcode_input">Scan Barcode</label>
-          <input type="text" id="barcode_input" class="form-control" placeholder="Scan barcode" autofocus>
+        <!-- Right Panel - Items List -->
+        <div style="flex: 1; display: flex; flex-direction: column; background: white;">
+          
+          <!-- Items Header -->
+          <div style="padding: 15px 20px; background: #f8f9fa; border-bottom: 1px solid #eee;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h4 style="margin: 0; font-size: 16px; color: #333;">Items to Process</h4>
+              <button type="button" id="clearAllItems" disabled 
+                      style="padding: 6px 12px; background: transparent; color: #dc3545; border: 1px solid #dc3545; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                Clear All
+              </button>
+            </div>
+          </div>
+
+          <!-- Items Container -->
+          <div id="itemsContainer" style="flex: 1; overflow-y: auto; background: #fafafa; display: flex; flex-direction: column;">
+            <div id="noItemsMessage" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; height: 100%; text-align: center; color: #999;">
+              <div style="font-size: 48px; margin-bottom: 15px;">📦</div>
+              <div style="font-size: 16px; margin-bottom: 5px;">No items scanned</div>
+              <div style="font-size: 14px;">Start scanning to add supplies</div>
+            </div>
+          </div>
+
+          <!-- Action Footer -->
+          <div style="padding: 15px 20px; background: #f8f9fa; border-top: 1px solid #eee;">
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+              <button type="button" id="cancelInventory" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px;">
+                Cancel
+              </button>
+              <button type="button" id="submitInventory" disabled 
+                      style="padding: 10px 20px; background: #152d64; color: white; border: none; border-radius: 4px; font-weight: 500;">
+                Update Inventory (<span id="totalItemsCount">0</span>)
+              </button>
+            </div>
+          </div>
+
         </div>
+      </div>
 
-        <!-- Manual Selection Input -->
-        <div id="manual-input-section" class="form-group" style="display: none;">
-          <label for="manual_supply_select">Select Supply</label>
-          <select id="manual_supply_select" class="form-control custom-select">
-            <option value="">Select a supply</option>
-            {% for supply in all_supplies %}
-              <option value="{{ supply.id }}" data-quantity="{{ supply.quantity_info.current_quantity }}" data-description="{{ supply.description|default:''|escapejs }}">
-                {{ supply.supply_name }}
-              </option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <!-- Supply Info Display -->
-        <div id="supply_info" style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; display: none;">
-          <p><strong>Supply Name: </strong><span id="scanned_supply_name"></span></p>
-          <p><strong>Current Quantity: </strong><span id="scanned_supply_quantity"></span></p>
-          <p><strong>Description: </strong><span id="scanned_supply_description"></span></p>
-        </div>
-
-        <!-- Hidden Supply ID -->
-        <input type="hidden" name="supply_id" id="supply_id" required>
-
-        <!-- Quantity -->
-        <div class="form-group">
-          <label for="amount">Quantity to Add</label>
-          <input type="number" name="amount" id="amount" min="0" required class="form-control">
-        </div>
-
-        <button type="submit" class="submit-btn" id="modifyQuantitySubmitBtn" disabled>Add Quantity</button>
+      <!-- Hidden Form for Submission -->
+      <form method="post" action="{% url 'modify_supply_quantity_generic' %}" id="modifyQuantityForm" style="display: none;">
+        {% csrf_token %}
+        <input type="hidden" name="supply_id" id="supply_id">
+        <input type="hidden" name="amount" id="amount">
       </form>
     </div>
   </div>
@@ -4074,6 +4198,365 @@ function printSelectedBarcodesFunction(selectedCheckboxes) {
         };
     };
 }
+
+// Enhanced Supply Inventory Modal JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Modal Elements
+    const modifyQuantityModal = document.getElementById('modifyQuantityModal');
+    const closeModifyQuantityModalBtn = document.getElementById('closeModifyQuantityModalBtn');
+    const cancelInventory = document.getElementById('cancelInventory');
+    const submitInventory = document.getElementById('submitInventory');
+    
+    // Input Elements
+    const barcodeInput = document.getElementById('barcode_input');
+    const manualSupplySelect = document.getElementById('manual_supply_select');
+    const barcodeInputGroup = document.getElementById('barcodeInputGroup');
+    const manualInputGroup = document.getElementById('manualInputGroup');
+    const addManualItem = document.getElementById('addManualItem');
+    
+    // Mode Toggle Buttons
+    const barcodeModeBtn = document.getElementById('barcodeModeBtn');
+    const manualModeBtn = document.getElementById('manualModeBtn');
+    
+    // Display Elements
+    const itemsContainer = document.getElementById('itemsContainer');
+    const noItemsMessage = document.getElementById('noItemsMessage');
+    const itemCount = document.getElementById('itemCount');
+    const totalItemsCount = document.getElementById('totalItemsCount');
+    const clearAllItems = document.getElementById('clearAllItems');
+    
+    // Data
+    let scannedItems = [];
+    let currentMode = 'barcode';
+
+    // Initialize modal
+    function initializeModal() {
+        scannedItems = [];
+        updateDisplay();
+        setMode('barcode');
+        if (barcodeInput) {
+            barcodeInput.value = '';
+            barcodeInput.focus();
+        }
+        if (manualSupplySelect) {
+            manualSupplySelect.value = '';
+        }
+    }
+
+    // Set input mode
+    function setMode(mode) {
+        currentMode = mode;
+        
+        if (mode === 'barcode') {
+            barcodeInputGroup.style.display = 'block';
+            manualInputGroup.style.display = 'none';
+            barcodeModeBtn.classList.add('active');
+            manualModeBtn.classList.remove('active');
+            barcodeModeBtn.style.backgroundColor = '#152d64';
+            barcodeModeBtn.style.color = 'white';
+            manualModeBtn.style.backgroundColor = '#e9ecef';
+            manualModeBtn.style.color = '#333';
+            if (barcodeInput) barcodeInput.focus();
+        } else {
+            barcodeInputGroup.style.display = 'none';
+            manualInputGroup.style.display = 'block';
+            barcodeModeBtn.classList.remove('active');
+            manualModeBtn.classList.add('active');
+            manualModeBtn.style.backgroundColor = '#152d64';
+            manualModeBtn.style.color = 'white';
+            barcodeModeBtn.style.backgroundColor = '#e9ecef';
+            barcodeModeBtn.style.color = '#333';
+        }
+    }
+
+    // Process barcode input
+    function processBarcode(barcode) {
+        if (!barcode.trim()) return;
+        
+        // Look for supplies by barcode
+        const options = manualSupplySelect.querySelectorAll('option');
+        let foundSupply = null;
+        
+        for (let option of options) {
+            if (option.value) {
+                const optionBarcode = option.getAttribute('data-barcode');
+                // Match against barcode first, then fallback to name matching
+                if (optionBarcode && optionBarcode.toLowerCase() === barcode.toLowerCase()) {
+                    foundSupply = {
+                        id: option.value,
+                        name: option.getAttribute('data-name'),
+                        currentQuantity: option.getAttribute('data-quantity'),
+                        description: option.getAttribute('data-description') || 'N/A',
+                        source: 'barcode'
+                    };
+                    break;
+                } else if (option.textContent.toLowerCase().includes(barcode.toLowerCase()) || 
+                          option.getAttribute('data-name').toLowerCase().includes(barcode.toLowerCase())) {
+                    foundSupply = {
+                        id: option.value,
+                        name: option.getAttribute('data-name'),
+                        currentQuantity: option.getAttribute('data-quantity'),
+                        description: option.getAttribute('data-description') || 'N/A',
+                        source: 'barcode'
+                    };
+                    break;
+                }
+            }
+        }
+        
+        if (foundSupply) {
+            addItemToList(foundSupply);
+        } else {
+            showErrorMessage('Supply not found for barcode: ' + barcode);
+        }
+        
+        // Clear and refocus barcode input
+        barcodeInput.value = '';
+        barcodeInput.focus();
+    }
+
+    // Add item to list
+    function addItemToList(itemData) {
+        const existingIndex = scannedItems.findIndex(item => item.id === itemData.id);
+        
+        if (existingIndex !== -1) {
+            scannedItems[existingIndex].quantityToAdd += 1;
+        } else {
+            scannedItems.push({
+                ...itemData,
+                quantityToAdd: 1
+            });
+        }
+        
+        updateDisplay();
+    }
+
+    // Update display
+    function updateDisplay() {
+        const totalItems = scannedItems.length;
+        const totalQuantity = scannedItems.reduce((sum, item) => sum + item.quantityToAdd, 0);
+        
+        itemCount.textContent = totalItems;
+        totalItemsCount.textContent = totalQuantity;
+        
+        clearAllItems.disabled = totalItems === 0;
+        submitInventory.disabled = totalItems === 0;
+        
+        renderItems();
+    }
+
+    // Render items
+    function renderItems() {
+        itemsContainer.innerHTML = '';
+        
+        if (scannedItems.length === 0) {
+            noItemsMessage.style.display = 'flex';
+            itemsContainer.appendChild(noItemsMessage);
+        } else {
+            noItemsMessage.style.display = 'none';
+            
+            scannedItems.forEach((item, index) => {
+                const itemElement = createSupplyItemElement(item, index);
+                itemsContainer.appendChild(itemElement);
+            });
+        }
+    }
+    
+    // Create supply item element with improved layout
+    function createSupplyItemElement(item, index) {
+        const div = document.createElement('div');
+        div.className = 'scanned-item';
+        div.style.cssText = 'display: flex; align-items: center; padding: 12px 20px; background: white; border-bottom: 1px solid #eee; width: 100%; box-sizing: border-box; flex-shrink: 0;';
+        
+        div.innerHTML = `
+            <div style="flex: 1; min-width: 0; margin-right: 15px;">
+                <div style="font-weight: 500; font-size: 14px; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</div>
+                <div style="font-size: 12px; color: #666; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span>Current Stock: <strong>${item.currentQuantity}</strong></span>
+                    <span style="color: ${item.source === 'barcode' ? '#28a745' : '#007bff'};">${item.source === 'barcode' ? '📱 Scanned' : '✏️ Manual'}</span>
+                    ${item.description ? `<span style="color: #6c757d; font-style: italic;">${item.description}</span>` : ''}
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                <button type="button" onclick="updateSupplyQuantity(${index}, -1)" style="width: 28px; height: 28px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center;">-</button>
+                <input type="number" value="${item.quantityToAdd}" min="1" max="999" onchange="setSupplyQuantity(${index}, this.value)" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 6px 4px; font-size: 14px; font-weight: 500;">
+                <button type="button" onclick="updateSupplyQuantity(${index}, 1)" style="width: 28px; height: 28px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center;">+</button>
+                <button type="button" onclick="removeItem(${index})" style="width: 28px; height: 28px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-left: 8px; display: flex; align-items: center; justify-content: center;">×</button>
+            </div>
+        `;
+        
+        return div;
+    }
+
+    // Update supply quantity with +/- buttons
+    window.updateSupplyQuantity = function(index, change) {
+        if (index >= 0 && index < scannedItems.length) {
+            const newQuantity = Math.max(1, scannedItems[index].quantityToAdd + change);
+            scannedItems[index].quantityToAdd = newQuantity;
+            updateDisplay();
+        }
+    };
+    
+    // Set supply quantity directly from input
+    window.setSupplyQuantity = function(index, value) {
+        if (index >= 0 && index < scannedItems.length) {
+            const newQuantity = Math.max(1, parseInt(value) || 1);
+            scannedItems[index].quantityToAdd = newQuantity;
+            updateDisplay();
+        }
+    };
+
+    // Remove item
+    window.removeItem = function(index) {
+        scannedItems.splice(index, 1);
+        updateDisplay();
+    };
+
+    // Show error message
+    function showErrorMessage(message) {
+        // Create temporary error message
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = `
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            background: #dc3545; color: white; padding: 12px 16px;
+            border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        `;
+        errorDiv.textContent = message;
+        document.body.appendChild(errorDiv);
+        
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 3000);
+    }
+
+    // Event Listeners
+    if (barcodeModeBtn) {
+        barcodeModeBtn.addEventListener('click', () => setMode('barcode'));
+    }
+    
+    if (manualModeBtn) {
+        manualModeBtn.addEventListener('click', () => setMode('manual'));
+    }
+    
+    if (barcodeInput) {
+        barcodeInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                processBarcode(this.value);
+            }
+        });
+    }
+    
+    if (addManualItem) {
+        addManualItem.addEventListener('click', function() {
+            const selectedOption = manualSupplySelect.options[manualSupplySelect.selectedIndex];
+            if (selectedOption.value) {
+                const itemData = {
+                    id: selectedOption.value,
+                    name: selectedOption.getAttribute('data-name'),
+                    currentQuantity: selectedOption.getAttribute('data-quantity'),
+                    description: selectedOption.getAttribute('data-description') || 'N/A',
+                    source: 'manual'
+                };
+                addItemToList(itemData);
+                manualSupplySelect.value = '';
+            }
+        });
+    }
+    
+    if (clearAllItems) {
+        clearAllItems.addEventListener('click', function() {
+            scannedItems = [];
+            updateDisplay();
+        });
+    }
+    
+    if (cancelInventory) {
+        cancelInventory.addEventListener('click', function() {
+            modifyQuantityModal.style.display = 'none';
+            initializeModal();
+        });
+    }
+    
+    if (closeModifyQuantityModalBtn) {
+        closeModifyQuantityModalBtn.addEventListener('click', function() {
+            modifyQuantityModal.style.display = 'none';
+            initializeModal();
+        });
+    }
+    
+    if (submitInventory) {
+        submitInventory.addEventListener('click', function() {
+            if (scannedItems.length === 0) return;
+            
+            // Submit each item individually for now
+            // You can modify this to batch submit if you have a batch endpoint
+            let itemsProcessed = 0;
+            const totalItems = scannedItems.length;
+            
+            scannedItems.forEach((item, index) => {
+                const form = document.getElementById('modifyQuantityForm');
+                const supplyIdInput = document.getElementById('supply_id');
+                const amountInput = document.getElementById('amount');
+                
+                supplyIdInput.value = item.id;
+                amountInput.value = item.quantityToAdd;
+                
+                // Submit form via fetch to avoid page reload
+                const formData = new FormData(form);
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => {
+                    itemsProcessed++;
+                    if (itemsProcessed === totalItems) {
+                        // All items processed, close modal and refresh page
+                        modifyQuantityModal.style.display = 'none';
+                        initializeModal();
+                        window.location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating supply:', error);
+                    showErrorMessage('Error updating supply: ' + item.name);
+                });
+            });
+        });
+    }
+    
+    // Handle quantity input changes
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('supply-quantity-input')) {
+            const index = parseInt(e.target.dataset.index);
+            const newQuantity = Math.max(1, parseInt(e.target.value) || 1);
+            scannedItems[index].quantityToAdd = newQuantity;
+            e.target.value = newQuantity;
+            updateDisplay();
+        }
+    });
+    
+    // Initialize when modal opens
+    const openModifyQuantityModalBtn = document.getElementById('openModifyQuantityModalBtn');
+    if (openModifyQuantityModalBtn) {
+        openModifyQuantityModalBtn.addEventListener('click', function() {
+            modifyQuantityModal.style.display = 'block';
+            initializeModal();
+        });
+    }
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === modifyQuantityModal) {
+            modifyQuantityModal.style.display = 'none';
+            initializeModal();
+        }
+    });
+});
 
 </script>
 

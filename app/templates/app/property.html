@@ -912,6 +912,7 @@ tr.hidden {
   max-width: 600px;
   border-radius: 8px;
   position: relative;
+  z-index: 1001;
 }
 
 .close {
@@ -1242,20 +1243,17 @@ input:focus {
 }
 
 .table-actions-dropdown-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
+  position: fixed;
   background: white;
   border: 1px solid #ddd;
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 150px;
-  z-index: 1000;
+  z-index: 9999;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
   transition: all 0.2s ease;
-  margin-top: 5px;
 }
 
 .table-actions-dropdown-menu.show {
@@ -1307,10 +1305,73 @@ input:focus {
 .input-method-btn.active {
   background-color: #152d64 !important;
   color: white !important;
+  border: 2px solid #152d64 !important;
 }
 .input-method-btn {
   background-color: #e9ecef;
   color: #333;
+  transition: all 0.1s ease;
+}
+.input-method-btn:hover {
+  background-color: #152d64;
+  color: white;
+  border: 2px solid #152d64;
+}
+
+/* Enhanced Button Styles */
+#clearAllItems:hover:not(:disabled) {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+#cancelInventory:hover {
+  background-color: #5a6268 !important;
+}
+#submitInventory:hover:not(:disabled) {
+  background-color: #0d1f4b !important;
+}
+
+/* Scanned Items Styles */
+.scanned-item {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.scanned-item:hover {
+  background-color: #f8f9fa !important;
+  border-left: 4px solid #152d64;
+  padding-left: 16px !important;
+}
+
+.scanned-item:first-child {
+  border-top: 1px solid #eee;
+}
+
+.scanned-item:last-child {
+  border-bottom: none;
+}
+
+/* Item quantity controls hover effects */
+.scanned-item button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.scanned-item input[type="number"]:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.1);
+}
+
+/* Input Focus Styles */
+#barcode_input:focus {
+  border-color: #152d64 !important;
+  box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1) !important;
+  outline: none;
+}
+#manual_property_select:focus {
+  border-color: #152d64 !important;
+  box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1) !important;
+  outline: none;
 }
 
 /* Information Modal Styles */
@@ -2177,64 +2238,109 @@ input:focus {
 
 <!-- Property Inventory Adding Modal -->
 <div id="modifyQuantityModal" class="modal">
-  <div class="modal-content">
-    <span class="close" id="closeModifyQuantityModalBtn">&times;</span>
-    <h3>Property Inventory</h3>
+  <div class="modal-content" style="width: 95%; max-width: 1200px; height: 85vh; margin: 5vh auto; display: flex; flex-direction: column;">
+    
+    <!-- Modal Header -->
+    <div style="display: flex; justify-content: center; align-items: center; padding: 20px; background: #152d64; color: white; border-radius: 8px 8px 0 0; position: relative;">
+      <div style="text-align: center;">
+        <h2 style="margin: 0; font-size: 22px; font-weight: 600; color: #fbff00;">Property Inventory</h2>
+      </div>
+      <span class="close" id="closeModifyQuantityModalBtn" style="color: white; font-size: 28px; cursor: pointer; padding: 5px; position: absolute; right: 20px;">&times;</span>
+    </div>
 
-    <form method="post" action="{% url 'modify_property_quantity_generic' %}" id="modifyQuantityForm">
-      {% csrf_token %}
+    <div style="display: flex; flex: 1; overflow: hidden;">
+      
+      <!-- Left Panel - Input Controls -->
+      <div style="width: 320px; padding: 20px; border-right: 1px solid #eee; background: #fafafa; position: relative; z-index: 5;">
+        
+        <!-- Mode Toggle -->
+        <div style="margin-bottom: 15px; position: relative; z-index: 6;">
+          <div style="display: flex; border-radius: 4px; overflow: hidden; border: 1px solid #ddd;">
+            <button type="button" id="barcodeModeBtn" class="input-method-btn active" style="flex: 1; padding: 8px; background: #152d64; color: white; border: none; font-size: 13px; position: relative; z-index: 7;">
+              Scan Mode
+            </button>
+            <button type="button" id="manualModeBtn" class="input-method-btn" style="flex: 1; padding: 8px; background: white; color: #666; border: none; font-size: 13px; position: relative; z-index: 7;">
+              Select Mode
+            </button>
+          </div>
+        </div>
 
-      <!-- Input Method Toggle -->
-      <div class="form-group" style="margin-bottom: 18px;">
-        <label style="font-weight: 600; margin-bottom: 8px; display: block;">Select Input Method</label>
-        <div style="display: flex; gap: 12px;">
-          <button type="button" id="barcodeModeBtn" class="input-method-btn active" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer;">
-            <i class="fas fa-barcode"></i> Barcode Scanner
-          </button>
-          <button type="button" id="manualModeBtn" class="input-method-btn" style="display: flex; align-items: center; gap: 6px; background-color: #e9ecef; color: #333; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer;">
-            <i class="fas fa-list"></i> Manual Selection
+        <!-- Barcode Input -->
+        <div id="barcodeInputGroup" style="position: relative; z-index: 10;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 500; color: #333; font-size: 14px;">Barcode Scanner</label>
+          <input type="text" id="barcode_input" placeholder="Scan here..." autofocus 
+                 style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; margin-bottom: 8px; position: relative; z-index: 11; background: white; box-sizing: border-box;">
+          <div style="font-size: 11px; color: #666; background: #f0f8ff; padding: 6px; border-radius: 4px; position: relative; z-index: 10;">
+            Position cursor here and scan barcode
+          </div>
+        </div>
+
+        <!-- Manual Input -->
+        <div id="manualInputGroup" style="display: none; position: relative; z-index: 10;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 500; color: #333; font-size: 14px;">Select Property</label>
+          <select id="manual_property_select" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 8px; position: relative; z-index: 11; background: white; box-sizing: border-box;">
+            <option value="">Choose property...</option>
+            {% for category, properties in properties_by_category.items %}
+              <optgroup label="{{ category.name }}">
+                {% for property in properties %}
+                  <option value="{{ property.id }}" data-name="{{ property.property_name }}" data-quantity="{{ property.quantity }}" data-number="{{ property.property_number }}">{{ property.property_name }} ({{ property.property_number }})</option>
+                {% endfor %}
+              </optgroup>
+            {% endfor %}
+          </select>
+          <button type="button" id="addManualItem" style="width: 100%; padding: 10px; background: #152d64; color: white; border: none; border-radius: 4px; position: relative; z-index: 11; box-sizing: border-box;">
+            Add Selected Item
           </button>
         </div>
+
+        <!-- Quick Stats -->
+        <div style="margin-top: 20px; padding: 12px; background: white; border-radius: 4px; border: 1px solid #eee;">
+          <div style="text-align: center;">
+            <div style="font-size: 20px; font-weight: bold; color: #152d64;"><span id="itemCount">0</span></div>
+            <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Items Ready</div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Barcode Scanner Input -->
-      <div class="form-group" id="barcodeInputGroup">
-        <label for="barcode_input">Scan Barcode</label>
-        <input type="text" id="barcode_input" class="form-control" placeholder="Scan barcode" autofocus>
+      <!-- Right Panel - Items List -->
+      <div style="flex: 1; display: flex; flex-direction: column; background: white;">
+        
+        <!-- Items Header -->
+        <div style="padding: 15px 20px; background: #f8f9fa; border-bottom: 1px solid #eee;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4 style="margin: 0; font-size: 16px; color: #333;">Items to Process</h4>
+            <button type="button" id="clearAllItems" disabled 
+                    style="padding: 6px 12px; background: transparent; color: #dc3545; border: 1px solid #dc3545; border-radius: 4px; font-size: 12px; cursor: pointer;">
+              Clear All
+            </button>
+          </div>
+        </div>
+
+        <!-- Items Container -->
+        <div id="itemsContainer" style="flex: 1; overflow-y: auto; background: #fafafa; display: flex; flex-direction: column;">
+          <div id="noItemsMessage" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; height: 100%; text-align: center; color: #999;">
+            <div style="font-size: 48px; margin-bottom: 15px;">📦</div>
+            <div style="font-size: 16px; margin-bottom: 5px;">No items scanned</div>
+            <div style="font-size: 14px;">Start scanning to add items</div>
+          </div>
+        </div>
+
+        <!-- Action Footer -->
+        <div style="padding: 15px 20px; background: #f8f9fa; border-top: 1px solid #eee;">
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" id="cancelInventory" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px;">
+              Cancel
+            </button>
+            <button type="button" id="submitInventory" disabled 
+                    style="padding: 10px 20px; background: #152d64; color: white; border: none; border-radius: 4px; font-weight: 500;">
+              Update Inventory (<span id="totalItemsCount">0</span>)
+            </button>
+          </div>
+        </div>
+
       </div>
-
-      <!-- Manual Selection Input -->
-      <div class="form-group" id="manualInputGroup" style="display: none;">
-        <label for="manual_property_select">Select Property</label>
-        <select id="manual_property_select" class="form-control">
-          <option value="">-- Select a property --</option>
-          {% for category, properties in properties_by_category.items %}
-            <optgroup label="{{ category.name }}">
-              {% for property in properties %}
-                <option value="{{ property.id }}" data-name="{{ property.property_name }}" data-quantity="{{ property.quantity }}">{{ property.property_name }} ({{ property.property_number }})</option>
-              {% endfor %}
-            </optgroup>
-          {% endfor %}
-        </select>
-      </div>
-
-      <!-- Property Info Display -->
-      <div id="property_info" style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; display: none;">
-        <p><strong>Property Name: </strong><span id="scanned_property_name"></span></p>
-        <p><strong>Current Quantity: </strong><span id="scanned_property_quantity"></span></p>
-      </div>
-
-      <!-- Hidden Property ID -->
-      <input type="hidden" name="property_id" id="property_id" required>
-
-      <!-- Quantity -->
-      <div class="form-group">
-        <label for="amount">Quantity to Add</label>
-        <input type="number" name="amount" id="amount" min="0" required class="form-control">
-      </div>
-
-      <button type="submit" class="submit-btn" id="modifyQuantitySubmitBtn" disabled>Add Quantity</button>
-    </form>
+    </div>
   </div>
 </div>
 
@@ -2566,7 +2672,6 @@ input:focus {
 <!-- Your custom JS scripts -->
 <script src="{% static 'scripts/propertyModal.js' %}"></script>
 <script src="{% static 'scripts/categoryModal.js' %}"></script>
-<script src="{% static 'scripts/modifyQuantity.js' %}"></script>
 
 {% endblock %}
 
@@ -2611,6 +2716,11 @@ input:focus {
                 otherMenu.classList.remove('show');
               }
             });
+            
+            // Calculate position for fixed positioning
+            const rect = toggle.getBoundingClientRect();
+            menu.style.top = (rect.bottom + 5) + 'px';
+            menu.style.left = (rect.right - 150) + 'px'; // 150px is min-width of menu
             
             // Toggle current dropdown
             menu.classList.toggle('show');
@@ -4373,6 +4483,411 @@ function printSelectedBarcodesFunction(selectedCheckboxes) {
     </div>
   </div>
 </div>
+
+<!-- Enhanced Inventory Modal JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inventory modal elements
+    const modifyQuantityModal = document.getElementById('modifyQuantityModal');
+    const openModifyQuantityModalBtn = document.getElementById('openModifyQuantityModalBtn');
+    const closeModifyQuantityModalBtn = document.getElementById('closeModifyQuantityModalBtn');
+    const barcodeModeBtn = document.getElementById('barcodeModeBtn');
+    const manualModeBtn = document.getElementById('manualModeBtn');
+    const barcodeInputGroup = document.getElementById('barcodeInputGroup');
+    const manualInputGroup = document.getElementById('manualInputGroup');
+    const barcodeInput = document.getElementById('barcode_input');
+    const manualPropertySelect = document.getElementById('manual_property_select');
+    const addManualItemBtn = document.getElementById('addManualItem');
+    const itemsContainer = document.getElementById('itemsContainer');
+    const noItemsMessage = document.getElementById('noItemsMessage');
+    const itemCount = document.getElementById('itemCount');
+    const totalItemsCount = document.getElementById('totalItemsCount');
+    const clearAllItems = document.getElementById('clearAllItems');
+    const submitInventory = document.getElementById('submitInventory');
+    const cancelInventory = document.getElementById('cancelInventory');
+
+    let scannedItems = [];
+    let currentMode = 'barcode';
+
+    // Open modal functionality
+    if (openModifyQuantityModalBtn) {
+        openModifyQuantityModalBtn.addEventListener('click', function() {
+            modifyQuantityModal.style.display = 'block';
+            resetModal();
+            if (currentMode === 'barcode') {
+                barcodeInput.focus();
+            }
+        });
+    }
+
+    // Close modal functionality
+    if (closeModifyQuantityModalBtn) {
+        closeModifyQuantityModalBtn.addEventListener('click', closeModal);
+    }
+    if (cancelInventory) {
+        cancelInventory.addEventListener('click', closeModal);
+    }
+
+    // Mode switching
+    if (barcodeModeBtn) {
+        barcodeModeBtn.addEventListener('click', function() {
+            switchMode('barcode');
+        });
+    }
+    if (manualModeBtn) {
+        manualModeBtn.addEventListener('click', function() {
+            switchMode('manual');
+        });
+    }
+
+    // Barcode scanning
+    if (barcodeInput) {
+        barcodeInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const barcode = this.value.trim();
+                if (barcode) {
+                    processBarcode(barcode);
+                    this.value = '';
+                }
+            }
+        });
+
+        // Also handle input event for immediate processing (for some barcode scanners)
+        let barcodeTimeout;
+        barcodeInput.addEventListener('input', function() {
+            clearTimeout(barcodeTimeout);
+            barcodeTimeout = setTimeout(() => {
+                const barcode = this.value.trim();
+                if (barcode && barcode.length >= 8) { // Assuming minimum barcode length
+                    processBarcode(barcode);
+                    this.value = '';
+                }
+            }, 500);
+        });
+    }
+
+    // Manual item addition
+    if (addManualItemBtn) {
+        addManualItemBtn.addEventListener('click', function() {
+            const selectedOption = manualPropertySelect.options[manualPropertySelect.selectedIndex];
+            if (selectedOption && selectedOption.value) {
+                const itemData = {
+                    id: selectedOption.value,
+                    name: selectedOption.dataset.name,
+                    currentQuantity: selectedOption.dataset.quantity,
+                    propertyNumber: selectedOption.dataset.number,
+                    source: 'manual'
+                };
+                addItemToList(itemData);
+                manualPropertySelect.selectedIndex = 0;
+            }
+        });
+    }
+
+    // Clear all items
+    if (clearAllItems) {
+        clearAllItems.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all scanned items?')) {
+                scannedItems = [];
+                updateItemsList();
+            }
+        });
+    }
+
+    // Submit inventory
+    if (submitInventory) {
+        submitInventory.addEventListener('click', function() {
+            if (scannedItems.length === 0) {
+                alert('No items to process. Please scan or select items first.');
+                return;
+            }
+            
+            submitBatchInventory();
+        });
+    }
+
+    // Helper Functions
+    function switchMode(mode) {
+        currentMode = mode;
+        
+        if (mode === 'barcode') {
+            barcodeModeBtn.classList.add('active');
+            barcodeModeBtn.style.backgroundColor = '#152d64';
+            barcodeModeBtn.style.color = 'white';
+            
+            manualModeBtn.classList.remove('active');
+            manualModeBtn.style.backgroundColor = '#e9ecef';
+            manualModeBtn.style.color = '#333';
+            
+            barcodeInputGroup.style.display = 'block';
+            manualInputGroup.style.display = 'none';
+            
+            barcodeInput.focus();
+        } else {
+            manualModeBtn.classList.add('active');
+            manualModeBtn.style.backgroundColor = '#152d64';
+            manualModeBtn.style.color = 'white';
+            
+            barcodeModeBtn.classList.remove('active');
+            barcodeModeBtn.style.backgroundColor = '#e9ecef';
+            barcodeModeBtn.style.color = '#333';
+            
+            barcodeInputGroup.style.display = 'none';
+            manualInputGroup.style.display = 'block';
+        }
+    }
+
+    function processBarcode(barcode) {
+        // Show loading state
+        const loadingItem = document.createElement('div');
+        loadingItem.className = 'loading-item';
+        loadingItem.style.cssText = 'padding: 10px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; margin-bottom: 5px;';
+        loadingItem.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Looking up barcode: ' + barcode;
+        
+        if (noItemsMessage.style.display !== 'none') {
+            noItemsMessage.style.display = 'none';
+        }
+        itemsContainer.appendChild(loadingItem);
+
+        // Lookup property by barcode
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        console.log('CSRF token element:', csrfToken);
+        console.log('CSRF token value:', csrfToken ? csrfToken.value : 'NOT FOUND');
+        
+        fetch(`/get_property_by_barcode/${encodeURIComponent(barcode)}/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken ? csrfToken.value : ''
+            }
+        })
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return response.json();
+            })
+            .then(data => {
+                loadingItem.remove();
+                console.log('Response data:', data);
+                
+                if (data.success && data.property) {
+                    const itemData = {
+                        id: data.property.id,
+                        name: data.property.property_name,
+                        currentQuantity: data.property.quantity,
+                        propertyNumber: data.property.property_number,
+                        barcode: barcode,
+                        source: 'barcode'
+                    };
+                    addItemToList(itemData);
+                } else {
+                    const errorMsg = data.error || 'Property not found for barcode: ' + barcode;
+                    showErrorMessage(errorMsg);
+                }
+                
+                // Refocus barcode input
+                if (currentMode === 'barcode') {
+                    barcodeInput.focus();
+                }
+            })
+            .catch(error => {
+                loadingItem.remove();
+                console.error('Error looking up barcode:', error);
+                showErrorMessage('Error fetching property information.');
+                
+                if (currentMode === 'barcode') {
+                    barcodeInput.focus();
+                }
+            });
+    }
+
+    function addItemToList(itemData) {
+        // Check if item already exists
+        const existingIndex = scannedItems.findIndex(item => item.id === itemData.id);
+        
+        if (existingIndex !== -1) {
+            // Increment quantity for existing item
+            scannedItems[existingIndex].quantityToAdd += 1;
+        } else {
+            // Add new item with quantity 1
+            scannedItems.push({
+                ...itemData,
+                quantityToAdd: 1
+            });
+        }
+        
+        updateItemsList();
+    }
+
+    function updateItemsList() {
+        const container = itemsContainer;
+        
+        // Clear container
+        container.innerHTML = '';
+        
+        if (scannedItems.length === 0) {
+            noItemsMessage.style.display = 'flex';
+            container.appendChild(noItemsMessage);
+            clearAllItems.disabled = true;
+            submitInventory.disabled = true;
+        } else {
+            noItemsMessage.style.display = 'none';
+            clearAllItems.disabled = false;
+            submitInventory.disabled = false;
+            
+            scannedItems.forEach((item, index) => {
+                const itemElement = createItemElement(item, index);
+                container.appendChild(itemElement);
+            });
+        }
+        
+        // Update counters
+        itemCount.textContent = scannedItems.length;
+        totalItemsCount.textContent = scannedItems.length;
+    }
+
+    function createItemElement(item, index) {
+        const div = document.createElement('div');
+        div.className = 'scanned-item';
+        div.style.cssText = 'display: flex; align-items: center; padding: 12px 20px; background: white; border-bottom: 1px solid #eee; width: 100%; box-sizing: border-box; flex-shrink: 0;';
+        
+        div.innerHTML = `
+            <div style="flex: 1; min-width: 0; margin-right: 15px;">
+                <div style="font-weight: 500; font-size: 14px; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</div>
+                <div style="font-size: 12px; color: #666; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span style="background: #f8f9fa; padding: 2px 6px; border-radius: 3px; font-family: monospace;">#${item.propertyNumber}</span>
+                    <span>Stock: <strong>${item.currentQuantity}</strong></span>
+                    <span style="color: ${item.source === 'barcode' ? '#28a745' : '#007bff'};">${item.source === 'barcode' ? '📱 Scanned' : '✏️ Manual'}</span>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                <button type="button" onclick="updateQuantity(${index}, -1)" style="width: 28px; height: 28px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center;">-</button>
+                <input type="number" value="${item.quantityToAdd}" min="1" max="999" onchange="setQuantity(${index}, this.value)" style="width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 6px 4px; font-size: 14px; font-weight: 500;">
+                <button type="button" onclick="updateQuantity(${index}, 1)" style="width: 28px; height: 28px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center;">+</button>
+                <button type="button" onclick="removeItem(${index})" style="width: 28px; height: 28px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-left: 8px; display: flex; align-items: center; justify-content: center;">×</button>
+            </div>
+        `;
+
+        
+        return div;
+    }
+
+    function showErrorMessage(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = 'padding: 12px 20px; background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; border-radius: 0; margin: 0; width: 100%; box-sizing: border-box; flex-shrink: 0; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #eee;';
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + message;
+        
+        // Insert error at the top of the items container
+        if (itemsContainer.firstChild && itemsContainer.firstChild !== noItemsMessage) {
+            itemsContainer.insertBefore(errorDiv, itemsContainer.firstChild);
+        } else {
+            itemsContainer.appendChild(errorDiv);
+        }
+        
+        // Remove error after 4 seconds
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.remove();
+            }
+        }, 4000);
+    }
+
+    function submitBatchInventory() {
+        if (scannedItems.length === 0) return;
+        
+        // Disable submit button to prevent double submission
+        submitInventory.disabled = true;
+        submitInventory.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+        // Prepare batch data
+        const batchData = {
+            items: scannedItems.map(item => ({
+                property_id: item.id,
+                quantity_to_add: item.quantityToAdd
+            }))
+        };
+        
+        // Submit to server
+        fetch('{% url "modify_property_quantity_batch" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify(batchData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Successfully updated quantities for ${data.updated_count} items.`);
+                closeModal();
+                // Reload page to show updated quantities
+                window.location.reload();
+            } else {
+                alert('Error updating quantities: ' + (data.error || 'Unknown error'));
+                submitInventory.disabled = false;
+                submitInventory.innerHTML = '<i class="fas fa-plus"></i> Add Quantities (' + scannedItems.length + ' items)';
+            }
+        })
+        .catch(error => {
+            console.error('Error submitting batch inventory:', error);
+            alert('Error submitting inventory. Please try again.');
+            submitInventory.disabled = false;
+            submitInventory.innerHTML = '<i class="fas fa-plus"></i> Add Quantities (' + scannedItems.length + ' items)';
+        });
+    }
+
+    function resetModal() {
+        scannedItems = [];
+        updateItemsList();
+        barcodeInput.value = '';
+        manualPropertySelect.selectedIndex = 0;
+        switchMode('barcode');
+    }
+
+    function closeModal() {
+        modifyQuantityModal.style.display = 'none';
+        resetModal();
+    }
+
+    // Global functions for item management (called from inline handlers)
+    window.updateQuantity = function(index, change) {
+        if (scannedItems[index]) {
+            scannedItems[index].quantityToAdd = Math.max(1, scannedItems[index].quantityToAdd + change);
+            updateItemsList();
+        }
+    };
+
+    window.setQuantity = function(index, value) {
+        const qty = parseInt(value) || 1;
+        if (scannedItems[index]) {
+            scannedItems[index].quantityToAdd = Math.max(1, qty);
+            updateItemsList();
+        }
+    };
+
+    window.removeItem = function(index) {
+        if (scannedItems[index]) {
+            scannedItems.splice(index, 1);
+            updateItemsList();
+        }
+    };
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === modifyQuantityModal) {
+            closeModal();
+        }
+    });
+});
+</script>
 
 </body>
 </html>
