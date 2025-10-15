@@ -1140,18 +1140,20 @@ tr.hidden {
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 150px;
-  z-index: 1000;
+  z-index: 10000;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
   transition: all 0.2s ease;
   margin-top: 5px;
+  pointer-events: none;
 }
 
 .table-actions-dropdown-menu.show {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
+  pointer-events: auto;
 }
 
 .table-actions-dropdown-item {
@@ -1168,6 +1170,7 @@ tr.hidden {
   text-align: left;
   cursor: pointer;
   transition: background-color 0.2s;
+  pointer-events: auto;
 }
 
 .table-actions-dropdown-item:hover {
@@ -1795,7 +1798,7 @@ tr.hidden {
       <!-- Modal Header -->
       <div style="display: flex; justify-content: center; align-items: center; padding: 20px; background: #152d64; color: white; border-radius: 8px 8px 0 0; position: relative;">
         <div style="text-align: center;">
-          <h2 style="margin: 0; font-size: 22px; font-weight: 600; color: #fbff00;">Supply Stocks Management</h2>
+          <h2 style="margin: 0; font-size: 22px; font-weight: 600; color: white;">Supply Stocks Management</h2>
         </div>
         <span class="close" id="closeModifyQuantityModalBtn" style="color: white; font-size: 28px; cursor: pointer; padding: 5px; position: absolute; right: 20px;">&times;</span>
       </div>
@@ -2397,6 +2400,9 @@ tr.hidden {
     }
 
 
+    // Declare currentHistoryData at global scope for accessibility
+    let currentHistoryData = [];
+
     document.addEventListener('DOMContentLoaded', function() {
       // Actions Dropdown Functionality
       const dropdownToggle = document.getElementById('actionsDropdownToggle');
@@ -2426,6 +2432,61 @@ tr.hidden {
 
       // Table Actions Dropdown Functionality
       document.addEventListener('click', function(e) {
+        // Handle edit button clicks with event delegation
+        if (e.target.closest('.table-actions-dropdown-item.edit-btn')) {
+          e.stopPropagation();
+          const button = e.target.closest('.table-actions-dropdown-item.edit-btn');
+          
+          closeAllModals();
+          destroySelect2Instances();
+          
+          const categoryId = button.dataset.category;
+          const subcategoryId = button.dataset.subcategory;
+
+          // Set form values
+          document.getElementById("edit_id").value = button.dataset.id;
+          document.getElementById("edit_name").value = button.dataset.name;
+          document.getElementById("edit_minimum_threshold").value = button.dataset.minimumThreshold;
+          document.getElementById("edit_description").value = button.dataset.description || '';
+          document.getElementById("edit_available_for_request").checked = button.dataset.availableForRequest === 'true';
+          document.getElementById("edit_date").value = button.dataset.date;
+          document.getElementById("edit_expiration_date").value = button.dataset.expirationDate || '';
+
+          // Show modal
+          editModal.style.display = "block";
+
+          // Initialize Select2 dropdowns
+          $('#edit_category').select2({
+            dropdownParent: $('#editSupplyModal'),
+            width: '100%',
+            placeholder: 'Select a category'
+          });
+
+          $('#edit_subcategory').select2({
+            dropdownParent: $('#editSupplyModal'),
+            width: '100%',
+            placeholder: 'Select a subcategory'
+          });
+
+          // Set selected values
+          if (categoryId) {
+            $('#edit_category').val(categoryId).trigger('change');
+          }
+          if (subcategoryId) {
+            $('#edit_subcategory').val(subcategoryId).trigger('change');
+          }
+          
+          // Close dropdown
+          document.querySelectorAll('.table-actions-dropdown-menu.show').forEach(menu => {
+            menu.classList.remove('show');
+          });
+          
+          return;
+        }
+        
+        // Note: History button clicks are handled by forEach addEventListener later in the code
+        // to match the working implementation in property.html
+        
         // Handle table dropdown toggles
         if (e.target.closest('.table-actions-dropdown-toggle')) {
           e.stopPropagation();
@@ -3066,20 +3127,26 @@ tr.hidden {
       let lastScannedSupplyId = null;
 
       // Prevent form submission on Enter key
-      document.getElementById('modifyQuantityForm').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          e.preventDefault(); // Prevent form submission
-          return false;
-        }
-      });
+      const modifyQuantityForm = document.getElementById('modifyQuantityForm');
+      if (modifyQuantityForm) {
+        modifyQuantityForm.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            return false;
+          }
+        });
+      }
 
       // Prevent form submission on Enter key in barcode input
-      document.getElementById('barcode_input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          e.preventDefault(); // Prevent form submission
-          return false;
-        }
-      });
+      const barcodeInputElement = document.getElementById('barcode_input');
+      if (barcodeInputElement) {
+        barcodeInputElement.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            return false;
+          }
+        });
+      }
 
       $('#barcode_input').on('input', function() {
         let barcode = $(this).val();
@@ -3130,17 +3197,19 @@ tr.hidden {
     });
 
       // Handle form submission ONLY when submit button is clicked
-      document.getElementById('modifyQuantitySubmitBtn').addEventListener('click', function(e) {
-        e.preventDefault();
-        const form = document.getElementById('modifyQuantityForm');
-        
-        const supplyId = document.getElementById('supply_id').value;
-        const amount = parseInt(document.getElementById('amount').value);
-        
-        if (!supplyId) {
-          alert('Please scan a valid supply barcode first.');
-          return;
-        }
+      const modifyQuantitySubmitBtn = document.getElementById('modifyQuantitySubmitBtn');
+      if (modifyQuantitySubmitBtn) {
+        modifyQuantitySubmitBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const form = document.getElementById('modifyQuantityForm');
+          
+          const supplyId = document.getElementById('supply_id').value;
+          const amount = parseInt(document.getElementById('amount').value);
+          
+          if (!supplyId) {
+            alert('Please scan a valid supply barcode first.');
+            return;
+          }
         
         if (!amount || amount < 1) {
           alert('Please enter a valid quantity (minimum 1).');
@@ -3181,7 +3250,8 @@ tr.hidden {
           console.error('Error:', error);
           alert('Error updating quantity. Please try again.');
         });
-      });
+        });
+      }
 
       // Function to reset the modify quantity form
       function resetModifyQuantityForm() {
@@ -3268,11 +3338,16 @@ tr.hidden {
       const historyBtns = document.querySelectorAll('.history-btn');
       const historySearchInput = document.getElementById('historySearchInput');
       const historyActionFilter = document.getElementById('historyActionFilter');
-      let currentHistoryData = [];
 
       if (!historyModal || !historyBtns.length || !closeHistoryBtn) {
-        console.error('History modal elements not found');
+        console.error('History modal elements not found', {
+          historyModal: !!historyModal,
+          historyBtnsLength: historyBtns.length,
+          closeHistoryBtn: !!closeHistoryBtn
+        });
       } else {
+        console.log('History modal elements found, setting up listeners');
+        
         // Function to filter and display history
         function filterAndDisplayHistory() {
           const searchTerm = historySearchInput ? historySearchInput.value.toLowerCase() : '';

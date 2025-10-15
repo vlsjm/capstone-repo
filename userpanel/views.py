@@ -314,6 +314,149 @@ class UserReportView(PermissionRequiredMixin, TemplateView):
         })
 
 
+class UserUnifiedRequestView(PermissionRequiredMixin, TemplateView):
+    """Unified view for both Supply Request and Borrow Request with toggle"""
+    template_name = 'userpanel/user_unified_request.html'
+    permission_required = 'app.view_user_module'
+
+    def get(self, request):
+        from app.models import SupplyCategory, PropertyCategory
+        
+        # Get supply cart items from session
+        supply_cart_items = request.session.get('supply_cart', [])
+        supply_cart_items_data = []
+        for item in supply_cart_items:
+            try:
+                if 'supply_id' not in item:
+                    continue
+                    
+                supply_obj = Supply.objects.select_related('quantity_info').get(id=item['supply_id'])
+                enriched_item = {
+                    'supply_id': supply_obj.id,
+                    'supply_name': supply_obj.supply_name,
+                    'quantity': item['quantity'],
+                    'available_quantity': supply_obj.quantity_info.current_quantity if supply_obj.quantity_info else 0,
+                    'supply': supply_obj
+                }
+                supply_cart_items_data.append(enriched_item)
+            except (Supply.DoesNotExist, KeyError, ValueError) as e:
+                continue
+        
+        # Get borrow cart items from session
+        borrow_cart_items = request.session.get('borrow_cart', [])
+        borrow_cart_items_data = []
+        for item in borrow_cart_items:
+            try:
+                property_obj = Property.objects.get(id=item['property_id'])
+                enriched_item = {
+                    'supply': property_obj,
+                    'quantity': item['quantity'],
+                    'return_date': datetime.strptime(item['return_date'], '%Y-%m-%d').date() if item['return_date'] else None,
+                    'purpose': item['purpose']
+                }
+                borrow_cart_items_data.append(enriched_item)
+            except Property.DoesNotExist:
+                continue
+            except Exception as e:
+                continue
+        
+        # Get available supplies
+        available_supplies = Supply.objects.filter(
+            available_for_request=True,
+            quantity_info__current_quantity__gt=0
+        ).select_related('quantity_info', 'category')
+        
+        # Get available properties
+        available_properties = Property.objects.filter(is_archived=False, quantity__gt=0)
+        
+        # Get categories
+        supply_categories = SupplyCategory.objects.all()
+        borrow_categories = PropertyCategory.objects.all()
+        
+        # Get recent supply requests
+        recent_supply_batch_requests = SupplyRequestBatch.objects.filter(user=request.user).order_by('-request_date')[:5]
+        recent_supply_single_requests = SupplyRequest.objects.filter(user=request.user).order_by('-request_date')[:5]
+        
+        supply_recent_requests_data = []
+        for req in recent_supply_batch_requests:
+            items_text = f"{req.total_items} items"
+            if req.total_items <= 3:
+                items_list = ", ".join([f"{item.supply.supply_name} (x{item.quantity})" for item in req.items.all()])
+                items_text = items_list
+            
+            supply_recent_requests_data.append({
+                'id': req.id,
+                'item': items_text,
+                'quantity': req.total_quantity,
+                'status': req.status,
+                'date': req.request_date.isoformat(),
+                'purpose': req.purpose,
+                'type': 'batch'
+            })
+        
+        for req in recent_supply_single_requests:
+            supply_recent_requests_data.append({
+                'id': req.id,
+                'item': req.supply.supply_name,
+                'quantity': req.quantity,
+                'status': req.status,
+                'date': req.request_date.isoformat(),
+                'purpose': req.purpose,
+                'type': 'single'
+            })
+        
+        supply_recent_requests_data.sort(key=lambda x: x['date'], reverse=True)
+        supply_recent_requests_data = supply_recent_requests_data[:5]
+        
+        # Get recent borrow requests
+        recent_borrow_batch_requests = BorrowRequestBatch.objects.filter(user=request.user).order_by('-request_date')[:5]
+        recent_borrow_single_requests = BorrowRequest.objects.filter(user=request.user).order_by('-borrow_date')[:5]
+        
+        borrow_recent_requests_data = []
+        for req in recent_borrow_batch_requests:
+            items_text = f"{req.total_items} items"
+            if req.total_items <= 3:
+                items_list = ", ".join([f"{item.property.property_name} (x{item.quantity})" for item in req.items.all()])
+                items_text = items_list
+            
+            borrow_recent_requests_data.append({
+                'id': req.id,
+                'item': items_text,
+                'quantity': req.total_quantity,
+                'status': req.status,
+                'date': req.request_date.isoformat(),
+                'return_date': req.latest_return_date.isoformat() if req.latest_return_date else None,
+                'purpose': req.purpose,
+                'type': 'batch'
+            })
+        
+        for req in recent_borrow_single_requests:
+            borrow_recent_requests_data.append({
+                'id': req.id,
+                'item': req.property.property_name,
+                'quantity': req.quantity,
+                'status': req.status,
+                'date': req.borrow_date.isoformat(),
+                'return_date': req.return_date.isoformat() if req.return_date else None,
+                'purpose': req.purpose,
+                'type': 'single'
+            })
+        
+        borrow_recent_requests_data.sort(key=lambda x: x['date'], reverse=True)
+        borrow_recent_requests_data = borrow_recent_requests_data[:5]
+        
+        return render(request, self.template_name, {
+            'supply_cart_items': supply_cart_items_data,
+            'borrow_cart_items': borrow_cart_items_data,
+            'available_supplies': available_supplies,
+            'available_properties': available_properties,
+            'supply_categories': supply_categories,
+            'borrow_categories': borrow_categories,
+            'supply_recent_requests': json.dumps(supply_recent_requests_data),
+            'borrow_recent_requests': json.dumps(borrow_recent_requests_data),
+        })
+
+
 class UserLoginView(LoginView):
     template_name = 'registration/user_login.html'
 
@@ -793,10 +936,16 @@ def cancel_damage_report(request, request_id):
 def add_to_borrow_list(request):
     """Add item to borrow cart session"""
     if request.method == 'POST':
-        property_id = request.POST.get('supply')
+        property_id = request.POST.get('property_id')  # Changed from 'supply' to 'property_id'
         quantity = int(request.POST.get('quantity', 1))
         return_date = request.POST.get('return_date')
         purpose = request.POST.get('purpose', '')
+        
+        if not property_id:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Please select an item'
+            })
         
         try:
             property_obj = Property.objects.get(id=property_id)
@@ -1834,12 +1983,16 @@ def submit_list_request(request):
         cart = request.session.get('supply_cart', [])
         
         if not cart:
-            messages.error(request, 'Your request list is empty. Please add items before submitting.')
-            return redirect('user_request')
+            return JsonResponse({
+                'success': False,
+                'message': 'Your request list is empty. Please add items before submitting.'
+            })
         
         if not purpose:
-            messages.error(request, 'Please provide a purpose for your request.')
-            return redirect('user_request')
+            return JsonResponse({
+                'success': False,
+                'message': 'Please provide a purpose for your request.'
+            })
         
         try:
             # Create the batch request
@@ -1883,11 +2036,18 @@ def submit_list_request(request):
             request.session['supply_cart'] = []
             request.session.modified = True
             
-            messages.success(request, f'Supply request submitted successfully! Your request ID is #{batch_request.id}.')
-            return redirect('user_request')
+            return JsonResponse({
+                'success': True,
+                'message': f'Supply request submitted successfully! Your request ID is #{batch_request.id}.'
+            })
             
         except Exception as e:
-            messages.error(request, f'Error submitting request: {str(e)}')
-            return redirect('user_request')
+            return JsonResponse({
+                'success': False,
+                'message': f'Error submitting request: {str(e)}'
+            })
     
-    return redirect('user_request')
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method'
+    })

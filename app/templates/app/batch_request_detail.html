@@ -31,7 +31,6 @@
       border-radius: 12px;
       margin-bottom: 30px;
       box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
-      border-left: 4px solid #152d64;
     }
     
     .batch-header h1 {
@@ -427,7 +426,6 @@
       padding: 15px;
       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
       border-radius: 8px;
-      border-left: 3px solid #28a745;
     }
     
     .remarks-section h4 {
@@ -472,7 +470,6 @@
       padding: 20px;
       background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
       border-radius: 8px;
-      border-left: 4px solid #152d64;
     }
     
     .approve-quantity-section h4 {
@@ -531,7 +528,6 @@
       margin-top: 20px;
       padding: 20px;
       border-radius: 8px;
-      border-left: 4px solid #28a745;
     }
     
     .claiming-section {
@@ -540,7 +536,6 @@
     
     .completed-section {
       background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
-      border-left-color: #6c757d;
     }
     
     .claiming-section h4, .completed-section h4 {
@@ -661,7 +656,7 @@
       
       <!-- Requisition Slip Download Section -->
       {% if batch_request.status in 'approved,partially_approved,for_claiming,completed' %}
-      <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 8px; border-left: 4px solid #152d64;">
+      <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 8px;">
         <h4 style="color: #152d64; margin: 0 0 15px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
           <i class="fas fa-file-pdf"></i> Requisition & Issue Slip
         </h4>

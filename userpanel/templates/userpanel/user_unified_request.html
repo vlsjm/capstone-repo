@@ -1,0 +1,1611 @@
+{% extends 'userpanel/user_base.html' %}
+{% load static %}
+
+{% block title %}Request{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Toggle Switch Styles - Matching System Theme */
+.request-type-toggle {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+    padding: 0.5rem;
+    background: transparent;
+}
+
+.toggle-container {
+    background: white;
+    border-radius: 8px;
+    padding: 6px;
+    display: inline-flex;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e4e9;
+}
+
+.toggle-btn {
+    padding: 0.75rem 2.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: transparent;
+    color: #6c757d;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toggle-btn:hover {
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.toggle-btn.active {
+    background: #1e3a5f;
+    color: white;
+    box-shadow: 0 2px 4px rgba(30, 58, 95, 0.3);
+}
+
+.toggle-btn i {
+    font-size: 1rem;
+}
+
+/* Content Container */
+.request-content {
+    display: none;
+}
+
+.request-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced Search Styles */
+.search-input-wrapper {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.supply-search-input {
+    padding-left: 36px !important;
+    padding-right: 36px !important;
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    z-index: 1;
+}
+
+.clear-search-btn:hover {
+    background-color: #f8f9fa;
+    color: #dc3545;
+}
+
+#category-filter, #category-filter-borrow {
+    margin-bottom: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.dropdown-header {
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.results-count {
+    font-style: italic;
+}
+
+/* Enhanced Option Styles */
+.select-option {
+    padding: 12px !important;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.select-option:not(.hidden) {
+    display: flex !important;
+}
+
+.select-option.hidden {
+    display: none !important;
+}
+
+.option-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.option-name {
+    font-weight: 500;
+    color: #2c3e50;
+    flex: 1;
+}
+
+.option-stock {
+    font-size: 12px;
+    color: #28a745;
+    font-weight: 600;
+    background-color: #d4edda;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.option-stock.low-stock {
+    color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.option-details {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    color: #6c757d;
+}
+
+.option-category {
+    background-color: #e7f3ff;
+    color: #0056b3;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.option-code {
+    color: #6c757d;
+}
+
+/* Highlight matching text */
+.highlight-match {
+    background-color: #fff3cd;
+    font-weight: 600;
+    padding: 0 2px;
+}
+
+/* Loading state */
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #152D64;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Toggle */
+@media (max-width: 768px) {
+    .toggle-btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+        gap: 0.4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .toggle-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .toggle-btn i {
+        font-size: 0.9rem;
+    }
+}
+
+/* Fix for Recent Requests Scrolling */
+.recent-requests {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.requests-list {
+    max-height: none;
+    overflow: visible;
+}
+
+/* Scrollbar styling for recent requests */
+.recent-requests::-webkit-scrollbar {
+    width: 8px;
+}
+
+.recent-requests::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.recent-requests::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.recent-requests::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Category dropdown styling */
+#category-filter, #category-filter-borrow {
+    width: 100%;
+    height: 38px;
+    background-color: white;
+    cursor: pointer;
+}
+
+#category-filter option, #category-filter-borrow option {
+    padding: 8px;
+    background-color: white;
+    color: #333;
+}
+
+/* Limit dropdown height and make it scrollable */
+.select-dropdown {
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Scrollbar styling for dropdown */
+.select-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.select-dropdown::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.select-dropdown::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.select-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<style>
+    /* Prevent flash of wrong tab */
+    .request-content:not(.active) {
+        display: none !important;
+    }
+</style>
+
+<div class="request-page-layout">
+    <main class="request-form-container">
+        <!-- Request Type Toggle -->
+        <div class="request-type-toggle">
+            <div class="toggle-container">
+                <button class="toggle-btn" data-type="supply" id="supply-toggle-btn">
+                    <i class="fas fa-box"></i> Supply Request
+                </button>
+                <button class="toggle-btn" data-type="borrow" id="borrow-toggle-btn">
+                    <i class="fas fa-handshake"></i> Borrow Request
+                </button>
+            </div>
+        </div>
+
+        <script>
+            // Set active tab immediately to prevent flash
+            (function() {
+                const activeTab = localStorage.getItem('activeRequestTab') || 'supply';
+                const supplyBtn = document.getElementById('supply-toggle-btn');
+                const borrowBtn = document.getElementById('borrow-toggle-btn');
+                const supplyContent = document.getElementById('supply-request-content');
+                const borrowContent = document.getElementById('borrow-request-content');
+                
+                if (activeTab === 'borrow') {
+                    borrowBtn.classList.add('active');
+                    if (borrowContent) borrowContent.classList.add('active');
+                } else {
+                    supplyBtn.classList.add('active');
+                    if (supplyContent) supplyContent.classList.add('active');
+                }
+            })();
+        </script>
+
+        <!-- Supply Request Content -->
+        <div id="supply-request-content" class="request-content">
+            <h1><i class="fas fa-list"></i> Supply Request List</h1>
+            <p class="form-description">Add multiple supply items to your list, then submit your request all at once.</p>
+
+            <!-- Add Item to List Section -->
+            <div class="add-item-section">
+                <h3><i class="fas fa-plus"></i> Add Item to List</h3>
+                <form id="add-supply-form" class="add-item-form">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="supply-select">Supply Item:</label>
+                            <div class="searchable-select-container">
+                                <!-- Category Filter -->
+                                <select id="category-filter" class="form-control mb-2">
+                                    <option value="">All Categories</option>
+                                    {% for category in supply_categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                
+                                <!-- Search Input with Icon -->
+                                <div class="search-input-wrapper">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="text" id="supply-search" class="form-control supply-search-input" 
+                                           placeholder="Search by name, description, or code..." autocomplete="off">
+                                    <button type="button" id="clear-search" class="clear-search-btn" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Enhanced Dropdown -->
+                                <div id="supply-dropdown" class="select-dropdown">
+                                    <div class="dropdown-header">
+                                        <span class="results-count">{{ available_supplies|length }} items found</span>
+                                    </div>
+                                    <div class="select-option" data-value="">
+                                        <span class="option-name">Select a supply item...</span>
+                                    </div>
+                                    {% for supply in available_supplies %}
+                                    <div class="select-option" 
+                                         data-value="{{ supply.id }}" 
+                                         data-name="{{ supply.supply_name }}"
+                                         data-description="{{ supply.description|default:'' }}"
+                                         data-code="{{ supply.supply_number|default:'' }}"
+                                         data-category="{{ supply.category.id }}"
+                                         data-category-name="{{ supply.category.name }}"
+                                         data-available="{{ supply.quantity_info.current_quantity }}">
+                                        <div class="option-main">
+                                            <span class="option-name">{{ supply.supply_name }}</span>
+                                            <span class="option-stock {% if supply.quantity_info.current_quantity < 10 %}low-stock{% endif %}">
+                                                {{ supply.quantity_info.current_quantity }} available
+                                            </span>
+                                        </div>
+                                        <div class="option-details">
+                                            <span class="option-category">{{ supply.category.name }}</span>
+                                            {% if supply.supply_number %}<span class="option-code">Code: {{ supply.supply_number }}</span>{% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    <div class="select-option no-results" style="display: none;">
+                                        No items found
+                                    </div>
+                                </div>
+                                <input type="hidden" id="supply-select" name="supply_id" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="supply-quantity-input">Quantity:</label>
+                            <input type="number" id="supply-quantity-input" name="quantity" 
+                                   class="form-control" min="1" placeholder="Enter quantity" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn-add-to-list">
+                                <i class="fas fa-plus"></i> Add to List
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- List Items Section -->
+            <div class="list-section">
+                <h3><i class="fas fa-list"></i> Request Items <span id="supply-list-count">({{ supply_cart_items|length }})</span></h3>
+                <div id="supply-list-container">
+                    {% if supply_cart_items %}
+                    <table class="list-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="supply-list-body">
+                            {% for item in supply_cart_items %}
+                            <tr data-supply-id="{{ item.supply.id }}">
+                                <td>{{ item.supply_name }}</td>
+                                <td>
+                                    <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
+                                           value="{{ item.quantity }}" min="1" max="{{ item.available_quantity }}">
+                                </td>
+                                <td>
+                                    <button class="btn-update" data-supply-id="{{ item.supply.id }}">
+                                        <i class="fas fa-save"></i> Update
+                                    </button>
+                                    <button class="btn-remove" data-supply-id="{{ item.supply.id }}">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-list">
+                        <i class="fas fa-list"></i>
+                        <p>Your request list is empty. Add items above to get started.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Submit Request Section -->
+            {% if supply_cart_items %}
+            <div class="submit-section" id="supply-submit-section">
+                <form id="submit-supply-form" method="post" action="{% url 'submit_list_request' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="submit_request">
+                    <div class="form-group">
+                        <label for="supply-purpose">Purpose/Description:</label>
+                        <textarea id="supply-purpose" name="purpose" class="form-control" 
+                                  rows="3" required placeholder="Please describe the purpose of this request..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-paper-plane"></i> Submit Request ({{ supply_cart_items|length }} items)
+                        </button>
+                        <button type="button" class="btn-clear-supply-list btn-clear-list">
+                            <i class="fas fa-trash"></i> Clear List
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Borrow Request Content -->
+        <div id="borrow-request-content" class="request-content">
+            <h1><i class="fas fa-handshake"></i> Borrow Request List</h1>
+            <p class="form-description">Add multiple items to your borrow list, then submit your request all at once.</p>
+
+            <!-- Add Item to List Section -->
+            <div class="add-item-section">
+                <h3><i class="fas fa-plus"></i> Add Item to List</h3>
+                <form id="add-borrow-form" class="add-item-form">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="borrow-select">Equipment/Item:</label>
+                            <div class="searchable-select-container">
+                                <!-- Category Filter -->
+                                <select id="category-filter-borrow" class="form-control mb-2">
+                                    <option value="">All Categories</option>
+                                    {% for category in borrow_categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                
+                                <!-- Search Input with Icon -->
+                                <div class="search-input-wrapper">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="text" id="borrow-search" class="form-control supply-search-input" 
+                                           placeholder="Search by name, description, or code..." autocomplete="off">
+                                    <button type="button" id="clear-search-borrow" class="clear-search-btn" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Enhanced Dropdown -->
+                                <div id="borrow-dropdown" class="select-dropdown">
+                                    <div class="dropdown-header">
+                                        <span class="results-count">{{ available_properties|length }} items found</span>
+                                    </div>
+                                    <div class="select-option" data-value="">
+                                        <span class="option-name">Select an item...</span>
+                                    </div>
+                                    {% for property in available_properties %}
+                                    <div class="select-option" 
+                                         data-value="{{ property.id }}" 
+                                         data-name="{{ property.property_name }}"
+                                         data-description="{{ property.description|default:'' }}"
+                                         data-number="{{ property.property_number|default:'' }}"
+                                         data-category="{{ property.category.id }}"
+                                         data-category-name="{{ property.category.name }}"
+                                         data-available="{{ property.quantity }}">
+                                        <div class="option-main">
+                                            <span class="option-name">{{ property.property_name }}</span>
+                                            <span class="option-stock {% if property.quantity < 5 %}low-stock{% endif %}">
+                                                {{ property.quantity }} available
+                                            </span>
+                                        </div>
+                                        <div class="option-details">
+                                            <span class="option-category">{{ property.category.name }}</span>
+                                            {% if property.property_number %}<span class="option-code">Code: {{ property.property_number }}</span>{% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    <div class="select-option no-results" style="display: none;">
+                                        No items found
+                                    </div>
+                                </div>
+                                <input type="hidden" id="borrow-select" name="property_id" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="borrow-quantity-input">Quantity:</label>
+                            <input type="number" id="borrow-quantity-input" name="quantity" 
+                                   class="form-control" min="1" placeholder="Enter quantity" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="return-date-input">Return Date:</label>
+                            <input type="date" id="return-date-input" name="return_date" 
+                                   class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn-add-to-list">
+                                <i class="fas fa-plus"></i> Add to List
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="purpose-input">Purpose:</label>
+                            <textarea id="purpose-input" name="purpose" class="form-control" 
+                                      placeholder="Describe the purpose for borrowing this item..." required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- List Items Section -->
+            <div class="list-section">
+                <h3><i class="fas fa-list"></i> Borrow Items <span id="borrow-list-count">({{ borrow_cart_items|length }})</span></h3>
+                <div id="borrow-list-container">
+                    {% if borrow_cart_items %}
+                    <table class="list-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Return Date</th>
+                                <th>Purpose</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in borrow_cart_items %}
+                            <tr data-supply-id="{{ item.supply.id }}">
+                                <td>{{ item.supply.property_name }}</td>
+                                <td>
+                                    <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
+                                           value="{{ item.quantity }}" min="1" max="{{ item.supply.quantity }}">
+                                </td>
+                                <td>
+                                    <input type="date" class="return-date-edit" data-supply-id="{{ item.supply.id }}" 
+                                           value="{{ item.return_date|date:'Y-m-d' }}">
+                                </td>
+                                <td>{{ item.purpose|truncatewords:5 }}</td>
+                                <td>
+                                    <button class="btn-update-borrow" data-supply-id="{{ item.supply.id }}">
+                                        <i class="fas fa-save"></i> Update
+                                    </button>
+                                    <button class="btn-remove-borrow" data-supply-id="{{ item.supply.id }}">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-list">
+                        <i class="fas fa-list"></i>
+                        <p>Your borrow list is empty. Add items above to get started.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Submit Request Section -->
+            {% if borrow_cart_items %}
+            <div class="submit-section" id="borrow-submit-section">
+                <form id="submit-borrow-form" method="post" action="{% url 'submit_borrow_list_request' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="submit_request">
+                    <div class="form-group">
+                        <label for="general-purpose">General Purpose/Notes (Optional):</label>
+                        <textarea id="general-purpose" name="general_purpose" class="form-control" 
+                                  placeholder="Add any general notes about this borrow request..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-paper-plane"></i> Submit Borrow Request
+                        </button>
+                        <button type="button" class="btn-clear-borrow-list btn-clear-list">
+                            <i class="fas fa-trash"></i> Clear List
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <aside class="recent-requests">
+        <h2><i class="fas fa-history"></i> Recent Requests</h2>
+        <div id="recent-requests-container">
+            <!-- This will be dynamically updated based on toggle -->
+        </div>
+    </aside>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Restore active tab from localStorage on page load
+    const activeTab = localStorage.getItem('activeRequestTab') || 'supply';
+    
+    // Update toggle buttons and content visibility
+    $('.toggle-btn').removeClass('active');
+    $(`.toggle-btn[data-type="${activeTab}"]`).addClass('active');
+    
+    $('.request-content').removeClass('active');
+    $(`#${activeTab}-request-content`).addClass('active');
+    
+    // Update recent requests
+    updateRecentRequests(activeTab);
+    
+    // Toggle between Supply and Borrow Request
+    $('.toggle-btn').on('click', function() {
+        const type = $(this).data('type');
+        
+        // Store active tab in localStorage
+        localStorage.setItem('activeRequestTab', type);
+        
+        // Update active states
+        $('.toggle-btn').removeClass('active');
+        $(this).addClass('active');
+        
+        // Show/hide content
+        $('.request-content').removeClass('active');
+        $(`#${type}-request-content`).addClass('active');
+        
+        // Update recent requests
+        updateRecentRequests(type);
+    });
+    
+    // Function to update recent requests based on type
+    function updateRecentRequests(type) {
+        // Parse JSON data from Django
+        let supplyRequests = [];
+        let borrowRequests = [];
+        
+        try {
+            supplyRequests = JSON.parse('{{ supply_recent_requests|escapejs }}');
+        } catch(e) {
+            supplyRequests = [];
+        }
+        
+        try {
+            borrowRequests = JSON.parse('{{ borrow_recent_requests|escapejs }}');
+        } catch(e) {
+            borrowRequests = [];
+        }
+        
+        const requests = type === 'supply' ? supplyRequests : borrowRequests;
+        
+        if (requests.length === 0) {
+            $('#recent-requests-container').html(`
+                <div class="no-requests">
+                    <i class="fas fa-inbox"></i>
+                    <p>No recent requests found</p>
+                </div>
+            `);
+            return;
+        }
+        
+        let html = '<div class="requests-list">';
+        requests.forEach(req => {
+            html += `
+                <div class="request-card" data-request-id="${req.id}">
+                    <div class="request-header">
+                        <span class="request-date">${formatDate(req.date)}</span>
+                        <span class="status-badge status-${req.status.toLowerCase()}">${capitalizeFirst(req.status)}</span>
+                    </div>
+                    <div class="request-details">
+                        <p class="supply-name">${req.item}${req.quantity > 1 ? ' (x' + req.quantity + ')' : ''}</p>
+                        <p class="quantity">Quantity: ${req.quantity}</p>
+                        ${type === 'borrow' && req.return_date ? `<p class="return-date">Return: ${formatDate(req.return_date)}</p>` : ''}
+                        <div class="request-actions">
+                            ${req.status === 'pending' ? `
+                                <button class="btn-cancel-request" data-request-id="${req.id}" data-request-type="${req.type}">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            ` : ''}
+                            <button class="btn-request-again" data-request-id="${req.id}" data-request-type="${req.type}">
+                                <i class="fas fa-redo"></i> Request Again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        
+        $('#recent-requests-container').html(html);
+    }
+    
+    // Helper functions
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    
+    function capitalizeFirst(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+    
+    // Initialize recent requests with supply type
+    updateRecentRequests('supply');
+    
+    // Set minimum return date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minDate = tomorrow.toISOString().split('T')[0];
+    $('#return-date-input').attr('min', minDate);
+    
+    // Add supply item to list
+    $('#add-supply-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        formData.append('action', 'add_to_cart');
+        
+        // Store that we're on supply tab before reload
+        localStorage.setItem('activeRequestTab', 'supply');
+        
+        $.ajax({
+            url: '{% url "add_to_list" %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    showMessage(response.message, 'success');
+                    location.reload();
+                } else {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('Error adding item to list', 'error');
+            }
+        });
+    });
+    
+    // Add borrow item to list
+    $('#add-borrow-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        formData.append('action', 'add_to_cart');
+        
+        // Store that we're on borrow tab before reload
+        localStorage.setItem('activeRequestTab', 'borrow');
+        
+        $.ajax({
+            url: '{% url "add_to_borrow_list" %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    showMessage(response.message, 'success');
+                    location.reload();
+                } else {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('An error occurred while adding the item to your list', 'error');
+            }
+        });
+    });
+    
+    // Update supply list item
+    $(document).on('click', '.btn-update', function() {
+        const supplyId = $(this).data('supply-id');
+        const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
+        
+        $.ajax({
+            url: '{% url "update_list_item" %}',
+            type: 'POST',
+            data: {
+                'supply_id': supplyId,
+                'quantity': newQuantity,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    showMessage('Item updated successfully', 'success');
+                } else {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('Error updating list item', 'error');
+            }
+        });
+    });
+    
+    // Update borrow list item
+    $(document).on('click', '.btn-update-borrow', function() {
+        const supplyId = $(this).data('supply-id');
+        const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
+        const newReturnDate = $(`.return-date-edit[data-supply-id="${supplyId}"]`).val();
+        
+        $.ajax({
+            url: '{% url "update_borrow_list_item" %}',
+            type: 'POST',
+            data: {
+                'supply_id': supplyId,
+                'quantity': newQuantity,
+                'return_date': newReturnDate,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    showMessage('Item updated successfully', 'success');
+                } else {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('An error occurred while updating the item', 'error');
+            }
+        });
+    });
+    
+    // Remove supply item from list
+    $(document).on('click', '.btn-remove', function() {
+        const supplyId = $(this).data('supply-id');
+        
+        if (confirm('Are you sure you want to remove this item from your list?')) {
+            $.ajax({
+                url: '{% url "remove_from_list" %}',
+                type: 'POST',
+                data: {
+                    'supply_id': supplyId,
+                    'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showMessage('Item removed from list', 'success');
+                        location.reload();
+                    } else {
+                        showMessage(response.message, 'error');
+                    }
+                },
+                error: function() {
+                    showMessage('Error removing item from list', 'error');
+                }
+            });
+        }
+    });
+    
+    // Remove borrow item from list
+    $(document).on('click', '.btn-remove-borrow', function() {
+        const supplyId = $(this).data('supply-id');
+        
+        if (confirm('Are you sure you want to remove this item from your borrow list?')) {
+            $.ajax({
+                url: '{% url "remove_from_borrow_list" %}',
+                type: 'POST',
+                data: {
+                    'supply_id': supplyId,
+                    'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        showMessage('Item removed from borrow list', 'success');
+                        location.reload();
+                    } else {
+                        showMessage(response.message, 'error');
+                    }
+                },
+                error: function() {
+                    showMessage('An error occurred while removing the item', 'error');
+                }
+            });
+        }
+    });
+    
+    // Clear supply list
+    $('.btn-clear-supply-list').on('click', function() {
+        if (confirm('Are you sure you want to clear your entire list?')) {
+            $.ajax({
+                url: '{% url "clear_supply_list" %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showMessage('List cleared successfully!', 'success');
+                        location.reload();
+                    } else {
+                        showMessage(response.message, 'error');
+                    }
+                },
+                error: function() {
+                    showMessage('Error clearing list. Please try again.', 'error');
+                }
+            });
+        }
+    });
+    
+    // Clear borrow list
+    $('.btn-clear-borrow-list').on('click', function() {
+        if (confirm('Are you sure you want to clear your entire borrow list?')) {
+            $.ajax({
+                url: '{% url "clear_borrow_list" %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        showMessage('Borrow list cleared successfully!', 'success');
+                        location.reload();
+                    } else {
+                        showMessage(response.message, 'error');
+                    }
+                },
+                error: function() {
+                    showMessage('An error occurred while clearing the list', 'error');
+                }
+            });
+        }
+    });
+    
+    // Submit supply request
+    $('#submit-supply-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        if (!confirm('Are you sure you want to submit this supply request?')) {
+            return;
+        }
+        
+        const formData = $(this).serialize();
+        
+        // Store active tab before redirect
+        localStorage.setItem('activeRequestTab', 'supply');
+        
+        $.ajax({
+            url: '{% url "submit_list_request" %}',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                console.log('Supply submit response:', response);
+                if (response.success) {
+                    showMessage(response.message || 'Supply request submitted successfully!', 'success');
+                    setTimeout(function() {
+                        window.location.href = '{% url "user_all_requests" %}';
+                    }, 1500);
+                } else {
+                    showMessage(response.message || 'Error submitting request', 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Supply submit error:', xhr.responseText, status, error);
+                let errorMessage = 'An error occurred while submitting the request';
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    errorMessage = response.message || response.error || errorMessage;
+                } catch(e) {
+                    errorMessage = xhr.responseText || errorMessage;
+                }
+                showMessage(errorMessage, 'error');
+            }
+        });
+    });
+    
+    // Submit borrow request
+    $('#submit-borrow-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        if (!confirm('Are you sure you want to submit this borrow request?')) {
+            return;
+        }
+        
+        const formData = $(this).serialize();
+        
+        // Store active tab before redirect
+        localStorage.setItem('activeRequestTab', 'borrow');
+        
+        $.ajax({
+            url: '{% url "submit_borrow_list_request" %}',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                console.log('Borrow submit response:', response);
+                if (response.status === 'success') {
+                    showMessage(response.message || 'Borrow request submitted successfully!', 'success');
+                    setTimeout(function() {
+                        window.location.href = '{% url "user_all_requests" %}';
+                    }, 1500);
+                } else {
+                    showMessage(response.message || 'Error submitting request', 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Borrow submit error:', xhr.responseText, status, error);
+                let errorMessage = 'An error occurred while submitting the request';
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    errorMessage = response.message || response.error || errorMessage;
+                } catch(e) {
+                    errorMessage = xhr.responseText || errorMessage;
+                }
+                showMessage(errorMessage, 'error');
+            }
+        });
+    });
+    
+    // Show message function
+    function showMessage(message, type) {
+        $('.message').remove();
+        
+        const messageClass = type === 'success' ? 'alert-success' : 'alert-error';
+        const messageHtml = `
+            <div class="message ${messageClass}" style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: ${type === 'success' ? '#28a745' : '#dc3545'};
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            ">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            </div>
+        `;
+        
+        $('body').append(messageHtml);
+        
+        setTimeout(function() {
+            $('.message').fadeOut(300, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+    
+    // Handle cancel and request again buttons
+    $(document).on('click', '.btn-cancel-request', function() {
+        const requestId = $(this).data('request-id');
+        const requestType = $(this).data('request-type');
+        cancelRequest(requestId, requestType);
+    });
+    
+    $(document).on('click', '.btn-request-again', function() {
+        const requestId = $(this).data('request-id');
+        const requestType = $(this).data('request-type');
+        requestAgain(requestId, requestType);
+    });
+    
+    function cancelRequest(requestId, type) {
+        if (!confirm('Are you sure you want to cancel this request?')) {
+            return;
+        }
+
+        const urlMap = {
+            'single': `/userpanel/cancel-supply-request/${requestId}/`,
+            'batch': `/userpanel/cancel-batch-supply-request/${requestId}/`,
+            'borrow-single': `/userpanel/cancel-borrow-request/${requestId}/`,
+            'borrow-batch': `/userpanel/cancel-batch-borrow-request/${requestId}/`
+        };
+        
+        const url = urlMap[type] || `/userpanel/cancel-supply-request/${requestId}/`;
+        const csrfToken = $('[name=csrfmiddlewaretoken]').val();
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const requestCard = $(`[data-request-id="${requestId}"]`);
+                const statusBadge = requestCard.find('.status-badge');
+                statusBadge.removeClass().addClass('status-badge status-cancelled').text('cancelled');
+                
+                const cancelButton = requestCard.find('.btn-cancel-request');
+                if (cancelButton.length) {
+                    cancelButton.remove();
+                }
+
+                showMessage(data.message, 'success');
+            } else {
+                showMessage(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            showMessage('An error occurred while cancelling the request', 'error');
+        });
+    }
+    
+    function requestAgain(requestId, type) {
+        const url = `{% url 'request_again' %}?type=${type}&id=${requestId}`;
+        window.location.href = url;
+    }
+});
+</script>
+
+<script>
+// Searchable Dropdown - Completely Rewritten for Systematic Debugging
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing dropdowns...');
+    
+    // Initialize Supply Request Dropdown
+    const supplySearchInput = document.getElementById('supply-search');
+    const supplyDropdown = document.getElementById('supply-dropdown');
+    const supplyHiddenInput = document.getElementById('supply-select');
+    const supplyCategoryFilter = document.getElementById('category-filter');
+    const supplyClearSearchBtn = document.getElementById('clear-search');
+    
+    if (supplySearchInput && supplyDropdown && supplyHiddenInput) {
+        console.log('Initializing supply dropdown');
+        initializeDropdown({
+            searchInput: supplySearchInput,
+            dropdown: supplyDropdown,
+            hiddenInput: supplyHiddenInput,
+            categoryFilter: supplyCategoryFilter,
+            clearSearchBtn: supplyClearSearchBtn,
+            quantityInput: document.getElementById('supply-quantity-input'),
+            name: 'supply'
+        });
+    }
+    
+    // Initialize Borrow Request Dropdown
+    const borrowSearchInput = document.getElementById('borrow-search');
+    const borrowDropdown = document.getElementById('borrow-dropdown');
+    const borrowHiddenInput = document.getElementById('borrow-select');
+    const borrowCategoryFilter = document.getElementById('category-filter-borrow');
+    const borrowClearSearchBtn = document.getElementById('clear-search-borrow');
+    
+    if (borrowSearchInput && borrowDropdown && borrowHiddenInput) {
+        console.log('Initializing borrow dropdown');
+        initializeDropdown({
+            searchInput: borrowSearchInput,
+            dropdown: borrowDropdown,
+            hiddenInput: borrowHiddenInput,
+            categoryFilter: borrowCategoryFilter,
+            clearSearchBtn: borrowClearSearchBtn,
+            quantityInput: document.getElementById('borrow-quantity-input'),
+            name: 'borrow'
+        });
+    }
+});
+
+function initializeDropdown(config) {
+    const { searchInput, dropdown, hiddenInput, categoryFilter, clearSearchBtn, quantityInput, name } = config;
+    
+    // Get all option elements (excluding header and no-results)
+    const getAllOptions = () => {
+        return Array.from(dropdown.querySelectorAll('.select-option'))
+            .filter(opt => !opt.classList.contains('no-results') && !opt.classList.contains('dropdown-header'));
+    };
+    
+    let isDropdownOpen = false;
+    let highlightedIndex = -1;
+    
+    // Helper: Highlight matching text
+    function highlightMatch(text, searchTerm) {
+        if (!searchTerm) return text;
+        const regex = new RegExp(`(${searchTerm})`, 'gi');
+        return text.replace(regex, '<span class="highlight-match">$1</span>');
+    }
+    
+    // Helper: Update results count
+    function updateResultsCount() {
+        const allOptions = getAllOptions();
+        const visibleOptions = allOptions.filter(opt => 
+            !opt.classList.contains('hidden') && opt.dataset.value !== ''
+        );
+        const count = visibleOptions.length;
+        const resultsCount = dropdown.querySelector('.results-count');
+        if (resultsCount) {
+            resultsCount.textContent = `${count} item${count !== 1 ? 's' : ''} found`;
+        }
+        console.log(`[${name}] Visible options: ${count}`);
+    }
+    
+    // Toggle dropdown visibility
+    function toggleDropdown() {
+        isDropdownOpen = !isDropdownOpen;
+        
+        if (isDropdownOpen) {
+            const inputRect = searchInput.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            
+            let dropdownWidth;
+            if (viewportWidth <= 768) {
+                dropdownWidth = Math.min(inputRect.width, viewportWidth - 32);
+                dropdown.style.left = Math.max(16, inputRect.left) + 'px';
+            } else {
+                dropdownWidth = inputRect.width;
+                dropdown.style.left = inputRect.left + 'px';
+            }
+            
+            dropdown.style.width = dropdownWidth + 'px';
+            dropdown.style.top = (inputRect.bottom + window.scrollY) + 'px';
+            dropdown.style.display = 'block';
+            dropdown.style.position = 'fixed';
+            dropdown.style.zIndex = '999999';
+            
+            document.body.appendChild(dropdown);
+            searchInput.focus();
+            console.log(`[${name}] Dropdown opened`);
+        } else {
+            dropdown.style.display = 'none';
+            if (dropdown.parentNode === document.body) {
+                searchInput.closest('.searchable-select-container').appendChild(dropdown);
+            }
+            console.log(`[${name}] Dropdown closed`);
+        }
+    }
+    
+    // Main filter function
+    function filterOptions() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedCategory = categoryFilter ? categoryFilter.value.trim() : '';
+        let hasVisibleOptions = false;
+        let matchedCount = 0;
+        let totalChecked = 0;
+        highlightedIndex = -1;
+        
+        console.log(`[${name}] === FILTERING START ===`);
+        console.log(`[${name}] Search: "${searchTerm}", Category: "${selectedCategory}"`);
+        
+        // Show/hide clear button
+        if (clearSearchBtn) {
+            clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
+        }
+        
+        const allOptions = getAllOptions();
+        console.log(`[${name}] Total options to filter: ${allOptions.length}`);
+        
+        allOptions.forEach((option, index) => {
+            // Always show the placeholder option
+            if (option.dataset.value === '') {
+                option.classList.remove('hidden');
+                return;
+            }
+            
+            totalChecked++;
+            
+            // Get option data
+            const name = (option.dataset.name || '').toLowerCase();
+            const description = (option.dataset.description || '').toLowerCase();
+            const number = (option.dataset.number || '').toLowerCase();
+            const code = (option.dataset.code || '').toLowerCase();
+            const categoryId = (option.dataset.category || '').trim();
+            const categoryName = (option.dataset.categoryName || '').toLowerCase();
+            
+            // Debug first 3 actual options
+            if (totalChecked <= 3) {
+                console.log(`[${name}] Option ${totalChecked}:`, {
+                    itemName: option.dataset.name,
+                    categoryId: categoryId,
+                    selectedCategory: selectedCategory,
+                    categoryIdType: typeof categoryId,
+                    selectedCategoryType: typeof selectedCategory,
+                    stringMatch: String(categoryId) === String(selectedCategory)
+                });
+            }
+            
+            // Check search match
+            const matchesSearch = !searchTerm || 
+                name.includes(searchTerm) || 
+                description.includes(searchTerm) ||
+                number.includes(searchTerm) ||
+                code.includes(searchTerm) ||
+                categoryName.includes(searchTerm);
+            
+            // Check category match - convert both to strings for comparison
+            const matchesCategory = !selectedCategory || (String(categoryId) === String(selectedCategory));
+            
+            // Determine visibility
+            const isVisible = matchesSearch && matchesCategory;
+            
+            // Apply visibility using classes to work with !important CSS
+            if (isVisible) {
+                option.classList.remove('hidden');
+                hasVisibleOptions = true;
+                matchedCount++;
+            } else {
+                option.classList.add('hidden');
+            }
+            
+            // Log visibility changes for first few items
+            if (totalChecked <= 5 && selectedCategory) {
+                console.log(`[${name}] Item "${option.dataset.name}" - Match: ${matchesCategory}, Visible: ${isVisible}, Hidden class: ${option.classList.contains('hidden')}`);
+            }
+            
+            if (isVisible) {
+                // Highlight search term
+                if (searchTerm) {
+                    const optionName = option.querySelector('.option-name');
+                    if (optionName) {
+                        const originalName = option.dataset.name;
+                        optionName.innerHTML = highlightMatch(originalName, searchTerm);
+                    }
+                } else {
+                    const optionName = option.querySelector('.option-name');
+                    if (optionName) {
+                        optionName.textContent = option.dataset.name;
+                    }
+                }
+            }
+        });
+        
+        console.log(`[${name}] Checked ${totalChecked} options, matched ${matchedCount}`);
+        
+        // Handle no results
+        const noResultsOption = dropdown.querySelector('.no-results');
+        if (!hasVisibleOptions && (searchTerm || selectedCategory)) {
+            if (noResultsOption) {
+                noResultsOption.classList.remove('hidden');
+                noResultsOption.style.display = 'flex';
+                if (searchTerm && selectedCategory) {
+                    noResultsOption.textContent = `No items found for "${searchInput.value}" in selected category`;
+                } else if (searchTerm) {
+                    noResultsOption.textContent = `No items found for "${searchInput.value}"`;
+                } else {
+                    noResultsOption.textContent = 'No items in this category';
+                }
+            }
+        } else if (noResultsOption) {
+            noResultsOption.classList.add('hidden');
+            noResultsOption.style.display = 'none';
+        }
+        
+        updateResultsCount();
+        console.log(`[${name}] === FILTERING END ===`);
+    }
+    
+    // Select an option
+    function selectOption(option) {
+        if (!option || option.dataset.value === '') return;
+        
+        const value = option.dataset.value;
+        const text = option.dataset.name || option.textContent;
+        const available = option.dataset.available;
+        
+        hiddenInput.value = value;
+        
+        if (available && quantityInput) {
+            quantityInput.setAttribute('max', available);
+            quantityInput.setAttribute('placeholder', `Enter quantity (max ${available})`);
+        }
+        
+        // Close dropdown
+        if (isDropdownOpen) {
+            toggleDropdown();
+        }
+        
+        // Reset search but KEEP category filter
+        searchInput.value = text;
+        if (clearSearchBtn) {
+            clearSearchBtn.style.display = 'none';
+        }
+        
+        console.log(`[${config.name}] Selected: ${text} (ID: ${value})`);
+    }
+    
+    // Event: Search input click
+    searchInput.addEventListener('click', function() {
+        if (!isDropdownOpen) {
+            toggleDropdown();
+        }
+    });
+    
+    // Event: Search input typing
+    searchInput.addEventListener('input', function() {
+        filterOptions();
+    });
+    
+    // Event: Category filter change
+    if (categoryFilter) {
+        // Restore saved category filter on page load
+        const savedCategory = localStorage.getItem(`${name}_selectedCategory`);
+        if (savedCategory) {
+            categoryFilter.value = savedCategory;
+            // Apply filter immediately
+            filterOptions();
+        }
+        
+        categoryFilter.addEventListener('change', function() {
+            const selectedValue = categoryFilter.value;
+            console.log(`[${name}] Category changed to: "${selectedValue}"`);
+            
+            // Save to localStorage
+            if (selectedValue) {
+                localStorage.setItem(`${name}_selectedCategory`, selectedValue);
+            } else {
+                localStorage.removeItem(`${name}_selectedCategory`);
+            }
+            
+            console.log(`[${name}] Category filter element:`, categoryFilter);
+            console.log(`[${name}] Total options in dropdown:`, getAllOptions().length);
+            
+            // Log first few options for debugging
+            const allOpts = getAllOptions();
+            console.log(`[${name}] Sample options:`, allOpts.slice(1, 4).map(opt => ({
+                name: opt.dataset.name,
+                categoryId: opt.dataset.category,
+                matches: String(opt.dataset.category) === String(selectedValue)
+            })));
+            
+            filterOptions();
+            
+            // Auto-open dropdown when category is selected
+            if (!isDropdownOpen && categoryFilter.value) {
+                toggleDropdown();
+            }
+        });
+    }
+    
+    // Event: Clear search button
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            hiddenInput.value = '';
+            clearSearchBtn.style.display = 'none';
+            filterOptions();
+            searchInput.focus();
+        });
+    }
+    
+    // Event: Click on dropdown option
+    dropdown.addEventListener('click', function(e) {
+        const option = e.target.closest('.select-option');
+        if (option && !option.classList.contains('no-results') && !option.classList.contains('dropdown-header')) {
+            selectOption(option);
+        }
+    });
+    
+    // Event: Click outside to close
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && 
+            !dropdown.contains(e.target) && 
+            !(categoryFilter && categoryFilter.contains(e.target))) {
+            if (isDropdownOpen) {
+                toggleDropdown();
+            }
+        }
+    });
+    
+    // Event: Keyboard navigation
+    searchInput.addEventListener('keydown', function(e) {
+        const allOptions = getAllOptions();
+        const visibleOptions = allOptions.filter(opt => 
+            !opt.classList.contains('hidden') && opt.dataset.value !== ''
+        );
+        
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            
+            if (!isDropdownOpen) {
+                toggleDropdown();
+                return;
+            }
+            
+            // Remove previous highlight
+            allOptions.forEach(opt => opt.classList.remove('highlighted'));
+            
+            // Update index
+            if (e.key === 'ArrowDown') {
+                highlightedIndex = Math.min(highlightedIndex + 1, visibleOptions.length - 1);
+            } else {
+                highlightedIndex = Math.max(highlightedIndex - 1, 0);
+            }
+            
+            // Highlight new option
+            if (visibleOptions[highlightedIndex]) {
+                visibleOptions[highlightedIndex].classList.add('highlighted');
+                visibleOptions[highlightedIndex].scrollIntoView({ block: 'nearest' });
+            }
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (highlightedIndex >= 0 && visibleOptions[highlightedIndex]) {
+                selectOption(visibleOptions[highlightedIndex]);
+            }
+        } else if (e.key === 'Escape') {
+            if (isDropdownOpen) {
+                toggleDropdown();
+            }
+        }
+    });
+    
+    // Event: Close on scroll
+    window.addEventListener('scroll', function() {
+        if (isDropdownOpen && dropdown.parentNode === document.body) {
+            toggleDropdown();
+        }
+    });
+    
+    // Event: Close on resize
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        if (isDropdownOpen && dropdown.parentNode === document.body) {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                toggleDropdown();
+            }, 100);
+        }
+    });
+    
+    // Initialize: Set initial state
+    updateResultsCount();
+    console.log(`[${name}] Dropdown initialized`);
+}
+</script>
+{% endblock %}
