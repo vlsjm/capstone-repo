@@ -583,9 +583,11 @@
         let redirectUrl = '/userpanel/user_dashboard/'; // default fallback
         
         if (message.toLowerCase().includes('supply request') || message.toLowerCase().includes('request')) {
-          redirectUrl = '/userpanel/user_request/';
+          localStorage.setItem('activeRequestTab', 'supply');
+          redirectUrl = '/userpanel/user_unified_request/';
         } else if (message.toLowerCase().includes('borrow')) {
-          redirectUrl = '/userpanel/user_borrow/';
+          localStorage.setItem('activeRequestTab', 'borrow');
+          redirectUrl = '/userpanel/user_unified_request/';
         } else if (message.toLowerCase().includes('reservation')) {
           redirectUrl = '/userpanel/user_reserve/';
         } else if (message.toLowerCase().includes('damage report')) {

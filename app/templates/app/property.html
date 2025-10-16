@@ -3333,7 +3333,6 @@ function printBarcodes() {
                     margin-bottom: 10px;
                 }
                 .barcode-name {
-                    font-weight: bold;
                     font-size: 14px;
                     color: #333;
                     margin-top: 8px;
@@ -3356,8 +3355,8 @@ function printBarcodes() {
             
             content += `
                 <div class="barcode-container">
-                    <img src="${barcodeSrc}" alt="Barcode for ${propertyName}" class="barcode-image">
                     <div class="barcode-name">${propertyName}</div>
+                    <img src="${barcodeSrc}" alt="Barcode for ${propertyName}" class="barcode-image">
                 </div>
             `;
         }
@@ -4364,7 +4363,6 @@ function printSelectedBarcodesFunction(selectedCheckboxes) {
                     margin-bottom: 10px;
                 }
                 .barcode-name {
-                    font-weight: bold;
                     font-size: 14px;
                     color: #333;
                     margin-top: 8px;
@@ -4395,8 +4393,8 @@ function printSelectedBarcodesFunction(selectedCheckboxes) {
         for (let i = 0; i < quantity; i++) {
             content += `
                 <div class="barcode-container">
-                    <img src="${barcodeSrc}" alt="Barcode for ${propertyName}" class="barcode-image">
                     <div class="barcode-name">${propertyName}</div>
+                    <img src="${barcodeSrc}" alt="Barcode for ${propertyName}" class="barcode-image">
                 </div>
             `;
         }

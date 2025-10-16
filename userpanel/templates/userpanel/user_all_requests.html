@@ -230,10 +230,10 @@
                         {% endif %}
                     </p>
                     <div class="empty-actions">
-                        <a href="{% url 'user_request' %}" class="btn-submit">
+                        <a href="{% url 'user_unified_request' %}" class="btn-submit" onclick="localStorage.setItem('activeRequestTab', 'supply')">
                             <i class="fas fa-plus"></i> New Supply Request
                         </a>
-                        <a href="{% url 'user_borrow' %}" class="btn-secondary">
+                        <a href="{% url 'user_unified_request' %}" class="btn-secondary" onclick="localStorage.setItem('activeRequestTab', 'borrow')">
                             <i class="fas fa-handshake"></i> New Borrow Request
                         </a>
                         <a href="{% url 'user_reserve' %}" class="btn-tertiary">

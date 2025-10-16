@@ -2424,11 +2424,11 @@ def submit_list_request(request):
             request.session.modified = True
             
             messages.success(request, f'Supply request submitted successfully! Your request ID is #{batch_request.id}.')
-            return redirect('user_request')
+            return redirect('user_unified_request')
             
         except Exception as e:
             messages.error(request, f'Error submitting request: {str(e)}')
-            return redirect('user_request')
+            return redirect('user_unified_request')
 
 
 @login_required

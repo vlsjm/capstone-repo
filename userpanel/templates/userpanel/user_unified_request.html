@@ -338,7 +338,15 @@
         <script>
             // Set active tab immediately to prevent flash
             (function() {
-                const activeTab = localStorage.getItem('activeRequestTab') || 'supply';
+                // Check if backend specified an active tab, otherwise use localStorage
+                const backendTab = '{{ active_tab|default:"" }}';
+                const activeTab = backendTab || localStorage.getItem('activeRequestTab') || 'supply';
+                
+                // Update localStorage with the active tab
+                if (backendTab) {
+                    localStorage.setItem('activeRequestTab', backendTab);
+                }
+                
                 const supplyBtn = document.getElementById('supply-toggle-btn');
                 const borrowBtn = document.getElementById('borrow-toggle-btn');
                 const supplyContent = document.getElementById('supply-request-content');
@@ -681,8 +689,14 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
-    // Restore active tab from localStorage on page load
-    const activeTab = localStorage.getItem('activeRequestTab') || 'supply';
+    // Restore active tab from localStorage on page load (may be overridden by backend)
+    const backendTab = '{{ active_tab|default:"" }}';
+    const activeTab = backendTab || localStorage.getItem('activeRequestTab') || 'supply';
+    
+    // Update localStorage if backend specified a tab
+    if (backendTab) {
+        localStorage.setItem('activeRequestTab', backendTab);
+    }
     
     // Update toggle buttons and content visibility
     $('.toggle-btn').removeClass('active');
@@ -1192,7 +1206,18 @@ $(document).ready(function() {
     }
     
     function requestAgain(requestId, type) {
-        const url = `{% url 'request_again' %}?type=${type}&id=${requestId}`;
+        // Determine which tab is active (supply or borrow)
+        const activeTab = $('.toggle-btn.active').data('type') || 'supply';
+        
+        // Construct the correct request type
+        let fullType = type; // 'single' or 'batch'
+        if (type === 'batch') {
+            fullType = `batch_${activeTab}`; // 'batch_supply' or 'batch_borrow'
+        } else {
+            fullType = activeTab; // 'supply' or 'borrow'
+        }
+        
+        const url = `{% url 'request_again' %}?type=${fullType}&id=${requestId}`;
         window.location.href = url;
     }
 });

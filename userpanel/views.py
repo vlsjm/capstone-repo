@@ -26,179 +26,37 @@ from django.views.decorators.http import require_POST
 
 
 class UserRequestView(PermissionRequiredMixin, TemplateView):
-    template_name = 'userpanel/user_request.html'
+    """Deprecated view - redirects to unified request page"""
     permission_required = 'app.view_user_module'
 
     def get(self, request):
-        # Get cart items from session
-        cart_items = request.session.get('supply_cart', [])
-        
-        # Convert cart items to objects with supply details
-        cart_items_data = []
-        for item in cart_items:
-            try:
-                if 'supply_id' not in item:
-                    continue
-                    
-                supply_obj = Supply.objects.select_related('quantity_info').get(id=item['supply_id'])
-                enriched_item = {
-                    'supply_id': supply_obj.id,
-                    'supply_name': supply_obj.supply_name,
-                    'quantity': item['quantity'],
-                    'available_quantity': supply_obj.quantity_info.current_quantity if supply_obj.quantity_info else 0,
-                    'supply': supply_obj  # For template consistency
-                }
-                cart_items_data.append(enriched_item)
-            except (Supply.DoesNotExist, KeyError, ValueError) as e:
-                continue
-        
-        # Get available supplies
-        available_supplies = Supply.objects.filter(
-            available_for_request=True,
-            quantity_info__current_quantity__gt=0
-        ).select_related('quantity_info', 'category')
-        
-        # Get recent batch requests (new system)
-        recent_batch_requests = SupplyRequestBatch.objects.filter(user=request.user).order_by('-request_date')[:5]
-        
-        # Get recent single requests (legacy system) 
-        recent_single_requests = SupplyRequest.objects.filter(user=request.user).order_by('-request_date')[:5]
-        
-        # Combine and format recent requests
-        recent_requests_data = []
-        
-        # Add batch requests
-        for req in recent_batch_requests:
-            items_text = f"{req.total_items} items"
-            if req.total_items <= 3:
-                items_list = ", ".join([f"{item.supply.supply_name} (x{item.quantity})" for item in req.items.all()])
-                items_text = items_list
-            
-            recent_requests_data.append({
-                'id': req.id,
-                'item': items_text,
-                'quantity': req.total_quantity,
-                'status': req.status,
-                'date': req.request_date,
-                'purpose': req.purpose,
-                'type': 'batch'
-            })
-        
-        # Add single requests (for backward compatibility)
-        for req in recent_single_requests:
-            recent_requests_data.append({
-                'id': req.id,
-                'item': req.supply.supply_name,
-                'quantity': req.quantity,
-                'status': req.status,
-                'date': req.request_date,
-                'purpose': req.purpose,
-                'type': 'single'
-            })
-        
-        # Sort by date
-        recent_requests_data.sort(key=lambda x: x['date'], reverse=True)
-        recent_requests_data = recent_requests_data[:5]  # Keep only 5 most recent
-        
-        return render(request, self.template_name, {
-            'cart_items': cart_items_data,
-            'available_supplies': available_supplies,
-            'recent_requests': recent_requests_data
-        })
+        # Redirect to unified request page with supply tab active
+        request.session['active_request_tab'] = 'supply'
+        request.session.modified = True
+        return redirect('user_unified_request')
 
     def post(self, request):
-        # This method is now handled by the new cart-based views in app.views
-        # Redirect to the main supply request page
-        return redirect('create_supply_request')
+        # Redirect to unified request page
+        request.session['active_request_tab'] = 'supply'
+        request.session.modified = True
+        return redirect('user_unified_request')
 
 
 class UserBorrowView(PermissionRequiredMixin, TemplateView):
-    template_name = 'userpanel/user_borrow.html'
+    """Deprecated view - redirects to unified request page"""
     permission_required = 'app.view_user_module'
 
     def get(self, request):
-        # Get cart items from session
-        cart_items = request.session.get('borrow_cart', [])
-        
-        # Convert cart items to objects with property details
-        cart_items_data = []
-        for item in cart_items:
-            try:
-                property_obj = Property.objects.get(id=item['property_id'])
-                enriched_item = {
-                    'supply': property_obj,  # Using 'supply' for template consistency
-                    'quantity': item['quantity'],
-                    'return_date': datetime.strptime(item['return_date'], '%Y-%m-%d').date() if item['return_date'] else None,
-                    'purpose': item['purpose']
-                }
-                cart_items_data.append(enriched_item)
-            except Property.DoesNotExist:
-                continue
-            except Exception as e:
-                continue
-        
-        # Get available properties for the dropdown
-        available_supplies = Property.objects.filter(is_archived=False, quantity__gt=0)
-        
-        # Get recent batch borrow requests (new system)
-        recent_batch_requests = BorrowRequestBatch.objects.filter(user=request.user).order_by('-request_date')[:5]
-        
-        # Get recent single requests (legacy system) 
-        recent_single_requests = BorrowRequest.objects.filter(user=request.user).order_by('-borrow_date')[:5]
-        
-        # Combine and format recent requests
-        recent_requests_data = []
-        
-        # Add batch requests
-        for req in recent_batch_requests:
-            items_text = f"{req.total_items} items"
-            if req.total_items <= 3:
-                items_list = ", ".join([f"{item.property.property_name} (x{item.quantity})" for item in req.items.all()])
-                items_text = items_list
-            
-            recent_requests_data.append({
-                'id': req.id,
-                'item': items_text,
-                'quantity': req.total_quantity,
-                'status': req.status,
-                'date': req.request_date,
-                'return_date': req.latest_return_date,
-                'purpose': req.purpose,
-                'type': 'batch'
-            })
-        
-        # Add single requests (for backward compatibility)
-        for req in recent_single_requests:
-            recent_requests_data.append({
-                'id': req.id,
-                'item': req.property.property_name,
-                'quantity': req.quantity,
-                'status': req.status,
-                'date': req.borrow_date,
-                'return_date': req.return_date,
-                'purpose': req.purpose,
-                'type': 'single'
-            })
-        
-        # Sort by date (most recent first)
-        recent_requests_data.sort(key=lambda x: x['date'], reverse=True)
-        recent_requests_data = recent_requests_data[:5]
-        
-        return render(request, self.template_name, {
-            'cart_items': cart_items_data,
-            'available_supplies': available_supplies,
-            'recent_requests': recent_requests_data
-        })
+        # Redirect to unified request page with borrow tab active
+        request.session['active_request_tab'] = 'borrow'
+        request.session.modified = True
+        return redirect('user_unified_request')
 
     def post(self, request):
-        # This method is now handled by the new cart-based views
-        # Redirect to the main borrow request page
-        return redirect('user_borrow')
-        
-        return render(request, self.template_name, {
-            'form': form,
-            'recent_requests': recent_requests_data
-        })
+        # Redirect to unified request page
+        request.session['active_request_tab'] = 'borrow'
+        request.session.modified = True
+        return redirect('user_unified_request')
 
 
 class UserReserveView(PermissionRequiredMixin, TemplateView):
@@ -445,6 +303,9 @@ class UserUnifiedRequestView(PermissionRequiredMixin, TemplateView):
         borrow_recent_requests_data.sort(key=lambda x: x['date'], reverse=True)
         borrow_recent_requests_data = borrow_recent_requests_data[:5]
         
+        # Get active tab from session (set by request_again) or default to supply
+        active_tab = request.session.pop('active_request_tab', None)
+        
         return render(request, self.template_name, {
             'supply_cart_items': supply_cart_items_data,
             'borrow_cart_items': borrow_cart_items_data,
@@ -454,6 +315,7 @@ class UserUnifiedRequestView(PermissionRequiredMixin, TemplateView):
             'borrow_categories': borrow_categories,
             'supply_recent_requests': json.dumps(supply_recent_requests_data),
             'borrow_recent_requests': json.dumps(borrow_recent_requests_data),
+            'active_tab': active_tab,  # Pass to template
         })
 
 
@@ -1765,9 +1627,10 @@ def request_again(request):
                 'quantity': original_request.quantity
             }
             request.session['supply_cart'] = [cart_item]
+            request.session['active_request_tab'] = 'supply'
             request.session.modified = True
             messages.success(request, f'Added {original_request.supply.supply_name} to your cart.')
-            return redirect('user_request')
+            return redirect('user_unified_request')
             
         elif request_type == 'batch_supply':
             original_request = get_object_or_404(SupplyRequestBatch, id=request_id, user=request.user)
@@ -1779,9 +1642,10 @@ def request_again(request):
                     'quantity': item.quantity
                 })
             request.session['supply_cart'] = cart_items
+            request.session['active_request_tab'] = 'supply'
             request.session.modified = True
             messages.success(request, f'Added {original_request.items.count()} items to your cart.')
-            return redirect('user_request')
+            return redirect('user_unified_request')
             
         elif request_type == 'borrow':
             original_request = get_object_or_404(BorrowRequest, id=request_id, user=request.user)
@@ -1793,9 +1657,10 @@ def request_again(request):
                 'purpose': original_request.purpose if hasattr(original_request, 'purpose') else ''
             }
             request.session['borrow_cart'] = [cart_item]
+            request.session['active_request_tab'] = 'borrow'
             request.session.modified = True
             messages.success(request, f'Added {original_request.property.property_name} to your borrow list.')
-            return redirect('user_borrow')
+            return redirect('user_unified_request')
             
         elif request_type == 'batch_borrow':
             original_request = get_object_or_404(BorrowRequestBatch, id=request_id, user=request.user)
@@ -1809,9 +1674,10 @@ def request_again(request):
                     'purpose': original_request.purpose if hasattr(original_request, 'purpose') else ''
                 })
             request.session['borrow_cart'] = borrow_items
+            request.session['active_request_tab'] = 'borrow'
             request.session.modified = True
             messages.success(request, f'Added {original_request.items.count()} items to your borrow list.')
-            return redirect('user_borrow')
+            return redirect('user_unified_request')
             
         elif request_type == 'reservation':
             original_request = get_object_or_404(Reservation, id=request_id, user=request.user)
