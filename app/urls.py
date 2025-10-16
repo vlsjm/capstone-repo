@@ -45,6 +45,8 @@ from .views import (
     approve_borrow_request,
     reject_borrow_request,
     get_supply_history,
+    get_supply_quantity_activity,
+    generate_quantity_activity_report,
     get_property_history,
     CustomLoginView,
     create_department,
@@ -174,6 +176,8 @@ urlpatterns = [
     path('api/property/<int:property_id>/history/', get_property_history, name='property_history'),
 
     path('get_supply_history/<int:supply_id>/', get_supply_history, name='get_supply_history'),
+    path('get_supply_quantity_activity/<int:supply_id>/', get_supply_quantity_activity, name='get_supply_quantity_activity'),
+    path('generate_quantity_activity_report/', generate_quantity_activity_report, name='generate_quantity_activity_report'),
     path('get_property_history/<int:property_id>/', get_property_history, name='get_property_history'),
     path('change-password/', 
          AdminPasswordChangeView.as_view(), 

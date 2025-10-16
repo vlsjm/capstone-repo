@@ -10067,3 +10067,269 @@ INFO 2025-10-16 00:28:17,618 basehttp 14748 7172 "GET /userpanel/all_requests/ H
 INFO 2025-10-16 00:28:20,579 basehttp 14748 15992 "GET /dashboard/ HTTP/1.1" 200 111565
 INFO 2025-10-16 00:28:24,797 autoreload 14748 4992 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\userpanel\views.py changed, reloading.
 INFO 2025-10-16 00:28:25,927 autoreload 18504 5044 Watching for file changes with StatReloader
+INFO 2025-10-16 14:16:31,733 autoreload 15084 14292 Watching for file changes with StatReloader
+INFO 2025-10-16 14:16:35,151 basehttp 15084 6736 "GET / HTTP/1.1" 200 12072
+WARNING 2025-10-16 14:16:35,283 basehttp 15084 6736 "GET /favicon.ico HTTP/1.1" 404 30078
+INFO 2025-10-16 14:16:41,272 basehttp 15084 6736 "POST /accounts/login/ HTTP/1.1" 200 12270
+INFO 2025-10-16 14:16:44,947 basehttp 15084 6736 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-16 14:16:45,299 basehttp 15084 6736 "GET /dashboard/ HTTP/1.1" 200 53575
+INFO 2025-10-16 14:16:45,323 basehttp 15084 7880 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 14:16:45,332 basehttp 15084 6736 "GET /static/css/style.css HTTP/1.1" 200 28832
+INFO 2025-10-16 14:16:47,640 basehttp 15084 6736 "GET /property/ HTTP/1.1" 200 184503
+INFO 2025-10-16 14:16:47,671 basehttp 15084 6736 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-10-16 14:16:54,127 basehttp 15084 6736 "GET /media/barcodes/properties/32543254.png HTTP/1.1" 200 2920
+INFO 2025-10-16 14:17:01,870 basehttp 15084 6736 "GET /get_property_history/2/ HTTP/1.1" 200 6187
+INFO 2025-10-16 14:17:05,242 basehttp 15084 6736 "GET /supplies/ HTTP/1.1" 200 169806
+INFO 2025-10-16 14:17:05,276 basehttp 15084 6736 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-10-16 14:17:05,276 basehttp 15084 7880 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 14:17:06,883 basehttp 15084 7880 "GET /get_supply_history/1/ HTTP/1.1" 200 3257
+INFO 2025-10-16 14:17:17,971 basehttp 15084 7880 "GET /my-supply-requests/ HTTP/1.1" 200 47427
+INFO 2025-10-16 14:17:18,005 basehttp 15084 7880 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-10-16 14:17:19,334 basehttp 15084 7880 "GET /my-borrow-requests/ HTTP/1.1" 200 29390
+INFO 2025-10-16 14:17:36,086 basehttp 15084 7880 "GET /borrow-batch-detail/1/ HTTP/1.1" 200 24608
+INFO 2025-10-16 14:17:36,118 basehttp 15084 7880 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-10-16 14:17:38,604 basehttp 15084 7880 "GET /my-borrow-requests/ HTTP/1.1" 200 29390
+INFO 2025-10-16 14:17:46,112 basehttp 15084 7880 "GET /my-reservations/ HTTP/1.1" 200 55145
+INFO 2025-10-16 14:17:46,136 basehttp 15084 7880 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-10-16 14:17:50,650 basehttp 15084 7880 "GET /profile/ HTTP/1.1" 200 16484
+INFO 2025-10-16 14:17:51,612 basehttp 15084 7880 "GET /archived-items/ HTTP/1.1" 200 17084
+INFO 2025-10-16 14:17:53,416 basehttp 15084 7880 "GET /dashboard/ HTTP/1.1" 200 53575
+WARNING 2025-10-16 14:17:58,226 basehttp 15084 6736 "GET /request/1/ HTTP/1.1" 404 18869
+INFO 2025-10-16 14:17:58,325 basehttp 15084 7880 "POST /mark-notification-read/ HTTP/1.1" 200 17
+INFO 2025-10-16 14:17:59,961 basehttp 15084 7880 "GET /dashboard/ HTTP/1.1" 200 53499
+INFO 2025-10-16 14:18:05,176 basehttp 15084 7880 "POST /mark-notification-read/ HTTP/1.1" 200 17
+INFO 2025-10-16 14:18:12,543 basehttp 15084 7880 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-10-16 14:18:12,549 basehttp 15084 7880 "GET / HTTP/1.1" 200 12072
+INFO 2025-10-16 14:18:16,519 basehttp 15084 7880 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-16 14:18:16,636 basehttp 15084 7880 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 18987
+INFO 2025-10-16 14:18:16,678 basehttp 15084 7880 "GET /static/css/mobile.css HTTP/1.1" 200 12234
+WARNING 2025-10-16 14:18:19,617 basehttp 15084 7880 "POST /mark-notification-read/ HTTP/1.1" 400 40
+INFO 2025-10-16 14:18:19,766 basehttp 15084 7880 "GET /userpanel/user_request/ HTTP/1.1" 200 40771
+INFO 2025-10-16 14:18:19,803 basehttp 15084 7880 "GET /static/css/userForms.css HTTP/1.1" 200 67075
+INFO 2025-10-16 14:18:25,765 basehttp 15084 7880 "GET /userpanel/user_reserve/ HTTP/1.1" 200 29139
+INFO 2025-10-16 14:18:26,632 basehttp 15084 7880 "GET /userpanel/all_requests/ HTTP/1.1" 200 57533
+INFO 2025-10-16 14:18:28,270 basehttp 15084 7880 "GET /userpanel/user_report/ HTTP/1.1" 200 11995
+INFO 2025-10-16 14:18:29,354 basehttp 15084 7880 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 18987
+INFO 2025-10-16 14:18:33,112 basehttp 15084 7880 "GET /userpanel/user_profile/ HTTP/1.1" 200 20886
+INFO 2025-10-16 14:18:33,733 basehttp 15084 7880 "GET /userpanel/user_report/ HTTP/1.1" 200 11995
+INFO 2025-10-16 14:18:34,857 basehttp 15084 7880 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 18987
+INFO 2025-10-16 14:18:37,293 basehttp 15084 7880 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-10-16 14:18:37,299 basehttp 15084 7880 "GET / HTTP/1.1" 200 12072
+INFO 2025-10-16 14:36:59,210 autoreload 4028 13812 Watching for file changes with StatReloader
+INFO 2025-10-16 14:37:02,906 basehttp 4028 944 "GET / HTTP/1.1" 200 12072
+INFO 2025-10-16 14:37:06,715 basehttp 4028 944 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-16 14:37:06,826 basehttp 4028 944 "GET /dashboard/ HTTP/1.1" 200 53333
+INFO 2025-10-16 14:37:06,850 basehttp 4028 944 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-10-16 14:37:08,468 basehttp 4028 944 "GET /property/ HTTP/1.1" 200 184503
+INFO 2025-10-16 14:37:10,358 basehttp 4028 944 "GET /supplies/ HTTP/1.1" 200 169806
+INFO 2025-10-16 14:37:10,382 basehttp 4028 944 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 14:38:52,759 basehttp 4028 944 "GET /get_supply_history/1/ HTTP/1.1" 200 3257
+INFO 2025-10-16 14:39:16,838 basehttp 4028 944 "GET /get_supply_history/1/ HTTP/1.1" 200 3257
+INFO 2025-10-16 14:56:13,572 basehttp 4028 19428 "GET /supplies/ HTTP/1.1" 200 190257
+INFO 2025-10-16 14:56:13,605 basehttp 4028 19428 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-10-16 14:56:13,607 basehttp 4028 19428 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 14:56:14,420 basehttp 4028 19428 "GET /supplies/ HTTP/1.1" 200 190257
+INFO 2025-10-16 14:56:14,442 basehttp 4028 19428 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+WARNING 2025-10-16 14:56:17,280 basehttp 4028 19428 "GET /get_supply_quantity_activity/1/ HTTP/1.1" 404 30138
+WARNING 2025-10-16 14:56:31,216 basehttp 4028 19428 "GET /generate_quantity_activity_report/?supply_id=1&filter_type=all HTTP/1.1" 404 30179
+INFO 2025-10-16 14:58:32,251 autoreload 4028 13812 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 14:58:32,885 autoreload 12092 6292 Watching for file changes with StatReloader
+INFO 2025-10-16 14:59:31,019 autoreload 12092 6292 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 14:59:31,629 autoreload 18796 20556 Watching for file changes with StatReloader
+INFO 2025-10-16 14:59:41,858 autoreload 18796 20556 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 14:59:42,467 autoreload 11960 7376 Watching for file changes with StatReloader
+INFO 2025-10-16 14:59:49,575 autoreload 11960 7376 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 14:59:50,237 autoreload 18680 5572 Watching for file changes with StatReloader
+INFO 2025-10-16 14:59:57,468 autoreload 18680 5572 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 14:59:58,078 autoreload 2020 4540 Watching for file changes with StatReloader
+INFO 2025-10-16 15:00:16,651 autoreload 2020 4540 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-10-16 15:00:17,252 autoreload 12932 6548 Watching for file changes with StatReloader
+INFO 2025-10-16 15:00:33,512 autoreload 12932 6548 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\urls.py changed, reloading.
+INFO 2025-10-16 15:00:34,188 autoreload 11472 3160 Watching for file changes with StatReloader
+INFO 2025-10-16 15:01:21,636 autoreload 16752 9732 Watching for file changes with StatReloader
+INFO 2025-10-16 15:01:44,433 basehttp 11472 7544 "GET /?id=1394efac-1e00-43ca-8c98-6853b994edf9&vscodeBrowserReqId=1760598104383 HTTP/1.1" 200 12072
+WARNING 2025-10-16 15:01:50,499 basehttp 11472 7544 "GET /supply/?id=1394efac-1e00-43ca-8c98-6853b994edf9&vscodeBrowserReqId=1760598110490 HTTP/1.1" 404 30773
+INFO 2025-10-16 15:04:23,396 basehttp 11472 16940 "GET /supplies/ HTTP/1.1" 200 190257
+INFO 2025-10-16 15:04:23,431 basehttp 11472 16940 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-10-16 15:04:23,434 basehttp 11472 16940 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:04:24,112 basehttp 11472 16940 "GET /supplies/ HTTP/1.1" 200 190257
+INFO 2025-10-16 15:04:24,141 basehttp 11472 16940 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:04:25,931 basehttp 11472 16940 "GET /get_supply_quantity_activity/1/ HTTP/1.1" 200 1492
+INFO 2025-10-16 15:04:58,076 basehttp 11472 16940 "GET /generate_quantity_activity_report/?supply_id=1&filter_type=all HTTP/1.1" 200 2681
+INFO 2025-10-16 15:06:19,688 basehttp 11472 16940 "GET /get_supply_quantity_activity/1/ HTTP/1.1" 200 1492
+INFO 2025-10-16 15:07:45,605 basehttp 11472 16940 "POST /supply/modify_quantity/ HTTP/1.1" 302 0
+INFO 2025-10-16 15:07:45,658 basehttp 11472 16940 "GET /supplies/ HTTP/1.1" 200 190516
+INFO 2025-10-16 15:07:45,731 basehttp 11472 16940 "GET /supplies/ HTTP/1.1" 200 190257
+INFO 2025-10-16 15:07:45,759 basehttp 11472 16940 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:07:49,093 basehttp 11472 16940 "GET /get_supply_quantity_activity/1/ HTTP/1.1" 200 1948
+INFO 2025-10-16 15:09:31,437 autoreload 11472 3160 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:09:32,058 autoreload 11704 9464 Watching for file changes with StatReloader
+INFO 2025-10-16 15:10:57,337 basehttp 11704 19664 "GET /get_supply_quantity_activity/1/ HTTP/1.1" 200 1948
+INFO 2025-10-16 15:11:24,852 basehttp 11704 19664 "GET /my-supply-requests/ HTTP/1.1" 200 47427
+INFO 2025-10-16 15:11:24,880 basehttp 11704 19664 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-10-16 15:11:27,255 basehttp 11704 19664 "GET /dashboard/ HTTP/1.1" 200 53333
+INFO 2025-10-16 15:11:28,976 basehttp 11704 19664 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-10-16 15:11:28,986 basehttp 11704 19664 "GET / HTTP/1.1" 200 12072
+INFO 2025-10-16 15:11:33,851 basehttp 11704 19664 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-16 15:11:33,925 basehttp 11704 19664 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 18987
+INFO 2025-10-16 15:11:33,956 basehttp 11704 19664 "GET /static/css/mobile.css HTTP/1.1" 200 12234
+INFO 2025-10-16 15:11:35,638 basehttp 11704 19664 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 63111
+INFO 2025-10-16 15:11:35,662 basehttp 11704 19664 "GET /static/css/userForms.css HTTP/1.1" 200 67075
+INFO 2025-10-16 15:11:40,627 basehttp 11704 19664 "POST /userpanel/add-to-list/ HTTP/1.1" 200 73
+INFO 2025-10-16 15:11:40,714 basehttp 11704 19664 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 65532
+INFO 2025-10-16 15:11:47,378 basehttp 11704 19664 "POST /userpanel/submit-list-request/ HTTP/1.1" 200 93
+INFO 2025-10-16 15:11:48,967 basehttp 11704 19664 "GET /userpanel/all_requests/ HTTP/1.1" 200 61968
+INFO 2025-10-16 15:11:50,746 basehttp 11704 19664 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 63395
+INFO 2025-10-16 15:11:54,792 basehttp 11704 19664 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 18987
+INFO 2025-10-16 15:11:56,634 basehttp 11704 19664 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-10-16 15:11:56,641 basehttp 11704 19664 "GET / HTTP/1.1" 200 12072
+INFO 2025-10-16 15:12:01,846 basehttp 11704 19664 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-16 15:12:01,944 basehttp 11704 19664 "GET /dashboard/ HTTP/1.1" 200 54286
+INFO 2025-10-16 15:12:03,257 basehttp 11704 19664 "GET /my-supply-requests/ HTTP/1.1" 200 50686
+INFO 2025-10-16 15:12:04,789 basehttp 11704 19664 "GET /batch-request/3/ HTTP/1.1" 200 23364
+ERROR 2025-10-16 15:12:10,933 utils 11704 19664 Failed to send batch completion email to johnmarkgvales@gmail.com: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. d9443c01a7336-29099aba3fcsm18588565ad.99 - gsmtp', 'webmaster@localhost')
+INFO 2025-10-16 15:12:10,936 basehttp 11704 19664 "POST /batch-request/3/item/3/approve/ HTTP/1.1" 302 0
+INFO 2025-10-16 15:12:11,092 basehttp 11704 19664 "GET /batch-request/3/ HTTP/1.1" 200 23304
+INFO 2025-10-16 15:12:15,527 basehttp 11704 19664 "POST /batch-request/3/item/3/claim/ HTTP/1.1" 302 0
+INFO 2025-10-16 15:12:15,690 basehttp 11704 19664 "GET /batch-request/3/ HTTP/1.1" 200 22749
+INFO 2025-10-16 15:12:20,410 basehttp 11704 19664 "GET /supplies/ HTTP/1.1" 200 190257
+INFO 2025-10-16 15:12:20,447 basehttp 11704 19664 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:12:23,468 basehttp 11704 19664 "GET /get_supply_quantity_activity/1/ HTTP/1.1" 200 2186
+INFO 2025-10-16 15:15:06,447 autoreload 11704 9464 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:15:07,164 autoreload 11756 19424 Watching for file changes with StatReloader
+INFO 2025-10-16 15:15:14,313 autoreload 11756 19424 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:15:14,948 autoreload 18716 12680 Watching for file changes with StatReloader
+INFO 2025-10-16 15:15:41,861 autoreload 18716 12680 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:15:42,386 autoreload 10112 19212 Watching for file changes with StatReloader
+INFO 2025-10-16 15:16:00,365 autoreload 15084 10284 Watching for file changes with StatReloader
+WARNING 2025-10-16 15:16:21,196 basehttp 10112 8512 "GET /login/?id=1394efac-1e00-43ca-8c98-6853b994edf9&vscodeBrowserReqId=1760598981174 HTTP/1.1" 404 30770
+INFO 2025-10-16 15:18:10,558 autoreload 19692 13296 Watching for file changes with StatReloader
+INFO 2025-10-16 15:18:14,700 basehttp 10112 11444 "GET /supplies/ HTTP/1.1" 200 190257
+INFO 2025-10-16 15:18:14,733 basehttp 10112 11444 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-10-16 15:18:14,736 basehttp 10112 11444 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:18:15,357 basehttp 10112 11444 "GET /supplies/ HTTP/1.1" 200 190257
+INFO 2025-10-16 15:18:15,387 basehttp 10112 11444 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:18:18,940 basehttp 10112 11444 "GET /get_supply_quantity_activity/1/ HTTP/1.1" 200 2186
+INFO 2025-10-16 15:18:23,042 basehttp 10112 11444 "GET /dashboard/ HTTP/1.1" 200 54214
+INFO 2025-10-16 15:18:24,845 basehttp 10112 11444 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-10-16 15:18:24,853 basehttp 10112 11444 "GET / HTTP/1.1" 200 12072
+INFO 2025-10-16 15:18:28,171 basehttp 10112 11444 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-16 15:18:28,348 basehttp 10112 11444 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 22415
+WARNING 2025-10-16 15:18:29,789 basehttp 10112 11444 "POST /mark-notification-read/ HTTP/1.1" 400 40
+INFO 2025-10-16 15:18:29,872 basehttp 10112 11444 "GET /userpanel/user_request/ HTTP/1.1" 200 41713
+INFO 2025-10-16 15:18:31,233 basehttp 10112 11444 "GET /userpanel/request-again/?type=batch_supply&id=3 HTTP/1.1" 302 0
+INFO 2025-10-16 15:18:31,298 basehttp 10112 11444 "GET /userpanel/user_request/ HTTP/1.1" 200 44482
+INFO 2025-10-16 15:18:35,836 basehttp 10112 11444 "POST /userpanel/submit-list-request/ HTTP/1.1" 200 93
+INFO 2025-10-16 15:18:39,796 basehttp 10112 11444 "GET /userpanel/user_request/ HTTP/1.1" 200 42912
+INFO 2025-10-16 15:18:43,054 basehttp 10112 11444 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 22415
+INFO 2025-10-16 15:18:44,936 basehttp 10112 11444 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-10-16 15:18:44,942 basehttp 10112 11444 "GET / HTTP/1.1" 200 12072
+INFO 2025-10-16 15:18:48,810 basehttp 10112 11444 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-16 15:18:48,905 basehttp 10112 11444 "GET /dashboard/ HTTP/1.1" 200 55169
+INFO 2025-10-16 15:18:53,149 basehttp 10112 11444 "GET /supplies/ HTTP/1.1" 200 190257
+INFO 2025-10-16 15:18:53,173 basehttp 10112 11444 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:18:56,913 basehttp 10112 11444 "GET /my-supply-requests/ HTTP/1.1" 200 54292
+INFO 2025-10-16 15:18:58,080 basehttp 10112 11444 "GET /batch-request/4/ HTTP/1.1" 200 23365
+ERROR 2025-10-16 15:19:04,092 utils 10112 11444 Failed to send batch completion email to johnmarkgvales@gmail.com: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/accounts/troubleshooter/2402620. 98e67ed59e1d1-33bb6626309sm707969a91.7 - gsmtp', 'webmaster@localhost')
+INFO 2025-10-16 15:19:04,095 basehttp 10112 11444 "POST /batch-request/4/item/4/approve/ HTTP/1.1" 302 0
+INFO 2025-10-16 15:19:04,154 basehttp 10112 11444 "GET /batch-request/4/ HTTP/1.1" 200 23305
+INFO 2025-10-16 15:19:07,148 basehttp 10112 11444 "POST /batch-request/4/item/4/claim/ HTTP/1.1" 302 0
+INFO 2025-10-16 15:19:07,208 basehttp 10112 11444 "GET /batch-request/4/ HTTP/1.1" 200 22750
+INFO 2025-10-16 15:19:11,869 basehttp 10112 11444 "GET /supplies/ HTTP/1.1" 200 190257
+INFO 2025-10-16 15:19:11,895 basehttp 10112 11444 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:19:15,208 basehttp 10112 11444 "GET /get_supply_quantity_activity/1/ HTTP/1.1" 200 2687
+INFO 2025-10-16 15:21:23,456 autoreload 19692 13296 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:21:23,536 autoreload 10112 19212 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:21:24,055 autoreload 15556 13528 Watching for file changes with StatReloader
+INFO 2025-10-16 15:21:24,162 autoreload 12112 5772 Watching for file changes with StatReloader
+INFO 2025-10-16 15:23:35,081 basehttp 12112 388 "GET /supplies/ HTTP/1.1" 200 193147
+INFO 2025-10-16 15:23:35,109 basehttp 12112 388 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:23:56,923 basehttp 12112 388 "GET /supplies/ HTTP/1.1" 200 193147
+INFO 2025-10-16 15:23:56,945 basehttp 12112 388 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:24:00,196 basehttp 12112 388 "GET /get_supply_quantity_activity/1/? HTTP/1.1" 200 3018
+INFO 2025-10-16 15:24:06,935 basehttp 12112 388 "GET /get_supply_quantity_activity/1/?user_filter=4 HTTP/1.1" 200 1985
+INFO 2025-10-16 15:26:08,683 autoreload 15556 13528 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:26:08,916 autoreload 12112 5772 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:26:09,237 autoreload 17236 14884 Watching for file changes with StatReloader
+INFO 2025-10-16 15:26:09,492 autoreload 7748 12128 Watching for file changes with StatReloader
+INFO 2025-10-16 15:27:00,932 basehttp 17236 9864 - Broken pipe from ('127.0.0.1', 51438)
+INFO 2025-10-16 15:27:00,932 basehttp 17236 7824 "GET /supplies/ HTTP/1.1" 200 193230
+INFO 2025-10-16 15:27:00,958 basehttp 17236 7824 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-10-16 15:27:00,960 basehttp 17236 18964 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:27:01,103 basehttp 17236 18964 "GET /supplies/ HTTP/1.1" 200 193230
+INFO 2025-10-16 15:27:01,134 basehttp 17236 18964 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:27:01,279 basehttp 17236 18964 "GET /supplies/ HTTP/1.1" 200 193230
+INFO 2025-10-16 15:27:01,312 basehttp 17236 18964 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:27:01,412 basehttp 17236 18964 "GET /supplies/ HTTP/1.1" 200 193230
+INFO 2025-10-16 15:27:01,443 basehttp 17236 18964 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:27:01,692 basehttp 17236 18964 "GET /supplies/ HTTP/1.1" 200 193230
+INFO 2025-10-16 15:27:01,715 basehttp 17236 18964 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:27:01,804 basehttp 17236 18964 "GET /supplies/ HTTP/1.1" 200 193230
+INFO 2025-10-16 15:27:01,826 basehttp 17236 18964 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:27:03,098 basehttp 17236 18964 "GET /get_supply_quantity_activity/1/? HTTP/1.1" 200 3018
+INFO 2025-10-16 15:27:08,417 basehttp 17236 18964 "GET /get_supply_quantity_activity/1/?user_filter=4 HTTP/1.1" 200 1985
+INFO 2025-10-16 15:28:18,429 basehttp 17236 18964 "GET /get_supply_quantity_activity/1/?user_filter=4&date_filter_type=date_range HTTP/1.1" 200 1992
+INFO 2025-10-16 15:28:18,744 autoreload 7748 12128 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:28:19,142 autoreload 17236 14884 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:28:19,293 autoreload 15368 1128 Watching for file changes with StatReloader
+INFO 2025-10-16 15:28:19,748 autoreload 18716 8784 Watching for file changes with StatReloader
+INFO 2025-10-16 15:28:22,322 basehttp 15368 19388 "GET /get_supply_quantity_activity/1/?user_filter=4&date_filter_type=date_range HTTP/1.1" 200 267
+INFO 2025-10-16 15:28:25,230 basehttp 15368 19388 "GET /get_supply_quantity_activity/1/?user_filter=4 HTTP/1.1" 200 260
+INFO 2025-10-16 15:28:26,240 basehttp 15368 19388 "GET /get_supply_quantity_activity/1/?user_filter=4 HTTP/1.1" 200 260
+INFO 2025-10-16 15:28:34,853 autoreload 15368 1128 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:28:35,013 autoreload 18716 8784 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:28:35,423 autoreload 12364 16424 Watching for file changes with StatReloader
+INFO 2025-10-16 15:28:35,644 autoreload 9344 10312 Watching for file changes with StatReloader
+INFO 2025-10-16 15:29:19,392 basehttp 12364 8848 - Broken pipe from ('127.0.0.1', 59094)
+INFO 2025-10-16 15:29:19,392 basehttp 12364 18784 "GET /supplies/ HTTP/1.1" 200 193248
+INFO 2025-10-16 15:29:19,432 basehttp 12364 18784 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:29:19,564 basehttp 12364 18784 "GET /supplies/ HTTP/1.1" 200 193248
+INFO 2025-10-16 15:29:19,593 basehttp 12364 18784 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:29:19,754 basehttp 12364 18784 "GET /supplies/ HTTP/1.1" 200 193248
+INFO 2025-10-16 15:29:19,788 basehttp 12364 18784 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:29:21,609 basehttp 12364 18784 "GET /get_supply_quantity_activity/1/? HTTP/1.1" 200 3035
+INFO 2025-10-16 15:29:24,931 basehttp 12364 18784 "GET /get_supply_quantity_activity/1/?user_filter=john+vales HTTP/1.1" 200 559
+INFO 2025-10-16 15:30:16,221 basehttp 12364 18784 "GET /get_supply_quantity_activity/1/? HTTP/1.1" 200 3035
+INFO 2025-10-16 15:30:22,694 basehttp 12364 18784 "GET /get_supply_quantity_activity/1/?user_filter=john+vales&date_filter_type=month&month=10&year=2025 HTTP/1.1" 200 561
+INFO 2025-10-16 15:30:25,311 basehttp 12364 18784 "GET /get_supply_quantity_activity/1/?user_filter=john+vales&date_filter_type=month&month=5&year=2025 HTTP/1.1" 200 288
+INFO 2025-10-16 15:30:28,071 basehttp 12364 18784 "GET /get_supply_quantity_activity/1/?user_filter=john+vales HTTP/1.1" 200 559
+INFO 2025-10-16 15:30:32,611 basehttp 12364 18784 "GET /get_supply_quantity_activity/1/? HTTP/1.1" 200 3035
+INFO 2025-10-16 15:30:34,880 basehttp 12364 18784 "GET /get_supply_quantity_activity/1/?user_filter=john+vales HTTP/1.1" 200 559
+INFO 2025-10-16 15:30:35,569 basehttp 12364 18784 "GET /generate_quantity_activity_report/?supply_id=1&filter_type=all HTTP/1.1" 200 2974
+INFO 2025-10-16 15:31:23,486 autoreload 9344 10312 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:31:23,639 autoreload 12364 16424 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:31:24,073 autoreload 15216 5844 Watching for file changes with StatReloader
+INFO 2025-10-16 15:31:24,258 autoreload 12168 4412 Watching for file changes with StatReloader
+INFO 2025-10-16 15:32:04,527 autoreload 12168 4412 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:32:04,530 autoreload 15216 5844 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:32:05,129 autoreload 14836 4848 Watching for file changes with StatReloader
+INFO 2025-10-16 15:32:05,130 autoreload 17804 20820 Watching for file changes with StatReloader
+INFO 2025-10-16 15:32:09,102 basehttp 17804 12476 "GET /get_supply_quantity_activity/1/?user_filter=john+vales&activity_type_filter=supply_request HTTP/1.1" 200 570
+INFO 2025-10-16 15:32:11,919 basehttp 17804 12476 "GET /get_supply_quantity_activity/1/?activity_type_filter=supply_request HTTP/1.1" 200 563
+INFO 2025-10-16 15:32:13,801 basehttp 17804 12476 "GET /get_supply_quantity_activity/1/?activity_type_filter=manual HTTP/1.1" 200 2498
+INFO 2025-10-16 15:32:16,393 basehttp 17804 12476 "GET /get_supply_quantity_activity/1/?activity_type_filter=deduction HTTP/1.1" 200 1324
+INFO 2025-10-16 15:32:17,883 basehttp 17804 12476 "GET /get_supply_quantity_activity/1/?activity_type_filter=addition HTTP/1.1" 200 1998
+INFO 2025-10-16 15:32:19,785 basehttp 17804 12476 "GET /get_supply_quantity_activity/1/? HTTP/1.1" 200 3035
+INFO 2025-10-16 15:32:24,675 autoreload 14836 4848 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:32:24,881 autoreload 17804 20820 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:32:25,260 autoreload 17244 15840 Watching for file changes with StatReloader
+INFO 2025-10-16 15:32:25,496 autoreload 18652 7444 Watching for file changes with StatReloader
+INFO 2025-10-16 15:32:36,708 autoreload 17244 15840 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:32:37,350 autoreload 16008 15336 Watching for file changes with StatReloader
+INFO 2025-10-16 15:33:02,745 basehttp 8160 20400 "GET /supplies/ HTTP/1.1" 200 193761
+INFO 2025-10-16 15:33:02,788 basehttp 8160 20400 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:33:03,007 basehttp 8160 20400 "GET /supplies/ HTTP/1.1" 200 193761
+INFO 2025-10-16 15:33:03,037 basehttp 8160 20400 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:33:03,350 basehttp 8160 20400 "GET /supplies/ HTTP/1.1" 200 193761
+INFO 2025-10-16 15:33:03,378 basehttp 8160 20400 "GET /media/barcodes/supplies/SUP-1.png HTTP/1.1" 200 2645
+INFO 2025-10-16 15:33:05,067 basehttp 8160 20400 "GET /get_supply_quantity_activity/1/? HTTP/1.1" 200 3035
+INFO 2025-10-16 15:33:07,711 basehttp 8160 20400 "GET /generate_quantity_activity_report/?supply_id=1&filter_type=all&user_filter=john+vales HTTP/1.1" 200 2392
+INFO 2025-10-16 15:34:01,686 basehttp 8160 20400 "GET /get_supply_quantity_activity/1/? HTTP/1.1" 200 3035
+INFO 2025-10-16 15:34:09,860 basehttp 8160 20400 "GET /get_supply_quantity_activity/1/?user_filter=john+vales HTTP/1.1" 200 559
+INFO 2025-10-16 15:34:13,638 basehttp 8160 20400 "GET /get_supply_quantity_activity/1/? HTTP/1.1" 200 3035
+INFO 2025-10-16 15:35:21,164 autoreload 16008 15336 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:35:21,409 autoreload 8160 11360 C:\Users\Admin\OneDrive\Desktop\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-16 15:35:21,754 autoreload 7344 11500 Watching for file changes with StatReloader
+INFO 2025-10-16 15:35:22,012 autoreload 16040 15732 Watching for file changes with StatReloader
+INFO 2025-10-16 15:35:34,232 basehttp 7344 3224 "GET /get_supply_quantity_activity/1/?user_filter=john+vales HTTP/1.1" 200 559
+INFO 2025-10-16 15:35:38,051 basehttp 7344 3224 "GET /get_supply_history/1/ HTTP/1.1" 200 5992

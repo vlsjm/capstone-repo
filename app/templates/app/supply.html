@@ -387,6 +387,77 @@
   background: #a8a8a8;
 }
 
+/* Quantity Activity Modal Styles */
+#quantityActivityModal .modal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+#quantityActivityTableContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+#quantityActivityTableContainer::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+#quantityActivityTableContainer::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+#quantityActivityTableContainer::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+#quantityActivityTable tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+#quantityActivityTable tbody tr:nth-child(even) {
+  background-color: #fbfbfb;
+}
+
+#quantityActivityTable tbody tr:nth-child(even):hover {
+  background-color: #f0f0f0;
+}
+
+#quantityActivityTable td {
+  padding: 12px;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.quantity-change-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.quantity-change-badge.addition {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.quantity-change-badge.deduction {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.quantity-change-badge.adjustment {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
 /* Fix Select2 text weight */
 .select2-container--default .select2-selection--single,
 .select2-container--default .select2-results__option {
@@ -1192,6 +1263,7 @@ tr.hidden {
 
 .table-actions-dropdown-item.edit { color: #152d64; }
 .table-actions-dropdown-item.history { color: #4a5568; }
+.table-actions-dropdown-item.quantity-activity { color: #17a2b8; }
 .table-actions-dropdown-item.print { color: #28a745; }
 .table-actions-dropdown-item.modify { color: #28a745; }
 
@@ -1556,6 +1628,12 @@ tr.hidden {
                   <button class="table-actions-dropdown-item history history-btn" 
                     data-id="{{ supply.id }}">
                     <i class="fas fa-history"></i> View History
+                  </button>
+                  
+                  <button class="table-actions-dropdown-item quantity-activity quantity-activity-btn" 
+                    data-id="{{ supply.id }}"
+                    data-name="{{ supply.supply_name }}">
+                    <i class="fas fa-chart-line"></i> Quantity Activity
                   </button>
                   
                   <button class="table-actions-dropdown-item print print-btn" 
@@ -2217,6 +2295,145 @@ tr.hidden {
     </div>
   </div>
 
+  <!-- Quantity Activity Modal -->
+  <div id="quantityActivityModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 1200px; width: 95%; max-height: 90vh; overflow: hidden;">
+      <span class="close" id="closeQuantityActivityModalBtn">&times;</span>
+      
+      <!-- Modal Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e9ecef;">
+        <h2 id="quantityActivityTitle" style="color: #152d64; margin: 0; font-size: 24px; font-weight: 600;">
+          Quantity Activity Report
+        </h2>
+        <button id="generateQuantityReportBtn" class="submit-btn" style="background-color: #28a745; border-color: #28a745; padding: 10px 20px; font-size: 14px;">
+          <i class="fas fa-file-alt"></i> Generate Report
+        </button>
+      </div>
+      
+      <!-- Filters Section -->
+      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #333;">Filter Type:</label>
+            <select id="quantityDateFilterType" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+              <option value="all">All Time</option>
+              <option value="date_range">Date Range</option>
+              <option value="month">Select Month</option>
+            </select>
+          </div>
+          
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #333;">Filter by Requestor:</label>
+            <select id="quantityUserFilter" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+              <option value="all">All Requestors</option>
+              <!-- Users who made supply requests will be populated dynamically -->
+            </select>
+          </div>
+          
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #333;">Activity Type:</label>
+            <select id="quantityActivityTypeFilter" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+              <option value="all">All Activity</option>
+              <option value="addition">Additions Only</option>
+              <option value="deduction">Deductions Only</option>
+              <option value="supply_request">Supply Requests Only</option>
+              <option value="manual">Manual Changes Only</option>
+            </select>
+          </div>
+          
+          <div id="dateRangeContainer" style="display: none;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #333;">Date Range:</label>
+            <div style="display: flex; gap: 10px;">
+              <input type="date" id="quantityStartDate" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+              <input type="date" id="quantityEndDate" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+          </div>
+          
+          <div id="monthContainer" style="display: none;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #333;">Select Month:</label>
+            <div style="display: flex; gap: 10px;">
+              <select id="quantityMonth" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+              <select id="quantityYear" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <!-- Years will be populated dynamically -->
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <button id="applyQuantityFiltersBtn" class="submit-btn" style="background-color: #152d64; padding: 10px 20px; font-size: 14px;">
+              <i class="fas fa-filter"></i> Apply Filters
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Summary Section -->
+      <div id="quantityActivitySummary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
+        <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 24px; font-weight: bold; color: #28a745;" id="totalAdditions">0</div>
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">Total Additions</div>
+        </div>
+        <div style="background: #ffe8e8; padding: 15px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 24px; font-weight: bold; color: #dc3545;" id="totalDeductions">0</div>
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">Total Deductions</div>
+        </div>
+        <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 24px; font-weight: bold; color: #17a2b8;" id="netChange">0</div>
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">Net Change</div>
+        </div>
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 24px; font-weight: bold; color: #6c757d;" id="totalTransactions">0</div>
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">Total Transactions</div>
+        </div>
+      </div>
+      
+      <!-- Activity Table -->
+      <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden;">
+        <div id="quantityActivityTableContainer" style="max-height: 400px; overflow-y: auto;">
+          <table id="quantityActivityTable" style="width: 100%; border-collapse: collapse;">
+            <thead style="background-color: #152d64; color: white; position: sticky; top: 0; z-index: 10;">
+              <tr>
+                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600;">Date & Time</th>
+                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600;">Action</th>
+                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600;">Quantity Change</th>
+                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600;">Previous Qty</th>
+                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600;">New Qty</th>
+                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600;">User</th>
+                <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600;">Remarks</th>
+              </tr>
+            </thead>
+            <tbody id="quantityActivityTableBody">
+              <tr>
+                <td colspan="7" style="text-align: center; padding: 30px; color: #6c757d;">
+                  <i class="fas fa-spinner fa-spin"></i> Loading quantity activity...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- No Results Message -->
+        <div id="quantityActivityNoResults" style="display: none; text-align: center; padding: 40px; color: #6c757d;">
+          <i class="fas fa-chart-line" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+          <p style="font-size: 16px; margin: 0;">No quantity activity found for the selected period.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
 
 
@@ -2520,6 +2737,7 @@ tr.hidden {
       const categoryEditModal = document.getElementById("categoryEditModal");
       const subcategoryModal = document.getElementById("subcategoryModal");
       const exportModal = document.getElementById("exportModal");
+      const quantityActivityModal = document.getElementById("quantityActivityModal");
 
        // Get form and button elements for category
        const categoryEditForm = document.getElementById('categoryEditForm');
@@ -2756,7 +2974,7 @@ tr.hidden {
 
       // Function to close all modals
       function closeAllModals() {
-        const modals = [addModal, editModal, modifyQuantityModal, historyModal, categoryModal, subcategoryModal, exportModal];
+        const modals = [addModal, editModal, modifyQuantityModal, historyModal, categoryModal, subcategoryModal, exportModal, quantityActivityModal];
         modals.forEach(modal => {
           if (modal) modal.style.display = "none";
         });
@@ -3533,6 +3751,314 @@ tr.hidden {
         window.addEventListener('click', function(event) {
           if (event.target === historyModal) {
             historyModal.style.display = 'none';
+          }
+        });
+      }
+
+      // Quantity Activity Modal functionality
+      const quantityActivityBtns = document.querySelectorAll('.quantity-activity-btn');
+      const closeQuantityActivityBtn = document.getElementById('closeQuantityActivityModalBtn');
+      let currentSupplyId = null;
+      let currentQuantityActivityData = [];
+
+      if (quantityActivityModal && quantityActivityBtns.length && closeQuantityActivityBtn) {
+        console.log('Quantity activity modal elements found, setting up listeners');
+        
+        // Initialize date controls
+        function initializeDateControls() {
+          const currentYear = new Date().getFullYear();
+          const yearSelect = document.getElementById('quantityYear');
+          const currentMonth = new Date().getMonth() + 1; // JS months are 0-based
+          
+          // Populate year dropdown (last 5 years to current + 1)
+          yearSelect.innerHTML = '';
+          for (let year = currentYear - 4; year <= currentYear + 1; year++) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            if (year === currentYear) option.selected = true;
+            yearSelect.appendChild(option);
+          }
+          
+          // Set current month
+          document.getElementById('quantityMonth').value = currentMonth;
+        }
+        
+        // Handle filter type changes
+        document.getElementById('quantityDateFilterType').addEventListener('change', function() {
+          const dateRangeContainer = document.getElementById('dateRangeContainer');
+          const monthContainer = document.getElementById('monthContainer');
+          
+          dateRangeContainer.style.display = 'none';
+          monthContainer.style.display = 'none';
+          
+          if (this.value === 'date_range') {
+            dateRangeContainer.style.display = 'block';
+          } else if (this.value === 'month') {
+            monthContainer.style.display = 'block';
+          }
+        });
+        
+        // Load quantity activity data with current filters
+        function loadQuantityActivityData() {
+          const tableBody = document.getElementById('quantityActivityTableBody');
+          tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px;"><i class="fas fa-spinner fa-spin"></i> Loading quantity activity...</td></tr>';
+          
+          // Build query parameters
+          const params = new URLSearchParams();
+          
+          // Add filter parameters
+          const userFilter = document.getElementById('quantityUserFilter').value;
+          const activityTypeFilter = document.getElementById('quantityActivityTypeFilter').value;
+          const dateFilterType = document.getElementById('quantityDateFilterType').value;
+          
+          if (userFilter !== 'all') params.append('user_filter', userFilter);
+          if (activityTypeFilter !== 'all') params.append('activity_type_filter', activityTypeFilter);
+          if (dateFilterType !== 'all') params.append('date_filter_type', dateFilterType);
+          
+          if (dateFilterType === 'date_range') {
+            const startDate = document.getElementById('quantityStartDate').value;
+            const endDate = document.getElementById('quantityEndDate').value;
+            if (startDate) params.append('start_date', startDate);
+            if (endDate) params.append('end_date', endDate);
+          } else if (dateFilterType === 'month') {
+            params.append('month', document.getElementById('quantityMonth').value);
+            params.append('year', document.getElementById('quantityYear').value);
+          }
+          
+          const url = `/get_supply_quantity_activity/${currentSupplyId}/?${params.toString()}`;
+          
+          fetch(url)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+              }
+              return response.json();
+            })
+            .then(data => {
+              console.log('Quantity activity data received:', data);
+              
+              if (data.success === false) {
+                throw new Error(data.error || 'Failed to fetch quantity activity data');
+              }
+              
+              if (!data.activity || !Array.isArray(data.activity)) {
+                throw new Error('Invalid quantity activity data received from server');
+              }
+              
+              currentQuantityActivityData = data.activity;
+              
+              // Populate user dropdown if users data is provided
+              if (data.users && Array.isArray(data.users)) {
+                populateUserDropdown(data.users);
+              }
+              
+              displayQuantityActivity(currentQuantityActivityData);
+            })
+            .catch(error => {
+              console.error('Error fetching quantity activity:', error);
+              tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Error loading quantity activity: ${error.message}</td></tr>`;
+            });
+        }
+        
+        // Populate user dropdown
+        function populateUserDropdown(users) {
+          const userSelect = document.getElementById('quantityUserFilter');
+          const currentValue = userSelect.value; // Preserve current selection
+          
+          // Clear existing options except "All Requestors"
+          userSelect.innerHTML = '<option value="all">All Requestors</option>';
+          
+          // Add requestor options (names extracted from remarks)
+          users.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.name; // Use name as value for filtering
+            option.textContent = user.name;
+            userSelect.appendChild(option);
+          });
+          
+          // Restore selection if it was valid
+          if (currentValue && userSelect.querySelector(`option[value="${currentValue}"]`)) {
+            userSelect.value = currentValue;
+          }
+        }
+        
+        // Apply filters function
+        function applyQuantityFilters() {
+          loadQuantityActivityData();
+        }
+        
+        // Display quantity activity data
+        function displayQuantityActivity(data) {
+          const tableBody = document.getElementById('quantityActivityTableBody');
+          const noResults = document.getElementById('quantityActivityNoResults');
+          const tableContainer = document.getElementById('quantityActivityTableContainer');
+          
+          // Calculate summary statistics
+          let totalAdditions = 0;
+          let totalDeductions = 0;
+          let totalTransactions = data.length;
+          
+          data.forEach(entry => {
+            const change = parseInt(entry.quantity_change) || 0;
+            if (change > 0) {
+              totalAdditions += change;
+            } else {
+              totalDeductions += Math.abs(change);
+            }
+          });
+          
+          const netChange = totalAdditions - totalDeductions;
+          
+          // Update summary cards
+          document.getElementById('totalAdditions').textContent = totalAdditions;
+          document.getElementById('totalDeductions').textContent = totalDeductions;
+          document.getElementById('netChange').textContent = netChange >= 0 ? `+${netChange}` : netChange;
+          document.getElementById('totalTransactions').textContent = totalTransactions;
+          
+          // Update net change color
+          const netChangeEl = document.getElementById('netChange');
+          if (netChange > 0) {
+            netChangeEl.style.color = '#28a745';
+          } else if (netChange < 0) {
+            netChangeEl.style.color = '#dc3545';
+          } else {
+            netChangeEl.style.color = '#17a2b8';
+          }
+          
+          // Clear table
+          tableBody.innerHTML = '';
+          
+          if (data.length === 0) {
+            tableContainer.style.display = 'none';
+            noResults.style.display = 'block';
+          } else {
+            tableContainer.style.display = 'block';
+            noResults.style.display = 'none';
+            
+            // Populate table
+            data.forEach(entry => {
+              const row = document.createElement('tr');
+              
+              // Format quantity change with badge
+              const quantityChange = parseInt(entry.quantity_change) || 0;
+              let changeBadge = '';
+              if (quantityChange > 0) {
+                changeBadge = `<span class="quantity-change-badge addition">+${quantityChange}</span>`;
+              } else if (quantityChange < 0) {
+                changeBadge = `<span class="quantity-change-badge deduction">${quantityChange}</span>`;
+              } else {
+                changeBadge = `<span class="quantity-change-badge adjustment">0</span>`;
+              }
+              
+              row.innerHTML = `
+                <td>${new Date(entry.date).toLocaleString()}</td>
+                <td>${entry.action || 'Quantity Update'}</td>
+                <td>${changeBadge}</td>
+                <td>${entry.previous_quantity || '-'}</td>
+                <td>${entry.new_quantity || '-'}</td>
+                <td>${entry.user || 'System'}</td>
+                <td>${entry.remarks || '-'}</td>
+              `;
+              
+              tableBody.appendChild(row);
+            });
+          }
+        }
+        
+        // Quantity activity button click handlers
+        quantityActivityBtns.forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            currentSupplyId = this.getAttribute('data-id') || this.dataset.id;
+            const supplyName = this.getAttribute('data-name') || this.dataset.name;
+            
+            console.log('Quantity activity button clicked, supply ID:', currentSupplyId);
+            
+            if (!currentSupplyId) {
+              console.error('Supply ID not found. Button element:', this);
+              alert('Error: Supply ID not found. Please refresh the page and try again.');
+              return;
+            }
+            
+            // Update modal title
+            document.getElementById('quantityActivityTitle').textContent = `Quantity Activity - ${supplyName}`;
+            
+            // Clear previous data and show loading
+            currentQuantityActivityData = [];
+            const tableBody = document.getElementById('quantityActivityTableBody');
+            tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px;"><i class="fas fa-spinner fa-spin"></i> Loading quantity activity...</td></tr>';
+            
+            // Reset filters
+            document.getElementById('quantityDateFilterType').value = 'all';
+            document.getElementById('quantityUserFilter').value = 'all';
+            document.getElementById('quantityActivityTypeFilter').value = 'all';
+            document.getElementById('dateRangeContainer').style.display = 'none';
+            document.getElementById('monthContainer').style.display = 'none';
+            
+            // Initialize date controls
+            initializeDateControls();
+            
+            // Show modal
+            quantityActivityModal.style.display = 'block';
+            
+            // Fetch quantity activity data
+            loadQuantityActivityData();
+          });
+        });
+        
+        // Apply filters button
+        document.getElementById('applyQuantityFiltersBtn').addEventListener('click', applyQuantityFilters);
+        
+        // Generate report button
+        document.getElementById('generateQuantityReportBtn').addEventListener('click', function() {
+          if (!currentSupplyId) {
+            alert('No supply selected for report generation.');
+            return;
+          }
+          
+          const filterType = document.getElementById('quantityDateFilterType').value;
+          const userFilter = document.getElementById('quantityUserFilter').value;
+          const activityTypeFilter = document.getElementById('quantityActivityTypeFilter').value;
+          
+          let params = new URLSearchParams({
+            supply_id: currentSupplyId,
+            filter_type: filterType
+          });
+          
+          // Add user filter
+          if (userFilter !== 'all') {
+            params.append('user_filter', userFilter);
+          }
+          
+          // Add activity type filter
+          if (activityTypeFilter !== 'all') {
+            params.append('activity_type_filter', activityTypeFilter);
+          }
+          
+          if (filterType === 'date_range') {
+            const startDate = document.getElementById('quantityStartDate').value;
+            const endDate = document.getElementById('quantityEndDate').value;
+            if (startDate) params.append('start_date', startDate);
+            if (endDate) params.append('end_date', endDate);
+          } else if (filterType === 'month') {
+            params.append('month', document.getElementById('quantityMonth').value);
+            params.append('year', document.getElementById('quantityYear').value);
+          }
+          
+          // Open report in new window
+          window.open(`/generate_quantity_activity_report/?${params.toString()}`, '_blank');
+        });
+        
+        // Close modal handlers
+        closeQuantityActivityBtn.addEventListener('click', function() {
+          quantityActivityModal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(event) {
+          if (event.target === quantityActivityModal) {
+            quantityActivityModal.style.display = 'none';
           }
         });
       }

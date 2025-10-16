@@ -141,7 +141,7 @@ from .utils import generate_barcode
 from openpyxl import Workbook, load_workbook
 from django.http import HttpResponse
 from datetime import datetime
-from openpyxl.styles import PatternFill, Border, Side
+from openpyxl.styles import PatternFill, Border, Side, Font
 from openpyxl.utils import get_column_letter
 from openpyxl.cell.cell import MergedCell
 from reportlab.lib import colors
@@ -2655,6 +2655,174 @@ def get_supply_history(request, supply_id):
         }, status=500)
 
 @login_required
+def get_supply_quantity_activity(request, supply_id):
+    """
+    Fetch quantity change activity for a specific supply.
+    Returns JSON with quantity-related history entries only.
+    Supports filtering by user, date range, month, and activity type.
+    """
+    try:
+        supply = get_object_or_404(Supply, id=supply_id)
+        
+        # Get filter parameters
+        user_filter = request.GET.get('user_filter', 'all')
+        activity_type_filter = request.GET.get('activity_type_filter', 'all')
+        date_filter_type = request.GET.get('date_filter_type', 'all')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        month = request.GET.get('month')
+        year = request.GET.get('year')
+        
+        # Filter history for quantity-related changes only
+        quantity_history = supply.history.filter(
+            field_name__in=['quantity', 'current_quantity', 'initial_quantity']
+        ).order_by('-timestamp')
+        
+        # Apply user filter (filter by requestor name in remarks)
+        if user_filter != 'all' and user_filter:
+            # Filter by requestor name mentioned in remarks
+            quantity_history = quantity_history.filter(remarks__icontains=f'Supply request by {user_filter}')
+        
+        # Apply activity type filter
+        if activity_type_filter != 'all':
+            if activity_type_filter == 'supply_request':
+                quantity_history = quantity_history.filter(remarks__icontains='Supply request by')
+            elif activity_type_filter == 'manual':
+                quantity_history = quantity_history.exclude(remarks__icontains='Supply request by').exclude(action='create')
+            elif activity_type_filter == 'addition':
+                # For additions, we need to check if new_value > old_value
+                addition_entries = []
+                for entry in quantity_history:
+                    old_qty = int(entry.old_value) if entry.old_value and entry.old_value.isdigit() else 0
+                    new_qty = int(entry.new_value) if entry.new_value and entry.new_value.isdigit() else 0
+                    if entry.action == 'create' or new_qty > old_qty:
+                        addition_entries.append(entry.id)
+                quantity_history = quantity_history.filter(id__in=addition_entries)
+            elif activity_type_filter == 'deduction':
+                # For deductions, we need to check if new_value < old_value
+                deduction_entries = []
+                for entry in quantity_history:
+                    old_qty = int(entry.old_value) if entry.old_value and entry.old_value.isdigit() else 0
+                    new_qty = int(entry.new_value) if entry.new_value and entry.new_value.isdigit() else 0
+                    if entry.action != 'create' and new_qty < old_qty:
+                        deduction_entries.append(entry.id)
+                quantity_history = quantity_history.filter(id__in=deduction_entries)
+        
+        # Apply date filters
+        if date_filter_type == 'date_range' and start_date and end_date:
+            try:
+                from datetime import datetime
+                start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+                end_dt = datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+                quantity_history = quantity_history.filter(
+                    timestamp__range=[start_dt, end_dt]
+                )
+            except ValueError:
+                pass  # Invalid date format, ignore filter
+        elif date_filter_type == 'month' and month and year:
+            try:
+                month_int = int(month)
+                year_int = int(year)
+                quantity_history = quantity_history.filter(
+                    timestamp__year=year_int,
+                    timestamp__month=month_int
+                )
+            except ValueError:
+                pass  # Invalid month or year, ignore filter
+        
+        # Extract unique requestor names from remarks (e.g., "Supply request by john vales (Batch #4)")
+        import re
+        
+        request_entries = supply.history.filter(
+            field_name__in=['quantity', 'current_quantity', 'initial_quantity'],
+            remarks__icontains='Supply request by'
+        )
+        
+        requestor_names = set()
+        for entry in request_entries:
+            if entry.remarks and 'Supply request by' in entry.remarks:
+                # Extract requestor name using regex pattern
+                # Pattern matches "Supply request by [name] (" or "Supply request by [name]" at end
+                match = re.search(r'Supply request by ([^(]+?)(?:\s*\(|$)', entry.remarks)
+                if match:
+                    requestor_name = match.group(1).strip()
+                    if requestor_name:
+                        requestor_names.add(requestor_name)
+        
+        # Create users_data with requestor names
+        users_data = []
+        for name in sorted(requestor_names):
+            users_data.append({
+                'id': name,  # Use name as ID since we're filtering by name
+                'name': name,
+                'username': name
+            })
+        
+        activity_data = []
+        for entry in quantity_history:
+            try:
+                # Calculate quantity change
+                old_qty = int(entry.old_value) if entry.old_value and entry.old_value.isdigit() else 0
+                new_qty = int(entry.new_value) if entry.new_value and entry.new_value.isdigit() else 0
+                quantity_change = new_qty - old_qty
+                
+                # Determine action type based on change and remarks
+                if entry.action == 'create':
+                    action_type = 'Initial Creation'
+                    quantity_change = new_qty  # For creation, the change is the initial amount
+                elif 'Supply request by' in (entry.remarks or ''):
+                    action_type = 'Supply Request'
+                    # Keep the original quantity_change calculation
+                elif quantity_change > 0:
+                    action_type = 'Addition'
+                elif quantity_change < 0:
+                    action_type = 'Deduction'
+                else:
+                    action_type = 'Adjustment'
+                
+                activity_data.append({
+                    'id': entry.id,
+                    'date': entry.timestamp.isoformat(),
+                    'action': action_type,
+                    'quantity_change': quantity_change,
+                    'previous_quantity': old_qty,
+                    'new_quantity': new_qty,
+                    'user': entry.user.get_full_name() if entry.user and entry.user.get_full_name() else (entry.user.username if entry.user else 'System'),
+                    'user_id': entry.user.id if entry.user else None,
+                    'remarks': entry.remarks if entry.remarks else '',
+                    'timestamp': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+                })
+            except Exception as e:
+                print(f"Error processing quantity activity entry {entry.id}: {str(e)}")
+                continue
+        
+        return JsonResponse({
+            'success': True,
+            'activity': activity_data,
+            'users': users_data,
+            'supply_name': supply.supply_name,
+            'supply_id': supply.id,
+            'total_entries': len(activity_data),
+            'filters_applied': {
+                'user_filter': user_filter,
+                'activity_type_filter': activity_type_filter,
+                'date_filter_type': date_filter_type
+            }
+        })
+        
+    except Supply.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Supply not found'
+        }, status=404)
+    except Exception as e:
+        print(f"Error in get_supply_quantity_activity: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': 'An error occurred while fetching quantity activity'
+        }, status=500)
+
+@login_required
 def get_property_history(request, property_id):
     try:
         property_obj = get_object_or_404(Property, id=property_id)
@@ -3211,6 +3379,290 @@ def export_supply_to_excel(request):
     response['Content-Disposition'] = f'attachment; filename=supply_inventory_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
     
     wb.save(response)
+    return response
+
+@login_required
+def generate_quantity_activity_report(request):
+    """
+    Generate a PDF or Excel report for supply quantity activity.
+    Supports filtering by date range, month, or all time.
+    """
+    try:
+        # Get parameters
+        supply_id = request.GET.get('supply_id')
+        filter_type = request.GET.get('filter_type', 'all')
+        user_filter = request.GET.get('user_filter', 'all')
+        activity_type_filter = request.GET.get('activity_type_filter', 'all')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        month = request.GET.get('month')
+        year = request.GET.get('year')
+        format_type = request.GET.get('format', 'pdf')  # 'pdf' or 'excel'
+        
+        if not supply_id:
+            return JsonResponse({'error': 'Supply ID is required'}, status=400)
+        
+        # Get supply
+        supply = get_object_or_404(Supply, id=supply_id)
+        
+        # Filter quantity activity
+        quantity_history = supply.history.filter(
+            field_name__in=['quantity', 'current_quantity', 'initial_quantity']
+        ).order_by('-timestamp')
+        
+        # Apply user filter (filter by requestor name in remarks)
+        if user_filter != 'all' and user_filter:
+            quantity_history = quantity_history.filter(remarks__icontains=f'Supply request by {user_filter}')
+        
+        # Apply activity type filter
+        if activity_type_filter != 'all':
+            if activity_type_filter == 'supply_request':
+                quantity_history = quantity_history.filter(remarks__icontains='Supply request by')
+            elif activity_type_filter == 'manual':
+                quantity_history = quantity_history.exclude(remarks__icontains='Supply request by').exclude(action='create')
+            elif activity_type_filter == 'addition':
+                # For additions, we need to check if new_value > old_value
+                addition_entries = []
+                for entry in quantity_history:
+                    old_qty = int(entry.old_value) if entry.old_value and entry.old_value.isdigit() else 0
+                    new_qty = int(entry.new_value) if entry.new_value and entry.new_value.isdigit() else 0
+                    if entry.action == 'create' or new_qty > old_qty:
+                        addition_entries.append(entry.id)
+                quantity_history = quantity_history.filter(id__in=addition_entries)
+            elif activity_type_filter == 'deduction':
+                # For deductions, we need to check if new_value < old_value
+                deduction_entries = []
+                for entry in quantity_history:
+                    old_qty = int(entry.old_value) if entry.old_value and entry.old_value.isdigit() else 0
+                    new_qty = int(entry.new_value) if entry.new_value and entry.new_value.isdigit() else 0
+                    if entry.action != 'create' and new_qty < old_qty:
+                        deduction_entries.append(entry.id)
+                quantity_history = quantity_history.filter(id__in=deduction_entries)
+        
+        # Apply date filters
+        if filter_type == 'date_range' and start_date and end_date:
+            try:
+                start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+                end_dt = datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+                quantity_history = quantity_history.filter(
+                    timestamp__range=[start_dt, end_dt]
+                )
+            except ValueError:
+                return JsonResponse({'error': 'Invalid date format'}, status=400)
+        elif filter_type == 'month' and month and year:
+            try:
+                month_int = int(month)
+                year_int = int(year)
+                quantity_history = quantity_history.filter(
+                    timestamp__year=year_int,
+                    timestamp__month=month_int
+                )
+            except ValueError:
+                return JsonResponse({'error': 'Invalid month or year'}, status=400)
+        
+        # Process activity data
+        activity_data = []
+        total_additions = 0
+        total_deductions = 0
+        
+        for entry in quantity_history:
+            try:
+                old_qty = int(entry.old_value) if entry.old_value and entry.old_value.isdigit() else 0
+                new_qty = int(entry.new_value) if entry.new_value and entry.new_value.isdigit() else 0
+                quantity_change = new_qty - old_qty
+                
+                if entry.action == 'create':
+                    action_type = 'Initial Creation'
+                    quantity_change = new_qty
+                elif quantity_change > 0:
+                    action_type = 'Addition'
+                    total_additions += quantity_change
+                elif quantity_change < 0:
+                    action_type = 'Deduction'
+                    total_deductions += abs(quantity_change)
+                else:
+                    action_type = 'Adjustment'
+                
+                activity_data.append({
+                    'date': entry.timestamp.strftime('%Y-%m-%d'),
+                    'time': entry.timestamp.strftime('%H:%M:%S'),
+                    'action': action_type,
+                    'quantity_change': quantity_change,
+                    'previous_quantity': old_qty,
+                    'new_quantity': new_qty,
+                    'user': entry.user.get_full_name() if entry.user and entry.user.get_full_name() else (entry.user.username if entry.user else 'System'),
+                    'remarks': entry.remarks if entry.remarks else 'N/A'
+                })
+            except Exception as e:
+                print(f"Error processing entry {entry.id}: {str(e)}")
+                continue
+        
+        net_change = total_additions - total_deductions
+        
+        # Prepare filter info for the report
+        filter_info = {
+            'filter_type': filter_type,
+            'user_filter': user_filter,
+            'activity_type_filter': activity_type_filter
+        }
+        
+        if format_type == 'excel':
+            return _generate_excel_quantity_report(supply, activity_data, total_additions, total_deductions, net_change, filter_info)
+        else:
+            return _generate_pdf_quantity_report(supply, activity_data, total_additions, total_deductions, net_change, filter_info)
+        
+    except Supply.DoesNotExist:
+        return JsonResponse({'error': 'Supply not found'}, status=404)
+    except Exception as e:
+        print(f"Error generating quantity activity report: {str(e)}")
+        return JsonResponse({'error': 'An error occurred while generating the report'}, status=500)
+
+def _generate_excel_quantity_report(supply, activity_data, total_additions, total_deductions, net_change, filter_info):
+    """Generate Excel report for quantity activity"""
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f"Quantity Activity - {supply.supply_name}"
+    
+    # Set column widths
+    ws.column_dimensions['A'].width = 15  # Date
+    ws.column_dimensions['B'].width = 12  # Time
+    ws.column_dimensions['C'].width = 18  # Action
+    ws.column_dimensions['D'].width = 15  # Quantity Change
+    ws.column_dimensions['E'].width = 15  # Previous Qty
+    ws.column_dimensions['F'].width = 12  # New Qty
+    ws.column_dimensions['G'].width = 20  # User
+    ws.column_dimensions['H'].width = 30  # Remarks
+    
+    # Title and summary
+    ws['A1'] = f"Quantity Activity Report - {supply.supply_name}"
+    ws['A1'].font = Font(size=16, bold=True)
+    
+    # Add filter information
+    row_offset = 3
+    if filter_info['user_filter'] != 'all':
+        ws[f'A{row_offset}'] = f"Filtered by Requestor: {filter_info['user_filter']}"
+        row_offset += 1
+    if filter_info['activity_type_filter'] != 'all':
+        ws[f'A{row_offset}'] = f"Activity Type Filter: {filter_info['activity_type_filter']}"
+        row_offset += 1
+    
+    ws[f'A{row_offset}'] = f"Total Additions: {total_additions}"
+    ws[f'A{row_offset + 1}'] = f"Total Deductions: {total_deductions}"
+    ws[f'A{row_offset + 2}'] = f"Net Change: {net_change}"
+    ws[f'A{row_offset + 3}'] = f"Total Transactions: {len(activity_data)}"
+    
+    # Headers
+    headers = ['Date', 'Time', 'Action', 'Quantity Change', 'Previous Qty', 'New Qty', 'User', 'Remarks']
+    header_row = row_offset + 5
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=header_row, column=col, value=header)
+        cell.font = Font(bold=True)
+        cell.fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+    
+    # Data rows
+    for row, activity in enumerate(activity_data, header_row + 1):
+        ws.cell(row=row, column=1, value=activity['date'])
+        ws.cell(row=row, column=2, value=activity['time'])
+        ws.cell(row=row, column=3, value=activity['action'])
+        ws.cell(row=row, column=4, value=activity['quantity_change'])
+        ws.cell(row=row, column=5, value=activity['previous_quantity'])
+        ws.cell(row=row, column=6, value=activity['new_quantity'])
+        ws.cell(row=row, column=7, value=activity['user'])
+        ws.cell(row=row, column=8, value=activity['remarks'])
+    
+    # Create response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="quantity_activity_{supply.supply_name}_{datetime.now().strftime("%Y%m%d")}.xlsx"'
+    
+    wb.save(response)
+    return response
+
+def _generate_pdf_quantity_report(supply, activity_data, total_additions, total_deductions, net_change, filter_info):
+    """Generate PDF report for quantity activity"""
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="quantity_activity_{supply.supply_name}_{datetime.now().strftime("%Y%m%d")}.pdf"'
+    
+    doc = SimpleDocTemplate(response, pagesize=landscape(A4))
+    styles = getSampleStyleSheet()
+    story = []
+    
+    # Title
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=18,
+        spaceAfter=30,
+        alignment=1  # Center
+    )
+    story.append(Paragraph(f"Quantity Activity Report - {supply.supply_name}", title_style))
+    
+    # Add filter information
+    filter_text = []
+    if filter_info['user_filter'] != 'all':
+        filter_text.append(f"<b>Filtered by Requestor:</b> {filter_info['user_filter']}")
+    if filter_info['activity_type_filter'] != 'all':
+        filter_text.append(f"<b>Activity Type Filter:</b> {filter_info['activity_type_filter']}")
+    
+    if filter_text:
+        filter_para = Paragraph("<br/>".join(filter_text), styles['Normal'])
+        story.append(filter_para)
+        story.append(Spacer(1, 12))
+    
+    # Summary section
+    summary_data = [
+        ['Summary', '', '', ''],
+        ['Total Additions:', total_additions, 'Total Deductions:', total_deductions],
+        ['Net Change:', net_change, 'Total Transactions:', len(activity_data)]
+    ]
+    
+    summary_table = Table(summary_data, colWidths=[120, 80, 120, 80])
+    summary_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    
+    story.append(summary_table)
+    story.append(Spacer(1, 20))
+    
+    # Activity table
+    if activity_data:
+        table_data = [['Date', 'Time', 'Action', 'Change', 'Previous', 'New', 'User', 'Remarks']]
+        
+        for activity in activity_data:
+            table_data.append([
+                activity['date'],
+                activity['time'],
+                activity['action'],
+                str(activity['quantity_change']),
+                str(activity['previous_quantity']),
+                str(activity['new_quantity']),
+                activity['user'][:15] + '...' if len(activity['user']) > 15 else activity['user'],
+                activity['remarks'][:20] + '...' if len(activity['remarks']) > 20 else activity['remarks']
+            ])
+        
+        table = Table(table_data, colWidths=[80, 60, 80, 50, 60, 50, 100, 120])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ]))
+        story.append(table)
+    else:
+        story.append(Paragraph("No quantity activity found for the selected period.", styles['Normal']))
+    
+    doc.build(story)
     return response
 
 @permission_required('app.view_admin_module')
@@ -4694,9 +5146,22 @@ def claim_batch_items(request, batch_id):
         
         # Deduct from stock
         if hasattr(item.supply, 'quantity_info') and item.supply.quantity_info:
-            current_qty = item.supply.quantity_info.current_quantity or 0
-            item.supply.quantity_info.current_quantity = max(0, current_qty - approved_qty)
+            old_qty = item.supply.quantity_info.current_quantity or 0
+            new_qty = max(0, old_qty - approved_qty)
+            item.supply.quantity_info.current_quantity = new_qty
             item.supply.quantity_info.save()
+            
+            # Create SupplyHistory entry for quantity deduction
+            requester_name = batch_request.user.get_full_name() if batch_request.user.get_full_name() else batch_request.user.username
+            SupplyHistory.objects.create(
+                supply=item.supply,
+                user=request.user,  # The admin/staff who processed the claim
+                action='quantity_update',
+                field_name='current_quantity',
+                old_value=str(old_qty),
+                new_value=str(new_qty),
+                remarks=f"Supply request by {requester_name} (Batch #{batch_id})"
+            )
         
         # Update the approved_quantity if it was None
         if item.approved_quantity is None:
@@ -4774,9 +5239,22 @@ def claim_individual_item(request, batch_id, item_id):
     
     # Deduct from stock
     if hasattr(item.supply, 'quantity_info') and item.supply.quantity_info:
-        current_qty = item.supply.quantity_info.current_quantity or 0
-        item.supply.quantity_info.current_quantity = max(0, current_qty - approved_qty)
+        old_qty = item.supply.quantity_info.current_quantity or 0
+        new_qty = max(0, old_qty - approved_qty)
+        item.supply.quantity_info.current_quantity = new_qty
         item.supply.quantity_info.save()
+        
+        # Create SupplyHistory entry for quantity deduction
+        requester_name = batch_request.user.get_full_name() if batch_request.user.get_full_name() else batch_request.user.username
+        SupplyHistory.objects.create(
+            supply=item.supply,
+            user=request.user,  # The admin/staff who processed the claim
+            action='quantity_update',
+            field_name='current_quantity',
+            old_value=str(old_qty),
+            new_value=str(new_qty),
+            remarks=f"Supply request by {requester_name} (Batch #{batch_id})"
+        )
     
     # Update the approved_quantity if it was None
     if item.approved_quantity is None:
