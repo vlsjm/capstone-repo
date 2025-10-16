@@ -78,35 +78,75 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 15px 8px 8px;
+    padding: 8px;
     border-radius: 0;
-    transition: background-color 0.3s ease;
-    background: transparent;
+    transition: none;
+    background: transparent !important;
+    width: auto;
+    height: auto;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
-  .mobile-notification .bell-wrapper:hover {
-    background-color: transparent;
+  .mobile-notification .bell-wrapper:hover,
+  .mobile-notification .bell-wrapper:focus,
+  .mobile-notification .bell-wrapper:active {
+    background: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    opacity: 1 !important;
   }
 
   .mobile-notification .bell-icon {
-    font-size: 20px;
-    color: white;
+    font-size: 24px;
+    color: #ffffff !important;
+    filter: none;
+    font-weight: 400;
+    transition: font-weight 0.1s ease;
+  }
+
+  /* Change to solid bell icon on hover */
+  .mobile-notification .bell-wrapper:hover .bell-icon::before {
+    content: "\f0f3" !important;
+    /* Solid bell icon */
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+  }
+
+  /* Change to solid bell icon when notifications dropdown is open */
+  .mobile-notification:has(.notifications-dropdown.show) .bell-icon::before,
+  .mobile-notification:has(.notifications-dropdown.active) .bell-icon::before {
+    content: "\f0f3" !important;
+    /* Solid bell icon */
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
   }
 
   .mobile-notification .notification-count {
     position: absolute;
-    top: 2px;
-    right: 2px;
-    background-color: #ff4444;
-    color: white;
+    bottom: -4px;
+    left: -4px;
+    background-color: #ff3b30;
+    color: #ffffff;
     border-radius: 50%;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
-    font-weight: bold;
+    font-size: 10px;
+    font-weight: 700;
+    border: none;
+    box-shadow: 0 2px 4px rgba(255, 59, 48, 0.3);
+    line-height: 1;
+    white-space: nowrap;
   }
 
   .mobile-notification .notifications-dropdown {
@@ -1401,12 +1441,12 @@ input[type="date"]:focus {
   justify-content: center;
   width: 44px;
   height: 44px;
-  background: linear-gradient(135deg, #152d64 0%, #1a3575 100%);
-  border-radius: 10px;
+  background: #ffffff;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(21, 45, 100, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .logout-wrapper {
@@ -1416,45 +1456,57 @@ input[type="date"]:focus {
   justify-content: center;
   width: 44px;
   height: 44px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  border-radius: 10px;
+  background: #ffffff;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .bell-wrapper:hover {
-  background: linear-gradient(135deg, #1a3575 0%, #2147a3 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(21, 45, 100, 0.3);
+  background: #f5f5f5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.12);
 }
 
 .logout-wrapper:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  background: #f5f5f5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.12);
 }
 
 .bell-icon {
-  font-size: 18px;
-  color: white;
-  transition: all 0.3s ease;
+  font-size: 20px;
+  color: #152d64;
+  transition: all 0.2s ease;
+  filter: none;
+}
+
+/* Desktop notification bell - ensure it's blue */
+.notification-container:not(.mobile-notification) .bell-icon {
+  color: #152d64 !important;
 }
 
 .logout-icon {
-  font-size: 18px;
-  color: white;
-  transition: all 0.3s ease;
+  font-size: 20px;
+  color: #dc2626;
+  transition: all 0.2s ease;
 }
 
 .bell-wrapper:hover .bell-icon {
-  color: #fbff00;
-  animation: bellShake 0.5s ease-in-out;
+  color: #1a3575;
+  transform: scale(1.05);
+}
+
+/* Desktop notification bell hover - ensure it stays blue */
+.notification-container:not(.mobile-notification) .bell-wrapper:hover .bell-icon {
+  color: #1a3575 !important;
 }
 
 .logout-wrapper:hover .logout-icon {
-  animation: iconGlow 0.5s ease-in-out;
+  color: #b91c1c;
+  transform: scale(1.05);
 }
 
 @keyframes iconGlow {
@@ -1489,20 +1541,22 @@ input[type="date"]:focus {
   position: absolute;
   top: -6px;
   right: -6px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
+  background: #ff3b30;
+  color: #ffffff;
   font-size: 11px;
   font-weight: 700;
-  padding: 3px 7px;
-  border-radius: 12px;
-  min-width: 18px;
-  height: 18px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  min-width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid white;
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
-  animation: pulse 2s infinite;
+  border: none;
+  box-shadow: 0 2px 4px rgba(255, 59, 48, 0.3);
+  line-height: 1;
+  z-index: 2;
+  white-space: nowrap;
 }
 
 @keyframes pulse {
@@ -1998,9 +2052,11 @@ input[type="date"]:focus {
   }
 
   .mobile-notification .notification-count {
-    width: 16px;
+    min-width: 16px;
     height: 16px;
-    font-size: 10px;
+    padding: 2px 5px;
+    font-size: 9px;
+    font-weight: 700;
   }
 
   .mobile-notification .notifications-dropdown {

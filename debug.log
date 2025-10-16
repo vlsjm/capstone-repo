@@ -10333,3 +10333,1241 @@ INFO 2025-10-16 15:35:21,754 autoreload 7344 11500 Watching for file changes wit
 INFO 2025-10-16 15:35:22,012 autoreload 16040 15732 Watching for file changes with StatReloader
 INFO 2025-10-16 15:35:34,232 basehttp 7344 3224 "GET /get_supply_quantity_activity/1/?user_filter=john+vales HTTP/1.1" 200 559
 INFO 2025-10-16 15:35:38,051 basehttp 7344 3224 "GET /get_supply_history/1/ HTTP/1.1" 200 5992
+INFO 2025-10-16 23:02:22,906 autoreload 14212 11708 Watching for file changes with StatReloader
+INFO 2025-10-16 23:02:27,411 basehttp 14212 9168 "GET /property/ HTTP/1.1" 302 0
+INFO 2025-10-16 23:02:27,426 basehttp 14212 9168 "GET /login_user/?next=/property/ HTTP/1.1" 200 12072
+INFO 2025-10-16 23:02:27,481 basehttp 14212 9168 "GET /login_user/?next=/property/ HTTP/1.1" 200 12072
+INFO 2025-10-16 23:02:27,624 basehttp 14212 9168 "GET /login_user/?next=/property/ HTTP/1.1" 200 12072
+INFO 2025-10-16 23:02:27,776 basehttp 14212 9168 "GET /login_user/?next=/property/ HTTP/1.1" 200 12072
+INFO 2025-10-16 23:02:27,924 basehttp 14212 9168 "GET /login_user/?next=/property/ HTTP/1.1" 200 12072
+INFO 2025-10-16 23:02:29,815 basehttp 14212 9168 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-16 23:02:30,178 basehttp 14212 9168 "GET /dashboard/ HTTP/1.1" 200 111565
+INFO 2025-10-16 23:02:33,625 basehttp 14212 9168 "GET /activity/ HTTP/1.1" 200 33960
+INFO 2025-10-16 23:02:35,669 basehttp 14212 9168 "GET /supplies/ HTTP/1.1" 200 445215
+INFO 2025-10-16 23:02:35,689 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-16 23:02:35,689 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-16 23:02:35,698 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-16 23:02:35,699 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-16 23:02:35,708 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-16 23:02:35,710 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-16 23:02:35,723 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-16 23:02:35,724 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-16 23:02:35,724 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-16 23:02:35,724 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-16 23:02:35,724 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-16 23:02:35,724 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-16 23:02:35,729 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-16 23:02:35,730 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-16 23:02:35,730 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-16 23:02:37,626 basehttp 14212 2224 "GET /property/ HTTP/1.1" 200 402119
+INFO 2025-10-16 23:02:45,400 basehttp 14212 2224 "GET /supplies/ HTTP/1.1" 200 445215
+INFO 2025-10-16 23:02:45,414 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-16 23:02:45,416 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-16 23:02:45,429 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-16 23:02:45,430 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-16 23:02:45,430 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-16 23:02:45,430 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-16 23:02:45,431 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-16 23:02:45,431 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-16 23:02:45,446 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-16 23:02:45,446 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-16 23:02:45,446 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-16 23:02:45,447 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-16 23:02:45,447 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-16 23:02:45,448 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-16 23:02:45,452 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-16 23:02:47,922 basehttp 14212 2224 "GET /get_supply_quantity_activity/133/? HTTP/1.1" 200 480
+INFO 2025-10-16 23:02:51,898 basehttp 14212 2224 "GET /generate_quantity_activity_report/?supply_id=133&filter_type=all HTTP/1.1" 200 2308
+INFO 2025-10-16 23:03:11,465 basehttp 14212 2224 "GET /supplies/?expiry=expired HTTP/1.1" 200 446899
+INFO 2025-10-16 23:03:11,482 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-16 23:03:11,482 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-16 23:03:11,495 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-96_KHsGiGF.png HTTP/1.1" 200 3835
+INFO 2025-10-16 23:03:11,505 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-109_klh0ViA.png HTTP/1.1" 200 4091
+INFO 2025-10-16 23:03:11,505 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-103_KxO1NND.png HTTP/1.1" 200 3962
+INFO 2025-10-16 23:03:11,512 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-162_aqgvcd7.png HTTP/1.1" 200 3859
+INFO 2025-10-16 23:03:11,514 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-81_ZglhUHc.png HTTP/1.1" 200 3382
+INFO 2025-10-16 23:03:11,514 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-47_cfgkpqp.png HTTP/1.1" 200 3215
+INFO 2025-10-16 23:03:11,515 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-154_gYg1E9L.png HTTP/1.1" 200 3475
+INFO 2025-10-16 23:03:11,516 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-67_vvlMecK.png HTTP/1.1" 200 3563
+INFO 2025-10-16 23:03:11,531 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-49_pN8llvG.png HTTP/1.1" 200 3491
+INFO 2025-10-16 23:03:11,538 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-145_ndFEfNi.png HTTP/1.1" 200 3457
+INFO 2025-10-16 23:03:11,538 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-97_lKXqlHt.png HTTP/1.1" 200 3538
+INFO 2025-10-16 23:03:11,538 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-70_NU7HBHx.png HTTP/1.1" 200 3511
+INFO 2025-10-16 23:03:11,538 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-57_WfWWkn8.png HTTP/1.1" 200 3237
+INFO 2025-10-16 23:03:16,432 basehttp 14212 12544 "GET /supplies/?expiry=expired&page=3 HTTP/1.1" 200 400099
+INFO 2025-10-16 23:03:16,463 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-104_9t6mYba.png HTTP/1.1" 200 3780
+INFO 2025-10-16 23:03:16,464 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-170_3nUW1m9.png HTTP/1.1" 200 3761
+INFO 2025-10-16 23:03:16,466 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-120_fd2lFCb.png HTTP/1.1" 200 3872
+INFO 2025-10-16 23:03:18,483 basehttp 14212 7276 "GET /supplies/?expiry=expired&page=1 HTTP/1.1" 200 446899
+INFO 2025-10-16 23:03:18,499 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-16 23:03:18,499 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-16 23:03:18,514 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-81_ZglhUHc.png HTTP/1.1" 200 3382
+INFO 2025-10-16 23:03:18,515 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-96_KHsGiGF.png HTTP/1.1" 200 3835
+INFO 2025-10-16 23:03:18,518 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-109_klh0ViA.png HTTP/1.1" 200 4091
+INFO 2025-10-16 23:03:18,518 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-103_KxO1NND.png HTTP/1.1" 200 3962
+INFO 2025-10-16 23:03:18,518 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-162_aqgvcd7.png HTTP/1.1" 200 3859
+INFO 2025-10-16 23:03:18,519 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-47_cfgkpqp.png HTTP/1.1" 200 3215
+INFO 2025-10-16 23:03:18,526 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-154_gYg1E9L.png HTTP/1.1" 200 3475
+INFO 2025-10-16 23:03:18,527 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-67_vvlMecK.png HTTP/1.1" 200 3563
+INFO 2025-10-16 23:03:18,529 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-49_pN8llvG.png HTTP/1.1" 200 3491
+INFO 2025-10-16 23:03:18,532 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-97_lKXqlHt.png HTTP/1.1" 200 3538
+INFO 2025-10-16 23:03:18,532 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-70_NU7HBHx.png HTTP/1.1" 200 3511
+INFO 2025-10-16 23:03:18,534 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-57_WfWWkn8.png HTTP/1.1" 200 3237
+INFO 2025-10-16 23:03:18,534 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-145_ndFEfNi.png HTTP/1.1" 200 3457
+INFO 2025-10-16 23:03:21,219 basehttp 14212 16912 "GET /supplies/ HTTP/1.1" 200 445215
+INFO 2025-10-16 23:03:21,234 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-16 23:03:21,235 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-16 23:03:21,240 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-16 23:03:21,240 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-16 23:03:21,250 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-16 23:03:21,251 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-16 23:03:21,251 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-16 23:03:21,251 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-16 23:03:21,252 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-16 23:03:21,263 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-16 23:03:21,263 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-16 23:03:21,263 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-16 23:03:21,263 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-16 23:03:21,264 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-16 23:03:21,264 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-16 23:03:23,806 basehttp 14212 9168 "GET /supplies/?page=13 HTTP/1.1" 200 441617
+INFO 2025-10-16 23:03:23,838 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-23_1vL1CKV.png HTTP/1.1" 200 3436
+INFO 2025-10-16 23:03:23,839 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-22_XRLNjaz.png HTTP/1.1" 200 2958
+INFO 2025-10-16 23:03:23,840 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-156_UhfRDIW.png HTTP/1.1" 200 3809
+INFO 2025-10-16 23:03:23,847 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-170_3nUW1m9.png HTTP/1.1" 200 3761
+INFO 2025-10-16 23:03:23,849 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-104_9t6mYba.png HTTP/1.1" 200 3780
+INFO 2025-10-16 23:03:23,855 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-63_ymW1QgK.png HTTP/1.1" 200 3696
+INFO 2025-10-16 23:03:23,855 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-101_hpz1mzi.png HTTP/1.1" 200 3467
+INFO 2025-10-16 23:03:23,855 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-120_fd2lFCb.png HTTP/1.1" 200 3872
+INFO 2025-10-16 23:03:23,855 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-99_nJeNv47.png HTTP/1.1" 200 3190
+INFO 2025-10-16 23:03:23,855 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-21_P4rJGPQ.png HTTP/1.1" 200 3143
+INFO 2025-10-16 23:03:23,862 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-78_iDoANXt.png HTTP/1.1" 200 3525
+INFO 2025-10-16 23:03:23,862 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-20_00BtLeW.png HTTP/1.1" 200 3628
+INFO 2025-10-16 23:03:23,877 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-108_ouCKpuK.png HTTP/1.1" 200 4171
+INFO 2025-10-16 23:03:23,877 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-129_T4AgO4m.png HTTP/1.1" 200 3832
+INFO 2025-10-16 23:03:30,099 basehttp 14212 12544 "GET /get_supply_quantity_activity/21/? HTTP/1.1" 200 742
+INFO 2025-10-16 23:03:46,905 basehttp 14212 12544 "GET /dashboard/ HTTP/1.1" 200 111565
+INFO 2025-10-16 23:03:49,654 basehttp 14212 12544 "GET /property/ HTTP/1.1" 200 402119
+INFO 2025-10-16 23:03:51,187 basehttp 14212 12544 "GET /supplies/ HTTP/1.1" 200 445215
+INFO 2025-10-16 23:03:51,202 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-16 23:03:51,203 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-16 23:03:51,216 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-16 23:03:51,216 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-16 23:03:51,216 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-16 23:03:51,217 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-16 23:03:51,217 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-16 23:03:51,217 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-16 23:03:51,226 basehttp 14212 3968 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-16 23:03:51,227 basehttp 14212 7276 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-16 23:03:51,228 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-16 23:03:51,228 basehttp 14212 2224 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-16 23:03:51,228 basehttp 14212 9168 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-16 23:03:51,229 basehttp 14212 12544 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-16 23:03:51,231 basehttp 14212 16912 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-16 23:03:52,664 basehttp 14212 16912 "GET /activity/ HTTP/1.1" 200 33960
+INFO 2025-10-16 23:03:53,751 basehttp 14212 16912 "GET /my-supply-requests/ HTTP/1.1" 200 168484
+INFO 2025-10-16 23:03:54,805 basehttp 14212 16912 "GET /activity/ HTTP/1.1" 200 33960
+INFO 2025-10-16 23:03:57,230 basehttp 14212 16912 "GET /dashboard/ HTTP/1.1" 200 111565
+INFO 2025-10-16 23:12:30,417 basehttp 14212 13744 "GET /activity/ HTTP/1.1" 200 33960
+INFO 2025-10-16 23:12:31,245 basehttp 14212 13744 "GET /dashboard/ HTTP/1.1" 200 111565
+INFO 2025-10-16 23:12:33,370 basehttp 14212 13744 "GET /dashboard/ HTTP/1.1" 200 111565
+INFO 2025-10-16 23:13:15,238 basehttp 14212 12632 "GET /dashboard/ HTTP/1.1" 200 111565
+INFO 2025-10-16 23:13:15,665 basehttp 14212 12632 - Broken pipe from ('127.0.0.1', 50598)
+INFO 2025-10-16 23:13:16,139 basehttp 14212 13580 - Broken pipe from ('127.0.0.1', 50682)
+INFO 2025-10-16 23:13:16,283 basehttp 14212 17140 "GET /dashboard/ HTTP/1.1" 200 111565
+INFO 2025-10-16 23:13:16,850 basehttp 14212 17140 - Broken pipe from ('127.0.0.1', 56259)
+INFO 2025-10-16 23:13:17,127 basehttp 14212 14780 - Broken pipe from ('127.0.0.1', 60178)
+INFO 2025-10-16 23:13:17,299 basehttp 14212 5784 - Broken pipe from ('127.0.0.1', 64420)
+INFO 2025-10-16 23:13:17,458 basehttp 14212 15664 "GET /dashboard/ HTTP/1.1" 200 111565
+INFO 2025-10-16 23:15:52,437 basehttp 14212 15664 "GET /dashboard/ HTTP/1.1" 200 111565
+INFO 2025-10-16 23:15:53,668 basehttp 14212 15664 "GET /supplies/ HTTP/1.1" 200 445215
+INFO 2025-10-16 23:15:53,686 basehttp 14212 11632 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-16 23:15:53,686 basehttp 14212 15664 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-16 23:15:53,696 basehttp 14212 11632 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-16 23:15:53,697 basehttp 14212 15664 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-16 23:15:53,703 basehttp 14212 15664 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-16 23:15:53,703 basehttp 14212 11632 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-16 23:15:53,716 basehttp 14212 11632 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-16 23:15:53,717 basehttp 14212 17248 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-16 23:15:53,717 basehttp 14212 15404 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-16 23:15:53,718 basehttp 14212 15664 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-16 23:15:53,718 basehttp 14212 2728 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-16 23:15:53,718 basehttp 14212 10088 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-16 23:15:53,725 basehttp 14212 10088 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-16 23:15:53,725 basehttp 14212 2728 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-16 23:15:53,726 basehttp 14212 15664 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-16 23:15:55,775 basehttp 14212 15664 "GET /get_supply_history/132/ HTTP/1.1" 200 1724
+INFO 2025-10-16 23:16:07,146 basehttp 14212 15664 "GET /get_supply_quantity_activity/132/? HTTP/1.1" 200 1001
+INFO 2025-10-16 23:16:20,303 basehttp 14212 11944 "GET / HTTP/1.1" 200 12072
+WARNING 2025-10-16 23:16:20,469 basehttp 14212 11944 "GET /favicon.ico HTTP/1.1" 404 30708
+INFO 2025-10-16 23:16:23,136 basehttp 14212 11944 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-16 23:16:23,417 basehttp 14212 11944 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:16:23,433 basehttp 14212 11944 "GET /static/css/mobile.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:16:23,452 basehttp 14212 11552 "GET /static/css/userStyle.css HTTP/1.1" 200 46684
+INFO 2025-10-16 23:16:26,022 basehttp 14212 11552 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 472994
+INFO 2025-10-16 23:16:26,043 basehttp 14212 11552 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:16:26,049 basehttp 14212 11552 "GET /static/css/userForms.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:16:38,451 basehttp 14212 5516 "POST /userpanel/add-to-list/ HTTP/1.1" 200 75
+INFO 2025-10-16 23:16:39,021 basehttp 14212 5516 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 475420
+INFO 2025-10-16 23:16:39,049 basehttp 14212 5516 "GET /static/css/userStyle.css HTTP/1.1" 200 46639
+INFO 2025-10-16 23:16:44,836 basehttp 14212 11996 "POST /userpanel/add-to-list/ HTTP/1.1" 200 83
+INFO 2025-10-16 23:16:45,407 basehttp 14212 11996 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 476329
+INFO 2025-10-16 23:16:45,430 basehttp 14212 11996 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:16:56,126 basehttp 14212 2688 "POST /userpanel/add-to-list/ HTTP/1.1" 200 75
+INFO 2025-10-16 23:16:56,588 basehttp 14212 2688 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 476329
+INFO 2025-10-16 23:16:56,605 basehttp 14212 2688 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:17:02,039 basehttp 14212 15548 "POST /userpanel/add-to-list/ HTTP/1.1" 200 75
+INFO 2025-10-16 23:17:02,571 basehttp 14212 15548 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 477229
+INFO 2025-10-16 23:17:02,587 basehttp 14212 15548 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:17:07,636 basehttp 14212 15548 "POST /userpanel/add-to-list/ HTTP/1.1" 200 81
+INFO 2025-10-16 23:17:08,104 basehttp 14212 15548 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 478137
+INFO 2025-10-16 23:17:08,119 basehttp 14212 15548 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:17:12,026 basehttp 14212 14668 "POST /userpanel/submit-list-request/ HTTP/1.1" 200 94
+INFO 2025-10-16 23:17:13,706 basehttp 14212 14668 "GET /userpanel/all_requests/ HTTP/1.1" 200 82624
+INFO 2025-10-16 23:17:13,722 basehttp 14212 14668 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:17:15,775 basehttp 14212 14668 "GET /userpanel/request-detail/batch_supply/94/ HTTP/1.1" 200 23815
+INFO 2025-10-16 23:17:15,797 basehttp 14212 14668 "GET /static/css/request-detail.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:17:18,507 basehttp 14212 14668 "GET /userpanel/all_requests/ HTTP/1.1" 200 82624
+INFO 2025-10-16 23:17:18,529 basehttp 14212 14668 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:17:47,302 basehttp 14212 8516 "GET /supplies/ HTTP/1.1" 200 445215
+INFO 2025-10-16 23:17:47,322 basehttp 14212 8516 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-16 23:17:47,322 basehttp 14212 13092 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-16 23:17:47,335 basehttp 14212 8516 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-16 23:17:47,336 basehttp 14212 13092 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-16 23:17:47,341 basehttp 14212 15432 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-16 23:17:47,342 basehttp 14212 7848 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-16 23:17:47,342 basehttp 14212 16752 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-16 23:17:47,343 basehttp 14212 2128 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-16 23:17:47,344 basehttp 14212 13092 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-16 23:17:47,344 basehttp 14212 8516 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-16 23:17:47,352 basehttp 14212 7848 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-16 23:17:47,353 basehttp 14212 13092 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-16 23:17:47,354 basehttp 14212 16752 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-16 23:17:47,354 basehttp 14212 2128 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-16 23:17:47,354 basehttp 14212 8516 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-16 23:17:47,849 basehttp 14212 8516 "GET /dashboard/ HTTP/1.1" 200 112275
+INFO 2025-10-16 23:17:51,212 basehttp 14212 15552 "GET /dashboard/ HTTP/1.1" 200 112275
+INFO 2025-10-16 23:17:52,325 basehttp 14212 15552 "GET /dashboard/ HTTP/1.1" 200 112275
+INFO 2025-10-16 23:17:54,605 basehttp 14212 15552 "GET /property/ HTTP/1.1" 200 402119
+INFO 2025-10-16 23:17:57,478 basehttp 14212 15552 "GET /supplies/ HTTP/1.1" 200 445215
+INFO 2025-10-16 23:17:57,493 basehttp 14212 15552 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-16 23:17:57,494 basehttp 14212 1332 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-16 23:17:57,498 basehttp 14212 15552 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-16 23:17:57,499 basehttp 14212 1332 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-16 23:17:57,511 basehttp 14212 7656 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-16 23:17:57,512 basehttp 14212 15552 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-16 23:17:57,513 basehttp 14212 1332 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-16 23:17:57,514 basehttp 14212 14104 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-16 23:17:57,514 basehttp 14212 9448 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-16 23:17:57,521 basehttp 14212 2792 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-16 23:17:57,525 basehttp 14212 7656 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-16 23:17:57,525 basehttp 14212 1332 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-16 23:17:57,525 basehttp 14212 15552 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-16 23:17:57,527 basehttp 14212 14104 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-16 23:17:57,528 basehttp 14212 9448 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-16 23:18:06,411 basehttp 14212 4572 "GET /dashboard/ HTTP/1.1" 200 112275
+INFO 2025-10-16 23:18:16,013 basehttp 14212 11964 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:18:16,032 basehttp 14212 11964 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:18:17,983 basehttp 14212 11964 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:18:18,320 basehttp 14212 11964 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:18:18,659 basehttp 14212 11964 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:18:18,972 basehttp 14212 11964 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:20:37,663 basehttp 14212 16728 "GET /dashboard/ HTTP/1.1" 200 112275
+INFO 2025-10-16 23:20:39,117 basehttp 14212 9016 - Broken pipe from ('127.0.0.1', 63198)
+INFO 2025-10-16 23:20:39,307 basehttp 14212 9284 "GET /dashboard/ HTTP/1.1" 200 112275
+INFO 2025-10-16 23:20:41,318 basehttp 14212 4316 - Broken pipe from ('127.0.0.1', 55415)
+INFO 2025-10-16 23:20:41,504 basehttp 14212 11632 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:20:41,525 basehttp 14212 11632 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:20:41,741 basehttp 14212 11632 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:20:42,585 basehttp 14212 11632 - Broken pipe from ('127.0.0.1', 63322)
+INFO 2025-10-16 23:20:42,717 basehttp 14212 7808 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:20:43,003 basehttp 14212 7808 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:20:43,162 basehttp 14212 7808 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:20:43,367 basehttp 14212 7808 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:21:34,961 basehttp 14212 9656 "GET /dashboard/ HTTP/1.1" 200 112275
+INFO 2025-10-16 23:21:36,015 basehttp 14212 9656 - Broken pipe from ('127.0.0.1', 64651)
+INFO 2025-10-16 23:21:36,197 basehttp 14212 11392 - Broken pipe from ('127.0.0.1', 60217)
+INFO 2025-10-16 23:21:36,348 basehttp 14212 13092 - Broken pipe from ('127.0.0.1', 60824)
+INFO 2025-10-16 23:21:36,485 basehttp 14212 8284 "GET /dashboard/ HTTP/1.1" 200 112275
+INFO 2025-10-16 23:21:37,716 basehttp 14212 8284 - Broken pipe from ('127.0.0.1', 64261)
+INFO 2025-10-16 23:21:37,814 basehttp 14212 8440 - Broken pipe from ('127.0.0.1', 53961)
+INFO 2025-10-16 23:21:38,038 basehttp 14212 8612 "GET /dashboard/ HTTP/1.1" 200 112275
+INFO 2025-10-16 23:21:39,667 basehttp 14212 13440 - Broken pipe from ('127.0.0.1', 57639)
+INFO 2025-10-16 23:21:39,763 basehttp 14212 16468 - Broken pipe from ('127.0.0.1', 63979)
+INFO 2025-10-16 23:21:39,974 basehttp 14212 7256 - Broken pipe from ('127.0.0.1', 60138)
+INFO 2025-10-16 23:21:40,212 basehttp 14212 14772 - Broken pipe from ('127.0.0.1', 52806)
+INFO 2025-10-16 23:21:40,363 basehttp 14212 5760 "GET /dashboard/ HTTP/1.1" 200 112275
+INFO 2025-10-16 23:22:15,970 basehttp 14212 17280 - Broken pipe from ('127.0.0.1', 53544)
+INFO 2025-10-16 23:22:16,245 basehttp 14212 13388 - Broken pipe from ('127.0.0.1', 62996)
+INFO 2025-10-16 23:22:16,328 basehttp 14212 14692 - Broken pipe from ('127.0.0.1', 51158)
+INFO 2025-10-16 23:22:16,604 basehttp 14212 13072 - Broken pipe from ('127.0.0.1', 64342)
+INFO 2025-10-16 23:22:16,801 basehttp 14212 14888 - Broken pipe from ('127.0.0.1', 64561)
+INFO 2025-10-16 23:22:16,934 basehttp 14212 4316 - Broken pipe from ('127.0.0.1', 51861)
+INFO 2025-10-16 23:22:17,172 basehttp 14212 11420 "GET /dashboard/ HTTP/1.1" 200 112275
+INFO 2025-10-16 23:22:18,222 basehttp 14212 11548 - Broken pipe from ('127.0.0.1', 51572)
+INFO 2025-10-16 23:22:18,274 basehttp 14212 16288 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:18,304 basehttp 14212 16288 "GET /static/css/userStyle.css HTTP/1.1" 200 46602
+INFO 2025-10-16 23:22:18,856 basehttp 14212 16288 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:19,070 basehttp 14212 16288 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:19,333 basehttp 14212 16288 - Broken pipe from ('127.0.0.1', 61973)
+INFO 2025-10-16 23:22:19,406 basehttp 14212 3140 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:19,707 basehttp 14212 3140 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:19,970 basehttp 14212 3140 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:21,119 basehttp 14212 3140 - Broken pipe from ('127.0.0.1', 51817)
+INFO 2025-10-16 23:22:21,178 basehttp 14212 6352 - Broken pipe from ('127.0.0.1', 56298)
+INFO 2025-10-16 23:22:21,394 basehttp 14212 6640 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:21,543 basehttp 14212 6640 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:21,559 basehttp 14212 6640 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:22:21,735 basehttp 14212 6640 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:21,912 basehttp 14212 6640 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:22,116 basehttp 14212 6640 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:22,411 basehttp 14212 6640 - Broken pipe from ('127.0.0.1', 49338)
+INFO 2025-10-16 23:22:22,477 basehttp 14212 9868 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:22,662 basehttp 14212 9868 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:22,966 basehttp 14212 9868 - Broken pipe from ('127.0.0.1', 53983)
+INFO 2025-10-16 23:22:23,046 basehttp 14212 13900 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:23,268 basehttp 14212 13900 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:23,610 basehttp 14212 13900 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:24,255 basehttp 14212 13900 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:24,271 basehttp 14212 13900 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:22:24,789 basehttp 14212 13900 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-16 23:22:29,986 basehttp 14212 15868 "GET /dashboard/ HTTP/1.1" 200 112177
+INFO 2025-10-16 23:22:30,471 basehttp 14212 15868 "GET /dashboard/ HTTP/1.1" 200 112177
+INFO 2025-10-16 23:22:31,316 basehttp 14212 15868 - Broken pipe from ('127.0.0.1', 52923)
+INFO 2025-10-16 23:22:31,488 basehttp 14212 2040 - Broken pipe from ('127.0.0.1', 56264)
+INFO 2025-10-16 23:22:31,714 basehttp 14212 11068 - Broken pipe from ('127.0.0.1', 60386)
+INFO 2025-10-16 23:22:31,882 basehttp 14212 9900 "GET /dashboard/ HTTP/1.1" 200 112177
+INFO 2025-10-16 23:22:32,761 basehttp 14212 9900 - Broken pipe from ('127.0.0.1', 57352)
+INFO 2025-10-16 23:22:33,125 basehttp 14212 13876 - Broken pipe from ('127.0.0.1', 50555)
+INFO 2025-10-16 23:22:33,202 basehttp 14212 11088 "GET /dashboard/ HTTP/1.1" 200 112177
+INFO 2025-10-16 23:25:26,058 basehttp 14212 16848 "GET /dashboard/ HTTP/1.1" 200 112185
+INFO 2025-10-16 23:25:27,055 basehttp 14212 16848 "GET /dashboard/ HTTP/1.1" 200 112185
+INFO 2025-10-16 23:25:27,707 basehttp 14212 16848 "GET /dashboard/ HTTP/1.1" 200 112185
+INFO 2025-10-16 23:25:28,355 basehttp 14212 16848 - Broken pipe from ('127.0.0.1', 60699)
+INFO 2025-10-16 23:25:28,774 basehttp 14212 7796 - Broken pipe from ('127.0.0.1', 62755)
+INFO 2025-10-16 23:25:28,973 basehttp 14212 14476 - Broken pipe from ('127.0.0.1', 62132)
+INFO 2025-10-16 23:25:29,182 basehttp 14212 2592 "GET /dashboard/ HTTP/1.1" 200 112185
+INFO 2025-10-16 23:25:41,247 basehttp 14212 6244 "GET /my-supply-requests/ HTTP/1.1" 200 168484
+INFO 2025-10-16 23:25:43,098 basehttp 14212 6244 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 160917
+INFO 2025-10-16 23:25:46,348 basehttp 14212 6244 "GET /batch-request/94/ HTTP/1.1" 200 35289
+INFO 2025-10-16 23:25:47,608 basehttp 14212 6244 "POST /batch-request/94/item/190/approve/ HTTP/1.1" 302 0
+INFO 2025-10-16 23:25:47,756 basehttp 14212 6244 "GET /batch-request/94/ HTTP/1.1" 200 34168
+INFO 2025-10-16 23:25:49,594 basehttp 14212 11916 "POST /batch-request/94/item/188/approve/ HTTP/1.1" 302 0
+INFO 2025-10-16 23:25:49,753 basehttp 14212 11916 "GET /batch-request/94/ HTTP/1.1" 200 31621
+INFO 2025-10-16 23:25:52,807 basehttp 14212 11916 "POST /batch-request/94/item/187/approve/ HTTP/1.1" 302 0
+INFO 2025-10-16 23:25:52,918 basehttp 14212 11916 "GET /batch-request/94/ HTTP/1.1" 200 29074
+INFO 2025-10-16 23:25:57,923 utils 14212 11916 Batch request completion email sent to jmvales2004@gmail.com for batch #94
+INFO 2025-10-16 23:25:57,940 basehttp 14212 11916 - Broken pipe from ('127.0.0.1', 57091)
+INFO 2025-10-16 23:25:59,021 utils 14212 10480 Batch request completion email sent to jmvales2004@gmail.com for batch #94
+INFO 2025-10-16 23:25:59,026 basehttp 14212 10480 - Broken pipe from ('127.0.0.1', 54750)
+INFO 2025-10-16 23:25:59,924 utils 14212 13736 Batch request completion email sent to jmvales2004@gmail.com for batch #94
+INFO 2025-10-16 23:25:59,929 basehttp 14212 13736 "POST /batch-request/94/item/189/reject/ HTTP/1.1" 302 0
+INFO 2025-10-16 23:26:00,046 basehttp 14212 13736 "GET /batch-request/94/ HTTP/1.1" 200 28466
+INFO 2025-10-16 23:26:02,485 basehttp 14212 13736 "POST /batch-request/94/claim/ HTTP/1.1" 302 0
+INFO 2025-10-16 23:26:02,655 basehttp 14212 13736 "GET /my-supply-requests/ HTTP/1.1" 200 170195
+INFO 2025-10-16 23:26:04,818 basehttp 14212 8704 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:26:04,844 basehttp 14212 8704 "GET /static/css/userStyle.css HTTP/1.1" 200 46654
+INFO 2025-10-16 23:26:14,784 basehttp 14212 12104 "GET /my-supply-requests/?tab=pending HTTP/1.1" 200 170195
+INFO 2025-10-16 23:26:15,561 basehttp 14212 12104 "GET /dashboard/ HTTP/1.1" 200 112113
+INFO 2025-10-16 23:26:17,980 basehttp 14212 12104 "GET /dashboard/ HTTP/1.1" 200 112113
+INFO 2025-10-16 23:27:31,772 basehttp 14212 7652 - Broken pipe from ('127.0.0.1', 58403)
+INFO 2025-10-16 23:27:31,981 basehttp 14212 7352 "GET /dashboard/ HTTP/1.1" 200 112113
+INFO 2025-10-16 23:27:33,256 basehttp 14212 7352 - Broken pipe from ('127.0.0.1', 64995)
+INFO 2025-10-16 23:27:33,458 basehttp 14212 10144 "GET /dashboard/ HTTP/1.1" 200 112113
+INFO 2025-10-16 23:27:34,738 basehttp 14212 10144 - Broken pipe from ('127.0.0.1', 52608)
+INFO 2025-10-16 23:27:34,889 basehttp 14212 12636 - Broken pipe from ('127.0.0.1', 55715)
+INFO 2025-10-16 23:27:35,158 basehttp 14212 4856 - Broken pipe from ('127.0.0.1', 62308)
+INFO 2025-10-16 23:27:35,380 basehttp 14212 3140 "GET /dashboard/ HTTP/1.1" 200 112113
+INFO 2025-10-16 23:27:35,678 basehttp 14212 3140 "GET /dashboard/ HTTP/1.1" 200 112113
+INFO 2025-10-16 23:27:37,989 basehttp 14212 4764 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:27:38,003 basehttp 14212 4764 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:27:38,259 basehttp 14212 4764 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:27:38,454 basehttp 14212 4764 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:27:38,663 basehttp 14212 4764 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:27:38,869 basehttp 14212 4764 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:27:39,160 basehttp 14212 4764 - Broken pipe from ('127.0.0.1', 62790)
+INFO 2025-10-16 23:27:39,260 basehttp 14212 7420 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:27:39,433 basehttp 14212 7420 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:27:39,648 basehttp 14212 7420 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:27:39,839 basehttp 14212 7420 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:27:40,128 basehttp 14212 7420 - Broken pipe from ('127.0.0.1', 55846)
+INFO 2025-10-16 23:27:40,218 basehttp 14212 1460 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:27:40,392 basehttp 14212 1460 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:27:40,562 basehttp 14212 1460 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:27:40,858 basehttp 14212 1460 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:29:05,202 basehttp 14212 3044 "GET /dashboard/ HTTP/1.1" 200 112112
+INFO 2025-10-16 23:29:17,808 basehttp 14212 14992 "GET /dashboard/ HTTP/1.1" 200 112112
+INFO 2025-10-16 23:29:18,384 basehttp 14212 14992 - Broken pipe from ('127.0.0.1', 59393)
+INFO 2025-10-16 23:29:18,592 basehttp 14212 7220 - Broken pipe from ('127.0.0.1', 58875)
+INFO 2025-10-16 23:29:18,775 basehttp 14212 12616 - Broken pipe from ('127.0.0.1', 60573)
+INFO 2025-10-16 23:29:19,045 basehttp 14212 5904 - Broken pipe from ('127.0.0.1', 57104)
+INFO 2025-10-16 23:29:19,112 basehttp 14212 15544 - Broken pipe from ('127.0.0.1', 50991)
+INFO 2025-10-16 23:29:19,278 basehttp 14212 9696 - Broken pipe from ('127.0.0.1', 63869)
+INFO 2025-10-16 23:29:19,405 basehttp 14212 1460 - Broken pipe from ('127.0.0.1', 63783)
+INFO 2025-10-16 23:29:19,557 basehttp 14212 16796 - Broken pipe from ('127.0.0.1', 53695)
+INFO 2025-10-16 23:29:19,848 basehttp 14212 12756 - Broken pipe from ('127.0.0.1', 51611)
+INFO 2025-10-16 23:29:19,940 basehttp 14212 2516 - Broken pipe from ('127.0.0.1', 51811)
+INFO 2025-10-16 23:29:20,108 basehttp 14212 12772 - Broken pipe from ('127.0.0.1', 64687)
+INFO 2025-10-16 23:29:20,340 basehttp 14212 8284 "GET /dashboard/ HTTP/1.1" 200 112112
+INFO 2025-10-16 23:30:29,682 basehttp 14212 13880 "GET /dashboard/ HTTP/1.1" 200 112112
+INFO 2025-10-16 23:30:30,661 basehttp 14212 13880 "GET /dashboard/ HTTP/1.1" 200 112112
+INFO 2025-10-16 23:30:33,450 basehttp 14212 13880 "GET /dashboard/ HTTP/1.1" 200 112112
+INFO 2025-10-16 23:31:10,706 basehttp 14212 2624 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:31:10,735 basehttp 14212 2624 "GET /static/css/userStyle.css HTTP/1.1" 200 46653
+INFO 2025-10-16 23:31:11,338 basehttp 14212 2624 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:31:11,761 basehttp 14212 2624 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:31:18,258 basehttp 14212 8472 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:31:18,272 basehttp 14212 8472 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:31:18,640 basehttp 14212 8472 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:32:05,181 basehttp 14212 5928 "GET /dashboard/ HTTP/1.1" 200 112097
+INFO 2025-10-16 23:32:05,829 basehttp 14212 5928 - Broken pipe from ('127.0.0.1', 58640)
+INFO 2025-10-16 23:32:06,174 basehttp 14212 13192 - Broken pipe from ('127.0.0.1', 59870)
+INFO 2025-10-16 23:32:06,384 basehttp 14212 14188 - Broken pipe from ('127.0.0.1', 61568)
+INFO 2025-10-16 23:32:06,536 basehttp 14212 2520 "GET /dashboard/ HTTP/1.1" 200 112097
+INFO 2025-10-16 23:32:07,424 basehttp 14212 2520 - Broken pipe from ('127.0.0.1', 60624)
+INFO 2025-10-16 23:32:07,769 basehttp 14212 15296 - Broken pipe from ('127.0.0.1', 61476)
+INFO 2025-10-16 23:32:07,853 basehttp 14212 15216 - Broken pipe from ('127.0.0.1', 49232)
+INFO 2025-10-16 23:32:07,969 basehttp 14212 7536 - Broken pipe from ('127.0.0.1', 53051)
+INFO 2025-10-16 23:32:08,206 basehttp 14212 14716 - Broken pipe from ('127.0.0.1', 53118)
+INFO 2025-10-16 23:32:08,241 basehttp 14212 16696 "GET /dashboard/ HTTP/1.1" 200 112097
+INFO 2025-10-16 23:32:13,110 basehttp 14212 5732 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:32:13,124 basehttp 14212 5732 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:32:13,603 basehttp 14212 5732 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:32:13,786 basehttp 14212 5732 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:34:12,253 basehttp 14212 15168 "GET /userpanel/request-detail/batch_borrow/34/ HTTP/1.1" 302 0
+INFO 2025-10-16 23:34:12,394 basehttp 14212 15168 "GET /login_user/?next=/userpanel/request-detail/batch_borrow/34/ HTTP/1.1" 200 12072
+INFO 2025-10-16 23:34:12,554 basehttp 14212 15168 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-10-16 23:34:24,794 basehttp 14212 15168 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-16 23:34:25,223 basehttp 14212 15168 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:34:25,470 basehttp 14212 15168 "GET /static/css/mobile.css HTTP/1.1" 200 12234
+INFO 2025-10-16 23:34:25,491 basehttp 14212 9676 "GET /static/css/userStyle.css HTTP/1.1" 200 46650
+INFO 2025-10-16 23:34:25,567 basehttp 14212 15168 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 7182
+WARNING 2025-10-16 23:34:25,896 basehttp 14212 2172 "GET /apple-touch-icon-precomposed.png HTTP/1.1" 404 30797
+WARNING 2025-10-16 23:34:25,903 basehttp 14212 12220 "GET /favicon.ico HTTP/1.1" 404 30734
+WARNING 2025-10-16 23:34:25,904 basehttp 14212 8792 "GET /apple-touch-icon.png HTTP/1.1" 404 30761
+INFO 2025-10-16 23:34:28,826 basehttp 14212 15168 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:34:56,889 basehttp 14212 2656 "GET /dashboard/ HTTP/1.1" 200 112095
+INFO 2025-10-16 23:34:57,739 basehttp 14212 2656 - Broken pipe from ('127.0.0.1', 57093)
+INFO 2025-10-16 23:34:57,965 basehttp 14212 9812 - Broken pipe from ('127.0.0.1', 61764)
+INFO 2025-10-16 23:34:58,128 basehttp 14212 9496 - Broken pipe from ('127.0.0.1', 61541)
+INFO 2025-10-16 23:34:58,313 basehttp 14212 7244 - Broken pipe from ('127.0.0.1', 60812)
+INFO 2025-10-16 23:34:58,550 basehttp 14212 15544 - Broken pipe from ('127.0.0.1', 60605)
+INFO 2025-10-16 23:34:58,799 basehttp 14212 7804 - Broken pipe from ('127.0.0.1', 62717)
+INFO 2025-10-16 23:34:58,991 basehttp 14212 17012 "GET /dashboard/ HTTP/1.1" 200 112095
+INFO 2025-10-16 23:35:00,990 basehttp 14212 12212 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:35:01,015 basehttp 14212 12212 "GET /static/css/userStyle.css HTTP/1.1" 200 46650
+INFO 2025-10-16 23:35:01,878 basehttp 14212 17116 - Broken pipe from ('127.0.0.1', 54533)
+INFO 2025-10-16 23:35:01,961 basehttp 14212 14784 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:35:02,149 basehttp 14212 14784 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:35:02,404 basehttp 14212 14784 - Broken pipe from ('127.0.0.1', 58785)
+INFO 2025-10-16 23:35:02,674 basehttp 14212 5312 - Broken pipe from ('127.0.0.1', 51590)
+INFO 2025-10-16 23:35:02,791 basehttp 14212 12384 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:37:14,146 basehttp 14212 4504 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:37:14,732 basehttp 14212 4504 - Broken pipe from ('127.0.0.1', 64355)
+INFO 2025-10-16 23:37:14,917 basehttp 14212 15648 - Broken pipe from ('127.0.0.1', 53376)
+INFO 2025-10-16 23:37:15,190 basehttp 14212 10160 - Broken pipe from ('127.0.0.1', 59384)
+INFO 2025-10-16 23:37:15,500 basehttp 14212 13960 - Broken pipe from ('127.0.0.1', 58595)
+INFO 2025-10-16 23:37:15,651 basehttp 14212 12356 - Broken pipe from ('127.0.0.1', 55087)
+INFO 2025-10-16 23:37:15,858 basehttp 14212 2948 - Broken pipe from ('127.0.0.1', 62787)
+INFO 2025-10-16 23:37:16,147 basehttp 14212 15084 - Broken pipe from ('127.0.0.1', 61003)
+INFO 2025-10-16 23:37:16,406 basehttp 14212 6368 - Broken pipe from ('127.0.0.1', 52514)
+INFO 2025-10-16 23:37:16,623 basehttp 14212 11288 - Broken pipe from ('127.0.0.1', 52787)
+INFO 2025-10-16 23:37:16,785 basehttp 14212 4188 - Broken pipe from ('127.0.0.1', 59842)
+INFO 2025-10-16 23:37:17,059 basehttp 14212 17144 - Broken pipe from ('127.0.0.1', 57443)
+INFO 2025-10-16 23:37:17,337 basehttp 14212 3968 - Broken pipe from ('127.0.0.1', 64907)
+INFO 2025-10-16 23:37:17,551 basehttp 14212 14540 - Broken pipe from ('127.0.0.1', 52520)
+INFO 2025-10-16 23:37:17,867 basehttp 14212 12116 - Broken pipe from ('127.0.0.1', 50116)
+INFO 2025-10-16 23:37:17,978 basehttp 14212 7696 - Broken pipe from ('127.0.0.1', 63947)
+INFO 2025-10-16 23:37:18,324 basehttp 14212 5392 - Broken pipe from ('127.0.0.1', 60775)
+INFO 2025-10-16 23:37:18,683 basehttp 14212 6640 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:37:19,376 basehttp 14212 6640 - Broken pipe from ('127.0.0.1', 51322)
+INFO 2025-10-16 23:37:19,548 basehttp 14212 9504 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:37:21,236 basehttp 14212 9504 - Broken pipe from ('127.0.0.1', 64235)
+INFO 2025-10-16 23:37:21,443 basehttp 14212 8124 - Broken pipe from ('127.0.0.1', 49843)
+INFO 2025-10-16 23:37:21,730 basehttp 14212 12252 - Broken pipe from ('127.0.0.1', 53249)
+INFO 2025-10-16 23:37:21,971 basehttp 14212 15188 - Broken pipe from ('127.0.0.1', 62422)
+INFO 2025-10-16 23:37:22,167 basehttp 14212 17200 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:37:23,784 basehttp 14212 17200 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:37:24,510 basehttp 14212 17200 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:37:26,057 basehttp 14212 7744 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:37:26,085 basehttp 14212 7744 "GET /static/css/userStyle.css HTTP/1.1" 200 46652
+INFO 2025-10-16 23:37:27,012 basehttp 14212 11892 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:37:27,401 basehttp 14212 11892 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:37:40,761 basehttp 14212 6156 - Broken pipe from ('127.0.0.1', 52682)
+INFO 2025-10-16 23:37:42,024 basehttp 14212 5568 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:37:42,757 basehttp 14212 5568 "GET /static/css/userStyle.css HTTP/1.1" 200 46652
+INFO 2025-10-16 23:37:46,653 basehttp 14212 5568 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:38:03,529 basehttp 14212 5568 "GET /userpanel/all_requests/ HTTP/1.1" 200 98535
+INFO 2025-10-16 23:38:03,711 basehttp 14212 13952 "GET /static/css/userStyle.css HTTP/1.1" 200 46652
+INFO 2025-10-16 23:38:03,751 basehttp 14212 7180 "GET /static/css/userForms.css HTTP/1.1" 200 67075
+INFO 2025-10-16 23:38:31,869 basehttp 14212 17376 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:38:32,393 basehttp 14212 17376 - Broken pipe from ('127.0.0.1', 61417)
+INFO 2025-10-16 23:38:32,630 basehttp 14212 3236 - Broken pipe from ('127.0.0.1', 55389)
+INFO 2025-10-16 23:38:33,038 basehttp 14212 11468 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:38:33,484 basehttp 14212 11468 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:38:33,994 basehttp 14212 11468 - Broken pipe from ('127.0.0.1', 57851)
+INFO 2025-10-16 23:38:34,257 basehttp 14212 4180 - Broken pipe from ('127.0.0.1', 49670)
+INFO 2025-10-16 23:38:34,487 basehttp 14212 16104 - Broken pipe from ('127.0.0.1', 53510)
+INFO 2025-10-16 23:38:34,785 basehttp 14212 15136 - Broken pipe from ('127.0.0.1', 56849)
+INFO 2025-10-16 23:38:34,967 basehttp 14212 17220 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:38:35,524 basehttp 14212 17220 - Broken pipe from ('127.0.0.1', 60092)
+INFO 2025-10-16 23:38:35,928 basehttp 14212 15008 - Broken pipe from ('127.0.0.1', 53507)
+INFO 2025-10-16 23:38:36,116 basehttp 14212 7428 - Broken pipe from ('127.0.0.1', 62591)
+INFO 2025-10-16 23:38:36,318 basehttp 14212 16888 - Broken pipe from ('127.0.0.1', 59225)
+INFO 2025-10-16 23:38:36,685 basehttp 14212 1840 - Broken pipe from ('127.0.0.1', 49314)
+INFO 2025-10-16 23:38:37,058 basehttp 14212 12720 - Broken pipe from ('127.0.0.1', 54949)
+INFO 2025-10-16 23:38:37,299 basehttp 14212 7392 - Broken pipe from ('127.0.0.1', 59069)
+INFO 2025-10-16 23:38:37,614 basehttp 14212 14396 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:39:02,222 basehttp 14212 14092 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:40:03,814 basehttp 14212 12232 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:40:04,287 basehttp 14212 12232 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:40:50,675 basehttp 14212 15544 - Broken pipe from ('127.0.0.1', 62505)
+INFO 2025-10-16 23:40:50,690 basehttp 14212 16636 - Broken pipe from ('127.0.0.1', 54101)
+INFO 2025-10-16 23:40:50,848 basehttp 14212 15988 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:40:51,935 basehttp 14212 15988 - Broken pipe from ('127.0.0.1', 49715)
+INFO 2025-10-16 23:40:52,094 basehttp 14212 6308 - Broken pipe from ('127.0.0.1', 63712)
+INFO 2025-10-16 23:40:52,249 basehttp 14212 15492 - Broken pipe from ('127.0.0.1', 64224)
+INFO 2025-10-16 23:40:52,468 basehttp 14212 14468 - Broken pipe from ('127.0.0.1', 62378)
+INFO 2025-10-16 23:40:52,627 basehttp 14212 16376 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:40:53,092 basehttp 14212 16376 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:40:54,042 basehttp 14212 16376 - Broken pipe from ('127.0.0.1', 63687)
+INFO 2025-10-16 23:40:54,193 basehttp 14212 6376 - Broken pipe from ('127.0.0.1', 57056)
+INFO 2025-10-16 23:40:54,359 basehttp 14212 10376 - Broken pipe from ('127.0.0.1', 63932)
+INFO 2025-10-16 23:40:54,621 basehttp 14212 824 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:40:55,553 basehttp 14212 6132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:40:55,579 basehttp 14212 6132 "GET /static/css/userStyle.css HTTP/1.1" 200 46652
+INFO 2025-10-16 23:40:56,529 basehttp 14212 6132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:40:56,799 basehttp 14212 6132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:41:31,229 basehttp 14212 17012 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:41:35,358 basehttp 14212 17012 "GET /dashboard/ HTTP/1.1" 302 0
+INFO 2025-10-16 23:41:35,386 basehttp 14212 17012 "GET /login_user/?next=/dashboard/ HTTP/1.1" 200 12072
+INFO 2025-10-16 23:41:35,396 basehttp 14212 17012 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-10-16 23:41:36,892 basehttp 14212 8996 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-16 23:41:37,309 basehttp 14212 8996 "GET /dashboard/ HTTP/1.1" 200 112096
+INFO 2025-10-16 23:41:37,325 basehttp 14212 8996 "GET /static/css/style.css HTTP/1.1" 200 28832
+INFO 2025-10-16 23:41:37,326 basehttp 14212 10144 "GET /static/css/userStyle.css HTTP/1.1" 200 46652
+INFO 2025-10-16 23:41:37,328 basehttp 14212 13260 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 7182
+INFO 2025-10-16 23:41:37,352 basehttp 14212 12784 "GET /static/scripts/charts.js HTTP/1.1" 200 15633
+INFO 2025-10-16 23:42:49,512 basehttp 14212 12784 - Broken pipe from ('127.0.0.1', 61865)
+INFO 2025-10-16 23:42:49,553 basehttp 14212 13260 - Broken pipe from ('127.0.0.1', 54167)
+INFO 2025-10-16 23:42:49,736 basehttp 14212 10144 - Broken pipe from ('127.0.0.1', 63496)
+INFO 2025-10-16 23:42:50,126 basehttp 14212 8996 - Broken pipe from ('127.0.0.1', 59431)
+INFO 2025-10-16 23:42:50,234 basehttp 14212 15376 - Broken pipe from ('127.0.0.1', 64590)
+INFO 2025-10-16 23:42:50,566 basehttp 14212 17392 - Broken pipe from ('127.0.0.1', 58898)
+INFO 2025-10-16 23:42:50,693 basehttp 14212 7556 "GET /dashboard/ HTTP/1.1" 200 112118
+INFO 2025-10-16 23:42:50,703 basehttp 14212 7556 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:42:51,252 basehttp 14212 6852 "GET /dashboard/ HTTP/1.1" 200 112118
+INFO 2025-10-16 23:42:51,914 basehttp 14212 6852 - Broken pipe from ('127.0.0.1', 57544)
+INFO 2025-10-16 23:42:52,261 basehttp 14212 9812 - Broken pipe from ('127.0.0.1', 63927)
+INFO 2025-10-16 23:42:52,510 basehttp 14212 3280 "GET /dashboard/ HTTP/1.1" 200 112118
+INFO 2025-10-16 23:43:46,067 basehttp 14212 8976 "GET /dashboard/ HTTP/1.1" 200 112118
+INFO 2025-10-16 23:43:46,079 basehttp 14212 8976 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:43:46,624 basehttp 14212 8976 "GET /dashboard/ HTTP/1.1" 200 112118
+INFO 2025-10-16 23:44:04,739 basehttp 14212 3964 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:44:06,708 basehttp 14212 1172 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:44:18,895 basehttp 14212 8068 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:44:19,306 basehttp 14212 8068 "GET /static/css/userStyle.css HTTP/1.1" 200 46652
+INFO 2025-10-16 23:44:20,858 basehttp 14212 8068 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:45:16,432 basehttp 14212 8068 - Broken pipe from ('127.0.0.1', 55142)
+INFO 2025-10-16 23:45:17,953 basehttp 14212 2240 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:45:18,137 basehttp 14212 2240 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:45:19,419 basehttp 14212 2240 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:45:22,372 basehttp 14212 2240 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:45:24,316 basehttp 14212 2240 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:45:26,890 basehttp 14212 2240 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:45:42,711 basehttp 14212 2240 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:45:55,477 basehttp 14212 2240 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:45:55,722 basehttp 14212 2240 "GET /static/css/userStyle.css HTTP/1.1" 200 46652
+INFO 2025-10-16 23:47:01,942 basehttp 14212 6296 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:47:01,962 basehttp 14212 6296 "GET /static/css/userStyle.css HTTP/1.1" 200 46652
+INFO 2025-10-16 23:47:02,959 basehttp 14212 6296 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:47:04,375 basehttp 14212 6296 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:47:14,402 basehttp 14212 2240 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:47:14,708 basehttp 14212 2240 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:47:16,815 basehttp 14212 2240 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:48:11,504 basehttp 14212 16812 "GET /dashboard/ HTTP/1.1" 200 112189
+INFO 2025-10-16 23:48:11,531 basehttp 14212 16812 "GET /static/css/userStyle.css HTTP/1.1" 200 46685
+INFO 2025-10-16 23:48:15,259 basehttp 14212 2240 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:48:15,856 basehttp 14212 2240 "GET /static/css/userStyle.css HTTP/1.1" 200 46685
+INFO 2025-10-16 23:48:26,115 basehttp 14212 16812 "GET /dashboard/ HTTP/1.1" 200 112189
+INFO 2025-10-16 23:48:26,125 basehttp 14212 16812 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:48:27,239 basehttp 14212 16812 "GET /dashboard/ HTTP/1.1" 200 112189
+INFO 2025-10-16 23:48:31,678 basehttp 14212 11336 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:48:31,691 basehttp 14212 11336 "GET /static/css/userStyle.css HTTP/1.1" 200 46685
+INFO 2025-10-16 23:48:31,933 basehttp 14212 11336 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:48:33,687 basehttp 14212 11336 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:49:27,064 basehttp 14212 2044 "GET /dashboard/ HTTP/1.1" 200 112189
+INFO 2025-10-16 23:49:27,138 basehttp 14212 2044 "GET /static/css/userStyle.css HTTP/1.1" 200 47019
+INFO 2025-10-16 23:49:27,773 basehttp 14212 2044 - Broken pipe from ('127.0.0.1', 49354)
+INFO 2025-10-16 23:49:27,922 basehttp 14212 11296 "GET /dashboard/ HTTP/1.1" 200 112189
+INFO 2025-10-16 23:49:27,933 basehttp 14212 11296 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:49:28,680 basehttp 14212 11296 - Broken pipe from ('127.0.0.1', 59875)
+INFO 2025-10-16 23:49:28,855 basehttp 14212 3024 "GET /dashboard/ HTTP/1.1" 200 112189
+INFO 2025-10-16 23:49:28,865 basehttp 14212 3024 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:49:30,101 basehttp 14212 812 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:49:30,142 basehttp 14212 11592 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:49:30,142 basehttp 14212 812 "GET /static/css/userStyle.css HTTP/1.1" 200 47019
+INFO 2025-10-16 23:49:31,451 basehttp 14212 11592 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:49:31,482 basehttp 14212 812 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-16 23:49:31,482 basehttp 14212 11592 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:49:47,957 basehttp 14212 11592 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:49:47,984 basehttp 14212 11592 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:49:47,984 basehttp 14212 812 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:49:48,262 basehttp 14212 812 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:49:48,295 basehttp 14212 812 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:49:48,592 basehttp 14212 812 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:49:48,624 basehttp 14212 11592 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:49:48,734 basehttp 14212 812 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:49:48,758 basehttp 14212 812 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:50:40,634 basehttp 14212 812 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:50:40,657 basehttp 14212 812 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:50:40,658 basehttp 14212 11592 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:50:40,863 basehttp 14212 11592 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:50:40,895 basehttp 14212 11592 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:50:41,211 basehttp 14212 11592 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:50:41,233 basehttp 14212 11592 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:50:41,505 basehttp 14212 11592 - Broken pipe from ('127.0.0.1', 62823)
+INFO 2025-10-16 23:50:41,548 basehttp 14212 812 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:50:41,571 basehttp 14212 812 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:51:21,340 basehttp 14212 1468 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:51:21,365 basehttp 14212 11824 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-16 23:51:21,365 basehttp 14212 1468 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:51:21,683 basehttp 14212 11824 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:51:21,715 basehttp 14212 11824 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:51:21,957 basehttp 14212 11824 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:51:21,983 basehttp 14212 11824 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:51:22,275 basehttp 14212 11824 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:51:22,297 basehttp 14212 11824 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:51:22,920 basehttp 14212 11824 - Broken pipe from ('127.0.0.1', 65476)
+INFO 2025-10-16 23:51:23,159 basehttp 14212 1468 - Broken pipe from ('127.0.0.1', 56971)
+INFO 2025-10-16 23:51:23,269 basehttp 14212 16372 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:51:23,294 basehttp 14212 16372 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:00,925 basehttp 14212 15256 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:00,949 basehttp 14212 15256 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:00,963 basehttp 14212 2132 "GET /static/css/userStyle.css HTTP/1.1" 200 47019
+INFO 2025-10-16 23:52:01,520 basehttp 14212 2132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:01,542 basehttp 14212 2132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:01,543 basehttp 14212 15256 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:52:01,703 basehttp 14212 15256 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:01,724 basehttp 14212 15256 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:01,955 basehttp 14212 15256 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:02,000 basehttp 14212 15256 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:02,177 basehttp 14212 15256 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:02,201 basehttp 14212 15256 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:03,101 basehttp 14212 15256 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:03,127 basehttp 14212 15256 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:03,128 basehttp 14212 2132 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:52:03,499 basehttp 14212 2132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:03,525 basehttp 14212 2132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:03,818 basehttp 14212 2132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:03,841 basehttp 14212 2132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:04,088 basehttp 14212 2132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:04,111 basehttp 14212 2132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:04,573 basehttp 14212 2132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:04,606 basehttp 14212 2132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:04,607 basehttp 14212 15256 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:52:04,783 basehttp 14212 15256 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:04,813 basehttp 14212 15256 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:07,371 basehttp 14212 15256 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:07,412 basehttp 14212 2132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:07,412 basehttp 14212 15468 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:52:07,626 basehttp 14212 15256 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:07,650 basehttp 14212 15256 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:10,239 basehttp 14212 14524 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:52:10,256 basehttp 14212 14524 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:52:12,416 basehttp 14212 14524 - Broken pipe from ('127.0.0.1', 60916)
+INFO 2025-10-16 23:52:12,496 basehttp 14212 7960 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:52:12,513 basehttp 14212 7960 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:52:12,876 basehttp 14212 7960 - Broken pipe from ('127.0.0.1', 54281)
+INFO 2025-10-16 23:52:13,009 basehttp 14212 1524 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:52:13,184 basehttp 14212 1524 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:52:13,485 basehttp 14212 1524 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:52:13,659 basehttp 14212 1524 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:52:14,791 basehttp 14212 1524 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-16 23:52:14,816 basehttp 14212 1524 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:25,463 basehttp 14212 1524 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:52:25,482 basehttp 14212 1524 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-16 23:52:25,491 basehttp 14212 15044 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:25,759 basehttp 14212 15044 - Broken pipe from ('127.0.0.1', 58374)
+INFO 2025-10-16 23:52:25,846 basehttp 14212 1524 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:25,869 basehttp 14212 1524 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:26,342 basehttp 14212 1524 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:26,365 basehttp 14212 1524 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:26,517 basehttp 14212 1524 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:26,540 basehttp 14212 1524 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:26,675 basehttp 14212 1524 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:52:26,697 basehttp 14212 1524 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:52:31,603 basehttp 14212 5568 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:52:32,772 basehttp 14212 5568 "GET /static/css/mobile.css HTTP/1.1" 200 12234
+INFO 2025-10-16 23:52:32,778 basehttp 14212 16532 "GET /static/css/userStyle.css HTTP/1.1" 200 47019
+INFO 2025-10-16 23:52:33,000 basehttp 14212 5568 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 7182
+INFO 2025-10-16 23:53:13,052 basehttp 14212 12136 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:53:13,078 basehttp 14212 12136 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:53:13,078 basehttp 14212 2872 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:53:13,376 basehttp 14212 2872 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:53:13,401 basehttp 14212 2872 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:53:13,792 basehttp 14212 2872 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:53:13,820 basehttp 14212 2872 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:53:21,539 basehttp 14212 15680 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:53:21,574 basehttp 14212 15680 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:53:21,584 basehttp 14212 9100 "GET /static/css/userStyle.css HTTP/1.1" 200 47008
+INFO 2025-10-16 23:53:22,249 basehttp 14212 9100 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:53:22,279 basehttp 14212 9100 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:53:22,280 basehttp 14212 15680 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:53:22,450 basehttp 14212 15680 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:53:22,481 basehttp 14212 15680 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:53:22,481 basehttp 14212 9100 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:53:22,629 basehttp 14212 8780 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:53:22,656 basehttp 14212 8780 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:53:22,657 basehttp 14212 15680 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:53:22,791 basehttp 14212 9100 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:53:22,828 basehttp 14212 15680 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-16 23:53:22,828 basehttp 14212 9100 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:53:28,747 basehttp 14212 5568 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:53:30,359 basehttp 14212 5568 "GET /static/css/userStyle.css HTTP/1.1" 200 47008
+INFO 2025-10-16 23:54:34,591 basehttp 14212 6780 "GET /dashboard/ HTTP/1.1" 200 112189
+INFO 2025-10-16 23:54:34,615 basehttp 14212 6780 "GET /static/css/userStyle.css HTTP/1.1" 200 47008
+INFO 2025-10-16 23:54:38,139 basehttp 14212 14224 "POST /mark-all-notifications-read/ HTTP/1.1" 200 17
+WARNING 2025-10-16 23:54:43,821 basehttp 14212 14224 "GET /reservation/35/ HTTP/1.1" 404 19758
+INFO 2025-10-16 23:54:46,280 basehttp 14212 14224 "GET /dashboard/ HTTP/1.1" 200 107006
+INFO 2025-10-16 23:54:49,005 basehttp 14212 14224 "GET /borrow-batch-detail/37/ HTTP/1.1" 200 41760
+INFO 2025-10-16 23:54:50,605 basehttp 14212 14224 "GET /my-borrow-requests/ HTTP/1.1" 200 124272
+INFO 2025-10-16 23:54:52,973 basehttp 14212 14224 "GET /dashboard/ HTTP/1.1" 200 107006
+INFO 2025-10-16 23:54:52,996 basehttp 14212 14224 "GET /static/css/userStyle.css HTTP/1.1" 200 47219
+INFO 2025-10-16 23:54:55,393 basehttp 14212 14224 "GET /batch-request/94/ HTTP/1.1" 200 27393
+INFO 2025-10-16 23:54:56,744 basehttp 14212 14224 "GET /my-supply-requests/ HTTP/1.1" 200 170195
+INFO 2025-10-16 23:54:58,635 basehttp 14212 14224 "GET /dashboard/ HTTP/1.1" 200 107006
+INFO 2025-10-16 23:54:58,646 basehttp 14212 14224 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:55:02,400 basehttp 14212 14224 "GET /batch-request/94/ HTTP/1.1" 200 27393
+INFO 2025-10-16 23:55:03,735 basehttp 14212 14224 "GET /my-supply-requests/ HTTP/1.1" 200 170195
+INFO 2025-10-16 23:55:06,881 basehttp 14212 14224 "GET /dashboard/ HTTP/1.1" 200 107006
+INFO 2025-10-16 23:55:06,892 basehttp 14212 14224 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:55:08,645 basehttp 14212 14224 "GET /batch-request/93/ HTTP/1.1" 200 23415
+INFO 2025-10-16 23:55:11,735 basehttp 14212 14224 "GET /my-supply-requests/ HTTP/1.1" 200 170195
+INFO 2025-10-16 23:55:13,408 basehttp 14212 14224 "GET /dashboard/ HTTP/1.1" 200 107006
+INFO 2025-10-16 23:55:13,418 basehttp 14212 14224 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:55:22,757 basehttp 14212 15224 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:55:23,102 basehttp 14212 15224 "GET /static/css/userStyle.css HTTP/1.1" 200 47219
+INFO 2025-10-16 23:55:28,479 basehttp 14212 15224 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:55:36,978 basehttp 14212 3808 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:55:37,002 basehttp 14212 3808 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:55:37,003 basehttp 14212 8696 "GET /static/css/userStyle.css HTTP/1.1" 200 47219
+INFO 2025-10-16 23:55:37,682 basehttp 14212 8696 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:55:37,705 basehttp 14212 8696 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:55:37,881 basehttp 14212 8696 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:55:37,904 basehttp 14212 8696 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:55:38,031 basehttp 14212 3808 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:55:38,056 basehttp 14212 3808 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:55:38,211 basehttp 14212 3808 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:55:38,234 basehttp 14212 3808 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:55:38,380 basehttp 14212 3808 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:55:38,405 basehttp 14212 3808 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:55:38,662 basehttp 14212 3808 - Broken pipe from ('127.0.0.1', 64385)
+INFO 2025-10-16 23:55:38,727 basehttp 14212 8696 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:55:38,751 basehttp 14212 8696 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:55:38,903 basehttp 14212 8696 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:55:38,926 basehttp 14212 8696 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:55:39,084 basehttp 14212 8696 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:55:39,107 basehttp 14212 8696 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:55:39,411 basehttp 14212 8696 - Broken pipe from ('127.0.0.1', 56129)
+INFO 2025-10-16 23:55:39,594 basehttp 14212 17364 - Broken pipe from ('127.0.0.1', 63596)
+INFO 2025-10-16 23:55:39,770 basehttp 14212 11924 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:55:39,796 basehttp 14212 11924 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:55:42,458 basehttp 14212 11924 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:55:42,639 basehttp 14212 11924 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:55:42,958 basehttp 14212 11924 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:55:43,218 basehttp 14212 11924 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:55:43,231 basehttp 14212 11924 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:55:50,412 basehttp 14212 11924 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:55:50,428 basehttp 14212 11924 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:55:50,605 basehttp 14212 11924 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:55:51,681 basehttp 14212 11924 "POST /mark-notification-read/ HTTP/1.1" 400 40
+INFO 2025-10-16 23:55:51,927 basehttp 14212 11924 "GET /userpanel/user_request/ HTTP/1.1" 200 193315
+INFO 2025-10-16 23:55:53,612 basehttp 14212 11924 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:55:54,201 basehttp 14212 11924 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:55:56,179 basehttp 14212 11924 "POST /mark-notification-read/ HTTP/1.1" 400 40
+INFO 2025-10-16 23:55:56,359 basehttp 14212 11924 "GET /userpanel/user_request/ HTTP/1.1" 200 193315
+INFO 2025-10-16 23:55:58,089 basehttp 14212 11924 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:55:58,109 basehttp 14212 11924 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:56:01,357 basehttp 14212 11924 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:56:01,664 basehttp 14212 11924 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:56:10,395 basehttp 14212 15224 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 73005
+INFO 2025-10-16 23:56:11,342 basehttp 14212 15224 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:56:57,621 basehttp 14212 15224 "POST /mark-all-notifications-read/ HTTP/1.1" 200 17
+INFO 2025-10-16 23:57:00,047 basehttp 14212 15224 "POST /clear-all-notifications/ HTTP/1.1" 200 17
+INFO 2025-10-16 23:57:21,485 basehttp 14212 15224 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-16 23:57:21,780 basehttp 14212 15224 "GET /static/css/userStyle.css HTTP/1.1" 200 47508
+INFO 2025-10-16 23:57:27,783 basehttp 14212 8228 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:57:27,802 basehttp 14212 8228 "GET /static/css/userStyle.css HTTP/1.1" 200 47508
+WARNING 2025-10-16 23:57:28,440 basehttp 14212 8228 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:12,218 basehttp 14212 8228 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:12,248 basehttp 14212 8228 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:12,257 basehttp 14212 7132 "GET /static/css/userStyle.css HTTP/1.1" 200 47829
+INFO 2025-10-16 23:58:12,450 basehttp 14212 7132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:12,478 basehttp 14212 7132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:12,631 basehttp 14212 8228 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:12,660 basehttp 14212 8228 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:14,689 basehttp 14212 8228 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:58:14,708 basehttp 14212 7132 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-16 23:58:14,717 basehttp 14212 8228 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:14,874 basehttp 14212 8228 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:14,900 basehttp 14212 8228 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:19,918 basehttp 14212 8228 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:19,944 basehttp 14212 8228 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:19,945 basehttp 14212 7132 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:58:20,184 basehttp 14212 7132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:20,203 basehttp 14212 7132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:20,381 basehttp 14212 7132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:20,405 basehttp 14212 7132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:20,656 basehttp 14212 7132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:20,683 basehttp 14212 7132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:22,842 basehttp 14212 7132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-16 23:58:22,866 basehttp 14212 8228 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-16 23:58:22,866 basehttp 14212 7132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:23,021 basehttp 14212 7132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:23,044 basehttp 14212 7132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:23,186 basehttp 14212 7132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:23,209 basehttp 14212 7132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:23,372 basehttp 14212 7132 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:23,396 basehttp 14212 7132 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:24,646 basehttp 14212 7132 - Broken pipe from ('127.0.0.1', 58242)
+INFO 2025-10-16 23:58:24,696 basehttp 14212 8228 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:24,717 basehttp 14212 8228 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:24,718 basehttp 14212 9224 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-16 23:58:24,972 basehttp 14212 4256 - Broken pipe from ('127.0.0.1', 55884)
+INFO 2025-10-16 23:58:25,015 basehttp 14212 9224 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:25,038 basehttp 14212 9224 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:25,208 basehttp 14212 9224 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:25,234 basehttp 14212 9224 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:25,359 basehttp 14212 9224 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:25,380 basehttp 14212 9224 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:58:25,644 basehttp 14212 9224 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:58:25,667 basehttp 14212 9224 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:59:30,992 basehttp 14212 15020 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-16 23:59:31,224 basehttp 14212 15020 "GET /static/css/userStyle.css HTTP/1.1" 200 48080
+INFO 2025-10-16 23:59:37,007 basehttp 14212 10356 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:59:37,052 basehttp 14212 10356 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-16 23:59:37,053 basehttp 14212 8472 "GET /static/css/userStyle.css HTTP/1.1" 200 48080
+INFO 2025-10-16 23:59:37,461 basehttp 14212 11712 - Broken pipe from ('127.0.0.1', 52042)
+INFO 2025-10-16 23:59:37,491 basehttp 14212 8472 - Broken pipe from ('127.0.0.1', 64569)
+INFO 2025-10-16 23:59:37,647 basehttp 14212 10356 - Broken pipe from ('127.0.0.1', 62305)
+INFO 2025-10-16 23:59:37,827 basehttp 14212 2448 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-16 23:59:37,899 basehttp 14212 2448 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:00:03,231 basehttp 14212 15020 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-17 00:00:03,500 basehttp 14212 15020 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:00:52,715 basehttp 14212 12608 - Broken pipe from ('127.0.0.1', 54840)
+INFO 2025-10-17 00:00:52,741 basehttp 14212 8800 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:00:52,756 basehttp 14212 8800 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:00:56,836 basehttp 14212 8800 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-10-17 00:00:56,847 basehttp 14212 8800 "GET / HTTP/1.1" 200 12072
+INFO 2025-10-17 00:00:58,493 basehttp 14212 8800 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-17 00:00:58,635 basehttp 14212 8800 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:01:05,253 basehttp 14212 8800 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:01:05,279 basehttp 14212 8800 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:07,104 basehttp 14212 8800 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:07,135 basehttp 14212 8800 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:07,409 basehttp 14212 8800 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:07,432 basehttp 14212 8800 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:07,612 basehttp 14212 8800 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:07,642 basehttp 14212 8800 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:15,606 basehttp 14212 8800 - Broken pipe from ('127.0.0.1', 58448)
+INFO 2025-10-17 00:01:15,727 basehttp 14212 4188 - Broken pipe from ('127.0.0.1', 64335)
+INFO 2025-10-17 00:01:15,835 basehttp 14212 7108 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:01:16,083 basehttp 14212 16968 - Broken pipe from ('127.0.0.1', 56082)
+INFO 2025-10-17 00:01:16,162 basehttp 14212 2452 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:16,187 basehttp 14212 2452 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:16,200 basehttp 14212 8892 "GET /static/css/userStyle.css HTTP/1.1" 200 48336
+INFO 2025-10-17 00:01:19,254 basehttp 14212 8892 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:19,291 basehttp 14212 8892 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:19,291 basehttp 14212 2452 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:01:19,589 basehttp 14212 2452 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:19,619 basehttp 14212 2452 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:24,328 basehttp 14212 2452 - Broken pipe from ('127.0.0.1', 56500)
+INFO 2025-10-17 00:01:24,391 basehttp 14212 8892 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:24,422 basehttp 14212 8892 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:24,422 basehttp 14212 9808 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:01:24,596 basehttp 14212 9808 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:24,623 basehttp 14212 9808 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:24,893 basehttp 14212 9808 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:24,918 basehttp 14212 9808 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:25,068 basehttp 14212 9808 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:25,094 basehttp 14212 9808 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:25,237 basehttp 14212 8892 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:25,266 basehttp 14212 8892 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:25,414 basehttp 14212 8892 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:25,443 basehttp 14212 8892 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:29,837 basehttp 14212 8892 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:29,862 basehttp 14212 8892 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:29,868 basehttp 14212 9808 "GET /static/css/userStyle.css HTTP/1.1" 200 47008
+INFO 2025-10-17 00:01:30,014 basehttp 14212 9808 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:01:30,038 basehttp 14212 8892 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:01:30,038 basehttp 14212 9808 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:30,365 basehttp 14212 9808 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:01:30,392 basehttp 14212 8892 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:01:30,393 basehttp 14212 9808 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:30,553 basehttp 14212 9808 - Broken pipe from ('127.0.0.1', 62982)
+INFO 2025-10-17 00:01:30,792 basehttp 14212 8892 - Broken pipe from ('127.0.0.1', 54023)
+INFO 2025-10-17 00:01:30,838 basehttp 14212 15556 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:30,863 basehttp 14212 15556 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:30,864 basehttp 14212 3404 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:01:31,007 basehttp 14212 3404 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:01:31,032 basehttp 14212 15556 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:01:31,032 basehttp 14212 3404 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:31,237 basehttp 14212 3404 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:01:31,260 basehttp 14212 3404 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:41,777 basehttp 14212 7548 "GET /dashboard/ HTTP/1.1" 200 107006
+INFO 2025-10-17 00:01:41,788 basehttp 14212 7548 "GET /static/css/userStyle.css HTTP/1.1" 200 47008
+INFO 2025-10-17 00:01:42,260 basehttp 14212 7548 - Broken pipe from ('127.0.0.1', 60917)
+INFO 2025-10-17 00:01:42,434 basehttp 14212 12020 - Broken pipe from ('127.0.0.1', 52681)
+INFO 2025-10-17 00:01:42,694 basehttp 14212 4264 "GET /dashboard/ HTTP/1.1" 200 107006
+INFO 2025-10-17 00:01:42,707 basehttp 14212 4264 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:01:43,337 basehttp 14212 4264 - Broken pipe from ('127.0.0.1', 63108)
+INFO 2025-10-17 00:01:43,622 basehttp 14212 5648 "GET /dashboard/ HTTP/1.1" 200 107006
+INFO 2025-10-17 00:01:43,633 basehttp 14212 5648 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:01:48,454 basehttp 14212 3404 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:01:48,487 basehttp 14212 15556 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:01:48,488 basehttp 14212 3404 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:01:53,157 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-17 00:01:53,430 basehttp 14212 7232 "GET /static/css/userStyle.css HTTP/1.1" 200 47008
+INFO 2025-10-17 00:02:39,323 basehttp 14212 3404 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:02:39,350 basehttp 14212 3404 "GET /static/css/userStyle.css HTTP/1.1" 200 47371
+INFO 2025-10-17 00:02:39,625 basehttp 14212 3404 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:02:39,639 basehttp 14212 3404 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:02:45,612 basehttp 14212 3404 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:02:45,640 basehttp 14212 3404 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:02:46,775 basehttp 14212 3404 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:02:46,792 basehttp 14212 3404 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:02:46,804 basehttp 14212 3404 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:02:46,996 basehttp 14212 3404 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:02:47,026 basehttp 14212 15556 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:02:47,027 basehttp 14212 3404 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:03:01,426 basehttp 14212 7232 - Broken pipe from ('127.0.0.1', 57624)
+INFO 2025-10-17 00:03:02,097 basehttp 14212 15988 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-17 00:03:02,295 basehttp 14212 15988 "GET /static/css/userStyle.css HTTP/1.1" 200 47371
+INFO 2025-10-17 00:03:37,128 basehttp 14212 15988 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-17 00:03:37,325 basehttp 14212 15988 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:03:38,613 basehttp 14212 15988 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-17 00:03:39,201 basehttp 14212 15988 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-17 00:04:40,639 basehttp 14212 3404 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:04:40,662 basehttp 14212 3404 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:04:40,674 basehttp 14212 15556 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:04:46,502 basehttp 14212 15556 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:04:46,699 basehttp 14212 15556 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+INFO 2025-10-17 00:04:46,980 basehttp 14212 15556 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:04:48,678 basehttp 14212 15556 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:05:07,659 basehttp 14212 4256 - Broken pipe from ('127.0.0.1', 52347)
+INFO 2025-10-17 00:05:16,492 basehttp 14212 15556 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:05:16,523 basehttp 14212 3404 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:05:16,528 basehttp 14212 15556 "GET /static/css/userStyle.css HTTP/1.1" 200 47465
+INFO 2025-10-17 00:05:16,709 basehttp 14212 15556 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:05:16,734 basehttp 14212 15556 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:05:16,956 basehttp 14212 15556 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 31151
+WARNING 2025-10-17 00:05:16,979 basehttp 14212 15556 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:05:28,106 basehttp 14212 15556 "POST /mark-all-notifications-read/ HTTP/1.1" 200 17
+INFO 2025-10-17 00:06:53,915 basehttp 14212 15788 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 29964
+WARNING 2025-10-17 00:06:53,942 basehttp 14212 15788 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:06:53,948 basehttp 14212 14192 "GET /static/css/userStyle.css HTTP/1.1" 200 47876
+INFO 2025-10-17 00:06:54,358 basehttp 14212 14192 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 29964
+INFO 2025-10-17 00:06:54,389 basehttp 14212 15788 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:06:54,389 basehttp 14212 14192 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:07:02,204 basehttp 14212 14192 "GET / HTTP/1.1" 200 12072
+WARNING 2025-10-17 00:07:02,249 basehttp 14212 14192 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:07:04,109 basehttp 14212 14192 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 29964
+WARNING 2025-10-17 00:07:04,148 basehttp 14212 14192 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:07:05,236 basehttp 14212 14192 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 29964
+INFO 2025-10-17 00:07:05,253 basehttp 14212 15788 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:07:05,265 basehttp 14212 14192 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:07:17,409 basehttp 14212 14680 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-17 00:07:17,594 basehttp 14212 14680 "GET /static/css/mobile.css HTTP/1.1" 200 12234
+INFO 2025-10-17 00:07:17,605 basehttp 14212 10368 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 7182
+INFO 2025-10-17 00:07:17,617 basehttp 14212 17072 "GET /static/css/userStyle.css HTTP/1.1" 200 47854
+INFO 2025-10-17 00:07:41,009 basehttp 14212 14192 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 29964
+WARNING 2025-10-17 00:07:41,034 basehttp 14212 14192 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:07:41,035 basehttp 14212 15788 "GET /static/css/userStyle.css HTTP/1.1" 200 47854
+INFO 2025-10-17 00:07:41,810 basehttp 14212 15788 - Broken pipe from ('127.0.0.1', 51456)
+INFO 2025-10-17 00:07:41,885 basehttp 14212 14192 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 29964
+WARNING 2025-10-17 00:07:41,914 basehttp 14212 14192 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:07:42,079 basehttp 14212 14192 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 29964
+WARNING 2025-10-17 00:07:42,100 basehttp 14212 14192 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:08:28,032 basehttp 14212 14192 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 29964
+WARNING 2025-10-17 00:08:28,060 basehttp 14212 14192 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:08:28,076 basehttp 14212 9976 "GET /static/css/userStyle.css HTTP/1.1" 200 47857
+INFO 2025-10-17 00:08:28,603 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 29964
+WARNING 2025-10-17 00:08:28,626 basehttp 14212 9976 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:08:36,080 basehttp 14212 7048 "GET /dashboard/ HTTP/1.1" 200 107006
+INFO 2025-10-17 00:08:36,093 basehttp 14212 7048 "GET /static/css/userStyle.css HTTP/1.1" 200 47857
+INFO 2025-10-17 00:08:38,768 basehttp 14212 7048 "POST /clear-all-notifications/ HTTP/1.1" 200 17
+INFO 2025-10-17 00:08:42,158 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 29964
+WARNING 2025-10-17 00:08:42,184 basehttp 14212 9976 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:08:42,185 basehttp 14212 14192 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:08:43,883 basehttp 14212 14192 "POST /clear-all-notifications/ HTTP/1.1" 200 17
+INFO 2025-10-17 00:08:45,721 basehttp 14212 14192 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:08:45,745 basehttp 14212 9976 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:08:45,745 basehttp 14212 14192 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:08:45,924 basehttp 14212 14192 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+WARNING 2025-10-17 00:08:45,953 basehttp 14212 14192 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:08:48,507 basehttp 14212 14192 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+WARNING 2025-10-17 00:08:48,529 basehttp 14212 14192 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:08:48,530 basehttp 14212 9976 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:08:48,797 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+WARNING 2025-10-17 00:08:48,821 basehttp 14212 9976 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:09:17,173 basehttp 14212 12092 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-17 00:09:17,330 basehttp 14212 12092 "GET /static/css/userStyle.css HTTP/1.1" 200 47857
+INFO 2025-10-17 00:09:18,278 basehttp 14212 12092 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-17 00:09:31,130 basehttp 14212 12092 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-17 00:09:31,436 basehttp 14212 12092 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:09:37,222 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:09:37,245 basehttp 14212 14192 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:09:37,251 basehttp 14212 9976 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:09:49,146 basehttp 14212 12092 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-17 00:09:49,326 basehttp 14212 12092 "GET /static/css/userStyle.css HTTP/1.1" 200 47857
+INFO 2025-10-17 00:09:55,021 basehttp 14212 7048 "GET /dashboard/ HTTP/1.1" 200 56947
+INFO 2025-10-17 00:09:55,031 basehttp 14212 7048 "GET /static/css/userStyle.css HTTP/1.1" 200 47857
+INFO 2025-10-17 00:09:55,699 basehttp 14212 7048 - Broken pipe from ('127.0.0.1', 63656)
+INFO 2025-10-17 00:09:55,825 basehttp 14212 16088 "GET /dashboard/ HTTP/1.1" 200 56947
+INFO 2025-10-17 00:09:55,840 basehttp 14212 16088 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:09:57,294 basehttp 14212 16088 - Broken pipe from ('127.0.0.1', 61011)
+INFO 2025-10-17 00:09:57,481 basehttp 14212 4060 - Broken pipe from ('127.0.0.1', 60473)
+INFO 2025-10-17 00:09:57,679 basehttp 14212 13736 "GET /dashboard/ HTTP/1.1" 200 56947
+INFO 2025-10-17 00:09:57,689 basehttp 14212 13736 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:11:13,186 basehttp 14212 13736 - Broken pipe from ('127.0.0.1', 51209)
+INFO 2025-10-17 00:11:13,275 basehttp 14212 15484 - Broken pipe from ('127.0.0.1', 59257)
+INFO 2025-10-17 00:11:13,511 basehttp 14212 17076 - Broken pipe from ('127.0.0.1', 51136)
+INFO 2025-10-17 00:11:13,819 basehttp 14212 14188 - Broken pipe from ('127.0.0.1', 51260)
+INFO 2025-10-17 00:11:14,040 basehttp 14212 8232 - Broken pipe from ('127.0.0.1', 63443)
+INFO 2025-10-17 00:11:14,228 basehttp 14212 7288 "GET /dashboard/ HTTP/1.1" 200 56947
+INFO 2025-10-17 00:11:14,239 basehttp 14212 7288 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:12:09,037 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:09,063 basehttp 14212 9976 "GET /static/css/userStyle.css HTTP/1.1" 200 47857
+INFO 2025-10-17 00:12:09,502 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:11,008 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:22,325 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:22,341 basehttp 14212 9976 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:12:22,699 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:24,765 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:25,508 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:25,694 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:27,727 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:27,884 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:28,058 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:28,265 basehttp 14212 9976 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:28,534 basehttp 14212 9976 - Broken pipe from ('127.0.0.1', 62144)
+INFO 2025-10-17 00:12:28,639 basehttp 14212 14192 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:28,652 basehttp 14212 14192 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:12:28,810 basehttp 14212 14192 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:29,181 basehttp 14212 14192 - Broken pipe from ('127.0.0.1', 49809)
+INFO 2025-10-17 00:12:29,284 basehttp 14212 15796 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:29,467 basehttp 14212 15796 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:33,329 basehttp 14212 7288 - Broken pipe from ('127.0.0.1', 58441)
+INFO 2025-10-17 00:12:33,478 basehttp 14212 14880 - Broken pipe from ('127.0.0.1', 62528)
+INFO 2025-10-17 00:12:33,584 basehttp 14212 15944 - Broken pipe from ('127.0.0.1', 50656)
+INFO 2025-10-17 00:12:33,754 basehttp 14212 420 - Broken pipe from ('127.0.0.1', 63899)
+INFO 2025-10-17 00:12:33,900 basehttp 14212 9884 "GET /dashboard/ HTTP/1.1" 200 56947
+INFO 2025-10-17 00:12:33,911 basehttp 14212 9884 "GET /static/css/userStyle.css HTTP/1.1" 200 47857
+INFO 2025-10-17 00:12:35,301 basehttp 14212 15796 - Broken pipe from ('127.0.0.1', 57125)
+INFO 2025-10-17 00:12:35,340 basehttp 14212 12888 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:35,355 basehttp 14212 12888 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:12:35,615 basehttp 14212 12888 - Broken pipe from ('127.0.0.1', 60931)
+INFO 2025-10-17 00:12:35,700 basehttp 14212 9776 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:35,873 basehttp 14212 9776 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:36,058 basehttp 14212 9776 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:36,319 basehttp 14212 9776 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:37,918 basehttp 14212 9884 - Broken pipe from ('127.0.0.1', 52620)
+INFO 2025-10-17 00:12:38,003 basehttp 14212 6984 - Broken pipe from ('127.0.0.1', 60732)
+INFO 2025-10-17 00:12:38,168 basehttp 14212 13412 - Broken pipe from ('127.0.0.1', 61066)
+INFO 2025-10-17 00:12:38,482 basehttp 14212 4320 "GET /dashboard/ HTTP/1.1" 200 56947
+INFO 2025-10-17 00:12:39,673 basehttp 14212 9776 - Broken pipe from ('127.0.0.1', 55486)
+INFO 2025-10-17 00:12:39,721 basehttp 14212 6908 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:39,900 basehttp 14212 6908 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:40,802 basehttp 14212 6908 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:12:40,948 basehttp 14212 6908 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:13:22,268 basehttp 14212 6520 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 472952
+INFO 2025-10-17 00:13:22,295 basehttp 14212 6520 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:13:23,319 basehttp 14212 6520 "GET /userpanel/request-again/?type=batch&id=94 HTTP/1.1" 302 0
+INFO 2025-10-17 00:13:23,476 basehttp 14212 6520 "GET /userpanel/all_requests/ HTTP/1.1" 200 83036
+INFO 2025-10-17 00:13:29,059 basehttp 14212 6520 "GET /userpanel/request-again/?type=batch_supply&id=94 HTTP/1.1" 302 0
+INFO 2025-10-17 00:13:29,227 basehttp 14212 6520 "GET /userpanel/user_request/ HTTP/1.1" 200 199372
+INFO 2025-10-17 00:13:33,899 basehttp 14212 6520 "POST /userpanel/submit-list-request/ HTTP/1.1" 200 94
+INFO 2025-10-17 00:13:39,195 basehttp 14212 6520 "GET /userpanel/user_request/ HTTP/1.1" 200 193300
+INFO 2025-10-17 00:13:40,801 basehttp 14212 6520 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 472937
+INFO 2025-10-17 00:13:40,837 basehttp 14212 6520 "GET /static/css/userStyle.css HTTP/1.1" 200 47854
+INFO 2025-10-17 00:13:41,521 basehttp 14212 6520 "GET /userpanel/user_reserve/ HTTP/1.1" 200 67956
+INFO 2025-10-17 00:13:41,542 basehttp 14212 6520 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:13:43,107 basehttp 14212 6520 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 472937
+INFO 2025-10-17 00:13:43,126 basehttp 14212 6520 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:13:44,921 basehttp 14212 6520 "GET /userpanel/request-again/?type=batch&id=95 HTTP/1.1" 302 0
+INFO 2025-10-17 00:13:45,085 basehttp 14212 6520 "GET /userpanel/all_requests/ HTTP/1.1" 200 87257
+INFO 2025-10-17 00:13:45,106 basehttp 14212 6520 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:13:48,852 basehttp 14212 6520 "GET /userpanel/request-again/?type=batch_supply&id=95 HTTP/1.1" 302 0
+INFO 2025-10-17 00:13:49,034 basehttp 14212 6520 "GET /userpanel/user_request/ HTTP/1.1" 200 199357
+INFO 2025-10-17 00:13:49,060 basehttp 14212 6520 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:13:52,420 basehttp 14212 6520 "POST /userpanel/submit-list-request/ HTTP/1.1" 200 94
+INFO 2025-10-17 00:13:54,375 basehttp 14212 6520 "GET /userpanel/user_request/ HTTP/1.1" 200 193246
+INFO 2025-10-17 00:14:07,604 basehttp 14212 15372 "GET /dashboard/ HTTP/1.1" 200 58141
+INFO 2025-10-17 00:14:07,615 basehttp 14212 15372 "GET /static/css/userStyle.css HTTP/1.1" 200 47854
+INFO 2025-10-17 00:14:08,020 basehttp 14212 15372 "GET /dashboard/ HTTP/1.1" 200 58141
+INFO 2025-10-17 00:14:08,674 basehttp 14212 15372 - Broken pipe from ('127.0.0.1', 55327)
+INFO 2025-10-17 00:14:08,861 basehttp 14212 9272 - Broken pipe from ('127.0.0.1', 64620)
+INFO 2025-10-17 00:14:09,048 basehttp 14212 2288 "GET /dashboard/ HTTP/1.1" 200 58141
+INFO 2025-10-17 00:14:11,215 basehttp 14212 2288 - Broken pipe from ('127.0.0.1', 53731)
+INFO 2025-10-17 00:14:11,403 basehttp 14212 13508 - Broken pipe from ('127.0.0.1', 56839)
+INFO 2025-10-17 00:14:11,545 basehttp 14212 14344 - Broken pipe from ('127.0.0.1', 53228)
+INFO 2025-10-17 00:14:11,690 basehttp 14212 11160 - Broken pipe from ('127.0.0.1', 50003)
+INFO 2025-10-17 00:14:11,981 basehttp 14212 2128 - Broken pipe from ('127.0.0.1', 60374)
+INFO 2025-10-17 00:14:12,061 basehttp 14212 1416 "GET /dashboard/ HTTP/1.1" 200 58141
+INFO 2025-10-17 00:14:12,072 basehttp 14212 1416 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:14:13,082 basehttp 14212 1416 - Broken pipe from ('127.0.0.1', 50307)
+INFO 2025-10-17 00:14:13,241 basehttp 14212 16212 "GET /dashboard/ HTTP/1.1" 200 58141
+INFO 2025-10-17 00:14:18,882 basehttp 14212 6520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:14:18,905 basehttp 14212 6520 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:14:21,671 basehttp 14212 6520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:14:22,522 basehttp 14212 6520 - Broken pipe from ('127.0.0.1', 52736)
+INFO 2025-10-17 00:14:22,579 basehttp 14212 17216 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:14:22,751 basehttp 14212 17216 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:14:29,088 basehttp 14212 16212 "GET /dashboard/ HTTP/1.1" 200 58141
+INFO 2025-10-17 00:14:29,098 basehttp 14212 16212 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:14:29,692 basehttp 14212 16212 - Broken pipe from ('127.0.0.1', 60115)
+INFO 2025-10-17 00:14:29,934 basehttp 14212 14732 - Broken pipe from ('127.0.0.1', 57614)
+INFO 2025-10-17 00:14:30,169 basehttp 14212 16280 - Broken pipe from ('127.0.0.1', 51928)
+INFO 2025-10-17 00:14:30,301 basehttp 14212 15600 - Broken pipe from ('127.0.0.1', 60537)
+INFO 2025-10-17 00:14:30,492 basehttp 14212 1840 "GET /dashboard/ HTTP/1.1" 200 58141
+INFO 2025-10-17 00:14:31,126 basehttp 14212 17216 - Broken pipe from ('127.0.0.1', 55367)
+INFO 2025-10-17 00:14:31,338 basehttp 14212 8284 - Broken pipe from ('127.0.0.1', 61109)
+INFO 2025-10-17 00:14:31,492 basehttp 14212 8688 - Broken pipe from ('127.0.0.1', 49967)
+INFO 2025-10-17 00:14:31,532 basehttp 14212 7636 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:14:31,545 basehttp 14212 7636 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:14:31,703 basehttp 14212 7636 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:14:32,029 basehttp 14212 7636 - Broken pipe from ('127.0.0.1', 59703)
+INFO 2025-10-17 00:14:32,254 basehttp 14212 11336 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:04,549 basehttp 14212 11336 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:04,562 basehttp 14212 11336 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:15:05,049 basehttp 14212 11336 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:05,814 basehttp 14212 11336 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:06,074 basehttp 14212 11336 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:06,620 basehttp 14212 11336 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:06,922 basehttp 14212 11336 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:07,269 basehttp 14212 11336 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:07,455 basehttp 14212 11336 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:09,307 basehttp 14212 1840 - Broken pipe from ('127.0.0.1', 60023)
+INFO 2025-10-17 00:15:09,709 basehttp 14212 11332 - Broken pipe from ('127.0.0.1', 55010)
+INFO 2025-10-17 00:15:09,816 basehttp 14212 16696 "GET /dashboard/ HTTP/1.1" 200 58141
+INFO 2025-10-17 00:15:09,826 basehttp 14212 16696 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:15:18,745 basehttp 14212 2128 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:18,759 basehttp 14212 2128 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:15:19,534 basehttp 14212 2128 - Broken pipe from ('127.0.0.1', 58018)
+INFO 2025-10-17 00:15:19,657 basehttp 14212 2124 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:19,861 basehttp 14212 2124 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:20,096 basehttp 14212 2124 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:20,340 basehttp 14212 2124 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:20,535 basehttp 14212 2124 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:20,740 basehttp 14212 2124 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:15:28,857 basehttp 14212 16696 - Broken pipe from ('127.0.0.1', 64358)
+INFO 2025-10-17 00:15:29,007 basehttp 14212 8016 - Broken pipe from ('127.0.0.1', 64039)
+INFO 2025-10-17 00:15:29,392 basehttp 14212 8992 - Broken pipe from ('127.0.0.1', 54176)
+INFO 2025-10-17 00:15:29,446 basehttp 14212 7824 - Broken pipe from ('127.0.0.1', 56159)
+INFO 2025-10-17 00:15:29,639 basehttp 14212 7432 "GET /dashboard/ HTTP/1.1" 200 58141
+INFO 2025-10-17 00:15:29,649 basehttp 14212 7432 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:15:35,126 basehttp 14212 7432 "GET /dashboard/ HTTP/1.1" 200 58141
+INFO 2025-10-17 00:15:35,966 basehttp 14212 7432 - Broken pipe from ('127.0.0.1', 64649)
+INFO 2025-10-17 00:15:36,136 basehttp 14212 5648 - Broken pipe from ('127.0.0.1', 55963)
+INFO 2025-10-17 00:15:36,380 basehttp 14212 12260 - Broken pipe from ('127.0.0.1', 54834)
+INFO 2025-10-17 00:15:36,428 basehttp 14212 424 "GET /dashboard/ HTTP/1.1" 200 58141
+INFO 2025-10-17 00:16:14,168 basehttp 14212 6780 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:14,189 basehttp 14212 6780 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:16:14,408 basehttp 14212 6780 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:14,725 basehttp 14212 6780 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:15,047 basehttp 14212 13432 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:25,284 basehttp 14212 13432 - Broken pipe from ('127.0.0.1', 52362)
+INFO 2025-10-17 00:16:25,403 basehttp 14212 8272 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:25,600 basehttp 14212 8272 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:25,754 basehttp 14212 8272 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:26,069 basehttp 14212 8272 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:26,791 basehttp 14212 8272 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:27,081 basehttp 14212 8272 - Broken pipe from ('127.0.0.1', 58270)
+INFO 2025-10-17 00:16:27,138 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:27,300 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:28,600 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:28,775 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:29,066 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:34,602 basehttp 14212 7416 - Broken pipe from ('127.0.0.1', 56513)
+INFO 2025-10-17 00:16:37,324 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:37,337 basehttp 14212 5520 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:16:37,521 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:45,462 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:45,626 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:16:45,902 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:17:03,049 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:17:03,062 basehttp 14212 5520 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:17:03,356 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+WARNING 2025-10-17 00:17:05,055 basehttp 14212 5520 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 30819
+INFO 2025-10-17 00:17:06,218 basehttp 14212 5520 "GET /userpanel/user_request/ HTTP/1.1" 200 193246
+INFO 2025-10-17 00:17:09,358 basehttp 14212 5520 "GET /userpanel/user_request/ HTTP/1.1" 200 193246
+INFO 2025-10-17 00:17:09,982 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:17:10,839 basehttp 14212 5520 "GET /userpanel/all_requests/ HTTP/1.1" 200 91437
+INFO 2025-10-17 00:17:13,064 basehttp 14212 5520 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:18:46,661 basehttp 14212 4724 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:18:46,674 basehttp 14212 4724 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:18:47,279 basehttp 14212 4724 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:18:47,625 basehttp 14212 4724 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:18:47,839 basehttp 14212 4724 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:18:48,123 basehttp 14212 4724 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:18:48,378 basehttp 14212 4724 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:18:48,562 basehttp 14212 4724 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:18:48,741 basehttp 14212 4724 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:14,248 basehttp 14212 4724 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:15,414 basehttp 14212 4724 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:15,730 basehttp 14212 4724 - Broken pipe from ('127.0.0.1', 54312)
+INFO 2025-10-17 00:19:15,848 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:16,009 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:16,707 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:26,722 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:26,750 basehttp 14212 328 "GET /static/css/userStyle.css HTTP/1.1" 200 48186
+INFO 2025-10-17 00:19:27,005 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:27,219 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:27,381 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:27,580 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:27,592 basehttp 14212 328 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:19:27,741 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:27,903 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:28,060 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:28,415 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:30,881 basehttp 14212 328 "GET /userpanel/all_requests/ HTTP/1.1" 200 91437
+INFO 2025-10-17 00:19:31,583 basehttp 14212 328 "GET /userpanel/all_requests/ HTTP/1.1" 200 91437
+INFO 2025-10-17 00:19:31,598 basehttp 14212 328 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:19:32,164 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:32,872 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:33,280 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 19981
+INFO 2025-10-17 00:19:33,295 basehttp 14212 328 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:19:38,765 basehttp 14212 4320 "GET /dashboard/ HTTP/1.1" 200 58141
+INFO 2025-10-17 00:19:38,776 basehttp 14212 4320 "GET /static/css/userStyle.css HTTP/1.1" 200 48186
+INFO 2025-10-17 00:19:40,090 basehttp 14212 4320 "POST /mark-notification-read/ HTTP/1.1" 200 17
+INFO 2025-10-17 00:19:40,188 basehttp 14212 11928 "GET /batch-request/96/ HTTP/1.1" 200 35289
+INFO 2025-10-17 00:19:41,714 basehttp 14212 11928 "POST /batch-request/96/item/198/approve/ HTTP/1.1" 302 0
+INFO 2025-10-17 00:19:41,838 basehttp 14212 11928 "GET /batch-request/96/ HTTP/1.1" 200 34168
+INFO 2025-10-17 00:19:43,683 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 21253
+INFO 2025-10-17 00:19:43,697 basehttp 14212 328 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+WARNING 2025-10-17 00:19:51,458 basehttp 14212 328 "POST /mark-notification-read/ HTTP/1.1" 400 40
+INFO 2025-10-17 00:19:51,631 basehttp 14212 328 "GET /userpanel/user_request/ HTTP/1.1" 200 193007
+INFO 2025-10-17 00:19:51,646 basehttp 14212 328 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:19:53,175 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 21253
+INFO 2025-10-17 00:19:58,439 basehttp 14212 328 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-10-17 00:19:58,446 basehttp 14212 328 "GET / HTTP/1.1" 200 12072
+INFO 2025-10-17 00:19:59,176 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 302 0
+INFO 2025-10-17 00:19:59,180 basehttp 14212 328 "GET /login_user/?next=/userpanel/user_dashboard/ HTTP/1.1" 200 12072
+INFO 2025-10-17 00:20:01,127 basehttp 14212 328 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-17 00:20:01,262 basehttp 14212 328 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 21253
+INFO 2025-10-17 00:20:01,283 basehttp 14212 328 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:20:03,202 basehttp 14212 11928 "GET /dashboard/ HTTP/1.1" 200 58019
+INFO 2025-10-17 00:20:03,211 basehttp 14212 11928 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:20:06,017 basehttp 14212 11928 "POST /logout/ HTTP/1.1" 302 0
+INFO 2025-10-17 00:20:06,024 basehttp 14212 11928 "GET / HTTP/1.1" 200 12072
+INFO 2025-10-17 00:20:08,669 basehttp 14212 11928 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-17 00:20:08,952 basehttp 14212 11928 "GET /dashboard/ HTTP/1.1" 200 58019
+INFO 2025-10-17 00:20:08,961 basehttp 14212 11928 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-17 00:20:24,268 basehttp 14212 3048 "GET /userpanel/user_dashboard/ HTTP/1.1" 302 0
+INFO 2025-10-17 00:20:24,617 basehttp 14212 3048 "GET /login_user/?next=/userpanel/user_dashboard/ HTTP/1.1" 200 12072
+INFO 2025-10-17 00:20:25,025 basehttp 14212 3048 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-10-17 00:20:32,815 basehttp 14212 3048 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-17 00:20:33,131 basehttp 14212 3048 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 27583
+INFO 2025-10-17 00:20:33,324 basehttp 14212 3048 "GET /static/css/userStyle.css HTTP/1.1" 200 48186
+INFO 2025-10-17 00:20:35,975 basehttp 14212 3048 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 474387
