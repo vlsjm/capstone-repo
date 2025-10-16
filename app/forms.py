@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Property, Supply, SupplyQuantity, SupplyCategory, SupplySubcategory
+from .models import Property, Supply, SupplyQuantity, SupplyCategory, SupplySubcategory, BadStockReport
 from django.contrib.auth.models import User
 from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation, Department,PropertyCategory, SupplyRequestBatch, SupplyRequestItem, Supply, SupplyQuantity
 from datetime import date
@@ -600,5 +600,56 @@ class AdminProfileUpdateForm(forms.Form):
                 self.add_error('confirm_password', 'Please confirm your new password.')
             elif new_password != confirm_password:
                 self.add_error('confirm_password', 'New passwords do not match.')
+        
+        return cleaned_data
+
+class BadStockReportForm(forms.ModelForm):
+    class Meta:
+        model = BadStockReport
+        fields = ['supply', 'quantity_removed', 'remarks']
+        widgets = {
+            'supply': forms.Select(attrs={
+                'class': 'form-control',
+                'required': True
+            }),
+            'quantity_removed': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter quantity to remove',
+                'min': 1,
+                'required': True
+            }),
+            'remarks': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Provide detailed explanation including the reason (e.g., damaged, expired, defective, lost, etc.)',
+                'rows': 4,
+                'required': True
+            })
+        }
+        labels = {
+            'supply': 'Supply Item',
+            'quantity_removed': 'Quantity to Remove',
+            'remarks': 'Reason and Remarks'
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter supplies to show only non-archived supplies with quantity > 0
+        self.fields['supply'].queryset = Supply.objects.filter(
+            is_archived=False
+        ).select_related('quantity_info').order_by('supply_name')
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        supply = cleaned_data.get('supply')
+        quantity_removed = cleaned_data.get('quantity_removed')
+        
+        if supply and quantity_removed:
+            try:
+                available_quantity = supply.quantity_info.current_quantity
+                if quantity_removed > available_quantity:
+                    self.add_error('quantity_removed', 
+                        f'Cannot remove {quantity_removed} units. Only {available_quantity} units available.')
+            except SupplyQuantity.DoesNotExist:
+                self.add_error('supply', 'This supply has no quantity information.')
         
         return cleaned_data

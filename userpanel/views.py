@@ -26,34 +26,38 @@ from django.views.decorators.http import require_POST
 
 
 class UserRequestView(PermissionRequiredMixin, TemplateView):
-    """Deprecated view - redirects to unified request page"""
+    """
+    DEPRECATED: This view is maintained only for backward compatibility.
+    Redirects to UserUnifiedRequestView with supply tab active.
+    The original user_request.html template has been removed.
+    """
     permission_required = 'app.view_user_module'
 
     def get(self, request):
-        # Redirect to unified request page with supply tab active
         request.session['active_request_tab'] = 'supply'
         request.session.modified = True
         return redirect('user_unified_request')
 
     def post(self, request):
-        # Redirect to unified request page
         request.session['active_request_tab'] = 'supply'
         request.session.modified = True
         return redirect('user_unified_request')
 
 
 class UserBorrowView(PermissionRequiredMixin, TemplateView):
-    """Deprecated view - redirects to unified request page"""
+    """
+    DEPRECATED: This view is maintained only for backward compatibility.
+    Redirects to UserUnifiedRequestView with borrow tab active.
+    The original user_borrow.html template has been removed.
+    """
     permission_required = 'app.view_user_module'
 
     def get(self, request):
-        # Redirect to unified request page with borrow tab active
         request.session['active_request_tab'] = 'borrow'
         request.session.modified = True
         return redirect('user_unified_request')
 
     def post(self, request):
-        # Redirect to unified request page
         request.session['active_request_tab'] = 'borrow'
         request.session.modified = True
         return redirect('user_unified_request')

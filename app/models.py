@@ -23,6 +23,7 @@ class ActivityLog(models.Model):
         ('report', 'Reported'),
         ('activate', 'Activated'),
         ('change_password', 'Changed Password'),
+        ('bad_stock', 'Bad Stock Removal'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -1309,3 +1310,66 @@ class PropertyHistory(models.Model):
     def __str__(self):
         user_display = self.user.username if self.user else "Unknown User"  
         return f"{self.property.property_name} - {self.action} by {self.user.username} at {self.timestamp}"
+
+
+class BadStockReport(models.Model):
+    supply = models.ForeignKey(Supply, on_delete=models.CASCADE, related_name='bad_stock_reports')
+    quantity_removed = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    remarks = models.TextField()  # Required detailed explanation including the reason
+    reported_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='bad_stock_reports')
+    reported_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-reported_at']
+    
+    def __str__(self):
+        return f"Bad Stock: {self.supply.supply_name} - {self.quantity_removed} units"
+    
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        
+        # For new reports, deduct inventory immediately
+        if is_new:
+            self.deduct_from_inventory()
+        
+        super().save(*args, **kwargs)
+    
+    def deduct_from_inventory(self):
+        """Deduct the bad stock quantity from inventory and log the activity"""
+        try:
+            quantity_info = self.supply.quantity_info
+            old_quantity = quantity_info.current_quantity
+            
+            if old_quantity < self.quantity_removed:
+                raise ValueError(f"Cannot deduct {self.quantity_removed} units. Only {old_quantity} units available.")
+            
+            # Deduct the quantity (skip_history=True to prevent duplicate logging)
+            quantity_info.current_quantity -= self.quantity_removed
+            quantity_info.save(user=self.reported_by, skip_history=True)
+            
+            # Update supply's available_for_request status
+            self.supply.available_for_request = (quantity_info.current_quantity > 0)
+            self.supply.save(user=self.reported_by)
+            
+            # Create supply history entry (this is the only history entry we want)
+            SupplyHistory.objects.create(
+                supply=self.supply,
+                user=self.reported_by,
+                action='bad_stock_removal',
+                field_name='quantity',
+                old_value=str(old_quantity),
+                new_value=str(quantity_info.current_quantity),
+                remarks=f"Bad stock removed. Quantity deducted: {self.quantity_removed}. Reason: {self.remarks}"
+            )
+            
+            # Create activity log
+            ActivityLog.log_activity(
+                user=self.reported_by,
+                action='bad_stock',
+                model_name='Supply',
+                object_repr=str(self.supply),
+                description=f"Removed {self.quantity_removed} units of '{self.supply.supply_name}' as bad stock. Quantity changed from {old_quantity} to {quantity_info.current_quantity}. Reason: {self.remarks}"
+            )
+            
+        except SupplyQuantity.DoesNotExist:
+            raise ValueError("Supply quantity information not found.")

@@ -114,9 +114,9 @@ from .models import(
     ActivityLog, UserProfile, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
     Department, PropertyCategory, SupplyCategory, SupplySubcategory,
-    SupplyRequestBatch, SupplyRequestItem
+    SupplyRequestBatch, SupplyRequestItem, BadStockReport
 )
-from .forms import PropertyForm, PropertyNumberChangeForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm, SupplyRequestBatchForm, SupplyRequestItemForm, SupplyRequestBatchForm, SupplyRequestItemForm
+from .forms import PropertyForm, PropertyNumberChangeForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm, SupplyRequestBatchForm, SupplyRequestItemForm, SupplyRequestBatchForm, SupplyRequestItemForm, BadStockReportForm
 from django.contrib.auth.forms import AuthenticationForm
 from datetime import timedelta, date, datetime
 import json
@@ -1605,6 +1605,75 @@ def delete_supply(request, pk):
         )
         messages.success(request, 'Supply deleted successfully.')
     return redirect('supply_list')
+
+
+@permission_required('app.view_admin_module')
+@require_POST
+def report_bad_stock(request):
+    """Handle bad stock report submission via AJAX"""
+    try:
+        form = BadStockReportForm(request.POST)
+        if form.is_valid():
+            bad_stock = form.save(commit=False)
+            bad_stock.reported_by = request.user
+            bad_stock.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Successfully removed {bad_stock.quantity_removed} units of {bad_stock.supply.supply_name} from inventory.'
+            })
+        else:
+            errors = {}
+            for field, error_list in form.errors.items():
+                errors[field] = error_list[0]
+            return JsonResponse({
+                'success': False,
+                'errors': errors
+            })
+    except ValueError as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': 'An unexpected error occurred. Please try again.'
+        })
+
+
+@permission_required('app.view_admin_module')
+def bad_stock_list(request):
+    """Return list of bad stock reports as JSON for datatable"""
+    reports = BadStockReport.objects.select_related(
+        'supply', 'reported_by'
+    ).order_by('-reported_at')
+    
+    # Apply filters if provided
+    supply_id = request.GET.get('supply_id')
+    if supply_id:
+        reports = reports.filter(supply_id=supply_id)
+    
+    date_from = request.GET.get('date_from')
+    if date_from:
+        reports = reports.filter(reported_at__gte=date_from)
+    
+    date_to = request.GET.get('date_to')
+    if date_to:
+        reports = reports.filter(reported_at__lte=date_to)
+    
+    data = []
+    for report in reports:
+        data.append({
+            'id': report.id,
+            'supply_name': report.supply.supply_name,
+            'quantity_removed': report.quantity_removed,
+            'remarks': report.remarks,
+            'reported_by': report.reported_by.get_full_name() or report.reported_by.username if report.reported_by else 'Unknown',
+            'reported_at': report.reported_at.strftime('%Y-%m-%d %H:%M:%S')
+        })
+    
+    return JsonResponse({'data': data})
 
 
 class PropertyListView(PermissionRequiredMixin, ListView):

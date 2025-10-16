@@ -5,7 +5,7 @@ from .models import (
     UserProfile, ActivityLog, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
     Department, PropertyCategory, SupplyCategory, SupplySubcategory, 
-    SupplyRequestBatch, SupplyRequestItem
+    SupplyRequestBatch, SupplyRequestItem, BadStockReport
 )
 
 @admin.register(Property)
@@ -58,3 +58,31 @@ admin.site.register(SupplyCategory)
 admin.site.register(SupplySubcategory)
 admin.site.register(SupplyRequestBatch)
 admin.site.register(SupplyRequestItem)
+
+@admin.register(BadStockReport)
+class BadStockReportAdmin(admin.ModelAdmin):
+    list_display = ['supply', 'quantity_removed', 'reported_by', 'reported_at', 'get_short_remarks']
+    list_filter = ['reported_at', 'supply__category', 'supply__subcategory']
+    search_fields = ['supply__supply_name', 'remarks', 'reported_by__username', 'reported_by__first_name', 'reported_by__last_name']
+    readonly_fields = ['reported_at']
+    date_hierarchy = 'reported_at'
+    
+    fieldsets = (
+        ('Bad Stock Information', {
+            'fields': ('supply', 'quantity_removed', 'remarks')
+        }),
+        ('Reported By', {
+            'fields': ('reported_by', 'reported_at')
+        }),
+    )
+    
+    def get_short_remarks(self, obj):
+        """Display truncated remarks in list view"""
+        if len(obj.remarks) > 50:
+            return obj.remarks[:50] + '...'
+        return obj.remarks
+    get_short_remarks.short_description = 'Remarks'
+    
+    def has_add_permission(self, request):
+        """Prevent adding bad stock reports through admin - should use the modal"""
+        return False

@@ -19,6 +19,8 @@ from .views import (
     delete_property,
     edit_supply,
     delete_supply,
+    report_bad_stock,
+    bad_stock_list,
     borrow_batch_request_detail,
     claim_borrow_batch_items,
     return_borrow_batch_items,
@@ -104,6 +106,8 @@ urlpatterns = [
     path('add-supply/', add_supply, name='add_supply'),
     path('edit-supply/', edit_supply, name='edit_supply'),
     path('delete-supply/<int:pk>/', delete_supply, name='delete_supply'),
+    path('report-bad-stock/', report_bad_stock, name='report_bad_stock'),
+    path('bad-stock-list/', bad_stock_list, name='bad_stock_list'),
 
     path('property/', PropertyListView.as_view(), name='property_list'),
     path('add-property/', add_property, name='add_property'),

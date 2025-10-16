@@ -498,7 +498,41 @@
 
 /* Ensure Select2 dropdown is above modal */
 .select2-dropdown {
-  z-index: 1051;
+  z-index: 10001 !important;
+}
+
+/* Style Select2 in Bad Stock modal */
+#badStockModal .select2-container--default .select2-selection--single {
+  height: 42px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+#badStockModal .select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 24px;
+  color: #333;
+}
+
+#badStockModal .select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 40px;
+}
+
+#badStockModal .select2-container--default .select2-search--dropdown .select2-search__field {
+  padding: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+#badStockModal .select2-container--default .select2-results__option {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+#badStockModal .select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: #dc3545;
+  color: white;
 }
 
 /* Add these new styles */
@@ -1503,6 +1537,9 @@ tr.hidden {
             </button>
             <button id="openModifyQuantityModalBtn" class="action-btn secondary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #4a5568; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-edit"></i> Manage Stocks
+            </button>
+            <button id="openBadStockModalBtn" class="action-btn warning-btn" style="display: flex; align-items: center; gap: 6px; background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+              <i class="fas fa-exclamation-triangle"></i> Report Bad Stock
             </button>
             
             <div class="actions-dropdown">
@@ -5222,6 +5259,249 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 </div>
+
+<!-- Bad Stock Report Modal -->
+<div id="badStockModal" class="modal" style="display: none;">
+  <div class="modal-content" style="max-width: 600px; margin: 5% auto; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <!-- Modal Header -->
+    <div style="padding: 20px; background: #dc3545; color: white; border-radius: 8px 8px 0 0;">
+      <h2 style="margin: 0; font-size: 20px; font-weight: 600;">
+        <i class="fas fa-exclamation-triangle"></i> Report Bad Stock
+      </h2>
+      <p style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.9;">Remove damaged or unusable items from inventory</p>
+    </div>
+
+    <!-- Modal Body -->
+    <div style="padding: 25px;">
+      <form id="badStockForm">
+        {% csrf_token %}
+        
+        <!-- Supply Selection -->
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px;">
+            Supply Item <span style="color: #dc3545;">*</span>
+          </label>
+          <select id="bad_stock_supply" name="supply" required class="select2-supply" 
+                  style="width: 100%;">
+            <option value="">Select a supply...</option>
+            {% for supply in all_supplies %}
+              {% if not supply.is_archived %}
+                <option value="{{ supply.id }}" data-quantity="{{ supply.quantity_info.current_quantity }}">
+                  [ID: {{ supply.id }}] {{ supply.supply_name }} - Available: {{ supply.quantity_info.current_quantity }}
+                </option>
+              {% endif %}
+            {% endfor %}
+          </select>
+          <div id="supply_error" class="error-message" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></div>
+        </div>
+
+        <!-- Quantity to Remove -->
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px;">
+            Quantity to Remove <span style="color: #dc3545;">*</span>
+          </label>
+          <input type="number" id="bad_stock_quantity" name="quantity_removed" required min="1" 
+                 placeholder="Enter quantity to remove" 
+                 style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;">
+          <div id="quantity_error" class="error-message" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></div>
+        </div>
+
+        <!-- Reason and Remarks -->
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px;">
+            Reason and Remarks <span style="color: #dc3545;">*</span>
+          </label>
+          <textarea id="bad_stock_remarks" name="remarks" required rows="4" 
+                    placeholder="Provide detailed explanation including the reason (e.g., damaged during transport, expired on [date], defective - not functioning, contaminated, lost, etc.)" 
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; resize: vertical; box-sizing: border-box;"></textarea>
+          <div id="remarks_error" class="error-message" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></div>
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">
+            <i class="fas fa-info-circle"></i> Be specific about the condition and reason for removal
+          </div>
+        </div>
+
+        <!-- Warning Message -->
+        <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 12px; margin-bottom: 20px;">
+          <div style="display: flex; align-items: start; gap: 10px;">
+            <i class="fas fa-exclamation-triangle" style="color: #856404; margin-top: 2px;"></i>
+            <div style="font-size: 13px; color: #856404;">
+              <strong>Important:</strong> This action will immediately remove the specified quantity from your inventory and cannot be undone. All changes will be logged for audit purposes.
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" id="cancelBadStockBtn" 
+                  style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+            Cancel
+          </button>
+          <button type="submit" id="submitBadStockBtn" 
+                  style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500;">
+            <i class="fas fa-check"></i> Remove from Inventory
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Bad Stock Modal Functions
+const badStockModal = document.getElementById('badStockModal');
+const openBadStockModalBtn = document.getElementById('openBadStockModalBtn');
+const cancelBadStockBtn = document.getElementById('cancelBadStockBtn');
+const badStockForm = document.getElementById('badStockForm');
+
+// Open modal
+openBadStockModalBtn.onclick = function() {
+  badStockModal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  
+  // Initialize Select2 for the supply dropdown
+  $('#bad_stock_supply').select2({
+    placeholder: 'Search by name or ID...',
+    allowClear: true,
+    width: '100%',
+    dropdownParent: $('#badStockModal'),
+    matcher: function(params, data) {
+      // If there are no search terms, return all data
+      if ($.trim(params.term) === '') {
+        return data;
+      }
+
+      // Do not display the item if there is no 'text' property
+      if (typeof data.text === 'undefined') {
+        return null;
+      }
+
+      // Convert search term and data to lowercase for case-insensitive search
+      var term = params.term.toLowerCase();
+      var text = data.text.toLowerCase();
+      
+      // Search in the full text (which includes ID and name)
+      if (text.indexOf(term) > -1) {
+        return data;
+      }
+
+      // Return `null` if the term should not be displayed
+      return null;
+    }
+  });
+}
+
+// Close modal
+function closeBadStockModal() {
+  // Destroy Select2 before closing
+  if ($('#bad_stock_supply').data('select2')) {
+    $('#bad_stock_supply').select2('destroy');
+  }
+  
+  badStockModal.style.display = 'none';
+  document.body.style.overflow = 'auto';
+  badStockForm.reset();
+  clearErrors();
+}
+
+cancelBadStockBtn.onclick = closeBadStockModal;
+
+// Close on outside click
+window.onclick = function(event) {
+  if (event.target == badStockModal) {
+    closeBadStockModal();
+  }
+}
+
+// Clear error messages
+function clearErrors() {
+  document.querySelectorAll('.error-message').forEach(el => {
+    el.style.display = 'none';
+    el.textContent = '';
+  });
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    el.style.borderColor = '#ddd';
+  });
+}
+
+// Show error message
+function showError(fieldId, message) {
+  const errorDiv = document.getElementById(fieldId + '_error');
+  const field = document.getElementById(fieldId);
+  
+  if (errorDiv) {
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+  }
+  
+  if (field) {
+    field.style.borderColor = '#dc3545';
+  }
+}
+
+// Form submission
+badStockForm.onsubmit = function(e) {
+  e.preventDefault();
+  clearErrors();
+  
+  const formData = new FormData(badStockForm);
+  const submitBtn = document.getElementById('submitBadStockBtn');
+  
+  // Disable submit button
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+  
+  fetch('{% url "report_bad_stock" %}', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Show success message
+      alert(data.message);
+      closeBadStockModal();
+      // Reload page to update quantities
+      window.location.reload();
+    } else {
+      // Show errors
+      if (data.errors) {
+        for (const [field, message] of Object.entries(data.errors)) {
+          showError('bad_stock_' + field, message);
+        }
+      } else if (data.error) {
+        alert('Error: ' + data.error);
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while processing your request.');
+  })
+  .finally(() => {
+    // Re-enable submit button
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fas fa-check"></i> Remove from Inventory';
+  });
+}
+
+// Validate quantity against available stock
+document.getElementById('bad_stock_quantity').addEventListener('input', function() {
+  const supplySelect = document.getElementById('bad_stock_supply');
+  const selectedOption = supplySelect.options[supplySelect.selectedIndex];
+  const availableQty = parseInt(selectedOption.getAttribute('data-quantity') || 0);
+  const requestedQty = parseInt(this.value || 0);
+  
+  if (requestedQty > availableQty) {
+    showError('bad_stock_quantity', `Cannot remove ${requestedQty} units. Only ${availableQty} units available.`);
+  } else {
+    document.getElementById('quantity_error').style.display = 'none';
+    this.style.borderColor = '#ddd';
+  }
+});
+</script>
 
 </body>
 </html>
