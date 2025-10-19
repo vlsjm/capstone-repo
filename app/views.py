@@ -3734,187 +3734,6 @@ def _generate_pdf_quantity_report(supply, activity_data, total_additions, total_
     doc.build(story)
     return response
 
-@permission_required('app.view_admin_module')
-def export_property_to_excel(request):
-    """Export property data to Excel with filters"""
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Property Inventory"
-
-    # Title and Header Styling
-    title_font = ws['A1'].font.copy(bold=True, size=16)
-    header_font = ws['A1'].font.copy(bold=True, color="FFFFFF")
-    header_fill = PatternFill(start_color="152D64", end_color="152D64", fill_type="solid")
-    thin_border = Side(border_style="thin", color="000000")
-    category_font = ws['A1'].font.copy(bold=True, size=12)
-
-    # Get selected fields from request
-    selected_fields = request.POST.getlist('fields', [
-        'property_number', 'property_name', 'description', 'unit_of_measure',
-        'unit_value', 'overall_quantity', 'current_quantity', 'location',
-        'accountable_person', 'year_acquired', 'condition', 'category'
-    ])
-
-    # Define all possible fields and their display names
-    field_mapping = {
-        'property_number': 'Property Number',
-        'old_property_number': 'Old Property Number',
-        'property_name': 'Property Name',
-        'description': 'Description',
-        'unit_of_measure': 'Unit of Measure',
-        'unit_value': 'Unit Value',
-        'overall_quantity': 'Overall Quantity',
-        'current_quantity': 'Current Quantity',
-        'quantity_per_physical_count': 'Quantity Per Physical Count',
-        'location': 'Location',
-        'accountable_person': 'Accountable Person',
-        'year_acquired': 'Year Acquired',
-        'condition': 'Condition',
-        'category': 'Category'
-    }
-
-    # Create header row with title and metadata
-    num_columns = len(selected_fields)
-    merge_range = f'A1:{chr(64 + num_columns)}1'
-    ws.merge_cells(merge_range)
-    ws['A1'] = 'INVENTORY REPORT FOR PROPERTY'
-    ws['A1'].font = title_font
-    ws['A1'].alignment = ws['A1'].alignment.copy(horizontal='center')
-
-    # Add metadata
-    ws['A3'] = 'Department:'
-    ws['B3'] = request.user.userprofile.department.name if hasattr(request.user, 'userprofile') and request.user.userprofile.department else '_____________________'
-    ws['G3'] = 'Date:'
-    ws['H3'] = datetime.now().strftime("%B %d, %Y")
-    
-    ws['A4'] = 'Prepared by:'
-    ws['B4'] = f'{request.user.first_name} {request.user.last_name}'
-    ws['G4'] = 'Page:'
-    ws['H4'] = '1 of 1'
-
-    # Headers start at row 6
-    ws['A6'] = 'PROPERTY INVENTORY'
-    ws['A6'].font = ws['A6'].font.copy(bold=True)
-
-    # Get all properties with related data and group by category
-    properties = Property.objects.select_related('category').order_by('category__name', 'property_name').all()
-
-    # Group properties by category
-    properties_by_category = {}
-    for prop in properties:
-        category_name = prop.category.name if prop.category else 'Uncategorized'
-        if category_name not in properties_by_category:
-            properties_by_category[category_name] = []
-        properties_by_category[category_name].append(prop)
-
-    current_row = 8  # Start after the title and metadata
-
-    # Process each category
-    for category_name, category_properties in properties_by_category.items():
-        # Add category header
-        ws.cell(row=current_row, column=1, value=category_name)
-        ws.cell(row=current_row, column=1).font = category_font
-        current_row += 1
-
-        # Add headers for this category
-        headers = [field_mapping[field] for field in selected_fields]
-        for col, header in enumerate(headers, 1):
-            cell = ws.cell(row=current_row, column=col)
-            cell.value = header
-            cell.font = header_font
-            cell.fill = header_fill
-            cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
-        current_row += 1
-
-        # Add data for this category
-        for prop in category_properties:
-            row_data = []
-            for field in selected_fields:
-                if field == 'property_number':
-                    row_data.append(prop.property_number or 'N/A')
-                elif field == 'old_property_number':
-                    row_data.append(prop.old_property_number or '-')
-                elif field == 'property_name':
-                    row_data.append(prop.property_name)
-                elif field == 'description':
-                    row_data.append(prop.description or 'N/A')
-                elif field == 'unit_of_measure':
-                    row_data.append(prop.unit_of_measure or 'N/A')
-                elif field == 'unit_value':
-                    row_data.append(prop.unit_value or 0)
-                elif field == 'overall_quantity':
-                    row_data.append(prop.overall_quantity or 0)
-                elif field == 'current_quantity':
-                    row_data.append(prop.quantity or 0)
-                elif field == 'quantity_per_physical_count':
-                    row_data.append(prop.quantity_per_physical_count or 0)
-                elif field == 'location':
-                    row_data.append(prop.location or 'N/A')
-                elif field == 'accountable_person':
-                    row_data.append(prop.accountable_person or 'N/A')
-                elif field == 'year_acquired':
-                    row_data.append(prop.year_acquired.strftime('%B %d, %Y') if prop.year_acquired else 'N/A')
-                elif field == 'condition':
-                    row_data.append(prop.get_condition_display() if prop.condition else 'N/A')
-                elif field == 'category':
-                    row_data.append(prop.category.name if prop.category else 'N/A')
-
-            for col, value in enumerate(row_data, 1):
-                cell = ws.cell(row=current_row, column=col)
-                cell.value = value
-                cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
-            current_row += 1
-
-        current_row += 1  # Add space between categories
-
-    # Add signature section
-    signature_row = current_row + 2
-    ws.cell(row=signature_row, column=1, value='Prepared by:')
-    ws.cell(row=signature_row, column=4, value='Reviewed by:')
-    ws.cell(row=signature_row, column=7, value='Approved by:')
-
-    ws.cell(row=signature_row + 2, column=1, value='_____________________')
-    ws.cell(row=signature_row + 2, column=4, value='_____________________')
-    ws.cell(row=signature_row + 2, column=7, value='_____________________')
-
-    ws.cell(row=signature_row + 3, column=1, value='Inventory Officer')
-    ws.cell(row=signature_row + 3, column=4, value='Department Head')
-    ws.cell(row=signature_row + 3, column=7, value='Property Custodian')
-
-    # Add notes section
-    notes_row = signature_row + 5
-    ws.cell(row=notes_row, column=1, value='Notes:')
-    ws.cell(row=notes_row + 1, column=1, value='1. This report shows the current inventory status of properties.')
-    ws.cell(row=notes_row + 2, column=1, value='2. Please verify physical count against this report.')
-    ws.cell(row=notes_row + 3, column=1, value='3. Report any discrepancies to the inventory officer.')
-
-    # Auto-adjust column widths
-    for col_idx, column in enumerate(ws.columns, 1):
-        max_length = 0
-        column_letter = get_column_letter(col_idx)
-        
-        for cell in column[1:]:
-            if isinstance(cell, MergedCell):
-                continue
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(str(cell.value))
-            except:
-                pass
-        
-        adjusted_width = (max_length + 2)
-        ws.column_dimensions[column_letter].width = adjusted_width
-
-    # Create response
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    response['Content-Disposition'] = f'attachment; filename=property_inventory_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
-    
-    wb.save(response)
-    return response
-
-
 @login_required
 def export_property_to_pdf_ics(request):
     """Export properties with unit value below 50,000 as PDF Inventory Custodian Slip (ICS)"""
@@ -4089,53 +3908,18 @@ def export_property_to_pdf_ics(request):
 
 
 @login_required
-def export_property_above_50k(request):
-    """Export properties with unit value above 50,000 using Excel template - organized by category"""
-    from django.conf import settings
+def export_inventory_count_form_cvsu(request):
+    """
+    Generate Excel Inventory Count Form matching CvSU format.
+    Filters items with unit value > 50,000 and groups them by PPE Account Group (category).
+    All categories are in one sheet with footer sections between them.
+    """
+    from openpyxl.styles import Alignment, Border, Side, Font as OpenpyxlFont
+    from openpyxl.drawing.image import Image as OpenpyxlImage
+    from PIL import Image as PILImage
     from collections import OrderedDict
-    from copy import copy
     
-    # Helper function to safely set cell value (skip merged cells)
-    def safe_set_cell(worksheet, cell_ref, value):
-        """Safely set a cell value, skipping merged cells"""
-        try:
-            cell = worksheet[cell_ref]
-            if not isinstance(cell, MergedCell):
-                cell.value = value
-        except:
-            pass  # Skip if there's any error
-    
-    # Path to your template
-    template_path = os.path.join(
-        settings.BASE_DIR, 
-        'app', 
-        'templates', 
-        'excel', 
-        'property_above_50k_template.xlsx'
-    )
-    
-    # Check if template exists
-    if not os.path.exists(template_path):
-        # If template doesn't exist, return an error response
-        response = HttpResponse(
-            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
-        response['Content-Disposition'] = f'attachment; filename=property_above_50k_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
-        
-        # Create a simple workbook with error message
-        wb = Workbook()
-        ws = wb.active
-        ws.title = "Error"
-        ws['A1'] = 'Template file not found. Please contact administrator.'
-        ws['A2'] = f'Expected path: {template_path}'
-        wb.save(response)
-        return response
-    
-    # Load the template
-    wb = load_workbook(template_path)
-    ws = wb.active  # or specify sheet: wb['SheetName']
-    
-    # Filter properties with unit_value above 50,000 and group by category
+    # Filter properties with unit_value above 50,000
     properties = Property.objects.filter(
         unit_value__gt=50000
     ).select_related('category').order_by('category__name', 'property_name')
@@ -4160,229 +3944,350 @@ def export_property_above_50k(request):
                 }
             properties_by_category['uncategorized']['properties'].append(prop)
     
-    # Starting row - this is where the first table template begins
-    # Adjust this based on where your template table starts
-    template_start_row = 6  # The row where the category header is
-    template_data_row = 7   # The row where data starts in template
+    # Create workbook with single sheet
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Inventory Count Form"
     
-    # Get the number of rows in the template table (to know how many rows to copy)
-    # Based on your template: Row 6 (category) + rows 7-11 (data/spacing) = 6 rows per category
-    template_row_count = 6  # Adjust this to match your template structure
+    # Define styles
+    thin_border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
     
-    current_row = template_start_row
-    overall_item_number = 1
+    header_font = OpenpyxlFont(name='Calibri', size=10, bold=True)
+    normal_font = OpenpyxlFont(name='Calibri', size=9)
+    title_font = OpenpyxlFont(name='Calibri', size=11, bold=True)
+    center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+    left_alignment = Alignment(horizontal='left', vertical='center', wrap_text=True)
+    
+    # Set column widths
+    ws.column_dimensions['A'].width = 18  # Article/Item
+    ws.column_dimensions['B'].width = 35  # Description
+    ws.column_dimensions['C'].width = 15  # Old Property No.
+    ws.column_dimensions['D'].width = 15  # New Property No.
+    ws.column_dimensions['E'].width = 10  # Unit of Measure
+    ws.column_dimensions['F'].width = 12  # Unit Value
+    ws.column_dimensions['G'].width = 10  # Qty per Property Count
+    ws.column_dimensions['H'].width = 10  # Qty per Physical Count
+    ws.column_dimensions['I'].width = 20  # Location
+    ws.column_dimensions['J'].width = 15  # Condition
+    ws.column_dimensions['K'].width = 15  # Remarks
+    
+    current_row = 1
     
     # Process each category
     for idx, (cat_key, cat_data) in enumerate(properties_by_category.items()):
         category = cat_data['category']
         category_properties = cat_data['properties']
         
-        # If this is not the first category, we need to insert the template again
-        if idx > 0:
-            # Insert rows for the new category table
-            ws.insert_rows(current_row, template_row_count)
-            
-            # Copy template formatting from the original template rows
-            for i in range(template_row_count):
-                source_row = template_start_row + i
-                target_row = current_row + i
-                
-                # Copy each cell's style from template
-                for col in range(1, 15):  # Adjust range based on your columns
-                    source_cell = ws.cell(row=source_row, column=col)
-                    target_cell = ws.cell(row=target_row, column=col)
-                    
-                    # Skip if target cell is part of a merged cell (read-only)
-                    if isinstance(target_cell, MergedCell):
-                        continue
-                    
-                    # Copy value if it's a header row (first row of template)
-                    if i == 0:
-                        if not isinstance(source_cell, MergedCell):
-                            target_cell.value = source_cell.value
-                    
-                    # Copy formatting (only if source has style)
-                    if source_cell.has_style:
-                        target_cell.font = copy(source_cell.font)
-                        target_cell.border = copy(source_cell.border)
-                        target_cell.fill = copy(source_cell.fill)
-                        target_cell.number_format = copy(source_cell.number_format)
-                        target_cell.protection = copy(source_cell.protection)
-                        target_cell.alignment = copy(source_cell.alignment)
+        # Add header for each category section
+        # Add logo for EVERY section - position it on the left side overlapping rows 1-5
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'cvsu logo.png')
+        if os.path.exists(logo_path):
+            try:
+                # Load and resize logo
+                img = OpenpyxlImage(logo_path)
+                # Resize logo to approximately 80x80 pixels to span multiple rows
+                img.width = 80
+                img.height = 80
+                # Position logo at C row (left area, will span across rows 1-5)
+                ws.add_image(img, f'C{current_row}')
+            except Exception as e:
+                print(f"Error adding logo: {e}")
         
-        # Update the Category header (appears in column A based on your template)
-        # The format should be: "Don Severino de las Alas Ca [UACS] - [CATEGORY NAME]"
-        category_header_row = current_row
+        # Row 1: Republic of the Philippines
+        ws.merge_cells(f'A{current_row}:K{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = 'Republic of the Philippines'
+        cell.font = OpenpyxlFont(name='Calibri', size=10, bold=False)
+        cell.alignment = center_alignment
+        current_row += 1
         
-        if category:
-            uacs_code = category.uacs if category.uacs else 'N/A'
-            category_name = category.name
-            # Match the template format
-            category_label = f"Don Severino de las Alas Ca {uacs_code} - {category_name}"
+        # Row 2: CAVITE STATE UNIVERSITY
+        ws.merge_cells(f'A{current_row}:K{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = 'CAVITE STATE UNIVERSITY'
+        cell.font = OpenpyxlFont(name='Calibri', size=12, bold=True)
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Row 3: Don Severino de las Alas Campus
+        ws.merge_cells(f'A{current_row}:K{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = 'Don Severino de las Alas Campus'
+        cell.font = OpenpyxlFont(name='Calibri', size=10, bold=False)
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Row 4: Indang, Cavite
+        ws.merge_cells(f'A{current_row}:K{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = 'Indang, Cavite'
+        cell.font = OpenpyxlFont(name='Calibri', size=10, bold=False)
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Row 5: www.cvsu.edu.ph
+        ws.merge_cells(f'A{current_row}:K{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = 'www.cvsu.edu.ph'
+        cell.font = OpenpyxlFont(name='Calibri', size=9, bold=False, color='0000FF', underline='single')
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Blank row
+        current_row += 1
+        
+        # Inventory Count Form title
+        ws.merge_cells(f'A{current_row}:K{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = 'Inventory Count Form'
+        cell.font = OpenpyxlFont(name='Calibri', size=12, bold=True)
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Blank row
+        current_row += 1
+        
+        # PPE Account Group - Label in column A
+        cell = ws.cell(row=current_row, column=1)
+        cell.value = 'PPE Account Group:'
+        cell.font = OpenpyxlFont(name='Calibri', size=10, bold=True)
+        cell.alignment = left_alignment
+        
+        # UACS + Category in columns B-C (merged with bottom border)
+        ws.merge_cells(f'B{current_row}:C{current_row}')
+        cell_b = ws.cell(row=current_row, column=2)
+        cell_c = ws.cell(row=current_row, column=3)
+        
+        if category and category.uacs:
+            cell_b.value = f'{category.uacs} - {category.name}'
+        elif category:
+            cell_b.value = f'{category.name}'
         else:
-            category_label = "Don Severino de las Alas Ca N/A - Uncategorized"
+            cell_b.value = 'Uncategorized'
         
-        # Update the category label in column A (based on your template structure)
-        safe_set_cell(ws, f'A{category_header_row}', category_label)
+        cell_b.font = OpenpyxlFont(name='Calibri', size=10, bold=False)
+        cell_b.alignment = left_alignment
+        # Add bottom border to both B and C cells
+        cell_b.border = Border(bottom=Side(style='thin', color='000000'))
+        cell_c.border = Border(bottom=Side(style='thin', color='000000'))
+        current_row += 1
         
-        # Populate data for this category
-        data_start_row = current_row + 1  # Data starts in the next row after category header
+        # Blank row
+        current_row += 1
         
-        for item_idx, prop in enumerate(category_properties):
-            row = data_start_row + item_idx
+        # Table Headers
+        headers = [
+            'Article/Item',
+            'Description',
+            'Old Property No.\nassigned',
+            'New Property No.\nassigned\n(to be filled up during\nvalidation)',
+            'Unit of\nMeasure',
+            'Unit Value',
+            'Quantity per\nProperty Card',
+            'Quantity per\nPhysical Count',
+            'Location/Whereabouts\n(Building, Floor and\nRoom No.)',
+            'Condition\n(in good condition,\nneeding repair,\nunserviceable,\nobsolete, etc.)',
+            'Remarks\n(Non-existing\nor Missing)'
+        ]
+        
+        for col_idx, header in enumerate(headers, start=1):
+            cell = ws.cell(row=current_row, column=col_idx)
+            cell.value = header
+            cell.font = header_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+        
+        # Set row height for header
+        ws.row_dimensions[current_row].height = 60
+        current_row += 1
+        
+        # Data rows
+        for prop in category_properties:
+            # Article/Item
+            cell = ws.cell(row=current_row, column=1)
+            cell.value = prop.property_name or ''
+            cell.font = normal_font
+            cell.alignment = left_alignment
+            cell.border = thin_border
             
-            # Map data to columns based on your template structure
-            # Columns: A=No, B=Property#, C=Name, D=Description, E=Value, F=Qty, G=Location, H=Person, I=Year, J=Condition
-            safe_set_cell(ws, f'A{row}', overall_item_number)
-            safe_set_cell(ws, f'B{row}', prop.property_number or 'N/A')
-            safe_set_cell(ws, f'C{row}', prop.property_name)
-            safe_set_cell(ws, f'D{row}', prop.description or '')
-            safe_set_cell(ws, f'E{row}', prop.unit_value)
-            safe_set_cell(ws, f'F{row}', prop.quantity or 0)
-            safe_set_cell(ws, f'G{row}', prop.location or '')
-            safe_set_cell(ws, f'H{row}', prop.accountable_person or '')
-            safe_set_cell(ws, f'I{row}', prop.year_acquired.strftime('%Y') if prop.year_acquired else '')
-            safe_set_cell(ws, f'J{row}', prop.condition or '')
+            # Description
+            cell = ws.cell(row=current_row, column=2)
+            cell.value = prop.description or ''
+            cell.font = normal_font
+            cell.alignment = left_alignment
+            cell.border = thin_border
             
-            overall_item_number += 1
+            # Old Property No.
+            cell = ws.cell(row=current_row, column=3)
+            cell.value = prop.old_property_number or ''
+            cell.font = normal_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+            
+            # New Property No.
+            cell = ws.cell(row=current_row, column=4)
+            cell.value = prop.property_number or ''
+            cell.font = normal_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+            
+            # Unit of Measure
+            cell = ws.cell(row=current_row, column=5)
+            cell.value = prop.unit_of_measure or ''
+            cell.font = normal_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+            
+            # Unit Value
+            cell = ws.cell(row=current_row, column=6)
+            cell.value = float(prop.unit_value) if prop.unit_value else 0
+            cell.font = normal_font
+            cell.alignment = Alignment(horizontal='right', vertical='center')
+            cell.border = thin_border
+            cell.number_format = '#,##0.00'
+            
+            # Quantity per Property Card
+            cell = ws.cell(row=current_row, column=7)
+            cell.value = prop.quantity or 0
+            cell.font = normal_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+            
+            # Quantity per Physical Count
+            cell = ws.cell(row=current_row, column=8)
+            cell.value = prop.quantity_per_physical_count or 0
+            cell.font = normal_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+            
+            # Location/Whereabouts
+            cell = ws.cell(row=current_row, column=9)
+            cell.value = prop.location or ''
+            cell.font = normal_font
+            cell.alignment = left_alignment
+            cell.border = thin_border
+            
+            # Condition
+            cell = ws.cell(row=current_row, column=10)
+            cell.value = prop.condition or ''
+            cell.font = normal_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+            
+            # Remarks
+            cell = ws.cell(row=current_row, column=11)
+            cell.value = ''  # Empty for manual entry
+            cell.font = normal_font
+            cell.alignment = left_alignment
+            cell.border = thin_border
+            
+            # Set row height
+            ws.row_dimensions[current_row].height = 30
+            current_row += 1
         
-        # Move to the next category position
-        # Each category uses template_row_count rows
-        current_row += template_row_count
+        # Add footer section after each category
+        # Blank row
+        current_row += 1
+        
+        # Note section - "Note:" in column A (bold), rest of text in B-K (not bold)
+        cell = ws.cell(row=current_row, column=1)
+        cell.value = 'Note:'
+        cell.font = OpenpyxlFont(name='Calibri', size=9, bold=True)
+        cell.alignment = left_alignment
+        
+        # Note content text
+        ws.merge_cells(f'B{current_row}:K{current_row}')
+        cell = ws[f'B{current_row}']
+        cell.value = 'for PPE items without Property No., provide in the "Remarks" column other information such as Serial No./Model No./brief description that can be useful during the reconciliation process.'
+        cell.font = OpenpyxlFont(name='Calibri', size=9, bold=False)
+        cell.alignment = left_alignment
+        current_row += 1
+        
+        # Blank rows for spacing
+        current_row += 2
+        
+        # Prepared by section (LEFT SIDE - Columns A-C)
+        prepared_row = current_row
+        cell = ws.cell(row=current_row, column=1)
+        cell.value = 'Prepared by:'
+        cell.font = OpenpyxlFont(name='Calibri', size=9, bold=True)
+        cell.alignment = left_alignment
+        
+        # Reviewed by section (RIGHT SIDE - Columns G-H)
+        ws.merge_cells(f'G{current_row}:H{current_row}')
+        cell = ws.cell(row=current_row, column=7)
+        cell.value = 'Reviewed by:'
+        cell.font = OpenpyxlFont(name='Calibri', size=9, bold=True)
+        cell.alignment = left_alignment
+        current_row += 1
+        
+        # Blank row before signatures
+        current_row += 1
+        
+        # Signature line for Prepared by (bottom border only in column B)
+        cell = ws.cell(row=current_row, column=2)
+        cell.border = Border(bottom=Side(style='thin', color='000000'))
+        cell.alignment = center_alignment
+        
+        # Signature line for Reviewed by (bottom border instead of underscores)
+        ws.merge_cells(f'G{current_row}:I{current_row}')
+        for col in range(7, 10):  # Columns G, H, I
+            cell = ws.cell(row=current_row, column=col)
+            cell.border = Border(bottom=Side(style='thin', color='000000'))
+            cell.alignment = center_alignment
+        current_row += 1
+        
+        # Title for Prepared by (only in column B)
+        cell = ws.cell(row=current_row, column=2)
+        cell.value = 'Concerned Inventory Committee Member'
+        cell.font = OpenpyxlFont(name='Calibri', size=9)
+        cell.alignment = center_alignment
+        
+        # Title for Reviewed by (merged in G-I)
+        ws.merge_cells(f'G{current_row}:I{current_row}')
+        cell = ws.cell(row=current_row, column=7)
+        cell.value = 'Chairman, Inventory Committee'
+        cell.font = OpenpyxlFont(name='Calibri', size=9)
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Blank rows
+        current_row += 2
+        
+        # Date section (LEFT SIDE)
+        cell = ws.cell(row=current_row, column=1)
+        cell.value = 'Date:'
+        cell.font = OpenpyxlFont(name='Calibri', size=9, bold=True)
+        cell.alignment = left_alignment
+        current_row += 1
+        
+        # Blank row before date line
+        current_row += 1
+        
+        # Date line for left side (bottom border only in column A)
+        cell = ws.cell(row=current_row, column=1)
+        cell.border = Border(bottom=Side(style='thin', color='000000'))
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Add spacing before next category (if not last)
+        if idx < len(properties_by_category) - 1:
+            current_row += 3
     
     # Create response
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = f'attachment; filename=property_above_50k_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    response['Content-Disposition'] = f'attachment; filename=Inventory_Count_Over50k_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
     
     wb.save(response)
     return response
 
-
-# def generate_sample_inventory_report(request):
-#     """Generate a sample inventory report template"""
-#     wb = Workbook()
-#     ws = wb.active
-#     ws.title = "Sample Inventory Report"
-
-#     # Title and Header Styling
-#     title_font = ws['A1'].font.copy(bold=True, size=16)
-#     header_font = ws['A1'].font.copy(bold=True, color="FFFFFF")
-#     header_fill = PatternFill(start_color="152D64", end_color="152D64", fill_type="solid")
-    
-#     # Merge cells for title
-#     ws.merge_cells('A1:J1')
-#     ws['A1'] = 'SAMPLE INVENTORY REPORT TEMPLATE'
-#     ws['A1'].font = title_font
-#     ws['A1'].alignment = ws['A1'].alignment.copy(horizontal='center')
-
-#     # Add metadata
-#     ws['A3'] = 'Department:'
-#     ws['B3'] = '_____________________'
-#     ws['G3'] = 'Date:'
-#     ws['H3'] = datetime.now().strftime("%B %d, %Y")
-    
-#     ws['A4'] = 'Prepared by:'
-#     ws['B4'] = '_____________________'
-#     ws['G4'] = 'Page:'
-#     ws['H4'] = '1 of 1'
-
-#     # Add section headers
-#     ws['A6'] = 'SUPPLY INVENTORY'
-#     ws['A6'].font = ws['A6'].font.copy(bold=True)
-    
-#     # Supply headers
-#     supply_headers = ['Item Code', 'Supply Name', 'Category', 'Current Quantity', 'Unit', 'Status', 'Remarks']
-#     for col, header in enumerate(supply_headers, 1):
-#         cell = ws.cell(row=7, column=col)
-#         cell.value = header
-#         cell.font = header_font
-#         cell.fill = header_fill
-
-#     # Sample supply data
-#     sample_supplies = [
-#         ['SUP-001', 'Ballpen (Black)', 'Office Supplies', 100, 'Pieces', 'Available', ''],
-#         ['SUP-002', 'A4 Paper', 'Office Supplies', 50, 'Reams', 'Low Stock', 'Need to reorder'],
-#         ['SUP-003', 'Printer Ink', 'Supplies', 5, 'Cartridges', 'Low Stock', 'Order pending'],
-#     ]
-
-#     for row, data in enumerate(sample_supplies, 8):
-#         for col, value in enumerate(data, 1):
-#             cell = ws.cell(row=row, column=col)
-#             cell.value = value
-
-#     # Add property section
-#     ws['A12'] = 'PROPERTY INVENTORY'
-#     ws['A12'].font = ws['A12'].font.copy(bold=True)
-
-#     # Property headers
-#     property_headers = ['Property No.', 'Property Name', 'Description', 'Quantity', 'Location', 'Condition', 'Remarks']
-#     for col, header in enumerate(property_headers, 1):
-#         cell = ws.cell(row=13, column=col)
-#         cell.value = header
-#         cell.font = header_font
-#         cell.fill = header_fill
-
-#     # Sample property data
-#     sample_properties = [
-#         ['PROP-001', 'Desktop Computer', 'Dell OptiPlex', 5, 'IT Room', 'Good Condition', ''],
-#         ['PROP-002', 'Office Chair', 'Ergonomic Chair', 10, 'Main Office', 'Good Condition', ''],
-#         ['PROP-003', 'Printer', 'HP LaserJet', 2, 'Admin Office', 'Needs Repair', 'Under maintenance'],
-#     ]
-
-#     for row, data in enumerate(sample_properties, 14):
-#         for col, value in enumerate(data, 1):
-#             cell = ws.cell(row=row, column=col)
-#             cell.value = value
-
-#     # Add signature section
-#     ws['A18'] = 'Prepared by:'
-#     ws['D18'] = 'Reviewed by:'
-#     ws['G18'] = 'Approved by:'
-
-#     ws['A20'] = '_____________________'
-#     ws['D20'] = '_____________________'
-#     ws['G20'] = '_____________________'
-
-#     ws['A21'] = 'Inventory Officer'
-#     ws['D21'] = 'Department Head'
-#     ws['G21'] = 'Property Custodian'
-
-#     # Add notes section
-#     ws['A23'] = 'Notes:'
-#     ws['A24'] = '1. This is a sample template for inventory reporting.'
-#     ws['A25'] = '2. Customize the sections and fields according to your needs.'
-#     ws['A26'] = '3. Regular inventory count is recommended for accurate record keeping.'
-
-#     # Adjust column widths
-#     column_widths = [15, 20, 15, 15, 15, 15, 30]
-#     for i, width in enumerate(column_widths, 1):
-#         ws.column_dimensions[get_column_letter(i)].width = width
-
-#     # Add borders to all cells with content
-#     thin_border = Side(border_style="thin", color="000000")
-#     max_row = ws.max_row
-#     max_col = ws.max_column
-
-#     for row in range(7, 11):  # Supply section
-#         for col in range(1, 8):
-#             cell = ws.cell(row=row, column=col)
-#             cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
-
-#     for row in range(13, 17):  # Property section
-#         for col in range(1, 8):
-#             cell = ws.cell(row=row, column=col)
-#             cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
-
-#     # Create response
-#     response = HttpResponse(
-#         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-#     )
-#     response['Content-Disposition'] = f'attachment; filename=inventory_report_template.xlsx'
-    
-#     wb.save(response)
-#     return response
 
 @login_required
 def get_supply_by_barcode(request, barcode):

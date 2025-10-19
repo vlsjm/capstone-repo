@@ -2401,12 +2401,8 @@ input:focus {
             <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">Select Export Format:</p>
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 <label style="font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input type="radio" name="exportFormat" value="excel" checked style="margin: 0; width: 18px; height: 18px; cursor: pointer;"> 
-                    <span style="font-weight: 500;">Excel Report (All Properties)</span>
-                </label>
-                <label style="font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input type="radio" name="exportFormat" value="excel_above_50k" style="margin: 0; width: 18px; height: 18px; cursor: pointer;"> 
-                    <span style="font-weight: 500;">Excel Report (Properties Above ₱50,000.00)</span>
+                    <input type="radio" name="exportFormat" value="inventory_count_cvsu" checked style="margin: 0; width: 18px; height: 18px; cursor: pointer;"> 
+                    <span style="font-weight: 500;">CvSU Inventory Count Form (Above ₱50,000.00)</span>
                 </label>
                 <label style="font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
                     <input type="radio" name="exportFormat" value="pdf" style="margin: 0; width: 18px; height: 18px; cursor: pointer;"> 
@@ -2419,55 +2415,8 @@ input:focus {
         </div>
 
         <!-- Excel Form -->
-        <form method="POST" action="{% url 'export_property' %}" id="exportForm">
+        <form method="POST" action="{% url 'export_inventory_count_form_cvsu' %}" id="exportForm">
             {% csrf_token %}
-            <div class="form-group" id="excelFieldsSection">
-                <p style="margin: 0 0 10px 0; font-size: 14px;">Select fields to include in the report:</p>
-                <div class="checkbox-group" style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="property_number" checked style="margin: 0; width: 16px; height: 16px;"> Property Number
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="old_property_number" style="margin: 0; width: 16px; height: 16px;"> Old Property Number
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="property_name" checked style="margin: 0; width: 16px; height: 16px;"> Property Name
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="description" checked style="margin: 0; width: 16px; height: 16px;"> Description
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="unit_of_measure" checked style="margin: 0; width: 16px; height: 16px;"> Unit of Measure
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="unit_value" checked style="margin: 0; width: 16px; height: 16px;"> Unit Value
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="overall_quantity" checked style="margin: 0; width: 16px; height: 16px;"> Overall Quantity
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="current_quantity" checked style="margin: 0; width: 16px; height: 16px;"> Current Quantity
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="quantity_per_physical_count" style="margin: 0; width: 16px; height: 16px;"> Quantity Per Physical Count
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="location" checked style="margin: 0; width: 16px; height: 16px;"> Location
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="accountable_person" checked style="margin: 0; width: 16px; height: 16px;"> Accountable Person
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="year_acquired" checked style="margin: 0; width: 16px; height: 16px;"> Year Acquired
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="condition" checked style="margin: 0; width: 16px; height: 16px;"> Condition
-                    </label>
-                    <label style="font-size: 13px; margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" name="fields" value="category" checked style="margin: 0; width: 16px; height: 16px;"> Category
-                    </label>
-                </div>
-            </div>
 
             <!-- PDF Form Fields (Hidden by default) -->
             <div class="form-group" id="pdfFieldsSection" style="display: none;">
@@ -3229,7 +3178,6 @@ const openExportBtn = document.getElementById("openExportModalBtn");
 const closeExportBtn = document.getElementById("closeExportModalBtn");
 const exportForm = document.getElementById("exportForm");
 const generateReportBtn = document.getElementById("generateReportBtn");
-const excelFieldsSection = document.getElementById("excelFieldsSection");
 const pdfFieldsSection = document.getElementById("pdfFieldsSection");
 
 // Handle export format radio buttons
@@ -3238,18 +3186,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     exportFormatRadios.forEach(radio => {
         radio.addEventListener('change', function() {
-            if (this.value === 'excel') {
-                excelFieldsSection.style.display = 'block';
+            if (this.value === 'inventory_count_cvsu') {
                 pdfFieldsSection.style.display = 'none';
-                generateReportBtn.innerHTML = '<i class="fas fa-file-excel"></i> Generate Excel Report';
-                exportForm.action = "{% url 'export_property' %}";
-            } else if (this.value === 'excel_above_50k') {
-                excelFieldsSection.style.display = 'none';
-                pdfFieldsSection.style.display = 'none';
-                generateReportBtn.innerHTML = '<i class="fas fa-file-excel"></i> Generate Excel Report (Above ₱50k)';
-                exportForm.action = "{% url 'export_property_above_50k' %}";
+                generateReportBtn.innerHTML = '<i class="fas fa-file-excel"></i> Generate CvSU Inventory Count Form';
+                exportForm.action = "{% url 'export_inventory_count_form_cvsu' %}";
             } else if (this.value === 'pdf') {
-                excelFieldsSection.style.display = 'none';
                 pdfFieldsSection.style.display = 'block';
                 generateReportBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Generate PDF ICS';
                 exportForm.action = "{% url 'export_property_pdf_ics' %}";
@@ -3270,17 +3211,9 @@ if (closeExportBtn) {
     }
 }
 
-// Ensure at least one checkbox is selected
+// Ensure at least one checkbox is selected (not needed for current export options, but keeping for future use)
 document.getElementById('exportForm').addEventListener('submit', function(e) {
-    const selectedFormat = document.querySelector('input[name="exportFormat"]:checked');
-    
-    if (selectedFormat && selectedFormat.value === 'excel') {
-        const checkboxes = this.querySelectorAll('input[name="fields"]:checked');
-        if (checkboxes.length === 0) {
-            e.preventDefault();
-            alert('Please select at least one field to include in the report.');
-        }
-    }
+    // Validation can be added here if needed
 });
 
 // Add exportModal and infoModal to the list of modals in your closeAllModals function
