@@ -2418,6 +2418,24 @@ input:focus {
         <form method="POST" action="{% url 'export_inventory_count_form_cvsu' %}" id="exportForm">
             {% csrf_token %}
 
+            <!-- Additional Columns Section (for CvSU Inventory Count Form) -->
+            <div class="form-group" id="additionalColumnsSection" style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">Additional Columns (Optional):</p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" name="include_accountable_person" value="yes" style="margin: 0; width: 16px; height: 16px; cursor: pointer;">
+                        <span>Include Accountable Person</span>
+                    </label>
+                    <label style="font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" name="include_year_acquired" value="yes" style="margin: 0; width: 16px; height: 16px; cursor: pointer;">
+                        <span>Include Year Acquired</span>
+                    </label>
+                </div>
+                <p style="margin: 8px 0 0 0; font-size: 12px; color: #6c757d; font-style: italic;">
+                    <i class="fas fa-info-circle"></i> Additional columns will be placed after the Remarks column
+                </p>
+            </div>
+
             <!-- PDF Form Fields (Hidden by default) -->
             <div class="form-group" id="pdfFieldsSection" style="display: none;">
                 <div style="background-color: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
@@ -3179,6 +3197,7 @@ const closeExportBtn = document.getElementById("closeExportModalBtn");
 const exportForm = document.getElementById("exportForm");
 const generateReportBtn = document.getElementById("generateReportBtn");
 const pdfFieldsSection = document.getElementById("pdfFieldsSection");
+const additionalColumnsSection = document.getElementById("additionalColumnsSection");
 
 // Handle export format radio buttons
 document.addEventListener('DOMContentLoaded', function() {
@@ -3188,10 +3207,12 @@ document.addEventListener('DOMContentLoaded', function() {
         radio.addEventListener('change', function() {
             if (this.value === 'inventory_count_cvsu') {
                 pdfFieldsSection.style.display = 'none';
+                additionalColumnsSection.style.display = 'block';
                 generateReportBtn.innerHTML = '<i class="fas fa-file-excel"></i> Generate CvSU Inventory Count Form';
                 exportForm.action = "{% url 'export_inventory_count_form_cvsu' %}";
             } else if (this.value === 'pdf') {
                 pdfFieldsSection.style.display = 'block';
+                additionalColumnsSection.style.display = 'none';
                 generateReportBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Generate PDF ICS';
                 exportForm.action = "{% url 'export_property_pdf_ics' %}";
             }

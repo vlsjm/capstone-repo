@@ -16612,3 +16612,138 @@ INFO 2025-10-19 20:02:30,098 basehttp 988 18956 - Broken pipe from ('127.0.0.1',
 INFO 2025-10-19 20:02:30,785 basehttp 988 8408 "GET /property/ HTTP/1.1" 200 396885
 INFO 2025-10-19 20:02:31,259 basehttp 988 8408 "GET /property/ HTTP/1.1" 200 396885
 INFO 2025-10-19 20:02:36,131 basehttp 988 8408 "POST /export-inventory-count-form/ HTTP/1.1" 200 5825345
+INFO 2025-10-19 23:35:08,904 autoreload 10476 8152 Watching for file changes with StatReloader
+INFO 2025-10-19 23:36:11,822 basehttp 10476 11044 "GET / HTTP/1.1" 200 12072
+WARNING 2025-10-19 23:36:14,071 basehttp 10476 12452 "GET /favicon.ico HTTP/1.1" 404 30990
+INFO 2025-10-19 23:36:15,146 basehttp 10476 9212 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-19 23:36:15,699 basehttp 10476 9784 "GET /dashboard/ HTTP/1.1" 200 62881
+INFO 2025-10-19 23:36:19,576 basehttp 10476 5024 "GET /property/ HTTP/1.1" 200 396885
+INFO 2025-10-19 23:36:27,192 basehttp 10476 7152 "POST /export-inventory-count-form/ HTTP/1.1" 200 5825346
+INFO 2025-10-19 23:38:07,729 autoreload 10476 8152 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-19 23:38:09,577 autoreload 9864 14348 Watching for file changes with StatReloader
+INFO 2025-10-19 23:38:54,880 basehttp 9864 16200 "GET /property/ HTTP/1.1" 200 396885
+INFO 2025-10-19 23:39:00,236 basehttp 9864 16200 "POST /export-inventory-count-form/ HTTP/1.1" 200 5825344
+INFO 2025-10-19 23:41:41,286 autoreload 9864 14348 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-19 23:41:42,888 autoreload 3836 3988 Watching for file changes with StatReloader
+INFO 2025-10-19 23:42:19,588 autoreload 3836 3988 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-19 23:42:20,863 autoreload 15312 13188 Watching for file changes with StatReloader
+INFO 2025-10-19 23:42:50,641 basehttp 15312 5268 "GET /property/ HTTP/1.1" 200 396885
+INFO 2025-10-19 23:42:54,726 basehttp 15312 5268 "POST /export-inventory-count-form/ HTTP/1.1" 200 5825335
+INFO 2025-10-19 23:44:23,392 autoreload 15312 13188 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-19 23:44:24,909 autoreload 8284 8436 Watching for file changes with StatReloader
+INFO 2025-10-19 23:45:23,745 basehttp 8284 8148 "GET /property/ HTTP/1.1" 200 396885
+INFO 2025-10-19 23:45:27,946 basehttp 8284 8148 "POST /export-inventory-count-form/ HTTP/1.1" 200 5825291
+INFO 2025-10-19 23:49:52,765 autoreload 8284 8436 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-19 23:49:54,490 autoreload 12452 12748 Watching for file changes with StatReloader
+INFO 2025-10-19 23:50:30,910 basehttp 12452 15968 "GET /property/ HTTP/1.1" 200 396885
+INFO 2025-10-19 23:50:32,068 basehttp 12452 15968 - Broken pipe from ('127.0.0.1', 61171)
+INFO 2025-10-19 23:50:32,169 basehttp 12452 12552 - Broken pipe from ('127.0.0.1', 62541)
+INFO 2025-10-19 23:50:32,215 basehttp 12452 10700 "GET /property/ HTTP/1.1" 200 396885
+INFO 2025-10-19 23:50:35,438 basehttp 12452 10700 "POST /export-inventory-count-form/ HTTP/1.1" 200 5825290
+INFO 2025-10-19 23:53:08,920 autoreload 12452 12748 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-19 23:53:10,584 autoreload 13560 13428 Watching for file changes with StatReloader
+INFO 2025-10-19 23:56:34,470 autoreload 13560 13428 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-19 23:56:36,194 autoreload 7888 8984 Watching for file changes with StatReloader
+INFO 2025-10-19 23:57:15,031 autoreload 7888 8984 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-19 23:57:16,399 autoreload 4648 13172 Watching for file changes with StatReloader
+INFO 2025-10-19 23:57:59,098 autoreload 4648 13172 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-19 23:58:00,576 autoreload 17088 17076 Watching for file changes with StatReloader
+INFO 2025-10-19 23:58:26,528 basehttp 17088 16704 "GET /property/ HTTP/1.1" 200 396885
+INFO 2025-10-19 23:58:47,907 autoreload 17088 17076 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-19 23:58:49,578 autoreload 8328 12384 Watching for file changes with StatReloader
+INFO 2025-10-20 00:00:30,381 basehttp 8328 10760 "GET /property/ HTTP/1.1" 200 396885
+INFO 2025-10-20 00:00:33,273 autoreload 8328 12384 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-20 00:00:34,597 autoreload 1888 13356 Watching for file changes with StatReloader
+INFO 2025-10-20 00:01:30,037 basehttp 1888 16028 "GET /property/ HTTP/1.1" 200 396885
+INFO 2025-10-20 00:01:35,112 basehttp 1888 16028 "POST /export-inventory-count-form/ HTTP/1.1" 200 5825599
+INFO 2025-10-20 00:01:56,770 autoreload 1888 13356 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-20 00:01:58,446 autoreload 2452 17320 Watching for file changes with StatReloader
+INFO 2025-10-20 00:03:47,523 basehttp 2452 8292 "GET /property/ HTTP/1.1" 200 396885
+INFO 2025-10-20 00:03:54,783 basehttp 2452 8292 "GET /supplies/ HTTP/1.1" 200 491233
+INFO 2025-10-20 00:03:54,810 basehttp 2452 13100 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-20 00:03:54,811 basehttp 2452 8292 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-20 00:03:54,841 basehttp 2452 8292 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-20 00:03:54,847 basehttp 2452 13100 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-20 00:03:54,849 basehttp 2452 2564 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-20 00:03:54,850 basehttp 2452 17064 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-20 00:03:54,851 basehttp 2452 1872 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-20 00:03:54,858 basehttp 2452 8096 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-20 00:03:54,865 basehttp 2452 17064 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-20 00:03:54,865 basehttp 2452 13100 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-20 00:03:54,866 basehttp 2452 1872 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-20 00:03:54,866 basehttp 2452 2564 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-20 00:03:54,867 basehttp 2452 8292 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-20 00:03:54,868 basehttp 2452 8096 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-20 00:03:54,876 basehttp 2452 8096 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-20 00:03:58,709 basehttp 2452 5016 "GET /supplies/?search=bond HTTP/1.1" 200 441698
+INFO 2025-10-20 00:03:58,734 basehttp 2452 5016 "GET /media/barcodes/supplies/SUP-11_31aoGbM.png HTTP/1.1" 200 2754
+INFO 2025-10-20 00:03:58,737 basehttp 2452 2876 "GET /media/barcodes/supplies/SUP-48_0oUEXQE.png HTTP/1.1" 200 3564
+INFO 2025-10-20 00:04:02,937 basehttp 2452 2876 "GET /supplies/ HTTP/1.1" 200 491233
+INFO 2025-10-20 00:04:02,960 basehttp 2452 2876 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-20 00:04:02,961 basehttp 2452 5016 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-20 00:04:02,969 basehttp 2452 2876 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-20 00:04:02,969 basehttp 2452 5016 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-20 00:04:02,998 basehttp 2452 5016 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-20 00:04:02,999 basehttp 2452 2876 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-20 00:04:03,000 basehttp 2452 16516 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-20 00:04:03,001 basehttp 2452 5240 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-20 00:04:03,001 basehttp 2452 16028 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-20 00:04:03,012 basehttp 2452 5464 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-20 00:04:03,016 basehttp 2452 5016 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-20 00:04:03,016 basehttp 2452 16516 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-20 00:04:03,018 basehttp 2452 2876 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-20 00:04:03,019 basehttp 2452 16028 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-20 00:04:03,019 basehttp 2452 5240 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-20 00:04:03,941 basehttp 2452 5240 "GET /my-supply-requests/ HTTP/1.1" 200 174935
+INFO 2025-10-20 00:04:04,966 basehttp 2452 5240 "GET /my-borrow-requests/ HTTP/1.1" 200 124272
+INFO 2025-10-20 00:04:06,808 basehttp 2452 5240 "GET /my-damage-reports/ HTTP/1.1" 200 95842
+INFO 2025-10-20 00:04:08,835 basehttp 2452 5240 "GET /my-reservations/ HTTP/1.1" 200 70218
+INFO 2025-10-20 00:04:26,878 basehttp 2452 15468 "GET /dashboard/ HTTP/1.1" 200 62881
+INFO 2025-10-20 00:05:33,656 autoreload 2452 17320 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-20 00:05:35,240 autoreload 11356 17092 Watching for file changes with StatReloader
+INFO 2025-10-20 00:05:54,477 autoreload 11356 17092 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-20 00:05:55,899 autoreload 15644 11724 Watching for file changes with StatReloader
+INFO 2025-10-20 00:06:19,143 basehttp 15644 10256 "GET /property/ HTTP/1.1" 200 398536
+INFO 2025-10-20 00:06:19,975 basehttp 15644 10256 "GET /activity/ HTTP/1.1" 200 34615
+INFO 2025-10-20 00:06:21,013 autoreload 15644 11724 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-20 00:06:22,325 autoreload 17268 6820 Watching for file changes with StatReloader
+INFO 2025-10-20 00:06:36,743 basehttp 17268 14944 "GET /activity/?user=314&model=&start_date=&end_date= HTTP/1.1" 200 29429
+INFO 2025-10-20 00:06:40,175 basehttp 17268 14944 "GET /activity/ HTTP/1.1" 200 34615
+INFO 2025-10-20 00:06:43,781 basehttp 17268 14944 "GET /supplies/ HTTP/1.1" 200 491233
+INFO 2025-10-20 00:06:43,804 basehttp 17268 15816 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-20 00:06:43,804 basehttp 17268 14944 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-20 00:06:43,823 basehttp 17268 14944 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-20 00:06:43,823 basehttp 17268 15816 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-20 00:06:43,835 basehttp 17268 16248 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-20 00:06:43,837 basehttp 17268 14944 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-20 00:06:43,837 basehttp 17268 9036 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-20 00:06:43,844 basehttp 17268 12980 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-20 00:06:43,848 basehttp 17268 15816 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-20 00:06:43,849 basehttp 17268 17116 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-20 00:06:43,853 basehttp 17268 9036 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-20 00:06:43,855 basehttp 17268 14944 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-20 00:06:43,856 basehttp 17268 16248 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-20 00:06:43,857 basehttp 17268 12980 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-20 00:06:43,858 basehttp 17268 15816 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-20 00:07:05,792 basehttp 17268 12980 "GET /my-borrow-requests/ HTTP/1.1" 200 124272
+INFO 2025-10-20 00:07:07,537 autoreload 17268 6820 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-20 00:07:09,205 autoreload 8736 13040 Watching for file changes with StatReloader
+INFO 2025-10-20 00:07:10,599 basehttp 8736 1604 "GET /borrow-batch-detail/1/ HTTP/1.1" 200 26177
+INFO 2025-10-20 00:07:17,793 basehttp 8736 16684 "GET /my-borrow-requests/ HTTP/1.1" 200 124272
+INFO 2025-10-20 00:07:19,167 basehttp 8736 16684 "GET /dashboard/ HTTP/1.1" 200 62881
+INFO 2025-10-20 00:07:35,491 autoreload 8736 13040 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-20 00:07:36,807 autoreload 16484 5360 Watching for file changes with StatReloader
+INFO 2025-10-20 00:08:07,004 autoreload 16484 5360 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-20 00:08:08,283 autoreload 16004 4572 Watching for file changes with StatReloader
+INFO 2025-10-20 00:10:00,368 autoreload 16004 4572 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-20 00:10:01,648 autoreload 14788 8284 Watching for file changes with StatReloader
+INFO 2025-10-20 00:10:19,778 basehttp 14788 10256 - Broken pipe from ('127.0.0.1', 53463)
+INFO 2025-10-20 00:10:19,872 basehttp 14788 11724 "GET /dashboard/ HTTP/1.1" 200 62881
+INFO 2025-10-20 00:10:21,697 basehttp 14788 11724 "GET /property/ HTTP/1.1" 200 398536
+INFO 2025-10-20 00:10:33,907 basehttp 14788 11724 "POST /export-inventory-count-form/ HTTP/1.1" 200 5825413
+INFO 2025-10-20 00:11:17,891 basehttp 14788 11724 "GET /property/ HTTP/1.1" 200 398536
+INFO 2025-10-20 00:11:18,442 basehttp 14788 11724 "GET /property/ HTTP/1.1" 200 398536
+INFO 2025-10-20 00:11:22,794 basehttp 14788 11724 "POST /export-inventory-count-form/ HTTP/1.1" 200 5825447
+INFO 2025-10-20 00:11:50,115 basehttp 14788 10508 "POST /export-inventory-count-form/ HTTP/1.1" 200 5825413
+INFO 2025-10-20 00:12:17,779 basehttp 14788 10508 "POST /export-inventory-count-form/ HTTP/1.1" 200 5825603
+INFO 2025-10-20 00:12:44,479 basehttp 14788 15948 "GET /property/ HTTP/1.1" 200 398536

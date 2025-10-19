@@ -3944,6 +3944,19 @@ def export_inventory_count_form_cvsu(request):
                 }
             properties_by_category['uncategorized']['properties'].append(prop)
     
+    # Get optional column selections from request
+    include_accountable_person = request.POST.get('include_accountable_person') == 'yes'
+    include_year_acquired = request.POST.get('include_year_acquired') == 'yes'
+    
+    # Calculate total columns and last column letter
+    base_columns = 11  # A-K (Article to Remarks)
+    total_columns = base_columns
+    if include_accountable_person:
+        total_columns += 1
+    if include_year_acquired:
+        total_columns += 1
+    last_col_letter = chr(64 + total_columns)  # Convert to letter (A=65, so A=1+64)
+    
     # Create workbook with single sheet
     wb = Workbook()
     ws = wb.active
@@ -3970,11 +3983,19 @@ def export_inventory_count_form_cvsu(request):
     ws.column_dimensions['D'].width = 15  # New Property No.
     ws.column_dimensions['E'].width = 10  # Unit of Measure
     ws.column_dimensions['F'].width = 12  # Unit Value
-    ws.column_dimensions['G'].width = 10  # Qty per Property Count
+    ws.column_dimensions['G'].width = 10  # Qty per Property Card
     ws.column_dimensions['H'].width = 10  # Qty per Physical Count
     ws.column_dimensions['I'].width = 20  # Location
     ws.column_dimensions['J'].width = 15  # Condition
     ws.column_dimensions['K'].width = 15  # Remarks
+    
+    # Set widths for optional columns
+    current_col_index = 12  # Start after K (column 11)
+    if include_accountable_person:
+        ws.column_dimensions[chr(64 + current_col_index)].width = 18  # Accountable Person
+        current_col_index += 1
+    if include_year_acquired:
+        ws.column_dimensions[chr(64 + current_col_index)].width = 12  # Year Acquired
     
     current_row = 1
     
@@ -3999,7 +4020,7 @@ def export_inventory_count_form_cvsu(request):
                 print(f"Error adding logo: {e}")
         
         # Row 1: Republic of the Philippines
-        ws.merge_cells(f'A{current_row}:K{current_row}')
+        ws.merge_cells(f'A{current_row}:{last_col_letter}{current_row}')
         cell = ws[f'A{current_row}']
         cell.value = 'Republic of the Philippines'
         cell.font = OpenpyxlFont(name='Calibri', size=10, bold=False)
@@ -4007,7 +4028,7 @@ def export_inventory_count_form_cvsu(request):
         current_row += 1
         
         # Row 2: CAVITE STATE UNIVERSITY
-        ws.merge_cells(f'A{current_row}:K{current_row}')
+        ws.merge_cells(f'A{current_row}:{last_col_letter}{current_row}')
         cell = ws[f'A{current_row}']
         cell.value = 'CAVITE STATE UNIVERSITY'
         cell.font = OpenpyxlFont(name='Calibri', size=12, bold=True)
@@ -4015,15 +4036,15 @@ def export_inventory_count_form_cvsu(request):
         current_row += 1
         
         # Row 3: Don Severino de las Alas Campus
-        ws.merge_cells(f'A{current_row}:K{current_row}')
+        ws.merge_cells(f'A{current_row}:{last_col_letter}{current_row}')
         cell = ws[f'A{current_row}']
         cell.value = 'Don Severino de las Alas Campus'
-        cell.font = OpenpyxlFont(name='Calibri', size=10, bold=False)
+        cell.font = OpenpyxlFont(name='Calibri', size=10, bold=True)
         cell.alignment = center_alignment
         current_row += 1
         
         # Row 4: Indang, Cavite
-        ws.merge_cells(f'A{current_row}:K{current_row}')
+        ws.merge_cells(f'A{current_row}:{last_col_letter}{current_row}')
         cell = ws[f'A{current_row}']
         cell.value = 'Indang, Cavite'
         cell.font = OpenpyxlFont(name='Calibri', size=10, bold=False)
@@ -4031,7 +4052,7 @@ def export_inventory_count_form_cvsu(request):
         current_row += 1
         
         # Row 5: www.cvsu.edu.ph
-        ws.merge_cells(f'A{current_row}:K{current_row}')
+        ws.merge_cells(f'A{current_row}:{last_col_letter}{current_row}')
         cell = ws[f'A{current_row}']
         cell.value = 'www.cvsu.edu.ph'
         cell.font = OpenpyxlFont(name='Calibri', size=9, bold=False, color='0000FF', underline='single')
@@ -4042,7 +4063,7 @@ def export_inventory_count_form_cvsu(request):
         current_row += 1
         
         # Inventory Count Form title
-        ws.merge_cells(f'A{current_row}:K{current_row}')
+        ws.merge_cells(f'A{current_row}:{last_col_letter}{current_row}')
         cell = ws[f'A{current_row}']
         cell.value = 'Inventory Count Form'
         cell.font = OpenpyxlFont(name='Calibri', size=12, bold=True)
@@ -4080,7 +4101,7 @@ def export_inventory_count_form_cvsu(request):
         # Blank row
         current_row += 1
         
-        # Table Headers
+        # Table Headers (base columns)
         headers = [
             'Article/Item',
             'Description',
@@ -4094,6 +4115,12 @@ def export_inventory_count_form_cvsu(request):
             'Condition\n(in good condition,\nneeding repair,\nunserviceable,\nobsolete, etc.)',
             'Remarks\n(Non-existing\nor Missing)'
         ]
+        
+        # Add optional headers
+        if include_accountable_person:
+            headers.append('Accountable Person')
+        if include_year_acquired:
+            headers.append('Year Acquired')
         
         for col_idx, header in enumerate(headers, start=1):
             cell = ws.cell(row=current_row, column=col_idx)
@@ -4186,6 +4213,23 @@ def export_inventory_count_form_cvsu(request):
             cell.alignment = left_alignment
             cell.border = thin_border
             
+            # Optional columns - dynamically add after Remarks
+            opt_col = 12  # Start after column 11 (Remarks)
+            if include_accountable_person:
+                cell = ws.cell(row=current_row, column=opt_col)
+                cell.value = prop.accountable_person or ''
+                cell.font = normal_font
+                cell.alignment = left_alignment
+                cell.border = thin_border
+                opt_col += 1
+            
+            if include_year_acquired:
+                cell = ws.cell(row=current_row, column=opt_col)
+                cell.value = prop.year_acquired.strftime('%Y') if prop.year_acquired else ''
+                cell.font = normal_font
+                cell.alignment = center_alignment
+                cell.border = thin_border
+            
             # Set row height
             ws.row_dimensions[current_row].height = 30
             current_row += 1
@@ -4194,14 +4238,14 @@ def export_inventory_count_form_cvsu(request):
         # Blank row
         current_row += 1
         
-        # Note section - "Note:" in column A (bold), rest of text in B-K (not bold)
+        # Note section - "Note:" in column A (bold), rest of text in B-lastcol (not bold)
         cell = ws.cell(row=current_row, column=1)
         cell.value = 'Note:'
         cell.font = OpenpyxlFont(name='Calibri', size=9, bold=True)
         cell.alignment = left_alignment
         
-        # Note content text
-        ws.merge_cells(f'B{current_row}:K{current_row}')
+        # Note content text - merge dynamically based on total columns
+        ws.merge_cells(f'B{current_row}:{last_col_letter}{current_row}')
         cell = ws[f'B{current_row}']
         cell.value = 'for PPE items without Property No., provide in the "Remarks" column other information such as Serial No./Model No./brief description that can be useful during the reconciliation process.'
         cell.font = OpenpyxlFont(name='Calibri', size=9, bold=False)
@@ -4218,8 +4262,7 @@ def export_inventory_count_form_cvsu(request):
         cell.font = OpenpyxlFont(name='Calibri', size=9, bold=True)
         cell.alignment = left_alignment
         
-        # Reviewed by section (RIGHT SIDE - Columns G-H)
-        ws.merge_cells(f'G{current_row}:H{current_row}')
+        # Reviewed by section (RIGHT SIDE - Column G)
         cell = ws.cell(row=current_row, column=7)
         cell.value = 'Reviewed by:'
         cell.font = OpenpyxlFont(name='Calibri', size=9, bold=True)
@@ -4234,9 +4277,9 @@ def export_inventory_count_form_cvsu(request):
         cell.border = Border(bottom=Side(style='thin', color='000000'))
         cell.alignment = center_alignment
         
-        # Signature line for Reviewed by (bottom border instead of underscores)
-        ws.merge_cells(f'G{current_row}:I{current_row}')
-        for col in range(7, 10):  # Columns G, H, I
+        # Signature line for Reviewed by (bottom border in columns H-J)
+        ws.merge_cells(f'H{current_row}:J{current_row}')
+        for col in range(8, 11):  # Columns H, I, J
             cell = ws.cell(row=current_row, column=col)
             cell.border = Border(bottom=Side(style='thin', color='000000'))
             cell.alignment = center_alignment
@@ -4248,9 +4291,9 @@ def export_inventory_count_form_cvsu(request):
         cell.font = OpenpyxlFont(name='Calibri', size=9)
         cell.alignment = center_alignment
         
-        # Title for Reviewed by (merged in G-I)
-        ws.merge_cells(f'G{current_row}:I{current_row}')
-        cell = ws.cell(row=current_row, column=7)
+        # Title for Reviewed by (merged in H-J)
+        ws.merge_cells(f'H{current_row}:J{current_row}')
+        cell = ws.cell(row=current_row, column=8)
         cell.value = 'Chairman, Inventory Committee'
         cell.font = OpenpyxlFont(name='Calibri', size=9)
         cell.alignment = center_alignment
@@ -4275,9 +4318,9 @@ def export_inventory_count_form_cvsu(request):
         cell.alignment = center_alignment
         current_row += 1
         
-        # Add spacing before next category (if not last)
+        # Add spacing before next category (7 blank rows)
         if idx < len(properties_by_category) - 1:
-            current_row += 3
+            current_row += 7
     
     # Create response
     response = HttpResponse(
