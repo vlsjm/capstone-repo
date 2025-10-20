@@ -1921,3 +1921,84 @@ def submit_list_request(request):
         'success': False,
         'message': 'Invalid request method'
     })
+
+
+# Requisition and Issue Slip PDF Generation Views (User Side)
+@login_required
+def user_download_requisition_slip(request, batch_id):
+    """
+    Download the requisition and issue slip PDF for a supply request batch (user side).
+    Users can only download their own requisition slips.
+    """
+    batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
+    
+    # Check permissions: users can only download their own slips
+    if batch_request.user != request.user:
+        messages.error(request, 'You do not have permission to access this requisition slip.')
+        return redirect('user_all_requests')
+    
+    # Only generate slip for approved, partially approved, for_claiming, or completed requests
+    if batch_request.status not in ['approved', 'partially_approved', 'for_claiming', 'completed']:
+        messages.error(request, 'Requisition slip is only available for approved requests.')
+        return redirect('request_detail', type='batch_supply', request_id=batch_id)
+    
+    try:
+        from app.pdf_utils import download_requisition_slip
+        
+        # Log the download activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='view',
+            model_name='SupplyRequestBatch',
+            object_repr=f"Requisition Slip #{batch_id}",
+            description=f"Downloaded requisition slip for batch request #{batch_id}"
+        )
+        
+        return download_requisition_slip(batch_request)
+        
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error downloading requisition slip: {error_details}")  # Log to console
+        messages.error(request, f'Error generating requisition slip: {str(e)}')
+        return redirect('request_detail', type='batch_supply', request_id=batch_id)
+
+
+@login_required
+def user_view_requisition_slip(request, batch_id):
+    """
+    View the requisition and issue slip PDF in browser for a supply request batch (user side).
+    Users can only view their own requisition slips.
+    """
+    batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
+    
+    # Check permissions: users can only view their own slips
+    if batch_request.user != request.user:
+        messages.error(request, 'You do not have permission to access this requisition slip.')
+        return redirect('user_all_requests')
+    
+    # Only generate slip for approved, partially approved, for_claiming, or completed requests
+    if batch_request.status not in ['approved', 'partially_approved', 'for_claiming', 'completed']:
+        messages.error(request, 'Requisition slip is only available for approved requests.')
+        return redirect('request_detail', type='batch_supply', request_id=batch_id)
+    
+    try:
+        from app.pdf_utils import view_requisition_slip
+        
+        # Log the view activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='view',
+            model_name='SupplyRequestBatch',
+            object_repr=f"Requisition Slip #{batch_id}",
+            description=f"Viewed requisition slip for batch request #{batch_id}"
+        )
+        
+        return view_requisition_slip(batch_request)
+        
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error viewing requisition slip: {error_details}")  # Log to console
+        messages.error(request, f'Error generating requisition slip: {str(e)}')
+        return redirect('request_detail', type='batch_supply', request_id=batch_id)

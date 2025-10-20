@@ -329,6 +329,26 @@
             {% endif %}
         </section>
 
+        <!-- Requisition Slip Download Section (Only for Supply Requests) -->
+        {% if 'Supply' in request_type and is_batch and request_obj.status in 'approved,partially_approved,for_claiming,completed' %}
+        <section class="content-section requisition-section">
+            <h2><i class="fas fa-file-pdf"></i> Requisition & Issue Slip</h2>
+            <div class="requisition-info">
+                <p class="requisition-description">
+                    Download or view the official requisition and issue slip for this approved supply request. This document serves as a receipt and record of the transaction.
+                </p>
+                <div class="requisition-actions">
+                    <a href="{% url 'user_download_requisition_slip' request_obj.id %}" class="btn-requisition btn-download">
+                        <i class="fas fa-download"></i> Download PDF
+                    </a>
+                    <a href="{% url 'user_view_requisition_slip' request_obj.id %}" target="_blank" class="btn-requisition btn-view">
+                        <i class="fas fa-eye"></i> View PDF
+                    </a>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
         <!-- Request Information Section -->
         <section class="content-section">
             <h2><i class="fas fa-info-circle"></i> Request Information</h2>

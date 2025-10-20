@@ -222,8 +222,26 @@ def download_requisition_slip(batch_request):
     # Create the HttpResponse object with PDF content
     response = HttpResponse(pdf_data, content_type='application/pdf')
     
-    # Set the filename for download
-    filename = f"requisition_slip_{batch_request.id:03d}_{batch_request.request_date.strftime('%Y%m%d')}.pdf"
+    # Generate professional filename with requester name and department
+    # Sanitize names by removing/replacing special characters
+    if batch_request.user.first_name and batch_request.user.last_name:
+        first_name = batch_request.user.first_name.replace(' ', '_')
+        last_name = batch_request.user.last_name.replace(' ', '_')
+        requester_name = f"{last_name}_{first_name}"
+    else:
+        requester_name = batch_request.user.username.replace(' ', '_')
+    
+    # Get department code safely
+    try:
+        department = batch_request.user.userprofile.department.code if batch_request.user.userprofile.department else "DEPT"
+    except:
+        department = "DEPT"
+    
+    date_str = batch_request.request_date.strftime('%Y%m%d')
+    request_id = f"{batch_request.id:03d}"
+    
+    # Format: RIS_DepartmentCode_LastName_FirstName_RequestID_Date.pdf
+    filename = f"RIS_{department}_{requester_name}_{request_id}_{date_str}.pdf"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     
     return response
@@ -238,8 +256,26 @@ def view_requisition_slip(batch_request):
     # Create the HttpResponse object with PDF content for viewing
     response = HttpResponse(pdf_data, content_type='application/pdf')
     
-    # Set the filename for inline viewing
-    filename = f"requisition_slip_{batch_request.id:03d}.pdf"
+    # Generate professional filename with requester name and department
+    # Sanitize names by removing/replacing special characters
+    if batch_request.user.first_name and batch_request.user.last_name:
+        first_name = batch_request.user.first_name.replace(' ', '_')
+        last_name = batch_request.user.last_name.replace(' ', '_')
+        requester_name = f"{last_name}_{first_name}"
+    else:
+        requester_name = batch_request.user.username.replace(' ', '_')
+    
+    # Get department code safely
+    try:
+        department = batch_request.user.userprofile.department.code if batch_request.user.userprofile.department else "DEPT"
+    except:
+        department = "DEPT"
+    
+    date_str = batch_request.request_date.strftime('%Y%m%d')
+    request_id = f"{batch_request.id:03d}"
+    
+    # Format: RIS_DepartmentCode_LastName_FirstName_RequestID_Date.pdf
+    filename = f"RIS_{department}_{requester_name}_{request_id}_{date_str}.pdf"
     response['Content-Disposition'] = f'inline; filename="{filename}"'
     
     return response
