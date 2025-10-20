@@ -78,7 +78,6 @@
 /* Enhanced Search Styles */
 .search-input-wrapper {
     position: relative;
-    margin-bottom: 0.5rem;
 }
 
 .search-icon {
@@ -117,11 +116,20 @@
 }
 
 #category-filter, #category-filter-borrow {
-    margin-bottom: 0.75rem;
-    border-radius: 6px;
-    border: 1px solid #dee2e6;
-    padding: 8px 12px;
+    border-radius: 8px;
+    border: 2px solid #e1e5e9;
+    padding: 12px 15px;
     font-size: 14px;
+    height: 46px;
+    box-sizing: border-box;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+#category-filter:focus, #category-filter-borrow:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .dropdown-header {
@@ -271,14 +279,7 @@
     background: #555;
 }
 
-/* Category dropdown styling */
-#category-filter, #category-filter-borrow {
-    width: 100%;
-    height: 38px;
-    background-color: white;
-    cursor: pointer;
-}
-
+/* Category dropdown option styling */
 #category-filter option, #category-filter-borrow option {
     padding: 8px;
     background-color: white;
@@ -377,7 +378,7 @@
                             <label for="supply-select">Supply Item:</label>
                             <div class="searchable-select-container">
                                 <!-- Category Filter -->
-                                <select id="category-filter" class="form-control mb-2">
+                                <select id="category-filter" class="form-control">
                                     <option value="">All Categories</option>
                                     {% for category in supply_categories %}
                                         <option value="{{ category.id }}">{{ category.name }}</option>
@@ -499,7 +500,7 @@
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-submit">
-                            <i class="fas fa-paper-plane"></i> Submit Request ({{ supply_cart_items|length }} items)
+                            <i class="fas fa-paper-plane"></i> Submit Request
                         </button>
                         <button type="button" class="btn-clear-supply-list btn-clear-list">
                             <i class="fas fa-trash"></i> Clear List
@@ -525,7 +526,7 @@
                             <label for="borrow-select">Equipment/Item:</label>
                             <div class="searchable-select-container">
                                 <!-- Category Filter -->
-                                <select id="category-filter-borrow" class="form-control mb-2">
+                                <select id="category-filter-borrow" class="form-control">
                                     <option value="">All Categories</option>
                                     {% for category in borrow_categories %}
                                         <option value="{{ category.id }}">{{ category.name }}</option>
@@ -831,11 +832,14 @@ $(document).ready(function() {
                     showMessage(response.message, 'success');
                     location.reload();
                 } else {
+                    // Show error and prevent any form resubmission
                     showMessage(response.message, 'error');
+                    return false;
                 }
             },
             error: function() {
                 showMessage('Error adding item to list', 'error');
+                return false;
             }
         });
     });
@@ -864,11 +868,14 @@ $(document).ready(function() {
                     showMessage(response.message, 'success');
                     location.reload();
                 } else {
+                    // Show error and prevent any form resubmission
                     showMessage(response.message, 'error');
+                    return false;
                 }
             },
             error: function() {
                 showMessage('An error occurred while adding the item to your list', 'error');
+                return false;
             }
         });
     });
@@ -1115,11 +1122,12 @@ $(document).ready(function() {
     
     // Show message function
     function showMessage(message, type) {
-        $('.message').remove();
+        // Remove any existing messages first
+        $('.notification-message').remove();
         
         const messageClass = type === 'success' ? 'alert-success' : 'alert-error';
         const messageHtml = `
-            <div class="message ${messageClass}" style="
+            <div class="notification-message ${messageClass}" style="
                 position: fixed;
                 top: 20px;
                 right: 20px;
@@ -1127,12 +1135,13 @@ $(document).ready(function() {
                 border-radius: 8px;
                 color: white;
                 font-weight: 500;
-                z-index: 10000;
+                z-index: 99999 !important;
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
                 background: ${type === 'success' ? '#28a745' : '#dc3545'};
                 box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                animation: slideIn 0.3s ease-out;
             ">
                 <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
                 ${message}
@@ -1141,11 +1150,14 @@ $(document).ready(function() {
         
         $('body').append(messageHtml);
         
+        // Show error messages for 5 seconds to allow time to read important info like stock availability
+        const displayDuration = type === 'error' ? 5000 : 3000;
+        
         setTimeout(function() {
-            $('.message').fadeOut(300, function() {
+            $('.notification-message').fadeOut(500, function() {
                 $(this).remove();
             });
-        }, 3000);
+        }, displayDuration);
     }
     
     // Handle cancel and request again buttons

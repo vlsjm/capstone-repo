@@ -560,9 +560,71 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
     }
+
+    /* Full-screen loading overlay */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(3px);
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loading-content {
+      text-align: center;
+      background: white;
+      padding: 40px 50px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #152d64;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: #152d64;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .loading-subtext {
+      color: #666;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Processing Request...</div>
+      <div class="loading-subtext">Please wait while we process your action</div>
+    </div>
+  </div>
   {% include 'app/navbar.html' %}
 
   <div class="batch-details">
@@ -699,7 +761,7 @@
         </thead>
         <tbody>
           {% for item in items %}
-          <tr id="item-row-{{ item.id }}">
+          <tr id="item-row-{{ item.id }}" data-item-status="{{ item.status }}">
             <td>
               <div class="item-name">
                 <div>
@@ -854,6 +916,25 @@
   </div>
   
   <script>
+    // Loading overlay management
+    function showLoading() {
+      const overlay = document.getElementById('loadingOverlay');
+      overlay.classList.add('active');
+      
+      // Safety fallback: hide loading after 15 seconds if still visible
+      setTimeout(function() {
+        if (overlay.classList.contains('active')) {
+          overlay.classList.remove('active');
+          alert('Request timeout. Please try again or contact administrator if the issue persists.');
+        }
+      }, 15000);
+    }
+
+    function hideLoading() {
+      const overlay = document.getElementById('loadingOverlay');
+      overlay.classList.remove('active');
+    }
+
     // Toggle remarks functionality
     function toggleRemarks(itemId) {
       const remarksRow = document.getElementById(`remarks-row-${itemId}`);
@@ -862,6 +943,12 @@
     }
     
     document.addEventListener('DOMContentLoaded', function() {
+      // Count pending items to determine if this is the last one
+      function countPendingItems() {
+        const pendingRows = document.querySelectorAll('tr[data-item-status="pending"]');
+        return pendingRows.length;
+      }
+
       // Add event listeners for remarks toggle buttons
       const remarksToggleButtons = document.querySelectorAll('.remarks-toggle-btn');
       remarksToggleButtons.forEach(button => {
@@ -885,7 +972,29 @@
         });
       });
       
-      // Add event listeners for approve buttons
+      // Smart loading overlay: Only show on LAST pending item (triggers email)
+      const actionForms = document.querySelectorAll('form[action*="approve"], form[action*="reject"]');
+      actionForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+          // Check if this is the last pending item being processed
+          const pendingCount = countPendingItems();
+          
+          console.log(`Form submitting - Pending items count: ${pendingCount}`);
+          
+          // Show loading ONLY if this is the last item (which triggers completion email)
+          if (pendingCount === 1) {
+            showLoading();
+            console.log('✓ Last item - showing loading overlay (email will be sent)');
+          } else {
+            console.log(`✓ ${pendingCount} items remaining - no loading overlay, quick submit`);
+          }
+          
+          // DO NOT prevent default - form MUST submit normally
+          // The form will redirect naturally after processing
+        });
+      });
+      
+      // Add event listeners for approve buttons to transfer values
       const approveButtons = document.querySelectorAll('.btn-approve-table');
       approveButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -900,7 +1009,7 @@
         });
       });
       
-      // Add event listeners for reject buttons
+      // Add event listeners for reject buttons to transfer values
       const rejectButtons = document.querySelectorAll('.btn-reject-table');
       rejectButtons.forEach(button => {
         button.addEventListener('click', function(e) {

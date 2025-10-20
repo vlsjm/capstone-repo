@@ -127,8 +127,7 @@
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-submit">
-                        <i class="fas fa-paper-plane"></i> Submit Reservation Request ({{ cart_items|length }} items)
-                    </button>
+                        <i class="fas fa-paper-plane"></i> Submit Request
                     </button>
                     <button type="button" class="btn-clear-list">
                         <i class="fas fa-trash"></i> Clear List
@@ -241,7 +240,7 @@ $(document).ready(function() {
                                         </div>
                                         <div class="form-actions">
                                             <button type="submit" class="btn-submit">
-                                                <i class="fas fa-paper-plane"></i> Submit Reservation Request (<span class="cart-count">1</span> items)
+                                                <i class="fas fa-paper-plane"></i> Submit Request
                                             </button>
                                             <button type="button" class="btn-clear-list">
                                                 <i class="fas fa-trash"></i> Clear List
@@ -292,9 +291,8 @@ $(document).ready(function() {
                     
                     $('.list-table tbody').append(newRow);
                     
-                    // Update cart count
+                    // Update cart count in the list header
                     $('#list-count').text(`(${response.cart_count})`);
-                    $('.cart-count').text(response.cart_count);
                     
                     // Re-attach event handlers for new buttons
                     attachUpdateHandler();
@@ -367,10 +365,9 @@ $(document).ready(function() {
                             // Remove the row
                             $(`tr[data-supply-id="${supplyId}"]`).remove();
                             
-                            // Update cart count
+                            // Update cart count in the list header
                             const newCount = $('.list-table tbody tr').length;
                             $('#list-count').text(`(${newCount})`);
-                            $('.cart-count').text(newCount);
                             
                             // If no items left, show empty state
                             if (newCount === 0) {
