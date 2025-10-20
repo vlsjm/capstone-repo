@@ -53,6 +53,7 @@ from .views import (
     CustomLoginView,
     create_department,
     add_property_category,
+    get_property_categories,
     modify_property_quantity_generic,
     modify_property_quantity_batch,
     modify_supply_quantity_generic,
@@ -116,6 +117,7 @@ urlpatterns = [
     path('property/modify_quantity/', views.modify_property_quantity_generic, name='modify_property_quantity_generic'),
     path('property/modify_quantity_batch/', views.modify_property_quantity_batch, name='modify_property_quantity_batch'),
     path('add-property-category/', add_property_category, name='add_property_category'),
+    path('get-property-categories/', get_property_categories, name='get_property_categories'),
     path('update_property_category/', update_property_category, name='update_property_category'),
     path('delete_property_category/<int:category_id>/', delete_property_category, name='delete_property_category'),
 

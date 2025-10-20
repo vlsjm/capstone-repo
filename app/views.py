@@ -2170,6 +2170,16 @@ def add_property_category(request):
     
     return redirect('property_list')
 
+@login_required
+def get_property_categories(request):
+    """Return all property categories as JSON for dropdown updates"""
+    categories = PropertyCategory.objects.all().order_by('name')
+    categories_data = [
+        {'id': category.id, 'name': category.name}
+        for category in categories
+    ]
+    return JsonResponse({'categories': categories_data})
+
 class CheckOutPageView(PermissionRequiredMixin, TemplateView):
     template_name = 'app/checkout.html'
     permission_required = 'app.view_admin_module'  # Adjust permission as needed
@@ -2670,10 +2680,6 @@ def get_supply_history(request, supply_id):
         history_data = []
         for entry in history:
             try:
-                # Debug logging for quantity-related entries
-                if 'quantity' in entry.field_name.lower():
-                    print(f"DEBUG: Processing supply quantity entry - Field: {entry.field_name}, Old: {entry.old_value}, New: {entry.new_value}, Action: {entry.action}")
-                
                 # Format timestamp for better readability
                 formatted_date = entry.timestamp.strftime('%m/%d/%Y')
                 formatted_time = entry.timestamp.strftime('%I:%M %p')

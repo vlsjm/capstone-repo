@@ -20,39 +20,25 @@
             <form method="get" class="actlog-filter-form">
                 <div class="actlog-filter-group">
                     <label for="user">User:</label>
-                    <div class="searchable-select-container">
-                        <input type="text" id="user-search" class="activity-search-input" 
-                               placeholder="Search users..." autocomplete="off">
-                        <div class="activity-dropdown" id="user-dropdown">
-                            <div class="activity-option" data-value="">All Users</div>
-                            {% for user in users %}
-                                <div class="activity-option" 
-                                     data-value="{{ user.id }}"
-                                     {% if request.GET.user|add:"0" == user.id %}data-selected="true"{% endif %}>
-                                    {{ user.username }}
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <input type="hidden" name="user" id="user" value="{{ request.GET.user }}">
-                    </div>
+                    <select name="user" id="user">
+                        <option value="">All Users</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}" {% if request.GET.user|add:"0" == user.id %}selected{% endif %}>
+                                {{ user.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="actlog-filter-group">
                     <label for="model">Model:</label>
-                    <div class="searchable-select-container">
-                        <input type="text" id="model-search" class="activity-search-input" 
-                               placeholder="Search models..." autocomplete="off">
-                        <div class="activity-dropdown" id="model-dropdown">
-                            <div class="activity-option" data-value="">All Models</div>
-                            {% for model in models %}
-                                <div class="activity-option" 
-                                     data-value="{{ model }}"
-                                     {% if request.GET.model == model %}data-selected="true"{% endif %}>
-                                    {{ model }}
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <input type="hidden" name="model" id="model" value="{{ request.GET.model }}">
-                    </div>
+                    <select name="model" id="model">
+                        <option value="">All Models</option>
+                        {% for model in models %}
+                            <option value="{{ model }}" {% if request.GET.model == model %}selected{% endif %}>
+                                {{ model }}
+                            </option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="actlog-filter-group">
                     <label for="start_date">Start Date:</label>
@@ -124,239 +110,80 @@
     </div>
     {% endblock content %}
 
-    <script>
-    // Searchable activity dropdowns functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        initSearchableDropdown('user');
-        initSearchableDropdown('model');
-        
-        function initSearchableDropdown(type) {
-            const searchInput = document.getElementById(type + '-search');
-            const dropdown = document.getElementById(type + '-dropdown');
-            const hiddenInput = document.getElementById(type);
-            const options = dropdown.querySelectorAll('.activity-option');
-            
-            let isDropdownOpen = false;
-            
-            // Set initial display value
-            const selectedOption = dropdown.querySelector('[data-selected="true"]');
-            if (selectedOption) {
-                searchInput.value = selectedOption.textContent.trim();
-            } else {
-                searchInput.value = type === 'user' ? 'All Users' : 'All Models';
-            }
-            
-            // Toggle dropdown visibility
-            function toggleDropdown() {
-                isDropdownOpen = !isDropdownOpen;
-                dropdown.style.display = isDropdownOpen ? 'block' : 'none';
-                if (isDropdownOpen) {
-                    searchInput.focus();
-                    searchInput.select();
-                }
-            }
-            
-            // Filter options based on search
-            function filterOptions() {
-                const searchTerm = searchInput.value.toLowerCase();
-                let hasVisibleOptions = false;
-                
-                // First restore all original options if they were replaced
-                if (dropdown.querySelector('.no-results')) {
-                    dropdown.innerHTML = '';
-                    options.forEach(option => {
-                        dropdown.appendChild(option.cloneNode(true));
-                    });
-                }
-                
-                // Get fresh options after potential restoration
-                const currentOptions = dropdown.querySelectorAll('.activity-option');
-                
-                currentOptions.forEach(option => {
-                    const text = option.textContent.toLowerCase();
-                    const isVisible = text.includes(searchTerm);
-                    option.style.display = isVisible ? 'block' : 'none';
-                    if (isVisible) {
-                        hasVisibleOptions = true;
-                    }
-                });
-                
-                // Show "no results" if no options are visible and there's a search term
-                if (!hasVisibleOptions && searchTerm.trim() !== '') {
-                    dropdown.innerHTML = '<div class="activity-option no-results">No ' + type + 's found</div>';
-                }
-            }
-            
-            // Select an option
-            function selectOption(option) {
-                const value = option.dataset.value;
-                const text = option.textContent.trim();
-                
-                hiddenInput.value = value;
-                searchInput.value = text;
-                
-                // Remove previous selection
-                options.forEach(opt => opt.removeAttribute('data-selected'));
-                option.setAttribute('data-selected', 'true');
-                
-                toggleDropdown();
-                
-                // Trigger form submission
-                document.querySelector('.actlog-filter-form').submit();
-            }
-            
-            // Event listeners
-            searchInput.addEventListener('click', function() {
-                if (!isDropdownOpen) {
-                    toggleDropdown();
-                }
-            });
-            
-            searchInput.addEventListener('input', filterOptions);
-            
-            // Handle option clicks
-            dropdown.addEventListener('click', function(e) {
-                if (e.target.classList.contains('activity-option') && !e.target.classList.contains('no-results')) {
-                    selectOption(e.target);
-                }
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                    if (isDropdownOpen) {
-                        toggleDropdown();
-                    }
-                }
-            });
-            
-            // Keyboard navigation
-            searchInput.addEventListener('keydown', function(e) {
-                const visibleOptions = Array.from(options).filter(opt => opt.style.display !== 'none');
-                
-                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (!isDropdownOpen) {
-                        toggleDropdown();
-                        return;
-                    }
-                    
-                    const currentIndex = visibleOptions.findIndex(opt => opt.classList.contains('highlighted'));
-                    let newIndex;
-                    
-                    if (e.key === 'ArrowDown') {
-                        newIndex = currentIndex < visibleOptions.length - 1 ? currentIndex + 1 : 0;
-                    } else {
-                        newIndex = currentIndex > 0 ? currentIndex - 1 : visibleOptions.length - 1;
-                    }
-                    
-                    visibleOptions.forEach(opt => opt.classList.remove('highlighted'));
-                    if (visibleOptions[newIndex]) {
-                        visibleOptions[newIndex].classList.add('highlighted');
-                    }
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const highlighted = dropdown.querySelector('.activity-option.highlighted');
-                    if (highlighted && !highlighted.classList.contains('no-results')) {
-                        selectOption(highlighted);
-                    }
-                } else if (e.key === 'Escape') {
-                    if (isDropdownOpen) {
-                        toggleDropdown();
-                    }
-                }
-            });
-        }
-    });
-    </script>
-
     <style>
-    /* Searchable activity dropdown styles */
-    .searchable-select-container {
-        position: relative;
-        width: 100%;
+    /* Filter form styling */
+    .actlog-filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: flex-end;
+        margin-bottom: 20px;
     }
 
-    .activity-search-input {
-        width: 100%;
+    .actlog-filter-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 150px;
+    }
+
+    .actlog-filter-group label {
+        font-weight: 500;
+        margin-bottom: 5px;
+        color: #333;
+        font-size: 14px;
+    }
+
+    .actlog-filter-group select,
+    .actlog-filter-group input[type="date"] {
         padding: 8px 12px;
         border: 1px solid #ddd;
         border-radius: 4px;
         font-size: 14px;
         background-color: white;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        color: #333;
+        transition: border-color 0.3s ease;
     }
 
-    .activity-search-input:focus {
+    .actlog-filter-group select:focus,
+    .actlog-filter-group input[type="date"]:focus {
         outline: none;
         border-color: #007bff;
         box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
     }
 
-    .activity-dropdown {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border: 1px solid #ddd;
-        border-top: none;
-        border-radius: 0 0 4px 4px;
-        max-height: 200px;
-        overflow-y: auto;
-        z-index: 1000;
-        display: none;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    .actlog-filter-buttons {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
     }
 
-    .activity-option {
-        padding: 8px 12px;
-        cursor: pointer;
-        border-bottom: 1px solid #f1f1f1;
-        transition: background-color 0.2s ease;
+    .actlog-filter-submit,
+    .actlog-filter-reset {
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
         font-size: 14px;
-        color: #333;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
     }
 
-    .activity-option:hover,
-    .activity-option.highlighted {
-        background-color: #f8f9fa;
-    }
-
-    .activity-option[data-selected="true"] {
-        background-color: #007bff;
+    .actlog-filter-submit {
+        background-color: #152d64;
         color: white;
     }
 
-    .activity-option.no-results {
-        color: #6c757d;
-        font-style: italic;
-        cursor: default;
+    .actlog-filter-submit:hover {
+        background-color: #1a3a7d;
     }
 
-    .activity-option.no-results:hover {
-        background-color: transparent;
+    .actlog-filter-reset {
+        background-color: #95a5a6;
+        color: white;
     }
 
-    /* Scrollbar styling for activity dropdown */
-    .activity-dropdown::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .activity-dropdown::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 3px;
-    }
-
-    .activity-dropdown::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 3px;
-    }
-
-    .activity-dropdown::-webkit-scrollbar-thumb:hover {
-        background: #a8a8a8;
+    .actlog-filter-reset:hover {
+        background-color: #7f8c8d;
     }
     </style>
 </body>
