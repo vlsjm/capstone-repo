@@ -72,8 +72,14 @@ class UserProfile(models.Model):
 class SupplyQuantity(models.Model):
     supply = models.OneToOneField('Supply', on_delete=models.CASCADE, related_name='quantity_info')
     current_quantity = models.PositiveIntegerField(default=0)
+    reserved_quantity = models.PositiveIntegerField(default=0)  # Track reserved stock for approved requests
     minimum_threshold = models.PositiveIntegerField(default=10)
     last_updated = models.DateTimeField(auto_now=True)
+
+    @property
+    def available_quantity(self):
+        """Calculate available quantity (current - reserved)"""
+        return max(0, self.current_quantity - self.reserved_quantity)
 
     def __str__(self):
         return f"Quantity for {self.supply.supply_name}: {self.current_quantity}"

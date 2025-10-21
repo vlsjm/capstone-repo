@@ -18851,3 +18851,930 @@ INFO 2025-10-21 03:35:59,090 basehttp 10180 9984 "POST /add-property-category/ H
 INFO 2025-10-21 03:35:59,162 basehttp 10180 9984 "GET /property/ HTTP/1.1" 200 247730
 INFO 2025-10-21 03:35:59,434 basehttp 10180 9984 "GET /get-property-categories/ HTTP/1.1" 200 440
 INFO 2025-10-21 03:36:02,849 basehttp 10180 9984 "GET /get-property-categories/ HTTP/1.1" 200 440
+INFO 2025-10-21 22:35:48,026 autoreload 12320 15080 Watching for file changes with StatReloader
+INFO 2025-10-21 22:37:19,871 basehttp 12320 8124 "GET / HTTP/1.1" 200 12072
+WARNING 2025-10-21 22:37:20,239 basehttp 12320 5872 "GET /favicon.ico HTTP/1.1" 404 31279
+INFO 2025-10-21 22:37:22,631 basehttp 12320 7948 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-21 22:37:23,413 basehttp 12320 7948 "GET /dashboard/ HTTP/1.1" 200 68931
+INFO 2025-10-21 22:37:23,431 basehttp 12320 7948 "GET /static/css/style.css HTTP/1.1" 304 0
+INFO 2025-10-21 22:37:23,433 basehttp 12320 17020 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-21 22:37:25,792 basehttp 12320 12576 "GET /property/ HTTP/1.1" 200 422896
+INFO 2025-10-21 22:37:25,810 basehttp 12320 12576 "GET /static/css/barcode.css HTTP/1.1" 304 0
+INFO 2025-10-21 22:37:26,867 basehttp 12320 12576 "GET /supplies/ HTTP/1.1" 200 491230
+INFO 2025-10-21 22:37:26,889 basehttp 12320 16660 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 22:37:26,889 basehttp 12320 12576 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 22:37:26,908 basehttp 12320 16660 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 22:37:26,912 basehttp 12320 12576 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 22:37:26,920 basehttp 12320 8532 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 22:37:26,921 basehttp 12320 17384 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 22:37:26,922 basehttp 12320 16660 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 22:37:26,926 basehttp 12320 8500 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 22:37:26,927 basehttp 12320 13328 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 22:37:26,933 basehttp 12320 12576 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 22:37:26,935 basehttp 12320 8532 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 22:37:26,936 basehttp 12320 17384 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 22:37:26,937 basehttp 12320 16660 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 22:37:26,938 basehttp 12320 13328 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 22:37:26,938 basehttp 12320 8500 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 22:37:28,431 basehttp 12320 13328 "GET /activity/ HTTP/1.1" 200 19934
+INFO 2025-10-21 22:37:29,562 basehttp 12320 13328 "GET /my-supply-requests/ HTTP/1.1" 200 231894
+INFO 2025-10-21 22:37:31,133 basehttp 12320 13328 "GET /my-borrow-requests/ HTTP/1.1" 200 124440
+INFO 2025-10-21 22:37:33,364 basehttp 12320 13328 "GET /my-damage-reports/ HTTP/1.1" 200 95842
+INFO 2025-10-21 22:37:34,347 basehttp 12320 8504 "GET /damaged-items/ HTTP/1.1" 200 76735
+INFO 2025-10-21 22:37:35,304 basehttp 12320 8504 "GET /supplies/ HTTP/1.1" 200 491230
+INFO 2025-10-21 22:37:35,329 basehttp 12320 8504 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 22:37:35,329 basehttp 12320 16256 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 22:37:35,350 basehttp 12320 8504 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 22:37:35,359 basehttp 12320 16256 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 22:37:35,367 basehttp 12320 17924 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 22:37:35,368 basehttp 12320 17480 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 22:37:35,375 basehttp 12320 11632 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 22:37:35,376 basehttp 12320 8560 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 22:37:35,379 basehttp 12320 8504 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 22:37:35,389 basehttp 12320 16256 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 22:37:35,391 basehttp 12320 17480 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 22:37:35,395 basehttp 12320 17924 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 22:37:35,396 basehttp 12320 11632 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 22:37:35,398 basehttp 12320 8504 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 22:37:35,399 basehttp 12320 8560 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 22:37:37,481 basehttp 12320 8504 "GET /my-supply-requests/ HTTP/1.1" 200 231894
+INFO 2025-10-21 22:37:50,508 basehttp 12320 15464 "GET /my-borrow-requests/ HTTP/1.1" 200 124440
+INFO 2025-10-21 22:37:57,742 basehttp 12320 7488 "GET /borrow-batch-detail/2/ HTTP/1.1" 200 27593
+INFO 2025-10-21 22:38:00,503 basehttp 12320 7488 "GET /my-borrow-requests/ HTTP/1.1" 200 124440
+INFO 2025-10-21 22:38:05,763 basehttp 12320 8944 "GET /my-supply-requests/ HTTP/1.1" 200 231894
+INFO 2025-10-21 22:38:08,755 basehttp 12320 11416 "GET /my-supply-requests/ HTTP/1.1" 200 231894
+INFO 2025-10-21 22:38:39,005 basehttp 12320 5760 "GET /batch-request/19/ HTTP/1.1" 200 73489
+WARNING 2025-10-21 22:38:55,836 basehttp 12320 17284 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 31390
+INFO 2025-10-21 22:41:10,355 basehttp 12320 1308 "GET /batch-request/19/ HTTP/1.1" 200 73260
+WARNING 2025-10-21 22:41:10,400 basehttp 12320 1308 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 31390
+INFO 2025-10-21 22:41:12,827 basehttp 12320 1308 "GET /batch-request/19/ HTTP/1.1" 200 73260
+INFO 2025-10-21 22:41:22,993 basehttp 12320 8592 "GET /batch-request/19/ HTTP/1.1" 200 73177
+INFO 2025-10-21 22:41:23,806 basehttp 12320 8592 "GET /batch-request/19/ HTTP/1.1" 200 73177
+INFO 2025-10-21 22:43:50,516 basehttp 12320 15808 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:44:07,577 basehttp 12320 14364 "POST /batch-request/19/claim/ HTTP/1.1" 302 0
+INFO 2025-10-21 22:44:07,797 basehttp 12320 14364 "GET /my-supply-requests/ HTTP/1.1" 200 231894
+INFO 2025-10-21 22:44:12,026 basehttp 12320 9916 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233957
+INFO 2025-10-21 22:44:18,205 basehttp 12320 11316 "POST /batch-request/103/claim/ HTTP/1.1" 302 0
+INFO 2025-10-21 22:44:18,447 basehttp 12320 11316 "GET /my-supply-requests/ HTTP/1.1" 200 231894
+INFO 2025-10-21 22:44:21,524 basehttp 12320 8436 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 218408
+INFO 2025-10-21 22:44:25,286 basehttp 12320 8436 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233957
+INFO 2025-10-21 22:44:27,468 basehttp 12320 8436 "GET /batch-request/103/ HTTP/1.1" 200 73795
+INFO 2025-10-21 22:44:32,558 basehttp 12320 18016 "POST /batch-request/103/claim/ HTTP/1.1" 302 0
+INFO 2025-10-21 22:44:32,910 basehttp 12320 18016 "GET /my-supply-requests/ HTTP/1.1" 200 231894
+INFO 2025-10-21 22:44:36,315 basehttp 12320 18016 "GET /my-supply-requests/?tab=completed&completed_page=3 HTTP/1.1" 200 215250
+INFO 2025-10-21 22:44:38,983 basehttp 12320 18016 "GET /my-supply-requests/?tab=completed&completed_page=1 HTTP/1.1" 200 231896
+INFO 2025-10-21 22:44:46,172 basehttp 12320 18372 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233957
+INFO 2025-10-21 22:45:06,582 basehttp 12320 17964 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233957
+INFO 2025-10-21 22:45:08,396 basehttp 12320 17964 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233957
+INFO 2025-10-21 22:45:08,978 basehttp 12320 17964 - Broken pipe from ('127.0.0.1', 62619)
+INFO 2025-10-21 22:45:09,075 basehttp 12320 11564 - Broken pipe from ('127.0.0.1', 53480)
+INFO 2025-10-21 22:45:09,312 basehttp 12320 16400 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233957
+INFO 2025-10-21 22:45:09,704 basehttp 12320 16400 - Broken pipe from ('127.0.0.1', 55134)
+INFO 2025-10-21 22:45:09,871 basehttp 12320 11544 - Broken pipe from ('127.0.0.1', 58365)
+INFO 2025-10-21 22:45:10,164 basehttp 12320 14376 - Broken pipe from ('127.0.0.1', 54447)
+INFO 2025-10-21 22:45:10,252 basehttp 12320 16504 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233957
+INFO 2025-10-21 22:45:20,231 basehttp 12320 12256 "GET /my-supply-requests/?tab=completed&completed_page=3 HTTP/1.1" 200 215250
+INFO 2025-10-21 22:45:22,928 basehttp 12320 12256 "GET /my-supply-requests/?tab=completed&completed_page=1 HTTP/1.1" 200 231896
+INFO 2025-10-21 22:45:26,034 basehttp 12320 12256 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233957
+INFO 2025-10-21 22:45:32,919 basehttp 12320 16460 "GET /supplies/ HTTP/1.1" 200 491290
+INFO 2025-10-21 22:45:32,946 basehttp 12320 5336 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 22:45:32,946 basehttp 12320 16460 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 22:45:32,960 basehttp 12320 5336 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 22:45:32,961 basehttp 12320 16460 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 22:45:32,978 basehttp 12320 3024 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 22:45:32,983 basehttp 12320 14784 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 22:45:32,985 basehttp 12320 12236 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 22:45:32,985 basehttp 12320 5336 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 22:45:32,985 basehttp 12320 16460 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 22:45:32,991 basehttp 12320 12944 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 22:45:32,999 basehttp 12320 3024 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 22:45:33,002 basehttp 12320 14784 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 22:45:33,004 basehttp 12320 12236 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 22:45:33,005 basehttp 12320 5336 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 22:45:33,006 basehttp 12320 12944 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 22:45:37,482 basehttp 12320 12944 "GET /supplies/?search=f HTTP/1.1" 200 491126
+INFO 2025-10-21 22:45:37,504 basehttp 12320 12944 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 22:45:37,504 basehttp 12320 5336 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 22:45:37,513 basehttp 12320 5336 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 22:45:37,513 basehttp 12320 12944 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 22:45:37,530 basehttp 12320 12944 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 22:45:37,531 basehttp 12320 16460 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 22:45:37,531 basehttp 12320 14784 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 22:45:37,532 basehttp 12320 5336 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 22:45:37,532 basehttp 12320 12236 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 22:45:37,532 basehttp 12320 3024 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 22:45:37,547 basehttp 12320 16460 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 22:45:37,548 basehttp 12320 3024 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 22:45:37,548 basehttp 12320 12236 "GET /media/barcodes/supplies/SUP-64_ggzP9Ri.png HTTP/1.1" 200 3522
+INFO 2025-10-21 22:45:37,548 basehttp 12320 14784 "GET /media/barcodes/supplies/SUP-125_6s8eobA.png HTTP/1.1" 200 3531
+INFO 2025-10-21 22:45:37,549 basehttp 12320 12944 "GET /media/barcodes/supplies/SUP-11_31aoGbM.png HTTP/1.1" 200 2754
+INFO 2025-10-21 22:45:41,637 basehttp 12320 12788 "GET /supplies/?search=folder HTTP/1.1" 200 472001
+INFO 2025-10-21 22:45:41,658 basehttp 12320 12788 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 22:45:41,660 basehttp 12320 12904 "GET /media/barcodes/supplies/SUP-116_CGhkvdY.png HTTP/1.1" 200 3445
+INFO 2025-10-21 22:45:41,667 basehttp 12320 12788 "GET /media/barcodes/supplies/SUP-162_aqgvcd7.png HTTP/1.1" 200 3859
+INFO 2025-10-21 22:45:41,667 basehttp 12320 12904 "GET /media/barcodes/supplies/SUP-45_AsblkaS.png HTTP/1.1" 200 3221
+INFO 2025-10-21 22:45:41,693 basehttp 12320 12904 "GET /media/barcodes/supplies/SUP-14_wyf283M.png HTTP/1.1" 200 3048
+INFO 2025-10-21 22:45:41,693 basehttp 12320 18088 "GET /media/barcodes/supplies/SUP-136_VbiDnzv.png HTTP/1.1" 200 3961
+INFO 2025-10-21 22:45:41,695 basehttp 12320 17764 "GET /media/barcodes/supplies/SUP-52_30PQaQE.png HTTP/1.1" 200 3288
+INFO 2025-10-21 22:45:41,695 basehttp 12320 12788 "GET /media/barcodes/supplies/SUP-137_Rf2gYp1.png HTTP/1.1" 200 3597
+INFO 2025-10-21 22:45:41,696 basehttp 12320 1308 "GET /media/barcodes/supplies/SUP-139_Nl83No2.png HTTP/1.1" 200 3903
+INFO 2025-10-21 22:45:41,697 basehttp 12320 7356 "GET /media/barcodes/supplies/SUP-43_alj71uU.png HTTP/1.1" 200 3328
+INFO 2025-10-21 22:46:01,595 basehttp 12320 12924 "GET /my-borrow-requests/ HTTP/1.1" 200 124440
+INFO 2025-10-21 22:46:10,041 basehttp 12320 2308 "GET /activity/ HTTP/1.1" 200 19934
+INFO 2025-10-21 22:46:10,930 basehttp 12320 2308 "GET /supplies/ HTTP/1.1" 200 491230
+INFO 2025-10-21 22:46:10,947 basehttp 12320 1288 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 22:46:10,948 basehttp 12320 2308 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 22:46:10,967 basehttp 12320 1288 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 22:46:10,969 basehttp 12320 2308 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 22:46:10,972 basehttp 12320 13068 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 22:46:10,973 basehttp 12320 2164 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 22:46:10,976 basehttp 12320 1288 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 22:46:10,976 basehttp 12320 9744 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 22:46:10,979 basehttp 12320 7488 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 22:46:10,980 basehttp 12320 2308 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 22:46:10,984 basehttp 12320 2164 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 22:46:10,984 basehttp 12320 13068 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 22:46:10,985 basehttp 12320 1288 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 22:46:10,985 basehttp 12320 9744 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 22:46:10,985 basehttp 12320 7488 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 22:46:11,377 basehttp 12320 7488 "GET /my-supply-requests/ HTTP/1.1" 200 231894
+INFO 2025-10-21 22:46:18,694 basehttp 12320 17996 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231899
+INFO 2025-10-21 22:46:22,533 basehttp 12320 15248 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231899
+INFO 2025-10-21 22:46:23,385 basehttp 12320 15248 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231899
+INFO 2025-10-21 22:46:28,268 basehttp 12320 15248 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 302 0
+INFO 2025-10-21 22:46:28,288 basehttp 12320 15248 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dfor_claiming HTTP/1.1" 200 12072
+INFO 2025-10-21 22:46:28,301 basehttp 12320 15248 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-10-21 22:46:28,417 basehttp 12320 15248 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dfor_claiming HTTP/1.1" 200 12072
+INFO 2025-10-21 22:46:28,576 basehttp 12320 15248 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dfor_claiming HTTP/1.1" 200 12072
+INFO 2025-10-21 22:46:28,708 basehttp 12320 15248 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dfor_claiming HTTP/1.1" 200 12072
+INFO 2025-10-21 22:46:30,165 basehttp 12320 15248 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-21 22:46:30,656 basehttp 12320 15248 "GET /dashboard/ HTTP/1.1" 200 68931
+INFO 2025-10-21 22:46:30,703 basehttp 12320 9716 "GET /static/css/userStyle.css HTTP/1.1" 200 48151
+INFO 2025-10-21 22:46:30,703 basehttp 12320 15248 "GET /static/css/style.css HTTP/1.1" 200 28832
+INFO 2025-10-21 22:46:30,719 basehttp 12320 14684 "GET /static/scripts/charts.js HTTP/1.1" 200 15633
+INFO 2025-10-21 22:46:30,721 basehttp 12320 14096 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 7182
+INFO 2025-10-21 22:46:32,926 basehttp 12320 14096 "GET /my-supply-requests/ HTTP/1.1" 200 231894
+INFO 2025-10-21 22:48:11,876 basehttp 12320 16940 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:49:14,384 basehttp 12320 7400 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:49:14,720 basehttp 12320 7400 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:49:15,047 basehttp 12320 7400 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:49:15,340 basehttp 12320 7400 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:49:15,594 basehttp 12320 7400 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:49:15,862 basehttp 12320 7400 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:49:16,093 basehttp 12320 7400 - Broken pipe from ('127.0.0.1', 53229)
+INFO 2025-10-21 22:49:16,211 basehttp 12320 7464 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:49:16,330 basehttp 12320 7464 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:49:16,501 basehttp 12320 7464 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:49:16,655 basehttp 12320 7464 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:49:16,838 basehttp 12320 7464 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:49:43,737 basehttp 12320 8664 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:49:44,324 basehttp 12320 8664 "GET /batch-request/19/ HTTP/1.1" 200 72245
+INFO 2025-10-21 22:50:20,195 basehttp 12320 7072 "GET /batch-request/19/ HTTP/1.1" 200 73103
+INFO 2025-10-21 22:50:20,465 basehttp 12320 7072 "GET /batch-request/19/ HTTP/1.1" 200 73103
+INFO 2025-10-21 22:50:20,634 basehttp 12320 7072 "GET /batch-request/19/ HTTP/1.1" 200 73103
+INFO 2025-10-21 22:50:36,302 basehttp 12320 3940 "GET /property/ HTTP/1.1" 200 422896
+INFO 2025-10-21 22:50:36,325 basehttp 12320 3940 "GET /static/css/barcode.css HTTP/1.1" 200 2384
+INFO 2025-10-21 22:50:36,358 basehttp 12320 14364 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-10-21 22:50:36,364 basehttp 12320 2216 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2157
+INFO 2025-10-21 22:50:38,476 basehttp 12320 2216 "GET /dashboard/ HTTP/1.1" 200 68931
+INFO 2025-10-21 22:51:24,649 basehttp 12320 8276 "GET /activity/ HTTP/1.1" 200 19934
+INFO 2025-10-21 22:51:25,301 basehttp 12320 8276 "GET /my-supply-requests/ HTTP/1.1" 200 231894
+INFO 2025-10-21 22:51:35,563 basehttp 12320 13708 "GET /my-supply-requests/?tab=pending HTTP/1.1" 302 0
+INFO 2025-10-21 22:51:35,581 basehttp 12320 13708 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dpending HTTP/1.1" 200 12072
+WARNING 2025-10-21 22:51:35,753 basehttp 12320 13708 "GET /favicon.ico HTTP/1.1" 404 31279
+INFO 2025-10-21 22:51:40,103 basehttp 12320 9900 "GET / HTTP/1.1" 200 12072
+INFO 2025-10-21 22:51:42,371 basehttp 12320 9900 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-21 22:51:42,765 basehttp 12320 9900 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 42373
+INFO 2025-10-21 22:51:42,797 basehttp 12320 4796 "GET /static/css/mobile.css HTTP/1.1" 304 0
+INFO 2025-10-21 22:51:42,797 basehttp 12320 9900 "GET /static/css/userStyle.css HTTP/1.1" 304 0
+INFO 2025-10-21 22:51:48,575 basehttp 12320 15208 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 478016
+INFO 2025-10-21 22:51:48,609 basehttp 12320 15208 "GET /static/css/userForms.css HTTP/1.1" 200 70465
+INFO 2025-10-21 22:51:58,163 basehttp 12320 11808 "POST /userpanel/add-to-list/ HTTP/1.1" 200 81
+INFO 2025-10-21 22:51:58,850 basehttp 12320 11808 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 480439
+INFO 2025-10-21 22:52:07,742 basehttp 12320 7400 "POST /userpanel/submit-list-request/ HTTP/1.1" 200 95
+INFO 2025-10-21 22:52:09,560 basehttp 12320 7400 "GET /userpanel/all_requests/ HTTP/1.1" 200 96849
+INFO 2025-10-21 22:52:11,515 basehttp 12320 2292 "GET /my-supply-requests/?tab=pending HTTP/1.1" 200 231894
+INFO 2025-10-21 22:52:11,839 basehttp 12320 2292 "GET /my-supply-requests/?tab=pending HTTP/1.1" 200 231894
+INFO 2025-10-21 22:52:12,380 basehttp 12320 2292 "GET /my-supply-requests/?tab=pending HTTP/1.1" 200 231894
+INFO 2025-10-21 22:52:18,963 basehttp 12320 2292 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 221370
+INFO 2025-10-21 22:52:21,405 basehttp 12320 7852 "GET /batch-request/105/ HTTP/1.1" 200 73272
+INFO 2025-10-21 22:52:25,581 utils 12320 7852 Batch request completion email sent to jmvales2004@gmail.com for batch #105
+INFO 2025-10-21 22:52:25,601 basehttp 12320 7852 "POST /batch-request/105/item/219/approve/ HTTP/1.1" 302 0
+INFO 2025-10-21 22:52:25,789 basehttp 12320 7852 "GET /batch-request/105/ HTTP/1.1" 200 73095
+INFO 2025-10-21 22:52:31,578 basehttp 12320 9512 "POST /batch-request/105/claim/ HTTP/1.1" 302 0
+INFO 2025-10-21 22:52:31,826 basehttp 12320 9512 "GET /my-supply-requests/ HTTP/1.1" 200 231967
+INFO 2025-10-21 22:52:36,230 basehttp 12320 9512 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 234030
+INFO 2025-10-21 22:52:39,278 basehttp 12320 5880 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=1 HTTP/1.1" 200 231972
+INFO 2025-10-21 22:52:46,003 basehttp 12320 5880 "GET /batch-request/105/ HTTP/1.1" 200 72641
+INFO 2025-10-21 22:52:53,183 basehttp 12320 5880 "GET /my-supply-requests/ HTTP/1.1" 200 231967
+INFO 2025-10-21 22:52:54,754 basehttp 12320 5880 "GET /property/ HTTP/1.1" 200 422896
+INFO 2025-10-21 22:55:14,075 autoreload 12320 15080 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-21 22:55:15,993 autoreload 5692 5400 Watching for file changes with StatReloader
+INFO 2025-10-21 22:55:40,077 autoreload 5692 5400 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-21 22:55:41,455 autoreload 12244 2892 Watching for file changes with StatReloader
+INFO 2025-10-21 23:03:33,363 basehttp 12244 11168 - Broken pipe from ('127.0.0.1', 59222)
+INFO 2025-10-21 23:03:33,443 basehttp 12244 9012 "GET /property/ HTTP/1.1" 200 422896
+INFO 2025-10-21 23:03:34,667 basehttp 12244 9012 "GET /my-supply-requests/ HTTP/1.1" 200 231967
+INFO 2025-10-21 23:03:35,607 basehttp 12244 9012 - Broken pipe from ('127.0.0.1', 53619)
+INFO 2025-10-21 23:03:35,704 basehttp 12244 2216 - Broken pipe from ('127.0.0.1', 56837)
+INFO 2025-10-21 23:03:35,935 basehttp 12244 5388 - Broken pipe from ('127.0.0.1', 55578)
+INFO 2025-10-21 23:03:36,093 basehttp 12244 8692 - Broken pipe from ('127.0.0.1', 54213)
+INFO 2025-10-21 23:03:36,270 basehttp 12244 18084 "GET /my-supply-requests/?tab=pending HTTP/1.1" 200 231967
+INFO 2025-10-21 23:03:36,608 basehttp 12244 18084 - Broken pipe from ('127.0.0.1', 64178)
+INFO 2025-10-21 23:03:36,797 basehttp 12244 16308 - Broken pipe from ('127.0.0.1', 58556)
+INFO 2025-10-21 23:03:36,928 basehttp 12244 1392 "GET /my-supply-requests/?tab=pending HTTP/1.1" 200 231967
+INFO 2025-10-21 23:03:37,202 basehttp 12244 1392 "GET /my-supply-requests/?tab=pending HTTP/1.1" 200 231967
+INFO 2025-10-21 23:03:39,733 basehttp 12244 1392 - Broken pipe from ('127.0.0.1', 57837)
+INFO 2025-10-21 23:03:39,883 basehttp 12244 16676 - Broken pipe from ('127.0.0.1', 50171)
+INFO 2025-10-21 23:03:40,031 basehttp 12244 5276 - Broken pipe from ('127.0.0.1', 57695)
+INFO 2025-10-21 23:03:40,371 basehttp 12244 1924 - Broken pipe from ('127.0.0.1', 51349)
+INFO 2025-10-21 23:03:40,456 basehttp 12244 14940 - Broken pipe from ('127.0.0.1', 57173)
+INFO 2025-10-21 23:03:40,604 basehttp 12244 15112 - Broken pipe from ('127.0.0.1', 64099)
+INFO 2025-10-21 23:03:40,881 basehttp 12244 3988 - Broken pipe from ('127.0.0.1', 55304)
+INFO 2025-10-21 23:03:40,994 basehttp 12244 18136 - Broken pipe from ('127.0.0.1', 52456)
+INFO 2025-10-21 23:03:41,207 basehttp 12244 9276 - Broken pipe from ('127.0.0.1', 58327)
+INFO 2025-10-21 23:03:41,370 basehttp 12244 13380 "GET /my-supply-requests/?tab=completed HTTP/1.1" 200 231969
+INFO 2025-10-21 23:03:47,988 basehttp 12244 13380 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:03:48,959 basehttp 12244 13380 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:03:53,867 basehttp 12244 13380 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:03:54,549 basehttp 12244 13380 - Broken pipe from ('127.0.0.1', 58382)
+INFO 2025-10-21 23:03:54,751 basehttp 12244 8964 - Broken pipe from ('127.0.0.1', 54507)
+INFO 2025-10-21 23:03:54,876 basehttp 12244 9348 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:03:55,070 basehttp 12244 17856 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:03:57,677 basehttp 12244 17856 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 234030
+INFO 2025-10-21 23:04:02,458 basehttp 12244 17856 - Broken pipe from ('127.0.0.1', 51231)
+INFO 2025-10-21 23:04:02,673 basehttp 12244 16260 - Broken pipe from ('127.0.0.1', 51282)
+INFO 2025-10-21 23:04:02,955 basehttp 12244 4652 - Broken pipe from ('127.0.0.1', 63425)
+INFO 2025-10-21 23:04:03,056 basehttp 12244 15876 - Broken pipe from ('127.0.0.1', 63428)
+INFO 2025-10-21 23:04:03,387 basehttp 12244 2216 - Broken pipe from ('127.0.0.1', 64443)
+INFO 2025-10-21 23:04:03,573 basehttp 12244 5388 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 234030
+INFO 2025-10-21 23:04:11,535 basehttp 12244 9276 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 302 0
+INFO 2025-10-21 23:04:11,550 basehttp 12244 9276 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dfor_claiming%26for_claiming_page%3D3 HTTP/1.1" 200 12072
+INFO 2025-10-21 23:04:11,565 basehttp 12244 9276 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-10-21 23:04:13,445 basehttp 12244 9276 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:04:13,752 basehttp 12244 9276 "GET /dashboard/ HTTP/1.1" 200 69718
+INFO 2025-10-21 23:04:13,770 basehttp 12244 9276 "GET /static/css/style.css HTTP/1.1" 200 28832
+INFO 2025-10-21 23:04:13,771 basehttp 12244 12704 "GET /static/scripts/charts.js HTTP/1.1" 200 15633
+INFO 2025-10-21 23:04:13,771 basehttp 12244 14384 "GET /static/css/userStyle.css HTTP/1.1" 200 48151
+INFO 2025-10-21 23:04:13,771 basehttp 12244 11816 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 7182
+INFO 2025-10-21 23:04:15,921 basehttp 12244 11816 "GET /my-supply-requests/ HTTP/1.1" 200 231967
+INFO 2025-10-21 23:04:33,145 basehttp 12244 12012 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 234030
+INFO 2025-10-21 23:04:42,971 basehttp 12244 6028 "POST /batch-request/103/claim/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:04:43,359 basehttp 12244 6028 "GET /my-supply-requests/ HTTP/1.1" 200 231967
+INFO 2025-10-21 23:04:48,062 basehttp 12244 6028 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 218481
+INFO 2025-10-21 23:05:00,588 basehttp 12244 6028 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 234030
+INFO 2025-10-21 23:05:06,139 basehttp 12244 6028 "POST /batch-request/103/claim/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:05:06,394 basehttp 12244 6028 "GET /my-supply-requests/ HTTP/1.1" 200 231967
+INFO 2025-10-21 23:05:54,611 autoreload 13688 7324 Watching for file changes with StatReloader
+INFO 2025-10-21 23:05:59,356 basehttp 13688 13156 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:06:00,198 basehttp 13688 13156 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:06:00,528 basehttp 13688 13156 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:06:01,726 basehttp 13688 10880 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:06:02,056 basehttp 13688 10880 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:07:29,854 basehttp 13688 15012 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:07:32,163 basehttp 13688 16584 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:07:32,949 basehttp 13688 16584 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:07:34,035 basehttp 13688 16584 - Broken pipe from ('127.0.0.1', 51384)
+INFO 2025-10-21 23:07:34,106 basehttp 13688 13088 - Broken pipe from ('127.0.0.1', 63233)
+INFO 2025-10-21 23:07:34,397 basehttp 13688 14512 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:07:40,881 basehttp 13688 14512 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 302 0
+INFO 2025-10-21 23:07:40,895 basehttp 13688 14512 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dfor_claiming HTTP/1.1" 200 12072
+INFO 2025-10-21 23:07:40,908 basehttp 13688 14512 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-10-21 23:07:41,027 basehttp 13688 14512 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dfor_claiming HTTP/1.1" 200 12072
+INFO 2025-10-21 23:07:41,192 basehttp 13688 14512 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dfor_claiming HTTP/1.1" 200 12072
+INFO 2025-10-21 23:07:41,347 basehttp 13688 14512 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dfor_claiming HTTP/1.1" 200 12072
+INFO 2025-10-21 23:07:43,456 basehttp 13688 16564 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:07:43,796 basehttp 13688 16564 "GET /dashboard/ HTTP/1.1" 200 69718
+INFO 2025-10-21 23:07:43,816 basehttp 13688 16564 "GET /static/css/style.css HTTP/1.1" 200 28832
+INFO 2025-10-21 23:07:43,817 basehttp 13688 1700 "GET /static/scripts/charts.js HTTP/1.1" 200 15633
+INFO 2025-10-21 23:07:43,818 basehttp 13688 7940 "GET /static/css/userStyle.css HTTP/1.1" 200 48151
+INFO 2025-10-21 23:07:43,819 basehttp 13688 13072 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 7182
+INFO 2025-10-21 23:07:45,982 basehttp 13688 13072 "GET /my-supply-requests/ HTTP/1.1" 200 231967
+INFO 2025-10-21 23:08:58,814 basehttp 13688 3488 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:11:41,933 basehttp 13688 3488 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:11:44,595 basehttp 13688 3488 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:11:47,159 basehttp 13688 3488 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:11:47,969 basehttp 13688 3488 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:11:56,796 basehttp 13688 3488 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:11:56,814 basehttp 13688 3488 "GET /static/css/style.css HTTP/1.1" 200 28832
+WARNING 2025-10-21 23:11:57,237 basehttp 13688 3488 "GET /favicon.ico HTTP/1.1" 404 31279
+INFO 2025-10-21 23:11:58,314 basehttp 13688 3488 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:11:58,335 basehttp 13688 3488 "GET /static/css/style.css HTTP/1.1" 200 28832
+WARNING 2025-10-21 23:11:58,575 basehttp 13688 3488 "GET /favicon.ico HTTP/1.1" 404 31279
+INFO 2025-10-21 23:12:05,954 autoreload 13688 7324 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-21 23:12:07,534 autoreload 5464 3080 Watching for file changes with StatReloader
+INFO 2025-10-21 23:12:41,291 basehttp 5464 5908 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 45943
+INFO 2025-10-21 23:12:46,100 basehttp 5464 5908 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 478043
+INFO 2025-10-21 23:12:47,980 basehttp 5464 5908 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 45943
+INFO 2025-10-21 23:13:30,766 basehttp 5464 15940 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:13:31,494 basehttp 5464 15940 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:13:31,800 basehttp 5464 15940 - Broken pipe from ('127.0.0.1', 60180)
+INFO 2025-10-21 23:13:31,935 basehttp 5464 15544 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:13:33,332 basehttp 5464 15544 - Broken pipe from ('127.0.0.1', 53642)
+INFO 2025-10-21 23:13:33,512 basehttp 5464 1440 - Broken pipe from ('127.0.0.1', 61733)
+INFO 2025-10-21 23:13:33,625 basehttp 5464 2164 - Broken pipe from ('127.0.0.1', 52221)
+INFO 2025-10-21 23:13:33,754 basehttp 5464 17668 - Broken pipe from ('127.0.0.1', 59948)
+INFO 2025-10-21 23:13:33,902 basehttp 5464 13204 - Broken pipe from ('127.0.0.1', 51745)
+INFO 2025-10-21 23:13:34,045 basehttp 5464 13244 - Broken pipe from ('127.0.0.1', 56627)
+INFO 2025-10-21 23:13:34,184 basehttp 5464 356 - Broken pipe from ('127.0.0.1', 59812)
+INFO 2025-10-21 23:13:34,475 basehttp 5464 15840 - Broken pipe from ('127.0.0.1', 57455)
+INFO 2025-10-21 23:13:34,552 basehttp 5464 17360 - Broken pipe from ('127.0.0.1', 63758)
+INFO 2025-10-21 23:13:34,670 basehttp 5464 17276 - Broken pipe from ('127.0.0.1', 58629)
+INFO 2025-10-21 23:13:34,954 basehttp 5464 6756 - Broken pipe from ('127.0.0.1', 61750)
+INFO 2025-10-21 23:13:35,008 basehttp 5464 1476 - Broken pipe from ('127.0.0.1', 56286)
+INFO 2025-10-21 23:13:35,136 basehttp 5464 13952 - Broken pipe from ('127.0.0.1', 59483)
+INFO 2025-10-21 23:13:35,310 basehttp 5464 14220 - Broken pipe from ('127.0.0.1', 61158)
+INFO 2025-10-21 23:13:35,459 basehttp 5464 14160 - Broken pipe from ('127.0.0.1', 62042)
+INFO 2025-10-21 23:13:35,618 basehttp 5464 17564 - Broken pipe from ('127.0.0.1', 51114)
+INFO 2025-10-21 23:13:35,894 basehttp 5464 6384 - Broken pipe from ('127.0.0.1', 55383)
+INFO 2025-10-21 23:13:35,986 basehttp 5464 3084 - Broken pipe from ('127.0.0.1', 59765)
+INFO 2025-10-21 23:13:36,112 basehttp 5464 5624 - Broken pipe from ('127.0.0.1', 64505)
+INFO 2025-10-21 23:13:36,267 basehttp 5464 2704 - Broken pipe from ('127.0.0.1', 51449)
+INFO 2025-10-21 23:13:36,440 basehttp 5464 6312 - Broken pipe from ('127.0.0.1', 54478)
+INFO 2025-10-21 23:13:36,710 basehttp 5464 16108 - Broken pipe from ('127.0.0.1', 61748)
+INFO 2025-10-21 23:13:36,811 basehttp 5464 11952 - Broken pipe from ('127.0.0.1', 50904)
+INFO 2025-10-21 23:13:37,000 basehttp 5464 7680 - Broken pipe from ('127.0.0.1', 53619)
+INFO 2025-10-21 23:13:37,273 basehttp 5464 16680 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:13:41,891 basehttp 5464 16680 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 200 231972
+INFO 2025-10-21 23:13:43,461 basehttp 5464 16680 "GET /my-supply-requests/ HTTP/1.1" 200 231967
+INFO 2025-10-21 23:13:59,550 basehttp 5464 17512 "GET /my-supply-requests/?tab=for_claiming HTTP/1.1" 302 0
+INFO 2025-10-21 23:13:59,566 basehttp 5464 17512 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dfor_claiming HTTP/1.1" 200 12072
+INFO 2025-10-21 23:13:59,584 basehttp 5464 17512 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-10-21 23:13:59,744 basehttp 5464 17512 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dfor_claiming HTTP/1.1" 200 12072
+INFO 2025-10-21 23:13:59,904 basehttp 5464 17512 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dfor_claiming HTTP/1.1" 200 12072
+INFO 2025-10-21 23:14:00,053 basehttp 5464 17512 "GET /login_user/?next=/my-supply-requests/%3Ftab%3Dfor_claiming HTTP/1.1" 200 12072
+INFO 2025-10-21 23:14:01,639 basehttp 5464 17512 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:14:01,964 basehttp 5464 17512 "GET /dashboard/ HTTP/1.1" 200 69718
+INFO 2025-10-21 23:14:01,982 basehttp 5464 16084 "GET /static/scripts/charts.js HTTP/1.1" 200 15633
+INFO 2025-10-21 23:14:01,982 basehttp 5464 9268 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 7182
+INFO 2025-10-21 23:14:01,982 basehttp 5464 17512 "GET /static/css/style.css HTTP/1.1" 200 28832
+INFO 2025-10-21 23:14:01,983 basehttp 5464 14580 "GET /static/css/userStyle.css HTTP/1.1" 200 48151
+INFO 2025-10-21 23:14:04,110 basehttp 5464 14580 "GET /my-supply-requests/ HTTP/1.1" 200 231967
+INFO 2025-10-21 23:14:14,993 basehttp 5464 17056 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 234030
+INFO 2025-10-21 23:15:12,382 basehttp 5464 1696 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 234030
+INFO 2025-10-21 23:15:13,045 basehttp 5464 1696 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 234030
+WARNING 2025-10-21 23:15:20,192 basehttp 5464 1696 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 31390
+WARNING 2025-10-21 23:17:20,498 basehttp 5464 1540 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 31390
+INFO 2025-10-21 23:19:36,481 basehttp 5464 4076 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233556
+WARNING 2025-10-21 23:19:36,531 basehttp 5464 4076 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 31390
+INFO 2025-10-21 23:19:37,362 basehttp 5464 4076 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233556
+WARNING 2025-10-21 23:19:37,409 basehttp 5464 4076 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 31390
+INFO 2025-10-21 23:20:46,326 basehttp 5464 18156 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233448
+WARNING 2025-10-21 23:20:46,380 basehttp 5464 18156 "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 31390
+INFO 2025-10-21 23:20:47,419 basehttp 5464 18156 - Broken pipe from ('127.0.0.1', 61294)
+INFO 2025-10-21 23:20:47,488 basehttp 5464 15568 - Broken pipe from ('127.0.0.1', 57006)
+INFO 2025-10-21 23:20:47,639 basehttp 5464 9276 - Broken pipe from ('127.0.0.1', 49308)
+INFO 2025-10-21 23:20:47,787 basehttp 5464 16164 - Broken pipe from ('127.0.0.1', 53085)
+INFO 2025-10-21 23:20:47,927 basehttp 5464 14716 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233448
+INFO 2025-10-21 23:20:50,759 basehttp 5464 14716 - Broken pipe from ('127.0.0.1', 54806)
+INFO 2025-10-21 23:20:51,030 basehttp 5464 2968 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233448
+INFO 2025-10-21 23:20:51,484 basehttp 5464 2968 - Broken pipe from ('127.0.0.1', 64728)
+INFO 2025-10-21 23:20:51,569 basehttp 5464 7452 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233448
+INFO 2025-10-21 23:20:52,105 basehttp 5464 7452 - Broken pipe from ('127.0.0.1', 64302)
+INFO 2025-10-21 23:20:52,169 basehttp 5464 4008 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233448
+INFO 2025-10-21 23:20:57,110 basehttp 5464 4008 "GET /batch-request/105/ HTTP/1.1" 200 71636
+INFO 2025-10-21 23:20:59,408 basehttp 5464 4008 "GET /batch-request/105/requisition-slip/download/ HTTP/1.1" 200 3263
+INFO 2025-10-21 23:21:02,794 basehttp 5464 4008 "GET /my-supply-requests/ HTTP/1.1" 200 231385
+INFO 2025-10-21 23:21:07,870 basehttp 5464 4008 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 217899
+INFO 2025-10-21 23:21:14,261 basehttp 5464 4008 "GET /batch-request/97/ HTTP/1.1" 200 84517
+INFO 2025-10-21 23:21:19,298 basehttp 5464 4008 "GET /my-supply-requests/ HTTP/1.1" 200 231385
+INFO 2025-10-21 23:21:21,943 basehttp 5464 4008 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233448
+INFO 2025-10-21 23:21:28,829 basehttp 5464 4008 "POST /batch-request/102/claim/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:21:29,135 basehttp 5464 4008 "GET /my-supply-requests/ HTTP/1.1" 200 231385
+INFO 2025-10-21 23:21:31,850 basehttp 5464 4008 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 217899
+INFO 2025-10-21 23:21:41,503 basehttp 5464 4008 "GET /supplies/ HTTP/1.1" 200 491258
+INFO 2025-10-21 23:21:41,530 basehttp 5464 12892 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:21:41,531 basehttp 5464 4008 "GET /static/css/barcode.css HTTP/1.1" 200 2384
+INFO 2025-10-21 23:21:41,532 basehttp 5464 16376 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:21:41,539 basehttp 5464 16376 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:21:41,540 basehttp 5464 4008 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:21:41,548 basehttp 5464 4008 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:21:41,789 basehttp 5464 16376 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:21:41,789 basehttp 5464 4008 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 23:21:41,810 basehttp 5464 12892 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:21:41,811 basehttp 5464 16376 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:21:41,813 basehttp 5464 4008 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:21:41,816 basehttp 5464 9460 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:21:41,817 basehttp 5464 3116 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:21:41,817 basehttp 5464 5800 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:21:41,820 basehttp 5464 12892 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:21:41,821 basehttp 5464 16376 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 23:21:45,121 basehttp 5464 12892 "GET /supplies/?search=folder HTTP/1.1" 200 472001
+INFO 2025-10-21 23:21:45,143 basehttp 5464 12892 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:21:45,145 basehttp 5464 16376 "GET /media/barcodes/supplies/SUP-116_CGhkvdY.png HTTP/1.1" 200 3445
+INFO 2025-10-21 23:21:45,150 basehttp 5464 12892 "GET /media/barcodes/supplies/SUP-162_aqgvcd7.png HTTP/1.1" 200 3859
+INFO 2025-10-21 23:21:45,172 basehttp 5464 12892 "GET /media/barcodes/supplies/SUP-45_AsblkaS.png HTTP/1.1" 200 3221
+INFO 2025-10-21 23:21:45,173 basehttp 5464 16376 "GET /media/barcodes/supplies/SUP-14_wyf283M.png HTTP/1.1" 200 3048
+INFO 2025-10-21 23:21:45,173 basehttp 5464 3116 "GET /media/barcodes/supplies/SUP-136_VbiDnzv.png HTTP/1.1" 200 3961
+INFO 2025-10-21 23:21:45,173 basehttp 5464 4008 "GET /media/barcodes/supplies/SUP-139_Nl83No2.png HTTP/1.1" 200 3903
+INFO 2025-10-21 23:21:45,174 basehttp 5464 5800 "GET /media/barcodes/supplies/SUP-52_30PQaQE.png HTTP/1.1" 200 3288
+INFO 2025-10-21 23:21:45,175 basehttp 5464 9460 "GET /media/barcodes/supplies/SUP-137_Rf2gYp1.png HTTP/1.1" 200 3597
+INFO 2025-10-21 23:21:45,181 basehttp 5464 3116 "GET /media/barcodes/supplies/SUP-43_alj71uU.png HTTP/1.1" 200 3328
+INFO 2025-10-21 23:21:50,650 basehttp 5464 3116 "GET /my-damage-reports/ HTTP/1.1" 200 95842
+INFO 2025-10-21 23:21:51,191 basehttp 5464 3116 "GET /my-borrow-requests/ HTTP/1.1" 200 124440
+INFO 2025-10-21 23:21:52,031 basehttp 5464 3116 "GET /my-supply-requests/ HTTP/1.1" 200 231385
+INFO 2025-10-21 23:21:56,179 basehttp 5464 2904 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 233448
+INFO 2025-10-21 23:22:06,003 basehttp 5464 2904 "POST /batch-request/99/claim/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:22:06,302 basehttp 5464 2904 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:22:08,437 basehttp 5464 2904 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 219620
+INFO 2025-10-21 23:22:13,710 basehttp 5464 9356 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 229869
+INFO 2025-10-21 23:22:20,237 basehttp 5464 9356 "GET /batch-request/99/ HTTP/1.1" 200 76643
+INFO 2025-10-21 23:22:26,104 basehttp 5464 9356 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:22:27,169 basehttp 5464 9356 "GET /supplies/ HTTP/1.1" 200 491230
+INFO 2025-10-21 23:22:27,188 basehttp 5464 9356 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:22:27,189 basehttp 5464 4468 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:22:27,224 basehttp 5464 4468 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:22:27,228 basehttp 5464 9356 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:22:27,230 basehttp 5464 6272 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:22:27,232 basehttp 5464 13300 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 23:22:27,235 basehttp 5464 2600 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:22:27,236 basehttp 5464 4468 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:22:27,241 basehttp 5464 5232 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:22:27,255 basehttp 5464 13300 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:22:27,255 basehttp 5464 4468 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 23:22:27,256 basehttp 5464 9356 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:22:27,257 basehttp 5464 6272 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:22:27,259 basehttp 5464 2600 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:22:27,259 basehttp 5464 5232 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:22:32,748 basehttp 5464 15548 "GET /supplies/?status=out_of_stock HTTP/1.1" 200 491230
+INFO 2025-10-21 23:22:32,767 basehttp 5464 5516 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:22:32,767 basehttp 5464 15548 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:22:32,772 basehttp 5464 5516 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:22:32,773 basehttp 5464 15548 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:22:32,787 basehttp 5464 5516 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:22:32,789 basehttp 5464 15548 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 23:22:32,789 basehttp 5464 16152 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:22:32,789 basehttp 5464 11060 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:22:32,790 basehttp 5464 4540 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:22:32,790 basehttp 5464 15412 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:22:32,801 basehttp 5464 15548 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:22:32,801 basehttp 5464 15412 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:22:32,801 basehttp 5464 16152 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:22:32,802 basehttp 5464 11060 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:22:32,802 basehttp 5464 4540 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 23:22:40,951 basehttp 5464 15412 "GET /supplies/ HTTP/1.1" 200 491230
+INFO 2025-10-21 23:22:40,973 basehttp 5464 15412 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:22:40,974 basehttp 5464 4540 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:22:40,995 basehttp 5464 11060 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 23:22:40,995 basehttp 5464 16152 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:22:40,996 basehttp 5464 15548 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:22:40,996 basehttp 5464 15412 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:22:40,996 basehttp 5464 5516 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:22:40,997 basehttp 5464 4540 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:22:41,013 basehttp 5464 15412 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:22:41,014 basehttp 5464 5516 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:22:41,017 basehttp 5464 16152 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 23:22:41,018 basehttp 5464 11060 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:22:41,018 basehttp 5464 15548 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:22:41,019 basehttp 5464 4540 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:22:41,020 basehttp 5464 15412 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:22:44,106 basehttp 5464 15412 "GET /supplies/?search=folder HTTP/1.1" 200 471953
+INFO 2025-10-21 23:22:44,128 basehttp 5464 4540 "GET /media/barcodes/supplies/SUP-116_CGhkvdY.png HTTP/1.1" 200 3445
+INFO 2025-10-21 23:22:44,129 basehttp 5464 15412 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:22:44,139 basehttp 5464 4540 "GET /media/barcodes/supplies/SUP-45_AsblkaS.png HTTP/1.1" 200 3221
+INFO 2025-10-21 23:22:44,139 basehttp 5464 15412 "GET /media/barcodes/supplies/SUP-162_aqgvcd7.png HTTP/1.1" 200 3859
+INFO 2025-10-21 23:22:44,159 basehttp 5464 4540 "GET /media/barcodes/supplies/SUP-137_Rf2gYp1.png HTTP/1.1" 200 3597
+INFO 2025-10-21 23:22:44,160 basehttp 5464 15548 "GET /media/barcodes/supplies/SUP-52_30PQaQE.png HTTP/1.1" 200 3288
+INFO 2025-10-21 23:22:44,161 basehttp 5464 5516 "GET /media/barcodes/supplies/SUP-43_alj71uU.png HTTP/1.1" 200 3328
+INFO 2025-10-21 23:22:44,161 basehttp 5464 15412 "GET /media/barcodes/supplies/SUP-14_wyf283M.png HTTP/1.1" 200 3048
+INFO 2025-10-21 23:22:44,162 basehttp 5464 16152 "GET /media/barcodes/supplies/SUP-139_Nl83No2.png HTTP/1.1" 200 3903
+INFO 2025-10-21 23:22:44,162 basehttp 5464 11060 "GET /media/barcodes/supplies/SUP-136_VbiDnzv.png HTTP/1.1" 200 3961
+INFO 2025-10-21 23:22:49,583 basehttp 5464 11060 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:22:54,118 basehttp 5464 18188 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 229869
+INFO 2025-10-21 23:23:02,695 basehttp 5464 18188 "POST /batch-request/102/claim/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:23:02,962 basehttp 5464 18188 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:23:05,078 basehttp 5464 18188 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 219620
+INFO 2025-10-21 23:23:08,401 basehttp 5464 18188 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 229869
+INFO 2025-10-21 23:23:15,300 basehttp 5464 18188 "POST /batch-request/102/claim/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:23:15,528 basehttp 5464 18188 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:36:30,000 autoreload 5464 3080 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-10-21 23:36:31,528 autoreload 3912 4060 Watching for file changes with StatReloader
+INFO 2025-10-21 23:38:15,150 autoreload 3912 4060 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-21 23:38:16,550 autoreload 16368 19332 Watching for file changes with StatReloader
+INFO 2025-10-21 23:38:46,523 autoreload 16368 19332 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-21 23:38:48,063 autoreload 2996 15060 Watching for file changes with StatReloader
+INFO 2025-10-21 23:39:05,669 autoreload 2996 15060 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-21 23:39:07,329 autoreload 2584 5296 Watching for file changes with StatReloader
+INFO 2025-10-21 23:39:35,185 autoreload 2584 5296 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-21 23:39:36,616 autoreload 5392 2324 Watching for file changes with StatReloader
+INFO 2025-10-21 23:39:57,282 autoreload 5392 2324 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-21 23:39:58,842 autoreload 15604 10800 Watching for file changes with StatReloader
+INFO 2025-10-21 23:44:02,978 basehttp 15604 18060 "GET /supplies/ HTTP/1.1" 200 491274
+INFO 2025-10-21 23:44:03,007 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:44:03,008 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:44:03,014 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:44:03,014 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:44:03,033 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:44:03,033 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 23:44:03,051 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:44:03,058 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:44:03,059 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:44:03,059 basehttp 15604 10064 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:44:03,062 basehttp 15604 17392 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:44:03,062 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:44:03,063 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:44:03,069 basehttp 15604 17392 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:44:03,069 basehttp 15604 10064 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 23:44:05,511 basehttp 15604 10064 - Broken pipe from ('127.0.0.1', 59728)
+INFO 2025-10-21 23:44:05,709 basehttp 15604 17392 - Broken pipe from ('127.0.0.1', 56016)
+INFO 2025-10-21 23:44:05,931 basehttp 15604 15956 "GET /supplies/ HTTP/1.1" 200 491230
+INFO 2025-10-21 23:44:05,959 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:44:05,960 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:44:05,988 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 23:44:05,989 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:44:05,990 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:44:05,991 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:44:05,992 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:44:05,992 basehttp 15604 8396 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:44:06,011 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:44:06,012 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:44:06,013 basehttp 15604 8396 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:44:06,013 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:44:06,013 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 23:44:06,014 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:44:06,018 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:44:11,907 basehttp 15604 18300 "GET /get_supply_quantity_activity/133/? HTTP/1.1" 200 1061
+INFO 2025-10-21 23:44:18,961 basehttp 15604 18300 "GET /get_supply_history/133/ HTTP/1.1" 200 3473
+INFO 2025-10-21 23:44:23,829 basehttp 15604 18300 "GET /get_supply_history/133/ HTTP/1.1" 200 3473
+INFO 2025-10-21 23:45:28,943 basehttp 15604 18300 "GET /supplies/ HTTP/1.1" 200 491230
+INFO 2025-10-21 23:45:28,968 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:45:28,969 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:45:28,989 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:45:28,990 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:45:28,990 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:45:28,991 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:45:28,991 basehttp 15604 8396 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:45:28,991 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 23:45:29,006 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:45:29,007 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:45:29,008 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 23:45:29,009 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:45:29,009 basehttp 15604 8396 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:45:29,010 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:45:29,015 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:45:29,676 basehttp 15604 15956 "GET /supplies/ HTTP/1.1" 200 491230
+INFO 2025-10-21 23:45:29,701 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:45:29,701 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:45:29,708 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:45:29,708 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:45:29,722 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 23:45:29,722 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:45:29,723 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:45:29,724 basehttp 15604 8396 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:45:29,724 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:45:29,724 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:45:29,751 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:45:29,751 basehttp 15604 8396 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 23:45:29,751 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:45:29,752 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:45:29,752 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:45:30,035 basehttp 15604 18300 "GET /supplies/ HTTP/1.1" 200 491230
+INFO 2025-10-21 23:45:30,058 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:45:30,058 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:45:30,066 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:45:30,067 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:45:30,084 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:45:30,085 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:45:30,085 basehttp 15604 8396 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:45:30,086 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 23:45:30,086 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:45:30,087 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:45:30,101 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:45:30,101 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:45:30,101 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 23:45:30,102 basehttp 15604 8396 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:45:30,102 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:45:31,405 basehttp 15604 18408 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:45:34,249 basehttp 15604 18408 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 229869
+INFO 2025-10-21 23:45:46,132 basehttp 15604 18408 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 219620
+INFO 2025-10-21 23:45:54,625 basehttp 15604 18408 "GET /batch-request/95/ HTTP/1.1" 200 84518
+INFO 2025-10-21 23:45:58,494 basehttp 15604 18408 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:46:01,014 basehttp 15604 18408 "GET /property/ HTTP/1.1" 200 422896
+INFO 2025-10-21 23:46:01,036 basehttp 15604 18300 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-10-21 23:46:01,037 basehttp 15604 18408 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2157
+INFO 2025-10-21 23:46:01,784 basehttp 15604 18408 "GET /supplies/ HTTP/1.1" 200 491230
+INFO 2025-10-21 23:46:01,806 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:46:01,806 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:46:01,814 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:46:01,815 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:46:01,830 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:46:01,832 basehttp 15604 8396 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:46:01,832 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 23:46:01,833 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:46:01,833 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:46:01,833 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:46:01,846 basehttp 15604 8396 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:46:01,847 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:46:01,847 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 23:46:01,847 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:46:01,848 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:46:36,898 basehttp 15604 18060 "POST /add-supply/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:46:37,195 basehttp 15604 18060 "GET /supplies/ HTTP/1.1" 200 492035
+INFO 2025-10-21 23:46:37,222 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:46:37,223 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:46:37,233 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:46:37,233 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:46:37,249 basehttp 15604 18408 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:46:37,250 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:46:37,251 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:46:37,251 basehttp 15604 8396 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:46:37,251 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 23:46:37,253 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:46:37,265 basehttp 15604 18060 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:46:37,266 basehttp 15604 15956 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:46:37,266 basehttp 15604 8396 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:46:37,266 basehttp 15604 19192 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:46:37,267 basehttp 15604 18300 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 23:46:41,041 basehttp 15604 18748 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 47863
+INFO 2025-10-21 23:46:41,341 basehttp 15604 18748 "GET /userpanel/user_dashboard/ HTTP/1.1" 200 47863
+INFO 2025-10-21 23:46:42,752 basehttp 15604 18748 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 478155
+INFO 2025-10-21 23:46:53,321 basehttp 15604 2304 "POST /userpanel/add-to-list/ HTTP/1.1" 200 84
+INFO 2025-10-21 23:46:53,870 basehttp 15604 2304 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 480585
+INFO 2025-10-21 23:47:02,102 basehttp 15604 2304 "POST /userpanel/submit-list-request/ HTTP/1.1" 200 95
+INFO 2025-10-21 23:47:03,957 basehttp 15604 2304 "GET /userpanel/all_requests/ HTTP/1.1" 200 96865
+INFO 2025-10-21 23:47:09,006 basehttp 15604 8616 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:47:12,403 basehttp 15604 16720 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 222597
+INFO 2025-10-21 23:47:14,193 basehttp 15604 16720 "GET /batch-request/106/ HTTP/1.1" 200 72282
+INFO 2025-10-21 23:47:19,304 utils 15604 16720 Batch request completion email sent to jmvales2004@gmail.com for batch #106
+INFO 2025-10-21 23:47:19,325 basehttp 15604 16720 "POST /batch-request/106/item/220/approve/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:47:19,532 basehttp 15604 16720 "GET /batch-request/106/ HTTP/1.1" 200 72105
+INFO 2025-10-21 23:47:24,746 basehttp 15604 8592 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 478175
+INFO 2025-10-21 23:47:39,665 basehttp 15604 8592 "POST /userpanel/add-to-list/ HTTP/1.1" 200 84
+INFO 2025-10-21 23:47:40,298 basehttp 15604 8592 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 480606
+INFO 2025-10-21 23:47:50,156 basehttp 15604 8592 "POST /userpanel/submit-list-request/ HTTP/1.1" 200 95
+INFO 2025-10-21 23:47:51,883 basehttp 15604 8592 "GET /userpanel/all_requests/ HTTP/1.1" 200 96816
+INFO 2025-10-21 23:48:08,470 basehttp 15604 16932 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:48:14,463 basehttp 15604 16932 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 222598
+INFO 2025-10-21 23:48:16,354 basehttp 15604 16932 "GET /batch-request/107/ HTTP/1.1" 200 72289
+INFO 2025-10-21 23:48:20,647 utils 15604 16932 Batch request completion email sent to jmvales2004@gmail.com for batch #107
+INFO 2025-10-21 23:48:20,668 basehttp 15604 16932 "POST /batch-request/107/item/221/approve/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:48:20,839 basehttp 15604 16932 "GET /batch-request/107/ HTTP/1.1" 200 72108
+INFO 2025-10-21 23:48:23,253 basehttp 15604 16932 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:48:26,255 basehttp 15604 16932 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 236974
+INFO 2025-10-21 23:48:44,443 basehttp 15604 1956 "GET /supplies/ HTTP/1.1" 200 491778
+INFO 2025-10-21 23:48:44,467 basehttp 15604 17632 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:48:44,468 basehttp 15604 1956 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:48:44,494 basehttp 15604 1956 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:48:44,495 basehttp 15604 15180 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:48:44,496 basehttp 15604 17632 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:48:44,497 basehttp 15604 3492 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:48:44,498 basehttp 15604 1780 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:48:44,499 basehttp 15604 8636 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 23:48:44,509 basehttp 15604 1956 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:48:44,514 basehttp 15604 17632 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:48:44,514 basehttp 15604 1780 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:48:44,514 basehttp 15604 3492 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:48:44,518 basehttp 15604 15180 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 23:48:44,519 basehttp 15604 1956 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:48:44,519 basehttp 15604 8636 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:48:46,873 basehttp 15604 18476 "GET /supplies/?search=TEST HTTP/1.1" 200 491794
+INFO 2025-10-21 23:48:46,896 basehttp 15604 6228 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:48:46,897 basehttp 15604 18476 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:48:46,904 basehttp 15604 18476 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:48:46,904 basehttp 15604 6228 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:48:46,929 basehttp 15604 17760 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:48:46,947 basehttp 15604 18476 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:48:46,950 basehttp 15604 6228 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:48:46,952 basehttp 15604 15456 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:48:46,952 basehttp 15604 19336 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:48:46,958 basehttp 15604 18612 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:48:46,961 basehttp 15604 17760 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:48:46,966 basehttp 15604 18476 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:48:46,966 basehttp 15604 6228 "GET /media/barcodes/supplies/SUP-64_ggzP9Ri.png HTTP/1.1" 200 3522
+INFO 2025-10-21 23:48:46,967 basehttp 15604 19336 "GET /media/barcodes/supplies/SUP-48_0oUEXQE.png HTTP/1.1" 200 3564
+INFO 2025-10-21 23:48:46,967 basehttp 15604 15456 "GET /media/barcodes/supplies/SUP-130_H4rL9e2.png HTTP/1.1" 200 3945
+INFO 2025-10-21 23:48:51,049 basehttp 15604 15456 "GET /supplies/?search=TEST+F HTTP/1.1" 200 438753
+INFO 2025-10-21 23:48:51,089 basehttp 15604 15456 "GET /media/barcodes/supplies/SUP-209.png HTTP/1.1" 200 4311
+INFO 2025-10-21 23:49:12,651 basehttp 15604 6312 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:49:14,185 basehttp 15604 6312 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 219620
+INFO 2025-10-21 23:49:21,486 basehttp 15604 6312 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 236974
+INFO 2025-10-21 23:50:08,521 autoreload 15604 10800 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-21 23:50:10,465 autoreload 15724 13508 Watching for file changes with StatReloader
+INFO 2025-10-21 23:50:12,578 basehttp 15724 18912 "GET /admin HTTP/1.1" 301 0
+INFO 2025-10-21 23:50:12,901 basehttp 15724 18980 "GET /admin/ HTTP/1.1" 200 21779
+INFO 2025-10-21 23:50:12,950 basehttp 15724 18292 "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+INFO 2025-10-21 23:50:12,951 basehttp 15724 18980 "GET /static/admin/css/base.css HTTP/1.1" 200 22120
+INFO 2025-10-21 23:50:12,954 basehttp 15724 2000 "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2808
+INFO 2025-10-21 23:50:12,955 basehttp 15724 6996 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+INFO 2025-10-21 23:50:12,956 basehttp 15724 4980 "GET /static/admin/css/responsive.css HTTP/1.1" 200 16565
+INFO 2025-10-21 23:50:12,974 basehttp 15724 8472 "GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+INFO 2025-10-21 23:50:13,007 basehttp 15724 4980 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+INFO 2025-10-21 23:50:13,014 basehttp 15724 6996 "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+INFO 2025-10-21 23:50:13,015 basehttp 15724 8472 "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+INFO 2025-10-21 23:50:13,022 basehttp 15724 2000 "GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+INFO 2025-10-21 23:50:15,241 basehttp 15724 2000 "GET /admin/ HTTP/1.1" 200 21779
+INFO 2025-10-21 23:50:18,597 basehttp 15724 2000 "GET /admin/app/supply/ HTTP/1.1" 200 45546
+INFO 2025-10-21 23:50:18,658 basehttp 15724 2000 "GET /static/admin/css/changelists.css HTTP/1.1" 200 6878
+INFO 2025-10-21 23:50:18,666 basehttp 15724 4980 "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+INFO 2025-10-21 23:50:18,690 basehttp 15724 18980 "GET /static/admin/js/core.js HTTP/1.1" 200 6208
+INFO 2025-10-21 23:50:18,693 basehttp 15724 18292 "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9777
+INFO 2025-10-21 23:50:18,712 basehttp 15724 4980 "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+INFO 2025-10-21 23:50:18,723 basehttp 15724 2000 "GET /static/admin/js/actions.js HTTP/1.1" 200 8076
+INFO 2025-10-21 23:50:18,730 basehttp 15724 18980 "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+INFO 2025-10-21 23:50:18,764 basehttp 15724 6996 "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+INFO 2025-10-21 23:50:18,785 basehttp 15724 8472 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-10-21 23:50:18,821 basehttp 15724 8472 "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+INFO 2025-10-21 23:50:18,843 basehttp 15724 18292 "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+INFO 2025-10-21 23:50:18,888 basehttp 15724 18292 "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+INFO 2025-10-21 23:50:21,041 basehttp 15724 18532 "GET /admin/app/supplyquantity/ HTTP/1.1" 200 49528
+INFO 2025-10-21 23:50:21,148 basehttp 15724 18532 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-10-21 23:50:24,602 autoreload 15724 13508 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-21 23:50:25,868 autoreload 7868 9072 Watching for file changes with StatReloader
+INFO 2025-10-21 23:50:28,840 basehttp 7868 15776 "GET /admin/app/supply/ HTTP/1.1" 200 45546
+INFO 2025-10-21 23:50:29,053 basehttp 7868 15776 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-10-21 23:50:31,692 basehttp 7868 12932 "GET /admin/app/supply/209/change/ HTTP/1.1" 200 29270
+INFO 2025-10-21 23:50:31,751 basehttp 7868 12932 "GET /static/admin/css/forms.css HTTP/1.1" 200 8525
+INFO 2025-10-21 23:50:31,763 basehttp 7868 3744 "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+INFO 2025-10-21 23:50:31,770 basehttp 7868 6188 "GET /static/admin/js/calendar.js HTTP/1.1" 200 9141
+INFO 2025-10-21 23:50:31,777 basehttp 7868 18688 "GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 200 19319
+INFO 2025-10-21 23:50:31,780 basehttp 7868 12932 "GET /static/admin/css/widgets.css HTTP/1.1" 200 11991
+INFO 2025-10-21 23:50:31,802 basehttp 7868 12932 "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+INFO 2025-10-21 23:50:31,832 basehttp 7868 12932 "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+INFO 2025-10-21 23:50:31,903 basehttp 7868 18836 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-10-21 23:50:31,992 basehttp 7868 18836 "GET /static/admin/img/icon-calendar.svg HTTP/1.1" 200 1086
+INFO 2025-10-21 23:51:33,006 basehttp 7868 18912 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 236974
+INFO 2025-10-21 23:51:33,395 basehttp 7868 18912 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 236974
+INFO 2025-10-21 23:51:39,007 basehttp 7868 18912 "GET /batch-request/107/ HTTP/1.1" 200 72108
+INFO 2025-10-21 23:51:40,540 basehttp 7868 9200 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:51:44,750 basehttp 7868 9200 "GET /batch-request/19/ HTTP/1.1" 200 72049
+INFO 2025-10-21 23:51:47,355 basehttp 7868 9200 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:51:53,820 basehttp 7868 10928 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 478201
+INFO 2025-10-21 23:52:01,978 basehttp 7868 6580 - Broken pipe from ('127.0.0.1', 50225)
+INFO 2025-10-21 23:52:03,183 basehttp 7868 9504 - Broken pipe from ('127.0.0.1', 56071)
+INFO 2025-10-21 23:52:03,359 basehttp 7868 8560 - Broken pipe from ('127.0.0.1', 65000)
+INFO 2025-10-21 23:52:03,947 basehttp 7868 13132 - Broken pipe from ('127.0.0.1', 51337)
+INFO 2025-10-21 23:52:03,970 basehttp 7868 6260 - Broken pipe from ('127.0.0.1', 56569)
+INFO 2025-10-21 23:52:04,516 basehttp 7868 13688 - Broken pipe from ('127.0.0.1', 58752)
+INFO 2025-10-21 23:52:04,634 basehttp 7868 15776 - Broken pipe from ('127.0.0.1', 61355)
+INFO 2025-10-21 23:52:04,679 basehttp 7868 5392 - Broken pipe from ('127.0.0.1', 49673)
+INFO 2025-10-21 23:52:04,817 basehttp 7868 18300 - Broken pipe from ('127.0.0.1', 54012)
+INFO 2025-10-21 23:52:04,915 basehttp 7868 3352 - Broken pipe from ('127.0.0.1', 63509)
+INFO 2025-10-21 23:52:04,923 basehttp 7868 18448 - Broken pipe from ('127.0.0.1', 49355)
+INFO 2025-10-21 23:52:04,954 basehttp 7868 17456 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 478201
+INFO 2025-10-21 23:52:17,014 autoreload 2688 592 Watching for file changes with StatReloader
+INFO 2025-10-21 23:52:21,129 basehttp 2688 13020 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 478201
+INFO 2025-10-21 23:52:36,534 basehttp 2688 10940 "POST /userpanel/add-to-list/ HTTP/1.1" 200 84
+INFO 2025-10-21 23:52:37,112 basehttp 2688 10940 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 480632
+INFO 2025-10-21 23:52:47,912 basehttp 2688 8744 "POST /userpanel/submit-list-request/ HTTP/1.1" 200 95
+INFO 2025-10-21 23:52:49,637 basehttp 2688 2016 "GET /userpanel/all_requests/ HTTP/1.1" 200 96851
+INFO 2025-10-21 23:52:53,775 basehttp 2688 19060 "GET /my-supply-requests/?tab=pending HTTP/1.1" 200 233106
+INFO 2025-10-21 23:52:55,004 basehttp 2688 19060 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 222598
+INFO 2025-10-21 23:52:58,364 basehttp 2688 19060 "GET /batch-request/108/ HTTP/1.1" 200 72289
+INFO 2025-10-21 23:53:03,175 utils 2688 19060 Batch request completion email sent to jmvales2004@gmail.com for batch #108
+INFO 2025-10-21 23:53:03,198 basehttp 2688 19060 "POST /batch-request/108/item/222/approve/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:53:03,443 basehttp 2688 19060 "GET /batch-request/108/ HTTP/1.1" 200 72108
+INFO 2025-10-21 23:53:06,633 basehttp 2688 19060 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:53:09,414 basehttp 2688 19060 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=4 HTTP/1.1" 200 209414
+INFO 2025-10-21 23:53:13,751 basehttp 2688 13728 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=3 HTTP/1.1" 200 237137
+INFO 2025-10-21 23:53:16,155 basehttp 2688 13728 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=4 HTTP/1.1" 200 209414
+INFO 2025-10-21 23:53:18,889 basehttp 2688 15092 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 478225
+INFO 2025-10-21 23:53:29,919 basehttp 2688 2944 "POST /userpanel/add-to-list/ HTTP/1.1" 200 84
+INFO 2025-10-21 23:53:30,908 basehttp 2688 2944 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 480656
+INFO 2025-10-21 23:53:41,197 basehttp 2688 3492 "POST /userpanel/submit-list-request/ HTTP/1.1" 200 95
+INFO 2025-10-21 23:53:42,913 basehttp 2688 3492 "GET /userpanel/all_requests/ HTTP/1.1" 200 96784
+INFO 2025-10-21 23:53:44,557 basehttp 2688 13300 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=4 HTTP/1.1" 200 209414
+INFO 2025-10-21 23:53:45,270 basehttp 2688 13300 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=4 HTTP/1.1" 200 209414
+INFO 2025-10-21 23:53:45,615 basehttp 2688 13300 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=4 HTTP/1.1" 200 209414
+INFO 2025-10-21 23:53:45,989 basehttp 2688 13300 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=4 HTTP/1.1" 200 209414
+INFO 2025-10-21 23:53:49,662 basehttp 2688 13300 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 222598
+INFO 2025-10-21 23:53:51,376 basehttp 2688 11552 "GET /batch-request/109/ HTTP/1.1" 200 72289
+INFO 2025-10-21 23:53:52,483 basehttp 2688 11552 "POST /batch-request/109/item/223/approve/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:53:52,689 basehttp 2688 11552 "GET /batch-request/109/ HTTP/1.1" 200 72289
+INFO 2025-10-21 23:53:55,133 basehttp 2688 11552 "POST /batch-request/109/item/223/approve/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:53:55,331 basehttp 2688 11552 "GET /batch-request/109/ HTTP/1.1" 200 72289
+INFO 2025-10-21 23:53:56,768 basehttp 2688 11552 "GET /batch-request/109/ HTTP/1.1" 200 72289
+INFO 2025-10-21 23:53:57,076 basehttp 2688 11552 "GET /batch-request/109/ HTTP/1.1" 200 72289
+INFO 2025-10-21 23:53:57,674 basehttp 2688 11552 "GET /batch-request/109/ HTTP/1.1" 200 72289
+INFO 2025-10-21 23:53:58,653 basehttp 2688 11552 "POST /batch-request/109/item/223/approve/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:53:58,834 basehttp 2688 11552 "GET /batch-request/109/ HTTP/1.1" 200 72289
+INFO 2025-10-21 23:54:10,287 basehttp 2688 18288 "GET /batch-request/109/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:54:10,314 basehttp 2688 18288 "GET /login_user/?next=/batch-request/109/ HTTP/1.1" 200 12072
+INFO 2025-10-21 23:54:10,330 basehttp 2688 18288 "GET /static/images/resourcehivelogo.png HTTP/1.1" 200 20986
+INFO 2025-10-21 23:54:10,462 basehttp 2688 18288 "GET /login_user/?next=/batch-request/109/ HTTP/1.1" 200 12072
+INFO 2025-10-21 23:54:10,632 basehttp 2688 18288 "GET /login_user/?next=/batch-request/109/ HTTP/1.1" 200 12072
+INFO 2025-10-21 23:54:12,518 basehttp 2688 18288 - Broken pipe from ('127.0.0.1', 58500)
+INFO 2025-10-21 23:54:13,210 basehttp 2688 18492 "POST /accounts/login/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:54:13,632 basehttp 2688 18492 "GET /dashboard/ HTTP/1.1" 200 73214
+INFO 2025-10-21 23:54:13,656 basehttp 2688 18492 "GET /static/css/style.css HTTP/1.1" 200 28832
+INFO 2025-10-21 23:54:13,659 basehttp 2688 700 "GET /static/scripts/notificationBell.js HTTP/1.1" 200 7182
+INFO 2025-10-21 23:54:13,660 basehttp 2688 16484 "GET /static/scripts/charts.js HTTP/1.1" 200 15633
+INFO 2025-10-21 23:54:13,660 basehttp 2688 9812 "GET /static/css/userStyle.css HTTP/1.1" 200 48151
+INFO 2025-10-21 23:54:16,212 basehttp 2688 700 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:54:20,679 basehttp 2688 2616 "GET /my-supply-requests/?tab=for_claiming&for_claiming_page=4 HTTP/1.1" 200 209414
+INFO 2025-10-21 23:54:23,400 basehttp 2688 17700 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 222598
+INFO 2025-10-21 23:54:25,220 basehttp 2688 17700 "GET /batch-request/109/ HTTP/1.1" 200 72289
+INFO 2025-10-21 23:54:27,124 basehttp 2688 17700 "POST /batch-request/109/item/223/approve/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:54:27,320 basehttp 2688 17700 "GET /batch-request/109/ HTTP/1.1" 200 72289
+INFO 2025-10-21 23:54:30,016 basehttp 2688 17700 "POST /batch-request/109/item/223/approve/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:54:30,318 basehttp 2688 17700 "GET /batch-request/109/ HTTP/1.1" 200 72289
+INFO 2025-10-21 23:54:32,328 basehttp 2688 17700 "POST /batch-request/109/item/223/approve/ HTTP/1.1" 302 0
+INFO 2025-10-21 23:54:32,505 basehttp 2688 17700 "GET /batch-request/109/ HTTP/1.1" 200 72289
+INFO 2025-10-21 23:54:51,082 basehttp 2688 8508 "GET /property/ HTTP/1.1" 200 422956
+INFO 2025-10-21 23:54:51,103 basehttp 2688 18436 "GET /static/scripts/propertyModal.js HTTP/1.1" 200 2157
+INFO 2025-10-21 23:54:51,103 basehttp 2688 8508 "GET /static/css/barcode.css HTTP/1.1" 200 2384
+INFO 2025-10-21 23:54:51,104 basehttp 2688 19104 "GET /static/scripts/categoryModal.js HTTP/1.1" 200 761
+INFO 2025-10-21 23:54:52,075 basehttp 2688 19104 "GET /supplies/ HTTP/1.1" 200 491778
+INFO 2025-10-21 23:54:52,096 basehttp 2688 19104 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:54:52,097 basehttp 2688 8508 "GET /media/barcodes/supplies/SUP-132_enuAJvK.png HTTP/1.1" 200 3691
+INFO 2025-10-21 23:54:52,120 basehttp 2688 18436 "GET /media/barcodes/supplies/SUP-62_7eyNFTr.png HTTP/1.1" 200 3666
+INFO 2025-10-21 23:54:52,120 basehttp 2688 8508 "GET /media/barcodes/supplies/SUP-118_Qcn6boe.png HTTP/1.1" 200 3521
+INFO 2025-10-21 23:54:52,120 basehttp 2688 19104 "GET /media/barcodes/supplies/SUP-65_841xvIb.png HTTP/1.1" 200 3565
+INFO 2025-10-21 23:54:52,127 basehttp 2688 18508 "GET /media/barcodes/supplies/SUP-25_S8MwxOZ.png HTTP/1.1" 200 3296
+INFO 2025-10-21 23:54:52,131 basehttp 2688 4044 "GET /media/barcodes/supplies/SUP-9_5gyWFvK.png HTTP/1.1" 200 3121
+INFO 2025-10-21 23:54:52,131 basehttp 2688 18444 "GET /media/barcodes/supplies/SUP-24_go1opiE.png HTTP/1.1" 200 3253
+INFO 2025-10-21 23:54:52,136 basehttp 2688 8508 "GET /media/barcodes/supplies/SUP-61_ptGhEB2.png HTTP/1.1" 200 3400
+INFO 2025-10-21 23:54:52,138 basehttp 2688 18436 "GET /media/barcodes/supplies/SUP-91_Ae2h7m3.png HTTP/1.1" 200 3336
+INFO 2025-10-21 23:54:52,138 basehttp 2688 18508 "GET /media/barcodes/supplies/SUP-92_8HkXCG1.png HTTP/1.1" 200 3606
+INFO 2025-10-21 23:54:52,140 basehttp 2688 19104 "GET /media/barcodes/supplies/SUP-26_gieRABh.png HTTP/1.1" 200 3647
+INFO 2025-10-21 23:54:52,140 basehttp 2688 4044 "GET /media/barcodes/supplies/SUP-46_IAegUHp.png HTTP/1.1" 200 3502
+INFO 2025-10-21 23:54:52,142 basehttp 2688 18444 "GET /media/barcodes/supplies/SUP-157_BRK90oR.png HTTP/1.1" 200 3485
+INFO 2025-10-21 23:54:52,143 basehttp 2688 8508 "GET /media/barcodes/supplies/SUP-158_KaQT8vw.png HTTP/1.1" 200 3733
+INFO 2025-10-21 23:55:09,724 autoreload 2688 592 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\views.py changed, reloading.
+INFO 2025-10-21 23:55:11,151 autoreload 17620 17760 Watching for file changes with StatReloader
+INFO 2025-10-21 23:55:19,420 basehttp 17620 18544 "GET /get_all_supply_barcodes/ HTTP/1.1" 200 25734
+INFO 2025-10-21 23:55:30,406 basehttp 17620 18828 "GET /get_all_supply_barcodes/ HTTP/1.1" 200 25734
+INFO 2025-10-21 23:56:21,445 basehttp 17620 13952 "GET /get_supply_history/133/ HTTP/1.1" 200 3473
+INFO 2025-10-21 23:56:26,806 basehttp 17620 13952 "GET /get_supply_quantity_activity/133/? HTTP/1.1" 200 1061
+INFO 2025-10-21 23:56:37,314 basehttp 17620 9812 "GET /media/barcodes/supplies/SUP-133_YaniPq7.png HTTP/1.1" 200 3236
+INFO 2025-10-21 23:56:54,850 basehttp 17620 2332 "GET /property/ HTTP/1.1" 200 422896
+INFO 2025-10-21 23:57:15,672 basehttp 17620 6188 "GET /get-property-categories/ HTTP/1.1" 200 1368
+INFO 2025-10-21 23:57:23,486 basehttp 17620 14580 "GET /get_all_property_barcodes/ HTTP/1.1" 200 29314
+INFO 2025-10-21 23:57:46,768 basehttp 17620 8984 "GET /get-property-categories/ HTTP/1.1" 200 1368
+INFO 2025-10-21 23:57:49,110 basehttp 17620 8984 "GET /media/barcodes/properties/PROP-000249_gtfHHBz.png HTTP/1.1" 200 4995
+INFO 2025-10-21 23:58:10,985 basehttp 17620 7216 "GET /get_property_history/84/ HTTP/1.1" 200 96
+INFO 2025-10-21 23:58:15,408 basehttp 17620 7216 "GET /activity/ HTTP/1.1" 200 20334
+INFO 2025-10-21 23:58:26,421 basehttp 17620 5984 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:58:36,608 basehttp 17620 888 "GET /batch-request/32/ HTTP/1.1" 200 73632
+INFO 2025-10-21 23:58:48,934 basehttp 17620 8636 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-21 23:59:12,212 basehttp 17620 18488 "GET /my-borrow-requests/ HTTP/1.1" 200 124440
+INFO 2025-10-21 23:59:28,246 basehttp 17620 18292 "GET /my-damage-reports/ HTTP/1.1" 200 95842
+INFO 2025-10-21 23:59:31,188 basehttp 17620 18784 "GET /damage-report/28/ HTTP/1.1" 200 17989
+INFO 2025-10-21 23:59:34,497 basehttp 17620 18784 "GET /my-damage-reports/ HTTP/1.1" 200 95842
+INFO 2025-10-21 23:59:36,010 basehttp 17620 18784 "GET /damaged-items/ HTTP/1.1" 200 76735
+INFO 2025-10-21 23:59:51,300 basehttp 17620 4708 "GET /my-reservations/ HTTP/1.1" 200 74940
+INFO 2025-10-22 00:00:09,072 basehttp 17620 17524 "GET /reservation/41/ HTTP/1.1" 200 14348
+INFO 2025-10-22 00:00:12,448 basehttp 17620 13528 "GET /my-reservations/ HTTP/1.1" 200 74940
+INFO 2025-10-22 00:00:14,706 basehttp 17620 13528 "GET /manage-users/ HTTP/1.1" 200 24293
+INFO 2025-10-22 00:00:14,768 basehttp 17620 16736 "GET /static/scripts/departmentModal.js HTTP/1.1" 200 5651
+INFO 2025-10-22 00:00:14,772 basehttp 17620 13528 "GET /static/scripts/accountModal.js HTTP/1.1" 200 3539
+INFO 2025-10-22 00:00:14,775 basehttp 17620 18156 "GET /static/scripts/userFilters.js HTTP/1.1" 200 3337
+INFO 2025-10-22 00:00:40,844 basehttp 17620 19004 "GET /manage-users/ HTTP/1.1" 200 24293
+INFO 2025-10-22 00:00:41,047 basehttp 17620 19004 "GET /manage-users/ HTTP/1.1" 200 24293
+INFO 2025-10-22 00:00:41,253 basehttp 17620 19004 "GET /manage-users/ HTTP/1.1" 200 24293
+INFO 2025-10-22 00:00:41,526 basehttp 17620 19004 - Broken pipe from ('127.0.0.1', 62816)
+INFO 2025-10-22 00:00:41,561 basehttp 17620 18720 "GET /manage-users/ HTTP/1.1" 200 24293
+INFO 2025-10-22 00:00:41,740 basehttp 17620 18720 "GET /manage-users/ HTTP/1.1" 200 24293
+INFO 2025-10-22 00:00:43,076 basehttp 17620 8276 - Broken pipe from ('127.0.0.1', 51714)
+INFO 2025-10-22 00:00:43,233 basehttp 17620 15032 - Broken pipe from ('127.0.0.1', 61262)
+INFO 2025-10-22 00:00:43,510 basehttp 17620 3740 - Broken pipe from ('127.0.0.1', 65365)
+INFO 2025-10-22 00:00:43,567 basehttp 17620 3124 - Broken pipe from ('127.0.0.1', 55837)
+INFO 2025-10-22 00:00:43,759 basehttp 17620 16960 "GET /userpanel/all_requests/ HTTP/1.1" 200 96784
+INFO 2025-10-22 00:00:45,443 basehttp 17620 16960 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 478254
+INFO 2025-10-22 00:00:47,377 basehttp 17620 16960 - Broken pipe from ('127.0.0.1', 53630)
+INFO 2025-10-22 00:00:47,630 basehttp 17620 16848 - Broken pipe from ('127.0.0.1', 52540)
+INFO 2025-10-22 00:00:47,789 basehttp 17620 15600 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 478254
+INFO 2025-10-22 00:00:55,690 basehttp 17620 19296 "POST /userpanel/add-to-list/ HTTP/1.1" 200 84
+INFO 2025-10-22 00:00:56,365 basehttp 17620 19296 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 480684
+INFO 2025-10-22 00:01:07,079 basehttp 17620 18208 "POST /userpanel/submit-list-request/ HTTP/1.1" 200 95
+INFO 2025-10-22 00:01:08,804 basehttp 17620 18208 "GET /userpanel/all_requests/ HTTP/1.1" 200 96665
+INFO 2025-10-22 00:01:11,456 basehttp 17620 592 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 478261
+INFO 2025-10-22 00:01:23,267 basehttp 17620 19128 "POST /userpanel/add-to-list/ HTTP/1.1" 200 84
+INFO 2025-10-22 00:01:24,065 basehttp 17620 19128 "GET /userpanel/user_unified_request/ HTTP/1.1" 200 480691
+INFO 2025-10-22 00:01:32,706 basehttp 17620 15852 "POST /userpanel/submit-list-request/ HTTP/1.1" 200 95
+INFO 2025-10-22 00:01:34,435 basehttp 17620 15852 "GET /userpanel/all_requests/ HTTP/1.1" 200 96722
+INFO 2025-10-22 00:01:37,748 basehttp 17620 18156 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-22 00:01:39,960 basehttp 17620 18156 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 228552
+INFO 2025-10-22 00:02:00,907 basehttp 17620 9712 "GET /batch-request/109/ HTTP/1.1" 200 74112
+INFO 2025-10-22 00:02:09,223 utils 17620 9712 Batch request completion email sent to jmvales2004@gmail.com for batch #109
+INFO 2025-10-22 00:02:09,241 basehttp 17620 9712 "POST /batch-request/109/item/223/approve/ HTTP/1.1" 302 0
+INFO 2025-10-22 00:02:09,428 basehttp 17620 9712 "GET /batch-request/109/ HTTP/1.1" 200 73931
+INFO 2025-10-22 00:02:11,780 basehttp 17620 15536 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-22 00:02:13,878 basehttp 17620 15536 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 225574
+INFO 2025-10-22 00:02:15,835 basehttp 17620 15536 "GET /batch-request/111/ HTTP/1.1" 200 74105
+INFO 2025-10-22 00:02:16,790 basehttp 17620 15536 "POST /batch-request/111/item/225/approve/ HTTP/1.1" 302 0
+INFO 2025-10-22 00:02:17,006 basehttp 17620 15536 "GET /batch-request/111/ HTTP/1.1" 200 74416
+INFO 2025-10-22 00:03:01,945 basehttp 17620 2944 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-22 00:03:08,345 basehttp 17620 2944 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 225574
+INFO 2025-10-22 00:03:10,806 basehttp 17620 6872 "GET /my-supply-requests/?tab=pending&pending_page=1 HTTP/1.1" 200 233106
+INFO 2025-10-22 00:03:25,479 basehttp 17620 12328 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 225574
+INFO 2025-10-22 00:03:26,840 basehttp 17620 12328 "GET /batch-request/111/ HTTP/1.1" 200 73953
+INFO 2025-10-22 00:03:29,920 basehttp 17620 12328 "GET /my-supply-requests/ HTTP/1.1" 200 233106
+INFO 2025-10-22 00:03:32,904 basehttp 17620 16920 "GET /my-supply-requests/?tab=pending&pending_page=5 HTTP/1.1" 200 225574
+INFO 2025-10-22 00:03:35,406 basehttp 17620 16920 "GET /batch-request/111/ HTTP/1.1" 200 73953
+INFO 2025-10-22 00:03:36,520 basehttp 17620 16920 "POST /batch-request/111/item/225/approve/ HTTP/1.1" 302 0
+INFO 2025-10-22 00:03:36,693 basehttp 17620 16920 "GET /batch-request/111/ HTTP/1.1" 200 74264
+INFO 2025-10-22 00:03:43,758 basehttp 17620 19040 "POST /batch-request/111/item/225/approve/ HTTP/1.1" 302 0
+INFO 2025-10-22 00:03:43,974 basehttp 17620 19040 "GET /batch-request/111/ HTTP/1.1" 200 74264
+INFO 2025-10-22 00:03:56,522 autoreload 17620 17760 C:\Users\johnm\OneDrive\Desktop\Resource Hive\capstone-repo\app\models.py changed, reloading.
+INFO 2025-10-22 00:03:57,920 autoreload 8592 5308 Watching for file changes with StatReloader
+INFO 2025-10-22 00:04:02,273 basehttp 8592 13616 "GET /batch-request/111/ HTTP/1.1" 200 73953
+INFO 2025-10-22 00:04:02,647 basehttp 8592 13616 "GET /batch-request/111/ HTTP/1.1" 200 73953
+INFO 2025-10-22 00:04:03,208 basehttp 8592 13616 "GET /batch-request/111/ HTTP/1.1" 200 73953
+INFO 2025-10-22 00:04:04,915 basehttp 8592 13616 "POST /batch-request/111/item/225/approve/ HTTP/1.1" 302 0
+INFO 2025-10-22 00:04:05,100 basehttp 8592 13616 "GET /batch-request/111/ HTTP/1.1" 200 74264
+INFO 2025-10-22 00:04:19,605 basehttp 8592 7940 "POST /batch-request/111/item/225/approve/ HTTP/1.1" 302 0
+INFO 2025-10-22 00:04:19,884 basehttp 8592 7940 "GET /batch-request/111/ HTTP/1.1" 200 74264
+INFO 2025-10-22 00:04:26,561 utils 8592 19284 Batch request completion email sent to jmvales2004@gmail.com for batch #111
+INFO 2025-10-22 00:04:26,580 basehttp 8592 19284 "POST /batch-request/111/item/225/reject/ HTTP/1.1" 302 0
+INFO 2025-10-22 00:04:26,887 basehttp 8592 19208 "GET /batch-request/111/ HTTP/1.1" 200 71412
+INFO 2025-10-22 00:04:30,393 basehttp 8592 19208 "GET /my-supply-requests/ HTTP/1.1" 200 236094

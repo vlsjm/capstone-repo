@@ -4902,6 +4902,23 @@ def approve_batch_item(request, batch_id, item_id):
     except (ValueError, TypeError):
         approved_quantity = item.quantity
     
+    # CHECK AVAILABLE STOCK BEFORE APPROVING
+    quantity_info = item.supply.quantity_info
+    available_qty = quantity_info.available_quantity
+    
+    if approved_quantity > available_qty:
+        error_msg = f'Cannot approve {approved_quantity} units of {item.supply.supply_name}. Only {available_qty} units available (Current: {quantity_info.current_quantity}, Reserved: {quantity_info.reserved_quantity}).'
+        
+        # Check if this is an AJAX request
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': error_msg
+            })
+        else:
+            messages.error(request, error_msg)
+            return redirect('batch_request_detail', batch_id=batch_id)
+    
     # Mark item as approved
     item.approved = True
     item.status = 'approved'  # Also update the status field
@@ -4910,6 +4927,10 @@ def approve_batch_item(request, batch_id, item_id):
     if remarks:
         item.remarks = remarks
     item.save()
+    
+    # Reserve the approved quantity to prevent overbooking
+    quantity_info.reserved_quantity += approved_quantity
+    quantity_info.save(user=request.user)
     
     # Check if all items in the batch are processed
     total_items = batch_request.items.count()
@@ -4969,6 +4990,12 @@ def reject_batch_item(request, batch_id, item_id):
     """Reject an individual item in a batch request"""
     batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
     item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
+    
+    # If the item was previously approved, release the reserved quantity
+    if item.status == 'approved' and item.approved_quantity:
+        quantity_info = item.supply.quantity_info
+        quantity_info.reserved_quantity = max(0, quantity_info.reserved_quantity - item.approved_quantity)
+        quantity_info.save(user=request.user)
     
     # Mark item as not approved and add remarks
     item.approved = False
@@ -5044,21 +5071,49 @@ def batch_request_detail(request, batch_id):
             item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
             
             if action == 'approve':
+                # Get approved quantity from form (defaults to requested quantity)
+                approved_quantity = request.POST.get('approved_quantity', item.quantity)
+                try:
+                    approved_quantity = int(approved_quantity)
+                    if approved_quantity <= 0 or approved_quantity > item.quantity:
+                        approved_quantity = item.quantity
+                except (ValueError, TypeError):
+                    approved_quantity = item.quantity
+                
+                # CHECK AVAILABLE STOCK BEFORE APPROVING
+                quantity_info = item.supply.quantity_info
+                available_qty = quantity_info.available_quantity
+                
+                if approved_quantity > available_qty:
+                    messages.error(request, f'Cannot approve {approved_quantity} units of {item.supply.supply_name}. Only {available_qty} units available (Current: {quantity_info.current_quantity}, Reserved: {quantity_info.reserved_quantity}).')
+                    return redirect('batch_request_detail', batch_id=batch_id)
+                
                 item.status = 'approved'
+                item.approved_quantity = approved_quantity
                 if remarks:
                     item.remarks = remarks
                 item.save()
                 
+                # Reserve the approved quantity to prevent overbooking
+                quantity_info.reserved_quantity += approved_quantity
+                quantity_info.save(user=request.user)
+                
                 # Create notification
                 Notification.objects.create(
                     user=batch_request.user,
-                    message=f"Item '{item.supply.supply_name}' in your batch request #{batch_request.id} has been approved.",
+                    message=f"Item '{item.supply.supply_name}' in your batch request #{batch_request.id} has been approved for {approved_quantity} units.",
                     remarks=remarks
                 )
                 
                 messages.success(request, f'Item "{item.supply.supply_name}" approved successfully.')
                 
             elif action == 'reject':
+                # If the item was previously approved, release the reserved quantity
+                if item.status == 'approved' and item.approved_quantity:
+                    quantity_info = item.supply.quantity_info
+                    quantity_info.reserved_quantity = max(0, quantity_info.reserved_quantity - item.approved_quantity)
+                    quantity_info.save(user=request.user)
+                
                 item.status = 'rejected'
                 if remarks:
                     item.remarks = remarks
@@ -5172,6 +5227,9 @@ def claim_batch_items(request, batch_id):
             old_qty = item.supply.quantity_info.current_quantity or 0
             new_qty = max(0, old_qty - approved_qty)
             item.supply.quantity_info.current_quantity = new_qty
+            
+            # Also release the reserved quantity
+            item.supply.quantity_info.reserved_quantity = max(0, item.supply.quantity_info.reserved_quantity - approved_qty)
             item.supply.quantity_info.save()
             
             # Create SupplyHistory entry for quantity deduction
@@ -5265,6 +5323,9 @@ def claim_individual_item(request, batch_id, item_id):
         old_qty = item.supply.quantity_info.current_quantity or 0
         new_qty = max(0, old_qty - approved_qty)
         item.supply.quantity_info.current_quantity = new_qty
+        
+        # Also release the reserved quantity
+        item.supply.quantity_info.reserved_quantity = max(0, item.supply.quantity_info.reserved_quantity - approved_qty)
         item.supply.quantity_info.save()
         
         # Create SupplyHistory entry for quantity deduction

@@ -16,6 +16,72 @@
       min-height: 100vh;
     }
     
+    /* Django Messages Styling */
+    .messages-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      max-width: 500px;
+    }
+    
+    .alert {
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      animation: slideIn 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    
+    .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    
+    .alert-warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+    
+    .alert-info {
+      background-color: #d1ecf1;
+      color: #0c5460;
+    }
+    
+    .alert .close-btn {
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 15px;
+      opacity: 0.7;
+    }
+    
+    .alert .close-btn:hover {
+      opacity: 1;
+    }
+    
     .page-title {
       color: #152d64;
       margin-bottom: 30px;
@@ -884,17 +950,14 @@
 
     .item-row.verified {
       background: linear-gradient(145deg, #e8f5e8, #f0f9ff) !important;
-      border-left: 4px solid #28a745 !important;
     }
 
     .item-row.pending {
       background: linear-gradient(145deg, #fff3e0, #ffeaa7) !important;
-      border-left: 4px solid #ef6c00 !important;
     }
 
     .item-row.scanned {
       background: linear-gradient(145deg, #e8f5e8, #f0f9ff) !important;
-      border-left: 4px solid #28a745 !important;
     }
 
     .item-details code {
@@ -930,19 +993,6 @@
       align-items: center !important;
       gap: 12px !important;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-      border-left: 4px solid #152d64 !important;
-    }
-
-    .expected-card {
-      border-left-color: #6c757d !important;
-    }
-
-    .scanned-card {
-      border-left-color: #ffc107 !important;
-    }
-
-    .verified-card {
-      border-left-color: #28a745 !important;
     }
 
     .card-icon {
@@ -1024,7 +1074,6 @@
       padding: 15px 20px !important;
       border-radius: 8px !important;
       margin-bottom: 20px !important;
-      border-left: 4px solid #152d64 !important;
     }
 
     .summary-info {
@@ -1065,15 +1114,10 @@
       padding: 8px 12px !important;
       background: rgba(255, 255, 255, 0.7) !important;
       border-radius: 6px !important;
-      border-left: 3px solid #152d64 !important;
     }
 
     .expected-items-hint small {
       color: #495057 !important;
-    }
-
-    .total-card {
-      border-left-color: #152d64 !important;
     }
 
     .total-card .card-icon {
@@ -1304,6 +1348,18 @@
     </div>
   </div>
   {% include 'app/navbar.html' %}
+
+  <!-- Django Messages Display -->
+  {% if messages %}
+  <div class="messages-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+      <span>{{ message }}</span>
+      <button class="close-btn" onclick="this.parentElement.remove();">&times;</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
   <div class="batch-details">
     <div class="back-button-container">
@@ -2331,6 +2387,18 @@
           hiddenRemarks.value = remarksInput ? remarksInput.value : '';
         });
       });
+      
+      // Auto-hide messages after 5 seconds
+      setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+          alert.style.transition = 'opacity 0.5s';
+          alert.style.opacity = '0';
+          setTimeout(function() {
+            alert.remove();
+          }, 500);
+        });
+      }, 5000);
     });
   </script>
 
@@ -2414,25 +2482,6 @@
               <i class="fas fa-barcode"></i>
               <p>No items scanned yet. Enter barcodes above to verify items.</p>
             </div>
-          </div>
-        </div>
-
-        <!-- Items Summary Section -->
-        <div class="items-summary-section">
-          <div class="summary-info">
-            <div class="summary-item">
-              <i class="fas fa-clipboard-list"></i>
-              <span class="summary-label">Items to Scan:</span>
-              <span class="summary-value" id="totalItemsCount">Loading...</span>
-            </div>
-            <div class="summary-item">
-              <i class="fas fa-check-circle"></i>
-              <span class="summary-label">Items Scanned:</span>
-              <span class="summary-value" id="scannedItemsCount">0</span>
-            </div>
-          </div>
-          <div class="expected-items-hint" id="expectedItemsHint" style="display: none;">
-            <small><strong>Expected Items:</strong> <span id="expectedItemsList"></span></small>
           </div>
         </div>
 
