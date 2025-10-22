@@ -484,12 +484,14 @@
 }
 
 /* ==============================================
-   MOBILE DARK MODE SUPPORT
+   MOBILE DARK MODE SUPPORT - DISABLED
+   Note: Uncomment to enable dark mode support
    ============================================== */
 
+/*
 @media (max-width: 768px) and (prefers-color-scheme: dark) {
 
-    /* Dark mode adjustments for mobile */
+    Dark mode adjustments for mobile
     body {
         background-color: #1a1a1a;
         color: #e0e0e0;
@@ -523,6 +525,7 @@
         background-color: #1a365d;
     }
 }
+*/
 
 /* ==============================================
    MOBILE PRINT STYLES

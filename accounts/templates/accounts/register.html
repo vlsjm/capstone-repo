@@ -7,6 +7,44 @@
     <title>Document</title>
     <link rel="stylesheet" href="{% static 'css/auth.css' %}" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .email-error {
+        color: #dc2626;
+        font-size: 14px;
+        margin-top: 5px;
+        display: none;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 4px;
+        padding: 8px 12px;
+      }
+
+      .email-error.show {
+        display: block;
+      }
+
+      .email-checking {
+        color: #6b7280;
+        font-size: 14px;
+        margin-top: 5px;
+        display: none;
+      }
+
+      .email-checking.show {
+        display: block;
+      }
+
+      .email-success {
+        color: #059669;
+        font-size: 14px;
+        margin-top: 5px;
+        display: none;
+      }
+
+      .email-success.show {
+        display: block;
+      }
+    </style>
   </head>
   <body class="body-register">
     {% block content %}
@@ -28,7 +66,16 @@
         {% endif %} {% for field in user_form %}
         <div class="form-group">
           <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
-          {{ field }} {% if field.errors %}
+          {{ field }} 
+          
+          <!-- Real-time email validation messages -->
+          {% if field.name == 'email' %}
+          <div class="email-checking" id="emailChecking">Checking availability...</div>
+          <div class="email-error" id="emailError">This email address is already registered.</div>
+          <div class="email-success" id="emailSuccess">✓ Email is available</div>
+          {% endif %}
+          
+          {% if field.errors %}
           <ul class="errorlist">
             {% for error in field.errors %}
             <li>{{ error }}</li>
@@ -48,11 +95,79 @@
           {% endif %}
         </div>
         {% endfor %}
-        <button type="submit" class="register-btn">Register</button>
+        <button type="submit" class="register-btn" id="registerBtn">Register</button>
       </form>
 
       <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
     </div>
     {% endblock content %}
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const emailField = document.getElementById('id_email');
+        const emailError = document.getElementById('emailError');
+        const emailChecking = document.getElementById('emailChecking');
+        const emailSuccess = document.getElementById('emailSuccess');
+        const registerBtn = document.getElementById('registerBtn');
+        
+        let checkTimeout;
+        let isEmailValid = true;
+
+        if (emailField) {
+          emailField.addEventListener('input', function() {
+            const email = this.value.trim();
+            
+            // Hide all messages
+            emailError.classList.remove('show');
+            emailChecking.classList.remove('show');
+            emailSuccess.classList.remove('show');
+            
+            // Clear previous timeout
+            clearTimeout(checkTimeout);
+            
+            // If email is empty, don't check
+            if (!email) {
+              isEmailValid = true;
+              return;
+            }
+            
+            // Show checking message
+            emailChecking.classList.add('show');
+            
+            // Wait 500ms after user stops typing before checking
+            checkTimeout = setTimeout(function() {
+              fetch(`/accounts/check-email/?email=${encodeURIComponent(email)}`)
+                .then(response => response.json())
+                .then(data => {
+                  emailChecking.classList.remove('show');
+                  
+                  if (data.available) {
+                    emailSuccess.classList.add('show');
+                    isEmailValid = true;
+                  } else {
+                    emailError.classList.add('show');
+                    isEmailValid = false;
+                  }
+                })
+                .catch(error => {
+                  console.error('Error checking email:', error);
+                  emailChecking.classList.remove('show');
+                  isEmailValid = true; // Allow submission on error
+                });
+            }, 500);
+          });
+
+          // Prevent form submission if email is not valid
+          const form = emailField.closest('form');
+          form.addEventListener('submit', function(e) {
+            if (!isEmailValid) {
+              e.preventDefault();
+              emailError.classList.add('show');
+              emailField.focus();
+            }
+          });
+        }
+      });
+    </script>
   </body>
 </html>

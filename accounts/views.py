@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.urls import reverse_lazy
 from .forms import UserRegistrationForm, UserProfileForm
+from django.http import JsonResponse
+from django.contrib.auth.models import User
 
 # accounts/views.py
 class RegisterCreateView(View):
@@ -29,4 +31,18 @@ class RegisterCreateView(View):
             'user_form':    user_form,
             'profile_form': profile_form
         })
+
+
+def check_email_availability(request):
+    """AJAX endpoint to check if email is already registered"""
+    email = request.GET.get('email', '').strip()
     
+    if not email:
+        return JsonResponse({'available': True})
+    
+    exists = User.objects.filter(email=email).exists()
+    
+    return JsonResponse({
+        'available': not exists,
+        'message': 'This email address is already registered.' if exists else ''
+    })

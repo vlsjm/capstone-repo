@@ -531,8 +531,246 @@
 }
 
 #badStockModal .select2-container--default .select2-results__option--highlighted[aria-selected] {
-  background-color: #dc3545;
+  background-color: #152d64;
   color: white;
+}
+
+/* Bad Stock Modal Specific Styles */
+.bad-stock-modal-content {
+  max-width: 800px !important;
+  padding: 0 !important;
+}
+
+.bad-stock-header {
+  background: #152d64;
+  color: white;
+  padding: 25px 30px;
+  border-radius: 12px 12px 0 0;
+  margin: 0;
+  border-bottom: 3px solid #0f1f47;
+}
+
+.bad-stock-header h3 {
+  margin: 0 0 8px 0 !important;
+  font-size: 24px !important;
+  color: white !important;
+  text-align: left !important;
+  border: none !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bad-stock-header h3 i {
+  font-size: 26px;
+}
+
+.modal-subtitle {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.95;
+  font-weight: 400;
+}
+
+#badStockForm {
+  padding: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+#badStockForm .form-group {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+#badStockForm .form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+#badStockForm label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #152d64;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+#badStockForm label i {
+  color: #152d64;
+  font-size: 14px;
+}
+
+.required-asterisk {
+  color: #dc3545;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+#badStockForm input[type="number"],
+#badStockForm textarea,
+#badStockForm select {
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+#badStockForm input[type="number"]:focus,
+#badStockForm textarea:focus,
+#badStockForm select:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 5px rgba(21, 45, 100, 0.3);
+}
+
+#badStockForm textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 5px;
+  display: none;
+}
+
+.error-message:not(:empty) {
+  display: block;
+}
+
+.help-text {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.help-text i {
+  color: #17a2b8;
+}
+
+.warning-box {
+  background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%);
+  border: 2px solid #ffc107;
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  align-items: start;
+  gap: 12px;
+  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.1);
+}
+
+.warning-box i {
+  color: #856404;
+  font-size: 20px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.warning-content {
+  font-size: 13px;
+  color: #856404;
+  line-height: 1.5;
+}
+
+.warning-content strong {
+  font-weight: 600;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 10px;
+  align-items: stretch;
+}
+
+.cancel-btn {
+  padding: 0 24px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 200px;
+  height: 48px;
+  box-sizing: border-box;
+}
+
+.cancel-btn:hover {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#badStockModal .submit-btn {
+  padding: 0 24px;
+  background-color: #152d64;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 200px;
+  height: 48px;
+  box-sizing: border-box;
+}
+
+#badStockModal .submit-btn:hover {
+  background-color: #1e3d8a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(21, 45, 100, 0.3);
+}
+
+#badStockModal .close {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  color: white;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.2);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+#badStockModal .close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
 }
 
 /* Add these new styles */
@@ -751,6 +989,46 @@ tr.hidden {
 
 .category-filter-options::-webkit-scrollbar-thumb:hover {
   background: #a0aec0;
+}
+
+/* Filter Actions */
+.simple-filter-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #e9ecef;
+  justify-content: flex-end;
+}
+
+.simple-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.simple-btn.clear-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.simple-btn.clear-btn:hover {
+  background-color: #5a6268;
+}
+
+.simple-btn.apply-btn {
+  background-color: #152d64;
+  color: white;
+}
+
+.simple-btn.apply-btn:hover {
+  background-color: #1e3d8a;
 }
 
 .button-container {
@@ -1525,6 +1803,9 @@ tr.hidden {
                 <div class="simple-filter-actions">
                   <button id="clearFiltersBtn" class="simple-btn clear-btn" type="button">
                     <i class="fas fa-times"></i> Clear All
+                  </button>
+                  <button type="button" id="applyFiltersBtn" class="simple-btn apply-btn">
+                    <i class="fas fa-check"></i> Apply
                   </button>
                 </div>
               </div>
@@ -3088,7 +3369,6 @@ tr.hidden {
           }
 
           updateActiveFilterCount();
-          applyFilters();
         }
       });
 
@@ -3161,51 +3441,75 @@ tr.hidden {
         
         // Load category filters
         const categoryFilters = params.getAll('category');
-        categoryFilters.forEach(category => {
-          const checkbox = document.querySelector(`input[name="category"][value="${category}"]`);
-          if (checkbox) {
-            checkbox.checked = true;
-            if (!activeFilters.category.includes(category)) {
-              activeFilters.category.push(category);
+        if (categoryFilters.length > 0) {
+          // Uncheck "All Categories"
+          const allCategoryCheckbox = document.querySelector('input[name="category"][value=""]');
+          if (allCategoryCheckbox) allCategoryCheckbox.checked = false;
+          
+          categoryFilters.forEach(category => {
+            const checkbox = document.querySelector(`input[name="category"][value="${category}"]`);
+            if (checkbox) {
+              checkbox.checked = true;
+              if (!activeFilters.category.includes(category)) {
+                activeFilters.category.push(category);
+              }
             }
-          }
-        });
+          });
+        }
         
         // Load status filters
         const statusFilters = params.getAll('status');
-        statusFilters.forEach(status => {
-          const checkbox = document.querySelector(`input[name="status"][value="${status}"]`);
-          if (checkbox) {
-            checkbox.checked = true;
-            if (!activeFilters.status.includes(status)) {
-              activeFilters.status.push(status);
+        if (statusFilters.length > 0) {
+          // Uncheck "All Status"
+          const allStatusCheckbox = document.querySelector('input[name="status"][value=""]');
+          if (allStatusCheckbox) allStatusCheckbox.checked = false;
+          
+          statusFilters.forEach(status => {
+            const checkbox = document.querySelector(`input[name="status"][value="${status}"]`);
+            if (checkbox) {
+              checkbox.checked = true;
+              if (!activeFilters.status.includes(status)) {
+                activeFilters.status.push(status);
+              }
             }
-          }
-        });
+          });
+        }
         
         // Load availability filters
         const availabilityFilters = params.getAll('availability');
-        availabilityFilters.forEach(availability => {
-          const checkbox = document.querySelector(`input[name="availability"][value="${availability}"]`);
-          if (checkbox) {
-            checkbox.checked = true;
-            if (!activeFilters.availability.includes(availability)) {
-              activeFilters.availability.push(availability);
+        if (availabilityFilters.length > 0) {
+          // Uncheck "All Availability"
+          const allAvailabilityCheckbox = document.querySelector('input[name="availability"][value=""]');
+          if (allAvailabilityCheckbox) allAvailabilityCheckbox.checked = false;
+          
+          availabilityFilters.forEach(availability => {
+            const checkbox = document.querySelector(`input[name="availability"][value="${availability}"]`);
+            if (checkbox) {
+              checkbox.checked = true;
+              if (!activeFilters.availability.includes(availability)) {
+                activeFilters.availability.push(availability);
+              }
             }
-          }
-        });
+          });
+        }
         
         // Load expiry filters
         const expiryFilters = params.getAll('expiry');
-        expiryFilters.forEach(expiry => {
-          const checkbox = document.querySelector(`input[name="expiry"][value="${expiry}"]`);
-          if (checkbox) {
-            checkbox.checked = true;
-            if (!activeFilters.expiry.includes(expiry)) {
-              activeFilters.expiry.push(expiry);
+        if (expiryFilters.length > 0) {
+          // Uncheck "All Expiry"
+          const allExpiryCheckbox = document.querySelector('input[name="expiry"][value=""]');
+          if (allExpiryCheckbox) allExpiryCheckbox.checked = false;
+          
+          expiryFilters.forEach(expiry => {
+            const checkbox = document.querySelector(`input[name="expiry"][value="${expiry}"]`);
+            if (checkbox) {
+              checkbox.checked = true;
+              if (!activeFilters.expiry.includes(expiry)) {
+                activeFilters.expiry.push(expiry);
+              }
             }
-          }
-        });
+          });
+        }
         
         updateActiveFilterCount();
       }
@@ -3259,6 +3563,14 @@ tr.hidden {
           
           // Navigate to base URL without any parameters
           window.location.href = window.location.pathname;
+        });
+      }
+
+      // Apply filters button functionality
+      const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+      if (applyFiltersBtn) {
+        applyFiltersBtn.addEventListener('click', function() {
+          applyFilters();
         });
       }
 
@@ -5262,87 +5574,81 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Bad Stock Report Modal -->
 <div id="badStockModal" class="modal" style="display: none;">
-  <div class="modal-content" style="max-width: 600px; margin: 5% auto; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-    <!-- Modal Header -->
-    <div style="padding: 20px; background: #dc3545; color: white; border-radius: 8px 8px 0 0;">
-      <h2 style="margin: 0; font-size: 20px; font-weight: 600;">
+  <div class="modal-content bad-stock-modal-content">
+    <span class="close" onclick="closeBadStockModal()">&times;</span>
+    
+    <div class="bad-stock-header">
+      <h3>
         <i class="fas fa-exclamation-triangle"></i> Report Bad Stock
-      </h2>
-      <p style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.9;">Remove damaged or unusable items from inventory</p>
+      </h3>
+      <p class="modal-subtitle">Remove damaged or unusable items from inventory</p>
     </div>
 
-    <!-- Modal Body -->
-    <div style="padding: 25px;">
-      <form id="badStockForm">
-        {% csrf_token %}
-        
-        <!-- Supply Selection -->
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px;">
-            Supply Item <span style="color: #dc3545;">*</span>
-          </label>
-          <select id="bad_stock_supply" name="supply" required class="select2-supply" 
-                  style="width: 100%;">
-            <option value="">Select a supply...</option>
-            {% for supply in all_supplies %}
-              {% if not supply.is_archived %}
-                <option value="{{ supply.id }}" data-quantity="{{ supply.quantity_info.current_quantity }}">
-                  [ID: {{ supply.id }}] {{ supply.supply_name }} - Available: {{ supply.quantity_info.current_quantity }}
-                </option>
-              {% endif %}
-            {% endfor %}
-          </select>
-          <div id="supply_error" class="error-message" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></div>
-        </div>
+    <form id="badStockForm">
+      {% csrf_token %}
+      
+      <!-- Supply Selection -->
+      <div class="form-group">
+        <label for="bad_stock_supply">
+          <i class="fas fa-box"></i> Supply Item
+          <span class="required-asterisk">*</span>
+        </label>
+        <select id="bad_stock_supply" name="supply" required class="select2-supply">
+          <option value="">Search by name or ID...</option>
+          {% for supply in all_supplies %}
+            {% if not supply.is_archived %}
+              <option value="{{ supply.id }}" data-quantity="{{ supply.quantity_info.current_quantity }}">
+                [ID: {{ supply.id }}] {{ supply.supply_name }} - Available: {{ supply.quantity_info.current_quantity }}
+              </option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <div id="supply_error" class="error-message"></div>
+      </div>
 
-        <!-- Quantity to Remove -->
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px;">
-            Quantity to Remove <span style="color: #dc3545;">*</span>
-          </label>
-          <input type="number" id="bad_stock_quantity" name="quantity_removed" required min="1" 
-                 placeholder="Enter quantity to remove" 
-                 style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;">
-          <div id="quantity_error" class="error-message" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></div>
-        </div>
+      <!-- Quantity to Remove -->
+      <div class="form-group">
+        <label for="bad_stock_quantity">
+          <i class="fas fa-minus-circle"></i> Quantity to Remove
+          <span class="required-asterisk">*</span>
+        </label>
+        <input type="number" id="bad_stock_quantity" name="quantity_removed" required min="1" 
+               placeholder="Enter quantity to remove">
+        <div id="quantity_error" class="error-message"></div>
+      </div>
 
-        <!-- Reason and Remarks -->
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px;">
-            Reason and Remarks <span style="color: #dc3545;">*</span>
-          </label>
-          <textarea id="bad_stock_remarks" name="remarks" required rows="4" 
-                    placeholder="Provide detailed explanation including the reason (e.g., damaged during transport, expired on [date], defective - not functioning, contaminated, lost, etc.)" 
-                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; resize: vertical; box-sizing: border-box;"></textarea>
-          <div id="remarks_error" class="error-message" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></div>
-          <div style="font-size: 12px; color: #666; margin-top: 5px;">
-            <i class="fas fa-info-circle"></i> Be specific about the condition and reason for removal
-          </div>
-        </div>
+      <!-- Reason and Remarks -->
+      <div class="form-group full-width">
+        <label for="bad_stock_remarks">
+          <i class="fas fa-clipboard"></i> Reason and Remarks
+          <span class="required-asterisk">*</span>
+        </label>
+        <textarea id="bad_stock_remarks" name="remarks" required rows="4" 
+                  placeholder="Provide detailed explanation including the reason (e.g., damaged during transport, expired on [date], defective - not functioning, contaminated, lost, etc.)"></textarea>
+        <div id="remarks_error" class="error-message"></div>
+        <small class="help-text">
+          <i class="fas fa-info-circle"></i> Be specific about the condition and reason for removal
+        </small>
+      </div>
 
-        <!-- Warning Message -->
-        <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 12px; margin-bottom: 20px;">
-          <div style="display: flex; align-items: start; gap: 10px;">
-            <i class="fas fa-exclamation-triangle" style="color: #856404; margin-top: 2px;"></i>
-            <div style="font-size: 13px; color: #856404;">
-              <strong>Important:</strong> This action will immediately remove the specified quantity from your inventory and cannot be undone. All changes will be logged for audit purposes.
-            </div>
-          </div>
+      <!-- Warning Message -->
+      <div class="warning-box full-width">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div class="warning-content">
+          <strong>Important:</strong> This action will immediately remove the specified quantity from your inventory and cannot be undone. All changes will be logged for audit purposes.
         </div>
+      </div>
 
-        <!-- Action Buttons -->
-        <div style="display: flex; gap: 10px; justify-content: flex-end;">
-          <button type="button" id="cancelBadStockBtn" 
-                  style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
-            Cancel
-          </button>
-          <button type="submit" id="submitBadStockBtn" 
-                  style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500;">
-            <i class="fas fa-check"></i> Remove from Inventory
-          </button>
-        </div>
-      </form>
-    </div>
+      <!-- Action Buttons -->
+      <div class="button-group full-width">
+        <button type="button" id="cancelBadStockBtn" class="cancel-btn">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button type="submit" id="submitBadStockBtn" class="submit-btn">
+          <i class="fas fa-check"></i> Remove
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -5483,7 +5789,7 @@ badStockForm.onsubmit = function(e) {
   .finally(() => {
     // Re-enable submit button
     submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="fas fa-check"></i> Remove from Inventory';
+    submitBtn.innerHTML = '<i class="fas fa-check"></i> Remove';
   });
 }
 

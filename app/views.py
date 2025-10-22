@@ -105,7 +105,7 @@ from django.urls import reverse_lazy, reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, ListView
 from django.core.exceptions import ValidationError
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from django.views import View
 from django.contrib.auth import login, authenticate, logout
 from .models import(
@@ -154,36 +154,14 @@ from io import BytesIO
 # Create a logger
 logger = logging.getLogger(__name__)
 
-
-def verify_email_settings():
-    """Verify email settings are properly configured"""
-    logger.info("Verifying email settings...")
-    logger.info(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
-    logger.info(f"EMAIL_HOST: {settings.EMAIL_HOST}")
-    logger.info(f"EMAIL_PORT: {settings.EMAIL_PORT}")
-    logger.info(f"EMAIL_USE_TLS: {settings.EMAIL_USE_TLS}")
-    logger.info(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
-    logger.info(f"EMAIL_HOST_PASSWORD is set: {'Yes' if settings.EMAIL_HOST_PASSWORD else 'No'}")
-    
-    # Check if .env file exists and is readable
-    env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
-    logger.info(f".env file exists: {'Yes' if os.path.exists(env_path) else 'No'}")
-
 #user create user 
 def create_user(request):
     if request.method == 'POST':
-        logger.info("Starting user creation process...")
-        # Verify email settings before proceeding
-        verify_email_settings()
-        
         form = UserRegistrationForm(request.POST)
-        logger.info("Checking form validity...")
         if form.is_valid():
-            logger.info("Form is valid, proceeding with user creation...")
             try:
                 # Create user
                 initial_password = form.cleaned_data['password']
-                logger.info(f"Creating user with email: {form.cleaned_data['email']}")
                 user = User.objects.create_user(
                     username=form.cleaned_data['username'],
                     first_name=form.cleaned_data['first_name'],
@@ -194,16 +172,13 @@ def create_user(request):
                 user.is_staff = True
                 user.save()
 
-                role = form.cleaned_data['role']  
-                logger.info(f"User created successfully with role: {role}")
+                role = form.cleaned_data['role']
             
                 # Add user to group
                 try:
                     group = Group.objects.get(name=role)
                     user.groups.add(group)
-                    logger.info(f"Added user to group: {role}")
                 except Group.DoesNotExist:
-                    logger.warning(f"Group {role} does not exist")
                     messages.warning(request, f'Group {role} does not exist. User created without group assignment.')
 
                 # Create user profile
@@ -213,7 +188,6 @@ def create_user(request):
                     department=form.cleaned_data['department'],
                     phone=form.cleaned_data['phone'],
                 )
-                logger.info("User profile created successfully")
 
                 # Send welcome email
                 try:
@@ -225,7 +199,6 @@ def create_user(request):
                     html_message = render_to_string('app/email/account_created.html', context)
                     plain_message = strip_tags(html_message)
                     
-                    logger.info(f"Attempting to send welcome email to {user.email}...")
                     send_mail(
                         subject='Welcome to ResourceHive - Your Account Has Been Created',
                         message=plain_message,
@@ -234,11 +207,9 @@ def create_user(request):
                         html_message=html_message,
                         fail_silently=False,
                     )
-                    logger.info("Welcome email sent successfully!")
                     messages.success(request, f'Account created successfully for {user.username} and welcome email sent.')
                 except Exception as e:
-                    logger.error(f"Failed to send welcome email: {str(e)}")
-                    messages.warning(request, f'Account created successfully but failed to send welcome email. Error: {str(e)}')
+                    messages.warning(request, f'Account created successfully but failed to send welcome email.')
 
                 # Log the activity
                 ActivityLog.log_activity(
@@ -252,17 +223,23 @@ def create_user(request):
                 return redirect('manage_users')
                 
             except Exception as e:
-                logger.error(f"Error in user creation process: {str(e)}")
                 messages.error(request, f'Error creating account: {str(e)}')
+                # Store form data in session to preserve it
+                request.session['form_data'] = request.POST.dict()
+                request.session['show_modal'] = True
                 return redirect('manage_users')
         else:
-            logger.error(f"Form validation failed. Errors: {form.errors}")
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        form = UserRegistrationForm()
-    users = UserProfile.objects.select_related('user').all()
-    departments = Department.objects.all()
-    return render(request, 'app/manage_users.html', {'form': form, 'users': users, 'departments': departments, })
+            # Store form data and errors in session as simple dict
+            request.session['form_data'] = request.POST.dict()
+            # Convert errors to simple list of strings per field
+            form_errors_dict = {}
+            for field, errors in form.errors.items():
+                form_errors_dict[field] = list(errors)
+            request.session['form_errors'] = form_errors_dict
+            request.session['show_modal'] = True
+            return redirect('manage_users')
+    
+    return redirect('manage_users')
 
 def create_department(request):
     if request.method == 'POST':
@@ -595,8 +572,27 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = UserRegistrationForm()
+        
+        # Check if there's form data in session (from validation errors)
+        form_data = self.request.session.pop('form_data', None)
+        form_errors = self.request.session.pop('form_errors', None)
+        show_modal = self.request.session.pop('show_modal', False)
+        
+        if form_data:
+            # Recreate form with previous data
+            form = UserRegistrationForm(data=form_data)
+            if form_errors:
+                # Replace the form errors with stored errors
+                from django.forms.utils import ErrorDict
+                form._errors = ErrorDict()
+                for field, errors in form_errors.items():
+                    form._errors[field] = errors
+        else:
+            form = UserRegistrationForm()
+        
+        context['form'] = form
         context['departments'] = Department.objects.all()
+        context['show_modal'] = show_modal
         # Add current filter values to context
         context['search'] = self.request.GET.get('search', '')
         context['selected_role'] = self.request.GET.get('role', '')
@@ -1366,10 +1362,18 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         if status_filters:
             status_conditions = []
             for status in status_filters:
-                if status == 'active':
-                    status_conditions.append(Q(status='active'))
-                elif status == 'inactive':
-                    status_conditions.append(Q(status='inactive'))
+                if status == 'available':
+                    # Available: current_quantity > minimum_threshold
+                    status_conditions.append(Q(quantity_info__current_quantity__gt=F('quantity_info__minimum_threshold')))
+                elif status == 'low_stock':
+                    # Low stock: current_quantity > 0 AND current_quantity <= minimum_threshold
+                    status_conditions.append(
+                        Q(quantity_info__current_quantity__gt=0) & 
+                        Q(quantity_info__current_quantity__lte=F('quantity_info__minimum_threshold'))
+                    )
+                elif status == 'out_of_stock':
+                    # Out of stock: current_quantity = 0
+                    status_conditions.append(Q(quantity_info__current_quantity=0))
             
             if status_conditions:
                 status_q = status_conditions[0]
@@ -1382,10 +1386,10 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         if availability_filters:
             availability_conditions = []
             for availability in availability_filters:
-                if availability == 'Available':
-                    availability_conditions.append(Q(quantity_info__current_quantity__gt=0))
-                elif availability == 'Out of Stock':
-                    availability_conditions.append(Q(quantity_info__current_quantity=0))
+                if availability == 'Yes':
+                    availability_conditions.append(Q(available_for_request=True))
+                elif availability == 'No':
+                    availability_conditions.append(Q(available_for_request=False))
             
             if availability_conditions:
                 availability_q = availability_conditions[0]
@@ -2091,6 +2095,51 @@ def delete_property(request, pk):
 
         messages.success(request, 'Property deleted successfully.')
     return redirect('property_list')
+
+@permission_required('app.view_admin_module')
+@require_POST
+def admin_mark_property_damaged(request, property_id):
+    """
+    View for admins to mark a property as damaged directly.
+    Creates a damage report and immediately marks the property as damaged.
+    """
+    from .forms import AdminDamageReportForm
+    
+    property_obj = get_object_or_404(Property, id=property_id)
+    
+    form = AdminDamageReportForm(request.POST, request.FILES)
+    
+    if form.is_valid():
+        damage_report = form.save(commit=False)
+        damage_report.user = request.user  # Admin is the reporter
+        damage_report.item = property_obj  # Set the property
+        damage_report.status = 'approved'  # Automatically approved since admin created it
+        damage_report.save()
+        
+        # Immediately mark the property as damaged
+        property_obj.condition = 'Needing repair'
+        property_obj.availability = 'not_available'
+        property_obj.save(user=request.user)
+        
+        # Log the activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='report',
+            model_name='DamageReport',
+            object_repr=str(property_obj.property_name),
+            description=f"Admin marked property '{property_obj.property_name}' as damaged and moved to Damage Items. Reason: {damage_report.description[:100]}..."
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Property marked as damaged and moved to Damage Items successfully.',
+            'damage_report_id': damage_report.id
+        })
+    else:
+        return JsonResponse({
+            'success': False,
+            'errors': form.errors
+        }, status=400)
 
 @permission_required('app.view_admin_module')
 def add_property_category(request):

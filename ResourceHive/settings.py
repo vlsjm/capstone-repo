@@ -41,15 +41,15 @@ SESSION_COOKIE_AGE = 3600
 # Application definition
 
 INSTALLED_APPS = [
+    'app.apps.AppConfig',  # Load app templates first to override admin templates
+    'accounts',
+    'userpanel',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app.apps.AppConfig',
-    'accounts',
-    'userpanel',
 ]
 
 MIDDLEWARE = [
@@ -154,12 +154,19 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# For development: use console backend (prints emails to console)
+# For production: switch to SMTP backend
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Development
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Production
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER', 'noreply@resourcehive.com')
+
+# Password Reset Settings
+PASSWORD_RESET_TIMEOUT = 3600  # Token valid for 1 hour (in seconds)
 
 # Logging Configuration
 LOGGING = {

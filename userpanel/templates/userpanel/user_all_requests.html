@@ -226,20 +226,9 @@
                         {% if search_query or status_filter != 'all' or request_type != 'all' %}
                             No requests match your current filters. Try adjusting your search criteria.
                         {% else %}
-                            You haven't made any requests yet. Start by creating a new request.
+                            You haven't made any requests yet.
                         {% endif %}
                     </p>
-                    <div class="empty-actions">
-                        <a href="{% url 'user_unified_request' %}" class="btn-submit" onclick="localStorage.setItem('activeRequestTab', 'supply')">
-                            <i class="fas fa-plus"></i> New Supply Request
-                        </a>
-                        <a href="{% url 'user_unified_request' %}" class="btn-secondary" onclick="localStorage.setItem('activeRequestTab', 'borrow')">
-                            <i class="fas fa-handshake"></i> New Borrow Request
-                        </a>
-                        <a href="{% url 'user_reserve' %}" class="btn-tertiary">
-                            <i class="fas fa-calendar-alt"></i> New Reservation
-                        </a>
-                    </div>
                 </div>
             {% endif %}
         </div>

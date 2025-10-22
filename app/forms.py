@@ -49,7 +49,7 @@ class UserRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
-    email = forms.EmailField()
+    email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput)
     role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES)
     department = forms.ModelChoiceField(
@@ -62,6 +62,20 @@ class UserRegistrationForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email']
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if username and User.objects.filter(username=username).exists():
+            raise forms.ValidationError("This username is already taken.")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if not email:
+            raise forms.ValidationError("Email is required.")
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email is already registered.")
+        return email
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -427,6 +441,46 @@ class DamageReportForm(forms.ModelForm):
                 'accept': 'image/*',
                 'class': 'form-control-file'
             })
+        }
+    
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image:
+            # Check file size (limit to 5MB)
+            if image.size > 5 * 1024 * 1024:
+                raise ValidationError("Image file too large. Please keep it under 5MB.")
+            
+            # Check file type
+            valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+            file_extension = os.path.splitext(image.name)[1].lower()
+            if file_extension not in valid_extensions:
+                raise ValidationError("Please upload a valid image file (JPG, PNG, GIF, BMP, WebP).")
+        
+        return image
+
+
+class AdminDamageReportForm(forms.ModelForm):
+    """
+    Form for admins to mark a property as damaged directly without a user report.
+    """
+    class Meta:
+        model = DamageReport
+        fields = ['description', 'image']
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Describe the damage or issue with this property...',
+                'required': True
+            }),
+            'image': forms.FileInput(attrs={
+                'accept': 'image/*',
+                'class': 'form-control-file'
+            })
+        }
+        labels = {
+            'description': 'Damage Description',
+            'image': 'Upload Image (Optional)'
         }
     
     def clean_image(self):

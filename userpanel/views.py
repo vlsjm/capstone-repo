@@ -91,7 +91,11 @@ class UserReserveView(PermissionRequiredMixin, TemplateView):
                 continue
         
         # Get available properties for the dropdown
-        available_supplies = Property.objects.filter(is_archived=False, quantity__gt=0)
+        available_supplies = Property.objects.filter(
+            is_archived=False, 
+            quantity__gt=0,
+            availability='available'
+        )
         
         recent_requests = Reservation.objects.filter(user=request.user).order_by('-reservation_date')[:5]
         
@@ -229,7 +233,11 @@ class UserUnifiedRequestView(PermissionRequiredMixin, TemplateView):
         ).select_related('quantity_info', 'category')
         
         # Get available properties
-        available_properties = Property.objects.filter(is_archived=False, quantity__gt=0)
+        available_properties = Property.objects.filter(
+            is_archived=False, 
+            quantity__gt=0,
+            availability='available'
+        )
         
         # Get categories
         supply_categories = SupplyCategory.objects.all()
@@ -324,7 +332,7 @@ class UserUnifiedRequestView(PermissionRequiredMixin, TemplateView):
 
 
 class UserLoginView(LoginView):
-    template_name = 'registration/user_login.html'
+    template_name = 'registration/login.html'
 
     def get_success_url(self):
         return reverse_lazy('user_dashboard')  
@@ -816,6 +824,20 @@ def add_to_borrow_list(request):
         try:
             property_obj = Property.objects.get(id=property_id)
             
+            # Check if property is available for request
+            if property_obj.availability != 'available':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'This item is not available for request'
+                })
+            
+            # Check if property is archived
+            if property_obj.is_archived:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'This item is archived and cannot be requested'
+                })
+            
             # Validate quantity
             if quantity > property_obj.quantity:
                 return JsonResponse({
@@ -1003,6 +1025,30 @@ def submit_borrow_list_request(request):
                         'message': f'Property with ID {item["property_id"]} not found'
                     })
                 
+                # Check if property is available for request
+                if property_obj.availability != 'available':
+                    batch_request.delete()
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': f'{property_obj.property_name} is not available for request'
+                    })
+                
+                # Check if property is archived
+                if property_obj.is_archived:
+                    batch_request.delete()
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': f'{property_obj.property_name} is archived and cannot be requested'
+                    })
+                
+                # Check quantity availability
+                if item['quantity'] > property_obj.quantity:
+                    batch_request.delete()
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': f'Only {property_obj.quantity} units of {property_obj.property_name} are available'
+                    })
+                
                 # Create the borrow request item
                 try:
                     BorrowRequestItem.objects.create(
@@ -1083,6 +1129,20 @@ def add_to_reservation_list(request):
             return JsonResponse({
                 'status': 'error',
                 'message': 'Property not found'
+            })
+        
+        # Check if property is available for request
+        if property_obj.availability != 'available':
+            return JsonResponse({
+                'status': 'error',
+                'message': 'This item is not available for request'
+            })
+        
+        # Check if property is archived
+        if property_obj.is_archived:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'This item is archived and cannot be requested'
             })
         
         # Check if enough quantity is available
@@ -1256,6 +1316,27 @@ def submit_reservation_list_request(request):
             
             for item in cart:
                 property_obj = Property.objects.get(id=item['property_id'])
+                
+                # Check if property is available for request
+                if property_obj.availability != 'available':
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': f'{property_obj.property_name} is not available for request'
+                    })
+                
+                # Check if property is archived
+                if property_obj.is_archived:
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': f'{property_obj.property_name} is archived and cannot be requested'
+                    })
+                
+                # Check quantity availability
+                if item['quantity'] > property_obj.quantity:
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': f'Only {property_obj.quantity} units of {property_obj.property_name} are available'
+                    })
                 
                 # Create the reservation request
                 reservation = Reservation.objects.create(

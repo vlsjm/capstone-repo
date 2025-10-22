@@ -114,6 +114,7 @@ urlpatterns = [
     path('edit-property/', edit_property, name='edit_property'),
     path('change-property-number/<int:pk>/', change_property_number, name='change_property_number'),
     path('delete-property/<int:pk>/', delete_property, name='delete_property'),
+    path('property/<int:property_id>/mark-damaged/', views.admin_mark_property_damaged, name='admin_mark_property_damaged'),
     path('property/modify_quantity/', views.modify_property_quantity_generic, name='modify_property_quantity_generic'),
     path('property/modify_quantity_batch/', views.modify_property_quantity_batch, name='modify_property_quantity_batch'),
     path('add-property-category/', add_property_category, name='add_property_category'),

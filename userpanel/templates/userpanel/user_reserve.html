@@ -3,6 +3,15 @@
 {% block title %}Make Reservation{% endblock %}
 
 {% block content %}
+<style>
+    /* Override overflow hidden for searchable dropdown */
+    .form-group:has(.searchable-select-container) {
+        overflow: visible !important;
+    }
+    .form-row:has(.searchable-select-container) {
+        overflow: visible !important;
+    }
+</style>
 <div class="request-page-layout">
     <main class="request-form-container">
         <h1><i class="fas fa-calendar-alt"></i> Reservation Request List</h1>
@@ -15,15 +24,21 @@
                 {% csrf_token %}
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="supply-select">Equipment/Item:</label>
-                        <select id="supply-select" name="supply" class="form-control" required>
-                            <option value="">Select an item...</option>
-                            {% for supply in available_supplies %}
-                            <option value="{{ supply.id }}" data-available="{{ supply.quantity }}">
-                                {{ supply.property_name }} (Available: {{ supply.quantity }})
-                            </option>
-                            {% endfor %}
-                        </select>
+                        <label for="supply-search">Equipment/Item:</label>
+                        <div class="searchable-select-container">
+                            <input type="text" id="supply-search" class="form-control" 
+                                   placeholder="Search for an item..." autocomplete="off" required>
+                            <input type="hidden" id="supply-select" name="supply">
+                            <div id="supply-dropdown" class="select-dropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e1e5e9; max-height: 300px; overflow-y: auto; z-index: 9999; display: none;">
+                                <div class="select-option" data-value="">Select an item...</div>
+                                {% for supply in available_supplies %}
+                                <div class="select-option" data-value="{{ supply.id }}" data-available="{{ supply.quantity }}">
+                                    {{ supply.property_name }} (Available: {{ supply.quantity }})
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <!-- Debug: Total items = {{ available_supplies|length }} -->
                     </div>
                     <div class="form-group">
                         <label for="quantity-input">Quantity:</label>
@@ -187,6 +202,13 @@ $(document).ready(function() {
     $('#add-item-form').on('submit', function(e) {
         e.preventDefault();
         
+        // Get the value from the hidden input
+        const supplyId = $('#supply-select').val();
+        if (!supplyId) {
+            showMessage('Please select an item', 'error');
+            return;
+        }
+        
         const formData = new FormData(this);
         formData.append('action', 'add_to_cart');
         
@@ -300,6 +322,7 @@ $(document).ready(function() {
                     
                     // Clear form
                     $('#add-item-form')[0].reset();
+                    $('#supply-search').val('');
                     $('#supply-select').val('');
                     $('#quantity-input').attr('max', '').attr('placeholder', 'Enter quantity');
                     
@@ -423,15 +446,113 @@ $(document).ready(function() {
     attachRemoveHandler();
     attachClearListHandler();
     
-    // Update quantity limits based on selected supply
-    $('#supply-select').on('change', function() {
-        const selectedOption = $(this).find('option:selected');
-        const available = selectedOption.data('available');
+    // Searchable dropdown functionality
+    const searchInput = $('#supply-search');
+    const dropdown = $('#supply-dropdown');
+    const hiddenInput = $('#supply-select');
+    
+    // Debug: Check if elements exist and have options
+    console.log('Search input:', searchInput.length);
+    console.log('Dropdown:', dropdown.length);
+    console.log('Initial options count:', dropdown.find('.select-option').length);
+    
+    // Show dropdown when search input is focused or clicked
+    searchInput.on('focus click', function(e) {
+        console.log('Input focused/clicked');
+        dropdown.css({
+            'display': 'block !important',
+            'visibility': 'visible',
+            'opacity': '1'
+        });
         
-        if (available) {
+        // Force show and get dimensions
+        dropdown.show();
+        
+        console.log('Dropdown display:', dropdown.css('display'));
+        console.log('Dropdown visibility:', dropdown.css('visibility'));
+        console.log('Dropdown position:', dropdown.css('position'));
+        console.log('Dropdown height:', dropdown.height());
+        console.log('Dropdown offset:', dropdown.offset());
+        console.log('Is visible:', dropdown.is(':visible'));
+        
+        filterOptions(searchInput.val());
+    });
+    
+    // Filter options based on search input
+    searchInput.on('input', function() {
+        const searchTerm = $(this).val();
+        dropdown.css('display', 'block');
+        filterOptions(searchTerm);
+    });
+    
+    // Handle option selection using event delegation
+    dropdown.on('click', '.select-option', function() {
+        const value = $(this).data('value');
+        const text = $(this).text().trim();
+        const available = $(this).data('available');
+        
+        if (value) {
+            hiddenInput.val(value);
+            searchInput.val(text);
+            
+            // Update quantity input limits
             $('#quantity-input').attr('max', available);
             $('#quantity-input').attr('placeholder', `Enter quantity (max ${available})`);
+        } else {
+            hiddenInput.val('');
+            searchInput.val('');
+            $('#quantity-input').attr('max', '').attr('placeholder', 'Enter quantity');
         }
+        
+        dropdown.css('display', 'none');
+    });
+    
+    // Close dropdown when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.searchable-select-container').length) {
+            dropdown.css('display', 'none');
+        }
+    });
+    
+    // Filter options function
+    function filterOptions(searchTerm) {
+        const term = searchTerm.toLowerCase().trim();
+        let hasVisibleOptions = false;
+        const options = dropdown.find('.select-option:not(.no-results)');
+        
+        options.each(function() {
+            const optionText = $(this).text().toLowerCase();
+            const value = $(this).data('value');
+            
+            // Always show the "Select an item..." option if search is empty
+            if (!value && !term) {
+                $(this).show();
+                hasVisibleOptions = true;
+            } else if (!value) {
+                $(this).hide();
+            } else if (!term || optionText.includes(term)) {
+                $(this).show();
+                hasVisibleOptions = true;
+            } else {
+                $(this).hide();
+            }
+        });
+        
+        // Show "No results" if no options match
+        if (!hasVisibleOptions && term) {
+            if (!dropdown.find('.no-results').length) {
+                dropdown.append('<div class="no-results select-option">No items found</div>');
+            }
+        } else {
+            dropdown.find('.no-results').remove();
+        }
+    }
+    
+    // Clear search when form is reset
+    $('#add-item-form').on('reset', function() {
+        searchInput.val('');
+        hiddenInput.val('');
+        $('#quantity-input').attr('max', '').attr('placeholder', 'Enter quantity');
     });
     
     // Show message function
@@ -535,73 +656,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Supply dropdown functionality
-    const supplySelect = document.getElementById('supply-select');
+    const supplySelect = document.getElementById('supply-search');
     const supplyDropdown = document.getElementById('supply-dropdown');
-    const dropdownOptions = document.querySelectorAll('.select-option');
     
     if (supplySelect && supplyDropdown) {
-        let dropdownVisible = false;
-        
-        function toggleDropdown() {
-            dropdownVisible = !dropdownVisible;
-            supplyDropdown.style.display = dropdownVisible ? 'block' : 'none';
-        }
-        
-        function hideDropdown() {
-            dropdownVisible = false;
-            supplyDropdown.style.display = 'none';
-        }
-        
-        supplySelect.addEventListener('click', toggleDropdown);
-        
-        dropdownOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                const value = this.dataset.value;
-                const text = this.textContent.trim();
-                const available = this.dataset.available;
-                
-                // Update the select display
-                supplySelect.querySelector('.select-display').textContent = text;
-                supplySelect.dataset.value = value;
-                
-                // Update quantity field max value
-                const quantityInput = document.getElementById('quantity-input');
-                if (quantityInput && available) {
-                    quantityInput.setAttribute('max', available);
-                    quantityInput.setAttribute('placeholder', `Enter quantity (max ${available})`);
-                }
-                
-                hideDropdown();
-            });
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!supplySelect.contains(e.target) && !supplyDropdown.contains(e.target)) {
-                hideDropdown();
-            }
-        });
-        
-        // Handle window resize
-        let resizeTimeout;
-        window.addEventListener('resize', function() {
-            if (dropdownVisible) {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(function() {
-                    toggleDropdown();
-                }, 100);
-            }
-        });
+       
     }
 
-    /* Old searchable dropdown code - replaced with simple select
-    // Searchable dropdown functionality for supply search
-    const searchInput = document.getElementById('supply-search');
-    const dropdown = document.getElementById('supply-dropdown');
-    const hiddenInput = document.getElementById('supply-select');
-    const options = dropdown.querySelectorAll('.select-option');
-    ... removed for simplicity ...
-    */
+
 });
 </script>
 {% endblock %}
