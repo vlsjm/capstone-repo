@@ -4677,7 +4677,7 @@ tr.hidden {
                         text-align: center;
                     }
                     .barcode-image {
-                        max-width: 100%;
+                        width: 1.5in;
                         height: auto;
                         margin-bottom: 10px;
                     }
@@ -5089,7 +5089,7 @@ function printSelectedBarcodesFunction(selectedCheckboxes) {
                     page-break-inside: avoid;
                 }
                 .barcode-image {
-                    max-width: 100%;
+                    width: 1.5in;
                     height: auto;
                     margin-bottom: 10px;
                 }
@@ -5321,7 +5321,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div style="font-weight: 500; font-size: 14px; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</div>
                 <div style="font-size: 12px; color: #666; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                     <span>Current Stock: <strong>${item.currentQuantity}</strong></span>
-                    <span style="color: ${item.source === 'barcode' ? '#28a745' : '#007bff'};">${item.source === 'barcode' ? '📱 Scanned' : '✏️ Manual'}</span>
+                    <span style="color: ${item.source === 'barcode' ? '#28a745' : '#007bff'};">${item.source === 'barcode' ? 'Scanned' : 'Manual'}</span>
                     ${item.description ? `<span style="color: #6c757d; font-style: italic;">${item.description}</span>` : ''}
                 </div>
             </div>

@@ -20,9 +20,21 @@ def generate_barcode(code):
     # Create barcode instance
     code128 = barcode.get_barcode_class('code128')
     
+    # Configure barcode writer options for 1.5 inch width
+    # 1.5 inch = 144 pixels at 96 DPI (standard screen DPI)
+    # Module width controls the width of individual bars
+    writer_options = {
+        'module_width': 0.3,  # Width of individual bars in mm (larger = wider barcode)
+        'module_height': 5.0,  # Height of bars in mm
+        'quiet_zone': 3.0,  # Quiet zone on sides in mm
+        'font_size': 1,  # Font size for text
+        'text_distance': 5.0,  # Distance between barcode and text in mm (increased for balanced spacing)
+        'dpi': 300,  # Higher DPI for better print quality
+    }
+    
     # Generate the barcode
     rv = BytesIO()
-    code128(code, writer=ImageWriter()).write(rv)
+    code128(code, writer=ImageWriter()).write(rv, options=writer_options)
     
     # Convert to base64
     image_base64 = base64.b64encode(rv.getvalue()).decode()
@@ -37,12 +49,32 @@ def generate_barcode_image(code):
     # Create barcode instance
     code128 = barcode.get_barcode_class('code128')
     
-    # Generate the barcode
-    rv = BytesIO()
-    code128(code, writer=ImageWriter()).write(rv)
+    # Pad short codes to minimum 12 characters for consistent barcode width
+    # This ensures all barcodes have similar bar thickness
+    barcode_text = code
+    if len(code) < 12:
+        # Pad with spaces on the right to make all barcodes similar length
+        barcode_text = code.ljust(12)
     
-    # Return as ContentFile with appropriate filename
+    # Configure barcode writer options for 1.5 inch width
+    # 1.5 inch = 38.1 mm
+    # Module width controls the width of individual bars
+    writer_options = {
+        'module_width': 0.3,  # Width of individual bars in mm
+        'module_height': 15.0,  # Height of bars in mm (increased by 5mm)
+        'quiet_zone': 3.0,  # Quiet zone on sides in mm
+        'font_size': 10,  # Font size for text
+        'text_distance': 5.0,  # Distance between barcode and text in mm
+        'dpi': 300,  # Higher DPI for better print quality
+    }
+    
+    # Generate the barcode with padded text
+    rv = BytesIO()
+    code128(barcode_text, writer=ImageWriter()).write(rv, options=writer_options)
+    
+    # Return as ContentFile with original filename (not padded)
     filename = f"{code}.png"
+    return filename, ContentFile(rv.getvalue())
     return filename, ContentFile(rv.getvalue())
 
 
