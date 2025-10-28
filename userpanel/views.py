@@ -922,16 +922,22 @@ def remove_from_borrow_list(request):
 @login_required
 def update_borrow_list_item(request):
     """Update item quantity and return date in borrow cart session"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     if request.method == 'POST':
         property_id = request.POST.get('supply_id')
         quantity = int(request.POST.get('quantity', 1))
         return_date = request.POST.get('return_date')
+        
+        logger.info(f"Updating borrow cart item: property_id={property_id}, quantity={quantity}, return_date={return_date}")
         
         try:
             property_obj = Property.objects.get(id=property_id)
             
             # Validate quantity
             if quantity > property_obj.quantity:
+                logger.warning(f"Quantity {quantity} exceeds available {property_obj.quantity}")
                 return JsonResponse({
                     'status': 'error',
                     'message': f'Only {property_obj.quantity} units available'
@@ -941,21 +947,28 @@ def update_borrow_list_item(request):
             if return_date:
                 return_date_obj = datetime.strptime(return_date, '%Y-%m-%d').date()
                 if return_date_obj <= datetime.now().date():
+                    logger.warning(f"Invalid return date: {return_date_obj}")
                     return JsonResponse({
                         'status': 'error',
                         'message': 'Return date must be in the future'
                     })
             
             cart = request.session.get('borrow_cart', [])
+            logger.info(f"Current borrow cart before update: {cart}")
             
+            # Find and update the item
             for item in cart:
-                if item['property_id'] == property_id:
+                if item['property_id'] == int(property_id):
                     item['quantity'] = quantity
                     item['return_date'] = return_date
+                    logger.info(f"Updated borrow item in cart: {item}")
                     break
             
             request.session['borrow_cart'] = cart
             request.session.modified = True
+            request.session.save()  # Explicitly save the session
+            
+            logger.info(f"Borrow cart after update: {request.session.get('borrow_cart', [])}")
             
             return JsonResponse({
                 'status': 'success',
@@ -963,6 +976,7 @@ def update_borrow_list_item(request):
             })
             
         except Property.DoesNotExist:
+            logger.error(f"Property not found: {property_id}")
             return JsonResponse({
                 'status': 'error',
                 'message': 'Item not found'
@@ -1714,6 +1728,7 @@ def request_again(request):
             request.session['supply_cart'] = [cart_item]
             request.session['active_request_tab'] = 'supply'
             request.session.modified = True
+            request.session.save()  # Explicitly save the session
             messages.success(request, f'Added {original_request.supply.supply_name} to your cart.')
             return redirect('user_unified_request')
             
@@ -1729,6 +1744,7 @@ def request_again(request):
             request.session['supply_cart'] = cart_items
             request.session['active_request_tab'] = 'supply'
             request.session.modified = True
+            request.session.save()  # Explicitly save the session
             messages.success(request, f'Added {original_request.items.count()} items to your cart.')
             return redirect('user_unified_request')
             
@@ -1744,6 +1760,7 @@ def request_again(request):
             request.session['borrow_cart'] = [cart_item]
             request.session['active_request_tab'] = 'borrow'
             request.session.modified = True
+            request.session.save()  # Explicitly save the session
             messages.success(request, f'Added {original_request.property.property_name} to your borrow list.')
             return redirect('user_unified_request')
             
@@ -1761,6 +1778,7 @@ def request_again(request):
             request.session['borrow_cart'] = borrow_items
             request.session['active_request_tab'] = 'borrow'
             request.session.modified = True
+            request.session.save()  # Explicitly save the session
             messages.success(request, f'Added {original_request.items.count()} items to your borrow list.')
             return redirect('user_unified_request')
             
@@ -1890,28 +1908,42 @@ def clear_supply_list(request):
 @require_POST
 def update_list_item(request):
     """Update quantity of an item in the list"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     supply_id = request.POST.get('supply_id')
     new_quantity = int(request.POST.get('quantity', 0))
+    
+    logger.info(f"Updating cart item: supply_id={supply_id}, new_quantity={new_quantity}")
     
     try:
         supply = Supply.objects.get(id=supply_id)
         available_quantity = supply.quantity_info.current_quantity
         
         if new_quantity > available_quantity:
+            logger.warning(f"Quantity {new_quantity} exceeds available {available_quantity}")
             return JsonResponse({
                 'success': False,
                 'message': f'Only {available_quantity} units available.'
             })
         
+        # Get the cart and create a new list with updated quantity
         cart = request.session.get('supply_cart', [])
+        logger.info(f"Current cart before update: {cart}")
         
+        # Find and update the item
         for item in cart:
-            if item['supply_id'] == supply_id:
+            if item['supply_id'] == int(supply_id):
                 item['quantity'] = new_quantity
+                logger.info(f"Updated item in cart: {item}")
                 break
         
+        # Set the session with the updated cart
         request.session['supply_cart'] = cart
         request.session.modified = True
+        request.session.save()  # Explicitly save the session
+        
+        logger.info(f"Cart after update: {request.session.get('supply_cart', [])}")
         
         return JsonResponse({
             'success': True,
@@ -1920,6 +1952,7 @@ def update_list_item(request):
         })
         
     except Supply.DoesNotExist:
+        logger.error(f"Supply not found: {supply_id}")
         return JsonResponse({
             'success': False,
             'message': 'Supply item not found.'

@@ -58,6 +58,7 @@ class UserRegistrationForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'department-select form-control'})
     )
     phone = forms.CharField(required=False)
+    designation = forms.CharField(max_length=100, required=False)
 
     class Meta:
         model = User
@@ -88,11 +89,18 @@ class UserRegistrationForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['role', 'department', 'phone']
+        fields = ['role', 'department', 'phone', 'designation']
         widgets = {
             'role': forms.Select(attrs={'class': 'form-control'}),
             'department': forms.TextInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'designation': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'role': 'Role',
+            'department': 'Department',
+            'phone': 'Phone',
+            'designation': 'Designation',
         }
 
 class PropertyForm(forms.ModelForm):
@@ -554,29 +562,12 @@ class AdminProfileUpdateForm(forms.Form):
         })
     )
     
-    # Password change fields
-    current_password = forms.CharField(
+    designation = forms.CharField(
+        max_length=100,
         required=False,
-        widget=forms.PasswordInput(attrs={
+        widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Enter your current password'
-        }),
-        help_text="Required to change password"
-    )
-    
-    new_password = forms.CharField(
-        required=False,
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter new password'
-        })
-    )
-    
-    confirm_password = forms.CharField(
-        required=False,
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Confirm new password'
+            'placeholder': 'Enter your designation (e.g., Manager, Officer)'
         })
     )
     
@@ -591,10 +582,11 @@ class AdminProfileUpdateForm(forms.Form):
             self.initial['last_name'] = user.last_name
             self.initial['email'] = user.email
             
-            # Get phone from UserProfile if exists
+            # Get phone and designation from UserProfile if exists
             user_profile = getattr(user, 'userprofile', None)
             if user_profile:
                 self.initial['phone'] = user_profile.phone
+                self.initial['designation'] = user_profile.designation
     
     def clean_username(self):
         username = self.cleaned_data.get('username', '').strip()
@@ -629,33 +621,6 @@ class AdminProfileUpdateForm(forms.Form):
         if not last_name or not last_name.strip():
             raise forms.ValidationError("Last name is required.")
         return last_name.strip()
-    
-    def clean(self):
-        cleaned_data = super().clean()
-        current_password = cleaned_data.get('current_password')
-        new_password = cleaned_data.get('new_password')
-        confirm_password = cleaned_data.get('confirm_password')
-        
-        # If any password field is filled, all password fields are required
-        password_fields_filled = any([current_password, new_password, confirm_password])
-        
-        if password_fields_filled:
-            if not current_password:
-                self.add_error('current_password', 'Current password is required to change password.')
-            elif not self.user.check_password(current_password):
-                self.add_error('current_password', 'Current password is incorrect.')
-            
-            if not new_password:
-                self.add_error('new_password', 'New password is required.')
-            elif len(new_password) < 8:
-                self.add_error('new_password', 'Password must be at least 8 characters long.')
-            
-            if not confirm_password:
-                self.add_error('confirm_password', 'Please confirm your new password.')
-            elif new_password != confirm_password:
-                self.add_error('confirm_password', 'New passwords do not match.')
-        
-        return cleaned_data
 
 class BadStockReportForm(forms.ModelForm):
     class Meta:

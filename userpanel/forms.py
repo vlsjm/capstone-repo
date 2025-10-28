@@ -292,40 +292,10 @@ class UserProfileUpdateForm(forms.ModelForm):
         }),
         label='Mobile number'
     )
-    
-    # Password change fields
-    current_password = forms.CharField(
-        max_length=128,
-        required=False,
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter current password'
-        }),
-        label='Current Password',
-        help_text='Leave blank if you don\'t want to change your password'
-    )
-    new_password = forms.CharField(
-        max_length=128,
-        required=False,
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter new password'
-        }),
-        label='New Password'
-    )
-    confirm_password = forms.CharField(
-        max_length=128,
-        required=False,
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Confirm new password'
-        }),
-        label='Confirm New Password'
-    )
 
     class Meta:
         model = UserProfile
-        fields = ['phone']
+        fields = ['phone', 'designation']
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -376,31 +346,6 @@ class UserProfileUpdateForm(forms.ModelForm):
             raise ValidationError("Last name is required.")
         return last_name
 
-    def clean(self):
-        cleaned_data = super().clean()
-        current_password = cleaned_data.get('current_password')
-        new_password = cleaned_data.get('new_password')
-        confirm_password = cleaned_data.get('confirm_password')
-
-        # Password change validation
-        if any([current_password, new_password, confirm_password]):
-            if not current_password:
-                raise ValidationError("Current password is required to change password.")
-            
-            if not self.user.check_password(current_password):
-                raise ValidationError("Current password is incorrect.")
-            
-            if not new_password:
-                raise ValidationError("New password is required.")
-            
-            if new_password != confirm_password:
-                raise ValidationError("New passwords do not match.")
-            
-            if len(new_password) < 8:
-                raise ValidationError("New password must be at least 8 characters long.")
-
-        return cleaned_data
-
     def save(self, commit=True):
         profile = super().save(commit=False)
         if self.user:
@@ -410,10 +355,9 @@ class UserProfileUpdateForm(forms.ModelForm):
             self.user.last_name = self.cleaned_data['last_name']
             self.user.email = self.cleaned_data['email']
             
-            # Change password if provided
-            new_password = self.cleaned_data.get('new_password')
-            if new_password:
-                self.user.set_password(new_password)
+            # Update profile fields
+            profile.phone = self.cleaned_data.get('phone', '')
+            profile.designation = self.cleaned_data.get('designation', '')
             
             if commit:
                 self.user.save()

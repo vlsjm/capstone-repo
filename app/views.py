@@ -1800,7 +1800,6 @@ def modify_supply_quantity_generic(request):
 
         # Always add the quantity since we removed the action type selection
         quantity_info.current_quantity += amount
-        quantity_info.save(user=request.user)
 
         # Update supply's available_for_request status
         supply.available_for_request = (quantity_info.current_quantity > 0)
@@ -1815,6 +1814,9 @@ def modify_supply_quantity_generic(request):
             new_value=str(quantity_info.current_quantity),
             remarks=f"add {amount}"
         )
+        
+        # Save with skip_history to avoid duplicate entry
+        quantity_info.save(skip_history=True)
 
         # Add activity log
         ActivityLog.log_activity(
@@ -3134,7 +3136,6 @@ def modify_supply_quantity_generic(request):
 
         # Always add the quantity since we removed the action type selection
         quantity_info.current_quantity += amount
-        quantity_info.save(user=request.user)
 
         # Update supply's available_for_request status
         supply.available_for_request = (quantity_info.current_quantity > 0)
@@ -3149,6 +3150,9 @@ def modify_supply_quantity_generic(request):
             new_value=str(quantity_info.current_quantity),
             remarks=f"add {amount}"
         )
+        
+        # Save with skip_history to avoid duplicate entry
+        quantity_info.save(skip_history=True)
 
         # Add activity log
         ActivityLog.log_activity(
@@ -4389,22 +4393,87 @@ def export_inventory_count_form_cvsu(request):
 
 @login_required
 def get_supply_by_barcode(request, barcode):
+    import logging
+    import re
+    logger = logging.getLogger(__name__)
+
+    # Preserve original for logging, then normalize scanned barcode
+    original_barcode = barcode
+    # Replace non-breaking spaces and collapse whitespace, then strip
+    barcode = (barcode or '').replace('\u00A0', ' ')
+    barcode = re.sub(r"\s+", ' ', barcode).strip()
+
+    logger.info(f"Barcode lookup - Original: {repr(original_barcode)} | Normalized: {repr(barcode)} | Length: {len(barcode)}")
+    logger.info(f"Barcode bytes: {original_barcode.encode('utf-8')}")
+
+    supply = None
+
+    # 1) Try exact (case-sensitive) then case-insensitive exact
     try:
-        # Try to find the supply by the exact barcode first
         supply = Supply.objects.get(barcode=barcode)
+        logger.info(f"Found supply by exact barcode match: {supply.id}, archived: {supply.is_archived}")
     except Supply.DoesNotExist:
         try:
-            # If not found, try to find by ID (extract ID from SUP-{id} format)
-            if barcode.startswith('SUP-'):
-                supply_id = barcode.split('-')[1]
-                supply = Supply.objects.get(id=supply_id)
-            else:
-                raise Supply.DoesNotExist
-        except (Supply.DoesNotExist, IndexError):
-            return JsonResponse({
-                'success': False,
-                'error': 'Supply not found'
-            })
+            supply = Supply.objects.get(barcode__iexact=barcode)
+            logger.info(f"Found supply by case-insensitive barcode match: {supply.id}, archived: {supply.is_archived}")
+        except Supply.DoesNotExist:
+            logger.info(f"No direct barcode match for '{barcode}', attempting ID and fuzzy searches")
+
+    # 2) If still not found, try extracting numeric ID from SUP-{id}
+    if not supply and barcode.upper().startswith('SUP-'):
+        try:
+            supply_id = int(barcode.split('-')[1])
+            logger.info(f"Attempting lookup by extracted ID: {supply_id}")
+            supply = Supply.objects.get(id=supply_id)
+            logger.info(f"Found supply by ID: {supply.id}, archived: {supply.is_archived}")
+        except (IndexError, ValueError, Supply.DoesNotExist) as e:
+            logger.debug(f"Lookup by extracted ID failed: {e}")
+
+    # 3) Fallback: scan for exact barcode match (case-insensitive, trimmed) or barcode image filename
+    # REMOVED partial "contains" matching to avoid matching wrong items on partial scans
+    if not supply and len(barcode) >= 5:  # Only run fallback if barcode is reasonable length
+        logger.info("Running fallback search for exact/filename matches")
+        candidates = Supply.objects.filter(is_archived=False)[:500]  # Only non-archived
+        scanned_lower = barcode.lower()
+        for cand in candidates:
+            try:
+                # Exact match (case-insensitive, trimmed)
+                cand_barcode = (cand.barcode or '').strip().lower()
+                if cand_barcode and cand_barcode == scanned_lower:
+                    supply = cand
+                    logger.info(f"Matched by exact candidate barcode: {supply.id}")
+                    break
+
+                # If barcode image present, compare filename (SUP-26.png etc.)
+                if cand.barcode_image:
+                    img_name = cand.barcode_image.name.split('/')[-1].split('\\')[-1].split('.')[0]
+                    if img_name and img_name.strip().lower() == scanned_lower:
+                        supply = cand
+                        logger.info(f"Matched by barcode image filename: {supply.id}")
+                        break
+            except Exception:
+                continue
+
+    # If still not found, return not found with log samples
+    if not supply:
+        logger.error(f"Supply not found for barcode after all attempts: {repr(barcode)}")
+        try:
+            sample = list(Supply.objects.filter(barcode__icontains='SUP').values_list('id', 'barcode')[:10])
+            logger.info(f"Sample supplies: {sample}")
+        except Exception:
+            logger.exception('Error fetching sample supplies')
+        return JsonResponse({
+            'success': False,
+            'error': f'Supply not found for barcode: {barcode}'
+        })
+
+    # Check if supply is archived
+    if supply.is_archived:
+        logger.info(f"Supply {supply.id} is archived; rejecting barcode use")
+        return JsonResponse({
+            'success': False,
+            'error': f'Supply "{supply.supply_name}" is archived and cannot be used'
+        })
     
     return JsonResponse({
         'success': True,
@@ -4507,6 +4576,9 @@ def modify_property_quantity_generic(request):
 
 @login_required
 def get_property_by_barcode(request, barcode):
+    # Strip whitespace from scanned barcode (handles padded barcodes)
+    barcode = barcode.strip()
+    
     # Check if request is AJAX/JSON
     if not request.headers.get('Content-Type') == 'application/json' and not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         # For non-AJAX requests, handle authentication differently
@@ -5279,7 +5351,6 @@ def claim_batch_items(request, batch_id):
             
             # Also release the reserved quantity
             item.supply.quantity_info.reserved_quantity = max(0, item.supply.quantity_info.reserved_quantity - approved_qty)
-            item.supply.quantity_info.save()
             
             # Create SupplyHistory entry for quantity deduction
             requester_name = batch_request.user.get_full_name() if batch_request.user.get_full_name() else batch_request.user.username
@@ -5292,6 +5363,9 @@ def claim_batch_items(request, batch_id):
                 new_value=str(new_qty),
                 remarks=f"Supply request by {requester_name} (Batch #{batch_id})"
             )
+            
+            # Save with skip_history to avoid duplicate entry
+            item.supply.quantity_info.save(skip_history=True)
         
         # Update the approved_quantity if it was None
         if item.approved_quantity is None:
@@ -5375,7 +5449,6 @@ def claim_individual_item(request, batch_id, item_id):
         
         # Also release the reserved quantity
         item.supply.quantity_info.reserved_quantity = max(0, item.supply.quantity_info.reserved_quantity - approved_qty)
-        item.supply.quantity_info.save()
         
         # Create SupplyHistory entry for quantity deduction
         requester_name = batch_request.user.get_full_name() if batch_request.user.get_full_name() else batch_request.user.username
@@ -5388,6 +5461,9 @@ def claim_individual_item(request, batch_id, item_id):
             new_value=str(new_qty),
             remarks=f"Supply request by {requester_name} (Batch #{batch_id})"
         )
+        
+        # Save with skip_history to avoid duplicate entry
+        item.supply.quantity_info.save(skip_history=True)
     
     # Update the approved_quantity if it was None
     if item.approved_quantity is None:
@@ -6107,25 +6183,10 @@ class AdminProfileView(PermissionRequiredMixin, View):
             request.user.last_name = form.cleaned_data['last_name']
             request.user.email = form.cleaned_data['email']
             
-            # Update phone in user profile
+            # Update phone and designation in user profile
             user_profile.phone = form.cleaned_data['phone']
+            user_profile.designation = form.cleaned_data['designation']
             user_profile.save()
-            
-            # Handle password change if provided
-            if form.cleaned_data.get('new_password'):
-                request.user.set_password(form.cleaned_data['new_password'])
-                # Update session auth hash to prevent logout
-                from django.contrib.auth import update_session_auth_hash
-                update_session_auth_hash(request, request.user)
-                
-                # Log password change activity
-                ActivityLog.log_activity(
-                    user=request.user,
-                    action='change_password',
-                    model_name='User',
-                    object_repr=request.user.username,
-                    description="Admin changed their password"
-                )
             
             request.user.save()
             

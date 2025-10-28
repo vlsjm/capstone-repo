@@ -820,6 +820,65 @@
       padding-bottom: 10px !important;
     }
 
+    /* Expected Items Table Styles */
+    .expected-items-table-container {
+      background: white !important;
+      border-radius: 8px !important;
+      overflow: hidden !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .expected-items-table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+    }
+
+    .expected-items-table thead {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+      color: white !important;
+    }
+
+    .expected-items-table th {
+      padding: 12px !important;
+      text-align: left !important;
+      font-weight: 600 !important;
+      font-size: 13px !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+      color: white !important;
+    }
+
+    .expected-items-table tbody tr {
+      border-bottom: 1px solid #e9ecef !important;
+    }
+
+    .expected-items-table tbody tr:last-child {
+      border-bottom: none !important;
+    }
+
+    .expected-items-table tbody tr:hover {
+      background-color: #f8f9fa !important;
+    }
+
+    .expected-items-table td {
+      padding: 12px !important;
+      vertical-align: middle !important;
+      font-size: 14px !important;
+      color: #495057 !important;
+    }
+
+    .items-badge {
+      display: inline-block !important;
+      background: linear-gradient(135deg, #152d64 0%, #1e3a8a 100%) !important;
+      color: white !important;
+      padding: 4px 12px !important;
+      border-radius: 12px !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      margin-left: 10px !important;
+      text-transform: none !important;
+    }
+
     .scanned-items-list,
     .expected-items-list {
       max-height: 200px !important;
@@ -1191,13 +1250,13 @@
     }
 
     .claim-modal-btn.secondary {
-      background: #ffc107 !important;
-      color: #152d64 !important;
-      border: 2px solid #152d64 !important;
+      background: #28a745 !important;
+      color: white !important;
+      border: 2px solid #1e7e34 !important;
     }
 
     .claim-modal-btn.secondary:hover {
-      background: #152d64 !important;
+      background: #218838 !important;
       color: white !important;
       transform: translateY(-1px) !important;
     }
@@ -1495,7 +1554,13 @@
         </thead>
         <tbody>
           {% for item in items %}
-          <tr id="item-row-{{ item.id }}" data-item-status="{{ item.status }}" data-item-id="{{ item.id }}" data-item-barcode="{{ item.supply.barcode }}" data-item-name="{{ item.supply.supply_name }}" data-item-quantity="{{ item.quantity }}">
+          <tr id="item-row-{{ item.id }}" 
+              data-item-status="{{ item.status }}" 
+              data-item-id="{{ item.id }}" 
+              data-item-barcode="{% if item.supply.barcode %}{{ item.supply.barcode }}{% else %}SUP-{{ item.supply.id }}{% endif %}" 
+              data-item-name="{{ item.supply.supply_name }}" 
+              data-item-quantity="{{ item.quantity }}"
+              data-item-approved-quantity="{{ item.approved_quantity|default:item.quantity }}">
             <td>
               <div class="item-name">
                 <div>
@@ -1726,23 +1791,35 @@
       expectedItems = [];
       expectedItemsCount = 0;
       
-      // Reset UI elements
-      document.getElementById('totalItemsCount').textContent = 'Loading...';
-      document.getElementById('scannedItemsCount').textContent = '0';
-      document.getElementById('totalCount').textContent = '0';
-      document.getElementById('scannedCount').textContent = '0';
-      
-      document.getElementById('scannedItemsList').innerHTML = `
-        <div class="empty-scanned-items">
-          <i class="fas fa-barcode"></i>
-          <p>No items scanned yet. Enter barcodes above to verify items.</p>
-        </div>
-      `;
-      
-      // Clear barcode input and reset claim button
+      // Reset UI elements (only elements that exist in the new modal)
+      const itemsToClaimBadge = document.getElementById('itemsToClaimBadge');
+      const expectedItemsTableBody = document.getElementById('expectedItemsTableBody');
+      const scannedItemsList = document.getElementById('scannedItemsList');
       const barcodeInput = document.getElementById('barcodeInput');
       const claimButton = document.getElementById('claimScannedBtn');
       
+      if (itemsToClaimBadge) itemsToClaimBadge.textContent = '0 of 0 scanned';
+      
+      if (expectedItemsTableBody) {
+        expectedItemsTableBody.innerHTML = `
+          <tr>
+            <td colspan="3" style="text-align: center; padding: 20px; color: #6c757d;">
+              <i class="fas fa-box-open"></i> Loading items...
+            </td>
+          </tr>
+        `;
+      }
+      
+      if (scannedItemsList) {
+        scannedItemsList.innerHTML = `
+          <div class="empty-scanned-items">
+            <i class="fas fa-barcode"></i>
+            <p>No items scanned yet. Enter barcodes above to verify items.</p>
+          </div>
+        `;
+      }
+      
+      // Clear barcode input and reset claim button
       if (barcodeInput) barcodeInput.value = '';
       if (claimButton) claimButton.disabled = true;
     }
@@ -1759,57 +1836,98 @@
       
       itemRows.forEach((row, index) => {
         const itemId = row.getAttribute('data-item-id');
-        const statusBadge = row.querySelector('.status-badge');
+        const itemStatus = row.getAttribute('data-item-status');
         
-        // Only include approved items
-        if (statusBadge && statusBadge.textContent.trim().includes('Approved')) {
+        // Include approved or completed items (both can be claimed)
+        if (itemStatus === 'approved' || itemStatus === 'completed') {
           // Extract data from row attributes
           const itemName = row.getAttribute('data-item-name');
           const barcode = row.getAttribute('data-item-barcode');
-          const quantity = parseInt(row.getAttribute('data-item-quantity')) || 1;
+          const requestedQuantity = parseInt(row.getAttribute('data-item-quantity')) || 1;
+          const approvedQuantity = parseInt(row.getAttribute('data-item-approved-quantity')) || requestedQuantity;
           
-          if (itemName && barcode) {
+          console.log(`Processing row ${index + 1}:`, {
+            itemId,
+            itemName,
+            barcode: barcode || '(empty)',
+            requestedQuantity,
+            approvedQuantity,
+            status: itemStatus
+          });
+          
+          if (itemName && barcode && barcode.trim() !== '') {
             expectedItems.push({
               id: itemId,
               name: itemName,
-              barcode: barcode,
-              quantity: quantity,
-              status: 'Approved'
+              barcode: barcode.trim(),
+              quantity: approvedQuantity, // Use approved quantity, not requested
+              status: itemStatus
             });
             
             expectedItemsCount++;
-            console.log(`Added approved item ${index + 1}:`, itemName, barcode, `(qty: ${quantity})`);
+            console.log(`✓ Added ${itemStatus} item ${expectedItemsCount}:`, itemName, '| Barcode:', barcode, `| Approved Qty: ${approvedQuantity}`);
+          } else {
+            console.warn(`⚠ Skipped item ${index + 1} - missing name or barcode:`, {
+              itemName: itemName || '(missing)',
+              barcode: barcode || '(missing)'
+            });
           }
+        } else {
+          console.log(`Skipping row ${index + 1} - status is "${itemStatus}" (not approved/completed)`);
         }
       });
       
-      // If no approved items found, create sample items for testing
+      // If no approved items found, log warning
       if (expectedItemsCount === 0) {
-        console.log('No approved items found, creating sample items for validation');
-        expectedItemsCount = 2;
-        expectedItems = [
-          {
-            id: 1,
-            name: 'Sample Item 1',
-            barcode: generateBarcodeFromName('Sample Item 1'),
-            quantity: 1,
-            status: 'Approved'
-          },
-          {
-            id: 2,
-            name: 'Sample Item 2', 
-            barcode: generateBarcodeFromName('Sample Item 2'),
-            quantity: 1,
-            status: 'Approved'
-          }
-        ];
+        console.warn('⚠ No approved/completed items found in batch request!');
+        console.log('All rows status:', Array.from(itemRows).map(row => ({
+          id: row.getAttribute('data-item-id'),
+          name: row.getAttribute('data-item-name'),
+          status: row.getAttribute('data-item-status'),
+          barcode: row.getAttribute('data-item-barcode')
+        })));
       }
       
-      console.log('Final expected items for validation:', expectedItems);
-      console.log('Expected items count:', expectedItemsCount);
+      console.log('📋 Final expected items for validation:', expectedItems);
+      console.log('📊 Expected items count:', expectedItemsCount);
       
+      // Populate the expected items table
+      renderExpectedItemsTable();
       updateItemsCounts();
       updateClaimButtonState();
+    }
+
+    function renderExpectedItemsTable() {
+      const tableBody = document.getElementById('expectedItemsTableBody');
+      
+      if (!tableBody) {
+        console.error('Expected items table body not found');
+        return;
+      }
+      
+      if (expectedItems.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="3" style="text-align: center; padding: 20px; color: #6c757d;">
+              <i class="fas fa-box-open"></i> No approved items to claim
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      let html = '';
+      expectedItems.forEach((item, index) => {
+        html += `
+          <tr>
+            <td style="text-align: center; font-weight: 600;">${index + 1}</td>
+            <td style="font-weight: 500; color: #152d64;">${item.name}</td>
+            <td style="text-align: center; font-weight: 600; color: #28a745;">${item.quantity}</td>
+          </tr>
+        `;
+      });
+      
+      tableBody.innerHTML = html;
     }
 
     function generateBarcodeFromName(itemName) {
@@ -1843,30 +1961,28 @@
       }
 
       const html = scannedItems.map((item, index) => {
-        const isComplete = item.scannedQuantity >= item.quantity;
-        const progressPercent = Math.round((item.scannedQuantity / item.quantity) * 100);
-        const statusClass = isComplete ? 'status-scanned' : 'status-pending';
-        const statusText = isComplete ? 'Complete ✓' : `${item.scannedQuantity}/${item.quantity}`;
-        
         return `
-          <div class="item-row ${isComplete ? 'scanned' : 'pending'}" data-scan-index="${index}">
+          <div class="item-row scanned" data-scan-index="${index}">
             <div class="item-info">
               <div class="item-name">
-                <i class="fas fa-${isComplete ? 'check-circle' : 'clock'}" style="color: ${isComplete ? '#28a745' : '#ffc107'}; margin-right: 5px;"></i>
+                <i class="fas fa-check-circle" style="color: #28a745; margin-right: 5px;"></i>
                 ${item.name}
               </div>
               <div class="item-details">
-                Progress: <strong>${item.scannedQuantity}/${item.quantity}</strong> scanned (${progressPercent}%) | 
-                Last scan: ${new Date(item.scannedAt).toLocaleTimeString()}
-                ${item.scans.length > 1 ? ` | Total scans: ${item.scans.length}` : ''}
-              </div>
-              <div class="quantity-progress-bar" style="width: 100%; height: 4px; background: #e9ecef; border-radius: 2px; margin-top: 4px;">
-                <div style="width: ${progressPercent}%; height: 100%; background: ${isComplete ? '#28a745' : '#ffc107'}; border-radius: 2px; transition: width 0.3s ease;"></div>
+                <code style="background: #e3f2fd; color: #1565c0; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 600;">
+                  ${item.barcode}
+                </code>
+                <span style="margin-left: 8px; color: #6c757d; font-size: 12px;">
+                  Qty: ${item.quantity}
+                </span>
+                <span style="margin-left: 8px; color: #6c757d; font-size: 12px;">
+                  Scanned: ${new Date(item.scannedAt).toLocaleTimeString()}
+                </span>
               </div>
             </div>
             <div class="item-actions">
-              <div class="item-status ${statusClass}">
-                ${statusText}
+              <div class="item-status status-verified">
+                <i class="fas fa-check-circle"></i> Verified
               </div>
               <button type="button" class="remove-item-btn" onclick="removeScannedItem(${index})" title="Remove item">
                 <i class="fas fa-times"></i>
@@ -1903,67 +2019,85 @@
       
       // Find expected item that matches this barcode (flexible matching)
       let expectedItem = expectedItems.find(item => {
-        if (!item.barcode) return false;
+        if (!item.barcode) {
+          console.log('Skipping item without barcode:', item.name);
+          return false;
+        }
         
-        // Direct match
-        if (item.barcode === barcode) return true;
+        // Normalize both barcodes: trim, uppercase, remove special characters
+        const normalizeBarcode = (bc) => {
+          return bc.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+        };
         
-        // Case-insensitive match
-        if (item.barcode.toLowerCase() === barcode.toLowerCase()) return true;
+        const itemBarcode = item.barcode.trim();
+        const scannedBarcode = barcode.trim();
+        
+        console.log('Comparing:', { item: item.name, itemBarcode, scannedBarcode });
+        
+        // Direct match (trimmed)
+        if (itemBarcode === scannedBarcode) {
+          console.log('✓ Direct match');
+          return true;
+        }
+        
+        // Case-insensitive match (trimmed)
+        if (itemBarcode.toLowerCase() === scannedBarcode.toLowerCase()) {
+          console.log('✓ Case-insensitive match');
+          return true;
+        }
         
         // Handle URL vs text barcode (if barcode is an image URL, extract the text part)
-        const barcodeText = item.barcode.includes('/') ? item.barcode.split('/').pop().split('.')[0] : item.barcode;
-        if (barcodeText === barcode || barcodeText.toLowerCase() === barcode.toLowerCase()) return true;
+        if (itemBarcode.includes('/')) {
+          const barcodeText = itemBarcode.split('/').pop().split('.')[0];
+          if (barcodeText === scannedBarcode || barcodeText.toLowerCase() === scannedBarcode.toLowerCase()) {
+            console.log('✓ URL extraction match:', barcodeText);
+            return true;
+          }
+        }
+        
+        // Normalized comparison (removes hyphens, spaces, etc.)
+        const normalizedItem = normalizeBarcode(itemBarcode);
+        const normalizedScanned = normalizeBarcode(scannedBarcode);
+        if (normalizedItem === normalizedScanned) {
+          console.log('✓ Normalized match:', normalizedItem);
+          return true;
+        }
         
         return false;
       });
       
       if (!expectedItem) {
         // Try partial matching or show available barcodes for debugging
-        console.log('Available barcodes:', expectedItems.map(item => ({ name: item.name, barcode: item.barcode })));
+        console.error('❌ Barcode not found!');
+        console.log('Scanned barcode:', barcode);
+        console.log('Available items with barcodes:', expectedItems.map(item => ({ 
+          name: item.name, 
+          barcode: item.barcode,
+          id: item.id 
+        })));
         showNotification(`Barcode "${barcode}" not found. Please scan only items from this request.`, 'warning');
         barcodeInput.value = '';
         barcodeInput.focus();
         return;
       }
       
-      // Check if this item exists in scanned items (for quantity tracking)
+      // Check if this item exists in scanned items
       let existingScannedItem = scannedItems.find(item => item.expectedItem?.id === expectedItem.id);
       
       if (existingScannedItem) {
-        // Item already exists, check if we can scan more
-        if (existingScannedItem.scannedQuantity >= expectedItem.quantity) {
-          showNotification(`✅ ${expectedItem.name} is already fully scanned (${existingScannedItem.scannedQuantity}/${expectedItem.quantity})!`, 'warning');
-          barcodeInput.value = '';
-          barcodeInput.focus();
-          return;
-        }
-        
-        // Increment the scanned quantity
-        existingScannedItem.scannedQuantity++;
-        existingScannedItem.scans.push({
-          barcode: barcode,
-          scannedAt: new Date().toISOString()
-        });
-        
-        console.log(`Incremented scan count for ${expectedItem.name}: ${existingScannedItem.scannedQuantity}/${expectedItem.quantity}`);
-        
-        // Show progress notification
-        const remaining = expectedItem.quantity - existingScannedItem.scannedQuantity;
-        if (remaining === 0) {
-          showNotification(`✅ ${expectedItem.name} completed! (${existingScannedItem.scannedQuantity}/${expectedItem.quantity})`, 'success');
-        } else {
-          showNotification(`📦 ${expectedItem.name}: ${existingScannedItem.scannedQuantity}/${expectedItem.quantity} scanned. ${remaining} more needed.`, 'success');
-        }
-        
+        // Item already scanned - show warning that it's already been added
+        showNotification(`⚠️ ${expectedItem.name} has already been scanned!`, 'warning');
+        barcodeInput.value = '';
+        barcodeInput.focus();
+        return;
       } else {
-        // First scan of this item
+        // First scan of this item - automatically add the full quantity
         const scannedItem = {
           barcode: barcode,
           name: expectedItem.name,
           scannedAt: new Date().toISOString(),
           quantity: expectedItem.quantity,
-          scannedQuantity: 1, // How many times we've scanned this item
+          scannedQuantity: expectedItem.quantity, // Automatically set to full quantity
           expectedItem: expectedItem,
           scans: [{
             barcode: barcode,
@@ -1972,15 +2106,13 @@
         };
 
         scannedItems.push(scannedItem);
-        console.log('Added new scanned item:', scannedItem);
+        console.log('Added new scanned item with full quantity:', scannedItem);
         
-        // Show progress notification
-        const remaining = expectedItem.quantity - 1;
-        if (remaining === 0) {
-          showNotification(`✅ ${expectedItem.name} completed! (1/${expectedItem.quantity})`, 'success');
-        } else {
-          showNotification(`📦 ${expectedItem.name}: 1/${expectedItem.quantity} scanned. ${remaining} more needed.`, 'success');
-        }
+        // Show success notification
+        showNotification(`${expectedItem.name} added! (Qty: ${expectedItem.quantity})`, 'success');
+        
+        // Play success sound
+        playSuccessSound();
       }
       
       // Check if all items are fully scanned
@@ -1988,7 +2120,7 @@
       const totalScansCompleted = scannedItems.reduce((total, item) => total + item.scannedQuantity, 0);
       
       if (totalScansCompleted >= totalScansNeeded) {
-        showNotification('🎉 All items for this request have been fully scanned!', 'success');
+        showNotification('All items for this request have been fully scanned!', 'success');
       }
       
       // Update UI
@@ -2057,35 +2189,12 @@
       
       const progressPercent = totalScansNeeded > 0 ? Math.round((totalScansCompleted / totalScansNeeded) * 100) : 0;
 
-      // Update summary elements
-      const totalCountEl = document.getElementById('totalCount');
-      const scannedCountEl = document.getElementById('scannedCount');
-      const totalItemsCountEl = document.getElementById('totalItemsCount');
-      const scannedItemsCountEl = document.getElementById('scannedItemsCount');
+      // Update only the badge (removed references to non-existent elements)
+      const itemsToClaimBadge = document.getElementById('itemsToClaimBadge');
       
-      if (totalCountEl) totalCountEl.textContent = expectedItemsCount;
-      if (scannedCountEl) scannedCountEl.textContent = `${totalScansCompleted}/${totalScansNeeded}`;
-      if (totalItemsCountEl) totalItemsCountEl.textContent = expectedItemsCount;
-      if (scannedItemsCountEl) scannedItemsCountEl.textContent = `${fullyScannedItemsCount}/${expectedItemsCount}`;
-
-      // Update progress bar
-      const progressFill = document.getElementById('progressFill');
-      const progressText = document.getElementById('progressText');
-      
-      if (progressFill) {
-        progressFill.style.width = `${progressPercent}%`;
-        
-        if (progressPercent === 100) {
-          progressFill.style.background = '#28a745';
-        } else if (progressPercent >= 50) {
-          progressFill.style.background = 'linear-gradient(90deg, #152d64, #28a745)';
-        } else {
-          progressFill.style.background = '#152d64';
-        }
-      }
-      
-      if (progressText) {
-        progressText.textContent = `${totalScansCompleted} of ${totalScansNeeded} scans completed`;
+      // Update "Items to Claim" badge
+      if (itemsToClaimBadge) {
+        itemsToClaimBadge.textContent = `${totalScansCompleted} of ${totalScansNeeded} scanned`;
       }
     }
 
@@ -2422,33 +2531,26 @@
 
       <!-- Modal Body -->
       <div class="claim-modal-body">
-        <!-- Progress Summary Section -->
-        <div class="progress-summary-section">
-          <div class="summary-cards">
-            <div class="summary-card total-card">
-              <div class="card-icon">
-                <i class="fas fa-list"></i>
-              </div>
-              <div class="card-content">
-                <div class="card-number" id="totalCount">0</div>
-                <div class="card-label">Total Items</div>
-              </div>
-            </div>
-            <div class="summary-card scanned-card">
-              <div class="card-icon">
-                <i class="fas fa-barcode"></i>
-              </div>
-              <div class="card-content">
-                <div class="card-number" id="scannedCount">0</div>
-                <div class="card-label">Scanned Items</div>
-              </div>
-            </div>
-          </div>
-          <div class="progress-bar-container">
-            <div class="progress-bar">
-              <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <span class="progress-text" id="progressText">0 of 0 items scanned</span>
+        <!-- Items to Claim Section -->
+        <div class="expected-items-section" style="margin-bottom: 25px;">
+          <h4><i class="fas fa-clipboard-list"></i> Items to Claim <span id="itemsToClaimBadge" class="items-badge">0 of 0 scanned</span></h4>
+          <div class="expected-items-table-container">
+            <table class="expected-items-table">
+              <thead>
+                <tr>
+                  <th style="width: 10%; text-align: center;">#</th>
+                  <th style="width: 60%;">Item Name</th>
+                  <th style="width: 30%; text-align: center;">Approved Qty</th>
+                </tr>
+              </thead>
+              <tbody id="expectedItemsTableBody">
+                <tr>
+                  <td colspan="3" style="text-align: center; padding: 20px; color: #6c757d;">
+                    <i class="fas fa-box-open"></i> Loading items...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 

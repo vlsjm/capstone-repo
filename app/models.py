@@ -64,6 +64,7 @@ class UserProfile(models.Model):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
+    designation = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.user.username
@@ -626,30 +627,9 @@ class SupplyRequestBatch(models.Model):
                     remarks=f"Items: {item_list}. Purpose: {self.purpose[:100]}"
                 )
 
-        # Update supply quantities when request is approved
-        if old_status != self.status and self.status in ['approved', 'partially_approved']:
-            for item in self.items.filter(status='approved'):
-                try:
-                    quantity_info = item.supply.quantity_info
-                    if quantity_info.current_quantity >= item.quantity:
-                        quantity_info.current_quantity -= item.quantity
-                        quantity_info.save()
-                        
-                        # Save the supply to update available_for_request
-                        item.supply.save()
-                        
-                        # Create notification for low stock if needed
-                        if quantity_info.current_quantity <= quantity_info.minimum_threshold:
-                            admin_users = User.objects.filter(userprofile__role='ADMIN')
-                            
-                            for admin_user in admin_users:
-                                Notification.objects.create(
-                                    user=admin_user,
-                                    message=f"Supply '{item.supply.supply_name}' is running low on stock (Current: {quantity_info.current_quantity}, Minimum: {quantity_info.minimum_threshold})",
-                                    remarks="Please restock soon."
-                                )
-                except SupplyQuantity.DoesNotExist:
-                    pass
+        # NOTE: Quantity deduction is handled during the CLAIMING process, not during approval.
+        # During approval, quantities are reserved (handled in views.py approve_batch_item).
+        # During claiming, quantities are actually deducted from current_quantity (handled in views.py claim_batch_items).
 
 class SupplyRequestItem(models.Model):
     """
@@ -1298,7 +1278,7 @@ class SupplyHistory(models.Model):
 
     def __str__(self):
         user_display = self.user.username if self.user else "Unknown User"  
-        return f"{self.supply.supply_name} - {self.action} by {self.user.username} at {self.timestamp}"
+        return f"{self.supply.supply_name} - {self.action} by {user_display} at {self.timestamp}"
 
 class PropertyHistory(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='history')

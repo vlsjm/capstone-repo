@@ -9,6 +9,8 @@ from django.conf import settings
 from django.utils import timezone
 from django.core.files.base import ContentFile
 import logging
+import requests
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -200,3 +202,109 @@ def send_borrow_batch_request_completion_email(batch_request, approved_items, re
     except Exception as e:
         logger.error(f"Failed to send borrow batch completion email to {user.email}: {str(e)}")
         return False 
+
+
+def send_sms_alert(phone_number, message, sms_provider=0):
+    """
+    Send an SMS alert using the specified SMS provider.
+    
+    Args:
+        phone_number (str): Recipient's phone number
+        message (str): Message content
+        sms_provider (int): SMS Provider (0 or 1) - default: 0
+    
+    Returns:
+        tuple: (success: bool, response_data: dict or str)
+    """
+    try:
+        # Get API token from environment or settings
+        api_token = os.getenv('SMS_API_TOKEN') or getattr(settings, 'SMS_API_TOKEN', None)
+        
+        if not api_token:
+            logger.warning("SMS API TOKEN not configured. Skipping SMS alert.")
+            return False, "SMS API TOKEN not configured"
+        
+        # Get SMS API endpoint from environment or settings (configurable)
+        # Default: iProgtech SMS API
+        sms_url = os.getenv('SMS_API_ENDPOINT') or getattr(settings, 'SMS_API_ENDPOINT', 
+                                                            'https://sms.iprogtech.com/api/v1/sms_messages')
+        
+        # Prepare request parameters (URL encoded for API)
+        params = {
+            'api_token': api_token,
+            'phone_number': phone_number,
+            'message': message
+        }
+        
+        # Send SMS request
+        response = requests.post(sms_url, params=params, timeout=10)
+        
+        if response.status_code == 200:
+            logger.info(f"SMS alert sent successfully to {phone_number}")
+            return True, response.json()
+        else:
+            logger.error(f"Failed to send SMS to {phone_number}. Status: {response.status_code}")
+            return False, response.text
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"SMS request failed for {phone_number}: {str(e)}")
+        return False, str(e)
+    except Exception as e:
+        logger.error(f"Unexpected error sending SMS to {phone_number}: {str(e)}")
+        return False, str(e)
+
+
+def send_overdue_borrow_sms(borrow_request):
+    """
+    Send an SMS reminder for an overdue borrow request.
+    
+    Args:
+        borrow_request: The BorrowRequest instance
+    
+    Returns:
+        bool: True if SMS was sent successfully, False otherwise
+    """
+    try:
+        user = borrow_request.user
+        
+        # Get user phone number
+        phone_number = None
+        try:
+            user_profile = user.userprofile
+            phone_number = user_profile.phone
+        except:
+            logger.warning(f"User {user.username} doesn't have a phone number. Skipping SMS alert.")
+            return False
+        
+        if not phone_number:
+            logger.warning(f"User {user.username} has no phone number on file. Skipping SMS alert.")
+            return False
+        
+        # Calculate days overdue
+        from datetime import date
+        days_overdue = (date.today() - borrow_request.return_date).days
+        
+        # Create SMS message
+        message = (
+            f"Hello {user.first_name or user.username},\n\n"
+            f"This is a reminder that your borrow of {borrow_request.property.property_name} "
+            f"(Qty: {borrow_request.quantity}) is OVERDUE.\n\n"
+            f"Original return date: {borrow_request.return_date}\n"
+            f"Days overdue: {days_overdue}\n\n"
+            f"Please return the item at your earliest convenience.\n\n"
+            f"Thank you,\nResource Hive Team"
+        )
+        
+        # Send SMS
+        success, response = send_sms_alert(phone_number, message)
+        
+        if success:
+            logger.info(f"Overdue reminder SMS sent to {user.username} ({phone_number})")
+        else:
+            logger.error(f"Failed to send overdue reminder SMS to {user.username}: {response}")
+        
+        return success
+        
+    except Exception as e:
+        logger.error(f"Error sending overdue SMS reminder: {str(e)}")
+        return False
