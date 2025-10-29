@@ -1274,6 +1274,8 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         return queryset
 
     def get_context_data(self, **kwargs):
+        from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+        
         # Update reservation statuses before displaying
         Reservation.check_and_update_reservations()
         
@@ -1281,12 +1283,96 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         all_reservations = self.get_queryset()
         
         # Group reservations by status
-        context['pending_reservations'] = all_reservations.filter(status='pending')
-        context['approved_reservations'] = all_reservations.filter(status='approved')
-        context['active_reservations'] = all_reservations.filter(status='active')
-        context['completed_reservations'] = all_reservations.filter(status='completed')
-        context['rejected_reservations'] = all_reservations.filter(status='rejected')
-        context['expired_reservations'] = all_reservations.filter(status='expired')
+        pending_reservations = all_reservations.filter(status='pending')
+        approved_reservations = all_reservations.filter(status='approved')
+        active_reservations = all_reservations.filter(status='active')
+        completed_reservations = all_reservations.filter(status='completed')
+        rejected_reservations = all_reservations.filter(status='rejected')
+        expired_reservations = all_reservations.filter(status='expired')
+        
+        # Paginate each status group with 10 items per page
+        paginate_by = 10
+        
+        # Get page numbers for each status tab
+        all_page = self.request.GET.get('all_page', 1)
+        pending_page = self.request.GET.get('pending_page', 1)
+        approved_page = self.request.GET.get('approved_page', 1)
+        active_page = self.request.GET.get('active_page', 1)
+        completed_page = self.request.GET.get('completed_page', 1)
+        rejected_page = self.request.GET.get('rejected_page', 1)
+        expired_page = self.request.GET.get('expired_page', 1)
+        
+        # Paginate all reservations
+        all_paginator = Paginator(all_reservations, paginate_by)
+        try:
+            context['all_reservations'] = all_paginator.page(all_page)
+        except PageNotAnInteger:
+            context['all_reservations'] = all_paginator.page(1)
+        except EmptyPage:
+            context['all_reservations'] = all_paginator.page(all_paginator.num_pages)
+        
+        # Paginate pending reservations
+        pending_paginator = Paginator(pending_reservations, paginate_by)
+        try:
+            context['pending_reservations'] = pending_paginator.page(pending_page)
+        except PageNotAnInteger:
+            context['pending_reservations'] = pending_paginator.page(1)
+        except EmptyPage:
+            context['pending_reservations'] = pending_paginator.page(pending_paginator.num_pages)
+        
+        # Paginate approved reservations
+        approved_paginator = Paginator(approved_reservations, paginate_by)
+        try:
+            context['approved_reservations'] = approved_paginator.page(approved_page)
+        except PageNotAnInteger:
+            context['approved_reservations'] = approved_paginator.page(1)
+        except EmptyPage:
+            context['approved_reservations'] = approved_paginator.page(approved_paginator.num_pages)
+        
+        # Paginate active reservations
+        active_paginator = Paginator(active_reservations, paginate_by)
+        try:
+            context['active_reservations'] = active_paginator.page(active_page)
+        except PageNotAnInteger:
+            context['active_reservations'] = active_paginator.page(1)
+        except EmptyPage:
+            context['active_reservations'] = active_paginator.page(active_paginator.num_pages)
+        
+        # Paginate completed reservations
+        completed_paginator = Paginator(completed_reservations, paginate_by)
+        try:
+            context['completed_reservations'] = completed_paginator.page(completed_page)
+        except PageNotAnInteger:
+            context['completed_reservations'] = completed_paginator.page(1)
+        except EmptyPage:
+            context['completed_reservations'] = completed_paginator.page(completed_paginator.num_pages)
+        
+        # Paginate rejected reservations
+        rejected_paginator = Paginator(rejected_reservations, paginate_by)
+        try:
+            context['rejected_reservations'] = rejected_paginator.page(rejected_page)
+        except PageNotAnInteger:
+            context['rejected_reservations'] = rejected_paginator.page(1)
+        except EmptyPage:
+            context['rejected_reservations'] = rejected_paginator.page(rejected_paginator.num_pages)
+        
+        # Paginate expired reservations
+        expired_paginator = Paginator(expired_reservations, paginate_by)
+        try:
+            context['expired_reservations'] = expired_paginator.page(expired_page)
+        except PageNotAnInteger:
+            context['expired_reservations'] = expired_paginator.page(1)
+        except EmptyPage:
+            context['expired_reservations'] = expired_paginator.page(expired_paginator.num_pages)
+        
+        # Add total counts for badges
+        context['all_count'] = all_paginator.count
+        context['pending_count'] = pending_paginator.count
+        context['approved_count'] = approved_paginator.count
+        context['active_count'] = active_paginator.count
+        context['completed_count'] = completed_paginator.count
+        context['rejected_count'] = rejected_paginator.count
+        context['expired_count'] = expired_paginator.count
         
         # Add departments for the filter dropdown
         context['departments'] = Department.objects.all()

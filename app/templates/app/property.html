@@ -5450,13 +5450,11 @@ document.addEventListener('DOMContentLoaded', function() {
     window.location.href = newUrl;
   }
   
-  // Debounced search function
-  let searchTimeout;
-  function debouncedSearch() {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
+  // Search input submit on Enter key
+  function handleSearchSubmit(e) {
+    if (e.key === 'Enter') {
       applyFilters();
-    }, 500); // 500ms delay
+    }
   }
 
   // Load filter values on page load
@@ -5555,7 +5553,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Search input functionality
   if (searchInput) {
-    searchInput.addEventListener('input', debouncedSearch);
+    // Submit search on Enter key press
+    searchInput.addEventListener('keypress', handleSearchSubmit);
 
     // Add focus styling to search input
     searchInput.addEventListener('focus', function() {

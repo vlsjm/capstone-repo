@@ -1265,6 +1265,61 @@
         font-size: 10px;
       }
     }
+
+    /* Pagination Styles */
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .pagination {
+      display: flex;
+      gap: 10px;
+      padding: 20px;
+      list-style: none;
+      margin: 0;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .pagination a,
+    .pagination span {
+      color: #152d64;
+      text-decoration: none;
+      padding: 8px 16px;
+      border: 1px solid #152d64;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .pagination a:hover {
+      background-color: #152d64;
+      color: white;
+    }
+
+    .pagination .current {
+      background-color: #152d64;
+      color: white;
+      border-color: #152d64;
+      padding: 8px 16px;
+      border: 1px solid #152d64;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .pagination {
+        padding: 15px;
+        gap: 8px;
+      }
+
+      .pagination a,
+      .pagination span {
+        padding: 6px 12px;
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1346,37 +1401,37 @@
       <button class="tab-button active" onclick="showTab('all', this)" id="allTab">
         <i class="fas fa-list"></i>
         All Reservations
-        <span class="badge">{{ pending_reservations.count|add:approved_reservations.count|add:active_reservations.count|add:completed_reservations.count|add:rejected_reservations.count|add:expired_reservations.count }}</span>
+        <span class="badge">{{ all_count }}</span>
       </button>
       <button class="tab-button" onclick="showTab('pending', this)" id="pendingTab">
         <i class="fas fa-clock"></i>
         Pending
-        <span class="badge">{{ pending_reservations.count }}</span>
+        <span class="badge">{{ pending_count }}</span>
       </button>
       <button class="tab-button" onclick="showTab('approved', this)" id="approvedTab">
         <i class="fas fa-check-circle"></i>
         Approved
-        <span class="badge">{{ approved_reservations.count }}</span>
+        <span class="badge">{{ approved_count }}</span>
       </button>
       <button class="tab-button" onclick="showTab('active', this)" id="activeTab">
         <i class="fas fa-play-circle"></i>
         Active
-        <span class="badge">{{ active_reservations.count }}</span>
+        <span class="badge">{{ active_count }}</span>
       </button>
       <button class="tab-button" onclick="showTab('completed', this)" id="completedTab">
         <i class="fas fa-check-double"></i>
         Completed
-        <span class="badge">{{ completed_reservations.count }}</span>
+        <span class="badge">{{ completed_count }}</span>
       </button>
       <button class="tab-button" onclick="showTab('rejected', this)" id="rejectedTab">
         <i class="fas fa-times-circle"></i>
         Rejected
-        <span class="badge">{{ rejected_reservations.count }}</span>
+        <span class="badge">{{ rejected_count }}</span>
       </button>
       <button class="tab-button" onclick="showTab('expired', this)" id="expiredTab">
         <i class="fas fa-calendar-times"></i>
         Expired
-        <span class="badge">{{ expired_reservations.count }}</span>
+        <span class="badge">{{ expired_count }}</span>
       </button>
       <button class="tab-button" onclick="showTab('calendar', this)" id="calendarTab">
         <i class="fas fa-calendar-alt"></i>
@@ -1390,7 +1445,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
           <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">All Reservations</h3>
         </div>
-        {% if pending_reservations or approved_reservations or active_reservations or completed_reservations or rejected_reservations or expired_reservations %}
+        {% if all_reservations.object_list %}
         <div class="reservations-table">
           <table>
             <thead>
@@ -1405,7 +1460,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for reservation in pending_reservations|slice:":3" %}
+              {% for reservation in all_reservations.object_list %}
               <tr class="expandable-row" data-reservation-id="{{ reservation.id }}">
                 <td>
                   <i class="fas fa-chevron-right expand-icon" id="icon-{{ reservation.id }}"></i>
@@ -1430,7 +1485,20 @@
                 <td>{{ reservation.quantity }}</td>
                 <td>
                   <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}">
-                    <i class="fas fa-clock"></i> {{ reservation.get_status_display }}
+                    {% if reservation.status == 'pending' %}
+                      <i class="fas fa-clock"></i>
+                    {% elif reservation.status == 'approved' %}
+                      <i class="fas fa-check-circle"></i>
+                    {% elif reservation.status == 'active' %}
+                      <i class="fas fa-play-circle"></i>
+                    {% elif reservation.status == 'completed' %}
+                      <i class="fas fa-check-double"></i>
+                    {% elif reservation.status == 'rejected' %}
+                      <i class="fas fa-times-circle"></i>
+                    {% elif reservation.status == 'expired' %}
+                      <i class="fas fa-calendar-times"></i>
+                    {% endif %}
+                    {{ reservation.get_status_display }}
                   </span>
                 </td>
                 <td>{{ reservation.needed_date|date:"M d, Y" }}</td>
@@ -1448,179 +1516,6 @@
                       <p><strong>Purpose:</strong> {{ reservation.purpose }}</p>
                       <p><strong>Reservation Date:</strong> {{ reservation.reservation_date|date:"M d, Y H:i" }}</p>
                       <p><strong>Return Date:</strong> {{ reservation.return_date|date:"M d, Y" }}</p>
-                    </div>
-                    <div class="details-section">
-                      <h5>Status Information</h5>
-                      <p><strong>Current Status:</strong> {{ reservation.get_status_display }}</p>
-                      {% if reservation.approved_date %}
-                        <p><strong>Approved Date:</strong> {{ reservation.approved_date|date:"M d, Y H:i" }}</p>
-                      {% endif %}
-                      <p><strong>Department:</strong> {{ reservation.user.userprofile.department }}</p>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              {% endfor %}
-              
-              {% for reservation in approved_reservations|slice:":3" %}
-              <tr class="expandable-row" data-reservation-id="{{ reservation.id }}">
-                <td>
-                  <i class="fas fa-chevron-right expand-icon" id="icon-{{ reservation.id }}"></i>
-                  RES-{{ reservation.id|stringformat:"03d" }}
-                </td>
-                <td>
-                  <strong>
-                    {% with reservation.user.first_name as first_name %}
-                    {% with reservation.user.last_name as last_name %}
-                      {% if first_name or last_name %}
-                        {{ first_name }} {{ last_name }}
-                      {% else %}
-                        {{ reservation.user.username }}
-                      {% endif %}
-                    {% endwith %}
-                    {% endwith %}
-                  </strong>
-                  <br>
-                  <small class="text-muted">{{ reservation.user.userprofile.department }}</small>
-                </td>
-                <td>{{ reservation.item.property_name }}</td>
-                <td>{{ reservation.quantity }}</td>
-                <td>
-                  <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}">
-                    <i class="fas fa-check-circle"></i> {{ reservation.get_status_display }}
-                  </span>
-                </td>
-                <td>{{ reservation.needed_date|date:"M d, Y" }}</td>
-                <td>
-                  <a href="{% url 'reservation_detail' reservation.id %}" class="detail-link">
-                    <i class="fas fa-external-link-alt"></i> View
-                  </a>
-                </td>
-              </tr>
-              <tr class="details-row" id="details-{{ reservation.id }}">
-                <td colspan="7">
-                  <div class="details-content">
-                    <div class="details-section">
-                      <h5>Reservation Information</h5>
-                      <p><strong>Purpose:</strong> {{ reservation.purpose }}</p>
-                      <p><strong>Reservation Date:</strong> {{ reservation.reservation_date|date:"M d, Y H:i" }}</p>
-                      <p><strong>Return Date:</strong> {{ reservation.return_date|date:"M d, Y" }}</p>
-                    </div>
-                    <div class="details-section">
-                      <h5>Status Information</h5>
-                      <p><strong>Current Status:</strong> {{ reservation.get_status_display }}</p>
-                      {% if reservation.approved_date %}
-                        <p><strong>Approved Date:</strong> {{ reservation.approved_date|date:"M d, Y H:i" }}</p>
-                      {% endif %}
-                      <p><strong>Department:</strong> {{ reservation.user.userprofile.department }}</p>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              {% endfor %}
-              
-              {% for reservation in active_reservations|slice:":2" %}
-              <tr class="expandable-row" data-reservation-id="{{ reservation.id }}">
-                <td>
-                  <i class="fas fa-chevron-right expand-icon" id="icon-{{ reservation.id }}"></i>
-                  RES-{{ reservation.id|stringformat:"03d" }}
-                </td>
-                <td>
-                  <strong>
-                    {% with reservation.user.first_name as first_name %}
-                    {% with reservation.user.last_name as last_name %}
-                      {% if first_name or last_name %}
-                        {{ first_name }} {{ last_name }}
-                      {% else %}
-                        {{ reservation.user.username }}
-                      {% endif %}
-                    {% endwith %}
-                    {% endwith %}
-                  </strong>
-                  <br>
-                  <small class="text-muted">{{ reservation.user.userprofile.department }}</small>
-                </td>
-                <td>{{ reservation.item.property_name }}</td>
-                <td>{{ reservation.quantity }}</td>
-                <td>
-                  <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}">
-                    <i class="fas fa-play-circle"></i> {{ reservation.get_status_display }}
-                  </span>
-                </td>
-                <td>{{ reservation.start_date|date:"M d, Y" }}</td>
-                <td>
-                  <a href="{% url 'reservation_detail' reservation.id %}" class="detail-link">
-                    <i class="fas fa-external-link-alt"></i> View
-                  </a>
-                </td>
-              </tr>
-              <tr class="details-row" id="details-{{ reservation.id }}">
-                <td colspan="7">
-                  <div class="details-content">
-                    <div class="details-section">
-                      <h5>Reservation Information</h5>
-                      <p><strong>Purpose:</strong> {{ reservation.purpose }}</p>
-                      <p><strong>Reservation Date:</strong> {{ reservation.reservation_date|date:"M d, Y H:i" }}</p>
-                      <p><strong>Start Date:</strong> {{ reservation.start_date|date:"M d, Y H:i" }}</p>
-                      <p><strong>End Date:</strong> {{ reservation.end_date|date:"M d, Y H:i" }}</p>
-                    </div>
-                    <div class="details-section">
-                      <h5>Status Information</h5>
-                      <p><strong>Current Status:</strong> {{ reservation.get_status_display }}</p>
-                      {% if reservation.approved_date %}
-                        <p><strong>Approved Date:</strong> {{ reservation.approved_date|date:"M d, Y H:i" }}</p>
-                      {% endif %}
-                      <p><strong>Department:</strong> {{ reservation.user.userprofile.department }}</p>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              {% endfor %}
-              
-              {% for reservation in completed_reservations|slice:":2" %}
-              <tr class="expandable-row" data-reservation-id="{{ reservation.id }}">
-                <td>
-                  <i class="fas fa-chevron-right expand-icon" id="icon-{{ reservation.id }}"></i>
-                  RES-{{ reservation.id|stringformat:"03d" }}
-                </td>
-                <td>
-                  <strong>
-                    {% with reservation.user.first_name as first_name %}
-                    {% with reservation.user.last_name as last_name %}
-                      {% if first_name or last_name %}
-                        {{ first_name }} {{ last_name }}
-                      {% else %}
-                        {{ reservation.user.username }}
-                      {% endif %}
-                    {% endwith %}
-                    {% endwith %}
-                  </strong>
-                  <br>
-                  <small class="text-muted">{{ reservation.user.userprofile.department }}</small>
-                </td>
-                <td>{{ reservation.item.property_name }}</td>
-                <td>{{ reservation.quantity }}</td>
-                <td>
-                  <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}">
-                    <i class="fas fa-check-double"></i> {{ reservation.get_status_display }}
-                  </span>
-                </td>
-                <td>{{ reservation.start_date|date:"M d, Y" }}</td>
-                <td>
-                  <a href="{% url 'reservation_detail' reservation.id %}" class="detail-link">
-                    <i class="fas fa-external-link-alt"></i> View
-                  </a>
-                </td>
-              </tr>
-              <tr class="details-row" id="details-{{ reservation.id }}">
-                <td colspan="7">
-                  <div class="details-content">
-                    <div class="details-section">
-                      <h5>Reservation Information</h5>
-                      <p><strong>Purpose:</strong> {{ reservation.purpose }}</p>
-                      <p><strong>Reservation Date:</strong> {{ reservation.reservation_date|date:"M d, Y H:i" }}</p>
-                      <p><strong>Start Date:</strong> {{ reservation.start_date|date:"M d, Y H:i" }}</p>
-                      <p><strong>End Date:</strong> {{ reservation.end_date|date:"M d, Y H:i" }}</p>
                     </div>
                     <div class="details-section">
                       <h5>Status Information</h5>
@@ -1637,6 +1532,27 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination for All -->
+        {% if all_reservations.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination">
+            {% if all_reservations.has_previous %}
+              <a href="?all_page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">&laquo; First</a>
+              <a href="?all_page={{ all_reservations.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ all_reservations.number }} of {{ all_reservations.paginator.num_pages }}
+            </span>
+
+            {% if all_reservations.has_next %}
+              <a href="?all_page={{ all_reservations.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Next</a>
+              <a href="?all_page={{ all_reservations.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Last &raquo;</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
         {% else %}
         <div class="empty-state">
           <i class="fas fa-calendar-times"></i>
@@ -1650,7 +1566,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
           <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Pending Reservations</h3>
         </div>
-        {% if pending_reservations %}
+        {% if pending_reservations.object_list %}
         <div class="reservations-table">
           <table>
             <thead>
@@ -1665,7 +1581,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for reservation in pending_reservations %}
+              {% for reservation in pending_reservations.object_list %}
               <tr class="expandable-row" data-reservation-id="{{ reservation.id }}">
                 <td>
                   <i class="fas fa-chevron-right expand-icon" id="icon-pending-{{ reservation.id }}"></i>
@@ -1721,6 +1637,26 @@
             </tbody>
           </table>
         </div>
+        <!-- Pagination for Pending -->
+        {% if pending_reservations.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination">
+            {% if pending_reservations.has_previous %}
+              <a href="?pending_page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">&laquo; First</a>
+              <a href="?pending_page={{ pending_reservations.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ pending_reservations.number }} of {{ pending_reservations.paginator.num_pages }}
+            </span>
+
+            {% if pending_reservations.has_next %}
+              <a href="?pending_page={{ pending_reservations.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Next</a>
+              <a href="?pending_page={{ pending_reservations.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Last &raquo;</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
         {% else %}
         <div class="empty-state">
           <i class="fas fa-clock"></i>
@@ -1734,7 +1670,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
           <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Approved Reservations</h3>
         </div>
-        {% if approved_reservations %}
+        {% if approved_reservations.object_list %}
         <div class="reservations-table">
           <table>
             <thead>
@@ -1749,7 +1685,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for reservation in approved_reservations %}
+              {% for reservation in approved_reservations.object_list %}
               <tr class="expandable-row" data-reservation-id="{{ reservation.id }}">
                 <td>
                   <i class="fas fa-chevron-right expand-icon" id="icon-approved-{{ reservation.id }}"></i>
@@ -1808,6 +1744,26 @@
             </tbody>
           </table>
         </div>
+        <!-- Pagination for Approved -->
+        {% if approved_reservations.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination">
+            {% if approved_reservations.has_previous %}
+              <a href="?approved_page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">&laquo; First</a>
+              <a href="?approved_page={{ approved_reservations.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ approved_reservations.number }} of {{ approved_reservations.paginator.num_pages }}
+            </span>
+
+            {% if approved_reservations.has_next %}
+              <a href="?approved_page={{ approved_reservations.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Next</a>
+              <a href="?approved_page={{ approved_reservations.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Last &raquo;</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
         {% else %}
         <div class="empty-state">
           <i class="fas fa-check-circle"></i>
@@ -1821,7 +1777,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
           <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Active Reservations</h3>
         </div>
-        {% if active_reservations %}
+        {% if active_reservations.object_list %}
         <div class="reservations-table">
           <table>
             <thead>
@@ -1836,7 +1792,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for reservation in active_reservations %}
+              {% for reservation in active_reservations.object_list %}
               <tr class="expandable-row" data-reservation-id="{{ reservation.id }}">
                 <td>
                   <i class="fas fa-chevron-right expand-icon" id="icon-active-{{ reservation.id }}"></i>
@@ -1896,6 +1852,26 @@
             </tbody>
           </table>
         </div>
+        <!-- Pagination for Active -->
+        {% if active_reservations.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination">
+            {% if active_reservations.has_previous %}
+              <a href="?active_page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">&laquo; First</a>
+              <a href="?active_page={{ active_reservations.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ active_reservations.number }} of {{ active_reservations.paginator.num_pages }}
+            </span>
+
+            {% if active_reservations.has_next %}
+              <a href="?active_page={{ active_reservations.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Next</a>
+              <a href="?active_page={{ active_reservations.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Last &raquo;</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
         {% else %}
         <div class="empty-state">
           <i class="fas fa-play-circle"></i>
@@ -1909,7 +1885,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
           <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Completed Reservations</h3>
         </div>
-        {% if completed_reservations %}
+        {% if completed_reservations.object_list %}
         <div class="reservations-table">
           <table>
             <thead>
@@ -1924,7 +1900,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for reservation in completed_reservations %}
+              {% for reservation in completed_reservations.object_list %}
               <tr class="expandable-row" data-reservation-id="{{ reservation.id }}">
                 <td>
                   <i class="fas fa-chevron-right expand-icon" id="icon-completed-{{ reservation.id }}"></i>
@@ -1984,6 +1960,26 @@
             </tbody>
           </table>
         </div>
+        <!-- Pagination for Completed -->
+        {% if completed_reservations.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination">
+            {% if completed_reservations.has_previous %}
+              <a href="?completed_page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">&laquo; First</a>
+              <a href="?completed_page={{ completed_reservations.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ completed_reservations.number }} of {{ completed_reservations.paginator.num_pages }}
+            </span>
+
+            {% if completed_reservations.has_next %}
+              <a href="?completed_page={{ completed_reservations.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Next</a>
+              <a href="?completed_page={{ completed_reservations.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Last &raquo;</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
         {% else %}
         <div class="empty-state">
           <i class="fas fa-check-double"></i>
@@ -1997,7 +1993,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
           <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Rejected Reservations</h3>
         </div>
-        {% if rejected_reservations %}
+        {% if rejected_reservations.object_list %}
         <div class="reservations-table">
           <table>
             <thead>
@@ -2012,7 +2008,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for reservation in rejected_reservations %}
+              {% for reservation in rejected_reservations.object_list %}
               <tr class="expandable-row" data-reservation-id="{{ reservation.id }}">
                 <td>
                   <i class="fas fa-chevron-right expand-icon" id="icon-rejected-{{ reservation.id }}"></i>
@@ -2071,6 +2067,26 @@
             </tbody>
           </table>
         </div>
+        <!-- Pagination for Rejected -->
+        {% if rejected_reservations.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination">
+            {% if rejected_reservations.has_previous %}
+              <a href="?rejected_page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">&laquo; First</a>
+              <a href="?rejected_page={{ rejected_reservations.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ rejected_reservations.number }} of {{ rejected_reservations.paginator.num_pages }}
+            </span>
+
+            {% if rejected_reservations.has_next %}
+              <a href="?rejected_page={{ rejected_reservations.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Next</a>
+              <a href="?rejected_page={{ rejected_reservations.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Last &raquo;</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
         {% else %}
         <div class="empty-state">
           <i class="fas fa-times-circle"></i>
@@ -2081,46 +2097,70 @@
 
       <!-- Expired Reservations Tab -->
       <div id="expired" class="tab-content">
-        <div class="tab-header">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
           <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Expired Reservations</h3>
         </div>
-        {% if expired_reservations %}
-        <div class="table-container">
-          <table class="reservations-table">
+        {% if expired_reservations.object_list %}
+        <div class="reservations-table">
+          <table>
             <thead>
               <tr>
-                <th>Reservation Details</th>
-                <th>Dates</th>
+                <th>Reservation ID</th>
+                <th>Reserver</th>
+                <th>Item</th>
+                <th>Quantity</th>
                 <th>Status</th>
+                <th>Return Date</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {% for reservation in expired_reservations %}
-              <tr>
+              {% for reservation in expired_reservations.object_list %}
+              <tr class="expandable-row" data-reservation-id="{{ reservation.id }}">
                 <td>
-                  <div class="reservation-item">
-                    <h4>{{ reservation.item.property_name }}</h4>
-                    <p><strong>User:</strong> {{ reservation.user.get_full_name|default:reservation.user.username }}</p>
-                    <p><strong>Quantity:</strong> {{ reservation.quantity }}</p>
-                    <p><strong>Purpose:</strong> {{ reservation.purpose }}</p>
-                  </div>
+                  <i class="fas fa-chevron-right expand-icon" id="icon-expired-{{ reservation.id }}"></i>
+                  RES-{{ reservation.id|stringformat:"03d" }}
                 </td>
                 <td>
-                  <div class="date-info">
-                    <p><strong>Reserved:</strong> {{ reservation.reservation_date|date:"M d, Y H:i" }}</p>
-                    {% if reservation.needed_date %}
-                      <p><strong>Needed:</strong> {{ reservation.needed_date|date:"M d, Y" }}</p>
-                    {% endif %}
-                    <p><strong>Return:</strong> {{ reservation.return_date|date:"M d, Y" }}</p>
-                  </div>
+                  <strong>
+                    {% with reservation.user.first_name as first_name %}
+                    {% with reservation.user.last_name as last_name %}
+                      {% if first_name or last_name %}
+                        {{ first_name }} {{ last_name }}
+                      {% else %}
+                        {{ reservation.user.username }}
+                      {% endif %}
+                    {% endwith %}
+                    {% endwith %}
+                  </strong>
+                  <br>
+                  <small class="text-muted">{{ reservation.user.userprofile.department }}</small>
                 </td>
+                <td>{{ reservation.item.property_name }}</td>
+                <td>{{ reservation.quantity }}</td>
                 <td>
-                  <div class="status-info">
-                    <span class="status-badge status-expired">
-                      <i class="fas fa-calendar-times"></i>
-                      {{ reservation.get_status_display }}
-                    </span>
-                    <div class="additional-info">
+                  <span class="status-badge status-{{ reservation.status|lower|cut:' ' }}">
+                    <i class="fas fa-calendar-times"></i> {{ reservation.get_status_display }}
+                  </span>
+                </td>
+                <td>{{ reservation.return_date|date:"M d, Y" }}</td>
+                <td>
+                  <a href="{% url 'reservation_detail' reservation.id %}" class="detail-link">
+                    <i class="fas fa-external-link-alt"></i> View
+                  </a>
+                </td>
+              </tr>
+              <tr class="details-row" id="details-expired-{{ reservation.id }}">
+                <td colspan="7">
+                  <div class="details-content">
+                    <div class="details-section">
+                      <h5>Reservation Information</h5>
+                      <p><strong>Purpose:</strong> {{ reservation.purpose }}</p>
+                      <p><strong>Reservation Date:</strong> {{ reservation.reservation_date|date:"M d, Y H:i" }}</p>
+                      <p><strong>Needed Date:</strong> {{ reservation.needed_date|date:"M d, Y" }}</p>
+                      <p><strong>Return Date:</strong> {{ reservation.return_date|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="details-section">
                       <h5>Status Information</h5>
                       <p><strong>Current Status:</strong> {{ reservation.get_status_display }}</p>
                       <p><strong>Department:</strong> {{ reservation.user.userprofile.department }}</p>
@@ -2132,6 +2172,26 @@
             </tbody>
           </table>
         </div>
+        <!-- Pagination for Expired -->
+        {% if expired_reservations.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination">
+            {% if expired_reservations.has_previous %}
+              <a href="?expired_page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">&laquo; First</a>
+              <a href="?expired_page={{ expired_reservations.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ expired_reservations.number }} of {{ expired_reservations.paginator.num_pages }}
+            </span>
+
+            {% if expired_reservations.has_next %}
+              <a href="?expired_page={{ expired_reservations.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Next</a>
+              <a href="?expired_page={{ expired_reservations.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Last &raquo;</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
         {% else %}
         <div class="empty-state">
           <i class="fas fa-calendar-times"></i>

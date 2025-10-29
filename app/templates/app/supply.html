@@ -3549,18 +3549,16 @@ tr.hidden {
         window.location.href = newUrl;
       }
       
-      // Debounced search function
-      let searchTimeout;
-      function debouncedSearch() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
+      // Search input submit on Enter key
+      function handleSearchSubmit(e) {
+        if (e.key === 'Enter') {
           applyFilters();
-        }, 500); // 500ms delay
+        }
       }
 
-      // Add event listeners for search with debounce
+      // Add event listeners for search with Enter key
       if (searchInput) {
-        searchInput.addEventListener('input', debouncedSearch);
+        searchInput.addEventListener('keypress', handleSearchSubmit);
       }
 
       // Load filter values from URL parameters on page load
