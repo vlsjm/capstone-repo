@@ -53,6 +53,8 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  text-align: center;
+  margin: 0 10px;
 }
 
 .mobile-header-greeting span {
@@ -1148,8 +1150,8 @@ input[type="date"]:focus {
   }
 
   .dashboard-stats {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    grid-template-columns: 1fr;
+    gap: 12px;
     margin: 15px 0 20px 0;
   }
 

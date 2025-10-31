@@ -269,7 +269,7 @@
         <h3><i class="fas fa-file-alt"></i> Request History</h3>
         {% if request_history %}
         <div class="table-wrapper">
-          <table class="history-table">
+          <table class="history-table responsive-table">
             <thead>
               <tr>
                 <th>Item</th>
@@ -282,17 +282,17 @@
             <tbody>
               {% for request in request_history %}
               <tr>
-                <td>{{ request.item|truncatechars:30 }}</td>
-                <td>{{ request.quantity }}</td>
-                <td>
+                <td data-label="Item">{{ request.item|truncatechars:30 }}</td>
+                <td data-label="Qty">{{ request.quantity }}</td>
+                <td data-label="Status">
                   <span
                     class="status-badge status-{{ request.status|lower|cut:' ' }}"
                   >
                     {{ request.status }}
                   </span>
                 </td>
-                <td>{{ request.date|date:"M d, Y" }}</td>
-                <td>{{ request.purpose|truncatechars:40 }}</td>
+                <td data-label="Date">{{ request.date|date:"M d, Y" }}</td>
+                <td data-label="Purpose">{{ request.purpose|truncatechars:40 }}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -331,7 +331,7 @@
         <h3><i class="fas fa-hand-holding"></i> Borrow History</h3>
         {% if borrow_history %}
         <div class="table-wrapper">
-          <table class="history-table">
+          <table class="history-table responsive-table">
             <thead>
               <tr>
                 <th>Item</th>
@@ -344,17 +344,17 @@
             <tbody>
               {% for borrow in borrow_history %}
               <tr>
-                <td>{{ borrow.item|truncatechars:30 }}</td>
-                <td>{{ borrow.quantity }}</td>
-                <td>
+                <td data-label="Item">{{ borrow.item|truncatechars:30 }}</td>
+                <td data-label="Qty">{{ borrow.quantity }}</td>
+                <td data-label="Status">
                   <span
                     class="status-badge status-{{ borrow.status|lower|cut:' ' }}"
                   >
                     {{ borrow.status }}
                   </span>
                 </td>
-                <td>{{ borrow.borrow_date|date:"M d, Y" }}</td>
-                <td>{{ borrow.return_date|date:"M d, Y" }}</td>
+                <td data-label="Borrow Date">{{ borrow.borrow_date|date:"M d, Y" }}</td>
+                <td data-label="Return Date">{{ borrow.return_date|date:"M d, Y" }}</td>
               </tr>
               {% endfor %}
             </tbody>

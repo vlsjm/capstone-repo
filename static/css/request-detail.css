@@ -514,10 +514,9 @@
 /* Mobile responsive adjustments */
 @media (max-width: 767px) {
     .request-detail-wrapper {
-        padding: 1rem 0;
+        padding: 0rem 0;
         margin-left: 0;
         /* Remove sidebar margin on mobile */
-        padding-top: 80px;
         /* Account for mobile header */
     }
 
