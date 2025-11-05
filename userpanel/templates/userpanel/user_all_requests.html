@@ -1812,24 +1812,114 @@ document.addEventListener('DOMContentLoaded', function() {
     const filterInputs = document.querySelectorAll('.simple-filter-dropdown input[type="radio"]');
     filterInputs.forEach(input => {
         input.addEventListener('change', function() {
-            applyFilters();
+            // Add a brief delay to show the filter was selected before closing
+            setTimeout(() => {
+                applyFilters();
+            }, 150);
         });
     });
 
-    // Search functionality
-    let searchTimeout;
+    // Search functionality - Client-side filtering
     const searchInput = document.getElementById('searchInput');
+    
     if (searchInput) {
         searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                applyFilters();
-            }, 500);
+            const searchTerm = this.value.toLowerCase().trim();
+            filterTable(searchTerm);
+            updateResultsCount();
         });
     }
+    
+    // Function to filter table rows based on search term
+    function filterTable(searchTerm) {
+        const tableRows = document.querySelectorAll('.requests-table tbody tr');
+        let visibleRows = 0;
+        
+        tableRows.forEach(row => {
+            const searchableText = [
+                row.querySelector('.request-id')?.textContent || '',
+                row.querySelector('.type-badge')?.textContent || '',
+                row.querySelector('.item-title')?.textContent || '',
+                row.querySelector('.item-name')?.textContent || '',
+                row.querySelector('.quantity')?.textContent || '',
+                row.querySelector('.status-badge span')?.textContent || '',
+                row.querySelector('.purpose span')?.textContent || row.querySelector('.purpose')?.textContent || ''
+            ].join(' ').toLowerCase();
+            
+            if (searchTerm === '' || searchableText.includes(searchTerm)) {
+                row.style.display = '';
+                visibleRows++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Show/hide empty state
+        const emptyState = document.querySelector('.empty-state');
+        const tableSection = document.querySelector('.requests-table-section .table-container');
+        
+        if (visibleRows === 0 && searchTerm !== '') {
+            if (tableSection) tableSection.style.display = 'none';
+            if (!emptyState) {
+                showNoResultsMessage();
+            } else {
+                emptyState.style.display = 'block';
+            }
+        } else {
+            if (tableSection) tableSection.style.display = 'block';
+            if (emptyState) emptyState.style.display = 'none';
+        }
+    }
+    
+    // Function to show no results message
+    function showNoResultsMessage() {
+        const tableSection = document.querySelector('.requests-table-section');
+        const existingMessage = document.querySelector('.no-search-results');
+        
+        if (!existingMessage && tableSection) {
+            const noResultsDiv = document.createElement('div');
+            noResultsDiv.className = 'no-search-results empty-state';
+            noResultsDiv.innerHTML = `
+                <div class="empty-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>No Results Found</h3>
+                <p>No requests match your search criteria. Try using different keywords.</p>
+            `;
+            tableSection.appendChild(noResultsDiv);
+        }
+    }
+    
+    // Function to update results count
+    function updateResultsCount() {
+        const visibleRows = document.querySelectorAll('.requests-table tbody tr:not([style*="display: none"])').length;
+        const totalRows = document.querySelectorAll('.requests-table tbody tr').length;
+        const summaryElement = document.querySelector('.summary-stats .total-count');
+        
+        if (summaryElement) {
+            const searchTerm = searchInput.value.trim();
+            if (searchTerm) {
+                summaryElement.innerHTML = `<i class="fas fa-search"></i> Showing ${visibleRows} of ${totalRows} requests (filtered)`;
+            } else {
+                // Reset to original text - you may need to store this initially
+                summaryElement.innerHTML = `<i class="fas fa-clipboard-list"></i> Total Requests: ${totalRows}`;
+            }
+        }
+    }
 
-    // Function to apply filters and update URL
+    // Function to apply filters and update URL (for radio button filters only)
     function applyFilters() {
+        // Close filter dropdown immediately before applying filters
+        if (filterDropdown && filterToggleBtn) {
+            filterDropdown.classList.remove('show');
+            filterToggleBtn.classList.remove('active');
+            if (filterBackdrop) {
+                filterBackdrop.classList.remove('show');
+            }
+            sessionStorage.setItem('filterDropdownOpen', 'false');
+            document.body.style.overflow = '';
+        }
+        
         const currentUrl = new URL(window.location);
         
         // Remove page parameter when filters change
@@ -1851,13 +1941,8 @@ document.addEventListener('DOMContentLoaded', function() {
             currentUrl.searchParams.delete('status');
         }
         
-        // Get search
-        const searchValue = searchInput ? searchInput.value.trim() : '';
-        if (searchValue) {
-            currentUrl.searchParams.set('search', searchValue);
-        } else {
-            currentUrl.searchParams.delete('search');
-        }
+        // Remove search from URL since it's now client-side
+        currentUrl.searchParams.delete('search');
         
         // Update active filter count
         updateActiveFilterCount();
@@ -1866,7 +1951,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = currentUrl.toString();
     }
 
-    // Function to update active filter count
+    // Function to update active filter count (excluding client-side search)
     function updateActiveFilterCount() {
         let count = 0;
         
@@ -1882,11 +1967,7 @@ document.addEventListener('DOMContentLoaded', function() {
             count++;
         }
         
-        // Count search filter
-        const searchValue = searchInput ? searchInput.value.trim() : '';
-        if (searchValue) {
-            count++;
-        }
+        // Don't count search since it's now client-side
         
         if (activeFilterCount) {
             activeFilterCount.textContent = count;

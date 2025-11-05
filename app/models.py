@@ -1715,16 +1715,15 @@ class BorrowRequestItem(models.Model):
                 pass
             
             elif self.status == 'active' and old_status == 'approved':
-                # Approved -> Active (claimed): Deduct from both reserved and actual quantity
+                # Approved -> Active (claimed): Only release reserved quantity
+                # NOTE: Actual quantity deduction is handled in the claim view to prevent double deduction
                 self.property.reserved_quantity = max(0, self.property.reserved_quantity - self.quantity)
-                self.property.quantity = max(0, self.property.quantity - self.quantity)
-                self.property.save(update_fields=['reserved_quantity', 'quantity'])
+                self.property.save(update_fields=['reserved_quantity'])
                 self.property.update_availability()
             
             elif self.status == 'returned' and old_status in ['active', 'overdue']:
-                # Returned: Restore quantity
-                self.property.quantity += self.quantity
-                self.property.save(update_fields=['quantity'])
+                # Returned: Quantity restoration is handled in the return view
+                # NOTE: Do not add quantity here to prevent double addition
                 self.property.update_availability()
             
             elif self.status == 'completed' and old_status == 'returned':
