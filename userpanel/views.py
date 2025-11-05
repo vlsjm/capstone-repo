@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm, UserProfileUpdateForm
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordChangeDoneView
-from app.models import UserProfile, Notification, Property, ActivityLog, Supply, SupplyRequestBatch, SupplyRequestItem, SupplyRequest, BorrowRequest, BorrowRequestBatch, BorrowRequestItem, Reservation, DamageReport
+from app.models import UserProfile, Notification, Property, ActivityLog, Supply, SupplyRequestBatch, SupplyRequestItem, SupplyRequest, BorrowRequest, BorrowRequestBatch, BorrowRequestItem, Reservation, ReservationBatch, ReservationItem, DamageReport, PropertyCategory
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import JsonResponse
 from django.utils import timezone
@@ -91,29 +91,39 @@ class UserReserveView(PermissionRequiredMixin, TemplateView):
                 continue
         
         # Get available properties for the dropdown
+        # Show all non-archived properties - users can request any quantity
+        # Admin will validate availability during approval
         available_supplies = Property.objects.filter(
-            is_archived=False, 
-            quantity__gt=0,
+            is_archived=False,
             availability='available'
         )
         
-        recent_requests = Reservation.objects.filter(user=request.user).order_by('-reservation_date')[:5]
+        # Get property categories
+        supply_categories = PropertyCategory.objects.all()
         
-        # Convert requests to dict format for template
-        recent_requests_data = [{
-            'id': req.id,
-            'item': req.item.property_name,
-            'quantity': req.quantity,
-            'status': req.status,
-            'date': req.reservation_date,
-            'needed_date': req.needed_date,
-            'return_date': req.return_date,
-            'purpose': req.purpose
-        } for req in recent_requests]
+        # Get recent reservation batches
+        from app.models import ReservationBatch
+        recent_batches = ReservationBatch.objects.filter(user=request.user).order_by('-request_date')[:5]
+        
+        # Convert batches to dict format for template
+        recent_requests_data = []
+        for batch in recent_batches:
+            first_item = batch.items.first()
+            recent_requests_data.append({
+                'id': batch.id,
+                'item': first_item.property.property_name if first_item else 'No items',
+                'quantity': batch.total_quantity,
+                'status': batch.status,
+                'date': batch.request_date,
+                'needed_date': batch.earliest_needed_date,
+                'return_date': batch.latest_return_date,
+                'purpose': batch.purpose
+            })
         
         return render(request, self.template_name, {
             'cart_items': cart_items_data,
             'available_supplies': available_supplies,
+            'supply_categories': supply_categories,
             'recent_requests': recent_requests_data
         })
 
@@ -131,6 +141,14 @@ class UserReportView(PermissionRequiredMixin, TemplateView):
         form = DamageReportForm()
         recent_requests = DamageReport.objects.filter(user=request.user).order_by('-report_date')[:5]
         
+        # Get all properties that can be reported as damaged (not archived)
+        available_supplies = Property.objects.filter(
+            is_archived=False
+        )
+        
+        # Get property categories for filter
+        supply_categories = PropertyCategory.objects.all()
+        
         # Convert requests to dict format for template
         recent_requests_data = [{
             'id': req.id,
@@ -142,6 +160,8 @@ class UserReportView(PermissionRequiredMixin, TemplateView):
         
         return render(request, self.template_name, {
             'form': form,
+            'available_supplies': available_supplies,
+            'supply_categories': supply_categories,
             'recent_requests': recent_requests_data
         })
 
@@ -150,6 +170,11 @@ class UserReportView(PermissionRequiredMixin, TemplateView):
         if form.is_valid():
             report = form.save(commit=False)
             report.user = request.user
+            
+            # Handle image upload and compression
+            if 'image' in request.FILES:
+                report.set_image_from_file(request.FILES['image'])
+            
             report.save()
 
             # Log the damage report activity
@@ -174,8 +199,18 @@ class UserReportView(PermissionRequiredMixin, TemplateView):
             'description': req.description
         } for req in recent_requests]
         
+        # Get all properties for the dropdown (not archived)
+        available_supplies = Property.objects.filter(
+            is_archived=False
+        )
+        
+        # Get property categories for filter
+        supply_categories = PropertyCategory.objects.all()
+        
         return render(request, self.template_name, {
             'form': form,
+            'available_supplies': available_supplies,
+            'supply_categories': supply_categories,
             'recent_requests': recent_requests_data
         })
 
@@ -753,18 +788,29 @@ def cancel_batch_borrow_request(request, request_id):
 @login_required
 @require_POST
 def cancel_reservation(request, request_id):
-    reservation = get_object_or_404(Reservation, id=request_id, user=request.user)
+    reservation_batch = get_object_or_404(ReservationBatch, id=request_id, user=request.user)
     
-    if reservation.status == 'pending':
-        reservation.status = 'cancelled'
-        reservation.save()
+    if reservation_batch.status == 'pending':
+        reservation_batch.status = 'cancelled'
+        reservation_batch.save()
+        
+        # Update all items in the batch
+        reservation_batch.items.update(status='cancelled')
+        
+        # Create items summary for log
+        items_summary = []
+        for item in reservation_batch.items.all()[:3]:
+            items_summary.append(f"{item.property.property_name} (x{item.quantity})")
+        if reservation_batch.items.count() > 3:
+            items_summary.append(f"and {reservation_batch.items.count() - 3} more items")
+        items_str = ", ".join(items_summary)
         
         ActivityLog.log_activity(
             user=request.user,
             action='cancel',
-            model_name='Reservation',
-            object_repr=str(reservation.item.property_name),
-            description=f"Cancelled reservation for {reservation.quantity} units of {reservation.item.property_name}"
+            model_name='ReservationBatch',
+            object_repr=f"Reservation Batch #{reservation_batch.id}",
+            description=f"Cancelled reservation batch with {reservation_batch.items.count()} items: {items_str}"
         )
         
         return JsonResponse({
@@ -838,12 +884,8 @@ def add_to_borrow_list(request):
                     'message': 'This item is archived and cannot be requested'
                 })
             
-            # Validate quantity
-            if quantity > property_obj.quantity:
-                return JsonResponse({
-                    'status': 'error',
-                    'message': f'Only {property_obj.quantity} units available'
-                })
+            # No quantity validation here - let users request any amount
+            # Validation will happen during admin approval
             
             # Validate return date
             if return_date:
@@ -934,14 +976,6 @@ def update_borrow_list_item(request):
         
         try:
             property_obj = Property.objects.get(id=property_id)
-            
-            # Validate quantity
-            if quantity > property_obj.quantity:
-                logger.warning(f"Quantity {quantity} exceeds available {property_obj.quantity}")
-                return JsonResponse({
-                    'status': 'error',
-                    'message': f'Only {property_obj.quantity} units available'
-                })
             
             # Validate return date
             if return_date:
@@ -1055,23 +1089,22 @@ def submit_borrow_list_request(request):
                         'message': f'{property_obj.property_name} is archived and cannot be requested'
                     })
                 
-                # Check quantity availability
-                if item['quantity'] > property_obj.quantity:
-                    batch_request.delete()
-                    return JsonResponse({
-                        'status': 'error',
-                        'message': f'Only {property_obj.quantity} units of {property_obj.property_name} are available'
-                    })
-                
-                # Create the borrow request item
+                # Create the borrow request item using get_or_create to handle duplicates gracefully
                 try:
-                    BorrowRequestItem.objects.create(
+                    item_obj, created = BorrowRequestItem.objects.get_or_create(
                         batch_request=batch_request,
                         property=property_obj,
-                        quantity=item['quantity'],
-                        return_date=datetime.strptime(item['return_date'], '%Y-%m-%d').date(),
-                        status='pending'
+                        defaults={
+                            'quantity': item['quantity'],
+                            'return_date': datetime.strptime(item['return_date'], '%Y-%m-%d').date(),
+                            'status': 'pending'
+                        }
                     )
+                    # If item already existed, update it
+                    if not created:
+                        item_obj.quantity = item['quantity']
+                        item_obj.return_date = datetime.strptime(item['return_date'], '%Y-%m-%d').date()
+                        item_obj.save()
                 except Exception as create_error:
                     # Delete the batch request if creating an item fails
                     batch_request.delete()
@@ -1159,12 +1192,8 @@ def add_to_reservation_list(request):
                 'message': 'This item is archived and cannot be requested'
             })
         
-        # Check if enough quantity is available
-        if quantity > property_obj.quantity:
-            return JsonResponse({
-                'status': 'error',
-                'message': f'Only {property_obj.quantity} units available'
-            })
+        # No quantity validation here - let users request any amount
+        # Validation will happen during admin approval
         
         # Check if item already exists in cart
         cart = request.session.get('reservation_cart', [])
@@ -1181,13 +1210,6 @@ def add_to_reservation_list(request):
             cart[existing_item]['needed_date'] = needed_date
             cart[existing_item]['return_date'] = return_date
             cart[existing_item]['purpose'] = purpose
-            
-            # Check if total quantity exceeds available
-            if cart[existing_item]['quantity'] > property_obj.quantity:
-                return JsonResponse({
-                    'status': 'error',
-                    'message': f'Total quantity would exceed available stock ({property_obj.quantity} units)'
-                })
         else:
             # Add new item
             cart.append({
@@ -1214,7 +1236,7 @@ def add_to_reservation_list(request):
                 'needed_date': needed_date,
                 'return_date': return_date,
                 'purpose': purpose,
-                'available_quantity': property_obj.quantity
+                'available_quantity': property_obj.available_quantity
             }
         })
     
@@ -1313,81 +1335,86 @@ def clear_reservation_list(request):
 
 @login_required
 def submit_reservation_list_request(request):
-    """Submit all items in reservation cart as individual reservation requests"""
+    """Submit all items in reservation cart as a batch reservation request"""
     if request.method == 'POST':
         cart = request.session.get('reservation_cart', [])
         
         if not cart:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'No items in reservation list'
-            })
+            messages.error(request, 'No items in reservation list')
+            return redirect('user_reserve')
         
         general_purpose = request.POST.get('general_purpose', '')
         
         try:
-            created_requests = []
-            
+            # Validate all items before creating batch
             for item in cart:
                 property_obj = Property.objects.get(id=item['property_id'])
                 
                 # Check if property is available for request
                 if property_obj.availability != 'available':
-                    return JsonResponse({
-                        'status': 'error',
-                        'message': f'{property_obj.property_name} is not available for request'
-                    })
+                    messages.error(request, f'{property_obj.property_name} is not available for request')
+                    return redirect('user_reserve')
                 
                 # Check if property is archived
                 if property_obj.is_archived:
-                    return JsonResponse({
-                        'status': 'error',
-                        'message': f'{property_obj.property_name} is archived and cannot be requested'
-                    })
+                    messages.error(request, f'{property_obj.property_name} is archived and cannot be requested')
+                    return redirect('user_reserve')
+            
+            # Create the ReservationBatch
+            reservation_batch = ReservationBatch.objects.create(
+                user=request.user,
+                purpose=general_purpose if general_purpose else "Batch reservation request",
+                status='pending'
+            )
+            
+            # Create ReservationItem for each cart item
+            created_items = []
+            for item in cart:
+                property_obj = Property.objects.get(id=item['property_id'])
                 
-                # Check quantity availability
-                if item['quantity'] > property_obj.quantity:
-                    return JsonResponse({
-                        'status': 'error',
-                        'message': f'Only {property_obj.quantity} units of {property_obj.property_name} are available'
-                    })
-                
-                # Create the reservation request
-                reservation = Reservation.objects.create(
-                    user=request.user,
-                    item=property_obj,
+                reservation_item = ReservationItem.objects.create(
+                    batch_request=reservation_batch,
+                    property=property_obj,
                     quantity=item['quantity'],
                     needed_date=datetime.strptime(item['needed_date'], '%Y-%m-%d').date(),
                     return_date=datetime.strptime(item['return_date'], '%Y-%m-%d').date(),
-                    purpose=f"{item['purpose']}. {general_purpose}".strip('. '),
-                    status='pending'
+                    status='pending',
+                    remarks=item.get('purpose', '')
                 )
                 
-                created_requests.append(reservation)
-                
-                # Log the activity
-                ActivityLog.log_activity(
-                    user=request.user,
-                    action='request',
-                    model_name='Reservation',
-                    object_repr=str(property_obj.property_name),
-                    description=f"Reserved {item['quantity']} units of {property_obj.property_name} from {item['needed_date']} to {item['return_date']}"
-                )
+                created_items.append(reservation_item)
+            
+            # Notification is handled automatically in ReservationBatch.save()
+            # when the batch is created, so we don't need to send it manually here
+            
+            # Log activity for the batch request
+            item_list = ", ".join([f"{Property.objects.get(id=item['property_id']).property_name} (x{item['quantity']})" 
+                                 for item in cart[:3]])
+            if len(cart) > 3:
+                item_list += f" and {len(cart) - 3} more items"
+            
+            ActivityLog.log_activity(
+                user=request.user,
+                action='request',
+                model_name='ReservationBatch',
+                object_repr=f"Batch #{reservation_batch.id}",
+                description=f"Submitted batch reservation request with {len(cart)} items: {item_list}"
+            )
             
             # Clear the cart
             request.session['reservation_cart'] = []
             request.session.modified = True
             
-            messages.success(request, f'{len(created_requests)} reservation request(s) submitted successfully.')
+            # Show success message and redirect
+            messages.success(request, f'Reservation request #{reservation_batch.id} submitted successfully! Your batch includes {len(created_items)} item(s).')
             return redirect('user_reserve')
             
         except Exception as e:
-            return JsonResponse({
-                'status': 'error',
-                'message': f'Error submitting requests: {str(e)}'
-            })
+            messages.error(request, f'Error submitting requests: {str(e)}')
+            return redirect('user_reserve')
     
-    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+    messages.error(request, 'Invalid request')
+    return redirect('user_reserve')
 
 
 class UserProfileView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
@@ -1574,24 +1601,32 @@ class UserAllRequestsView(LoginRequiredMixin, PermissionRequiredMixin, TemplateV
                 }
                 all_requests.append(request_data)
         
-        # Get Reservations
+        # Get Reservations (batch)
         if request_type in ['all', 'reservation']:
-            reservations = Reservation.objects.filter(
+            reservation_batches = ReservationBatch.objects.filter(
                 user=self.request.user
-            ).select_related('user', 'item')
+            ).select_related('user').prefetch_related('items__property')
             
-            for req in reservations:
+            for req in reservation_batches:
+                # Create items summary
+                items_summary = []
+                for item in req.items.all()[:3]:  # Show first 3 items
+                    items_summary.append(f"{item.property.property_name} (x{item.quantity})")
+                
+                if req.items.count() > 3:
+                    items_summary.append(f"and {req.items.count() - 3} more items")
+                
                 request_data = {
-                    'id': f"R-{req.id}",
+                    'id': f"RB-{req.id}",
                     'type': 'Reservation',
-                    'item_name': req.item.property_name,
-                    'quantity': req.quantity,
+                    'item_name': ", ".join(items_summary) if items_summary else "No items",
+                    'quantity': req.total_quantity,
                     'status': req.get_status_display(),
                     'status_raw': req.status,
-                    'date': req.reservation_date,
+                    'date': req.request_date,
                     'purpose': req.purpose,
-                    'needed_date': req.needed_date,
-                    'return_date': req.return_date,
+                    'needed_date': req.earliest_needed_date,
+                    'return_date': req.latest_return_date,
                     'can_cancel': req.status == 'pending',
                     'model_type': 'reservation',
                     'real_id': req.id
@@ -1688,13 +1723,14 @@ def request_detail(request, type, request_id):
                 'is_batch': True
             }
         elif type == 'reservation':
-            request_obj = get_object_or_404(Reservation, id=request_id, user=request.user)
+            request_obj = get_object_or_404(ReservationBatch, id=request_id, user=request.user)
             template = 'userpanel/request_detail.html'
+            items = request_obj.items.select_related('property').all()
             context = {
                 'request_obj': request_obj,
                 'request_type': 'Reservation',
-                'items': [{'item': request_obj.item, 'quantity': request_obj.quantity}],
-                'is_batch': False
+                'items': [{'item': item.property, 'quantity': item.quantity} for item in items],
+                'is_batch': True
             }
         else:
             messages.error(request, 'Invalid request type.')
@@ -1783,18 +1819,24 @@ def request_again(request):
             return redirect('user_unified_request')
             
         elif request_type == 'reservation':
-            original_request = get_object_or_404(Reservation, id=request_id, user=request.user)
-            # Clear existing reservation cart and add this item
-            cart_item = {
-                'property_id': original_request.item.id,
-                'quantity': original_request.quantity,
-                'needed_date': original_request.needed_date.strftime('%Y-%m-%d') if original_request.needed_date else None,
-                'return_date': original_request.return_date.strftime('%Y-%m-%d') if original_request.return_date else None,
-                'purpose': original_request.purpose if hasattr(original_request, 'purpose') else ''
-            }
-            request.session['reservation_cart'] = [cart_item]
+            original_request = get_object_or_404(ReservationBatch, id=request_id, user=request.user)
+            # Clear existing reservation cart and add all items from the batch
+            reservation_items = []
+            for item in original_request.items.all():
+                reservation_items.append({
+                    'property_id': item.property.id,
+                    'quantity': item.quantity
+                })
+            request.session['reservation_cart'] = reservation_items
+            # Store batch-level dates and purpose (get from properties or first item)
+            earliest_date = original_request.earliest_needed_date
+            latest_date = original_request.latest_return_date
+            request.session['reservation_needed_date'] = earliest_date.strftime('%Y-%m-%d') if earliest_date else None
+            request.session['reservation_return_date'] = latest_date.strftime('%Y-%m-%d') if latest_date else None
+            request.session['reservation_purpose'] = original_request.purpose if hasattr(original_request, 'purpose') else ''
             request.session.modified = True
-            messages.success(request, f'Added {original_request.item.property_name} to your reservation list.')
+            request.session.save()  # Explicitly save the session
+            messages.success(request, f'Added {original_request.items.count()} items to your reservation list.')
             return redirect('user_reserve')
             
         else:
@@ -1816,13 +1858,9 @@ def add_to_list(request):
     try:
         supply = Supply.objects.get(id=supply_id)
         
-        # Validate quantity
+        # No quantity validation here - let users request any amount
+        # Validation will happen during admin approval
         available_quantity = supply.quantity_info.current_quantity
-        if quantity > available_quantity:
-            return JsonResponse({
-                'success': False,
-                'message': f'Only {available_quantity} units of {supply.supply_name} are available.'
-            })
         
         # Get or create cart in session
         cart = request.session.get('supply_cart', [])
@@ -1831,14 +1869,8 @@ def add_to_list(request):
         item_exists = False
         for item in cart:
             if item['supply_id'] == supply_id:
-                # Update quantity (prevent duplicates)
-                new_quantity = item['quantity'] + quantity
-                if new_quantity > available_quantity:
-                    return JsonResponse({
-                        'success': False,
-                        'message': f'Cannot add {quantity} more. Total would exceed available quantity ({available_quantity}).'
-                    })
-                item['quantity'] = new_quantity
+                # Update quantity
+                item['quantity'] += quantity
                 item_exists = True
                 break
         
@@ -1918,14 +1950,6 @@ def update_list_item(request):
     
     try:
         supply = Supply.objects.get(id=supply_id)
-        available_quantity = supply.quantity_info.current_quantity
-        
-        if new_quantity > available_quantity:
-            logger.warning(f"Quantity {new_quantity} exceeds available {available_quantity}")
-            return JsonResponse({
-                'success': False,
-                'message': f'Only {available_quantity} units available.'
-            })
         
         # Get the cart and create a new list with updated quantity
         cart = request.session.get('supply_cart', [])
@@ -1986,14 +2010,19 @@ def submit_list_request(request):
                 status='pending'
             )
             
-            # Create individual items
+            # Create individual items - use get_or_create to handle duplicates gracefully
             for cart_item in cart:
                 supply = Supply.objects.get(id=cart_item['supply_id'])
-                SupplyRequestItem.objects.create(
+                # Use get_or_create in case item already exists (though it shouldn't in a new batch)
+                item, created = SupplyRequestItem.objects.get_or_create(
                     batch_request=batch_request,
                     supply=supply,
-                    quantity=cart_item['quantity']
+                    defaults={'quantity': cart_item['quantity']}
                 )
+                # If item already existed, update quantity
+                if not created:
+                    item.quantity = cart_item['quantity']
+                    item.save()
             
             # Log activity
             supplies_for_logging = []

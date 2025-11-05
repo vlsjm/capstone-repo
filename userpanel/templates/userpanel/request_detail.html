@@ -138,25 +138,338 @@
         min-height: 44px;
     }
 }
+
+/* Collapsible Items Section Styles */
+.items-section {
+    position: relative;
+}
+
+.items-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    padding: 12px 0;
+    border-bottom: 2px solid #e9ecef;
+    margin-bottom: 20px;
+}
+
+.items-section-header h2 {
+    margin: 0;
+    flex: 1;
+}
+
+.toggle-items-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #152d64;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.toggle-items-btn:hover {
+    background: #1a3575;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(21, 45, 100, 0.2);
+}
+
+.toggle-items-btn i {
+    transition: transform 0.3s ease;
+    font-size: 14px;
+}
+
+.toggle-items-btn.active i {
+    transform: rotate(180deg);
+}
+
+.item-count-badge {
+    background: white;
+    color: #152d64;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.items-list-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+}
+
+.items-list-container.expanded {
+    max-height: 5000px;
+}
+
+/* Hide mobile cards on desktop */
+.items-cards-mobile {
+    display: none;
+}
+
+/* Show table on desktop */
+.items-table-desktop {
+    display: block;
+}
+
+/* Mobile Card Styles - NO HORIZONTAL SCROLL */
+.item-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.item-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.item-name-section {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.item-card .item-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #152d64;
+    line-height: 1.3;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.item-category-tag {
+    display: inline-block;
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    width: fit-content;
+}
+
+.quantity-badge {
+    background: #152d64;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.item-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.detail-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.availability-badge {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.availability-badge.available {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.availability-badge.unavailable {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.item-description {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.description-text {
+    font-size: 13px;
+    color: #495057;
+    line-height: 1.5;
+    margin: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Responsive: Mobile View */
+@media (max-width: 768px) {
+    .items-cards-mobile {
+        display: block;
+    }
+    
+    .items-table-desktop {
+        display: none;
+    }
+    
+    .items-section-header {
+        padding: 12px 0;
+    }
+    
+    .toggle-items-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    .item-count-badge {
+        padding: 3px 8px;
+        font-size: 12px;
+    }
+    
+    .item-card {
+        padding: 14px;
+        margin-bottom: 10px;
+    }
+    
+    .item-card .item-name {
+        font-size: 14px;
+    }
+    
+    .quantity-badge {
+        padding: 5px 10px;
+        font-size: 13px;
+    }
+}
+
+/* Desktop: Hide mobile menu, show desktop buttons */
+.request-actions-menu-btn {
+    display: none;
+}
+
+.desktop-action-btn {
+    display: inline-flex;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+    /* Hide desktop action buttons on mobile */
+    .desktop-action-btn {
+        display: none !important;
+    }
+    
+    /* Show mobile menu button */
+    .request-actions-menu-btn {
+        display: inline-flex !important;
+    }
+    
+    /* Reduce padding in Request Details section */
+    div[style*="padding: 24px; margin-bottom: 24px"] {
+        padding: 16px !important;
+        margin-bottom: 16px !important;
+    }
+    
+    /* Adjust grid layout for Request Details */
+    div[style*="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))"] {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+    
+    /* Reduce padding in detail cards */
+    div[style*="padding: 16px; background: #f8f9fa"] {
+        padding: 12px !important;
+    }
+    
+    /* Adjust font sizes in detail cards */
+    div[style*="font-size: 12px; color: #6c757d"] {
+        font-size: 11px !important;
+    }
+    
+    div[style*="font-size: 16px; font-weight: 600; color: #152d64"] {
+        font-size: 14px !important;
+    }
+    
+    /* Adjust section header spacing */
+    div[style*="margin-bottom: 20px"] {
+        margin-bottom: 14px !important;
+    }
+    
+    /* Back button icon hover effect */
+    .btn-back-icon:hover {
+        background: #0f1f4a !important;
+    }
+    
+    /* Hide old back button styles */
+    .breadcrumb-nav {
+        display: none;
+    }
+    
+    @media (max-width: 768px) {
+        /* Adjust header with back button for mobile */
+        div[style*="padding: 16px 20px"] {
+            padding: 12px 16px !important;
+            margin-bottom: 12px !important;
+        }
+        
+        /* Adjust title size on mobile - target the h1 directly */
+        h1[style*="font-size: 1.5rem"] {
+            font-size: 1.25rem !important;
+        }
+        
+        /* Slightly smaller back button on mobile */
+        .btn-back-icon {
+            width: 34px !important;
+            height: 34px !important;
+        }
+    }
+}
 </style>
 <div class="container">
     <div class="request-detail-wrapper">
-        <!-- Navigation Section -->
-        <nav class="breadcrumb-nav">
-            <a href="{% url 'user_all_requests' %}" class="btn-back">
-                <i class="fas fa-arrow-left"></i>
-                <span>Back to All Requests</span>
-            </a>
-        </nav>
-        
         <!-- Main Content -->
         <main class="request-content">
             
-            <!-- Enhanced Header Layout -->
-            <div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 24px 32px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <!-- Title Row -->
-                <div style="display: flex; justify-content: center; align-items: center;">
-                    <h1 style="font-size: 2.25rem !important; font-weight: 700 !important; color: #152d64 !important; margin: 0 !important; line-height: 1.2 !important; display: block !important;">
+            <!-- Enhanced Header Layout with Integrated Back Button -->
+            <div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <!-- Back Button + Title Row -->
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <a href="{% url 'user_all_requests' %}" class="btn-back-icon" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #152d64; color: white; border-radius: 6px; text-decoration: none; flex-shrink: 0; transition: background 0.2s ease;">
+                        <i class="fas fa-arrow-left" style="font-size: 14px;"></i>
+                    </a>
+                    <h1 style="font-size: 1.5rem !important; font-weight: 700 !important; color: #152d64 !important; margin: 0 !important; line-height: 1.2 !important; flex: 1 !important; display: block !important;">
                         {{ request_type|cut:" (Batch)" }} #{{ request_obj.id }}
                     </h1>
                 </div>
@@ -169,10 +482,11 @@
                     <i class="fas fa-info-circle" style="color: #152d64;"></i>
                     Request Details
                 </h2>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <button class="btn-request-again" 
+                <div style="display: flex; gap: 8px; align-items: center; position: relative;">
+                    <!-- Desktop Buttons -->
+                    <button class="btn-request-again desktop-action-btn" 
                             data-request-id="{{ request_obj.id }}" 
-                            data-model-type="{% if 'Batch' in request_type %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}"
+                            data-model-type="{% if is_batch %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}"
                             style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #152d64; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;"
                             onmouseover="this.style.background='#0f1f4a'"
                             onmouseout="this.style.background='#152d64'"
@@ -180,9 +494,9 @@
                         <i class="fas fa-redo" style="font-size: 14px;"></i>
                     </button>
                     {% if request_obj.status == 'pending' %}
-                    <button class="btn-cancel-request" 
+                    <button class="btn-cancel-request desktop-action-btn" 
                             data-request-id="{{ request_obj.id }}" 
-                            data-model-type="{% if 'Batch' in request_type %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}"
+                            data-model-type="{% if is_batch %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}"
                             style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;"
                             onmouseover="this.style.background='#c82333'"
                             onmouseout="this.style.background='#dc3545'"
@@ -190,6 +504,35 @@
                         <i class="fas fa-times" style="font-size: 14px;"></i>
                     </button>
                     {% endif %}
+                    
+                    <!-- Mobile Menu Button (Three-dot) -->
+                    <button class="request-actions-menu-btn" id="mobileActionsBtn" style="align-items: center; justify-content: center; width: 36px; height: 36px; background: #f8f9fa; color: #152d64; border: 1px solid #e9ecef; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">
+                        <i class="fas fa-ellipsis-v" style="font-size: 16px;"></i>
+                    </button>
+                    
+                    <!-- Mobile Dropdown Menu -->
+                    <div class="mobile-dropdown-menu" id="mobileDropdownMenu" style="display: none; position: absolute; top: 45px; right: 0; background: white; border: 1px solid #e9ecef; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 200px; z-index: 1000;">
+                        <button class="dropdown-item btn-request-again-mobile" 
+                                data-request-id="{{ request_obj.id }}" 
+                                data-model-type="{% if is_batch %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}"
+                                style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: none; border: none; color: #152d64; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s ease; text-align: left;"
+                                onmouseover="this.style.background='#f8f9fa'"
+                                onmouseout="this.style.background='none'">
+                            <i class="fas fa-redo" style="font-size: 14px; width: 16px;"></i>
+                            <span>Request Again</span>
+                        </button>
+                        {% if request_obj.status == 'pending' %}
+                        <button class="dropdown-item btn-cancel-request-mobile" 
+                                data-request-id="{{ request_obj.id }}" 
+                                data-model-type="{% if is_batch %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}"
+                                style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: none; border: none; border-top: 1px solid #f8f9fa; color: #dc3545; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s ease; text-align: left;"
+                                onmouseover="this.style.background='#fff5f5'"
+                                onmouseout="this.style.background='none'">
+                            <i class="fas fa-times" style="font-size: 14px; width: 16px;"></i>
+                            <span>Cancel Request</span>
+                        </button>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             
@@ -260,70 +603,128 @@
         </div>
 
         <!-- Items Section -->
-        <section class="content-section">
-            <h2><i class="fas fa-boxes"></i> Requested Items</h2>
-            <div class="table-responsive">
-                <table class="items-table">
-                    <thead>
-                        <tr>
-                            <th>Item Name</th>
-                            <th>Quantity</th>
-                            {% if not 'Supply' in request_type %}
-                            <th>Available</th>
-                            {% endif %}
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item_data in items %}
-                        <tr>
-                            <td data-label="Item Name">
-                                <div class="item-info">
-                                    {% if 'Supply' in request_type %}
-                                        <strong class="item-name">{{ item_data.item.supply_name }}</strong>
-                                        {% if item_data.item.category %}
-                                            <span class="item-category">{{ item_data.item.category }}</span>
-                                        {% endif %}
-                                    {% else %}
-                                        <strong class="item-name">{{ item_data.item.property_name }}</strong>
-                                        {% if item_data.item.category %}
-                                            <span class="item-category">{{ item_data.item.category }}</span>
-                                        {% endif %}
+        <section class="content-section items-section">
+            <div class="items-section-header" onclick="toggleItemsList()">
+                <h2><i class="fas fa-boxes"></i> Requested Items</h2>
+                <button class="toggle-items-btn" id="toggleItemsBtn" type="button">
+                    <span class="item-count-badge">{{ items|length }}</span>
+                    <i class="fas fa-chevron-down" id="toggleIcon"></i>
+                </button>
+            </div>
+            
+            <div class="items-list-container" id="itemsListContainer">
+                <!-- Mobile: Card View -->
+                <div class="items-cards-mobile">
+                    {% for item_data in items %}
+                    <div class="item-card">
+                        <div class="item-card-header">
+                            <div class="item-name-section">
+                                {% if 'Supply' in request_type %}
+                                    <strong class="item-name">{{ item_data.item.supply_name }}</strong>
+                                    {% if item_data.item.category %}
+                                        <span class="item-category-tag">{{ item_data.item.category }}</span>
                                     {% endif %}
-                                </div>
-                            </td>
-                            <td class="quantity" data-label="Quantity">{{ item_data.quantity }}</td>
+                                {% else %}
+                                    <strong class="item-name">{{ item_data.item.property_name }}</strong>
+                                    {% if item_data.item.category %}
+                                        <span class="item-category-tag">{{ item_data.item.category }}</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            <span class="quantity-badge">{{ item_data.quantity }}</span>
+                        </div>
+                        
+                        <div class="item-card-body">
                             {% if not 'Supply' in request_type %}
-                            <td data-label="Available">
-                                {% if item_data.item.is_available %}
+                            <div class="item-detail-row">
+                                <span class="detail-label">Status</span>
+                                {% if item_data.item.availability == 'available' %}
                                     <span class="availability-badge available">Available</span>
                                 {% else %}
                                     <span class="availability-badge unavailable">Unavailable</span>
                                 {% endif %}
-                            </td>
+                            </div>
                             {% endif %}
-                            <td class="description" data-label="Description">
-                                {% if 'Supply' in request_type %}
-                                    {{ item_data.item.description|default:"No description available" }}
-                                {% else %}
-                                    {{ item_data.item.description|default:"No description available" }}
+                            
+                            <div class="item-description">
+                                <span class="detail-label">Description</span>
+                                <p class="description-text">
+                                    {% if 'Supply' in request_type %}
+                                        {{ item_data.item.description|default:"No description available" }}
+                                    {% else %}
+                                        {{ item_data.item.description|default:"No description available" }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Desktop: Table View -->
+                <div class="items-table-desktop">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                {% if not 'Supply' in request_type %}
+                                <th>Available</th>
                                 {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item_data in items %}
+                            <tr>
+                                <td data-label="Item Name">
+                                    <div class="item-info">
+                                        {% if 'Supply' in request_type %}
+                                            <strong class="item-name">{{ item_data.item.supply_name }}</strong>
+                                            {% if item_data.item.category %}
+                                                <span class="item-category">{{ item_data.item.category }}</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <strong class="item-name">{{ item_data.item.property_name }}</strong>
+                                            {% if item_data.item.category %}
+                                                <span class="item-category">{{ item_data.item.category }}</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="quantity" data-label="Quantity">{{ item_data.quantity }}</td>
+                                {% if not 'Supply' in request_type %}
+                                <td data-label="Available">
+                                    {% if item_data.item.availability == 'available' %}
+                                        <span class="availability-badge available">Available</span>
+                                    {% else %}
+                                        <span class="availability-badge unavailable">Unavailable</span>
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                                <td class="description" data-label="Description">
+                                    {% if 'Supply' in request_type %}
+                                        {{ item_data.item.description|default:"No description available" }}
+                                    {% else %}
+                                        {{ item_data.item.description|default:"No description available" }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             
             {% if is_batch %}
-            <div class="batch-summary">
-                <div class="summary-card">
-                    <label>Total Items</label>
-                    <span>{{ items|length }}</span>
+            <div class="batch-summary" style="display: flex; gap: 12px; margin-top: 16px;">
+                <div style="flex: 1; padding: 8px; background: #f8f9fa; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 10px; color: #6c757d; font-weight: 600; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Total Items</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #152d64;">{{ items|length }}</div>
                 </div>
-                <div class="summary-card">
-                    <label>Total Quantity</label>
-                    <span>{{ request_obj.total_quantity }}</span>
+                <div style="flex: 1; padding: 8px; background: #f8f9fa; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 10px; color: #6c757d; font-weight: 600; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Total Quantity</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #152d64;">{{ request_obj.total_quantity }}</div>
                 </div>
             </div>
             {% endif %}
@@ -354,8 +755,16 @@
             <h2><i class="fas fa-info-circle"></i> Request Information</h2>
             <div class="info-grid">
                 <div class="info-card">
-                    <label>Purpose</label>
-                    <p>{{ request_obj.purpose|default:"No purpose specified" }}</p>
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <div>
+                            <label>Purpose</label>
+                            <p>{{ request_obj.purpose|default:"No purpose specified" }}</p>
+                        </div>
+                        <div style="border-top: 1px solid #e9ecef; padding-top: 12px;">
+                            <label>Requested By</label>
+                            <p>{{ request_obj.user.get_full_name|default:request_obj.user.username }}</p>
+                        </div>
+                    </div>
                 </div>
                 {% if request_obj.notes %}
                 <div class="info-card">
@@ -369,10 +778,6 @@
                     <p class="rejection-reason">{{ request_obj.rejection_reason }}</p>
                 </div>
                 {% endif %}
-                <div class="info-card">
-                    <label>Requested By</label>
-                    <p>{{ request_obj.user.get_full_name|default:request_obj.user.username }}</p>
-                </div>
             </div>
         </section>
 
@@ -404,50 +809,113 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Request again functionality
+    // Toggle items list functionality
+    const itemsContainer = document.getElementById('itemsListContainer');
+    const toggleBtn = document.getElementById('toggleItemsBtn');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    // Start collapsed
+    itemsContainer.classList.remove('expanded');
+    
+    window.toggleItemsList = function() {
+        itemsContainer.classList.toggle('expanded');
+        toggleBtn.classList.toggle('active');
+    };
+    
+    // Mobile menu functionality
+    const mobileMenuBtn = document.getElementById('mobileActionsBtn');
+    const mobileDropdown = document.getElementById('mobileDropdownMenu');
+    
+    if (mobileMenuBtn && mobileDropdown) {
+        mobileMenuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isVisible = mobileDropdown.style.display === 'block';
+            mobileDropdown.style.display = isVisible ? 'none' : 'block';
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!mobileMenuBtn.contains(e.target) && !mobileDropdown.contains(e.target)) {
+                mobileDropdown.style.display = 'none';
+            }
+        });
+    }
+    
+    // Request again functionality (both desktop and mobile)
+    function handleRequestAgain(button) {
+        const requestId = button.dataset.requestId;
+        const modelType = button.dataset.modelType;
+        
+        // Determine the correct URL based on model type
+        let requestAgainUrl = '';
+        switch(modelType) {
+            case 'supply':
+            case 'batch_supply':
+                requestAgainUrl = `{% url 'request_again' %}?type=${modelType}&id=${requestId}`;
+                break;
+            case 'borrow':
+            case 'batch_borrow':
+                requestAgainUrl = `{% url 'request_again' %}?type=${modelType}&id=${requestId}`;
+                break;
+            case 'reservation':
+                requestAgainUrl = `{% url 'request_again' %}?type=${modelType}&id=${requestId}`;
+                break;
+        }
+
+        if (requestAgainUrl) {
+            window.location.href = requestAgainUrl;
+        }
+    }
+    
     const requestAgainBtn = document.querySelector('.btn-request-again');
+    const requestAgainMobileBtn = document.querySelector('.btn-request-again-mobile');
+    
     if (requestAgainBtn) {
         requestAgainBtn.addEventListener('click', function() {
-            const requestId = this.dataset.requestId;
-            const modelType = this.dataset.modelType;
-            
-            // Determine the correct URL based on model type
-            let requestAgainUrl = '';
-            switch(modelType) {
-                case 'supply':
-                case 'batch_supply':
-                    requestAgainUrl = `{% url 'request_again' %}?type=${modelType}&id=${requestId}`;
-                    break;
-                case 'borrow':
-                case 'batch_borrow':
-                    requestAgainUrl = `{% url 'request_again' %}?type=${modelType}&id=${requestId}`;
-                    break;
-                case 'reservation':
-                    requestAgainUrl = `{% url 'request_again' %}?type=${modelType}&id=${requestId}`;
-                    break;
-            }
-
-            if (requestAgainUrl) {
-                window.location.href = requestAgainUrl;
-            }
+            handleRequestAgain(this);
+        });
+    }
+    
+    if (requestAgainMobileBtn) {
+        requestAgainMobileBtn.addEventListener('click', function() {
+            mobileDropdown.style.display = 'none';
+            handleRequestAgain(this);
         });
     }
 
     // Cancel request functionality
     const cancelBtn = document.querySelector('.btn-cancel-request');
+    const cancelMobileBtn = document.querySelector('.btn-cancel-request-mobile');
     const modal = document.getElementById('cancelModal');
     const closeModal = document.querySelector('.close-modal');
     const cancelModalBtn = document.querySelector('.btn-cancel-modal');
     const confirmCancelBtn = document.querySelector('.btn-confirm-cancel');
+    
+    let currentCancelBtn = null;
+
+    function showCancelModal(button) {
+        currentCancelBtn = button;
+        modal.style.display = 'flex';
+        if (mobileDropdown) {
+            mobileDropdown.style.display = 'none';
+        }
+    }
 
     if (cancelBtn) {
         cancelBtn.addEventListener('click', function() {
-            modal.style.display = 'flex';
+            showCancelModal(this);
+        });
+    }
+    
+    if (cancelMobileBtn) {
+        cancelMobileBtn.addEventListener('click', function() {
+            showCancelModal(this);
         });
     }
 
     function closeModalFunc() {
         modal.style.display = 'none';
+        currentCancelBtn = null;
     }
 
     if (closeModal) closeModal.addEventListener('click', closeModalFunc);
@@ -455,8 +923,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (confirmCancelBtn) {
         confirmCancelBtn.addEventListener('click', function() {
-            const requestId = cancelBtn.dataset.requestId;
-            const modelType = cancelBtn.dataset.modelType;
+            if (!currentCancelBtn) return;
+            
+            const requestId = currentCancelBtn.dataset.requestId;
+            const modelType = currentCancelBtn.dataset.modelType;
             
             // Determine the correct URL based on model type
             let cancelUrl = '';

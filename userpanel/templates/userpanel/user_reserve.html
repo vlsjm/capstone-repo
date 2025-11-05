@@ -11,11 +11,393 @@
     .form-row:has(.searchable-select-container) {
         overflow: visible !important;
     }
+
+    /* ===== MOBILE MODAL STYLES (from unified request) ===== */
+    .modal-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.3);
+        z-index: 999998;
+        animation: fadeIn 0.2s ease-out;
+        pointer-events: none;
+    }
+
+    .modal-backdrop.active {
+        display: block;
+        pointer-events: auto;
+    }
+
+    .item-selection-modal {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        max-height: 50vh;
+        height: auto;
+        z-index: 999999;
+        background: white;
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+        animation: slideUpFromBottom 0.4s ease-out;
+        overflow: hidden;
+        display: none;
+        flex-direction: column;
+        touch-action: none;
+    }
+
+    @keyframes slideUpFromBottom {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideDownToBottom {
+        from {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .item-selection-modal.active {
+        display: flex;
+    }
+
+    .item-selection-modal.closing {
+        animation: slideDownToBottom 0.3s ease-out forwards;
+    }
+
+    .modal-header {
+        background: #152d64;
+        color: white;
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex-shrink: 0;
+        cursor: grab;
+        cursor: -webkit-grab;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-user-drag: none;
+        touch-action: none;
+    }
+
+    .modal-header.dragging {
+        cursor: grabbing;
+        cursor: -webkit-grabbing;
+    }
+
+    .modal-handle {
+        width: 40px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 2px;
+        margin: 4px auto 0;
+        transition: background 0.2s;
+    }
+
+    .modal-header:active .modal-handle {
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .modal-search-wrapper {
+        padding: 12px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e0e4e9;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .modal-search-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+        background-color: white;
+        box-sizing: border-box;
+    }
+
+    .modal-search-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+    }
+
+    .modal-category-filter {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        background-color: white;
+        box-sizing: border-box;
+        min-height: 38px;
+    }
+
+    .modal-category-filter:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+    }
+
+    .modal-content {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .modal-item-option {
+        padding: 14px 12px;
+        border-bottom: 1px solid #f0f0f0;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+        transition: background-color 0.15s;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    .modal-item-option:active {
+        background-color: #f0f7ff;
+    }
+
+    .modal-item-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .modal-item-name {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 15px;
+        margin-bottom: 4px;
+    }
+
+    .modal-item-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 12px;
+    }
+
+    .modal-item-category {
+        background-color: #e7f3ff;
+        color: #0056b3;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 11px;
+    }
+
+    .modal-item-code {
+        color: #6c757d;
+        font-size: 11px;
+    }
+
+    .modal-item-stock {
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .modal-item-stock.available {
+        color: #28a745;
+        background-color: #d4edda;
+    }
+
+    .modal-item-stock.low-stock {
+        color: #dc3545;
+        background-color: #f8d7da;
+    }
+
+    .modal-no-results {
+        padding: 40px 16px;
+        text-align: center;
+        color: #6c757d;
+    }
+
+    .modal-no-results i {
+        font-size: 48px;
+        color: #ccc;
+        margin-bottom: 10px;
+    }
+
+    /* ===== MOBILE MEDIA QUERIES ===== */
+    @media (max-width: 768px) {
+        .select-dropdown {
+            display: none !important;
+        }
+
+        .supply-search-input {
+            font-size: 16px;
+            min-height: 44px;
+            cursor: pointer;
+        }
+
+        .supply-search-input[readonly] {
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .modal-category-filter {
+            min-height: 44px;
+            font-size: 16px;
+        }
+
+        .item-selection-modal {
+            max-height: 60vh;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .modal-header h2 {
+            font-size: 15px;
+        }
+
+        .modal-search-wrapper {
+            padding: 8px;
+            gap: 6px;
+        }
+
+        .modal-item-option {
+            padding: 10px 8px;
+        }
+
+        .item-selection-modal {
+            max-height: 65vh;
+        }
+    }
+
+    .modal-content::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 3px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb:hover {
+        background: #999;
+    }
+
+    body.modal-open {
+        overflow: hidden;
+    }
 </style>
 <div class="request-page-layout">
     <main class="request-form-container">
+        <!-- Mobile Modal Backdrop -->
+        <div id="modal-backdrop" class="modal-backdrop"></div>
+
+        <!-- Supplies Data (stored as JSON in data attribute) -->
+        <div id="supplies-json-data" style="display:none;" data-supplies='[
+            {% for supply in available_supplies %}
+            {
+                "id": {{ supply.id }},
+                "name": "{{ supply.property_name|escapejs }}",
+                "category_id": {{ supply.category.id|default:"0" }},
+                "category_name": "{{ supply.category.name|default:"Equipment"|escapejs }}",
+                "code": "{{ supply.property_number|default:""|escapejs }}",
+                "description": "{{ supply.property_name|escapejs }}",
+                "available": {{ supply.quantity }},
+                "available_qty": {{ supply.available_quantity }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]'></div>
+
+        <!-- Item Selection Modal (Mobile) -->
+        <div id="item-selection-modal" class="item-selection-modal">
+            <div class="modal-header" id="item-modal-handle">
+                <div class="modal-handle"></div>
+                <h2><i class="fas fa-calendar-alt"></i> Select Equipment/Item</h2>
+            </div>
+            <div class="modal-search-wrapper">
+                <input type="text" id="item-modal-search" class="modal-search-input" 
+                       placeholder="Search by name or code..." autocomplete="off">
+                <select id="item-modal-category" class="modal-category-filter">
+                    <option value="">All Categories</option>
+                    {% for category in supply_categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-content">
+                <div id="item-modal-items-list" class="modal-items-list">
+                    <!-- Items will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
         <h1><i class="fas fa-calendar-alt"></i> Reservation Request List</h1>
-        <p class="form-description">Add multiple items to your reservation list, then submit your request all at once.</p>
+        <p class="form-description">Set your reservation dates first, then add multiple items to your list.</p>
+
+        <!-- Reservation Dates Section -->
+        <div class="dates-section" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+            <h3 style="margin-top: 0; color: #152d64;"><i class="fas fa-calendar-check" style="color: #152d64;"></i> Reservation Period (All Items)</h3>
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="batch-needed-date"><strong>Needed Date:</strong></label>
+                    <input type="date" id="batch-needed-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="batch-return-date"><strong>Return Date:</strong></label>
+                    <input type="date" id="batch-return-date" class="form-control" required>
+                </div>
+            </div>
+            <small style="color: #6c757d; display: block; margin-top: 8px;">
+                <i class="fas fa-info-circle"></i> These dates will apply to all items in your reservation request.
+            </small>
+        </div>
 
         <!-- Add Item to List Section -->
         <div class="add-item-section">
@@ -26,19 +408,18 @@
                     <div class="form-group">
                         <label for="supply-search">Equipment/Item:</label>
                         <div class="searchable-select-container">
-                            <input type="text" id="supply-search" class="form-control" 
+                            <input type="text" id="supply-search" class="form-control supply-search-input" 
                                    placeholder="Search for an item..." autocomplete="off" required>
                             <input type="hidden" id="supply-select" name="supply">
                             <div id="supply-dropdown" class="select-dropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e1e5e9; max-height: 300px; overflow-y: auto; z-index: 9999; display: none;">
                                 <div class="select-option" data-value="">Select an item...</div>
                                 {% for supply in available_supplies %}
-                                <div class="select-option" data-value="{{ supply.id }}" data-available="{{ supply.quantity }}">
+                                <div class="select-option" data-value="{{ supply.id }}" data-available="{{ supply.available_quantity }}">
                                     {{ supply.property_name }} (Available: {{ supply.quantity }})
                                 </div>
                                 {% endfor %}
                             </div>
                         </div>
-                        <!-- Debug: Total items = {{ available_supplies|length }} -->
                     </div>
                     <div class="form-group">
                         <label for="quantity-input">Quantity:</label>
@@ -46,26 +427,9 @@
                                class="form-control" min="1" placeholder="Enter quantity" required>
                     </div>
                     <div class="form-group">
-                        <label for="needed-date-input">Needed Date:</label>
-                        <input type="date" id="needed-date-input" name="needed_date" 
-                               class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="return-date-input">Return Date:</label>
-                        <input type="date" id="return-date-input" name="return_date" 
-                               class="form-control" required>
-                    </div>
-                    <div class="form-group">
                         <button type="submit" class="btn-add-to-list">
                             <i class="fas fa-plus"></i> Add to List
                         </button>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group full-width">
-                        <label for="purpose-input">Purpose:</label>
-                        <textarea id="purpose-input" name="purpose" class="form-control" 
-                                  rows="3" required placeholder="Describe the purpose for reserving this item..."></textarea>
                     </div>
                 </div>
             </form>
@@ -81,9 +445,6 @@
                         <tr>
                             <th>Item</th>
                             <th>Quantity</th>
-                            <th>Needed Date</th>
-                            <th>Return Date</th>
-                            <th>Purpose</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -97,17 +458,6 @@
                                        value="{{ item.quantity }}" 
                                        min="1" max="{{ item.supply.quantity }}">
                             </td>
-                            <td>
-                                <input type="date" class="needed-date-edit form-control" 
-                                       data-supply-id="{{ item.supply.id }}" 
-                                       value="{{ item.needed_date|date:'Y-m-d' }}">
-                            </td>
-                            <td>
-                                <input type="date" class="return-date-edit form-control" 
-                                       data-supply-id="{{ item.supply.id }}" 
-                                       value="{{ item.return_date|date:'Y-m-d' }}">
-                            </td>
-                            <td>{{ item.purpose|truncatechars:30 }}</td>
                             <td>
                                 <button type="button" class="btn-update" data-supply-id="{{ item.supply.id }}">
                                     <i class="fas fa-save"></i>
@@ -135,10 +485,12 @@
             <form id="submit-request-form" method="post" action="{% url 'submit_reservation_list_request' %}">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="submit_request">
+                <input type="hidden" id="batch-needed-date-hidden" name="batch_needed_date">
+                <input type="hidden" id="batch-return-date-hidden" name="batch_return_date">
                 <div class="form-group">
-                    <label for="general-purpose">General Purpose/Notes (Optional):</label>
+                    <label for="general-purpose">Purpose/Description:</label>
                     <textarea id="general-purpose" name="general_purpose" class="form-control" 
-                              rows="3" placeholder="Add any general notes about this reservation request..."></textarea>
+                              rows="3" placeholder="Please describe the purpose of this request..." required></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-submit">
@@ -202,6 +554,16 @@ $(document).ready(function() {
     $('#add-item-form').on('submit', function(e) {
         e.preventDefault();
         
+        // Validate batch dates are set
+        const batchNeededDate = $('#batch-needed-date').val();
+        const batchReturnDate = $('#batch-return-date').val();
+        
+        if (!batchNeededDate || !batchReturnDate) {
+            showMessage('Please set the reservation dates first', 'error');
+            $('#batch-needed-date').focus();
+            return;
+        }
+        
         // Get the value from the hidden input
         const supplyId = $('#supply-select').val();
         if (!supplyId) {
@@ -211,6 +573,9 @@ $(document).ready(function() {
         
         const formData = new FormData(this);
         formData.append('action', 'add_to_cart');
+        // Add batch dates to form data
+        formData.append('needed_date', batchNeededDate);
+        formData.append('return_date', batchReturnDate);
         
         $.ajax({
             url: '{% url "add_to_reservation_list" %}',
@@ -236,9 +601,6 @@ $(document).ready(function() {
                                     <tr>
                                         <th>Item</th>
                                         <th>Quantity</th>
-                                        <th>Needed Date</th>
-                                        <th>Return Date</th>
-                                        <th>Purpose</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -256,9 +618,9 @@ $(document).ready(function() {
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="submit_request">
                                         <div class="form-group">
-                                            <label for="general-purpose">General Purpose/Notes (Optional):</label>
+                                            <label for="general-purpose">Purpose/Description:</label>
                                             <textarea id="general-purpose" name="general_purpose" class="form-control" 
-                                                      rows="3" placeholder="Add any general notes about this reservation request..."></textarea>
+                                                      rows="3" placeholder="Please describe the purpose of this request..." required></textarea>
                                         </div>
                                         <div class="form-actions">
                                             <button type="submit" class="btn-submit">
@@ -287,19 +649,8 @@ $(document).ready(function() {
                                 <input type="number" class="quantity-edit form-control" 
                                        data-supply-id="${item.property_id}" 
                                        value="${item.quantity}" 
-                                       min="1" max="${item.available_quantity}">
+                                       min="1">
                             </td>
-                            <td>
-                                <input type="date" class="needed-date-edit form-control" 
-                                       data-supply-id="${item.property_id}" 
-                                       value="${item.needed_date}">
-                            </td>
-                            <td>
-                                <input type="date" class="return-date-edit form-control" 
-                                       data-supply-id="${item.property_id}" 
-                                       value="${item.return_date}">
-                            </td>
-                            <td>${item.purpose.length > 30 ? item.purpose.substring(0, 27) + '...' : item.purpose}</td>
                             <td>
                                 <button type="button" class="btn-update" data-supply-id="${item.property_id}">
                                     <i class="fas fa-save"></i>
@@ -338,13 +689,15 @@ $(document).ready(function() {
         });
     });
     
-    // Update list item quantity and return date
+    // Update list item quantity
     function attachUpdateHandler() {
         $('.btn-update').off('click').on('click', function() {
             const supplyId = $(this).data('supply-id');
             const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
-            const newNeededDate = $(`.needed-date-edit[data-supply-id="${supplyId}"]`).val();
-            const newReturnDate = $(`.return-date-edit[data-supply-id="${supplyId}"]`).val();
+            
+            // Get batch dates
+            const batchNeededDate = $('#batch-needed-date').val();
+            const batchReturnDate = $('#batch-return-date').val();
             
             $.ajax({
                 url: '{% url "update_reservation_list_item" %}',
@@ -352,8 +705,8 @@ $(document).ready(function() {
                 data: {
                     'property_id': supplyId,
                     'quantity': newQuantity,
-                    'needed_date': newNeededDate,
-                    'return_date': newReturnDate,
+                    'needed_date': batchNeededDate,
+                    'return_date': batchReturnDate,
                     'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
                 },
                 success: function(response) {
@@ -446,6 +799,23 @@ $(document).ready(function() {
     attachRemoveHandler();
     attachClearListHandler();
     
+    // Handle form submission - populate batch dates
+    $('#submit-request-form').on('submit', function(e) {
+        const batchNeededDate = $('#batch-needed-date').val();
+        const batchReturnDate = $('#batch-return-date').val();
+        
+        if (!batchNeededDate || !batchReturnDate) {
+            e.preventDefault();
+            showMessage('Please set the reservation dates', 'error');
+            $('#batch-needed-date').focus();
+            return false;
+        }
+        
+        // Populate hidden fields
+        $('#batch-needed-date-hidden').val(batchNeededDate);
+        $('#batch-return-date-hidden').val(batchReturnDate);
+    });
+    
     // Searchable dropdown functionality
     const searchInput = $('#supply-search');
     const dropdown = $('#supply-dropdown');
@@ -495,9 +865,9 @@ $(document).ready(function() {
             hiddenInput.val(value);
             searchInput.val(text);
             
-            // Update quantity input limits
-            $('#quantity-input').attr('max', available);
-            $('#quantity-input').attr('placeholder', `Enter quantity (max ${available})`);
+            // No max limit - users can request any quantity
+            // Admin will validate during approval
+            $('#quantity-input').attr('placeholder', `Enter quantity (${available} available)`);
         } else {
             hiddenInput.val('');
             searchInput.val('');
@@ -646,24 +1016,214 @@ document.addEventListener('DOMContentLoaded', function() {
             toast.classList.add('show');
         }, 100);
         
-        // Hide and remove toast
+        // Hide and remove toast after 6 seconds
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => {
                 document.body.removeChild(toast);
             }, 300);
-        }, 3000);
+        }, 6000);
     }
 
-    // Supply dropdown functionality
-    const supplySelect = document.getElementById('supply-search');
-    const supplyDropdown = document.getElementById('supply-dropdown');
+});
+</script>
+
+<script>
+// ===== LOAD MODAL DATA FROM DATA ATTRIBUTE =====
+let allSupplies = [];
+document.addEventListener('DOMContentLoaded', function() {
+    const suppliesDataElement = document.getElementById('supplies-json-data');
+    console.log('[RESERVE] supplies-json-data element:', suppliesDataElement);
+    if (suppliesDataElement) {
+        try {
+            const jsonString = suppliesDataElement.getAttribute('data-supplies');
+            console.log('[RESERVE] Raw JSON string:', jsonString);
+            allSupplies = JSON.parse(jsonString);
+            console.log('[RESERVE] Loaded supplies:', allSupplies.length, 'items');
+            console.log('[RESERVE] First item:', allSupplies[0]);
+        } catch (e) {
+            console.error('[RESERVE] Failed to parse supplies data:', e);
+            console.error('[RESERVE] Raw data:', suppliesDataElement.getAttribute('data-supplies'));
+            allSupplies = [];
+        }
+    } else {
+        console.error('[RESERVE] supplies-json-data element not found');
+    }
+});
+
+// ===== MOBILE MODAL FUNCTIONS (from unified request) =====
+function closeModal(animate = true) {
+    const modal = document.getElementById('item-selection-modal');
+    const backdrop = document.getElementById('modal-backdrop');
     
-    if (supplySelect && supplyDropdown) {
-       
+    if (animate) {
+        modal.classList.add('closing');
+        setTimeout(() => {
+            modal.classList.remove('active', 'closing');
+            backdrop.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }, 300);
+    } else {
+        modal.classList.remove('active', 'closing');
+        backdrop.classList.remove('active');
+        document.body.classList.remove('modal-open');
     }
+}
 
+function openModal() {
+    const isMobile = window.innerWidth <= 768;
+    if (!isMobile) return;
+    
+    const modal = document.getElementById('item-selection-modal');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    modal.classList.add('active');
+    backdrop.classList.add('active');
+    document.body.classList.add('modal-open');
+    
+    populateModalItems();
+    setupDragToDismiss();
+}
 
+function setupDragToDismiss() {
+    const modal = document.getElementById('item-selection-modal');
+    const handle = document.getElementById('item-modal-handle');
+    
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+    
+    function onTouchStart(e) {
+        startY = e.touches[0].clientY;
+        currentY = startY;
+        isDragging = true;
+        handle.classList.add('dragging');
+    }
+    
+    function onTouchMove(e) {
+        if (!isDragging) return;
+        currentY = e.touches[0].clientY;
+        const diff = currentY - startY;
+        
+        if (diff > 0) {
+            modal.style.transform = `translateY(${diff}px)`;
+            modal.style.borderRadius = `${16 - (diff / 50) * 4}px ${16 - (diff / 50) * 4}px 0 0`;
+        }
+    }
+    
+    function onTouchEnd(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        handle.classList.remove('dragging');
+        
+        const diff = currentY - startY;
+        const threshold = 100;
+        
+        if (diff > threshold) {
+            modal.style.transform = '';
+            modal.style.borderRadius = '';
+            closeModal(true);
+        } else {
+            modal.style.transform = '';
+            modal.style.borderRadius = '';
+        }
+    }
+    
+    handle.removeEventListener('touchstart', onTouchStart);
+    handle.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('touchend', onTouchEnd);
+    
+    handle.addEventListener('touchstart', onTouchStart, { passive: true });
+    handle.addEventListener('touchmove', onTouchMove, { passive: true });
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
+}
+
+function populateModalItems() {
+    const listContainer = document.getElementById('item-modal-items-list');
+    const searchInput = document.getElementById('item-modal-search');
+    const categoryFilter = document.getElementById('item-modal-category');
+    
+    function filterAndRender() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedCategory = categoryFilter.value.trim();
+        
+        const filtered = allSupplies.filter(item => {
+            const matchesSearch = !searchTerm || 
+                item.name.toLowerCase().includes(searchTerm) ||
+                item.code.toLowerCase().includes(searchTerm) ||
+                item.description.toLowerCase().includes(searchTerm);
+            
+            const matchesCategory = !selectedCategory || 
+                String(item.category_id) === String(selectedCategory);
+            
+            return matchesSearch && matchesCategory;
+        });
+        
+        if (filtered.length === 0) {
+            listContainer.innerHTML = `
+                <div class="modal-no-results">
+                    <div><i class="fas fa-inbox"></i></div>
+                    <p>No items found</p>
+                </div>
+            `;
+            return;
+        }
+        
+        listContainer.innerHTML = filtered.map(item => `
+            <div class="modal-item-option" onclick="selectItemFromModal(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${item.available})">
+                <div class="modal-item-info">
+                    <div class="modal-item-name">${item.name}</div>
+                    <div class="modal-item-details">
+                        <span class="modal-item-category">${item.category_name}</span>
+                        ${item.code ? `<span class="modal-item-code">Code: ${item.code}</span>` : ''}
+                    </div>
+                </div>
+                <div class="modal-item-stock ${item.available < 10 ? 'low-stock' : 'available'}">
+                    ${item.available} available
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    filterAndRender();
+    
+    searchInput.addEventListener('input', filterAndRender);
+    categoryFilter.addEventListener('change', filterAndRender);
+}
+
+function selectItemFromModal(itemId, itemName, available) {
+    closeModal(false);
+    
+    document.getElementById('supply-search').value = itemName;
+    document.getElementById('supply-select').value = itemId;
+    // No max limit - users can request any quantity
+    // Admin will validate during approval
+    document.getElementById('quantity-input').setAttribute('placeholder', `Enter quantity (${available} available)`);
+    setTimeout(() => document.getElementById('quantity-input').focus(), 100);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('modal-backdrop').addEventListener('click', function() {
+        if (document.getElementById('item-selection-modal').classList.contains('active')) {
+            closeModal();
+        }
+    });
+    
+    if (window.innerWidth <= 768) {
+        const supplySearch = document.getElementById('supply-search');
+        
+        supplySearch.setAttribute('readonly', 'readonly');
+        
+        supplySearch.addEventListener('focus', function(e) {
+            e.preventDefault();
+            this.blur();
+        });
+        
+        supplySearch.addEventListener('click', function(e) {
+            e.preventDefault();
+            openModal();
+        });
+    }
 });
 </script>
 {% endblock %}

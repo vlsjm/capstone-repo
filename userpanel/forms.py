@@ -212,22 +212,23 @@ class ReservationForm(forms.ModelForm):
 class DamageReportForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
+    
+    # Custom file field for image upload (not directly bound to model)
+    image = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'accept': 'image/*',
+            'class': 'form-control-file'
+        }),
+        label='Attach Image (Optional)',
+        help_text='Upload an image to support your damage report (JPG, PNG, etc.)'
+    )
 
     class Meta:
         model = DamageReport
-        fields = ['item', 'description', 'image']
+        fields = ['item', 'description']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
-            'image': forms.FileInput(attrs={
-                'accept': 'image/*',
-                'class': 'form-control-file'
-            })
-        }
-        labels = {
-            'image': 'Attach Image (Optional)',
-        }
-        help_texts = {
-            'image': 'Upload an image to support your damage report (JPG, PNG, etc.)',
         }
     
     def clean_image(self):

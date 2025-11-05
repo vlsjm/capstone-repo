@@ -3712,7 +3712,7 @@ input:focus {
           }
         });
 
-        // Auto-hide success messages after 2 seconds
+        // Auto-hide success messages after 5 seconds
         const successMessage = document.querySelector('.success-container');
         if (successMessage) {
           setTimeout(function() {
@@ -3721,7 +3721,7 @@ input:focus {
             setTimeout(function() {
               successMessage.remove();
             }, 300);
-          }, 2000);
+          }, 5000);
         }
 
         // Category Modal Handling

@@ -33,6 +33,11 @@ from .views import (
     borrow_request_details,
     damage_report_detail,
     reservation_detail,
+    reservation_batch_detail,
+    approve_reservation_item,
+    reject_reservation_item,
+    approve_reservation_batch,
+    reject_reservation_batch,
     mark_notification_as_read_ajax,
     mark_all_notifications_as_read,
     clear_all_notifications,
@@ -169,6 +174,11 @@ urlpatterns = [
     path('borrow-request/<int:pk>/', borrow_request_details, name='borrow_request_details'),
     path('damage-report/<int:pk>/', damage_report_detail, name='damage_report_detail'),
     path('reservation/<int:pk>/', reservation_detail, name='reservation_detail'),
+    path('reservation-batch/<int:batch_id>/', reservation_batch_detail, name='reservation_batch_detail'),
+    path('reservation-batch/<int:batch_id>/approve/', approve_reservation_batch, name='approve_reservation_batch'),
+    path('reservation-batch/<int:batch_id>/reject/', reject_reservation_batch, name='reject_reservation_batch'),
+    path('reservation-batch/<int:batch_id>/item/<int:item_id>/approve/', approve_reservation_item, name='approve_reservation_item'),
+    path('reservation-batch/<int:batch_id>/item/<int:item_id>/reject/', reject_reservation_item, name='reject_reservation_item'),
 
     path('mark-notification-read/', mark_notification_as_read_ajax, name='mark_notification_read'),
     path('mark-all-notifications-read/', mark_all_notifications_as_read, name='mark_all_notifications_read'),
@@ -219,6 +229,11 @@ urlpatterns = [
     # Requisition slip PDF URLs
     path('batch-request/<int:batch_id>/requisition-slip/download/', download_requisition_slip, name='download_requisition_slip'),
     path('batch-request/<int:batch_id>/requisition-slip/view/', view_requisition_slip, name='view_requisition_slip'),
+    
+    # Damage report image serving (from PostgreSQL database)
+    path('damage-report/<int:report_id>/image/', views.damage_report_image, name='damage_report_image'),
+    path('damage-report/<int:report_id>/delete-image/', views.delete_damage_report_image, name='delete_damage_report_image'),
+    path('damage-reports/bulk-delete-images/', views.bulk_delete_damage_report_images, name='bulk_delete_damage_report_images'),
     
     # Admin Profile
     path('profile/', views.AdminProfileView.as_view(), name='admin_profile'),

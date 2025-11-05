@@ -110,7 +110,7 @@ from django.views import View
 from django.contrib.auth import login, authenticate, logout
 from .models import(
     Supply, Property, BorrowRequest, BorrowRequestBatch, BorrowRequestItem,
-    SupplyRequest, DamageReport, Reservation,
+    SupplyRequest, DamageReport, Reservation, ReservationBatch, ReservationItem,
     ActivityLog, UserProfile, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
     Department, PropertyCategory, SupplyCategory, SupplySubcategory,
@@ -124,7 +124,7 @@ from django.utils import timezone
 from django.utils.timezone import now
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST, require_http_methods
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.contrib.auth.decorators import permission_required
 from django.db import models
@@ -312,7 +312,14 @@ from django.utils import timezone
 from .models import Reservation, DamageReport, BorrowRequest, SupplyRequest, Notification
 
 def reservation_detail(request, pk):
+    """Detail view for individual reservation (redirects to batch view if part of batch)"""
     reservation = get_object_or_404(Reservation, pk=pk)
+    
+    # If this reservation is part of a batch, redirect to batch detail
+    if reservation.batch_id:
+        return redirect('reservation_batch_detail', batch_id=reservation.batch_id)
+    
+    # Legacy single reservation view
     if request.method == 'POST':
         action = request.POST.get('action')
         remarks = request.POST.get('remarks')
@@ -360,14 +367,297 @@ def reservation_detail(request, pk):
     return render(request, 'app/reservation_detail.html', {'reservation': reservation})
 
 
+@login_required
+@permission_required('app.view_admin_module', raise_exception=True)
+def reservation_batch_detail(request, batch_id):
+    """View and manage a batch reservation request"""
+    # Get the reservation batch
+    batch = get_object_or_404(ReservationBatch.objects.select_related('user').prefetch_related('items__property'), id=batch_id)
+    
+    # Get all items in this batch
+    items = batch.items.all().order_by('id')
+    
+    # Calculate status counts
+    status_counts = {}
+    for item in items:
+        status_counts[item.status] = status_counts.get(item.status, 0) + 1
+    
+    context = {
+        'batch': batch,
+        'items': items,
+        'batch_id': batch.id,
+        'batch_number': batch.id,
+        'batch_status': batch.status,
+        'total_items': batch.total_items,
+        'total_quantity': batch.total_quantity,
+        'status_counts': status_counts,
+    }
+    
+    return render(request, 'app/reservation_batch_detail.html', context)
+
+
+@login_required
+@permission_required('app.view_admin_module', raise_exception=True)
+def approve_reservation_item(request, batch_id, item_id):
+    """Approve a single item in a reservation batch"""
+    if request.method == 'POST':
+        batch = get_object_or_404(ReservationBatch, id=batch_id)
+        item = get_object_or_404(ReservationItem, id=item_id, batch_request=batch)
+        remarks = request.POST.get('remarks', '')
+        
+        # Get approved quantity from POST (default to original quantity if not provided)
+        approved_quantity = request.POST.get('approved_quantity', item.quantity)
+        try:
+            approved_quantity = int(approved_quantity)
+        except (ValueError, TypeError):
+            approved_quantity = item.quantity
+        
+        # Validate approved quantity
+        if approved_quantity < 1:
+            messages.error(request, 'Approved quantity must be at least 1.')
+            return redirect('reservation_batch_detail', batch_id=batch_id)
+        
+        if approved_quantity > item.quantity:
+            messages.error(request, f'Approved quantity cannot exceed requested quantity of {item.quantity}.')
+            return redirect('reservation_batch_detail', batch_id=batch_id)
+        
+        # Check available quantity (uses reserved_quantity from Property model)
+        if item.property.available_quantity >= approved_quantity:
+            # Update quantity to approved quantity
+            original_quantity = item.quantity
+            item.quantity = approved_quantity
+            item.status = 'approved'
+            
+            # Add remarks about quantity adjustment if different
+            if approved_quantity < original_quantity:
+                adjustment_note = f"Approved quantity: {approved_quantity} (Originally requested: {original_quantity})"
+                item.remarks = f"{adjustment_note}\n{remarks}" if remarks else adjustment_note
+            else:
+                item.remarks = remarks
+            
+            item.save()
+            
+            # Update batch approved_date if first approval
+            if not batch.approved_date:
+                batch.approved_date = timezone.now()
+            
+            # Check if all items are now approved/rejected
+            all_items = batch.items.all()
+            if all(i.status in ['approved', 'rejected'] for i in all_items):
+                # If some approved and some rejected
+                if any(i.status == 'approved' for i in all_items) and any(i.status == 'rejected' for i in all_items):
+                    batch.status = 'partially_approved'
+                # If all approved
+                elif all(i.status == 'approved' for i in all_items):
+                    batch.status = 'approved'
+                # If all rejected
+                elif all(i.status == 'rejected' for i in all_items):
+                    batch.status = 'rejected'
+                batch.save()
+            
+            # Notify user about approval (handled by ReservationItem save method if needed)
+            # For individual item approval, send a notification
+            approval_msg = f"Item {item.property.property_name} in reservation batch #{batch_id} has been approved."
+            if approved_quantity < original_quantity:
+                approval_msg += f" Approved quantity: {approved_quantity} (Requested: {original_quantity})"
+            
+            Notification.objects.create(
+                user=batch.user,
+                message=approval_msg,
+                remarks=remarks if remarks else None
+            )
+            
+            # Log activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='approve',
+                model_name='ReservationItem',
+                object_repr=f"{item.property.property_name} (Batch #{batch_id})",
+                description=f"Approved reservation item #{item_id} in batch #{batch_id} - Quantity: {approved_quantity}"
+            )
+            
+            success_msg = f'Reservation for {item.property.property_name} approved successfully.'
+            if approved_quantity < original_quantity:
+                success_msg += f' (Approved: {approved_quantity} out of {original_quantity} requested)'
+            messages.success(request, success_msg)
+        else:
+            messages.error(request, f'Cannot approve reservation. Only {item.property.available_quantity} units of {item.property.property_name} available (trying to approve {approved_quantity}).')
+        
+        return redirect('reservation_batch_detail', batch_id=batch_id)
+    
+    return redirect('user_reservations')
+
+
+@login_required
+@permission_required('app.view_admin_module', raise_exception=True)
+def reject_reservation_item(request, batch_id, item_id):
+    """Reject a single item in a reservation batch"""
+    if request.method == 'POST':
+        batch = get_object_or_404(ReservationBatch, id=batch_id)
+        item = get_object_or_404(ReservationItem, id=item_id, batch_request=batch)
+        remarks = request.POST.get('remarks', '')
+        
+        item.status = 'rejected'
+        item.remarks = remarks
+        item.save()
+        
+        # Update batch status if needed
+        all_items = batch.items.all()
+        if all(i.status in ['approved', 'rejected'] for i in all_items):
+            # If some approved and some rejected
+            if any(i.status == 'approved' for i in all_items) and any(i.status == 'rejected' for i in all_items):
+                batch.status = 'partially_approved'
+            # If all rejected
+            elif all(i.status == 'rejected' for i in all_items):
+                batch.status = 'rejected'
+                batch.approved_date = timezone.now()
+            batch.save()
+        
+        # Notify user about rejection
+        Notification.objects.create(
+            user=batch.user,
+            message=f"Item {item.property.property_name} in reservation batch #{batch_id} has been rejected.",
+            remarks=remarks if remarks else None
+        )
+        
+        # Log activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='reject',
+            model_name='ReservationItem',
+            object_repr=f"{item.property.property_name} (Batch #{batch_id})",
+            description=f"Rejected reservation item #{item_id} in batch #{batch_id}"
+        )
+        
+        messages.success(request, f'Reservation for {item.property.property_name} rejected.')
+        return redirect('reservation_batch_detail', batch_id=batch_id)
+    
+    return redirect('user_reservations')
+
+
+@login_required
+@permission_required('app.view_admin_module', raise_exception=True)
+def approve_reservation_batch(request, batch_id):
+    """Approve all pending items in a reservation batch"""
+    if request.method == 'POST':
+        batch = get_object_or_404(ReservationBatch, id=batch_id)
+        items = batch.items.filter(status='pending')
+        remarks = request.POST.get('remarks', '')
+        
+        if not items.exists():
+            messages.warning(request, 'No pending items to approve in this batch.')
+            return redirect('reservation_batch_detail', batch_id=batch_id)
+        
+        approved_count = 0
+        failed_items = []
+        
+        for item in items:
+            # Check available quantity (uses reserved_quantity from Property model)
+            if item.property.available_quantity >= item.quantity:
+                item.status = 'approved'
+                item.remarks = remarks
+                item.save()
+                approved_count += 1
+            else:
+                failed_items.append(f"{item.property.property_name} (only {item.property.available_quantity} available)")
+        
+        # Update batch status
+        if approved_count > 0:
+            if not batch.approved_date:
+                batch.approved_date = timezone.now()
+            
+            # Check final status
+            all_items = batch.items.all()
+            if all(i.status == 'approved' for i in all_items):
+                batch.status = 'approved'
+            elif any(i.status == 'approved' for i in all_items):
+                batch.status = 'partially_approved'
+            batch.save()
+            
+            # Notify user once for the batch
+            Notification.objects.create(
+                user=batch.user,
+                message=f"Your batch reservation request #{batch_id} has been approved ({approved_count} items).",
+                remarks=remarks if remarks else None
+            )
+            
+            # Log activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='approve',
+                model_name='ReservationBatch',
+                object_repr=f"Batch #{batch_id}",
+                description=f"Approved {approved_count} items in reservation batch"
+            )
+            
+            messages.success(request, f'{approved_count} item(s) approved successfully.')
+        
+        if failed_items:
+            messages.warning(request, f'Could not approve: {", ".join(failed_items)}')
+        
+        return redirect('reservation_batch_detail', batch_id=batch_id)
+    
+    return redirect('user_reservations')
+
+
+@login_required
+@permission_required('app.view_admin_module', raise_exception=True)
+def reject_reservation_batch(request, batch_id):
+    """Reject all pending items in a reservation batch"""
+    if request.method == 'POST':
+        batch = get_object_or_404(ReservationBatch, id=batch_id)
+        items = batch.items.filter(status='pending')
+        remarks = request.POST.get('remarks', '')
+        
+        if not items.exists():
+            messages.warning(request, 'No pending items to reject in this batch.')
+            return redirect('reservation_batch_detail', batch_id=batch_id)
+        
+        count = items.count()
+        
+        # Update all pending items
+        for item in items:
+            item.status = 'rejected'
+            item.remarks = remarks
+            item.save()
+        
+        # Update batch status
+        batch.status = 'rejected'
+        batch.approved_date = timezone.now()
+        batch.remarks = remarks
+        batch.save()
+        
+        # Notify user once for the batch
+        Notification.objects.create(
+            user=batch.user,
+            message=f"Your batch reservation request #{batch_id} has been rejected ({count} items).",
+            remarks=remarks if remarks else None
+        )
+        
+        # Log activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='reject',
+            model_name='ReservationBatch',
+            object_repr=f"Batch #{batch_id}",
+            description=f"Rejected {count} items in reservation batch"
+        )
+        
+        messages.success(request, f'{count} item(s) rejected.')
+        return redirect('reservation_batch_detail', batch_id=batch_id)
+    
+    return redirect('user_reservations')
+
+
 def damage_report_detail(request, pk):
     report_obj = get_object_or_404(DamageReport, pk=pk)
     if request.method == 'POST':
         action = request.POST.get('action')
         remarks = request.POST.get('remarks')
-        report_obj.remarks = remarks
-        if action == 'classify':
+        
+        if action == 'resolve':
             classification = request.POST.get('classification')
+            
             if classification == 'unserviceable':
                 report_obj.status = 'resolved'
                 report_obj.remarks = f"Classified as Unserviceable. {remarks}"
@@ -378,7 +668,7 @@ def damage_report_detail(request, pk):
                 report_obj.save()
                 Notification.objects.create(
                     user=report_obj.user,
-                    message=f"Your damage report for {report_obj.item.property_name} has been classified as Unserviceable.",
+                    message=f"Your damage report for {report_obj.item.property_name} has been resolved - Classified as Unserviceable.",
                     remarks=remarks
                 )
             elif classification == 'needs_repair':
@@ -391,11 +681,11 @@ def damage_report_detail(request, pk):
                 report_obj.save()
                 Notification.objects.create(
                     user=report_obj.user,
-                    message=f"Your damage report for {report_obj.item.property_name} has been classified as Needs Repair.",
+                    message=f"Your damage report for {report_obj.item.property_name} has been resolved - Classified as Needs Repair.",
                     remarks=remarks
                 )
             elif classification == 'good_condition':
-                report_obj.status = 'reviewed'
+                report_obj.status = 'resolved'
                 report_obj.remarks = f"Classified as Good Condition. {remarks}"
                 # Update property condition
                 report_obj.item.condition = 'In good condition'
@@ -404,28 +694,13 @@ def damage_report_detail(request, pk):
                 report_obj.save()
                 Notification.objects.create(
                     user=report_obj.user,
-                    message=f"Your damage report for {report_obj.item.property_name} has been reviewed and marked as Good Condition.",
+                    message=f"Your damage report for {report_obj.item.property_name} has been resolved - Item is in Good Condition.",
                     remarks=remarks
                 )
+            
+            messages.success(request, f'Damage report #{report_obj.id} has been classified and resolved successfully.')
             return redirect('user_damage_reports')
-        elif action == 'reviewed':
-            report_obj.status = 'reviewed'
-            Notification.objects.create(
-                user=report_obj.user,
-                message=f"Your damage report for {report_obj.item.property_name} has been reviewed.",
-                remarks=remarks
-            )
-            report_obj.save()
-            return redirect('user_damage_reports')
-        elif action == 'resolved':
-            report_obj.status = 'resolved'
-            Notification.objects.create(
-                user=report_obj.user,
-                message=f"Your damage report for {report_obj.item.property_name} has been resolved.",
-                remarks=remarks
-            )
-            report_obj.save()
-            return redirect('user_damage_reports')
+    
     return render(request, 'app/report_details.html', {'report_obj': report_obj})
 
 
@@ -1155,12 +1430,12 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
         # Get page numbers for each tab
         all_page = self.request.GET.get('all_page', 1)
         pending_page = self.request.GET.get('pending_page', 1)
-        reviewed_page = self.request.GET.get('reviewed_page', 1)
         resolved_page = self.request.GET.get('resolved_page', 1)
         
         # Create paginators for each tab
-        pending_reports = all_reports.filter(status='pending')
-        reviewed_reports = all_reports.filter(status='reviewed')
+        # Pending reports: oldest first (ascending order)
+        pending_reports = all_reports.filter(status='pending').order_by('report_date')
+        # Resolved reports: newest first (descending order)
         resolved_reports = all_reports.filter(status='resolved')
         
         # Paginate pending reports
@@ -1171,15 +1446,6 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
             pending_page_obj = pending_paginator.page(1)
         except EmptyPage:
             pending_page_obj = pending_paginator.page(pending_paginator.num_pages)
-        
-        # Paginate reviewed reports
-        reviewed_paginator = Paginator(reviewed_reports, paginate_by)
-        try:
-            reviewed_page_obj = reviewed_paginator.page(reviewed_page)
-        except PageNotAnInteger:
-            reviewed_page_obj = reviewed_paginator.page(1)
-        except EmptyPage:
-            reviewed_page_obj = reviewed_paginator.page(reviewed_paginator.num_pages)
         
         # Paginate resolved reports
         resolved_paginator = Paginator(resolved_reports, paginate_by)
@@ -1202,13 +1468,11 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
 
         # Add paginated objects to context
         context['pending_reports'] = pending_page_obj
-        context['reviewed_reports'] = reviewed_page_obj
         context['resolved_reports'] = resolved_page_obj
         context['all_reports'] = all_page_obj
         
         # Add total counts for badges
         context['pending_count'] = pending_reports.count()
-        context['reviewed_count'] = reviewed_reports.count()
         context['resolved_count'] = resolved_reports.count()
         context['all_count'] = all_reports_combined.count()
         
@@ -1227,16 +1491,20 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
 
 
 class UserReservationListView(PermissionRequiredMixin, ListView):
-    model = Reservation
+    model = ReservationBatch
     template_name = 'app/reservation.html'
     permission_required = 'app.view_admin_module'
-    context_object_name = 'reservations'  # all reservations
+    context_object_name = 'reservation_batches'
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Reservation.objects.select_related(
-            'user', 'user__userprofile', 'item'
-        ).order_by('-reservation_date')
+        # Get all reservation batches
+        queryset = ReservationBatch.objects.select_related(
+            'user'
+        ).prefetch_related(
+            'user__userprofile',
+            'items__property'
+        ).order_by('-request_date')
         
         # Apply search filter
         search_query = self.request.GET.get('search')
@@ -1245,9 +1513,10 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
                 Q(user__first_name__icontains=search_query) |
                 Q(user__last_name__icontains=search_query) |
                 Q(user__username__icontains=search_query) |
-                Q(item__property_name__icontains=search_query) |
-                Q(purpose__icontains=search_query)
-            )
+                Q(items__property__property_name__icontains=search_query) |
+                Q(purpose__icontains=search_query) |
+                Q(id__icontains=search_query)
+            ).distinct()
         
         # Apply department filter
         department = self.request.GET.get('department')
@@ -1259,7 +1528,7 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         if date_from:
             try:
                 date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
-                queryset = queryset.filter(reservation_date__date__gte=date_from_obj)
+                queryset = queryset.filter(request_date__date__gte=date_from_obj)
             except ValueError:
                 pass
                 
@@ -1267,7 +1536,7 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         if date_to:
             try:
                 date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
-                queryset = queryset.filter(reservation_date__date__lte=date_to_obj)
+                queryset = queryset.filter(request_date__date__lte=date_to_obj)
             except ValueError:
                 pass
         
@@ -1276,19 +1545,20 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
         
-        # Update reservation statuses before displaying
-        Reservation.check_and_update_reservations()
+        # Update reservation batch statuses before displaying
+        ReservationBatch.check_and_update_batches()
         
         context = super().get_context_data(**kwargs)
-        all_reservations = self.get_queryset()
+        all_batches = self.get_queryset()
         
-        # Group reservations by status
-        pending_reservations = all_reservations.filter(status='pending')
-        approved_reservations = all_reservations.filter(status='approved')
-        active_reservations = all_reservations.filter(status='active')
-        completed_reservations = all_reservations.filter(status='completed')
-        rejected_reservations = all_reservations.filter(status='rejected')
-        expired_reservations = all_reservations.filter(status='expired')
+        # Group batches by status
+        # Pending batches should show oldest first
+        pending_batches = all_batches.filter(status='pending').order_by('request_date')
+        approved_batches = all_batches.filter(status='approved')
+        active_batches = all_batches.filter(status='active')
+        completed_batches = all_batches.filter(status='completed')
+        rejected_batches = all_batches.filter(status='rejected')
+        expired_batches = all_batches.filter(status='expired')
         
         # Paginate each status group with 10 items per page
         paginate_by = 10
@@ -1302,8 +1572,8 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         rejected_page = self.request.GET.get('rejected_page', 1)
         expired_page = self.request.GET.get('expired_page', 1)
         
-        # Paginate all reservations
-        all_paginator = Paginator(all_reservations, paginate_by)
+        # Paginate all batches
+        all_paginator = Paginator(all_batches, paginate_by)
         try:
             context['all_reservations'] = all_paginator.page(all_page)
         except PageNotAnInteger:
@@ -1311,8 +1581,8 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         except EmptyPage:
             context['all_reservations'] = all_paginator.page(all_paginator.num_pages)
         
-        # Paginate pending reservations
-        pending_paginator = Paginator(pending_reservations, paginate_by)
+        # Paginate pending batches
+        pending_paginator = Paginator(pending_batches, paginate_by)
         try:
             context['pending_reservations'] = pending_paginator.page(pending_page)
         except PageNotAnInteger:
@@ -1320,8 +1590,8 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         except EmptyPage:
             context['pending_reservations'] = pending_paginator.page(pending_paginator.num_pages)
         
-        # Paginate approved reservations
-        approved_paginator = Paginator(approved_reservations, paginate_by)
+        # Paginate approved batches
+        approved_paginator = Paginator(approved_batches, paginate_by)
         try:
             context['approved_reservations'] = approved_paginator.page(approved_page)
         except PageNotAnInteger:
@@ -1329,8 +1599,8 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         except EmptyPage:
             context['approved_reservations'] = approved_paginator.page(approved_paginator.num_pages)
         
-        # Paginate active reservations
-        active_paginator = Paginator(active_reservations, paginate_by)
+        # Paginate active batches
+        active_paginator = Paginator(active_batches, paginate_by)
         try:
             context['active_reservations'] = active_paginator.page(active_page)
         except PageNotAnInteger:
@@ -1338,8 +1608,8 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         except EmptyPage:
             context['active_reservations'] = active_paginator.page(active_paginator.num_pages)
         
-        # Paginate completed reservations
-        completed_paginator = Paginator(completed_reservations, paginate_by)
+        # Paginate completed batches
+        completed_paginator = Paginator(completed_batches, paginate_by)
         try:
             context['completed_reservations'] = completed_paginator.page(completed_page)
         except PageNotAnInteger:
@@ -1347,8 +1617,8 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         except EmptyPage:
             context['completed_reservations'] = completed_paginator.page(completed_paginator.num_pages)
         
-        # Paginate rejected reservations
-        rejected_paginator = Paginator(rejected_reservations, paginate_by)
+        # Paginate rejected batches
+        rejected_paginator = Paginator(rejected_batches, paginate_by)
         try:
             context['rejected_reservations'] = rejected_paginator.page(rejected_page)
         except PageNotAnInteger:
@@ -1356,8 +1626,8 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         except EmptyPage:
             context['rejected_reservations'] = rejected_paginator.page(rejected_paginator.num_pages)
         
-        # Paginate expired reservations
-        expired_paginator = Paginator(expired_reservations, paginate_by)
+        # Paginate expired batches
+        expired_paginator = Paginator(expired_batches, paginate_by)
         try:
             context['expired_reservations'] = expired_paginator.page(expired_page)
         except PageNotAnInteger:
@@ -1377,40 +1647,39 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         # Add departments for the filter dropdown
         context['departments'] = Department.objects.all()
         
-        # Prepare reservation data for JavaScript calendar
+        # Prepare reservation data for JavaScript calendar (if needed)
         reservation_data = []
-        for reservation in all_reservations:
+        for batch in all_batches:
             # Get user display name
-            if reservation.user.first_name or reservation.user.last_name:
-                user_name = f"{reservation.user.first_name} {reservation.user.last_name}".strip()
+            if batch.user.first_name or batch.user.last_name:
+                user_name = f"{batch.user.first_name} {batch.user.last_name}".strip()
             else:
-                user_name = reservation.user.username
+                user_name = batch.user.username
             
-            # Prepare reservation object
-            reservation_obj = {
-                'id': reservation.id,
-                'status': reservation.status,
-                'statusDisplay': reservation.get_status_display(),
-                'itemName': reservation.item.property_name,
+            # Get first item name for display
+            first_item = batch.items.first()
+            item_name = first_item.property.property_name if first_item else "No items"
+            if batch.total_items > 1:
+                item_name += f" (+{batch.total_items - 1} more)"
+            
+            # Prepare batch object
+            batch_obj = {
+                'id': batch.id,
+                'status': batch.status,
+                'statusDisplay': batch.get_status_display(),
+                'itemName': item_name,
                 'userName': user_name,
-                'department': str(reservation.user.userprofile.department) if reservation.user.userprofile.department else '',
-                'quantity': reservation.quantity,
-                'purpose': reservation.purpose[:50] + ('...' if len(reservation.purpose) > 50 else ''),
-                'neededDate': reservation.needed_date.strftime('%Y-%m-%d') if reservation.needed_date else '',
-                'returnDate': reservation.return_date.strftime('%Y-%m-%d'),
-                'reservationDate': reservation.reservation_date.strftime('%Y-%m-%d %H:%M') if reservation.reservation_date else '',
-                'approvedDate': reservation.approved_date.strftime('%Y-%m-%d %H:%M') if reservation.approved_date else None,
+                'department': str(batch.user.userprofile.department) if batch.user.userprofile.department else '',
+                'quantity': batch.total_quantity,
+                'purpose': batch.purpose[:50] + ('...' if len(batch.purpose) > 50 else ''),
+                'neededDate': batch.earliest_needed_date.strftime('%Y-%m-%d') if batch.earliest_needed_date else '',
+                'returnDate': batch.latest_return_date.strftime('%Y-%m-%d') if batch.latest_return_date else '',
+                'requestDate': batch.request_date.strftime('%Y-%m-%d %H:%M'),
+                'approvedDate': batch.approved_date.strftime('%Y-%m-%d %H:%M') if batch.approved_date else None,
+                'remarks': batch.remarks if batch.remarks else '',
             }
-            
-            # Add additional fields for active/completed reservations
-            if hasattr(reservation, 'start_date') and reservation.start_date:
-                reservation_obj['startDate'] = reservation.start_date.strftime('%Y-%m-%d %H:%M')
-            if hasattr(reservation, 'end_date') and reservation.end_date:
-                reservation_obj['endDate'] = reservation.end_date.strftime('%Y-%m-%d %H:%M')
-            if hasattr(reservation, 'remarks') and reservation.remarks:
-                reservation_obj['remarks'] = reservation.remarks
                 
-            reservation_data.append(reservation_obj)
+            reservation_data.append(batch_obj)
         
         context['reservation_data'] = json.dumps(reservation_data)
         
@@ -5998,9 +6267,10 @@ def approve_borrow_item(request, batch_id, item_id):
         approved_quantity = item.quantity
     
     # Check if enough property units are available
-    available_quantity = item.property.quantity or 0
+    # Use available_quantity which accounts for already reserved/approved items
+    available_quantity = item.property.available_quantity
     if approved_quantity > available_quantity:
-        messages.error(request, f'Only {available_quantity} units of {item.property.property_name} are available.')
+        messages.error(request, f'Only {available_quantity} units of {item.property.property_name} are available (including approved reservations and borrows).')
         return redirect('borrow_batch_request_detail', batch_id=batch_id)
     
     # Mark item as approved
@@ -6489,3 +6759,144 @@ class ManageSupplyInventoryView(PermissionRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
+# View to serve damage report images from database
+from django.http import HttpResponse
+
+def damage_report_image(request, report_id):
+    """
+    Serve damage report image stored as binary data in PostgreSQL.
+    Returns the image as HTTP response with proper MIME type.
+    """
+    report = get_object_or_404(DamageReport, pk=report_id)
+    
+    # Check if report has image and it hasn't been deleted
+    if report.image_data and not report.deleted_at:
+        response = HttpResponse(report.image_data, content_type=report.image_type)
+        response['Content-Disposition'] = f'inline; filename="{report.image_name or f"damage_report_{report_id}.jpg"}"'
+        return response
+    else:
+        # Return 404 if no image or image was deleted
+        from django.http import Http404
+        raise Http404("Image not found or has been deleted")
+
+
+@login_required
+@user_passes_test(lambda u: u.userprofile.role == 'ADMIN', login_url='user_dashboard')
+@require_http_methods(["POST"])
+def delete_damage_report_image(request, report_id):
+    """
+    Delete a damage report image (admin only).
+    Marks the image as deleted with audit trail.
+    """
+    from django.utils import timezone
+    from django.contrib import messages
+    from django.http import JsonResponse
+    
+    report = get_object_or_404(DamageReport, pk=report_id)
+    
+    # Check if report has an image to delete
+    if not report.has_image:
+        return JsonResponse({
+            'success': False,
+            'message': 'No image to delete or image already deleted.'
+        }, status=400)
+    
+    # Soft delete: Mark as deleted but keep the data for audit
+    report.deleted_at = timezone.now()
+    report.deleted_by = request.user
+    report.save()
+    
+    # Log activity
+    ActivityLog.log_activity(
+        user=request.user,
+        action='delete',
+        model_name='DamageReport Image',
+        object_repr=f"Report #{report.id} - {report.item.property_name}",
+        description=f"Deleted image '{report.image_name}' from damage report #{report.id}"
+    )
+    
+    # Notify the user who submitted the report
+    Notification.objects.create(
+        user=report.user,
+        message=f"The image attached to your damage report #{report.id} for {report.item.property_name} has been removed by an administrator.",
+        remarks=f"Image removed by {request.user.username} on {timezone.now().strftime('%Y-%m-%d %H:%M')}"
+    )
+    
+    return JsonResponse({
+        'success': True,
+        'message': f'Image deleted successfully. Report #{report.id} remains in the system.'
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.userprofile.role == 'ADMIN', login_url='user_dashboard')
+@require_http_methods(["POST"])
+def bulk_delete_damage_report_images(request):
+    """
+    Bulk delete damage report images (admin only).
+    Accepts a list of report IDs via POST.
+    """
+    from django.utils import timezone
+    from django.http import JsonResponse
+    import json
+    
+    try:
+        data = json.loads(request.body)
+        report_ids = data.get('report_ids', [])
+        
+        if not report_ids:
+            return JsonResponse({
+                'success': False,
+                'message': 'No reports selected.'
+            }, status=400)
+        
+        # Get reports that have images
+        reports = DamageReport.objects.filter(
+            id__in=report_ids,
+            image_data__isnull=False,
+            deleted_at__isnull=True
+        )
+        
+        deleted_count = 0
+        for report in reports:
+            report.deleted_at = timezone.now()
+            report.deleted_by = request.user
+            report.save()
+            
+            # Log activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='delete',
+                model_name='DamageReport Image',
+                object_repr=f"Report #{report.id} - {report.item.property_name}",
+                description=f"Bulk deleted image '{report.image_name}' from damage report #{report.id}"
+            )
+            
+            # Notify the user
+            Notification.objects.create(
+                user=report.user,
+                message=f"The image attached to your damage report #{report.id} for {report.item.property_name} has been removed by an administrator.",
+                remarks=f"Bulk deletion by {request.user.username} on {timezone.now().strftime('%Y-%m-%d %H:%M')}"
+            )
+            
+            deleted_count += 1
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'{deleted_count} image(s) deleted successfully.',
+            'deleted_count': deleted_count
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid request data.'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        }, status=500)
+

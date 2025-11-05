@@ -311,6 +311,353 @@
 .select-dropdown::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+/* ===== MOBILE MODAL STYLES ===== */
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 999998;
+    animation: fadeIn 0.2s ease-out;
+    pointer-events: none;
+}
+
+.modal-backdrop.active {
+    display: block;
+    pointer-events: auto;
+}
+
+.item-selection-modal {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 50vh;
+    height: auto;
+    z-index: 999999;
+    background: white;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+    animation: slideUpFromBottom 0.4s ease-out;
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    touch-action: none;
+}
+
+@keyframes slideUpFromBottom {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideDownToBottom {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+.item-selection-modal.active {
+    display: flex;
+}
+
+.item-selection-modal.closing {
+    animation: slideDownToBottom 0.3s ease-out forwards;
+}
+
+.modal-header {
+    background: #152d64;
+    color: white;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+    cursor: grab;
+    cursor: -webkit-grab;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    touch-action: none;
+}
+
+.modal-header.dragging {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
+}
+
+.modal-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
+    margin: 4px auto 0;
+    transition: background 0.2s;
+}
+
+.modal-header:active .modal-handle {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    width: auto;
+    height: auto;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.modal-search-wrapper {
+    padding: 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e4e9;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.modal-search-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    background-color: white;
+    box-sizing: border-box;
+}
+
+.modal-search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.modal-category-filter {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: white;
+    box-sizing: border-box;
+    min-height: 38px;
+}
+
+.modal-category-filter:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.modal-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modal-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.modal-item-option {
+    padding: 14px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    transition: background-color 0.15s;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.modal-item-option:active {
+    background-color: #f0f7ff;
+}
+
+.modal-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.modal-item-name {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.modal-item-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.modal-item-category {
+    background-color: #e7f3ff;
+    color: #0056b3;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+.modal-item-code {
+    color: #6c757d;
+    font-size: 11px;
+}
+
+.modal-item-stock {
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.modal-item-stock.available {
+    color: #28a745;
+    background-color: #d4edda;
+}
+
+.modal-item-stock.low-stock {
+    color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.modal-no-results {
+    padding: 40px 16px;
+    text-align: center;
+    color: #6c757d;
+}
+
+.modal-no-results i {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 10px;
+}
+
+.modal-hidden {
+    display: none !important;
+}
+
+/* ===== MOBILE MEDIA QUERIES ===== */
+@media (max-width: 768px) {
+    /* Hide desktop dropdown on mobile, show modal instead */
+    .select-dropdown {
+        display: none !important;
+    }
+    
+    /* Hide category filter outside modal on mobile */
+    #category-filter,
+    #category-filter-borrow {
+        display: none !important;
+    }
+    
+    /* Ensure search input is always visible and clickable */
+    .supply-search-input,
+    .modal-search-input {
+        font-size: 16px; /* Prevents iOS zoom on input focus */
+        min-height: 44px; /* Touch target size */
+        cursor: pointer;
+    }
+    
+    /* Search input on mobile should appear clickable, not focusable */
+    .supply-search-input[readonly] {
+        cursor: pointer;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    
+    /* Make category filter tappable */
+    .modal-category-filter {
+        min-height: 44px;
+        font-size: 16px;
+    }
+    
+    /* Adjust modal height for smaller screens */
+    .item-selection-modal {
+        max-height: 60vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-header h2 {
+        font-size: 15px;
+    }
+    
+    .modal-search-wrapper {
+        padding: 8px;
+        gap: 6px;
+    }
+    
+    .modal-item-option {
+        padding: 10px 8px;
+    }
+    
+    .item-selection-modal {
+        max-height: 65vh;
+    }
+}
+
+/* Scrollbar styling for modal content */
+.modal-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Prevent body scroll when modal is active */
+body.modal-open {
+    overflow: hidden;
+}
 </style>
 {% endblock %}
 
@@ -362,6 +709,86 @@
                 }
             })();
         </script>
+
+        <!-- Mobile Modal Backdrop -->
+        <div id="modal-backdrop" class="modal-backdrop"></div>
+
+        <!-- Supplies Data (stored as JSON in data attribute) -->
+        <div id="supplies-json-data" style="display:none;" data-supplies='[
+            {% for supply in available_supplies %}
+            {
+                "id": {{ supply.id }},
+                "name": "{{ supply.supply_name|escapejs }}",
+                "category_id": {{ supply.category.id }},
+                "category_name": "{{ supply.category.name|escapejs }}",
+                "code": "{{ supply.supply_number|default:""|escapejs }}",
+                "description": "{{ supply.description|default:""|escapejs }}",
+                "available": {{ supply.quantity_info.current_quantity }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]'></div>
+
+        <!-- Borrow Properties Data (stored as JSON in data attribute) -->
+        <div id="borrow-json-data" style="display:none;" data-supplies='[
+            {% for property in available_properties %}
+            {
+                "id": {{ property.id }},
+                "name": "{{ property.property_name|escapejs }}",
+                "category_id": {{ property.category.id }},
+                "category_name": "{{ property.category.name|escapejs }}",
+                "code": "{{ property.property_number|default:""|escapejs }}",
+                "description": "{{ property.description|default:""|escapejs }}",
+                "available": {{ property.quantity }},
+                "available_qty": {{ property.available_quantity }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]'></div>
+
+        <!-- Supply Item Selection Modal (Mobile) -->
+        <div id="supply-selection-modal" class="item-selection-modal">
+            <div class="modal-header" id="supply-modal-handle">
+                <div class="modal-handle"></div>
+                <h2><i class="fas fa-list"></i> Select Supply Item</h2>
+            </div>
+            <div class="modal-search-wrapper">
+                <input type="text" id="supply-modal-search" class="modal-search-input" 
+                       placeholder="Search by name or code..." autocomplete="off">
+                <select id="supply-modal-category" class="modal-category-filter">
+                    <option value="">All Categories</option>
+                    {% for category in supply_categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-content">
+                <div id="supply-modal-items-list" class="modal-items-list">
+                    <!-- Items will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Borrow Item Selection Modal (Mobile) -->
+        <div id="borrow-selection-modal" class="item-selection-modal">
+            <div class="modal-header" id="borrow-modal-handle">
+                <div class="modal-handle"></div>
+                <h2><i class="fas fa-handshake"></i> Select Item to Borrow</h2>
+            </div>
+            <div class="modal-search-wrapper">
+                <input type="text" id="borrow-modal-search" class="modal-search-input" 
+                       placeholder="Search by name or code..." autocomplete="off">
+                <select id="borrow-modal-category" class="modal-category-filter">
+                    <option value="">All Categories</option>
+                    {% for category in borrow_categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-content">
+                <div id="borrow-modal-items-list" class="modal-items-list">
+                    <!-- Items will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
 
         <!-- Supply Request Content -->
         <div id="supply-request-content" class="request-content">
@@ -464,12 +891,9 @@
                                 <td>{{ item.supply_name }}</td>
                                 <td>
                                     <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
-                                           value="{{ item.quantity }}" min="1" max="{{ item.available_quantity }}">
+                                           value="{{ item.quantity }}" min="1">
                                 </td>
                                 <td>
-                                    <button class="btn-update" data-supply-id="{{ item.supply.id }}">
-                                        <i class="fas fa-save"></i> Update
-                                    </button>
                                     <button class="btn-remove" data-supply-id="{{ item.supply.id }}">
                                         <i class="fas fa-trash"></i> Remove
                                     </button>
@@ -488,8 +912,7 @@
             </div>
 
             <!-- Submit Request Section -->
-            {% if supply_cart_items %}
-            <div class="submit-section" id="supply-submit-section">
+            <div class="submit-section" id="supply-submit-section" {% if not supply_cart_items %}style="display: none;"{% endif %}>
                 <form id="submit-supply-form" method="post" action="{% url 'submit_list_request' %}">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="submit_request">
@@ -508,7 +931,6 @@
                     </div>
                 </form>
             </div>
-            {% endif %}
         </div>
 
         <!-- Borrow Request Content -->
@@ -559,7 +981,8 @@
                                          data-number="{{ property.property_number|default:'' }}"
                                          data-category="{{ property.category.id }}"
                                          data-category-name="{{ property.category.name }}"
-                                         data-available="{{ property.quantity }}">
+                                         data-available="{{ property.quantity }}"
+                                         data-available-qty="{{ property.available_quantity }}">
                                         <div class="option-main">
                                             <span class="option-name">{{ property.property_name }}</span>
                                             <span class="option-stock {% if property.quantity < 5 %}low-stock{% endif %}">
@@ -626,7 +1049,7 @@
                                 <td>{{ item.supply.property_name }}</td>
                                 <td>
                                     <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
-                                           value="{{ item.quantity }}" min="1" max="{{ item.supply.quantity }}">
+                                           value="{{ item.quantity }}" min="1">
                                 </td>
                                 <td>
                                     <input type="date" class="return-date-edit" data-supply-id="{{ item.supply.id }}" 
@@ -634,9 +1057,6 @@
                                 </td>
                                 <td>{{ item.purpose|truncatewords:5 }}</td>
                                 <td>
-                                    <button class="btn-update-borrow" data-supply-id="{{ item.supply.id }}">
-                                        <i class="fas fa-save"></i> Update
-                                    </button>
                                     <button class="btn-remove-borrow" data-supply-id="{{ item.supply.id }}">
                                         <i class="fas fa-trash"></i> Remove
                                     </button>
@@ -655,8 +1075,7 @@
             </div>
 
             <!-- Submit Request Section -->
-            {% if borrow_cart_items %}
-            <div class="submit-section" id="borrow-submit-section">
+            <div class="submit-section" id="borrow-submit-section" {% if not borrow_cart_items %}style="display: none;"{% endif %}>
                 <form id="submit-borrow-form" method="post" action="{% url 'submit_borrow_list_request' %}">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="submit_request">
@@ -675,7 +1094,6 @@
                     </div>
                 </form>
             </div>
-            {% endif %}
         </div>
     </main>
 
@@ -815,8 +1233,19 @@ $(document).ready(function() {
         const formData = new FormData(this);
         formData.append('action', 'add_to_cart');
         
-        // Store that we're on supply tab before reload
-        localStorage.setItem('activeRequestTab', 'supply');
+        const supplyId = document.getElementById('supply-select').value;
+        const supplyName = document.getElementById('supply-search').value;
+        const quantity = parseInt(document.getElementById('supply-quantity-input').value);
+        
+        if (!supplyId) {
+            showMessage('Please select a supply item', 'error');
+            return;
+        }
+        
+        if (!quantity || quantity < 1) {
+            showMessage('Please enter a valid quantity', 'error');
+            return;
+        }
         
         $.ajax({
             url: '{% url "add_to_list" %}',
@@ -830,16 +1259,96 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     showMessage(response.message, 'success');
-                    location.reload();
+                    
+                    // Check if item already exists in table
+                    const existingRow = $(`#supply-list-body tr[data-supply-id="${supplyId}"]`);
+                    
+                    if (existingRow.length) {
+                        // Update existing row quantity
+                        const quantityInput = existingRow.find('.quantity-edit');
+                        const newQuantity = parseInt(quantityInput.val()) + parseInt(quantity);
+                        quantityInput.val(newQuantity);
+                    } else {
+                        // Add new row to table
+                        const table = $(`#supply-list-body`);
+                        const newRow = $(`
+                            <tr data-supply-id="${supplyId}">
+                                <td>${supplyName}</td>
+                                <td>
+                                    <input type="number" class="quantity-edit" data-supply-id="${supplyId}" 
+                                           value="${quantity}" min="1">
+                                </td>
+                                <td>
+                                    <button class="btn-remove" data-supply-id="${supplyId}">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                        
+                        // If table doesn't exist, create it
+                        if (table.length === 0) {
+                            const newTable = $(`
+                                <table class="list-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Quantity</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="supply-list-body">
+                                    </tbody>
+                                </table>
+                            `);
+                            $('#supply-list-container').html(newTable);
+                            newTable.find('#supply-list-body').append(newRow);
+                        } else {
+                            // If empty state exists, replace it
+                            const emptyState = $('#supply-list-container .empty-list');
+                            if (emptyState.length) {
+                                const newTable = $(`
+                                    <table class="list-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Item</th>
+                                                <th>Quantity</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="supply-list-body">
+                                        </tbody>
+                                    </table>
+                                `);
+                                $('#supply-list-container').html(newTable);
+                                newTable.find('#supply-list-body').append(newRow);
+                            } else {
+                                $('#supply-list-body').append(newRow);
+                            }
+                        }
+                    }
+                    
+                    // Update list count
+                    $('#supply-list-count').text(`(${response.list_count})`);
+                    
+                    // Show submit section if it's hidden
+                    if ($('#supply-submit-section').length && $('#supply-submit-section').is(':hidden')) {
+                        $('#supply-submit-section').show();
+                    }
+                    
+                    // Clear form
+                    document.getElementById('supply-search').value = '';
+                    document.getElementById('supply-select').value = '';
+                    document.getElementById('supply-quantity-input').value = '';
+                    
+                    // Clear any error highlighting
+                    $(this).find('.form-control').removeClass('error');
                 } else {
-                    // Show error and prevent any form resubmission
                     showMessage(response.message, 'error');
-                    return false;
                 }
             },
             error: function() {
                 showMessage('Error adding item to list', 'error');
-                return false;
             }
         });
     });
@@ -851,8 +1360,31 @@ $(document).ready(function() {
         const formData = new FormData(this);
         formData.append('action', 'add_to_cart');
         
-        // Store that we're on borrow tab before reload
-        localStorage.setItem('activeRequestTab', 'borrow');
+        const propertyId = document.getElementById('borrow-select').value;
+        const propertyName = document.getElementById('borrow-search').value;
+        const quantity = parseInt(document.getElementById('borrow-quantity-input').value);
+        const returnDate = document.getElementById('return-date-input').value;
+        const purpose = document.getElementById('purpose-input').value;
+        
+        if (!propertyId) {
+            showMessage('Please select an item', 'error');
+            return;
+        }
+        
+        if (!quantity || quantity < 1) {
+            showMessage('Please enter a valid quantity', 'error');
+            return;
+        }
+        
+        if (!returnDate) {
+            showMessage('Please select a return date', 'error');
+            return;
+        }
+        
+        if (!purpose) {
+            showMessage('Please enter a purpose', 'error');
+            return;
+        }
         
         $.ajax({
             url: '{% url "add_to_borrow_list" %}',
@@ -866,16 +1398,109 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.status === 'success') {
                     showMessage(response.message, 'success');
-                    location.reload();
+                    
+                    // Check if item already exists in table
+                    const existingRow = $(`#borrow-list-body tr[data-supply-id="${propertyId}"]`);
+                    
+                    if (existingRow.length) {
+                        // Update existing row
+                        const quantityInput = existingRow.find('.quantity-edit');
+                        const newQuantity = parseInt(quantityInput.val()) + parseInt(quantity);
+                        quantityInput.val(newQuantity);
+                        existingRow.find('.return-date-edit').val(returnDate);
+                        existingRow.find('td:nth-child(4)').text(purpose.split(' ').slice(0, 5).join(' ') + (purpose.split(' ').length > 5 ? '...' : ''));
+                    } else {
+                        // Add new row to table
+                        const table = $(`#borrow-list-body`);
+                        const newRow = $(`
+                            <tr data-supply-id="${propertyId}">
+                                <td>${propertyName}</td>
+                                <td>
+                                    <input type="number" class="quantity-edit" data-supply-id="${propertyId}" 
+                                           value="${quantity}" min="1">
+                                </td>
+                                <td>
+                                    <input type="date" class="return-date-edit" data-supply-id="${propertyId}" 
+                                           value="${returnDate}">
+                                </td>
+                                <td>${purpose.split(' ').slice(0, 5).join(' ')}${purpose.split(' ').length > 5 ? '...' : ''}</td>
+                                <td>
+                                    <button class="btn-remove-borrow" data-supply-id="${propertyId}">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                        
+                        // If table doesn't exist, create it
+                        if (table.length === 0) {
+                            const newTable = $(`
+                                <table class="list-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Quantity</th>
+                                            <th>Return Date</th>
+                                            <th>Purpose</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="borrow-list-body">
+                                    </tbody>
+                                </table>
+                            `);
+                            $('#borrow-list-container').html(newTable);
+                            newTable.find('#borrow-list-body').append(newRow);
+                        } else {
+                            // If empty state exists, replace it
+                            const emptyState = $('#borrow-list-container .empty-list');
+                            if (emptyState.length) {
+                                const newTable = $(`
+                                    <table class="list-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Item</th>
+                                                <th>Quantity</th>
+                                                <th>Return Date</th>
+                                                <th>Purpose</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="borrow-list-body">
+                                        </tbody>
+                                    </table>
+                                `);
+                                $('#borrow-list-container').html(newTable);
+                                newTable.find('#borrow-list-body').append(newRow);
+                            } else {
+                                $('#borrow-list-body').append(newRow);
+                            }
+                        }
+                    }
+                    
+                    // Update list count
+                    $('#borrow-list-count').text(`(${response.list_count})`);
+                    
+                    // Show submit section if it's hidden
+                    if ($('#borrow-submit-section').length && $('#borrow-submit-section').is(':hidden')) {
+                        $('#borrow-submit-section').show();
+                    }
+                    
+                    // Clear form
+                    document.getElementById('borrow-search').value = '';
+                    document.getElementById('borrow-select').value = '';
+                    document.getElementById('borrow-quantity-input').value = '';
+                    document.getElementById('return-date-input').value = '';
+                    document.getElementById('purpose-input').value = '';
+                    
+                    // Clear any error highlighting
+                    $(this).find('.form-control').removeClass('error');
                 } else {
-                    // Show error and prevent any form resubmission
                     showMessage(response.message, 'error');
-                    return false;
                 }
             },
             error: function() {
                 showMessage('An error occurred while adding the item to your list', 'error');
-                return false;
             }
         });
     });
@@ -986,6 +1611,56 @@ $(document).ready(function() {
                 }
             });
         }
+    });
+    
+    // Auto-save supply quantity on change
+    $(document).on('change', '#supply-list-body .quantity-edit', function() {
+        const supplyId = $(this).data('supply-id');
+        const newQuantity = $(this).val();
+        
+        $.ajax({
+            url: '{% url "update_list_item" %}',
+            type: 'POST',
+            data: {
+                'supply_id': supplyId,
+                'quantity': newQuantity,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (!response.success) {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('Error updating quantity', 'error');
+            }
+        });
+    });
+    
+    // Auto-save borrow quantity and return date on change
+    $(document).on('change', '#borrow-list-body .quantity-edit, #borrow-list-body .return-date-edit', function() {
+        const supplyId = $(this).closest('tr').data('supply-id');
+        const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
+        const newReturnDate = $(`.return-date-edit[data-supply-id="${supplyId}"]`).val();
+        
+        $.ajax({
+            url: '{% url "update_borrow_list_item" %}',
+            type: 'POST',
+            data: {
+                'supply_id': supplyId,
+                'quantity': newQuantity,
+                'return_date': newReturnDate,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.status !== 'success') {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('Error updating borrow details', 'error');
+            }
+        });
     });
     
     // Clear supply list
@@ -1236,6 +1911,267 @@ $(document).ready(function() {
 </script>
 
 <script>
+// ===== LOAD MODAL DATA FROM DATA ATTRIBUTE =====
+let allSupplies = [];
+let allProperties = [];
+document.addEventListener('DOMContentLoaded', function() {
+    // Load supply data
+    const suppliesDataElement = document.getElementById('supplies-json-data');
+    if (suppliesDataElement) {
+        try {
+            allSupplies = JSON.parse(suppliesDataElement.getAttribute('data-supplies'));
+        } catch (e) {
+            console.error('Failed to parse supplies data:', e);
+            allSupplies = [];
+        }
+    }
+    
+    // Load borrow properties data
+    const borrowDataElement = document.getElementById('borrow-json-data');
+    if (borrowDataElement) {
+        try {
+            allProperties = JSON.parse(borrowDataElement.getAttribute('data-supplies'));
+        } catch (e) {
+            console.error('Failed to parse borrow properties data:', e);
+            allProperties = [];
+        }
+    }
+});
+
+// ===== MOBILE MODAL FUNCTIONS =====
+function closeModal(type, animate = true) {
+    const modalId = type === 'supply' ? 'supply-selection-modal' : 'borrow-selection-modal';
+    const modal = document.getElementById(modalId);
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (animate) {
+        modal.classList.add('closing');
+        setTimeout(() => {
+            modal.classList.remove('active', 'closing');
+            backdrop.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }, 300);
+    } else {
+        modal.classList.remove('active', 'closing');
+        backdrop.classList.remove('active');
+        document.body.classList.remove('modal-open');
+    }
+}
+
+function openModal(type) {
+    const isMobile = window.innerWidth <= 768;
+    if (!isMobile) return;
+    
+    const modalId = type === 'supply' ? 'supply-selection-modal' : 'borrow-selection-modal';
+    const modal = document.getElementById(modalId);
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    modal.classList.add('active');
+    backdrop.classList.add('active');
+    document.body.classList.add('modal-open');
+    
+    // Populate modal items
+    populateModalItems(type);
+    
+    // Focus search input
+    const searchInput = type === 'supply' ? 
+        document.getElementById('supply-modal-search') : 
+        document.getElementById('borrow-modal-search');
+    searchInput.focus();
+    
+    // Setup drag to dismiss
+    setupDragToDismiss(type);
+}
+
+function setupDragToDismiss(type) {
+    const modalId = type === 'supply' ? 'supply-selection-modal' : 'borrow-selection-modal';
+    const handleId = type === 'supply' ? 'supply-modal-handle' : 'borrow-modal-handle';
+    
+    const modal = document.getElementById(modalId);
+    const handle = document.getElementById(handleId);
+    
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+    
+    function onTouchStart(e) {
+        startY = e.touches[0].clientY;
+        currentY = startY;
+        isDragging = true;
+        handle.classList.add('dragging');
+    }
+    
+    function onTouchMove(e) {
+        if (!isDragging) return;
+        
+        currentY = e.touches[0].clientY;
+        const diff = currentY - startY;
+        
+        // Only allow downward dragging
+        if (diff > 0) {
+            modal.style.transform = `translateY(${diff}px)`;
+            modal.style.borderRadius = `${16 - (diff / 50) * 4}px ${16 - (diff / 50) * 4}px 0 0`;
+        }
+    }
+    
+    function onTouchEnd(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        handle.classList.remove('dragging');
+        
+        const diff = currentY - startY;
+        const threshold = 100; // 100px threshold to close
+        
+        if (diff > threshold) {
+            // Close the modal
+            modal.style.transform = '';
+            modal.style.borderRadius = '';
+            closeModal(type, true);
+        } else {
+            // Snap back
+            modal.style.transform = '';
+            modal.style.borderRadius = '';
+        }
+    }
+    
+    // Remove old listeners if they exist
+    handle.removeEventListener('touchstart', onTouchStart);
+    handle.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('touchend', onTouchEnd);
+    
+    // Add new listeners
+    handle.addEventListener('touchstart', onTouchStart, { passive: true });
+    handle.addEventListener('touchmove', onTouchMove, { passive: true });
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
+}
+
+function populateModalItems(type) {
+    const listId = type === 'supply' ? 'supply-modal-items-list' : 'borrow-modal-items-list';
+    const listContainer = document.getElementById(listId);
+    const searchInput = type === 'supply' ? 
+        document.getElementById('supply-modal-search') : 
+        document.getElementById('borrow-modal-search');
+    const categoryFilter = type === 'supply' ? 
+        document.getElementById('supply-modal-category') : 
+        document.getElementById('borrow-modal-category');
+    
+    // Use correct data source based on type
+    const dataSource = type === 'supply' ? allSupplies : allProperties;
+    
+    function filterAndRender() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedCategory = categoryFilter.value.trim();
+        
+        const filtered = dataSource.filter(item => {
+            const matchesSearch = !searchTerm || 
+                item.name.toLowerCase().includes(searchTerm) ||
+                item.code.toLowerCase().includes(searchTerm) ||
+                item.description.toLowerCase().includes(searchTerm);
+            
+            const matchesCategory = !selectedCategory || 
+                String(item.category_id) === String(selectedCategory);
+            
+            return matchesSearch && matchesCategory;
+        });
+        
+        if (filtered.length === 0) {
+            listContainer.innerHTML = `
+                <div class="modal-no-results">
+                    <div><i class="fas fa-inbox"></i></div>
+                    <p>No items found</p>
+                </div>
+            `;
+            return;
+        }
+        
+        listContainer.innerHTML = filtered.map(item => `
+            <div class="modal-item-option" onclick="selectItemFromModal('${type}', ${item.id}, '${item.name.replace(/'/g, "\\'")}', ${item.available})">
+                <div class="modal-item-info">
+                    <div class="modal-item-name">${item.name}</div>
+                    <div class="modal-item-details">
+                        <span class="modal-item-category">${item.category_name}</span>
+                        ${item.code ? `<span class="modal-item-code">Code: ${item.code}</span>` : ''}
+                    </div>
+                </div>
+                <div class="modal-item-stock ${item.available < 10 ? 'low-stock' : 'available'}">
+                    ${item.available} available
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Initial render
+    filterAndRender();
+    
+    // Add event listeners for filtering
+    searchInput.addEventListener('input', filterAndRender);
+    categoryFilter.addEventListener('change', filterAndRender);
+}
+
+function selectItemFromModal(type, itemId, itemName, available) {
+    closeModal(type, false);
+    
+    if (type === 'supply') {
+        document.getElementById('supply-search').value = itemName;
+        document.getElementById('supply-select').value = itemId;
+        // No max limit - users can request any quantity
+        document.getElementById('supply-quantity-input').setAttribute('placeholder', `Enter quantity (${available} available)`);
+        setTimeout(() => document.getElementById('supply-quantity-input').focus(), 100);
+    } else {
+        document.getElementById('borrow-search').value = itemName;
+        document.getElementById('borrow-select').value = itemId;
+        // No max limit - users can request any quantity
+        document.getElementById('borrow-quantity-input').setAttribute('placeholder', `Enter quantity (${available} available)`);
+        setTimeout(() => document.getElementById('borrow-quantity-input').focus(), 100);
+    }
+}
+
+// Close modal when clicking backdrop
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('modal-backdrop').addEventListener('click', function() {
+        if (document.getElementById('supply-selection-modal').classList.contains('active')) {
+            closeModal('supply');
+        }
+        if (document.getElementById('borrow-selection-modal').classList.contains('active')) {
+            closeModal('borrow');
+        }
+    });
+    
+    // Initialize modal search on mobile
+    if (window.innerWidth <= 768) {
+        const supplySearch = document.getElementById('supply-search');
+        const borrowSearch = document.getElementById('borrow-search');
+        
+        // Prevent keyboard from opening on mobile
+        supplySearch.setAttribute('readonly', 'readonly');
+        borrowSearch.setAttribute('readonly', 'readonly');
+        
+        // Prevent focus on mobile (iOS)
+        supplySearch.addEventListener('focus', function(e) {
+            e.preventDefault();
+            this.blur();
+        });
+        borrowSearch.addEventListener('focus', function(e) {
+            e.preventDefault();
+            this.blur();
+        });
+        
+        supplySearch.addEventListener('click', function(e) {
+            e.preventDefault();
+            openModal('supply');
+        });
+        
+        borrowSearch.addEventListener('click', function(e) {
+            e.preventDefault();
+            openModal('borrow');
+        });
+    }
+});
+
+// ===== END MOBILE MODAL FUNCTIONS =====
+</script>
+
+<script>
 // Searchable Dropdown - Completely Rewritten for Systematic Debugging
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Initializing dropdowns...');
@@ -1479,8 +2415,8 @@ function initializeDropdown(config) {
         hiddenInput.value = value;
         
         if (available && quantityInput) {
-            quantityInput.setAttribute('max', available);
-            quantityInput.setAttribute('placeholder', `Enter quantity (max ${available})`);
+            // No max limit - users can request any quantity
+            quantityInput.setAttribute('placeholder', `Enter quantity (${available} available)`);
         }
         
         // Close dropdown

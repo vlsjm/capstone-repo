@@ -440,15 +440,20 @@ class BorrowRequestForm(forms.ModelForm):
 
 
 class DamageReportForm(forms.ModelForm):
+    # Custom file field for image upload (not directly bound to model)
+    image = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'accept': 'image/*',
+            'class': 'form-control-file'
+        })
+    )
+    
     class Meta:
         model = DamageReport
-        fields = ['item', 'description', 'image']
+        fields = ['item', 'description']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
-            'image': forms.FileInput(attrs={
-                'accept': 'image/*',
-                'class': 'form-control-file'
-            })
         }
     
     def clean_image(self):
@@ -471,24 +476,28 @@ class AdminDamageReportForm(forms.ModelForm):
     """
     Form for admins to mark a property as damaged directly without a user report.
     """
+    # Custom file field for image upload (not directly bound to model)
+    image = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'accept': 'image/*',
+            'class': 'form-control-file'
+        })
+    )
+    
     class Meta:
         model = DamageReport
-        fields = ['description', 'image']
+        fields = ['description']
         widgets = {
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
                 'placeholder': 'Describe the damage or issue with this property...',
                 'required': True
-            }),
-            'image': forms.FileInput(attrs={
-                'accept': 'image/*',
-                'class': 'form-control-file'
             })
         }
         labels = {
-            'description': 'Damage Description',
-            'image': 'Upload Image (Optional)'
+            'description': 'Damage Description'
         }
     
     def clean_image(self):
