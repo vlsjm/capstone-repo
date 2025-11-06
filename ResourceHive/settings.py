@@ -244,7 +244,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Security Settings for Production
 if not DEBUG:
     # SECURE_SSL_REDIRECT = True  # Temporarily disabled to fix redirect loop on Railway
-    SESSION_COOKIE_SECURE = True
+    # SESSION_COOKIE_SECURE = True  # Temporarily disabled for testing
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_SECURITY_POLICY = {
