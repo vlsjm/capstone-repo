@@ -138,55 +138,30 @@
             </div>
         </div>
 
-        <!-- Password Change Section -->
-        <div class="password-section">
-            <div class="password-toggle" onclick="togglePasswordSection()">
-                <h3 class="section-title">
-                    <i class="fas fa-lock icon-label"></i>
-                    Change Password
-                </h3>
-                <span class="toggle-icon" id="passwordToggleIcon">▼</span>
-            </div>
-            <div class="password-fields" id="passwordFields" style="display: none;">
-                <p class="section-description">Leave password fields blank if you don't want to change your password</p>
-            
-            <div class="form-group">
-                <label for="{{ form.current_password.id_for_label }}">{{ form.current_password.label }}</label>
-                <input type="password" 
-                       name="{{ form.current_password.name }}" 
-                       id="{{ form.current_password.id_for_label }}"
-                       placeholder="{{ form.current_password.field.widget.attrs.placeholder }}"
-                       class="form-control {% if form.current_password.errors %}error{% endif %}">
-                {% if form.current_password.errors %}
-                    <span class="error-text">{{ form.current_password.errors.0 }}</span>
-                {% endif %}
-                <small class="help-text">{{ form.current_password.help_text }}</small>
-            </div>
+        <!-- Designation Field -->
+        <div class="form-group">
+            <label for="{{ form.designation.id_for_label }}">
+                <i class="fas fa-briefcase icon-label"></i>
+                Designation
+            </label>
+            <input type="text" 
+                   name="{{ form.designation.name }}" 
+                   id="{{ form.designation.id_for_label }}"
+                   value="{{ form.designation.value|default:'' }}"
+                   placeholder="Enter your designation"
+                   class="form-control {% if form.designation.errors %}error{% endif %}">
+            {% if form.designation.errors %}
+                <span class="error-text">{{ form.designation.errors.0 }}</span>
+            {% endif %}
+        </div>
 
-            <div class="form-group">
-                <label for="{{ form.new_password.id_for_label }}">{{ form.new_password.label }}</label>
-                <input type="password" 
-                       name="{{ form.new_password.name }}" 
-                       id="{{ form.new_password.id_for_label }}"
-                       placeholder="{{ form.new_password.field.widget.attrs.placeholder }}"
-                       class="form-control {% if form.new_password.errors %}error{% endif %}">
-                {% if form.new_password.errors %}
-                    <span class="error-text">{{ form.new_password.errors.0 }}</span>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="{{ form.confirm_password.id_for_label }}">{{ form.confirm_password.label }}</label>
-                <input type="password" 
-                       name="{{ form.confirm_password.name }}" 
-                       id="{{ form.confirm_password.id_for_label }}"
-                       placeholder="{{ form.confirm_password.field.widget.attrs.placeholder }}"
-                       class="form-control {% if form.confirm_password.errors %}error{% endif %}">
-                {% if form.confirm_password.errors %}
-                    <span class="error-text">{{ form.confirm_password.errors.0 }}</span>
-                {% endif %}
-            </div>
-            </div> <!-- End password-fields -->
+        <!-- Password Change Link -->
+        <div class="password-change-link-section">
+            <a href="{% url 'user_password_change' %}" class="change-password-link">
+                <i class="fas fa-lock"></i>
+                Change Password
+                <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
 
         <div class="form-actions">
@@ -418,50 +393,41 @@
     transform: translateY(-1px);
 }
 
-.password-section {
+.password-change-link-section {
     margin-top: 30px;
     padding-top: 30px;
     border-top: 2px solid #e9ecef;
 }
 
-.password-toggle {
-    display: flex;
-    justify-content: space-between;
+.change-password-link {
+    display: inline-flex;
     align-items: center;
-    cursor: pointer;
-    padding: 10px 0;
-    user-select: none;
+    gap: 10px;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #152d64 0%, #1a3670 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(21, 45, 100, 0.3);
 }
 
-.toggle-icon {
-    font-size: 16px;
-    font-weight: bold;
-    color: #152d64;
+.change-password-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(21, 45, 100, 0.4);
+    background: linear-gradient(135deg, #1a3670 0%, #213a7a 100%);
+    color: white;
+    text-decoration: none;
+}
+
+.change-password-link i:last-child {
     transition: transform 0.3s ease;
 }
 
-.toggle-icon.rotated {
-    transform: rotate(180deg);
-}
-
-.password-fields {
-    margin-top: 15px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.section-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #152d64;
-    margin-bottom: 0;
-}
-
-.section-description {
-    font-size: 14px;
-    color: #6c757d;
-    margin-bottom: 20px;
-    font-style: italic;
+.change-password-link:hover i:last-child {
+    transform: translateX(4px);
 }
 
 .help-text {
@@ -539,21 +505,6 @@
 </style>
 
 <script>
-function togglePasswordSection() {
-    const passwordFields = document.getElementById('passwordFields');
-    const toggleIcon = document.getElementById('passwordToggleIcon');
-    
-    if (passwordFields.style.display === 'none') {
-        passwordFields.style.display = 'block';
-        toggleIcon.textContent = '▲';
-        toggleIcon.classList.add('rotated');
-    } else {
-        passwordFields.style.display = 'none';
-        toggleIcon.textContent = '▼';
-        toggleIcon.classList.remove('rotated');
-    }
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('profileForm');
     const saveBtn = form.querySelector('.save-btn');

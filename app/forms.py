@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Property, Supply, SupplyQuantity, SupplyCategory, SupplySubcategory
+from .models import Property, Supply, SupplyQuantity, SupplyCategory, SupplySubcategory, BadStockReport
 from django.contrib.auth.models import User
 from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation, Department,PropertyCategory, SupplyRequestBatch, SupplyRequestItem, Supply, SupplyQuantity
 from datetime import date
@@ -19,11 +19,37 @@ class DepartmentForm(forms.ModelForm):
         }
 
 
+class PropertyCategoryForm(forms.ModelForm):
+    class Meta:
+        model = PropertyCategory
+        fields = ['name', 'uacs']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter category name',
+                'maxlength': 100,
+                'required': True
+            }),
+            'uacs': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter UACS code (e.g., 13124324)',
+                'min': 0
+            })
+        }
+        labels = {
+            'name': 'Category Name',
+            'uacs': 'UACS'
+        }
+        help_texts = {
+            'uacs': 'Unified Account Code Structure (optional)'
+        }
+
+
 class UserRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
-    email = forms.EmailField()
+    email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput)
     role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES)
     department = forms.ModelChoiceField(
@@ -32,10 +58,25 @@ class UserRegistrationForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'department-select form-control'})
     )
     phone = forms.CharField(required=False)
+    designation = forms.CharField(max_length=100, required=False)
 
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email']
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if username and User.objects.filter(username=username).exists():
+            raise forms.ValidationError("This username is already taken.")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if not email:
+            raise forms.ValidationError("Email is required.")
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email is already registered.")
+        return email
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -48,11 +89,18 @@ class UserRegistrationForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['role', 'department', 'phone']
+        fields = ['role', 'department', 'phone', 'designation']
         widgets = {
             'role': forms.Select(attrs={'class': 'form-control'}),
             'department': forms.TextInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'designation': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'role': 'Role',
+            'department': 'Department',
+            'phone': 'Phone',
+            'designation': 'Designation',
         }
 
 class PropertyForm(forms.ModelForm):
@@ -67,10 +115,12 @@ class PropertyForm(forms.ModelForm):
             'unit_value',
             'overall_quantity',
             'quantity',
+            'quantity_per_physical_count',
             'location',
             'accountable_person',
             'year_acquired',
             'condition',
+            'availability',
         ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
@@ -78,8 +128,10 @@ class PropertyForm(forms.ModelForm):
             'unit_value': forms.NumberInput(attrs={'min': 0, 'step': '0.01'}),
             'overall_quantity': forms.NumberInput(attrs={'min': 0}),
             'quantity': forms.NumberInput(attrs={'min': 0, 'readonly': True}),
+            'quantity_per_physical_count': forms.NumberInput(attrs={'min': 0}),
             'category': forms.Select(attrs={'class': 'select2'}), 
             'condition': forms.Select(attrs={'class': 'form-select'}),
+            'availability': forms.Select(attrs={'class': 'form-select'}),
             'accountable_person': forms.TextInput(attrs={'placeholder': 'Enter accountable person name'}),
             'year_acquired': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         }
@@ -95,6 +147,7 @@ class PropertyForm(forms.ModelForm):
         self.fields['property_number'].required = False
         self.fields['accountable_person'].required = False
         self.fields['year_acquired'].required = False
+        self.fields['quantity_per_physical_count'].required = False
 
         # Handle quantity logic
         if not self.instance.pk:
@@ -120,6 +173,74 @@ class PropertyForm(forms.ModelForm):
                 self.add_error('overall_quantity', 'Overall quantity cannot be less than current quantity.')
 
         return cleaned_data
+    
+    def clean_property_number(self):
+        property_number = self.cleaned_data.get('property_number')
+        if property_number:
+            return property_number.upper()
+        return property_number
+
+class PropertyNumberChangeForm(forms.ModelForm):
+    new_property_number = forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter new property number'
+        })
+    )
+    
+    class Meta:
+        model = Property
+        fields = ['new_property_number']
+    
+    def __init__(self, *args, **kwargs):
+        self.instance = kwargs.get('instance')
+        super().__init__(*args, **kwargs)
+        
+        # Add current property number as readonly field for reference
+        if self.instance and self.instance.property_number:
+            self.fields['current_property_number'] = forms.CharField(
+                initial=self.instance.property_number,
+                widget=forms.TextInput(attrs={
+                    'class': 'form-control',
+                    'readonly': True,
+                    'disabled': True
+                }),
+                required=False,
+                label='Current Property Number'
+            )
+    
+    def clean_new_property_number(self):
+        new_property_number = self.cleaned_data['new_property_number']
+        
+        # Convert to uppercase if it has characters
+        if new_property_number:
+            new_property_number = new_property_number.upper()
+        
+        # Check if the new property number already exists (excluding current property)
+        existing = Property.objects.filter(property_number=new_property_number)
+        if self.instance:
+            existing = existing.exclude(pk=self.instance.pk)
+        
+        if existing.exists():
+            raise ValidationError(f'Property number "{new_property_number}" already exists.')
+        
+        return new_property_number
+    
+    def save(self, commit=True, user=None):
+        if commit:
+            # Store old property number before changing
+            old_number = self.instance.property_number
+            self.instance.property_number = self.cleaned_data['new_property_number']
+            
+            # The model's save method will handle storing the old number in old_property_number
+            if user:
+                self.instance.save(user=user)
+            else:
+                self.instance.save()
+                
+        return self.instance
 
 class SupplyForm(forms.ModelForm):
     current_quantity = forms.IntegerField(min_value=0, widget=forms.NumberInput(attrs={'class': 'form-control'}))
@@ -132,6 +253,7 @@ class SupplyForm(forms.ModelForm):
             'category',
             'subcategory',
             'description',
+            'available_for_request',
             'date_received',
             'expiration_date'
         ]
@@ -142,6 +264,7 @@ class SupplyForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control custom-select'}),
             'subcategory': forms.Select(attrs={'class': 'form-control custom-select'}),
+            'available_for_request': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         help_texts = {
             'expiration_date': 'Optional. Leave empty if the supply does not expire.',
@@ -317,15 +440,64 @@ class BorrowRequestForm(forms.ModelForm):
 
 
 class DamageReportForm(forms.ModelForm):
+    # Custom file field for image upload (not directly bound to model)
+    image = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'accept': 'image/*',
+            'class': 'form-control-file'
+        })
+    )
+    
     class Meta:
         model = DamageReport
-        fields = ['item', 'description', 'image']
+        fields = ['item', 'description']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
-            'image': forms.FileInput(attrs={
-                'accept': 'image/*',
-                'class': 'form-control-file'
+        }
+    
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image:
+            # Check file size (limit to 5MB)
+            if image.size > 5 * 1024 * 1024:
+                raise ValidationError("Image file too large. Please keep it under 5MB.")
+            
+            # Check file type
+            valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+            file_extension = os.path.splitext(image.name)[1].lower()
+            if file_extension not in valid_extensions:
+                raise ValidationError("Please upload a valid image file (JPG, PNG, GIF, BMP, WebP).")
+        
+        return image
+
+
+class AdminDamageReportForm(forms.ModelForm):
+    """
+    Form for admins to mark a property as damaged directly without a user report.
+    """
+    # Custom file field for image upload (not directly bound to model)
+    image = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'accept': 'image/*',
+            'class': 'form-control-file'
+        })
+    )
+    
+    class Meta:
+        model = DamageReport
+        fields = ['description']
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Describe the damage or issue with this property...',
+                'required': True
             })
+        }
+        labels = {
+            'description': 'Damage Description'
         }
     
     def clean_image(self):
@@ -399,29 +571,12 @@ class AdminProfileUpdateForm(forms.Form):
         })
     )
     
-    # Password change fields
-    current_password = forms.CharField(
+    designation = forms.CharField(
+        max_length=100,
         required=False,
-        widget=forms.PasswordInput(attrs={
+        widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Enter your current password'
-        }),
-        help_text="Required to change password"
-    )
-    
-    new_password = forms.CharField(
-        required=False,
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter new password'
-        })
-    )
-    
-    confirm_password = forms.CharField(
-        required=False,
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Confirm new password'
+            'placeholder': 'Enter your designation (e.g., Manager, Officer)'
         })
     )
     
@@ -436,10 +591,11 @@ class AdminProfileUpdateForm(forms.Form):
             self.initial['last_name'] = user.last_name
             self.initial['email'] = user.email
             
-            # Get phone from UserProfile if exists
+            # Get phone and designation from UserProfile if exists
             user_profile = getattr(user, 'userprofile', None)
             if user_profile:
                 self.initial['phone'] = user_profile.phone
+                self.initial['designation'] = user_profile.designation
     
     def clean_username(self):
         username = self.cleaned_data.get('username', '').strip()
@@ -474,30 +630,54 @@ class AdminProfileUpdateForm(forms.Form):
         if not last_name or not last_name.strip():
             raise forms.ValidationError("Last name is required.")
         return last_name.strip()
+
+class BadStockReportForm(forms.ModelForm):
+    class Meta:
+        model = BadStockReport
+        fields = ['supply', 'quantity_removed', 'remarks']
+        widgets = {
+            'supply': forms.Select(attrs={
+                'class': 'form-control',
+                'required': True
+            }),
+            'quantity_removed': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter quantity to remove',
+                'min': 1,
+                'required': True
+            }),
+            'remarks': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Provide detailed explanation including the reason (e.g., damaged, expired, defective, lost, etc.)',
+                'rows': 4,
+                'required': True
+            })
+        }
+        labels = {
+            'supply': 'Supply Item',
+            'quantity_removed': 'Quantity to Remove',
+            'remarks': 'Reason and Remarks'
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter supplies to show only non-archived supplies with quantity > 0
+        self.fields['supply'].queryset = Supply.objects.filter(
+            is_archived=False
+        ).select_related('quantity_info').order_by('supply_name')
     
     def clean(self):
         cleaned_data = super().clean()
-        current_password = cleaned_data.get('current_password')
-        new_password = cleaned_data.get('new_password')
-        confirm_password = cleaned_data.get('confirm_password')
+        supply = cleaned_data.get('supply')
+        quantity_removed = cleaned_data.get('quantity_removed')
         
-        # If any password field is filled, all password fields are required
-        password_fields_filled = any([current_password, new_password, confirm_password])
-        
-        if password_fields_filled:
-            if not current_password:
-                self.add_error('current_password', 'Current password is required to change password.')
-            elif not self.user.check_password(current_password):
-                self.add_error('current_password', 'Current password is incorrect.')
-            
-            if not new_password:
-                self.add_error('new_password', 'New password is required.')
-            elif len(new_password) < 8:
-                self.add_error('new_password', 'Password must be at least 8 characters long.')
-            
-            if not confirm_password:
-                self.add_error('confirm_password', 'Please confirm your new password.')
-            elif new_password != confirm_password:
-                self.add_error('confirm_password', 'New passwords do not match.')
+        if supply and quantity_removed:
+            try:
+                available_quantity = supply.quantity_info.current_quantity
+                if quantity_removed > available_quantity:
+                    self.add_error('quantity_removed', 
+                        f'Cannot remove {quantity_removed} units. Only {available_quantity} units available.')
+            except SupplyQuantity.DoesNotExist:
+                self.add_error('supply', 'This supply has no quantity information.')
         
         return cleaned_data

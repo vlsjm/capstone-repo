@@ -16,6 +16,72 @@
       min-height: 100vh;
     }
     
+    /* Django Messages Styling */
+    .messages-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      max-width: 500px;
+    }
+    
+    .alert {
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      animation: slideIn 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    
+    .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    
+    .alert-warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+    
+    .alert-info {
+      background-color: #d1ecf1;
+      color: #0c5460;
+    }
+    
+    .alert .close-btn {
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 15px;
+      opacity: 0.7;
+    }
+    
+    .alert .close-btn:hover {
+      opacity: 1;
+    }
+    
     .page-title {
       color: #152d64;
       margin-bottom: 30px;
@@ -31,7 +97,6 @@
       border-radius: 12px;
       margin-bottom: 30px;
       box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
-      border-left: 4px solid #152d64;
     }
     
     .batch-header h1 {
@@ -327,7 +392,7 @@
     
     .item-actions {
       padding: 20px;
-      background: white;
+      background: transparent;
     }
     
     /* Enhanced action buttons */
@@ -427,7 +492,6 @@
       padding: 15px;
       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
       border-radius: 8px;
-      border-left: 3px solid #28a745;
     }
     
     .remarks-section h4 {
@@ -472,7 +536,6 @@
       padding: 20px;
       background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
       border-radius: 8px;
-      border-left: 4px solid #152d64;
     }
     
     .approve-quantity-section h4 {
@@ -531,7 +594,6 @@
       margin-top: 20px;
       padding: 20px;
       border-radius: 8px;
-      border-left: 4px solid #28a745;
     }
     
     .claiming-section {
@@ -540,7 +602,6 @@
     
     .completed-section {
       background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
-      border-left-color: #6c757d;
     }
     
     .claiming-section h4, .completed-section h4 {
@@ -565,10 +626,799 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
     }
+
+    /* Claim Modal Styles - Enhanced with !important to avoid conflicts */
+    .claim-modal {
+      position: fixed !important;
+      z-index: 10000 !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      background-color: rgba(0, 0, 0, 0.7) !important;
+      backdrop-filter: blur(3px) !important;
+      animation: fadeIn 0.3s ease-out !important;
+    }
+
+    .claim-modal-content {
+      position: relative !important;
+      background-color: #ffffff !important;
+      margin: 2% auto !important;
+      padding: 0 !important;
+      border: none !important;
+      border-radius: 15px !important;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
+      max-width: 900px !important;
+      width: 95% !important;
+      max-height: 95vh !important;
+      overflow-y: auto !important;
+      animation: slideInScale 0.4s ease-out !important;
+    }
+
+    /* Modal Header */
+    .claim-modal-header {
+      background: #152d64 !important;
+      color: white !important;
+      padding: 25px 30px 20px !important;
+      border-radius: 15px 15px 0 0 !important;
+      position: relative !important;
+      box-shadow: 0 3px 15px rgba(21, 45, 100, 0.3) !important;
+    }
+
+    .claim-modal-header h2 {
+      margin: 0 !important;
+      font-size: 24px !important;
+      font-weight: 600 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+    }
+
+    .claim-modal-header h2 i {
+      font-size: 22px !important;
+      opacity: 0.9 !important;
+    }
+
+    .claim-modal-header p {
+      margin: 8px 0 0 0 !important;
+      font-size: 15px !important;
+      opacity: 0.9 !important;
+      font-weight: 400 !important;
+    }
+
+    /* Close Button */
+    .claim-modal-close {
+      position: absolute !important;
+      top: 20px !important;
+      right: 25px !important;
+      font-size: 32px !important;
+      font-weight: bold !important;
+      color: rgba(255, 255, 255, 0.8) !important;
+      cursor: pointer !important;
+      z-index: 10001 !important;
+      transition: all 0.2s ease !important;
+      width: 35px !important;
+      height: 35px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 50% !important;
+    }
+
+    .claim-modal-close:hover {
+      color: white !important;
+      background-color: rgba(255, 255, 255, 0.2) !important;
+      transform: scale(1.1) !important;
+    }
+
+    /* Modal Body */
+    .claim-modal-body {
+      padding: 30px !important;
+      background-color: #ffffff !important;
+    }
+
+    /* Barcode Section */
+    .barcode-section {
+      background: #f8f9fa !important;
+      border-radius: 12px !important;
+      padding: 25px !important;
+      margin-bottom: 25px !important;
+      border: 2px solid #e9ecef !important;
+    }
+
+    .barcode-section h4 {
+      color: #152d64 !important;
+      font-size: 18px !important;
+      font-weight: 600 !important;
+      margin-bottom: 8px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+    }
+
+    .barcode-instruction {
+      color: #6c757d !important;
+      margin-bottom: 20px !important;
+      font-size: 14px !important;
+    }
+
+    .barcode-hint {
+      margin-top: 8px !important;
+      font-size: 12px !important;
+      color: #6c757d !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+    }
+
+    .barcode-input-group {
+      display: flex !important;
+      gap: 12px !important;
+      margin-bottom: 15px !important;
+    }
+
+    .barcode-input {
+      flex: 1 !important;
+      padding: 14px 16px !important;
+      border: 2px solid #e1e8ed !important;
+      border-radius: 8px !important;
+      font-size: 16px !important;
+      transition: all 0.2s ease !important;
+      font-family: 'Courier New', monospace !important;
+      background: white !important;
+    }
+
+    .barcode-input:focus {
+      outline: none !important;
+      border-color: #152d64 !important;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1) !important;
+    }
+
+    .add-barcode-btn {
+      padding: 14px 24px !important;
+      background: #152d64 !important;
+      color: white !important;
+      border: none !important;
+      border-radius: 8px !important;
+      cursor: pointer !important;
+      font-weight: 600 !important;
+      font-size: 14px !important;
+      transition: all 0.2s ease !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      white-space: nowrap !important;
+    }
+
+    .add-barcode-btn:hover {
+      background: #0d1f4a !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 15px rgba(21, 45, 100, 0.4) !important;
+    }
+
+    /* Items Sections */
+    .scanned-items-section,
+    .expected-items-section {
+      background: white !important;
+      border-radius: 12px !important;
+      padding: 20px !important;
+      margin-bottom: 20px !important;
+      border: 2px solid #e9ecef !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .scanned-items-section h4,
+    .expected-items-section h4 {
+      color: #152d64 !important;
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      margin-bottom: 15px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      border-bottom: 2px solid #e9ecef !important;
+      padding-bottom: 10px !important;
+    }
+
+    /* Expected Items Table Styles */
+    .expected-items-table-container {
+      background: white !important;
+      border-radius: 8px !important;
+      overflow: hidden !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .expected-items-table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+    }
+
+    .expected-items-table thead {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+      color: white !important;
+    }
+
+    .expected-items-table th {
+      padding: 12px !important;
+      text-align: left !important;
+      font-weight: 600 !important;
+      font-size: 13px !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+      color: white !important;
+    }
+
+    .expected-items-table tbody tr {
+      border-bottom: 1px solid #e9ecef !important;
+    }
+
+    .expected-items-table tbody tr:last-child {
+      border-bottom: none !important;
+    }
+
+    .expected-items-table tbody tr:hover {
+      background-color: #f8f9fa !important;
+    }
+
+    .expected-items-table td {
+      padding: 12px !important;
+      vertical-align: middle !important;
+      font-size: 14px !important;
+      color: #495057 !important;
+    }
+
+    .items-badge {
+      display: inline-block !important;
+      background: linear-gradient(135deg, #152d64 0%, #1e3a8a 100%) !important;
+      color: white !important;
+      padding: 4px 12px !important;
+      border-radius: 12px !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      margin-left: 10px !important;
+      text-transform: none !important;
+    }
+
+    .scanned-items-list,
+    .expected-items-list {
+      max-height: 200px !important;
+      overflow-y: auto !important;
+    }
+
+    .empty-scanned-items {
+      text-align: center !important;
+      padding: 30px 20px !important;
+      color: #6c757d !important;
+    }
+
+    .empty-scanned-items i {
+      font-size: 32px !important;
+      margin-bottom: 10px !important;
+      opacity: 0.5 !important;
+    }
+
+    .item-row {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      padding: 12px 15px !important;
+      border-radius: 8px !important;
+      margin-bottom: 8px !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .item-row.scanned {
+      background: linear-gradient(135deg, #d4edda, #c3e6cb) !important;
+      border: 1px solid #c3e6cb !important;
+    }
+
+    .item-row.expected {
+      background: #f8f9fa !important;
+      border: 1px solid #dee2e6 !important;
+    }
+
+    .item-row.scanned {
+      background: linear-gradient(135deg, #d1ecf1, #bee5eb) !important;
+      border: 1px solid #bee5eb !important;
+    }
+
+    .item-info {
+      flex: 1 !important;
+    }
+
+    .item-name {
+      font-weight: 600 !important;
+      color: #2c3e50 !important;
+      font-size: 14px !important;
+    }
+
+    .item-details {
+      font-size: 12px !important;
+      color: #6c757d !important;
+      margin-top: 2px !important;
+    }
+
+    .item-status {
+      padding: 4px 8px !important;
+      border-radius: 12px !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      text-transform: uppercase !important;
+    }
+
+    .status-scanned {
+      background: #152d64 !important;
+      color: white !important;
+    }
+
+    .status-expected {
+      background: #ffc107 !important;
+      color: #856404 !important;
+    }
+
+    .status-scanned {
+      background: #152d64 !important;
+      color: white !important;
+    }
+
+    .status-verified {
+      background: #28a745 !important;
+      color: white !important;
+    }
+
+    .status-pending {
+      background: #ffc107 !important;
+      color: #856404 !important;
+    }
+
+    /* Item Actions */
+    .item-actions {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+
+    .remove-item-btn, .quick-add-btn {
+      background: #dc3545 !important;
+      border: none !important;
+      color: white !important;
+      width: 24px !important;
+      height: 24px !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      font-size: 10px !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .quick-add-btn {
+      background: #28a745 !important;
+    }
+
+    .remove-item-btn:hover {
+      background: #c82333 !important;
+      transform: scale(1.1) !important;
+    }
+
+    .quick-add-btn:hover {
+      background: #218838 !important;
+      transform: scale(1.1) !important;
+    }
+
+    .item-row.verified {
+      background: linear-gradient(145deg, #e8f5e8, #f0f9ff) !important;
+    }
+
+    .item-row.pending {
+      background: linear-gradient(145deg, #fff3e0, #ffeaa7) !important;
+    }
+
+    .item-row.scanned {
+      background: linear-gradient(145deg, #e8f5e8, #f0f9ff) !important;
+    }
+
+    .item-details code {
+      background: rgba(255, 255, 255, 0.8) !important;
+      padding: 2px 6px !important;
+      border-radius: 4px !important;
+      font-family: 'Courier New', monospace !important;
+      font-size: 11px !important;
+      color: #333 !important;
+    }
+
+    /* Progress Summary Section */
+    .progress-summary-section {
+      background: #f8f9fa !important;
+      padding: 20px !important;
+      border-radius: 8px !important;
+      margin-bottom: 20px !important;
+      border: 1px solid #dee2e6 !important;
+    }
+
+    .summary-cards {
+      display: flex !important;
+      gap: 15px !important;
+      margin-bottom: 15px !important;
+    }
+
+    .summary-card {
+      flex: 1 !important;
+      background: white !important;
+      border-radius: 8px !important;
+      padding: 15px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+
+    .card-icon {
+      background: #152d64 !important;
+      color: white !important;
+      width: 40px !important;
+      height: 40px !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 16px !important;
+    }
+
+    .expected-card .card-icon {
+      background: #6c757d !important;
+    }
+
+    .scanned-card .card-icon {
+      background: #ffc107 !important;
+    }
+
+    .verified-card .card-icon {
+      background: #28a745 !important;
+    }
+
+    .card-content {
+      flex: 1 !important;
+    }
+
+    .card-number {
+      font-size: 24px !important;
+      font-weight: bold !important;
+      color: #152d64 !important;
+      line-height: 1 !important;
+    }
+
+    .card-label {
+      font-size: 12px !important;
+      color: #6c757d !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+      margin-top: 2px !important;
+    }
+
+    .progress-bar-container {
+      display: flex !important;
+      align-items: center !important;
+      gap: 15px !important;
+    }
+
+    .progress-bar {
+      flex: 1 !important;
+      height: 8px !important;
+      background: #e9ecef !important;
+      border-radius: 4px !important;
+      overflow: hidden !important;
+    }
+
+    .progress-fill {
+      height: 100% !important;
+      background: linear-gradient(90deg, #152d64, #28a745) !important;
+      border-radius: 4px !important;
+      transition: width 0.3s ease !important;
+      width: 0% !important;
+    }
+
+    .progress-text {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      color: #152d64 !important;
+      min-width: 120px !important;
+      text-align: right !important;
+    }
+
+    /* Items Summary Section */
+    .items-summary-section {
+      background: #e3f2fd !important;
+      padding: 15px 20px !important;
+      border-radius: 8px !important;
+      margin-bottom: 20px !important;
+    }
+
+    .summary-info {
+      display: flex !important;
+      gap: 30px !important;
+      align-items: center !important;
+    }
+
+    .summary-item {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      font-size: 14px !important;
+    }
+
+    .summary-item i {
+      color: #152d64 !important;
+      font-size: 16px !important;
+    }
+
+    .summary-label {
+      color: #555 !important;
+      font-weight: 500 !important;
+    }
+
+    .summary-value {
+      background: white !important;
+      padding: 4px 12px !important;
+      border-radius: 12px !important;
+      font-weight: 600 !important;
+      color: #152d64 !important;
+      min-width: 30px !important;
+      text-align: center !important;
+    }
+
+    .expected-items-hint {
+      margin-top: 10px !important;
+      padding: 8px 12px !important;
+      background: rgba(255, 255, 255, 0.7) !important;
+      border-radius: 6px !important;
+    }
+
+    .expected-items-hint small {
+      color: #495057 !important;
+    }
+
+    .total-card .card-icon {
+      background: #152d64 !important;
+    }
+
+    /* Loading and Empty States */
+    .loading-state, .empty-state {
+      padding: 30px 20px !important;
+      text-align: center !important;
+      color: #6c757d !important;
+      background: #f8f9fa !important;
+      border-radius: 8px !important;
+      border: 2px dashed #dee2e6 !important;
+    }
+
+    .loading-state i {
+      color: #152d64 !important;
+      margin-right: 8px !important;
+    }
+
+    .empty-expected-items, .empty-scanned-items {
+      padding: 30px 20px !important;
+      text-align: center !important;
+      color: #6c757d !important;
+      background: #f8f9fa !important;
+      border-radius: 8px !important;
+      border: 2px dashed #dee2e6 !important;
+    }
+
+    .empty-expected-items i, .empty-scanned-items i {
+      font-size: 24px !important;
+      color: #152d64 !important;
+      margin-bottom: 10px !important;
+      display: block !important;
+    }
+
+    /* Action Buttons */
+    .claim-modal-actions {
+      display: flex !important;
+      gap: 15px !important;
+      justify-content: flex-end !important;
+      padding-top: 20px !important;
+      border-top: 2px solid #e9ecef !important;
+      margin-top: 25px !important;
+    }
+
+    .claim-modal-btn {
+      padding: 14px 28px !important;
+      border: none !important;
+      border-radius: 8px !important;
+      cursor: pointer !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      transition: all 0.2s ease !important;
+      min-width: 140px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+    }
+
+    .claim-modal-btn.cancel {
+      background: #6c757d !important;
+      color: white !important;
+    }
+
+    .claim-modal-btn.cancel:hover {
+      background: #5a6268 !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .claim-modal-btn.secondary {
+      background: #28a745 !important;
+      color: white !important;
+      border: 2px solid #1e7e34 !important;
+    }
+
+    .claim-modal-btn.secondary:hover {
+      background: #218838 !important;
+      color: white !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .claim-modal-btn.primary {
+      background: #152d64 !important;
+      color: white !important;
+    }
+
+    .claim-modal-btn.primary:hover:not(:disabled) {
+      background: #0d1f4a !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 15px rgba(21, 45, 100, 0.4) !important;
+    }
+
+    .claim-modal-btn:disabled {
+      opacity: 0.5 !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideInScale {
+      from { 
+        opacity: 0;
+        transform: translateY(-50px) scale(0.95);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .claim-modal-content {
+        width: 98% !important;
+        margin: 1% auto !important;
+        max-height: 98vh !important;
+      }
+      
+      .claim-modal-header {
+        padding: 20px 25px 15px !important;
+      }
+      
+      .claim-modal-body {
+        padding: 25px 20px !important;
+      }
+      
+      .summary-cards {
+        flex-direction: column !important;
+        gap: 10px !important;
+      }
+      
+      .barcode-input-group {
+        flex-direction: column !important;
+        gap: 10px !important;
+      }
+      
+      .add-barcode-btn {
+        width: 100% !important;
+        justify-content: center !important;
+      }
+      
+      .claim-modal-actions {
+        flex-direction: column !important;
+        gap: 10px !important;
+      }
+      
+      .claim-modal-btn {
+        width: 100% !important;
+      }
+      
+      .summary-info {
+        flex-direction: column !important;
+        gap: 15px !important;
+        align-items: flex-start !important;
+      }
+    }
+
+    /* Full-screen loading overlay */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(3px);
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loading-content {
+      text-align: center;
+      background: white;
+      padding: 40px 50px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #152d64;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: #152d64;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .loading-subtext {
+      color: #666;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Processing Request...</div>
+      <div class="loading-subtext">Please wait while we process your action</div>
+    </div>
+  </div>
   {% include 'app/navbar.html' %}
+
+  <!-- Django Messages Display -->
+  {% if messages %}
+  <div class="messages-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+      <span>{{ message }}</span>
+      <button class="close-btn" onclick="this.parentElement.remove();">&times;</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
   <div class="batch-details">
     <div class="back-button-container">
@@ -650,18 +1500,18 @@
       
       {% if batch_request.status == 'for_claiming' %}
       <div style="margin-top: 20px;">
-        <form method="post" action="{% url 'claim_batch_items' batch_request.id %}" style="display: inline;">
+        <form method="post" action="{% url 'claim_batch_items' batch_request.id %}" style="display: none;" id="claimAllForm">
           {% csrf_token %}
-          <button type="submit" class="btn btn-claim" onclick="return confirm('Are you sure you want to claim all approved items in this request? This will deduct stock quantities.');" style="font-size: 16px; padding: 12px 24px;">
-            <i class="fas fa-shopping-cart"></i> Claim All Items
-          </button>
         </form>
+        <button type="button" class="btn btn-claim" onclick="openClaimModalForBatch()" style="font-size: 16px; padding: 12px 24px;">
+          <i class="fas fa-barcode"></i> Claim All Items
+        </button>
       </div>
       {% endif %}
       
       <!-- Requisition Slip Download Section -->
       {% if batch_request.status in 'approved,partially_approved,for_claiming,completed' %}
-      <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 8px; border-left: 4px solid #152d64;">
+      <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 8px;">
         <h4 style="color: #152d64; margin: 0 0 15px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
           <i class="fas fa-file-pdf"></i> Requisition & Issue Slip
         </h4>
@@ -704,7 +1554,13 @@
         </thead>
         <tbody>
           {% for item in items %}
-          <tr id="item-row-{{ item.id }}">
+          <tr id="item-row-{{ item.id }}" 
+              data-item-status="{{ item.status }}" 
+              data-item-id="{{ item.id }}" 
+              data-item-barcode="{% if item.supply.barcode %}{{ item.supply.barcode }}{% else %}SUP-{{ item.supply.id }}{% endif %}" 
+              data-item-name="{{ item.supply.supply_name }}" 
+              data-item-quantity="{{ item.quantity }}"
+              data-item-approved-quantity="{{ item.approved_quantity|default:item.quantity }}">
             <td>
               <div class="item-name">
                 <div>
@@ -784,12 +1640,12 @@
                   </form>
                 </div>
               {% elif item.status == 'approved' and batch_request.status == 'for_claiming' and not item.claimed_date %}
-                <form method="post" action="{% url 'claim_individual_item' batch_request.id item.id %}" style="display: inline;">
+                <form method="post" action="{% url 'claim_individual_item' batch_request.id item.id %}" style="display: none;" id="claimForm-{{ item.id }}">
                   {% csrf_token %}
-                  <button type="submit" class="btn-table" style="background: #28a745; color: white;" onclick="return confirm('Claim this item?');">
-                    <i class="fas fa-shopping-cart"></i> Claim
-                  </button>
                 </form>
+                <button type="button" class="btn-table" style="background: #28a745; color: white;" onclick="openClaimModalForBatch()">
+                  <i class="fas fa-barcode"></i> Claim
+                </button>
               {% elif item.status == 'completed' %}
                 <span style="color: #28a745; font-weight: 600; font-size: 11px;">
                   <i class="fas fa-check-circle"></i> CLAIMED
@@ -859,6 +1715,702 @@
   </div>
   
   <script>
+    // Modal variables
+    let currentRequestId = null;
+    let currentRequestNumber = null;
+    let expectedItems = [];
+    let scannedItems = [];
+    let expectedItemsCount = 0;
+
+    // Initialize claim modal event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeClaimModal();
+    });
+
+    function initializeClaimModal() {
+      // Add event listeners for claim buttons
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('.open-claim-modal')) {
+          const button = e.target.closest('.open-claim-modal');
+          const requestId = button.dataset.requestId;
+          const requestNumber = button.dataset.requestNumber;
+          openClaimModal(requestId, requestNumber);
+        }
+      });
+
+      // Barcode input
+      const addBarcodeBtn = document.getElementById('addBarcodeBtn');
+      const barcodeInput = document.getElementById('barcodeInput');
+      if (addBarcodeBtn) addBarcodeBtn.addEventListener('click', addBarcode);
+      if (barcodeInput) {
+        barcodeInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            addBarcode();
+          }
+        });
+      }
+
+      // Claim buttons
+      const quickClaimBtn = document.getElementById('quickClaimBtn');
+      const claimScannedBtn = document.getElementById('claimScannedBtn');
+      if (quickClaimBtn) quickClaimBtn.addEventListener('click', quickClaimItems);
+      if (claimScannedBtn) claimScannedBtn.addEventListener('click', claimScannedItems);
+    }
+
+    function openClaimModal(requestId, requestNumber) {
+      console.log('Opening claim modal for request:', requestId, 'number:', requestNumber);
+      
+      currentRequestId = requestId;
+      currentRequestNumber = requestNumber;
+      
+      document.getElementById('claimRequestNumber').textContent = `Claiming items for request ${requestNumber}`;
+      document.getElementById('claimModal').style.display = 'block';
+      
+      // Reset modal state
+      resetModalState();
+      
+      // Load expected items count for this request
+      loadExpectedItemsCountFromBatchTable(requestId);
+      
+      // Focus on barcode input
+      setTimeout(() => {
+        const barcodeInput = document.getElementById('barcodeInput');
+        if (barcodeInput) {
+          barcodeInput.focus();
+        }
+      }, 100);
+    }
+
+    function closeClaimModal() {
+      document.getElementById('claimModal').style.display = 'none';
+      resetModalState();
+    }
+
+    function resetModalState() {
+      scannedItems = [];
+      expectedItems = [];
+      expectedItemsCount = 0;
+      
+      // Reset UI elements (only elements that exist in the new modal)
+      const itemsToClaimBadge = document.getElementById('itemsToClaimBadge');
+      const expectedItemsTableBody = document.getElementById('expectedItemsTableBody');
+      const scannedItemsList = document.getElementById('scannedItemsList');
+      const barcodeInput = document.getElementById('barcodeInput');
+      const claimButton = document.getElementById('claimScannedBtn');
+      
+      if (itemsToClaimBadge) itemsToClaimBadge.textContent = '0 of 0 scanned';
+      
+      if (expectedItemsTableBody) {
+        expectedItemsTableBody.innerHTML = `
+          <tr>
+            <td colspan="3" style="text-align: center; padding: 20px; color: #6c757d;">
+              <i class="fas fa-box-open"></i> Loading items...
+            </td>
+          </tr>
+        `;
+      }
+      
+      if (scannedItemsList) {
+        scannedItemsList.innerHTML = `
+          <div class="empty-scanned-items">
+            <i class="fas fa-barcode"></i>
+            <p>No items scanned yet. Enter barcodes above to verify items.</p>
+          </div>
+        `;
+      }
+      
+      // Clear barcode input and reset claim button
+      if (barcodeInput) barcodeInput.value = '';
+      if (claimButton) claimButton.disabled = true;
+    }
+
+    function loadExpectedItemsCountFromBatchTable(requestId) {
+      // Extract items from the current batch request detail table
+      expectedItemsCount = 0;
+      expectedItems = [];
+      console.log('Loading expected items from batch detail table for request ID:', requestId);
+      
+      // Find all item rows in the batch request detail table
+      const itemRows = document.querySelectorAll('tbody tr[data-item-id]');
+      console.log('Found', itemRows.length, 'item rows in batch detail table');
+      
+      itemRows.forEach((row, index) => {
+        const itemId = row.getAttribute('data-item-id');
+        const itemStatus = row.getAttribute('data-item-status');
+        
+        // Include approved or completed items (both can be claimed)
+        if (itemStatus === 'approved' || itemStatus === 'completed') {
+          // Extract data from row attributes
+          const itemName = row.getAttribute('data-item-name');
+          const barcode = row.getAttribute('data-item-barcode');
+          const requestedQuantity = parseInt(row.getAttribute('data-item-quantity')) || 1;
+          const approvedQuantity = parseInt(row.getAttribute('data-item-approved-quantity')) || requestedQuantity;
+          
+          console.log(`Processing row ${index + 1}:`, {
+            itemId,
+            itemName,
+            barcode: barcode || '(empty)',
+            requestedQuantity,
+            approvedQuantity,
+            status: itemStatus
+          });
+          
+          if (itemName && barcode && barcode.trim() !== '') {
+            expectedItems.push({
+              id: itemId,
+              name: itemName,
+              barcode: barcode.trim(),
+              quantity: approvedQuantity, // Use approved quantity, not requested
+              status: itemStatus
+            });
+            
+            expectedItemsCount++;
+            console.log(`✓ Added ${itemStatus} item ${expectedItemsCount}:`, itemName, '| Barcode:', barcode, `| Approved Qty: ${approvedQuantity}`);
+          } else {
+            console.warn(`⚠ Skipped item ${index + 1} - missing name or barcode:`, {
+              itemName: itemName || '(missing)',
+              barcode: barcode || '(missing)'
+            });
+          }
+        } else {
+          console.log(`Skipping row ${index + 1} - status is "${itemStatus}" (not approved/completed)`);
+        }
+      });
+      
+      // If no approved items found, log warning
+      if (expectedItemsCount === 0) {
+        console.warn('⚠ No approved/completed items found in batch request!');
+        console.log('All rows status:', Array.from(itemRows).map(row => ({
+          id: row.getAttribute('data-item-id'),
+          name: row.getAttribute('data-item-name'),
+          status: row.getAttribute('data-item-status'),
+          barcode: row.getAttribute('data-item-barcode')
+        })));
+      }
+      
+      console.log('📋 Final expected items for validation:', expectedItems);
+      console.log('📊 Expected items count:', expectedItemsCount);
+      
+      // Populate the expected items table
+      renderExpectedItemsTable();
+      updateItemsCounts();
+      updateClaimButtonState();
+    }
+
+    function renderExpectedItemsTable() {
+      const tableBody = document.getElementById('expectedItemsTableBody');
+      
+      if (!tableBody) {
+        console.error('Expected items table body not found');
+        return;
+      }
+      
+      if (expectedItems.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="3" style="text-align: center; padding: 20px; color: #6c757d;">
+              <i class="fas fa-box-open"></i> No approved items to claim
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      let html = '';
+      expectedItems.forEach((item, index) => {
+        html += `
+          <tr>
+            <td style="text-align: center; font-weight: 600;">${index + 1}</td>
+            <td style="font-weight: 500; color: #152d64;">${item.name}</td>
+            <td style="text-align: center; font-weight: 600; color: #28a745;">${item.quantity}</td>
+          </tr>
+        `;
+      });
+      
+      tableBody.innerHTML = html;
+    }
+
+    function generateBarcodeFromName(itemName) {
+      // Simple hash function to generate consistent barcode from item name
+      let hash = 0;
+      for (let i = 0; i < itemName.length; i++) {
+        const char = itemName.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      return Math.abs(hash).toString().padStart(10, '0').substring(0, 10);
+    }
+
+    function renderScannedItems() {
+      console.log('renderScannedItems called with:', scannedItems.length, 'items');
+      
+      const container = document.getElementById('scannedItemsList');
+      if (!container) {
+        console.error('scannedItemsList container not found!');
+        return;
+      }
+      
+      if (scannedItems.length === 0) {
+        container.innerHTML = `
+          <div class="empty-scanned-items">
+            <i class="fas fa-barcode"></i>
+            <p>No items scanned yet. Enter barcodes above to verify items.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const html = scannedItems.map((item, index) => {
+        return `
+          <div class="item-row scanned" data-scan-index="${index}">
+            <div class="item-info">
+              <div class="item-name">
+                <i class="fas fa-check-circle" style="color: #28a745; margin-right: 5px;"></i>
+                ${item.name}
+              </div>
+              <div class="item-details">
+                <code style="background: #e3f2fd; color: #1565c0; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 600;">
+                  ${item.barcode}
+                </code>
+                <span style="margin-left: 8px; color: #6c757d; font-size: 12px;">
+                  Qty: ${item.quantity}
+                </span>
+                <span style="margin-left: 8px; color: #6c757d; font-size: 12px;">
+                  Scanned: ${new Date(item.scannedAt).toLocaleTimeString()}
+                </span>
+              </div>
+            </div>
+            <div class="item-actions">
+              <div class="item-status status-verified">
+                <i class="fas fa-check-circle"></i> Verified
+              </div>
+              <button type="button" class="remove-item-btn" onclick="removeScannedItem(${index})" title="Remove item">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      container.innerHTML = html;
+    }
+
+    function removeScannedItem(index) {
+      if (index >= 0 && index < scannedItems.length) {
+        const removedItem = scannedItems.splice(index, 1)[0];
+        
+        // Update UI
+        renderScannedItems();
+        updateClaimButtonState();
+        updateItemsCounts();
+        
+        showNotification(`Removed ${removedItem.name}`, 'info');
+      }
+    }
+
+    function addBarcode() {
+      const barcodeInput = document.getElementById('barcodeInput');
+      const barcode = barcodeInput.value.trim();
+      
+      if (!barcode) {
+        showNotification('Please enter a barcode.', 'warning');
+        return;
+      }
+      
+      // Find expected item that matches this barcode (flexible matching)
+      let expectedItem = expectedItems.find(item => {
+        if (!item.barcode) {
+          console.log('Skipping item without barcode:', item.name);
+          return false;
+        }
+        
+        // Normalize both barcodes: trim, uppercase, remove special characters
+        const normalizeBarcode = (bc) => {
+          return bc.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+        };
+        
+        const itemBarcode = item.barcode.trim();
+        const scannedBarcode = barcode.trim();
+        
+        console.log('Comparing:', { item: item.name, itemBarcode, scannedBarcode });
+        
+        // Direct match (trimmed)
+        if (itemBarcode === scannedBarcode) {
+          console.log('✓ Direct match');
+          return true;
+        }
+        
+        // Case-insensitive match (trimmed)
+        if (itemBarcode.toLowerCase() === scannedBarcode.toLowerCase()) {
+          console.log('✓ Case-insensitive match');
+          return true;
+        }
+        
+        // Handle URL vs text barcode (if barcode is an image URL, extract the text part)
+        if (itemBarcode.includes('/')) {
+          const barcodeText = itemBarcode.split('/').pop().split('.')[0];
+          if (barcodeText === scannedBarcode || barcodeText.toLowerCase() === scannedBarcode.toLowerCase()) {
+            console.log('✓ URL extraction match:', barcodeText);
+            return true;
+          }
+        }
+        
+        // Normalized comparison (removes hyphens, spaces, etc.)
+        const normalizedItem = normalizeBarcode(itemBarcode);
+        const normalizedScanned = normalizeBarcode(scannedBarcode);
+        if (normalizedItem === normalizedScanned) {
+          console.log('✓ Normalized match:', normalizedItem);
+          return true;
+        }
+        
+        return false;
+      });
+      
+      if (!expectedItem) {
+        // Try partial matching or show available barcodes for debugging
+        console.error('❌ Barcode not found!');
+        console.log('Scanned barcode:', barcode);
+        console.log('Available items with barcodes:', expectedItems.map(item => ({ 
+          name: item.name, 
+          barcode: item.barcode,
+          id: item.id 
+        })));
+        showNotification(`Barcode "${barcode}" not found. Please scan only items from this request.`, 'warning');
+        barcodeInput.value = '';
+        barcodeInput.focus();
+        return;
+      }
+      
+      // Check if this item exists in scanned items
+      let existingScannedItem = scannedItems.find(item => item.expectedItem?.id === expectedItem.id);
+      
+      if (existingScannedItem) {
+        // Item already scanned - show warning that it's already been added
+        showNotification(`⚠️ ${expectedItem.name} has already been scanned!`, 'warning');
+        barcodeInput.value = '';
+        barcodeInput.focus();
+        return;
+      } else {
+        // First scan of this item - automatically add the full quantity
+        const scannedItem = {
+          barcode: barcode,
+          name: expectedItem.name,
+          scannedAt: new Date().toISOString(),
+          quantity: expectedItem.quantity,
+          scannedQuantity: expectedItem.quantity, // Automatically set to full quantity
+          expectedItem: expectedItem,
+          scans: [{
+            barcode: barcode,
+            scannedAt: new Date().toISOString()
+          }]
+        };
+
+        scannedItems.push(scannedItem);
+        console.log('Added new scanned item with full quantity:', scannedItem);
+        
+        // Show success notification
+        showNotification(`${expectedItem.name} added! (Qty: ${expectedItem.quantity})`, 'success');
+        
+        // Play success sound
+        playSuccessSound();
+      }
+      
+      // Check if all items are fully scanned
+      const totalScansNeeded = expectedItems.reduce((total, item) => total + item.quantity, 0);
+      const totalScansCompleted = scannedItems.reduce((total, item) => total + item.scannedQuantity, 0);
+      
+      if (totalScansCompleted >= totalScansNeeded) {
+        showNotification('All items for this request have been fully scanned!', 'success');
+      }
+      
+      // Update UI
+      renderScannedItems();
+      updateClaimButtonState();
+      updateItemsCounts();
+      
+      // Clear input and focus for next entry
+      barcodeInput.value = '';
+      barcodeInput.focus();
+      
+      // Play success sound
+      playSuccessSound();
+    }
+
+    function playSuccessSound() {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.2);
+      } catch (e) {
+        if (navigator.vibrate) {
+          navigator.vibrate(100);
+        }
+      }
+    }
+
+    function updateClaimButtonState() {
+      const claimBtn = document.getElementById('claimScannedBtn');
+      
+      // Calculate total scans needed and completed
+      const totalScansNeeded = expectedItems.reduce((total, item) => total + item.quantity, 0);
+      const totalScansCompleted = scannedItems.reduce((total, item) => total + item.scannedQuantity, 0);
+      const fullyScannedItemsCount = scannedItems.filter(item => item.scannedQuantity >= item.quantity).length;
+      
+      if (scannedItems.length > 0) {
+        claimBtn.disabled = false;
+        if (totalScansCompleted === totalScansNeeded) {
+          claimBtn.innerHTML = `<i class="fas fa-check"></i> Claim All Items (${fullyScannedItemsCount} Complete)`;
+        } else {
+          claimBtn.innerHTML = `<i class="fas fa-check"></i> Claim Scanned Items (${totalScansCompleted}/${totalScansNeeded} scans)`;
+        }
+      } else {
+        claimBtn.disabled = true;
+        claimBtn.innerHTML = `<i class="fas fa-check"></i> Claim Scanned Items`;
+      }
+    }
+
+    function updateItemsCounts() {
+      // Calculate totals based on quantity
+      const totalScansNeeded = expectedItems.reduce((total, item) => total + item.quantity, 0);
+      const totalScansCompleted = scannedItems.reduce((total, item) => total + item.scannedQuantity, 0);
+      const fullyScannedItemsCount = scannedItems.filter(item => item.scannedQuantity >= item.quantity).length;
+      
+      const progressPercent = totalScansNeeded > 0 ? Math.round((totalScansCompleted / totalScansNeeded) * 100) : 0;
+
+      // Update only the badge (removed references to non-existent elements)
+      const itemsToClaimBadge = document.getElementById('itemsToClaimBadge');
+      
+      // Update "Items to Claim" badge
+      if (itemsToClaimBadge) {
+        itemsToClaimBadge.textContent = `${totalScansCompleted} of ${totalScansNeeded} scanned`;
+      }
+    }
+
+    function quickClaimItems() {
+      if (confirm('Are you sure you want to claim all items without barcode verification? This will immediately deduct stock quantities.')) {
+        performClaimRequest(false);
+      }
+    }
+
+    function claimScannedItems() {
+      if (scannedItems.length === 0) {
+        showNotification('No items scanned. Please scan some barcodes first.', 'warning');
+        return;
+      }
+      
+      // Calculate scan statistics
+      let totalItems = scannedItems.length;
+      let fullyScannedItems = 0;
+      let partiallyScannedItems = 0;
+      let totalScansRequired = 0;
+      let totalScansCompleted = 0;
+      
+      scannedItems.forEach(item => {
+        const requiredQuantity = parseInt(item.quantity) || 1;
+        const scannedQuantity = item.scannedQuantity || 0;
+        
+        totalScansRequired += requiredQuantity;
+        totalScansCompleted += scannedQuantity;
+        
+        if (scannedQuantity >= requiredQuantity) {
+          fullyScannedItems++;
+        } else if (scannedQuantity > 0) {
+          partiallyScannedItems++;
+        }
+      });
+      
+      let message = `Scan Summary:\n`;
+      message += `• Items: ${totalItems} (${fullyScannedItems} fully scanned, ${partiallyScannedItems} partially scanned)\n`;
+      message += `• Total Scans: ${totalScansCompleted}/${totalScansRequired}\n`;
+      message += `• Progress: ${Math.round((totalScansCompleted/totalScansRequired) * 100)}%\n\n`;
+      
+      if (fullyScannedItems < totalItems) {
+        message += `Note: ${totalItems - fullyScannedItems} item(s) are not fully scanned.\n`;
+        message += `Only fully scanned items will be claimed.\n\n`;
+      }
+      
+      message += `Proceed with claiming ${fullyScannedItems} item(s)?`;
+      message += '\n\nThis will immediately deduct stock quantities.';
+      
+      if (confirm(message)) {
+        performClaimRequest(true);
+      }
+    }
+
+    function performClaimRequest(withVerification) {
+      const claimBtn = withVerification ? 
+        document.getElementById('claimScannedBtn') : 
+        document.getElementById('quickClaimBtn');
+      
+      const originalText = claimBtn.innerHTML;
+      claimBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      claimBtn.disabled = true;
+
+      if (withVerification && scannedItems.length === 0) {
+        showNotification('No items scanned. Please scan some barcodes first.', 'warning');
+        claimBtn.innerHTML = originalText;
+        claimBtn.disabled = false;
+        return;
+      }
+
+      // Prepare claim data for backend
+      const claimData = {
+        request_id: currentRequestId,
+        verification_method: withVerification ? 'barcode_scanned' : 'quick_claim',
+        scanned_items: withVerification ? scannedItems : [],
+        scanned_count: withVerification ? scannedItems.length : 0,
+        timestamp: new Date().toISOString()
+      };
+
+      console.log('Submitting claim directly via form:', claimData);
+      submitClaimForm(claimData);
+    }
+
+    function submitClaimForm(claimData) {
+      // Find the appropriate form
+      let form;
+      if (claimData.verification_method === 'quick_claim') {
+        form = document.getElementById('claimAllForm');
+      } else {
+        // For individual items, we need to determine which form to use
+        // For now, use the claim all form
+        form = document.getElementById('claimAllForm');
+      }
+      
+      if (!form) {
+        console.error('Claim form not found');
+        showNotification('Error: Could not submit claim', 'warning');
+        return;
+      }
+      
+      // Add claim data as hidden fields
+      Object.keys(claimData).forEach(key => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = typeof claimData[key] === 'object' ? JSON.stringify(claimData[key]) : claimData[key];
+        form.appendChild(input);
+      });
+      
+      form.submit();
+    }
+
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `claim-notification ${type}`;
+      notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+        ${message}
+      `;
+      
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : '#17a2b8'};
+        color: ${type === 'warning' ? '#856404' : 'white'};
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10001;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        animation: slideInRight 0.3s ease-out;
+        max-width: 300px;
+      `;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease-out';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 3000);
+    }
+
+    // Add CSS for notifications
+    const notificationCSS = `
+      <style>
+        @keyframes slideInRight {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOutRight {
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(100%); opacity: 0; }
+        }
+      </style>
+    `;
+    
+    document.head.insertAdjacentHTML('beforeend', notificationCSS);
+
+    // Close modal on outside click
+    window.addEventListener('click', function(e) {
+      const modal = document.getElementById('claimModal');
+      if (e.target === modal) {
+        closeClaimModal();
+      }
+    });
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && document.getElementById('claimModal').style.display === 'block') {
+        closeClaimModal();
+      }
+    });
+
+    // Custom functions for batch request detail page
+    function openClaimModalForBatch() {
+      const requestId = parseInt('{{ batch_request.id }}');
+      const requestNumber = '{{ batch_request.id|stringformat:"03d" }}';
+      openClaimModal(requestId, requestNumber);
+    }
+
+    function openClaimModalForItem(itemId) {
+      // For individual items, we'll still use the batch modal but filter for that item
+      const requestId = parseInt('{{ batch_request.id }}');
+      const requestNumber = '{{ batch_request.id|stringformat:"03d" }}';
+      openClaimModal(requestId, requestNumber);
+      // TODO: Add logic to filter expected items to just this one item
+    }
+
+    // Loading overlay management
+    function showLoading() {
+      const overlay = document.getElementById('loadingOverlay');
+      overlay.classList.add('active');
+      
+      // Safety fallback: hide loading after 15 seconds if still visible
+      setTimeout(function() {
+        if (overlay.classList.contains('active')) {
+          overlay.classList.remove('active');
+          alert('Request timeout. Please try again or contact administrator if the issue persists.');
+        }
+      }, 15000);
+    }
+
+    function hideLoading() {
+      const overlay = document.getElementById('loadingOverlay');
+      overlay.classList.remove('active');
+    }
+
     // Toggle remarks functionality
     function toggleRemarks(itemId) {
       const remarksRow = document.getElementById(`remarks-row-${itemId}`);
@@ -867,6 +2419,12 @@
     }
     
     document.addEventListener('DOMContentLoaded', function() {
+      // Count pending items to determine if this is the last one
+      function countPendingItems() {
+        const pendingRows = document.querySelectorAll('tr[data-item-status="pending"]');
+        return pendingRows.length;
+      }
+
       // Add event listeners for remarks toggle buttons
       const remarksToggleButtons = document.querySelectorAll('.remarks-toggle-btn');
       remarksToggleButtons.forEach(button => {
@@ -890,7 +2448,29 @@
         });
       });
       
-      // Add event listeners for approve buttons
+      // Smart loading overlay: Only show on LAST pending item (triggers email)
+      const actionForms = document.querySelectorAll('form[action*="approve"], form[action*="reject"]');
+      actionForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+          // Check if this is the last pending item being processed
+          const pendingCount = countPendingItems();
+          
+          console.log(`Form submitting - Pending items count: ${pendingCount}`);
+          
+          // Show loading ONLY if this is the last item (which triggers completion email)
+          if (pendingCount === 1) {
+            showLoading();
+            console.log('✓ Last item - showing loading overlay (email will be sent)');
+          } else {
+            console.log(`✓ ${pendingCount} items remaining - no loading overlay, quick submit`);
+          }
+          
+          // DO NOT prevent default - form MUST submit normally
+          // The form will redirect naturally after processing
+        });
+      });
+      
+      // Add event listeners for approve buttons to transfer values
       const approveButtons = document.querySelectorAll('.btn-approve-table');
       approveButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -905,7 +2485,7 @@
         });
       });
       
-      // Add event listeners for reject buttons
+      // Add event listeners for reject buttons to transfer values
       const rejectButtons = document.querySelectorAll('.btn-reject-table');
       rejectButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -916,7 +2496,112 @@
           hiddenRemarks.value = remarksInput ? remarksInput.value : '';
         });
       });
+      
+      // Auto-hide messages after 5 seconds
+      setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+          alert.style.transition = 'opacity 0.5s';
+          alert.style.opacity = '0';
+          setTimeout(function() {
+            alert.remove();
+          }, 500);
+        });
+      }, 5000);
     });
   </script>
+
+  <!-- Claim Items Modal -->
+  <div id="claimModal" class="claim-modal" style="display: none;">
+    <div class="claim-modal-content">
+      <!-- Hidden CSRF token for AJAX requests -->
+      {% csrf_token %}
+      
+      <!-- Close Button -->
+      <span class="claim-modal-close" onclick="closeClaimModal()">&times;</span>
+      
+      <!-- Modal Header -->
+      <div class="claim-modal-header">
+        <h2>
+          <i class="fas fa-shopping-cart"></i>
+          Claim Items
+        </h2>
+        <p id="claimRequestNumber">Claiming items for request #{{ batch_request.id|stringformat:"03d" }}</p>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="claim-modal-body">
+        <!-- Items to Claim Section -->
+        <div class="expected-items-section" style="margin-bottom: 25px;">
+          <h4><i class="fas fa-clipboard-list"></i> Items to Claim <span id="itemsToClaimBadge" class="items-badge">0 of 0 scanned</span></h4>
+          <div class="expected-items-table-container">
+            <table class="expected-items-table">
+              <thead>
+                <tr>
+                  <th style="width: 10%; text-align: center;">#</th>
+                  <th style="width: 60%;">Item Name</th>
+                  <th style="width: 30%; text-align: center;">Approved Qty</th>
+                </tr>
+              </thead>
+              <tbody id="expectedItemsTableBody">
+                <tr>
+                  <td colspan="3" style="text-align: center; padding: 20px; color: #6c757d;">
+                    <i class="fas fa-box-open"></i> Loading items...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Barcode Input Section -->
+        <div class="barcode-section">
+          <h4><i class="fas fa-barcode"></i> Scan or Enter Barcodes</h4>
+          <p class="barcode-instruction">Enter item barcodes to verify items before claiming</p>
+          
+          <!-- Barcode Entry -->
+          <div class="barcode-input-group">
+            <input type="text" 
+                   id="barcodeInput" 
+                   placeholder="Scan or enter barcode..." 
+                   class="barcode-input"
+                   autofocus>
+            <button type="button" id="addBarcodeBtn" class="add-barcode-btn">
+              <i class="fas fa-plus"></i> Add Item
+            </button>
+          </div>
+          <div class="barcode-hint">
+            <i class="fas fa-info-circle"></i>
+            Use a barcode scanner or type the barcode manually
+          </div>
+        </div>
+
+        <!-- Scanned Items Section -->
+        <div class="scanned-items-section">
+          <h4><i class="fas fa-list-check"></i> Scanned Items</h4>
+          <div id="scannedItemsList" class="scanned-items-list">
+            <div class="empty-scanned-items">
+              <i class="fas fa-barcode"></i>
+              <p>No items scanned yet. Enter barcodes above to verify items.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="claim-modal-actions">
+          <button type="button" class="claim-modal-btn cancel" onclick="closeClaimModal()">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button type="button" id="quickClaimBtn" class="claim-modal-btn secondary">
+            <i class="fas fa-flash"></i> Quick Claim All
+          </button>
+          <button type="button" id="claimScannedBtn" class="claim-modal-btn primary" disabled>
+            <i class="fas fa-check"></i> Claim Scanned Items
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

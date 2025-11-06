@@ -15,7 +15,12 @@ class Migration(migrations.Migration):
             name='accountable_person',
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
-        migrations.AlterField(
+        # Drop and recreate the year_acquired field to avoid type casting issues
+        migrations.RemoveField(
+            model_name='property',
+            name='year_acquired',
+        ),
+        migrations.AddField(
             model_name='property',
             name='year_acquired',
             field=models.DateField(blank=True, null=True),

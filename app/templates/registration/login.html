@@ -35,12 +35,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 40px;
+        padding: 30px;
       }
 
       .illustration {
-        max-width: 90%;
-        max-height: 70vh;
+        max-width: 70%;
+        max-height: 50vh;
         width: auto;
         height: auto;
         object-fit: contain;
@@ -311,34 +311,163 @@
       @media (max-width: 768px) {
         .login-container {
           flex-direction: column;
-        }
-
-        .illustration-section {
-          min-height: 40vh;
-          padding: 30px;
-        }
-
-        .form-section {
-          padding: 40px 30px;
-          min-height: 60vh;
-        }
-
-        .sign-in-title {
-          font-size: 28px;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .form-section {
-          padding: 30px 20px;
-        }
-
-        .sign-in-title {
-          font-size: 24px;
+          height: auto;
+          min-height: 100vh;
         }
 
         .illustration-section {
           min-height: 35vh;
+          padding: 20px;
+          flex: 0 0 auto;
+        }
+
+        .illustration {
+          max-width: 200px;
+          max-height: 200px;
+        }
+
+        .form-section {
+          padding: 30px 20px;
+          min-height: auto;
+          flex: 1;
+        }
+
+        .form-wrapper {
+          max-width: 100%;
+          width: 100%;
+        }
+
+        .sign-in-title {
+          font-size: 24px;
+          margin-bottom: 6px;
+        }
+
+        .create-account-link,
+        .or-text {
+          font-size: 13px;
+        }
+
+        .inputAut {
+          padding: 14px 45px 14px 14px;
+          font-size: 15px;
+        }
+
+        .login-btn,
+        .clear-btn {
+          width: 70%;
+          padding: 14px;
+          font-size: 15px;
+        }
+
+        .form-options {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+          margin-bottom: 24px;
+        }
+
+        .forgot-password {
+          margin-left: 0;
+        }
+
+        .divider {
+          margin: 20px 0;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .illustration-section {
+          min-height: 30vh;
+          padding: 15px;
+        }
+
+        .illustration {
+          max-width: 160px;
+          max-height: 160px;
+        }
+
+        .form-section {
+          padding: 25px 15px;
+        }
+
+        .sign-in-title {
+          font-size: 22px;
+        }
+
+        .form-group {
+          margin-bottom: 18px;
+        }
+
+        .form-group label {
+          font-size: 13px;
+        }
+
+        .inputAut {
+          padding: 12px 40px 12px 12px;
+          font-size: 14px;
+        }
+
+        .login-btn {
+          padding: 13px;
+          font-size: 14px;
+        }
+
+        .clear-btn {
+          padding: 12px;
+          font-size: 13px;
+        }
+
+        .register-link,
+        .or-text,
+        .create-account-link,
+        .forgot-password,
+        .remember-me {
+          font-size: 12px;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .illustration-section {
+          min-height: 25vh;
+          padding: 10px;
+        }
+
+        .illustration {
+          max-width: 140px;
+          max-height: 140px;
+        }
+
+        .form-section {
+          padding: 20px 12px;
+        }
+
+        .sign-in-title {
+          font-size: 20px;
+        }
+
+        .form-header {
+          margin-bottom: 30px;
+        }
+
+        .form-group {
+          margin-bottom: 16px;
+        }
+
+        .inputAut {
+          padding: 11px 35px 11px 11px;
+          font-size: 13px;
+        }
+
+        .login-btn {
+          padding: 12px;
+          font-size: 13px;
+          margin-bottom: 15px;
+        }
+
+        .clear-btn {
+          padding: 11px;
+          font-size: 12px;
+          margin-bottom: 15px;
         }
       }
     </style>
@@ -360,12 +489,12 @@
         <div class="form-wrapper">
           <div class="form-header">
             <h1 class="sign-in-title">Sign in to Resource Hive</h1>
-            <span class="or-text"
+            <!-- <span class="or-text"
               >or
               <a href="{% url 'register' %}" class="create-account-link"
                 >create an account</a
               ></span
-            >
+            > -->
           </div>
 
           {% if form.non_field_errors %}
@@ -436,16 +565,16 @@
                 <input type="checkbox" name="remember_me" />
                 <span class="or-text">Remember me</span>
               </label>
-              <a href="#" class="forgot-password">Forgotten your password?</a>
+              <a href="{% url 'password_reset' %}" class="forgot-password">Forgotten your password?</a>
             </div>
 
             <button type="submit" class="login-btn">Sign in</button>
             <button type="reset" class="clear-btn">Clear</button>
           </form>
 
-          <p class="register-link">
+          <!-- <p class="register-link">
             Don't have an account? <a href="{% url 'register' %}">Register</a>
-          </p>
+          </p> -->
         </div>
       </div>
     </div>

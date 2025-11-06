@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}ResourceHive{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/userStyle.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/userForms.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/mobile.css' %}" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
@@ -15,94 +17,24 @@
       rel="stylesheet"
     />
 
-    <style>
-      /* Success message modal style */
-      .success-container {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 1000;
-        background: white;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        min-width: 280px;
-        max-width: 400px;
-      }
 
-      .success-message {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-      }
-
-      .success-message i {
-        font-size: 2.5em;
-        color: #4caf50;
-        background: rgba(76, 175, 80, 0.1);
-        width: 80px;
-        height: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-      }
-
-      .success-text {
-        font-size: 1.25em;
-        color: #333;
-        margin: 0;
-      }
-
-      /* Form validation messages style */
-      .form-top-errors {
-        list-style: none;
-        margin: 0 0 20px 0;
-        padding: 0;
-      }
-
-      .form-top-errors li {
-        background-color: #fff3e0;
-        color: #333;
-        padding: 8px 12px;
-        font-size: 14px;
-        border-radius: 4px;
-        margin-bottom: 4px;
-      }
-
-      /* Hide field-level error messages since they're shown at the top */
-      .errorlist:not(.form-top-errors) {
-        display: none;
-      }
-
-      /* Error state styling */
-      .error input,
-      .error select,
-      .error textarea {
-        border-color: #ffab91;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translate(-50%, -48%);
-        }
-        to {
-          opacity: 1;
-          transform: translate(-50%, -50%);
-        }
-      }
-
-      .success-container {
-        animation: fadeIn 0.2s ease-out;
-      }
-    </style>
     {% block extra_css %}{% endblock %}
   </head>
   <body>
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="mobile-brand">Resource Hive</div>
+    </header>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    
+    <!-- CSRF Token for logout -->
+    {% csrf_token %}
+    
     {% include 'userpanel/user_navbar.html' %} {% if messages %}
     <!-- Success modal popup -->
     {% for message in messages %} {% if message.tags == 'success' %}
@@ -129,9 +61,73 @@
             setTimeout(function () {
               successMessage.remove();
             }, 300);
-          }, 2000);
+          }, 5000);
+        }
+
+        // Mobile navigation functionality
+        const mobileMenuToggle = document.getElementById("mobileMenuToggle");
+        const mobileOverlay = document.getElementById("mobileOverlay");
+        const sidebar = document.querySelector(".sidebar");
+        
+        if (mobileMenuToggle && sidebar) {
+          mobileMenuToggle.addEventListener("click", function() {
+            sidebar.classList.toggle("mobile-open");
+            mobileOverlay.classList.toggle("active");
+            document.body.classList.toggle("mobile-menu-open");
+          });
+
+          mobileOverlay.addEventListener("click", function() {
+            sidebar.classList.remove("mobile-open");
+            mobileOverlay.classList.remove("active");
+            document.body.classList.remove("mobile-menu-open");
+          });
+
+          // Close menu when clicking a sidebar link on mobile
+          const sidebarLinks = sidebar.querySelectorAll("a");
+          sidebarLinks.forEach(link => {
+            link.addEventListener("click", function() {
+              if (window.innerWidth <= 768) {
+                sidebar.classList.remove("mobile-open");
+                mobileOverlay.classList.remove("active");
+                document.body.classList.remove("mobile-menu-open");
+              }
+            });
+          });
+
+          // Close sidebar when clicking the close button
+          const sidebarClose = document.getElementById("sidebarClose");
+          if (sidebarClose) {
+            sidebarClose.addEventListener("click", function() {
+              sidebar.classList.remove("mobile-open");
+              mobileOverlay.classList.remove("active");
+              document.body.classList.remove("mobile-menu-open");
+            });
+          }
         }
       });
+
+      // Mobile logout function
+      function handleMobileLogout(event) {
+        event.preventDefault();
+        if (confirm('Are you sure you want to log out?')) {
+          // Create and submit logout form
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = '{% url "logout" %}';
+          
+          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+          if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+          }
+          
+          document.body.appendChild(form);
+          form.submit();
+        }
+      }
     </script>
     <!-- jQuery (required for Select2) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

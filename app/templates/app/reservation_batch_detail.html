@@ -1,0 +1,551 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reservation Batch #{{ batch_number|stringformat:"03d" }} Details</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <style>
+    .batch-details {
+      padding: 20px;
+      margin-left: 270px;
+      background-color: #f5f6fa;
+      min-height: 100vh;
+    }
+    
+    .page-title {
+      color: #152d64;
+      margin-bottom: 30px;
+      font-size: 32px;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .batch-header {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(21, 45, 100, 0.1);
+      margin-bottom: 30px;
+    }
+    
+    .batch-id {
+      color: #152d64;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    
+    .batch-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .info-item strong {
+      color: #152d64;
+      font-weight: 600;
+      margin-bottom: 5px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .info-item span {
+      color: #495057;
+      font-size: 16px;
+    }
+    
+    .batch-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 10px;
+    }
+    
+    .batch-status.status-pending {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      color: #856404;
+      border: 2px solid #ffeaa7;
+    }
+    
+    .batch-status.status-approved {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+    
+    .batch-status.status-rejected {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+    }
+    
+    .batch-status.status-active {
+      background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+      color: #0c5460;
+      border: 2px solid #bee5eb;
+    }
+    
+    .batch-status.status-partially_approved {
+      background: linear-gradient(135deg, #fdebc6 0%, #f9d27f 100%);
+      color: #8b5e00;
+      border: 2px solid #f9d27f;
+    }
+    
+    .items-container {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+      margin-bottom: 30px;
+    }
+    
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .items-table thead {
+      background: linear-gradient(135deg, #152d64 0%, #1e3a8a 100%);
+      color: white;
+    }
+    
+    .items-table th {
+      padding: 15px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .items-table th:last-child {
+      border-right: none;
+    }
+    
+    .items-table tbody tr {
+      border-bottom: 1px solid #e9ecef;
+      transition: background-color 0.2s ease;
+    }
+    
+    .items-table tbody tr:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .items-table td {
+      padding: 16px 12px;
+      vertical-align: middle;
+      font-size: 16px;
+      color: #495057;
+    }
+    
+    .item-name {
+      font-weight: 600;
+      color: #152d64;
+    }
+    
+    .quantity-cell {
+      text-align: center;
+      font-weight: 600;
+    }
+    
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .status-badge.status-pending {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+    
+    .status-badge.status-approved {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .status-badge.status-rejected {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .status-badge.status-active {
+      background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-approve {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      border: 2px solid #28a745;
+    }
+    
+    .btn-approve:hover {
+      background: linear-gradient(135deg, #218838 0%, #1ba87d 100%);
+    }
+    
+    .btn-reject {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+      color: white;
+      border: 2px solid #dc3545;
+    }
+    
+    .btn-reject:hover {
+      background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    }
+    
+    .btn-back {
+      background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+      color: white;
+      border: 2px solid #6c757d;
+    }
+    
+    .btn-back:hover {
+      background: linear-gradient(135deg, #5a6268 0%, #545b62 100%);
+    }
+    
+    .action-cell {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.6);
+    }
+    
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 30px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    
+    .modal-header {
+      margin-bottom: 20px;
+    }
+    
+    .modal-title {
+      color: #152d64;
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .modal-body {
+      margin-bottom: 20px;
+    }
+    
+    .modal-body textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    
+    .close-modal {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 20px;
+    }
+    
+    .close-modal:hover {
+      color: #000;
+    }
+    
+    .alert {
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .alert-warning {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+  </style>
+</head>
+<body>
+  {% include 'app/navbar.html' %}
+  
+  <div class="batch-details">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+    
+    <h1 class="page-title">
+      <i class="fas fa-calendar-check"></i> Reservation Batch Details
+    </h1>
+    
+    <!-- Batch Header -->
+    <div class="batch-header">
+      <div class="batch-id">Reservation Batch #{{ batch_number|stringformat:"03d" }}</div>
+      
+      <div class="batch-info">
+        <div class="info-item">
+          <strong>Requester</strong>
+          <span>{{ batch.user.get_full_name|default:batch.user.username }}</span>
+        </div>
+        <div class="info-item">
+          <strong>Department</strong>
+          <span>{{ batch.user.userprofile.department|default:"N/A" }}</span>
+        </div>
+        <div class="info-item">
+          <strong>Request Date</strong>
+          <span>{{ batch.request_date|date:"M d, Y h:i A" }}</span>
+        </div>
+        <div class="info-item">
+          <strong>Total Items</strong>
+          <span>{{ total_items }} item{{ total_items|pluralize }}</span>
+        </div>
+        <div class="info-item">
+          <strong>Total Quantity</strong>
+          <span>{{ total_quantity }} unit{{ total_quantity|pluralize }}</span>
+        </div>
+        <div class="info-item">
+          <strong>Batch Status</strong>
+          <span class="batch-status status-{{ batch_status }}">
+            <i class="fas fa-{% if batch_status == 'pending' %}clock{% elif batch_status == 'approved' %}check{% elif batch_status == 'rejected' %}times{% elif batch_status == 'active' %}play{% else %}info{% endif %}"></i>
+            {{ batch_status|capfirst }}
+          </span>
+        </div>
+      </div>
+      
+      <div class="info-item">
+        <strong>Purpose</strong>
+        <span>{{ batch.purpose }}</span>
+      </div>
+      
+      <!-- Batch-level action buttons -->
+      {% if batch_status == 'pending' or batch_status == 'partially_approved' %}
+      <div class="action-buttons">
+        <form method="post" action="{% url 'approve_reservation_batch' batch_id %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-approve" onclick="return confirm('Approve all pending items in this batch?')">
+            <i class="fas fa-check"></i> Approve All Pending
+          </button>
+        </form>
+        <form method="post" action="{% url 'reject_reservation_batch' batch_id %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-reject" onclick="return confirm('Reject all pending items in this batch?')">
+            <i class="fas fa-times"></i> Reject All Pending
+          </button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+    
+    <!-- Items List -->
+    <div class="items-container">
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Item Name</th>
+            <th style="text-align: center;">Quantity</th>
+            <th style="text-align: center;">Available Stock</th>
+            <th style="text-align: center;">Needed Date</th>
+            <th style="text-align: center;">Return Date</th>
+            <th style="text-align: center;">Status</th>
+            <th style="text-align: center;">Actions</th>
+            <th style="text-align: center;"><i class="fas fa-comment"></i> Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr id="item-row-{{ item.id }}">
+            <td class="item-name">{{ item.property.property_name }}</td>
+            <td class="quantity-cell">
+              {% if item.status == 'pending' %}
+                <input type="number" id="quantity-{{ item.id }}" value="{{ item.quantity }}" min="1" max="{{ item.property.quantity }}" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
+              {% else %}
+                {{ item.quantity }}
+              {% endif %}
+            </td>
+            <td class="quantity-cell">{{ item.property.quantity }}</td>
+            <td style="text-align: center;">{{ item.needed_date|date:"M d, Y"|default:"N/A" }}</td>
+            <td style="text-align: center;">{{ item.return_date|date:"M d, Y" }}</td>
+            <td style="text-align: center;">
+              <span class="status-badge status-{{ item.status }}">
+                <i class="fas fa-{% if item.status == 'pending' %}clock{% elif item.status == 'approved' %}check{% elif item.status == 'rejected' %}times{% elif item.status == 'active' %}play{% else %}info{% endif %}"></i>
+                {{ item.status|capfirst }}
+              </span>
+            </td>
+            <td>
+              {% if item.status == 'pending' %}
+              <div class="action-cell">
+                <form method="post" action="{% url 'approve_reservation_item' batch_id item.id %}" style="display: inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="approved_quantity" id="approved-quantity-approve-{{ item.id }}">
+                  <input type="hidden" name="remarks" id="remarks-approve-{{ item.id }}">
+                  <button type="submit" class="btn btn-approve" style="padding: 6px 12px; font-size: 12px;" 
+                    onclick="document.getElementById('approved-quantity-approve-{{ item.id }}').value = document.getElementById('quantity-{{ item.id }}').value; 
+                    document.getElementById('remarks-approve-{{ item.id }}').value = document.getElementById('remarks-{{ item.id }}') ? document.getElementById('remarks-{{ item.id }}').value : '';
+                    return confirm('Approve this item for ' + document.getElementById('quantity-{{ item.id }}').value + ' units?')">
+                    <i class="fas fa-check"></i> Approve
+                  </button>
+                </form>
+                
+                <form method="post" action="{% url 'reject_reservation_item' batch_id item.id %}" style="display: inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="remarks" id="remarks-reject-{{ item.id }}">
+                  <button type="submit" class="btn btn-reject" style="padding: 6px 12px; font-size: 12px;" 
+                    onclick="document.getElementById('remarks-reject-{{ item.id }}').value = document.getElementById('remarks-{{ item.id }}') ? document.getElementById('remarks-{{ item.id }}').value : ''; 
+                    return confirm('Reject this item?')">
+                    <i class="fas fa-times"></i> Reject
+                  </button>
+                </form>
+              </div>
+              {% elif item.remarks %}
+              <small style="color: #6c757d;">{{ item.remarks|truncatewords:10 }}</small>
+              {% else %}
+              <span style="color: #6c757d;">-</span>
+              {% endif %}
+            </td>
+            <td class="actions-cell" style="text-align: center;">
+              {% if item.status == 'pending' or item.status == 'active' or item.remarks %}
+                <button type="button" class="btn-table" data-item-id="{{ item.id }}" onclick="toggleRemarks(this.getAttribute('data-item-id'))" style="background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+                  <i class="fas fa-comment"></i>
+                </button>
+              {% else %}
+                <span style="color: #6c757d; font-size: 12px;">-</span>
+              {% endif %}
+            </td>
+          </tr>
+          
+          <tr id="remarks-row-{{ item.id }}" class="remarks-row" style="display: none;">
+            <td colspan="8">
+              <div class="remarks-container" style="padding: 15px; background: #f8f9fa;">
+                <div class="remarks-label" style="font-weight: 600; color: #152d64; margin-bottom: 8px;">Remarks</div>
+                {% if item.status == 'pending' %}
+                  <input type="text" id="remarks-{{ item.id }}" placeholder="Enter approval/rejection remarks (optional)" class="remarks-input" value="{{ item.remarks|default:'' }}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                {% else %}
+                  <div class="remarks-input" style="background: #fff; border: 1px solid #e9ecef; padding: 10px; border-radius: 4px; min-height: 20px;">
+                    {{ item.remarks|default:"No remarks" }}
+                  </div>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Back Button -->
+    <div class="action-buttons">
+      <a href="{% url 'user_reservations' %}" class="btn btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Reservations
+      </a>
+    </div>
+  </div>
+  
+  <script>
+    function toggleRemarks(itemId) {
+      const remarksRow = document.getElementById('remarks-row-' + itemId);
+      if (remarksRow) {
+        remarksRow.style.display = remarksRow.style.display === 'none' ? 'table-row' : 'none';
+      }
+    }
+    
+    // No additional JavaScript needed - forms handle submission directly with confirm dialogs
+  </script>
+</body>
+</html>

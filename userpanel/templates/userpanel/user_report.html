@@ -3,8 +3,393 @@
 {% block title %}Damage Report{% endblock %}
 
 {% block content %}
+<style>
+    /* ===== MOBILE MODAL STYLES (from unified request) ===== */
+    .modal-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.3);
+        z-index: 999998;
+        animation: fadeIn 0.2s ease-out;
+        pointer-events: none;
+    }
+
+    .modal-backdrop.active {
+        display: block;
+        pointer-events: auto;
+    }
+
+    .item-selection-modal {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        max-height: 50vh;
+        height: auto;
+        z-index: 999999;
+        background: white;
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+        animation: slideUpFromBottom 0.4s ease-out;
+        overflow: hidden;
+        display: none;
+        flex-direction: column;
+        touch-action: none;
+    }
+
+    @keyframes slideUpFromBottom {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideDownToBottom {
+        from {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .item-selection-modal.active {
+        display: flex;
+    }
+
+    .item-selection-modal.closing {
+        animation: slideDownToBottom 0.3s ease-out forwards;
+    }
+
+    .modal-header {
+        background: #152d64;
+        color: white;
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex-shrink: 0;
+        cursor: grab;
+        cursor: -webkit-grab;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-user-drag: none;
+        touch-action: none;
+    }
+
+    .modal-header.dragging {
+        cursor: grabbing;
+        cursor: -webkit-grabbing;
+    }
+
+    .modal-handle {
+        width: 40px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 2px;
+        margin: 4px auto 0;
+        transition: background 0.2s;
+    }
+
+    .modal-header:active .modal-handle {
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .modal-search-wrapper {
+        padding: 12px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e0e4e9;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .modal-search-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+        background-color: white;
+        box-sizing: border-box;
+    }
+
+    .modal-search-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+    }
+
+    .modal-category-filter {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        background-color: white;
+        box-sizing: border-box;
+        min-height: 38px;
+    }
+
+    .modal-category-filter:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+    }
+
+    .modal-content {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .modal-item-option {
+        padding: 14px 12px;
+        border-bottom: 1px solid #f0f0f0;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+        transition: background-color 0.15s;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    .modal-item-option:active {
+        background-color: #f0f7ff;
+    }
+
+    .modal-item-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .modal-item-name {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 15px;
+        margin-bottom: 4px;
+    }
+
+    .modal-item-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 12px;
+    }
+
+    .modal-item-category {
+        background-color: #e7f3ff;
+        color: #0056b3;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 11px;
+    }
+
+    .modal-item-code {
+        color: #6c757d;
+        font-size: 11px;
+    }
+
+    .modal-item-stock {
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .modal-item-stock.available {
+        color: #28a745;
+        background-color: #d4edda;
+    }
+
+    .modal-item-stock.low-stock {
+        color: #dc3545;
+        background-color: #f8d7da;
+    }
+
+    .modal-no-results {
+        padding: 40px 16px;
+        text-align: center;
+        color: #6c757d;
+    }
+
+    .modal-no-results i {
+        font-size: 48px;
+        color: #ccc;
+        margin-bottom: 10px;
+    }
+
+    /* ===== DESKTOP DROPDOWN STYLES ===== */
+    .select-option {
+        padding: 12px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background-color 0.15s;
+    }
+
+    .select-option:hover {
+        background-color: #f0f7ff;
+    }
+
+    .select-option:first-child {
+        color: #999;
+        font-style: italic;
+    }
+
+    .searchable-select-container {
+        position: relative;
+    }
+
+    /* ===== MOBILE MEDIA QUERIES ===== */
+    @media (max-width: 768px) {
+        .select-dropdown {
+            display: none !important;
+        }
+
+        .supply-search-input {
+            font-size: 16px;
+            min-height: 44px;
+            cursor: pointer;
+        }
+
+        .supply-search-input[readonly] {
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .modal-category-filter {
+            min-height: 44px;
+            font-size: 16px;
+        }
+
+        .item-selection-modal {
+            max-height: 60vh;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .modal-header h2 {
+            font-size: 15px;
+        }
+
+        .modal-search-wrapper {
+            padding: 8px;
+            gap: 6px;
+        }
+
+        .modal-item-option {
+            padding: 10px 8px;
+        }
+
+        .item-selection-modal {
+            max-height: 65vh;
+        }
+    }
+
+    .modal-content::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 3px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb:hover {
+        background: #999;
+    }
+
+    body.modal-open {
+        overflow: hidden;
+    }
+</style>
 <div class="request-page-layout">
     <main class="request-form-container">
+        <!-- Mobile Modal Backdrop -->
+        <div id="modal-backdrop" class="modal-backdrop"></div>
+
+        <!-- Properties Data (stored as JSON in data attribute) -->
+        <div id="supplies-json-data" style="display:none;" data-supplies='[
+            {% for supply in available_supplies %}
+            {
+                "id": {{ supply.id }},
+                "name": "{{ supply.property_name|escapejs }}",
+                "category_id": {{ supply.category.id|default:"0" }},
+                "category_name": "{{ supply.category.name|default:"Equipment"|escapejs }}",
+                "code": "{{ supply.property_number|default:""|escapejs }}",
+                "description": "{{ supply.property_name|escapejs }}",
+                "available": {{ supply.quantity }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]'></div>
+
+        <!-- Item Selection Modal (Mobile) -->
+        <div id="item-selection-modal" class="item-selection-modal">
+            <div class="modal-header" id="item-modal-handle">
+                <div class="modal-handle"></div>
+                <h2><i class="fas fa-exclamation-triangle"></i> Select Equipment to Report</h2>
+            </div>
+            <div class="modal-search-wrapper">
+                <input type="text" id="item-modal-search" class="modal-search-input" 
+                       placeholder="Search by name or code..." autocomplete="off">
+                <select id="item-modal-category" class="modal-category-filter">
+                    <option value="">All Categories</option>
+                    {% for category in supply_categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-content">
+                <div id="item-modal-items-list" class="modal-items-list">
+                    <!-- Items will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
         <h1><i class="fas fa-exclamation-triangle"></i> Damage Report</h1>
         <p class="form-description">Please fill out the form below to report damaged items. Make sure to provide accurate information for faster processing.</p>
 
@@ -20,7 +405,37 @@
 
         <form method="post" action="{% url 'user_report' %}" class="request-form" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
+            
+            <!-- Item Search for Damage Report -->
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="supply-search" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Equipment/Item Damaged:</label>
+                <div class="searchable-select-container">
+                    <input type="text" id="supply-search" class="form-control supply-search-input" 
+                           placeholder="Search for the damaged item..." autocomplete="off">
+                    <input type="hidden" id="supply-select" name="item">
+                    <div id="supply-dropdown" class="select-dropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e1e5e9; max-height: 300px; overflow-y: auto; z-index: 9999; display: none;">
+                        <div class="select-option" data-value="">Select an item...</div>
+                        {% for supply in available_supplies %}
+                        <div class="select-option" data-value="{{ supply.id }}" data-available="{{ supply.quantity }}">
+                            {{ supply.property_name }} ({{ supply.category.name }})
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Form fields excluding 'item' since we handle it above -->
+            <div class="form-group">
+                {{ form.description.label_tag }}
+                {{ form.description }}
+                {% if form.description.errors %}<span class="field-error">{{ form.description.errors }}</span>{% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.image.label_tag }}
+                {{ form.image }}
+                {% if form.image.help_text %}<small class="form-text">{{ form.image.help_text }}</small>{% endif %}
+                {% if form.image.errors %}<span class="field-error">{{ form.image.errors }}</span>{% endif %}
+            </div>
             <div class="form-actions">
                 <button type="submit" class="btn-submit">
                     <i class="fas fa-paper-plane"></i> Submit Report
@@ -62,395 +477,6 @@
         {% endif %}
     </aside>
 </div>
-
-<style>
-.request-page-layout {
-    display: flex;
-    gap: 2rem;
-    margin-left: 270px;
-    padding: 2rem;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-.request-form-container {
-    flex: 1;
-    background: white;
-    padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin: 0;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.form-description {
-    color: #666;
-    margin-bottom: 2rem;
-}
-
-.request-form {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.request-form p {
-    margin: 0 0 1.5rem 0;
-    width: 100%;
-}
-
-.request-form label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #152d64;
-    font-weight: 500;
-}
-
-/* Special styling for file input labels */
-.request-form label[for*="image"] {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.request-form label[for*="image"]::before {
-    content: '\f03e';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    color: #152d64;
-}
-
-/* Help text styling */
-.request-form .helptext {
-    font-size: 0.85rem;
-    color: #6c757d;
-    margin-top: 0.25rem;
-    font-style: italic;
-}
-
-/* File input preview */
-.file-input-wrapper {
-    position: relative;
-}
-
-.file-preview {
-    margin-top: 10px;
-    padding: 10px;
-    background: #e8f5e8;
-    border-radius: 6px;
-    border: 1px solid #c3e6cb;
-    display: none;
-}
-
-.file-preview.show {
-    display: block;
-}
-
-.file-preview-text {
-    color: #155724;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.file-preview-text i {
-    color: #28a745;
-}
-
-.request-form input,
-.request-form select,
-.request-form textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    box-sizing: border-box;
-}
-
-.request-form input[type="file"] {
-    padding: 0.5rem;
-    background: #f8f9fa;
-    border: 2px dashed #dee2e6;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.request-form input[type="file"]:hover {
-    border-color: #152d64;
-    background: #f0f8ff;
-}
-
-.request-form input[type="file"]:focus {
-    outline: none;
-    border-color: #152d64;
-    box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
-}
-
-.request-form textarea {
-    min-height: 120px;
-    resize: vertical;
-}
-
-.form-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-    justify-content: flex-end;
-}
-
-.btn-submit,
-.btn-reset {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s ease;
-    min-width: 150px;
-    justify-content: center;
-}
-
-.btn-submit {
-    background-color: #152d64;
-    color: white;
-}
-
-.btn-reset {
-    background-color: #6c757d;
-    color: white;
-    width: auto;
-}
-
-.btn-submit:hover {
-    background-color: #1a3a7d;
-}
-
-.btn-reset:hover {
-    background-color: #5a6268;
-}
-
-/* Recent Requests Styles */
-.recent-requests {
-    width: 400px;
-    min-width: 400px;
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
-    height: fit-content;
-    max-height: 600px;
-    display: flex;
-    flex-direction: column;
-}
-
-.recent-requests h2 {
-    color: #152d64;
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    position: sticky;
-    top: 0;
-    background: white;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.requests-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    overflow-y: auto;
-    padding-right: 0.5rem;
-}
-
-.requests-list::-webkit-scrollbar {
-    width: 6px;
-}
-
-.requests-list::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
-}
-
-.requests-list::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 3px;
-}
-
-.requests-list::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-}
-
-.request-card {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 1rem;
-    border: 1px solid #e9ecef;
-}
-
-.request-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-}
-
-.request-date {
-    color: #6c757d;
-    font-size: 0.875rem;
-}
-
-.request-details {
-    font-size: 0.9rem;
-}
-
-.request-details p {
-    margin: 0.25rem 0;
-}
-
-.supply-name {
-    color: #152d64;
-    font-weight: 600;
-}
-
-.description {
-    color: #495057;
-    line-height: 1.4;
-}
-
-.status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 50px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.status-pending {
-    background-color: #fff3cd;
-    color: #856404;
-}
-
-.status-approved {
-    background-color: #d4edda;
-    color: #155724;
-}
-
-.status-rejected {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-
-.no-requests {
-    text-align: center;
-    padding: 2rem;
-    color: #6c757d;
-}
-
-.no-requests i {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    color: #adb5bd;
-}
-
-.btn-cancel-request {
-    margin-top: 0.75rem;
-    padding: 0.5rem 1rem;
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: background-color 0.2s ease;
-}
-
-.btn-cancel-request:hover {
-    background-color: #c82333;
-}
-
-.status-cancelled {
-    background-color: #6c757d;
-    color: white;
-}
-
-/* Toast Notification */
-.toast {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 1rem;
-    border-radius: 8px;
-    background: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    z-index: 1000;
-    animation: slideIn 0.3s ease-out;
-}
-
-.toast.success {
-    background-color: #28a745;
-    color: white;
-}
-
-.toast.error {
-    background-color: #dc3545;
-    color: white;
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@media (max-width: 1200px) {
-    .request-page-layout {
-        flex-direction: column;
-    }
-
-    .recent-requests {
-        width: 100%;
-    }
-}
-
-@media (max-width: 768px) {
-    .request-page-layout {
-        margin-left: 0;
-        padding: 1rem;
-    }
-
-    .form-actions {
-        flex-direction: column;
-    }
-
-    .btn-submit,
-    .btn-reset {
-        width: 100%;
-    }
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -496,17 +522,60 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function showToast(message, type = 'success') {
+    // Create toast with inline styles to override any CSS conflicts
     const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-        <span>${message}</span>
-    `;
+    
+    // Apply inline styles directly for maximum control
+    Object.assign(toast.style, {
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        maxWidth: '280px',
+        padding: '10px 14px',
+        borderRadius: '6px',
+        backgroundColor: type === 'success' ? '#28a745' : '#dc3545',
+        color: 'white',
+        fontSize: '13px',
+        fontWeight: '500',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        zIndex: '10000',
+        opacity: '0',
+        transform: 'translateX(100%)',
+        transition: 'all 0.3s ease'
+    });
+    
+    // Add icon and message
+    const icon = document.createElement('i');
+    icon.className = `fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}`;
+    icon.style.fontSize = '16px';
+    icon.style.flexShrink = '0';
+    
+    const span = document.createElement('span');
+    span.textContent = message;
+    span.style.flex = '1';
+    span.style.wordBreak = 'break-word';
+    
+    toast.appendChild(icon);
+    toast.appendChild(span);
     document.body.appendChild(toast);
 
+    // Trigger animation
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(0)';
+    });
+
+    // Remove after 6 seconds with fade-out
     setTimeout(() => {
-        toast.remove();
-    }, 3000);
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 6000);
 }
 
 function cancelRequest(requestId, type) {
@@ -548,5 +617,245 @@ function cancelRequest(requestId, type) {
         showToast('An error occurred while cancelling the report', 'error');
     });
 }
+</script>
+
+<script>
+// ===== LOAD MODAL DATA FROM DATA ATTRIBUTE =====
+let allSupplies = [];
+document.addEventListener('DOMContentLoaded', function() {
+    const suppliesDataElement = document.getElementById('supplies-json-data');
+    console.log('[REPORT] supplies-json-data element:', suppliesDataElement);
+    if (suppliesDataElement) {
+        try {
+            const jsonString = suppliesDataElement.getAttribute('data-supplies');
+            console.log('[REPORT] Raw JSON string:', jsonString);
+            allSupplies = JSON.parse(jsonString);
+            console.log('[REPORT] Loaded supplies:', allSupplies.length, 'items');
+            console.log('[REPORT] First item:', allSupplies[0]);
+        } catch (e) {
+            console.error('[REPORT] Failed to parse supplies data:', e);
+            console.error('[REPORT] Raw data:', suppliesDataElement.getAttribute('data-supplies'));
+            allSupplies = [];
+        }
+    } else {
+        console.error('[REPORT] supplies-json-data element not found');
+    }
+});
+
+// ===== MOBILE MODAL FUNCTIONS (from unified request) =====
+function closeModal(animate = true) {
+    const modal = document.getElementById('item-selection-modal');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (animate) {
+        modal.classList.add('closing');
+        setTimeout(() => {
+            modal.classList.remove('active', 'closing');
+            backdrop.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }, 300);
+    } else {
+        modal.classList.remove('active', 'closing');
+        backdrop.classList.remove('active');
+        document.body.classList.remove('modal-open');
+    }
+}
+
+function openModal() {
+    const isMobile = window.innerWidth <= 768;
+    if (!isMobile) return;
+    
+    const modal = document.getElementById('item-selection-modal');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    modal.classList.add('active');
+    backdrop.classList.add('active');
+    document.body.classList.add('modal-open');
+    
+    populateModalItems();
+    setupDragToDismiss();
+}
+
+function setupDragToDismiss() {
+    const modal = document.getElementById('item-selection-modal');
+    const handle = document.getElementById('item-modal-handle');
+    
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+    
+    function onTouchStart(e) {
+        startY = e.touches[0].clientY;
+        currentY = startY;
+        isDragging = true;
+        handle.classList.add('dragging');
+    }
+    
+    function onTouchMove(e) {
+        if (!isDragging) return;
+        currentY = e.touches[0].clientY;
+        const diff = currentY - startY;
+        
+        if (diff > 0) {
+            modal.style.transform = `translateY(${diff}px)`;
+            modal.style.borderRadius = `${16 - (diff / 50) * 4}px ${16 - (diff / 50) * 4}px 0 0`;
+        }
+    }
+    
+    function onTouchEnd(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        handle.classList.remove('dragging');
+        
+        const diff = currentY - startY;
+        const threshold = 100;
+        
+        if (diff > threshold) {
+            modal.style.transform = '';
+            modal.style.borderRadius = '';
+            closeModal(true);
+        } else {
+            modal.style.transform = '';
+            modal.style.borderRadius = '';
+        }
+    }
+    
+    handle.removeEventListener('touchstart', onTouchStart);
+    handle.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('touchend', onTouchEnd);
+    
+    handle.addEventListener('touchstart', onTouchStart, { passive: true });
+    handle.addEventListener('touchmove', onTouchMove, { passive: true });
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
+}
+
+function populateModalItems() {
+    const listContainer = document.getElementById('item-modal-items-list');
+    const searchInput = document.getElementById('item-modal-search');
+    const categoryFilter = document.getElementById('item-modal-category');
+    
+    function filterAndRender() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedCategory = categoryFilter.value.trim();
+        
+        const filtered = allSupplies.filter(item => {
+            const matchesSearch = !searchTerm || 
+                item.name.toLowerCase().includes(searchTerm) ||
+                item.code.toLowerCase().includes(searchTerm) ||
+                item.description.toLowerCase().includes(searchTerm);
+            
+            const matchesCategory = !selectedCategory || 
+                String(item.category_id) === String(selectedCategory);
+            
+            return matchesSearch && matchesCategory;
+        });
+        
+        if (filtered.length === 0) {
+            listContainer.innerHTML = `
+                <div class="modal-no-results">
+                    <div><i class="fas fa-inbox"></i></div>
+                    <p>No items found</p>
+                </div>
+            `;
+            return;
+        }
+        
+        listContainer.innerHTML = filtered.map(item => `
+            <div class="modal-item-option" onclick="selectItemFromModal(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${item.available})">
+                <div class="modal-item-info">
+                    <div class="modal-item-name">${item.name}</div>
+                    <div class="modal-item-details">
+                        <span class="modal-item-category">${item.category_name}</span>
+                        ${item.code ? `<span class="modal-item-code">Code: ${item.code}</span>` : ''}
+                    </div>
+                </div>
+                <div class="modal-item-stock ${item.available < 10 ? 'low-stock' : 'available'}">
+                    ${item.available} available
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    filterAndRender();
+    
+    searchInput.addEventListener('input', filterAndRender);
+    categoryFilter.addEventListener('change', filterAndRender);
+}
+
+function selectItemFromModal(itemId, itemName, available) {
+    closeModal(false);
+    
+    document.getElementById('supply-search').value = itemName;
+    document.getElementById('supply-select').value = itemId;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('modal-backdrop').addEventListener('click', function() {
+        if (document.getElementById('item-selection-modal').classList.contains('active')) {
+            closeModal();
+        }
+    });
+    
+    // ===== DESKTOP DROPDOWN HANDLER =====
+    const supplySearch = document.getElementById('supply-search');
+    const supplyDropdown = document.getElementById('supply-dropdown');
+    const supplySelect = document.getElementById('supply-select');
+    const selectOptions = document.querySelectorAll('.select-option');
+    
+    if (window.innerWidth > 768) {
+        // Desktop: Show dropdown on input focus
+        supplySearch.addEventListener('focus', function() {
+            supplyDropdown.style.display = 'block';
+        });
+        
+        // Filter and search functionality
+        supplySearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const options = supplyDropdown.querySelectorAll('.select-option');
+            
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(searchTerm) || searchTerm === '') {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        });
+        
+        // Handle option selection
+        supplyDropdown.addEventListener('click', function(e) {
+            const option = e.target.closest('.select-option');
+            if (option) {
+                const value = option.dataset.value;
+                const text = option.textContent.trim();
+                
+                supplySearch.value = text === 'Select an item...' ? '' : text;
+                supplySelect.value = value;
+                supplyDropdown.style.display = 'none';
+            }
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target !== supplySearch && e.target !== supplyDropdown) {
+                supplyDropdown.style.display = 'none';
+            }
+        });
+    } else {
+        // Mobile: Use modal
+        supplySearch.setAttribute('readonly', 'readonly');
+        
+        supplySearch.addEventListener('focus', function(e) {
+            e.preventDefault();
+            this.blur();
+        });
+        
+        supplySearch.addEventListener('click', function(e) {
+            e.preventDefault();
+            openModal();
+        });
+    }
+});
 </script>
 {% endblock %}

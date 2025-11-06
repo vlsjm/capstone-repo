@@ -1,0 +1,908 @@
+/* ===========================
+   REQUEST DETAIL PAGE STYLES
+=========================== */
+
+/* Main wrapper styles */
+.request-detail-wrapper {
+    padding: 2rem 0;
+    background: #f8f9fa;
+    min-height: 100vh;
+    margin-left: 270px;
+    /* Account for fixed sidebar width (250px) + spacing (20px) */
+}
+
+.request-detail-wrapper .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Navigation styles */
+.request-detail-wrapper .breadcrumb-nav {
+    margin-bottom: 2rem;
+}
+
+.request-detail-wrapper .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.request-detail-wrapper .btn-back:hover {
+    background: #5a6268;
+    color: white;
+    text-decoration: none;
+}
+
+/* Page header styles */
+.request-detail-wrapper .page-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border-bottom: 2px solid #e9ecef;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.request-detail-wrapper .header-info h1 {
+    margin: 0 0 0.5rem 0;
+    color: #152d64;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.request-detail-wrapper .request-id-badge {
+    background: #152d64;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+/* Button styles */
+.request-detail-wrapper .btn-primary,
+.request-detail-wrapper .btn-request-again {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 150px;
+    min-height: 42px;
+    justify-content: center;
+}
+
+.request-detail-wrapper .btn-primary:hover,
+.request-detail-wrapper .btn-request-again:hover {
+    background: #218838;
+}
+
+.request-detail-wrapper .btn-danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 150px;
+    min-height: 42px;
+    justify-content: center;
+}
+
+.request-detail-wrapper .btn-danger:hover {
+    background: #c82333;
+}
+
+/* Content section styles */
+.request-detail-wrapper .content-section {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.request-detail-wrapper .content-section h2 {
+    color: #152d64;
+    margin: 0 0 1.25rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Grid layouts */
+.request-detail-wrapper .status-grid,
+.request-detail-wrapper .info-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.request-detail-wrapper .info-card {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 0.375rem;
+    border: 1px solid #e9ecef;
+}
+
+.request-detail-wrapper .info-card label {
+    display: block;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.request-detail-wrapper .info-card span,
+.request-detail-wrapper .info-card p {
+    color: #212529;
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+/* Status badge styles */
+.request-detail-wrapper .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.request-detail-wrapper .status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.request-detail-wrapper .status-approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.request-detail-wrapper .status-rejected,
+.request-detail-wrapper .status-declined {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.request-detail-wrapper .status-returned {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.request-detail-wrapper .status-overdue {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.request-detail-wrapper .status-completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.request-detail-wrapper .status-active {
+    background: #cce7ff;
+    color: #004085;
+}
+
+.request-detail-wrapper .status-for_claiming {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+.request-detail-wrapper .status-partially_approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Table styles */
+.request-detail-wrapper .table-responsive {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border-radius: 0.375rem;
+    border: 1px solid #e9ecef;
+}
+
+.request-detail-wrapper .items-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 0.875rem;
+}
+
+.request-detail-wrapper .items-table th,
+.request-detail-wrapper .items-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.request-detail-wrapper .items-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.request-detail-wrapper .item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.request-detail-wrapper .item-name {
+    font-weight: 600;
+    color: #152d64;
+}
+
+.request-detail-wrapper .item-category {
+    font-size: 0.625rem;
+    color: #6c757d;
+    background: #e9ecef;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    width: fit-content;
+}
+
+.request-detail-wrapper .quantity {
+    font-weight: 600;
+    text-align: center;
+    color: #152d64;
+}
+
+.request-detail-wrapper .availability-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.request-detail-wrapper .availability-badge.available {
+    background: #d4edda;
+    color: #155724;
+}
+
+.request-detail-wrapper .availability-badge.unavailable {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.request-detail-wrapper .description {
+    max-width: 200px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+/* Batch summary styles - Simple and clean */
+.request-detail-wrapper .batch-summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 12px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.request-detail-wrapper .summary-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.request-detail-wrapper .summary-label {
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.request-detail-wrapper .summary-value {
+    color: #152d64;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.request-detail-wrapper .summary-divider {
+    color: #dee2e6;
+    font-size: 18px;
+    font-weight: 300;
+}
+
+/* Actions container */
+.request-detail-wrapper .actions-container {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Rejection reason */
+.request-detail-wrapper .rejection-reason {
+    color: #dc3545 !important;
+    font-style: italic;
+    background: #f8d7da;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    border-left: 3px solid #dc3545;
+}
+
+/* Modal styles */
+.request-detail-wrapper .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.request-detail-wrapper .modal-content {
+    background: white;
+    border-radius: 8px;
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.request-detail-wrapper .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e1e5e9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.request-detail-wrapper .modal-header h3 {
+    margin: 0;
+    color: #152d64;
+}
+
+.request-detail-wrapper .close-modal {
+    font-size: 24px;
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.request-detail-wrapper .modal-body {
+    padding: 24px;
+}
+
+.request-detail-wrapper .cancel-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #856404;
+}
+
+.request-detail-wrapper .modal-footer {
+    padding: 20px 24px;
+    border-top: 1px solid #e1e5e9;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.request-detail-wrapper .btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.request-detail-wrapper .btn-secondary:hover {
+    background: #5a6268;
+}
+
+/* Responsive design */
+@media (min-width: 768px) {
+    .request-detail-wrapper .page-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .request-detail-wrapper .header-info h1 {
+        font-size: 1.75rem;
+    }
+
+    .request-detail-wrapper .content-section {
+        padding: 2rem;
+    }
+
+    .request-detail-wrapper .items-table th,
+    .request-detail-wrapper .items-table td {
+        padding: 1rem;
+    }
+
+    .request-detail-wrapper .description {
+        max-width: 300px;
+    }
+}
+
+@media (min-width: 992px) {
+    .request-detail-wrapper .container {
+        padding: 0 2rem;
+    }
+
+    .request-detail-wrapper .status-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .request-detail-wrapper .info-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+@media (min-width: 1200px) {
+    .request-detail-wrapper {
+        padding: 2.5rem 0;
+    }
+
+    .request-detail-wrapper .status-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .request-detail-wrapper .info-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+}
+
+/* Tablet responsive adjustments */
+@media (max-width: 1024px) {
+    .request-detail-wrapper {
+        margin-left: 270px;
+        /* Keep full sidebar margin on tablet */
+    }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 767px) {
+    .request-detail-wrapper {
+        padding: 0rem 0;
+        margin-left: 0;
+        /* Remove sidebar margin on mobile */
+        /* Account for mobile header */
+    }
+
+    .request-detail-wrapper .container {
+        padding: 0 15px;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .request-detail-wrapper .breadcrumb-nav {
+        margin-bottom: 15px;
+    }
+
+    .request-detail-wrapper .btn-back {
+        padding: 10px 15px;
+        font-size: 14px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .request-detail-wrapper .page-header {
+        padding: 1rem 15px;
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+
+    .request-detail-wrapper .header-info h1 {
+        font-size: 1.25rem;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .request-detail-wrapper .header-actions {
+        display: flex;
+        justify-content: center;
+    }
+
+    .request-detail-wrapper .btn-request-again {
+        width: 100%;
+        max-width: 300px;
+        min-height: 44px;
+        padding: 12px 20px;
+        font-size: 16px;
+        border-radius: 8px;
+    }
+
+    .request-detail-wrapper .content-section {
+        padding: 1rem 15px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .request-detail-wrapper .content-section h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .request-detail-wrapper .status-grid,
+    .request-detail-wrapper .info-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .request-detail-wrapper .info-card {
+        padding: 15px;
+        border-radius: 8px;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+    }
+
+    .request-detail-wrapper .info-card label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #152d64;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .request-detail-wrapper .info-card span {
+        font-size: 16px;
+        color: #333;
+    }
+
+    .request-detail-wrapper .status-badge {
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        display: inline-block;
+        text-align: center;
+        min-width: 100px;
+    }
+
+    .request-detail-wrapper .batch-summary {
+        gap: 12px;
+        padding: 8px;
+        font-size: 13px;
+    }
+
+    .request-detail-wrapper .summary-label {
+        font-size: 11px;
+    }
+
+    .request-detail-wrapper .summary-value {
+        font-size: 15px;
+    }
+
+    .request-detail-wrapper .summary-card .summary-value {
+        font-size: 20px;
+        font-weight: bold;
+        color: #152d64;
+        margin-bottom: 5px;
+    }
+
+    .request-detail-wrapper .summary-card .summary-label {
+        font-size: 12px;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .request-detail-wrapper .actions-container {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+    }
+
+    .request-detail-wrapper .actions-container .btn {
+        width: 100%;
+        min-height: 44px;
+        font-size: 16px;
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    /* Table improvements for mobile */
+    .request-detail-wrapper .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin: 15px 0;
+    }
+
+    .request-detail-wrapper .items-table {
+        min-width: 600px;
+        /* Ensure table doesn't get too cramped */
+        font-size: 14px;
+    }
+
+    .request-detail-wrapper .items-table th,
+    .request-detail-wrapper .items-table td {
+        padding: 12px 8px;
+        white-space: nowrap;
+    }
+
+    .request-detail-wrapper .items-table th {
+        background-color: #152d64;
+        color: white;
+        font-weight: 600;
+        text-align: left;
+    }
+
+    .request-detail-wrapper .items-table tbody tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+}
+
+/* Very small screens mobile optimization */
+@media (max-width: 480px) {
+    .request-detail-wrapper .container {
+        padding: 0 10px;
+    }
+
+    .request-detail-wrapper .page-header {
+        padding: 15px 10px;
+    }
+
+    .request-detail-wrapper .header-info h1 {
+        font-size: 1.1rem;
+    }
+
+    .request-detail-wrapper .content-section {
+        padding: 15px 10px;
+        margin-bottom: 15px;
+    }
+
+    .request-detail-wrapper .batch-summary {
+        flex-direction: row;
+        gap: 8px;
+        padding: 6px 10px;
+        margin-top: 8px;
+    }
+
+    .request-detail-wrapper .summary-item {
+        flex: 1;
+        flex-direction: column;
+        gap: 2px;
+        text-align: center;
+        min-width: 0;
+    }
+
+    .request-detail-wrapper .summary-label {
+        font-size: 8px;
+        white-space: nowrap;
+        font-weight: 600;
+    }
+
+    .request-detail-wrapper .summary-value {
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .request-detail-wrapper .summary-divider {
+        width: 1px;
+        height: 22px;
+        background-color: #dee2e6;
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .request-detail-wrapper .info-card {
+        padding: 12px;
+    }
+
+    .request-detail-wrapper .btn-back {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    /* Stack table data for very small screens */
+    .request-detail-wrapper .items-table,
+    .request-detail-wrapper .items-table tbody,
+    .request-detail-wrapper .items-table th,
+    .request-detail-wrapper .items-table td,
+    .request-detail-wrapper .items-table tr {
+        display: block;
+    }
+
+    .request-detail-wrapper .items-table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .request-detail-wrapper .items-table tr {
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 8px;
+        background: white;
+    }
+
+    .request-detail-wrapper .items-table td {
+        border: none;
+        position: relative;
+        padding: 8px 8px 8px 35%;
+        text-align: left;
+    }
+
+    .request-detail-wrapper .items-table td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 8px;
+        width: 30%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+        color: #152d64;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+}
+
+/* ===========================
+   REQUISITION SLIP SECTION STYLES
+=========================== */
+
+.request-detail-wrapper .requisition-section {
+    background: #d9edf7;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+}
+
+.request-detail-wrapper .requisition-section h2 {
+    color: #152d64;
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.request-detail-wrapper .requisition-section h2 i {
+    color: #152d64;
+    font-size: 1rem;
+}
+
+.request-detail-wrapper .requisition-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.request-detail-wrapper .requisition-description {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: #31708f;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.request-detail-wrapper .requisition-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.request-detail-wrapper .btn-requisition {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.request-detail-wrapper .btn-requisition i {
+    font-size: 0.875rem;
+}
+
+.request-detail-wrapper .btn-download {
+    background: #d9534f;
+    color: white;
+}
+
+.request-detail-wrapper .btn-download:hover {
+    background: #c9302c;
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(217, 83, 79, 0.3);
+}
+
+.request-detail-wrapper .btn-view {
+    background: #5bc0de;
+    color: white;
+}
+
+.request-detail-wrapper .btn-view:hover {
+    background: #46b8da;
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(91, 192, 222, 0.3);
+}
+
+/* Responsive requisition section */
+@media (max-width: 768px) {
+    .request-detail-wrapper .requisition-actions {
+        flex-direction: column;
+    }
+
+    .request-detail-wrapper .btn-requisition {
+        width: 100%;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+}

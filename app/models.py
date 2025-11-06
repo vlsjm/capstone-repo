@@ -21,12 +21,15 @@ class ActivityLog(models.Model):
         ('borrow', 'Borrowed'),
         ('return', 'Returned'),
         ('report', 'Reported'),
+        ('activate', 'Activated'),
+        ('change_password', 'Changed Password'),
+        ('bad_stock', 'Bad Stock Removal'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    action = models.CharField(max_length=10, choices=ACTION_CHOICES)
+    action = models.CharField(max_length=50, choices=ACTION_CHOICES)
     model_name = models.CharField(max_length=100)
-    object_repr = models.CharField(max_length=255)
+    object_repr = models.TextField()  # Changed to TextField for unlimited length
     description = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -61,6 +64,7 @@ class UserProfile(models.Model):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
+    designation = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.user.username
@@ -69,8 +73,14 @@ class UserProfile(models.Model):
 class SupplyQuantity(models.Model):
     supply = models.OneToOneField('Supply', on_delete=models.CASCADE, related_name='quantity_info')
     current_quantity = models.PositiveIntegerField(default=0)
+    reserved_quantity = models.PositiveIntegerField(default=0)  # Track reserved stock for approved requests
     minimum_threshold = models.PositiveIntegerField(default=10)
     last_updated = models.DateTimeField(auto_now=True)
+
+    @property
+    def available_quantity(self):
+        """Calculate available quantity (current - reserved)"""
+        return max(0, self.current_quantity - self.reserved_quantity)
 
     def __str__(self):
         return f"Quantity for {self.supply.supply_name}: {self.current_quantity}"
@@ -146,18 +156,15 @@ class Supply(models.Model):
     category = models.ForeignKey(SupplyCategory, on_delete=models.SET_NULL, null=True, blank=True)
     subcategory = models.ForeignKey(SupplySubcategory, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(blank=True, null=True)
-    barcode = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    barcode = models.CharField(max_length=100, unique=True, null=True, blank=True)  # Unique barcode text (e.g., "SUP-001")
+    barcode_image = models.ImageField(upload_to='barcodes/supplies/', null=True, blank=True)  # Barcode image file
     available_for_request = models.BooleanField(default=True)
     date_received = models.DateField()
     expiration_date = models.DateField(null=True, blank=True)
     last_updated = models.DateTimeField(auto_now=True)
     is_archived = models.BooleanField(default=False)
 
-    def save(self, *args, **kwargs):
-        # Generate barcode if not set
-        if not self.barcode and self.pk:
-            self.barcode = f"SUP-{self.pk}"
-        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return self.supply_name
@@ -181,14 +188,6 @@ class Supply(models.Model):
         return status_dict.get(self.status, 'Unknown')
     
     def save(self, *args, **kwargs):
-        # Update available_for_request based on quantity
-        try:
-            quantity_info = self.quantity_info
-            self.available_for_request = (quantity_info.current_quantity > 0)
-        except SupplyQuantity.DoesNotExist:
-            # For new supplies, we'll set this after creating SupplyQuantity
-            pass
-
         # Get the user from kwargs
         user = kwargs.pop('user', None)
 
@@ -223,6 +222,15 @@ class Supply(models.Model):
                     )
 
         super().save(*args, **kwargs)
+        
+        # Generate barcode if not set (after initial save to have an ID)
+        if not self.barcode:
+            from .utils import generate_barcode_image
+            self.barcode = f"SUP-{self.pk}"
+            # Generate and save barcode image
+            filename, content = generate_barcode_image(self.barcode)
+            self.barcode_image.save(filename, content, save=False)
+            super().save(update_fields=['barcode', 'barcode_image'])
     
     @property
     def is_expired(self):
@@ -288,6 +296,7 @@ class Supply(models.Model):
         ]
 class PropertyCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    uacs = models.BigIntegerField(null=True, blank=True, help_text="UACS (e.g., 13124324)")
 
     def __str__(self):
         return self.name
@@ -308,10 +317,12 @@ class Property(models.Model):
     ]
 
     property_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    old_property_number = models.CharField(max_length=100, null=True, blank=True, help_text="Previous property number before change")
     property_name = models.CharField(max_length=100)
     category = models.ForeignKey(PropertyCategory, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    barcode = models.CharField(max_length=150, unique=True, null=True, blank=True)
+    barcode = models.CharField(max_length=100, unique=True, null=True, blank=True)  # Unique barcode text (e.g., "PROP-001")
+    barcode_image = models.ImageField(upload_to='barcodes/properties/', null=True, blank=True)  # Barcode image file
     unit_of_measure = models.CharField(max_length=50, null=True, blank=True)
     unit_value = models.DecimalField(
         max_digits=10, decimal_places=2,
@@ -320,6 +331,8 @@ class Property(models.Model):
     )
     overall_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0)
+    reserved_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0, help_text="Quantity reserved by pending/approved requests")
+    quantity_per_physical_count = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0, help_text="Quantity based on physical count/inventory")
     location = models.CharField(max_length=255, null=True, blank=True)
     accountable_person = models.CharField(max_length=255, null=True, blank=True)
     year_acquired = models.DateField(null=True, blank=True)
@@ -332,6 +345,14 @@ class Property(models.Model):
         if self.property_number:
             return f"{self.property_name} ({self.property_number})"
         return self.property_name
+
+    @property
+    def available_quantity(self):
+        """
+        Calculate available quantity for new requests.
+        Returns quantity available after accounting for reserved/pending requests.
+        """
+        return max(0, (self.quantity or 0) - (self.reserved_quantity or 0))
 
     def update_availability(self):
         """Update availability based on condition and quantity"""
@@ -356,11 +377,23 @@ class Property(models.Model):
         # Get the user from kwargs
         user = kwargs.pop('user', None)
         
+        # Format property number to uppercase if it has characters
+        if self.property_number:
+            self.property_number = self.property_number.upper()
+        
+        # Format old property number to uppercase if it has characters
+        if self.old_property_number:
+            self.old_property_number = self.old_property_number.upper()
+        
         # If this is a new property or overall_quantity has changed
-        if not self.pk or (self.pk and Property.objects.get(pk=self.pk).overall_quantity != self.overall_quantity):
-            # Set the current quantity equal to overall_quantity if it's a new property
-            # or if overall_quantity has been updated
+        if not self.pk:
+            # For new properties, set current quantity equal to overall_quantity
             self.quantity = self.overall_quantity
+        elif self.pk:
+            # For existing properties, only update quantity if overall_quantity actually changed
+            old_obj = Property.objects.get(pk=self.pk)
+            if old_obj.overall_quantity != self.overall_quantity:
+                self.quantity = self.overall_quantity
         
         # Check if this is a new property
         is_new = self.pk is None
@@ -386,18 +419,43 @@ class Property(models.Model):
         else:
             # For existing properties, track changes
             old_obj = Property.objects.get(pk=self.pk)
+            
+            # Handle property number change - store old value if property number is being changed
+            if old_obj.property_number != self.property_number and old_obj.property_number:
+                # Only update old_property_number if we don't already have one stored
+                # or if the current old_property_number is the same as the old property_number
+                if not self.old_property_number or self.old_property_number == old_obj.property_number:
+                    self.old_property_number = old_obj.property_number
+            
             fields_to_track = ['property_number', 'property_name', 'category', 'description', 'barcode', 
-                             'unit_of_measure', 'unit_value', 'overall_quantity', 'quantity', 
+                             'unit_of_measure', 'unit_value', 'overall_quantity', 'quantity', 'quantity_per_physical_count',
                              'location', 'accountable_person', 'year_acquired', 'condition', 'availability']
             
             for field in fields_to_track:
                 old_value = getattr(old_obj, field)
                 new_value = getattr(self, field)
                 
-                if old_value != new_value:
+                # Handle special comparisons for different data types
+                values_different = False
+                if field == 'unit_value':
+                    # Compare decimal values with proper precision
+                    from decimal import Decimal
+                    old_decimal = Decimal(str(old_value)) if old_value is not None else Decimal('0')
+                    new_decimal = Decimal(str(new_value)) if new_value is not None else Decimal('0')
+                    values_different = old_decimal != new_decimal
+                elif field == 'category':
+                    # Compare category objects properly
+                    old_cat_id = old_value.id if old_value else None
+                    new_cat_id = new_value.id if new_value else None
+                    values_different = old_cat_id != new_cat_id
+                else:
+                    # Standard comparison for other fields
+                    values_different = old_value != new_value
+                
+                if values_different:
                     # Add specific remarks for quantity changes
                     remarks = None
-                    if field in ['quantity', 'overall_quantity']:
+                    if field in ['quantity', 'overall_quantity', 'quantity_per_physical_count']:
                         change = (new_value or 0) - (old_value or 0)
                         if change > 0:
                             remarks = f"{field.replace('_', ' ').title()} increased by {abs(change)}"
@@ -578,30 +636,9 @@ class SupplyRequestBatch(models.Model):
                     remarks=f"Items: {item_list}. Purpose: {self.purpose[:100]}"
                 )
 
-        # Update supply quantities when request is approved
-        if old_status != self.status and self.status in ['approved', 'partially_approved']:
-            for item in self.items.filter(status='approved'):
-                try:
-                    quantity_info = item.supply.quantity_info
-                    if quantity_info.current_quantity >= item.quantity:
-                        quantity_info.current_quantity -= item.quantity
-                        quantity_info.save()
-                        
-                        # Save the supply to update available_for_request
-                        item.supply.save()
-                        
-                        # Create notification for low stock if needed
-                        if quantity_info.current_quantity <= quantity_info.minimum_threshold:
-                            admin_users = User.objects.filter(userprofile__role='ADMIN')
-                            
-                            for admin_user in admin_users:
-                                Notification.objects.create(
-                                    user=admin_user,
-                                    message=f"Supply '{item.supply.supply_name}' is running low on stock (Current: {quantity_info.current_quantity}, Minimum: {quantity_info.minimum_threshold})",
-                                    remarks="Please restock soon."
-                                )
-                except SupplyQuantity.DoesNotExist:
-                    pass
+        # NOTE: Quantity deduction is handled during the CLAIMING process, not during approval.
+        # During approval, quantities are reserved (handled in views.py approve_batch_item).
+        # During claiming, quantities are actually deducted from current_quantity (handled in views.py claim_batch_items).
 
 class SupplyRequestItem(models.Model):
     """
@@ -649,32 +686,356 @@ class SupplyRequestItem(models.Model):
                     'supply': f'Supply {self.supply.supply_name} has no quantity information.'
                 })
 
-class Reservation(models.Model):
+
+class ReservationBatch(models.Model):
+    """
+    A batch reservation request that can contain multiple property items.
+    Similar to BorrowRequestBatch and SupplyRequestBatch for consistency.
+    """
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
-        ('active', 'Active'),  # When the reservation period has started
-        ('completed', 'Completed'),  # When the reservation period has ended
+        ('partially_approved', 'Partially Approved'),
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('expired', 'Expired'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    request_date = models.DateTimeField(auto_now_add=True)
+    purpose = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    approved_date = models.DateTimeField(null=True, blank=True)
+    remarks = models.TextField(blank=True, null=True)
+    
+    # Link to the auto-generated borrow request batch
+    generated_borrow_batch = models.ForeignKey('BorrowRequestBatch', on_delete=models.SET_NULL, null=True, blank=True, related_name='source_reservation_batch')
+
+    class Meta:
+        ordering = ['-request_date']
+
+    def __str__(self):
+        return f"Reservation Batch #{self.id} by {self.user.username} ({self.request_date.date()})"
+
+    @property
+    def total_items(self):
+        return self.items.count()
+
+    @property
+    def total_quantity(self):
+        return sum(item.quantity for item in self.items.all())
+
+    @property
+    def earliest_needed_date(self):
+        """Get the earliest needed date among all items"""
+        needed_dates = [item.needed_date for item in self.items.all() if item.needed_date]
+        return min(needed_dates) if needed_dates else None
+
+    @property
+    def latest_return_date(self):
+        """Get the latest return date among all items"""
+        return_dates = [item.return_date for item in self.items.all() if item.return_date]
+        return max(return_dates) if return_dates else None
+
+    def save(self, *args, **kwargs):
+        # Check if this is a new batch request
+        is_new = self.pk is None
+        
+        # Get the old instance if it exists
+        try:
+            old_instance = ReservationBatch.objects.get(pk=self.pk)
+            old_status = old_instance.status
+        except ReservationBatch.DoesNotExist:
+            old_status = None
+
+        # Save the batch request
+        super().save(*args, **kwargs)
+
+        # If this is a new batch request, notify admin users
+        if is_new:
+            admin_users = User.objects.filter(userprofile__role='ADMIN')
+            item_list = ", ".join([f"{item.property.property_name} (x{item.quantity})" 
+                                 for item in self.items.all()[:3]])
+            if self.items.count() > 3:
+                item_list += f" and {self.items.count() - 3} more items"
+            
+            for admin_user in admin_users:
+                Notification.objects.create(
+                    user=admin_user,
+                    message=f"New batch reservation request #{self.id} submitted by {self.user.username}",
+                    remarks=f"Items: {item_list}. Purpose: {self.purpose[:100]}"
+                )
+
+        # Handle status changes
+        if old_status != self.status:
+            if self.status == 'approved' and old_status == 'pending':
+                # Notify user about approval
+                Notification.objects.create(
+                    user=self.user,
+                    message=f"Your batch reservation request #{self.id} has been approved.",
+                    remarks=self.remarks if self.remarks else None
+                )
+            elif self.status == 'rejected' and old_status == 'pending':
+                # Notify user about rejection
+                Notification.objects.create(
+                    user=self.user,
+                    message=f"Your batch reservation request #{self.id} has been rejected.",
+                    remarks=self.remarks if self.remarks else None
+                )
+
+    @classmethod
+    def check_and_update_batches(cls):
+        """
+        Check and update reservation batch statuses based on dates.
+        Also handles auto-generation of borrow requests for approved reservations.
+        This should be run periodically (e.g., daily) using a scheduled task.
+        """
+        from django.db import transaction
+        
+        today = timezone.now().date()
+        
+        # 1. Update pending batches to expired when latest return_date has passed
+        for batch in cls.objects.filter(status='pending'):
+            if batch.latest_return_date and batch.latest_return_date < today:
+                batch.status = 'expired'
+                batch.save()
+                
+                # Notify the user about the expired reservation
+                Notification.objects.create(
+                    user=batch.user,
+                    message=f"Your reservation batch #{batch.id} has expired.",
+                    remarks=f"The reservation period ended on {batch.latest_return_date} before approval."
+                )
+        
+        # 2. Update approved batches to expired when latest return_date has passed without becoming active
+        for batch in cls.objects.filter(status='approved'):
+            if batch.latest_return_date and batch.latest_return_date < today and not batch.generated_borrow_batch:
+                batch.status = 'expired'
+                batch.save()
+                
+                # Notify the user about the expired reservation
+                Notification.objects.create(
+                    user=batch.user,
+                    message=f"Your reservation batch #{batch.id} has expired.",
+                    remarks=f"The reservation period ended on {batch.latest_return_date} without activation."
+                )
+        
+        # 3. AUTO-GENERATE BORROW REQUESTS: Update approved batches to active when earliest needed_date is reached
+        approved_batches = cls.objects.filter(
+            status='approved',
+            generated_borrow_batch__isnull=True  # Only if borrow request hasn't been created yet
+        )
+        
+        for batch in approved_batches:
+            earliest_date = batch.earliest_needed_date
+            latest_date = batch.latest_return_date
+            
+            # Check if it's time to activate (needed_date reached and return_date hasn't passed)
+            if earliest_date and earliest_date <= today and latest_date and latest_date >= today:
+                with transaction.atomic():
+                    # Create a single BorrowRequestBatch for the entire reservation batch
+                    borrow_batch = BorrowRequestBatch.objects.create(
+                        user=batch.user,
+                        purpose=f"Auto-generated from Reservation Batch #{batch.id}: {batch.purpose}",
+                        status='for_claiming',
+                        approved_date=timezone.now(),
+                        remarks=f"Automatically created from approved reservation batch #{batch.id}"
+                    )
+                    
+                    # Create BorrowRequestItem for each approved item in the batch
+                    approved_items = batch.items.filter(status='approved')
+                    for item in approved_items:
+                        BorrowRequestItem.objects.create(
+                            batch_request=borrow_batch,
+                            property=item.property,
+                            quantity=item.quantity,
+                            approved_quantity=item.quantity,
+                            return_date=item.return_date,
+                            status='approved',
+                            approved=True,
+                            remarks=f"Auto-generated from reservation batch #{batch.id}"
+                        )
+                        
+                        # Mark item as active
+                        item.status = 'active'
+                        item.save()
+                    
+                    # Link the borrow batch to the reservation batch and mark as active
+                    batch.generated_borrow_batch = borrow_batch
+                    batch.status = 'active'
+                    batch.save()
+                    
+                    # Notify admins about the auto-generated borrow request
+                    admin_users = User.objects.filter(userprofile__role='ADMIN')
+                    item_count = approved_items.count()
+                    for admin_user in admin_users:
+                        Notification.objects.create(
+                            user=admin_user,
+                            message=f"Borrow request #{borrow_batch.id} auto-generated from reservation batch #{batch.id}",
+                            remarks=f"User: {batch.user.username}, {item_count} items, Status: For Claiming"
+                        )
+
+
+class ReservationItem(models.Model):
+    """
+    Individual property items within a batch reservation request.
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('expired', 'Expired'),
+    ]
+    
+    batch_request = models.ForeignKey(ReservationBatch, on_delete=models.CASCADE, related_name='items')
+    property = models.ForeignKey(Property, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    needed_date = models.DateField(null=True, blank=True)
+    return_date = models.DateField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    approved = models.BooleanField(default=False)  # For backward compatibility
+    remarks = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ['batch_request', 'property']  # Prevent duplicate items in same batch
+
+    def __str__(self):
+        return f"{self.property.property_name} (x{self.quantity}) in Reservation Batch #{self.batch_request.id}"
+
+    def save(self, *args, **kwargs):
+        # Check if this is a new item or status is changing
+        is_new = self.pk is None
+        old_status = None
+        old_quantity = None
+        
+        if not is_new:
+            try:
+                old_instance = ReservationItem.objects.get(pk=self.pk)
+                old_status = old_instance.status
+                old_quantity = old_instance.quantity
+            except ReservationItem.DoesNotExist:
+                pass
+        
+        # Keep approved field in sync with status for backward compatibility
+        self.approved = (self.status == 'approved')
+        
+        super().save(*args, **kwargs)
+        
+        # Handle reserved_quantity updates
+        # NOTE: Reservations only reserve when APPROVED (not when pending)
+        # Pending = waiting for admin review, Approved = reserved and waiting to be active
+        if is_new and self.status == 'approved':
+            # New approved reservation - reserve the quantity
+            self.property.reserved_quantity += self.quantity
+            self.property.save(update_fields=['reserved_quantity'])
+        
+        elif old_status and old_status != self.status:
+            # Status changed
+            if self.status == 'approved' and old_status == 'pending':
+                # Pending -> Approved: NOW reserve the quantity
+                self.property.reserved_quantity += self.quantity
+                self.property.save(update_fields=['reserved_quantity'])
+            
+            elif self.status == 'rejected' and old_status == 'approved':
+                # Rejected after approval: Release reserved quantity
+                self.property.reserved_quantity = max(0, self.property.reserved_quantity - self.quantity)
+                self.property.save(update_fields=['reserved_quantity'])
+            
+            elif self.status == 'rejected' and old_status == 'pending':
+                # Rejected while pending: No reserved quantity to release
+                pass
+            
+            elif self.status == 'active' and old_status == 'approved':
+                # Approved -> Active (claimed): Deduct from both reserved and actual quantity
+                self.property.reserved_quantity = max(0, self.property.reserved_quantity - self.quantity)
+                self.property.quantity = max(0, self.property.quantity - self.quantity)
+                self.property.save(update_fields=['reserved_quantity', 'quantity'])
+                self.property.update_availability()
+            
+            elif self.status == 'completed' and old_status == 'active':
+                # Active -> Completed (returned): Restore quantity
+                self.property.quantity += self.quantity
+                self.property.save(update_fields=['quantity'])
+                self.property.update_availability()
+            
+            elif self.status == 'expired' and old_status == 'approved':
+                # Expired after approval: Release reserved quantity
+                self.property.reserved_quantity = max(0, self.property.reserved_quantity - self.quantity)
+                self.property.save(update_fields=['reserved_quantity'])
+            
+            elif self.status == 'expired' and old_status == 'pending':
+                # Expired while pending: No reserved quantity to release
+                pass
+        
+        elif old_quantity and old_quantity != self.quantity and self.status == 'approved':
+            # Quantity changed while approved - update reserved amount
+            quantity_diff = self.quantity - old_quantity
+            self.property.reserved_quantity = max(0, self.property.reserved_quantity + quantity_diff)
+            self.property.save(update_fields=['reserved_quantity'])
+    
+    def delete(self, *args, **kwargs):
+        # Release reserved quantity if item is deleted while approved (not pending)
+        if self.status == 'approved':
+            self.property.reserved_quantity = max(0, self.property.reserved_quantity - self.quantity)
+            self.property.save(update_fields=['reserved_quantity'])
+        super().delete(*args, **kwargs)
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        
+        # Allow users to submit any quantity - validation happens during approval
+        # No need to check available_quantity at submission time
+        pass
+
+
+class Reservation(models.Model):
+    """
+    LEGACY MODEL - Kept for backward compatibility only.
+    New reservations should use ReservationBatch and ReservationItem models.
+    This model may be removed in future versions after data migration.
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('expired', 'Expired'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(Property, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
-    reservation_date = models.DateTimeField(auto_now_add=True)  # when the reservation was made
+    reservation_date = models.DateTimeField(auto_now_add=True)
     needed_date = models.DateField(null=True, blank=True)
     return_date = models.DateField()
     approved_date = models.DateTimeField(null=True, blank=True)
     purpose = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     remarks = models.TextField(blank=True, null=True)
+    
+    # DEPRECATED: batch_id and batch_request_date (use ReservationBatch instead)
+    batch_id = models.CharField(max_length=100, null=True, blank=True, db_index=True)
+    batch_request_date = models.DateTimeField(null=True, blank=True)
+    
+    # Link to the auto-generated borrow request
+    generated_borrow_batch = models.ForeignKey('BorrowRequestBatch', on_delete=models.SET_NULL, null=True, blank=True, related_name='source_reservation')
+
+    class Meta:
+        ordering = ['-reservation_date']
 
     def __str__(self):
-        return f"Reservation by {self.user.username} for {self.item.property_name}"
+        return f"[LEGACY] Reservation #{self.id} by {self.user.username} for {self.item.property_name}"
 
     def save(self, *args, **kwargs):
         # Check if this is a new reservation
         is_new = self.pk is None
+        
+        # Skip notification flag (used when creating batch to notify once)
+        skip_notification = kwargs.pop('skip_notification', False)
         
         # Get the old instance if it exists
         try:
@@ -686,36 +1047,43 @@ class Reservation(models.Model):
         # Save the reservation
         super().save(*args, **kwargs)
         
-        # If this is a new reservation, notify admin users
-        if is_new:
+        # If this is a new reservation, notify admin users (unless skipped for batch)
+        if is_new and not skip_notification:
             admin_users = User.objects.filter(userprofile__role='ADMIN')
-            for admin_user in admin_users:
-                Notification.objects.create(
-                    user=admin_user,
-                    message=f"New reservation #{self.id} submitted for {self.item.property_name} by {self.user.username}",
-                    remarks=f"Quantity: {self.quantity}, Needed Date: {self.needed_date}, Return Date: {self.return_date}, Purpose: {self.purpose}"
-                )
+            
+            if self.batch_id:
+                # For batch reservations, check if this is the first item
+                batch_reservations = Reservation.objects.filter(batch_id=self.batch_id)
+                if batch_reservations.count() == 1:  # This is the first item
+                    # Notification will be sent after all items are created
+                    pass
+            else:
+                # Single reservation (legacy or individual)
+                for admin_user in admin_users:
+                    Notification.objects.create(
+                        user=admin_user,
+                        message=f"New reservation #{self.id} submitted for {self.item.property_name} by {self.user.username}",
+                        remarks=f"Quantity: {self.quantity}, Needed Date: {self.needed_date}, Return Date: {self.return_date}, Purpose: {self.purpose}"
+                    )
 
         # Handle status changes
         if old_status != self.status:
-            # When a reservation becomes active
-            if self.status == 'active' and old_status in ['approved', None]:
-                # Decrease the item's quantity
-                self.item.quantity -= self.quantity
-                self.item.save()
+            # When a reservation becomes active (auto-generated borrow request created)
+            if self.status == 'active' and old_status == 'approved':
+                # Don't decrease quantity here - it will be handled when borrow request becomes active
                 
-                # Notify the user
+                # Notify the user that borrow request has been created
+                borrow_batch_info = f"Borrow Request #{self.generated_borrow_batch.id} has been created for you." if self.generated_borrow_batch else "Please visit the office to claim your items."
+                
                 Notification.objects.create(
                     user=self.user,
-                    message=f"Your reservation for {self.item.property_name} is now active.",
-                    remarks=f"Please collect your items. Return date: {self.return_date}"
+                    message=f"Your reservation for {self.item.property_name} is ready for claiming!",
+                    remarks=f"{borrow_batch_info} Return date: {self.return_date}"
                 )
             
             # When a reservation is completed
             elif self.status == 'completed' and old_status == 'active':
-                # Increase the item's quantity
-                self.item.quantity += self.quantity
-                self.item.save()
+                # Don't increase quantity here - it will be handled by the borrow request system
                 
                 # Notify the user
                 Notification.objects.create(
@@ -750,15 +1118,148 @@ class Reservation(models.Model):
         """
         today = timezone.now().date()
         
-        # Update approved reservations to active when needed_date is reached
-        approved_to_active = cls.objects.filter(
+        # Update pending reservations to expired when return_date has passed
+        pending_to_expired = cls.objects.filter(
+            status='pending',
+            return_date__lt=today
+        )
+        for reservation in pending_to_expired:
+            reservation.status = 'expired'
+            reservation.save()
+            
+            # Notify the user about the expired reservation
+            Notification.objects.create(
+                user=reservation.user,
+                message=f"Your reservation request for {reservation.item.property_name} has expired.",
+                remarks=f"The reservation period ended on {reservation.return_date} before approval."
+            )
+        
+        # Update approved reservations to expired when return_date has passed without becoming active
+        approved_to_expired = cls.objects.filter(
+            status='approved',
+            return_date__lt=today
+        )
+        for reservation in approved_to_expired:
+            reservation.status = 'expired'
+            reservation.save()
+            
+            # Notify the user about the expired reservation
+            Notification.objects.create(
+                user=reservation.user,
+                message=f"Your reservation for {reservation.item.property_name} has expired.",
+                remarks=f"The reservation period ended on {reservation.return_date} without activation."
+            )
+        
+        # AUTO-GENERATE BORROW REQUESTS: Update approved reservations to active when needed_date is reached
+        from django.db import transaction
+        
+        # Get unique batch_ids of approved reservations ready for activation
+        approved_reservations = cls.objects.filter(
             status='approved',
             needed_date__lte=today,
-            return_date__gte=today
+            return_date__gte=today,
+            generated_borrow_batch__isnull=True  # Only if borrow request hasn't been created yet
         )
-        for reservation in approved_to_active:
-            reservation.status = 'active'
-            reservation.save()
+        
+        # Group by batch_id (None for non-batch reservations)
+        processed_batches = set()
+        
+        for reservation in approved_reservations:
+            # Skip if we've already processed this batch
+            if reservation.batch_id and reservation.batch_id in processed_batches:
+                continue
+            
+            with transaction.atomic():
+                if reservation.batch_id:
+                    # Handle batch reservation - get all items in the batch
+                    batch_reservations = cls.objects.filter(
+                        batch_id=reservation.batch_id,
+                        status='approved',
+                        generated_borrow_batch__isnull=True
+                    )
+                    
+                    # Create a single BorrowRequestBatch for the entire reservation batch
+                    borrow_batch = BorrowRequestBatch.objects.create(
+                        user=reservation.user,
+                        purpose=f"Auto-generated from Reservation Batch {reservation.batch_id[:8]}: {reservation.purpose}",
+                        status='for_claiming',
+                        approved_date=timezone.now(),
+                        remarks=f"Automatically created from approved reservation batch {reservation.batch_id[:8]}"
+                    )
+                    
+                    # Create BorrowRequestItem for each reservation in the batch
+                    for res in batch_reservations:
+                        BorrowRequestItem.objects.create(
+                            batch_request=borrow_batch,
+                            property=res.item,
+                            quantity=res.quantity,
+                            approved_quantity=res.quantity,
+                            return_date=res.return_date,
+                            status='approved',
+                            approved=True,
+                            remarks=f"Auto-generated from reservation #{res.id}"
+                        )
+                        
+                        # Link the borrow batch to each reservation and mark as active
+                        res.generated_borrow_batch = borrow_batch
+                        res.status = 'active'
+                        res.save()
+                    
+                    # Mark batch as processed
+                    processed_batches.add(reservation.batch_id)
+                    
+                    # Notify admins about the auto-generated borrow request
+                    admin_users = User.objects.filter(userprofile__role='ADMIN')
+                    item_count = batch_reservations.count()
+                    for admin_user in admin_users:
+                        Notification.objects.create(
+                            user=admin_user,
+                            message=f"Borrow request #{borrow_batch.id} auto-generated from reservation batch",
+                            remarks=f"User: {reservation.user.username}, {item_count} items, Status: For Claiming"
+                        )
+                else:
+                    # Handle single (non-batch) reservation - legacy support
+                    borrow_batch = BorrowRequestBatch.objects.create(
+                        user=reservation.user,
+                        purpose=f"Auto-generated from Reservation #{reservation.id}: {reservation.purpose}",
+                        status='for_claiming',
+                        approved_date=timezone.now(),
+                        remarks=f"Automatically created from approved reservation #{reservation.id}"
+                    )
+                    
+                    # Create the BorrowRequestItem for this reservation
+                    BorrowRequestItem.objects.create(
+                        batch_request=borrow_batch,
+                        property=reservation.item,
+                        quantity=reservation.quantity,
+                        approved_quantity=reservation.quantity,
+                        return_date=reservation.return_date,
+                        status='approved',
+                        approved=True,
+                        remarks=f"Auto-generated from reservation #{reservation.id}"
+                    )
+                    
+                    # Link the borrow batch to the reservation
+                    reservation.generated_borrow_batch = borrow_batch
+                    reservation.status = 'active'
+                    reservation.save()
+                    
+                    # Notify admins about the auto-generated borrow request
+                    admin_users = User.objects.filter(userprofile__role='ADMIN')
+                    for admin_user in admin_users:
+                        Notification.objects.create(
+                            user=admin_user,
+                            message=f"Borrow request #{borrow_batch.id} auto-generated from reservation #{reservation.id}",
+                            remarks=f"User: {reservation.user.username}, Item: {reservation.item.property_name} (x{reservation.quantity}), Status: For Claiming"
+                        )
+                # Notify admins about the auto-generated borrow request
+                admin_users = User.objects.filter(userprofile__role='ADMIN')
+                for admin_user in admin_users:
+                    Notification.objects.create(
+                        user=admin_user,
+                        message=f"Borrow request #{borrow_batch.id} auto-generated from reservation #{reservation.id}",
+                        remarks=f"User: {reservation.user.username}, Item: {reservation.item.property_name} (x{reservation.quantity}), Status: For Claiming"
+                    )
         
         # Update active reservations to completed when return_date is passed
         active_to_completed = cls.objects.filter(
@@ -798,10 +1299,47 @@ class DamageReport(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     remarks = models.TextField(blank=True, null=True)
     report_date = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to='report_images/', blank=True, null=True)
+    
+    # Store image as binary data in PostgreSQL database
+    image_data = models.BinaryField(blank=True, null=True, help_text="Compressed image stored as binary data")
+    image_name = models.CharField(max_length=255, blank=True, null=True, help_text="Original filename")
+    image_type = models.CharField(max_length=50, default='image/jpeg', help_text="MIME type (e.g., image/jpeg)")
+    image_size = models.PositiveIntegerField(null=True, blank=True, help_text="Image size in bytes")
+    
+    deleted_at = models.DateTimeField(null=True, blank=True, help_text="When the image was deleted")
+    deleted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='deleted_damage_reports', help_text="Admin who deleted the image")
 
     def __str__(self):
         return f"Damage Report for {self.item.property_name}"
+    
+    @property
+    def has_image(self):
+        """Check if report has an image that hasn't been deleted"""
+        return bool(self.image_data and not self.deleted_at)
+    
+    def set_image_from_file(self, image_file):
+        """
+        Compress and store image file as binary data in database.
+        This method should be called from forms/views when processing uploads.
+        """
+        from .image_compression import compress_and_convert_to_binary
+        
+        if image_file:
+            try:
+                # Compress image and convert to binary
+                binary_data, size = compress_and_convert_to_binary(image_file)
+                
+                if binary_data:
+                    self.image_data = binary_data
+                    self.image_name = image_file.name
+                    self.image_type = 'image/jpeg'  # Always JPEG after compression
+                    self.image_size = size
+                    return True
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Failed to process image for damage report: {str(e)}")
+        return False
 
     def save(self, *args, **kwargs):
         # Check if this is a new damage report
@@ -1134,20 +1672,83 @@ class BorrowRequestItem(models.Model):
         return f"{self.property.property_name} (x{self.quantity}) in Borrow Batch #{self.batch_request.id}"
 
     def save(self, *args, **kwargs):
+        # Check if this is a new item or status is changing
+        is_new = self.pk is None
+        old_status = None
+        old_quantity = None
+        
+        if not is_new:
+            try:
+                old_instance = BorrowRequestItem.objects.get(pk=self.pk)
+                old_status = old_instance.status
+                old_quantity = old_instance.quantity
+            except BorrowRequestItem.DoesNotExist:
+                pass
+        
         # Keep approved field in sync with status for backward compatibility
         self.approved = (self.status == 'approved')
+        
         super().save(*args, **kwargs)
+        
+        # Handle reserved_quantity updates
+        # NOTE: Borrow requests only reserve when APPROVED (not when pending)
+        # This differs from reservations which reserve immediately when pending
+        if is_new and self.status == 'approved':
+            # New approved borrow request - reserve the quantity
+            self.property.reserved_quantity += self.quantity
+            self.property.save(update_fields=['reserved_quantity'])
+        
+        elif old_status and old_status != self.status:
+            # Status changed
+            if self.status == 'approved' and old_status == 'pending':
+                # Pending -> Approved: NOW reserve the quantity
+                self.property.reserved_quantity += self.quantity
+                self.property.save(update_fields=['reserved_quantity'])
+            
+            elif self.status == 'rejected' and old_status == 'approved':
+                # Rejected after approval: Release reserved quantity
+                self.property.reserved_quantity = max(0, self.property.reserved_quantity - self.quantity)
+                self.property.save(update_fields=['reserved_quantity'])
+            
+            elif self.status == 'rejected' and old_status == 'pending':
+                # Rejected while pending: No reserved quantity to release
+                pass
+            
+            elif self.status == 'active' and old_status == 'approved':
+                # Approved -> Active (claimed): Only release reserved quantity
+                # NOTE: Actual quantity deduction is handled in the claim view to prevent double deduction
+                self.property.reserved_quantity = max(0, self.property.reserved_quantity - self.quantity)
+                self.property.save(update_fields=['reserved_quantity'])
+                self.property.update_availability()
+            
+            elif self.status == 'returned' and old_status in ['active', 'overdue']:
+                # Returned: Quantity restoration is handled in the return view
+                # NOTE: Do not add quantity here to prevent double addition
+                self.property.update_availability()
+            
+            elif self.status == 'completed' and old_status == 'returned':
+                # Returned -> Completed: No quantity change needed
+                pass
+        
+        elif old_quantity and old_quantity != self.quantity and self.status == 'approved':
+            # Quantity changed while approved - update reserved amount
+            quantity_diff = self.quantity - old_quantity
+            self.property.reserved_quantity = max(0, self.property.reserved_quantity + quantity_diff)
+            self.property.save(update_fields=['reserved_quantity'])
+    
+    def delete(self, *args, **kwargs):
+        # Release reserved quantity if item is deleted while approved (not pending)
+        if self.status == 'approved':
+            self.property.reserved_quantity = max(0, self.property.reserved_quantity - self.quantity)
+            self.property.save(update_fields=['reserved_quantity'])
+        super().delete(*args, **kwargs)
 
     def clean(self):
         from django.core.exceptions import ValidationError
         
-        if self.quantity and self.property:
-            available_quantity = self.property.quantity or 0
-            if self.quantity > available_quantity:
-                raise ValidationError({
-                    'quantity': f'Only {available_quantity} units of {self.property.property_name} are available.'
-                })
-
+        # Allow users to submit any quantity - validation happens during approval
+        # No need to check available_quantity at submission time
+        
         # Validate return date
         if self.return_date and self.return_date <= timezone.now().date():
             raise ValidationError({
@@ -1179,7 +1780,7 @@ class SupplyHistory(models.Model):
 
     def __str__(self):
         user_display = self.user.username if self.user else "Unknown User"  
-        return f"{self.supply.supply_name} - {self.action} by {self.user.username} at {self.timestamp}"
+        return f"{self.supply.supply_name} - {self.action} by {user_display} at {self.timestamp}"
 
 class PropertyHistory(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='history')
@@ -1196,4 +1797,67 @@ class PropertyHistory(models.Model):
 
     def __str__(self):
         user_display = self.user.username if self.user else "Unknown User"  
-        return f"{self.property.property_name} - {self.action} by {self.user.username} at {self.timestamp}"
+        return f"{self.property.property_name} - {self.action} by {user_display} at {self.timestamp}"
+
+
+class BadStockReport(models.Model):
+    supply = models.ForeignKey(Supply, on_delete=models.CASCADE, related_name='bad_stock_reports')
+    quantity_removed = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    remarks = models.TextField()  # Required detailed explanation including the reason
+    reported_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='bad_stock_reports')
+    reported_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-reported_at']
+    
+    def __str__(self):
+        return f"Bad Stock: {self.supply.supply_name} - {self.quantity_removed} units"
+    
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        
+        # For new reports, deduct inventory immediately
+        if is_new:
+            self.deduct_from_inventory()
+        
+        super().save(*args, **kwargs)
+    
+    def deduct_from_inventory(self):
+        """Deduct the bad stock quantity from inventory and log the activity"""
+        try:
+            quantity_info = self.supply.quantity_info
+            old_quantity = quantity_info.current_quantity
+            
+            if old_quantity < self.quantity_removed:
+                raise ValueError(f"Cannot deduct {self.quantity_removed} units. Only {old_quantity} units available.")
+            
+            # Deduct the quantity (skip_history=True to prevent duplicate logging)
+            quantity_info.current_quantity -= self.quantity_removed
+            quantity_info.save(user=self.reported_by, skip_history=True)
+            
+            # Update supply's available_for_request status
+            self.supply.available_for_request = (quantity_info.current_quantity > 0)
+            self.supply.save(user=self.reported_by)
+            
+            # Create supply history entry (this is the only history entry we want)
+            SupplyHistory.objects.create(
+                supply=self.supply,
+                user=self.reported_by,
+                action='bad_stock_removal',
+                field_name='quantity',
+                old_value=str(old_quantity),
+                new_value=str(quantity_info.current_quantity),
+                remarks=f"Bad stock removed. Quantity deducted: {self.quantity_removed}. Reason: {self.remarks}"
+            )
+            
+            # Create activity log
+            ActivityLog.log_activity(
+                user=self.reported_by,
+                action='bad_stock',
+                model_name='Supply',
+                object_repr=str(self.supply),
+                description=f"Removed {self.quantity_removed} units of '{self.supply.supply_name}' as bad stock. Quantity changed from {old_quantity} to {quantity_info.current_quantity}. Reason: {self.remarks}"
+            )
+            
+        except SupplyQuantity.DoesNotExist:
+            raise ValueError("Supply quantity information not found.")

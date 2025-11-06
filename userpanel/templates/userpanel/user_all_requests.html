@@ -4,20 +4,20 @@
 
 {% block content %}
 {% csrf_token %}
-<div class="request-page-layout">
+<div class="request-page-layout" data-filter-open="false">
     <main class="request-form-container">
         <h1><i class="fas fa-history"></i> All My Requests</h1>
         <p class="form-description">View and manage all your supply requests, borrow requests, and reservations in one place.</p>
 
         <!-- Filters Section -->
         <div class="top-controls">
-            <div class="search-filter-group" style="display: flex; align-items: center; gap: 8px;">
+            <div class="search-filter-group">
                 <!-- Search Bar -->
                 <div class="search-container">
-                    <div style="position: relative; display: inline-block; width: 100%; max-width: 420px;">
-                        <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; font-size: 14px;"></i>
+                    <div class="search-wrapper">
+                        <i class="fas fa-search search-icon"></i>
                         <input type="text" id="searchInput" placeholder="Search requests..." value="{{ search_query }}"
-                               style="width: 100%; padding: 10px 16px 10px 40px; border: 2px solid #e1e5e9; border-radius: 6px; font-size: 14px; transition: border-color 0.3s ease;">
+                               class="search-input">
                     </div>
                 </div>
                 
@@ -73,6 +73,8 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Filter backdrop for mobile modal -->
+                    <div id="filterBackdrop" class="filter-backdrop"></div>
                 </div>
             </div>
         </div>
@@ -113,46 +115,46 @@
                         <tbody>
                             {% for request in all_requests %}
                                 <tr class="request-row" data-status="{{ request.status_raw }}">
-                                    <td class="request-id">{{ request.id }}</td>
-                                    <td class="request-type">
+                                    <td class="request-id" data-label="ID">{{ request.id }}</td>
+                                    <td class="request-type" data-label="Type">
                                         <span class="type-badge type-{{ request.model_type }}">
                                             {{ request.type }}
                                         </span>
                                     </td>
-                                    <td class="item-name">
+                                    <td class="item-name" data-label="Item(s)">
                                         <div class="item-info">
                                             <span class="item-title" title="{{ request.item_name }}">
                                                 {{ request.item_name|truncatechars:40 }}
                                             </span>
                                         </div>
                                     </td>
-                                    <td class="quantity">{{ request.quantity }}</td>
-                                    <td class="status">
+                                    <td class="quantity" data-label="Quantity">{{ request.quantity }}</td>
+                                    <td class="status" data-label="Status">
                                         <span class="status-badge status-{{ request.status_raw }}">
                                             {% if request.status_raw == 'pending' %}
-                                                <i class="fas fa-clock"></i>
+                                                <i class="fas fa-clock" aria-hidden="true"></i>
                                             {% elif request.status_raw == 'approved' %}
-                                                <i class="fas fa-check-circle"></i>
+                                                <i class="fas fa-check-circle" aria-hidden="true"></i>
                                             {% elif request.status_raw == 'rejected' or request.status_raw == 'declined' %}
-                                                <i class="fas fa-times-circle"></i>
+                                                <i class="fas fa-times-circle" aria-hidden="true"></i>
                                             {% elif request.status_raw == 'returned' %}
-                                                <i class="fas fa-undo"></i>
+                                                <i class="fas fa-undo" aria-hidden="true"></i>
                                             {% elif request.status_raw == 'overdue' %}
-                                                <i class="fas fa-exclamation-circle"></i>
+                                                <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
                                             {% elif request.status_raw == 'completed' %}
-                                                <i class="fas fa-check-double"></i>
+                                                <i class="fas fa-check-double" aria-hidden="true"></i>
                                             {% elif request.status_raw == 'active' %}
-                                                <i class="fas fa-play-circle"></i>
+                                                <i class="fas fa-play-circle" aria-hidden="true"></i>
                                             {% elif request.status_raw == 'for_claiming' %}
-                                                <i class="fas fa-hand-holding"></i>
+                                                <i class="fas fa-hand-holding" aria-hidden="true"></i>
                                             {% elif request.status_raw == 'partially_approved' %}
-                                                <i class="fas fa-check-circle"></i>
+                                                <i class="fas fa-check-circle" aria-hidden="true"></i>
                                             {% endif %}
-                                            {{ request.status }}
+                                            <span>{{ request.status }}</span>
                                         </span>
                                     </td>
-                                    <td class="date">{{ request.date|date:"M d, Y" }}</td>
-                                    <td class="return-date">
+                                    <td class="date" data-label="Request Date">{{ request.date|date:"M d, Y" }}</td>
+                                    <td class="return-date" data-label="Return Date">
                                         {% if request.return_date %}
                                             {{ request.return_date|date:"M d, Y" }}
                                         {% elif request.needed_date %}
@@ -161,32 +163,36 @@
                                             -
                                         {% endif %}
                                     </td>
-                                    <td class="purpose">
+                                    <td class="purpose" data-label="Purpose">
                                         <span title="{{ request.purpose }}">
                                             {{ request.purpose|truncatechars:30 }}
                                         </span>
                                     </td>
-                                    <td class="actions">
-                                        {% if request.can_cancel %}
-                                            <button class="btn-action btn-cancel" 
+                                    <td class="actions" data-label="Actions">
+                                        <div class="action-buttons">
+                                            <button class="btn-action btn-cancel {% if not request.can_cancel %}btn-hidden{% endif %}" 
                                                     data-request-id="{{ request.real_id }}" 
                                                     data-model-type="{{ request.model_type }}"
-                                                    title="Cancel Request">
-                                                <i class="fas fa-times"></i>
+                                                    title="Cancel Request" 
+                                                    aria-label="Cancel Request"
+                                                    {% if not request.can_cancel %}disabled style="visibility: hidden;"{% endif %}>
+                                                <i class="fas fa-times" aria-hidden="true"></i>
                                             </button>
-                                        {% endif %}
-                                        <button class="btn-action btn-view" 
-                                                data-request-id="{{ request.real_id }}" 
-                                                data-model-type="{{ request.model_type }}"
-                                                title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn-action btn-request-again" 
-                                                data-request-id="{{ request.real_id }}" 
-                                                data-model-type="{{ request.model_type }}"
-                                                title="Request Again">
-                                            <i class="fas fa-redo"></i>
-                                        </button>
+                                            <button class="btn-action btn-view" 
+                                                    data-request-id="{{ request.real_id }}" 
+                                                    data-model-type="{{ request.model_type }}"
+                                                    title="View Details" 
+                                                    aria-label="View Details">
+                                                <i class="fas fa-eye" aria-hidden="true"></i>
+                                            </button>
+                                            <button class="btn-action btn-request-again" 
+                                                    data-request-id="{{ request.real_id }}" 
+                                                    data-model-type="{{ request.model_type }}"
+                                                    title="Request Again" 
+                                                    aria-label="Request Again">
+                                                <i class="fas fa-redo" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -222,53 +228,78 @@
                         {% if search_query or status_filter != 'all' or request_type != 'all' %}
                             No requests match your current filters. Try adjusting your search criteria.
                         {% else %}
-                            You haven't made any requests yet. Start by creating a new request.
+                            You haven't made any requests yet.
                         {% endif %}
                     </p>
-                    <div class="empty-actions">
-                        <a href="{% url 'user_request' %}" class="btn-submit">
-                            <i class="fas fa-plus"></i> New Supply Request
-                        </a>
-                        <a href="{% url 'user_borrow' %}" class="btn-secondary">
-                            <i class="fas fa-handshake"></i> New Borrow Request
-                        </a>
-                        <a href="{% url 'user_reserve' %}" class="btn-tertiary">
-                            <i class="fas fa-calendar-alt"></i> New Reservation
-                        </a>
-                    </div>
                 </div>
             {% endif %}
         </div>
     </main>
 </div>
 
-<!-- Cancel Request Modal -->
-<div id="cancelModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Cancel Request</h3>
-            <span class="close-modal">&times;</span>
+<!-- Cancel Request Modal - NEW CLEAN VERSION -->
+<div id="cancelModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); overflow: hidden;">
+        <div style="padding: 25px; background: linear-gradient(135deg, #152d64 0%, #1a3575 100%); color: white; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-exclamation-triangle"></i> Cancel Request
+            </h3>
+            <span class="close-modal" style="background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; color: white; transition: all 0.3s ease;">&times;</span>
         </div>
-        <div class="modal-body">
-            <p>Are you sure you want to cancel this request? This action cannot be undone.</p>
-            <p class="cancel-warning">
-                <i class="fas fa-exclamation-triangle"></i>
+        <div style="padding: 30px 25px; background: white;">
+            <p style="font-size: 16px; line-height: 1.6; color: #495057; margin-bottom: 20px;">Are you sure you want to cancel this request? This action cannot be undone.</p>
+            <p style="background: #fff3cd; padding: 15px; border-radius: 10px; color: #856404; margin: 0; display: flex; align-items: center; gap: 12px; border: 2px solid #ffc107; font-weight: 500;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 20px; color: #ffc107;"></i>
                 Only pending requests can be cancelled.
             </p>
         </div>
-        <div class="modal-footer">
-            <button class="btn-cancel-modal">Cancel</button>
-            <button class="btn-confirm-cancel">Yes, Cancel Request</button>
+        <div style="padding: 20px 25px; background: #f8f9fa; display: flex; gap: 15px; flex-direction: column;">
+            <button class="btn-confirm-cancel" style="padding: 15px 25px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.3s ease; background: #152d64; color: white; box-shadow: 0 4px 12px rgba(21, 45, 100, 0.2);">
+                <i class="fas fa-times"></i> Yes, Cancel Request
+            </button>
+            <button class="btn-cancel-modal" style="padding: 15px 25px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.3s ease; background: #6c757d; color: white; box-shadow: 0 4px 12px rgba(108, 117, 125, 0.2);">
+                <i class="fas fa-check"></i> Cancel
+            </button>
         </div>
     </div>
 </div>
 
+<script>
+// Inject style to show filter on load if it was previously open
+(function() {
+    const wasOpen = sessionStorage.getItem('filterDropdownOpen') === 'true';
+    if (wasOpen) {
+        const style = document.createElement('style');
+        style.textContent = `
+            #filterDropdown { display: block !important; }
+            #filterToggleBtn { background: linear-gradient(135deg, #152d64 0%, #1a3575 100%) !important; color: #fbff00 !important; }
+            #filterBackdrop { display: block !important; }
+            body { overflow: hidden; }
+        `;
+        document.head.appendChild(style);
+    }
+})();
+</script>
+
 <style>
+/* Prevent layout shift during page load */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
 .request-page-layout {
     margin-left: 250px;
     padding: 20px;
     background-color: whitesmoke;
     min-height: 100vh;
+    transition: margin-left 0.2s ease, padding 0.2s ease;
+    opacity: 1;
 }
 
 /* Override container styles to match existing design */
@@ -284,6 +315,7 @@
     position: relative;
     margin-left: 50px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
 }
 
 .form-description {
@@ -397,7 +429,7 @@
 /* Table Section */
 .requests-table-section {
     background: white;
-    border-radius: 8px;
+    border-radius: 0;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -519,6 +551,20 @@
     margin: 0 2px;
     transition: all 0.3s;
     font-size: 14px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    max-width: 38px;
+    max-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-action.btn-hidden {
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .btn-cancel {
@@ -548,6 +594,27 @@
     color: white;
 }
 
+.action-buttons {
+    display: grid;
+    grid-template-columns: 38px 38px 38px;
+    gap: 4px;
+    justify-content: start;
+    align-items: center;
+    min-width: 130px;
+}
+
+.action-buttons .btn-cancel {
+    grid-column: 1;
+}
+
+.action-buttons .btn-view {
+    grid-column: 2;
+}
+
+.action-buttons .btn-request-again {
+    grid-column: 3;
+}
+
 /* Top Controls and Filter Styles */
 .top-controls {
     margin-bottom: 20px;
@@ -561,6 +628,42 @@
 
 .search-container {
     flex: 1;
+}
+
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: #6c757d;
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 12px 10px 40px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #152d64;
+    box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
 }
 
 .simple-filter-container {
@@ -633,6 +736,11 @@
     padding: 16px;
     min-width: 280px;
     max-width: 350px;
+}
+
+/* Show filter on initial page load if it was previously open */
+html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
+    display: block;
 }
 
 .simple-filter-dropdown.show {
@@ -792,100 +900,22 @@
     transform: translateY(-1px);
 }
 
-/* Modal Styles */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-}
-
-.modal-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    border-radius: 12px;
-    max-width: 500px;
-    width: 90%;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.modal-header {
-    padding: 20px 25px 15px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h3 {
-    margin: 0;
-    color: #152d64;
-}
-
-.close-modal {
-    font-size: 24px;
-    cursor: pointer;
-    color: #6c757d;
-}
-
+/* Hover effects for new modal buttons */
 .close-modal:hover {
-    color: #152d64;
-}
-
-.modal-body {
-    padding: 20px 25px;
-}
-
-.cancel-warning {
-    background: #fff3cd;
-    padding: 10px;
-    border-radius: 6px;
-    color: #856404;
-    margin-top: 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.modal-footer {
-    padding: 15px 25px 20px;
-    text-align: right;
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-}
-
-.btn-cancel-modal, .btn-confirm-cancel {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.btn-cancel-modal {
-    background: #6c757d;
-    color: white;
-}
-
-.btn-cancel-modal:hover {
-    background: #5a6268;
-}
-
-.btn-confirm-cancel {
-    background: #dc3545;
-    color: white;
+    background: rgba(255, 255, 255, 0.2) !important;
+    transform: rotate(90deg);
 }
 
 .btn-confirm-cancel:hover {
-    background: #c82333;
+    background: #1a3575 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(21, 45, 100, 0.3) !important;
+}
+
+.btn-cancel-modal:hover {
+    background: #5a6268 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3) !important;
 }
 
 /* Responsive Design */
@@ -906,18 +936,69 @@
     .requests-table td:nth-child(4) {
         display: none;
     }
+    
+    /* Hide item name and quantity columns on mobile */
+    .requests-table th:nth-child(3),
+    .requests-table td:nth-child(3) {
+        display: none;
+    }
+    
+    .requests-table th:nth-child(4),
+    .requests-table td:nth-child(4) {
+        display: none;
+    }
+    
+    /* Hide return date and purpose columns on mobile */
+    .requests-table th:nth-child(7),
+    .requests-table td:nth-child(7) {
+        display: none;
+    }
+    
+    .requests-table th:nth-child(8),
+    .requests-table td:nth-child(8) {
+        display: none;
+    }
 }
 
 @media (max-width: 768px) {
     .request-page-layout {
         margin-left: 0;
-        padding: 15px;
+        padding: 10px;
+        padding-top: 10px;
     }
     
     .request-form-container {
-        margin-left: 0;
-        width: 95%;
-        padding: 20px;
+        margin: 0 auto;
+        width: 100%;
+        padding: 15px;
+        border-radius: 8px;
+        max-width: 100%;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+        font-size: 22px;
+        text-align: center;
+        margin-bottom: 15px;
+        padding: 0 10px;
+    }
+    
+    .form-description {
+        font-size: 14px;
+        margin-bottom: 15px;
+        padding: 0 10px;
+    }
+    
+    /* Hide columns on mobile - keep only ID, Type, Status, Date, Actions */
+    .requests-table th:nth-child(3),
+    .requests-table td:nth-child(3),
+    .requests-table th:nth-child(4),
+    .requests-table td:nth-child(4),
+    .requests-table th:nth-child(7),
+    .requests-table td:nth-child(7),
+    .requests-table th:nth-child(8),
+    .requests-table td:nth-child(8) {
+        display: none;
     }
     
     .form-row {
@@ -927,85 +1008,918 @@
     
     .form-group {
         min-width: auto;
+        width: 100%;
+    }
+    
+    /* Make form inputs mobile-friendly */
+    .form-control,
+    input[type="text"],
+    input[type="date"],
+    select {
+        font-size: 16px !important; /* Prevent iOS zoom */
+        padding: 12px;
+        min-height: 44px;
+        border-radius: 8px;
+        border: 2px solid #e1e5e9;
+        background: white;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus,
+    input:focus,
+    select:focus {
+        border-color: #152d64;
+        box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+        outline: none;
+    }
+    
+    /* Enhanced page title for mobile */
+    .page-title {
+        color: #152d64;
+        background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 5px solid #152d64;
+        box-shadow: 0 2px 10px rgba(21, 45, 100, 0.1);
+    }
+    
+    /* Filter improvements with brand colors */
+    .filters-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border: 2px solid #e1e5e9;
+        border-left: 5px solid #152d64;
+        box-shadow: 0 2px 10px rgba(21, 45, 100, 0.05);
+    }
+    
+    .simple-filter-toggle {
+        width: 100%;
+        min-height: 44px;
+        font-size: 16px;
+        padding: 12px 15px;
+        border-radius: 8px;
+        border: 2px solid #e1e5e9;
+        background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+        transition: all 0.3s ease;
+    }
+    
+    .simple-filter-toggle:hover {
+        border-color: #152d64;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(21, 45, 100, 0.15);
+    }
+    
+    .simple-filter-toggle.active {
+        background: linear-gradient(135deg, #152d64 0%, #1a3575 100%);
+        color: #fbff00;
+        border-color: #152d64;
+    }
+    
+    .simple-filter-dropdown {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 90% !important;
+        max-width: 90vw !important;
+        max-height: 80vh !important;
+        overflow-y: auto !important;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+        border: 2px solid #152d64;
+        background: white;
+        z-index: 9999 !important;
+        padding: 20px;
+        display: none !important;
+    }
+    
+    .simple-filter-dropdown.show {
+        display: block !important;
+    }
+    
+    .filter-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(0, 0, 0, 0.5) !important;
+        z-index: 9998 !important;
+        display: none !important;
+    }
+    
+    .filter-backdrop.show {
+        display: block !important;
+    }
+    
+    /* Enhanced table responsive styles */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 0;
+        box-shadow: none;
+        border: none;
+        margin: 0;
+        padding: 0 8px;
+        width: 100%;
     }
     
     .requests-table {
+        min-width: 100%;
+        width: 100%;
+        font-size: 12px;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+    
+    .requests-table th {
+        background: linear-gradient(135deg, #152d64 0%, #1a3575 100%);
+        color: white;
+        padding: 10px 6px;
+        border: none;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    .requests-table th:first-child {
+        padding-left: 10px;
+        width: 13%;
+    }
+    
+    .requests-table th:nth-child(2) {
+        width: 21%;
+    }
+    
+    .requests-table th:nth-child(5) {
+        width: 20%;
+    }
+    
+    .requests-table th:nth-child(6) {
+        width: 21%;
+    }
+    
+    .requests-table th:last-child {
+        padding-right: 10px;
+        width: 25%;
+    }
+    
+    .requests-table td {
+        padding: 10px 6px;
+        border-bottom: 1px solid #e9ecef;
+        background: white;
+        font-size: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .requests-table td:first-child {
+        padding-left: 10px;
+        width: 13%;
+    }
+    
+    .requests-table td:nth-child(2) {
+        width: 21%;
+        padding: 10px 4px;
+    }
+    
+    .requests-table td:nth-child(5) {
+        width: 20%;
+        padding: 10px 4px;
+    }
+    
+    .requests-table td:nth-child(6) {
+        width: 16%;
+    }
+    
+    .requests-table td:last-child {
+        padding-right: 10px;
+        width: 26%;
+    }
+    
+    .request-row:hover {
+        background: #f8f9fa;
+    }
+    
+    .request-id {
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    /* Enhanced button improvements with brand colors */
+    .btn-action {
+        min-height: 36px;
+        min-width: 36px;
+        max-width: 36px;
+        max-height: 36px;
+        padding: 6px;
+        border-radius: 6px;
+        margin: 1px;
+        border: none;
+        transition: all 0.3s ease;
         font-size: 13px;
     }
     
-    .requests-table th,
-    .requests-table td {
-        padding: 8px 6px;
+    .action-buttons {
+        grid-template-columns: 36px 36px 36px;
+        gap: 3px;
+        min-width: 118px;
+    }
+    
+    .btn-cancel {
+        color: #dc3545;
+        background: rgba(220, 53, 69, 0.1);
+    }
+    
+    .btn-cancel:hover {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .btn-view {
+        color: #152d64;
+        background: rgba(21, 45, 100, 0.1);
+    }
+    
+    .btn-view:hover {
+        background: #152d64;
+        color: white;
+    }
+    
+    .btn-request-again {
+        color: #28a745;
+        background: rgba(40, 167, 69, 0.1);
+    }
+    
+    .btn-request-again:hover {
+        background: #28a745;
+        color: white;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 3px;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+    
+    /* Mobile-friendly badges */
+    .status-badge {
+        padding: 2px 4px;
+        border-radius: 6px;
+        font-size: 7px;
+        font-weight: 600;
+        gap: 1px;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+    }
+    
+    .status-badge i {
+        font-size: 6px;
+    }
+    
+    .type-badge {
+        padding: 4px 7px;
+        border-radius: 10px;
+        font-size: 9px;
+        font-weight: 600;
+    }
+    
+    /* Results summary mobile */
+    .results-summary {
+        margin: 0 0 15px;
+        padding: 10px 15px;
+        border-radius: 0;
+        font-size: 13px;
+    }
+    
+    .summary-stats {
+        font-size: 13px;
+    }
+    
+    .requests-table-section {
+        border-radius: 0;
+        box-shadow: none;
+        margin-left: calc(-50vw + 50%);
+        margin-right: calc(-50vw + 50%);
+        width: 100vw;
+    }
+    
+    /* Filter controls mobile */
+    .top-controls {
+        margin-bottom: 15px;
+        padding: 0 10px;
+    }
+    
+    .search-filter-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .search-container {
+        width: 100%;
+    }
+    
+    .search-wrapper {
+        width: 100%;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 12px 12px 12px 45px !important;
+        font-size: 16px !important;
+        min-height: 44px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        box-sizing: border-box;
+    }
+    
+    .search-input::placeholder {
+        color: #999;
+        font-size: 15px;
+    }
+    
+    .search-input:focus {
+        border-color: #152d64;
+        box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+    }
+    
+    .search-icon {
+        left: 14px;
+        font-size: 14px;
+        color: #6c757d;
+    }
+    
+    .simple-filter-container {
+        width: 100%;
+        margin-right: 0;
+    }
+    
+    .simple-filter-toggle {
+        width: 100%;
+        min-height: 42px;
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+    
+    /* Enhanced empty state with brand styling */
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+        border-radius: 0;
+        border: 2px dashed #152d64;
+        margin: 0;
+    }
+    
+    .empty-icon {
+        color: #152d64;
+        opacity: 0.7;
+        margin-bottom: 20px;
+    }
+    
+    .empty-state h3 {
+        color: #152d64;
+        margin-bottom: 15px;
+        font-size: 22px;
     }
     
     .empty-actions {
         flex-direction: column;
         align-items: center;
+        gap: 15px;
+        margin-top: 30px;
     }
     
+    .btn-submit,
+    .btn-secondary,
+    .btn-tertiary {
+        width: 100%;
+        max-width: 280px;
+        min-height: 50px;
+        font-size: 16px;
+        padding: 15px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #152d64 0%, #1a3575 100%);
+        color: #fbff00;
+        box-shadow: 0 4px 15px rgba(21, 45, 100, 0.2);
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(21, 45, 100, 0.3);
+    }
+    
+    /* Enhanced pagination with brand colors */
     .actlog-pagination {
         flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        padding: 15px 10px;
+        background: #f8f9fa;
+        border-radius: 0;
+        margin-top: 15px;
+    }
+    
+    .actlog-pagination a,
+    .actlog-pagination .current {
+        min-height: 40px;
+        min-width: 40px;
+        padding: 10px 12px;
+        font-size: 14px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .actlog-pagination a {
+        color: #152d64;
+        border: 2px solid #152d64;
+        background: white;
+    }
+    
+    .actlog-pagination a:hover {
+        background: #152d64;
+        color: white;
+    }
+    
+    .actlog-pagination .current {
+        background: #152d64;
+        color: white;
+        border: 2px solid #152d64;
     }
 }
 
 @media (max-width: 600px) {
-    .requests-table th:nth-child(6),
-    .requests-table td:nth-child(6) {
-        display: none;
+    .request-form-container {
+        padding: 0;
     }
     
-    .requests-table th:nth-child(3),
-    .requests-table td:nth-child(3) {
-        max-width: 150px;
+    h1 {
+        font-size: 20px;
+        padding: 0 8px;
+    }
+    
+    .form-description {
+        font-size: 13px;
+        padding: 0 8px;
+    }
+    
+    .top-controls {
+        padding: 0 8px;
+    }
+    
+    .requests-table {
+        font-size: 11px;
+    }
+    
+    .requests-table th {
+        padding: 8px 4px;
+        font-size: 10px;
+    }
+    
+    .requests-table th:first-child {
+        padding-left: 8px;
+    }
+    
+    .requests-table th:last-child {
+        padding-right: 8px;
+    }
+    
+    .requests-table td {
+        padding: 8px 4px;
+        font-size: 11px;
+    }
+    
+    .requests-table td:first-child {
+        padding-left: 8px;
+    }
+    
+    .requests-table td:last-child {
+        padding-right: 8px;
+    }
+    
+    .btn-action {
+        min-height: 32px;
+        min-width: 32px;
+        max-width: 32px;
+        max-height: 32px;
+        padding: 5px;
+        font-size: 12px;
+    }
+    
+    .action-buttons {
+        gap: 2px;
+        grid-template-columns: 32px 32px 32px;
+        min-width: 102px;
+    }
+    
+    .status-badge {
+        font-size: 9px;
+        padding: 4px 6px;
+    }
+    
+    .status-badge i {
+        font-size: 8px;
+    }
+    
+    .type-badge {
+        font-size: 8px;
+        padding: 3px 5px;
+    }
+    
+    .request-id {
+        font-size: 10px;
+    }
+    
+    .results-summary {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+    
+    .summary-stats {
+        font-size: 12px;
+    }
+    
+    .actlog-pagination a,
+    .actlog-pagination .current {
+        min-height: 36px;
+        min-width: 36px;
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .request-page-layout {
+        padding: 0;
+    }
+    
+    .request-form-container {
+        padding: 0;
+    }
+    
+    h1 {
+        font-size: 18px;
+        margin-bottom: 10px;
+        padding: 0 5px;
+    }
+    
+    .form-description {
+        font-size: 12px;
+        margin-bottom: 10px;
+        padding: 0 5px;
+    }
+    
+    .top-controls {
+        padding: 0 5px;
+    }
+    
+    .table-container {
+        margin: 0;
+        width: 100%;
+    }
+    
+    .requests-table {
+        font-size: 10px;
+    }
+    
+    .requests-table th,
+    .requests-table td {
+        padding: 6px 3px;
+    }
+    
+    .requests-table th:first-child,
+    .requests-table td:first-child {
+        padding-left: 5px;
+    }
+    
+    .requests-table th:last-child,
+    .requests-table td:last-child {
+        padding-right: 5px;
+    }
+    
+    .btn-action {
+        min-height: 30px;
+        min-width: 30px;
+        max-width: 30px;
+        max-height: 30px;
+        padding: 4px;
+        font-size: 11px;
+    }
+    
+    .action-buttons {
+        gap: 1px;
+        grid-template-columns: 30px 30px 30px;
+        min-width: 92px;
+    }
+    
+    .status-badge {
+        font-size: 8px;
+        padding: 3px 5px;
+        gap: 2px;
+    }
+    
+    .status-badge i {
+        font-size: 7px;
+    }
+    
+    .type-badge {
+        font-size: 7px;
+        padding: 2px 4px;
+    }
+    
+    .request-id {
+        font-size: 9px;
+    }
+    
+    .results-summary {
+        margin: 0 0 10px;
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+    
+    .summary-stats {
+        font-size: 11px;
+    }
+    
+    .top-controls {
+        margin-bottom: 10px;
+    }
+    
+    .simple-filter-toggle {
+        min-height: 38px;
+        font-size: 13px;
+        padding: 8px 10px;
+    }
+    
+    .actlog-pagination {
+        padding: 10px 5px;
+        gap: 5px;
+    }
+    
+    .actlog-pagination a,
+    .actlog-pagination .current {
+        min-height: 32px;
+        min-width: 32px;
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+    
+    /* Filter container mobile optimization */
+    .simple-filter-dropdown {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 90% !important;
+        max-width: 90vw !important;
+        max-height: 80vh !important;
+        overflow-y: auto !important;
+        z-index: 9999 !important;
+        background: white !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+        padding: 20px !important;
+    }
+    
+    .filter-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(0, 0, 0, 0.5) !important;
+        z-index: 9998 !important;
+        display: none !important;
+    }
+    
+    .filter-backdrop.show {
+        display: block !important;
     }
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('cancelModal');
+    let modalCanBeShown = false;
+    
+    // Simple flag to prevent early triggers
+    setTimeout(() => {
+        modalCanBeShown = true;
+    }, 300);
+    
     // Filter Dropdown Toggle
     const filterToggleBtn = document.getElementById('filterToggleBtn');
     const filterDropdown = document.getElementById('filterDropdown');
+    const filterBackdrop = document.getElementById('filterBackdrop');
     const activeFilterCount = document.getElementById('activeFilterCount');
+    let isRestoringFilter = false;
 
     if (filterToggleBtn && filterDropdown) {
         filterToggleBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             filterDropdown.classList.toggle('show');
             filterToggleBtn.classList.toggle('active');
+            if (filterBackdrop) {
+                filterBackdrop.classList.toggle('show');
+            }
+            
+            // Save dropdown state to sessionStorage
+            if (filterDropdown.classList.contains('show')) {
+                sessionStorage.setItem('filterDropdownOpen', 'true');
+                document.body.style.overflow = 'hidden';
+            } else {
+                sessionStorage.setItem('filterDropdownOpen', 'false');
+                document.body.style.overflow = '';
+            }
         });
 
-        // Close dropdown when clicking outside
+        // Close dropdown when clicking outside (but not during restore)
         document.addEventListener('click', function(e) {
+            if (isRestoringFilter) return; // Don't close during restore
+
             if (!filterToggleBtn.contains(e.target) && !filterDropdown.contains(e.target)) {
                 filterDropdown.classList.remove('show');
                 filterToggleBtn.classList.remove('active');
+                if (filterBackdrop) {
+                    filterBackdrop.classList.remove('show');
+                }
+                sessionStorage.setItem('filterDropdownOpen', 'false');
+                document.body.style.overflow = '';
             }
         });
+        
+        // Close dropdown when clicking backdrop
+        if (filterBackdrop) {
+            filterBackdrop.addEventListener('click', function(e) {
+                filterDropdown.classList.remove('show');
+                filterToggleBtn.classList.remove('active');
+                filterBackdrop.classList.remove('show');
+                sessionStorage.setItem('filterDropdownOpen', 'false');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        // Restore filter dropdown state on page load if there are active filters
+        function restoreFilterState() {
+            const hasActiveFilters = document.querySelector('input[name="request_type"]:checked')?.value !== 'all' ||
+                                   document.querySelector('input[name="status"]:checked')?.value !== 'all' ||
+                                   (searchInput && searchInput.value.trim() !== '');
+            
+            const wasOpen = sessionStorage.getItem('filterDropdownOpen') === 'true';
+            
+            if (hasActiveFilters && wasOpen) {
+                isRestoringFilter = true;
+                filterDropdown.classList.add('show');
+                filterToggleBtn.classList.add('active');
+                if (filterBackdrop) {
+                    filterBackdrop.classList.add('show');
+                }
+                document.body.style.overflow = 'hidden';
+                // Allow clicks to work normally after restore
+                setTimeout(() => {
+                    isRestoringFilter = false;
+                }, 100);
+            }
+        }
+        
+        // Call on page load after a small delay to ensure DOM is ready
+        setTimeout(restoreFilterState, 50);
     }
 
     // Handle filter changes
     const filterInputs = document.querySelectorAll('.simple-filter-dropdown input[type="radio"]');
     filterInputs.forEach(input => {
         input.addEventListener('change', function() {
-            applyFilters();
+            // Add a brief delay to show the filter was selected before closing
+            setTimeout(() => {
+                applyFilters();
+            }, 150);
         });
     });
 
-    // Search functionality
-    let searchTimeout;
+    // Search functionality - Client-side filtering
     const searchInput = document.getElementById('searchInput');
+    
     if (searchInput) {
         searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                applyFilters();
-            }, 500);
+            const searchTerm = this.value.toLowerCase().trim();
+            filterTable(searchTerm);
+            updateResultsCount();
         });
     }
+    
+    // Function to filter table rows based on search term
+    function filterTable(searchTerm) {
+        const tableRows = document.querySelectorAll('.requests-table tbody tr');
+        let visibleRows = 0;
+        
+        tableRows.forEach(row => {
+            const searchableText = [
+                row.querySelector('.request-id')?.textContent || '',
+                row.querySelector('.type-badge')?.textContent || '',
+                row.querySelector('.item-title')?.textContent || '',
+                row.querySelector('.item-name')?.textContent || '',
+                row.querySelector('.quantity')?.textContent || '',
+                row.querySelector('.status-badge span')?.textContent || '',
+                row.querySelector('.purpose span')?.textContent || row.querySelector('.purpose')?.textContent || ''
+            ].join(' ').toLowerCase();
+            
+            if (searchTerm === '' || searchableText.includes(searchTerm)) {
+                row.style.display = '';
+                visibleRows++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Show/hide empty state
+        const emptyState = document.querySelector('.empty-state');
+        const tableSection = document.querySelector('.requests-table-section .table-container');
+        
+        if (visibleRows === 0 && searchTerm !== '') {
+            if (tableSection) tableSection.style.display = 'none';
+            if (!emptyState) {
+                showNoResultsMessage();
+            } else {
+                emptyState.style.display = 'block';
+            }
+        } else {
+            if (tableSection) tableSection.style.display = 'block';
+            if (emptyState) emptyState.style.display = 'none';
+        }
+    }
+    
+    // Function to show no results message
+    function showNoResultsMessage() {
+        const tableSection = document.querySelector('.requests-table-section');
+        const existingMessage = document.querySelector('.no-search-results');
+        
+        if (!existingMessage && tableSection) {
+            const noResultsDiv = document.createElement('div');
+            noResultsDiv.className = 'no-search-results empty-state';
+            noResultsDiv.innerHTML = `
+                <div class="empty-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>No Results Found</h3>
+                <p>No requests match your search criteria. Try using different keywords.</p>
+            `;
+            tableSection.appendChild(noResultsDiv);
+        }
+    }
+    
+    // Function to update results count
+    function updateResultsCount() {
+        const visibleRows = document.querySelectorAll('.requests-table tbody tr:not([style*="display: none"])').length;
+        const totalRows = document.querySelectorAll('.requests-table tbody tr').length;
+        const summaryElement = document.querySelector('.summary-stats .total-count');
+        
+        if (summaryElement) {
+            const searchTerm = searchInput.value.trim();
+            if (searchTerm) {
+                summaryElement.innerHTML = `<i class="fas fa-search"></i> Showing ${visibleRows} of ${totalRows} requests (filtered)`;
+            } else {
+                // Reset to original text - you may need to store this initially
+                summaryElement.innerHTML = `<i class="fas fa-clipboard-list"></i> Total Requests: ${totalRows}`;
+            }
+        }
+    }
 
-    // Function to apply filters and update URL
+    // Function to apply filters and update URL (for radio button filters only)
     function applyFilters() {
+        // Close filter dropdown immediately before applying filters
+        if (filterDropdown && filterToggleBtn) {
+            filterDropdown.classList.remove('show');
+            filterToggleBtn.classList.remove('active');
+            if (filterBackdrop) {
+                filterBackdrop.classList.remove('show');
+            }
+            sessionStorage.setItem('filterDropdownOpen', 'false');
+            document.body.style.overflow = '';
+        }
+        
         const currentUrl = new URL(window.location);
         
         // Remove page parameter when filters change
@@ -1027,13 +1941,8 @@ document.addEventListener('DOMContentLoaded', function() {
             currentUrl.searchParams.delete('status');
         }
         
-        // Get search
-        const searchValue = searchInput ? searchInput.value.trim() : '';
-        if (searchValue) {
-            currentUrl.searchParams.set('search', searchValue);
-        } else {
-            currentUrl.searchParams.delete('search');
-        }
+        // Remove search from URL since it's now client-side
+        currentUrl.searchParams.delete('search');
         
         // Update active filter count
         updateActiveFilterCount();
@@ -1042,7 +1951,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = currentUrl.toString();
     }
 
-    // Function to update active filter count
+    // Function to update active filter count (excluding client-side search)
     function updateActiveFilterCount() {
         let count = 0;
         
@@ -1058,11 +1967,7 @@ document.addEventListener('DOMContentLoaded', function() {
             count++;
         }
         
-        // Count search filter
-        const searchValue = searchInput ? searchInput.value.trim() : '';
-        if (searchValue) {
-            count++;
-        }
+        // Don't count search since it's now client-side
         
         if (activeFilterCount) {
             activeFilterCount.textContent = count;
@@ -1079,7 +1984,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cancel request functionality
     const cancelBtns = document.querySelectorAll('.btn-cancel');
-    const modal = document.getElementById('cancelModal');
+    // modal already declared at the top - reuse it
     const closeModal = document.querySelector('.close-modal');
     const cancelModalBtn = document.querySelector('.btn-cancel-modal');
     const confirmCancelBtn = document.querySelector('.btn-confirm-cancel');
@@ -1087,10 +1992,28 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentModelType = null;
 
     cancelBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            currentRequestId = this.dataset.requestId;
-            currentModelType = this.dataset.modelType;
-            modal.style.display = 'block';
+        btn.addEventListener('click', function(e) {
+            // IMMEDIATELY stop if we're not ready
+            if (!modalCanBeShown) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                return false;
+            }
+            
+            // Prevent if button is disabled or hidden
+            if (this.disabled || this.classList.contains('btn-hidden')) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+            
+            // Only show modal if this is a genuine user click
+            if (e.isTrusted) {
+                currentRequestId = this.dataset.requestId;
+                currentModelType = this.dataset.modelType;
+                modal.style.display = 'flex';
+            }
         });
     });
 
@@ -1102,6 +2025,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (closeModal) closeModal.addEventListener('click', closeModalFunc);
     if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModalFunc);
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModalFunc();
+        }
+    });
 
     if (confirmCancelBtn) {
         confirmCancelBtn.addEventListener('click', function() {

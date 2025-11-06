@@ -108,6 +108,23 @@ document.addEventListener('DOMContentLoaded', function () {
       modal.style.display = 'none';
     }
   });
+
+  // Handle form submission with loading state
+  const createAccountForm = document.querySelector('#createAccountModal form');
+  if (createAccountForm) {
+    createAccountForm.addEventListener('submit', function (e) {
+      const submitBtn = this.querySelector('.submit-btn');
+      if (submitBtn) {
+        // Add loading class and disable button
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating...';
+
+        // Note: The form will still submit normally
+        // If there are validation errors, the page will reload and reset the button
+      }
+    });
+  }
 });
 
 

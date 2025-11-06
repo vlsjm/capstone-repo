@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Supply Requests</title>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <style>
@@ -401,7 +403,6 @@
       border-radius: 12px;
       padding: 20px;
       box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
-      border-left: 4px solid #152d64;
       position: relative;
       overflow: visible;
     }
@@ -855,6 +856,1068 @@
       font-size: 16px;
       margin: 0;
     }
+
+    /* Claim Modal Styles - Enhanced with !important to avoid conflicts */
+    .claim-modal {
+      position: fixed !important;
+      z-index: 10000 !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      background-color: rgba(0, 0, 0, 0.7) !important;
+      backdrop-filter: blur(3px) !important;
+      animation: fadeIn 0.3s ease-out !important;
+    }
+
+    .claim-modal-content {
+      position: relative !important;
+      background-color: #ffffff !important;
+      margin: 2% auto !important;
+      padding: 0 !important;
+      border: none !important;
+      border-radius: 15px !important;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
+      max-width: 900px !important;
+      width: 95% !important;
+      max-height: 95vh !important;
+      overflow-y: auto !important;
+      animation: slideInScale 0.4s ease-out !important;
+    }
+
+    /* Modal Header */
+    .claim-modal-header {
+      background: #152d64 !important;
+      color: white !important;
+      padding: 25px 30px 20px !important;
+      border-radius: 15px 15px 0 0 !important;
+      position: relative !important;
+      box-shadow: 0 3px 15px rgba(21, 45, 100, 0.3) !important;
+    }
+
+    .claim-modal-header h2 {
+      margin: 0 !important;
+      font-size: 24px !important;
+      font-weight: 600 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+    }
+
+    .claim-modal-header h2 i {
+      font-size: 22px !important;
+      opacity: 0.9 !important;
+    }
+
+    .claim-modal-header p {
+      margin: 8px 0 0 0 !important;
+      font-size: 15px !important;
+      opacity: 0.9 !important;
+      font-weight: 400 !important;
+    }
+
+    /* Close Button */
+    .claim-modal-close {
+      position: absolute !important;
+      top: 20px !important;
+      right: 25px !important;
+      font-size: 32px !important;
+      font-weight: bold !important;
+      color: rgba(255, 255, 255, 0.8) !important;
+      cursor: pointer !important;
+      z-index: 10001 !important;
+      transition: all 0.2s ease !important;
+      width: 35px !important;
+      height: 35px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 50% !important;
+    }
+
+    .claim-modal-close:hover {
+      color: white !important;
+      background-color: rgba(255, 255, 255, 0.2) !important;
+      transform: scale(1.1) !important;
+    }
+
+    /* Modal Body */
+    .claim-modal-body {
+      padding: 30px !important;
+      background-color: #ffffff !important;
+    }
+
+    /* Barcode Section */
+    .barcode-section {
+      background: #f8f9fa !important;
+      border-radius: 12px !important;
+      padding: 25px !important;
+      margin-bottom: 25px !important;
+      border: 2px solid #e9ecef !important;
+    }
+
+    .barcode-section h4 {
+      color: #152d64 !important;
+      font-size: 18px !important;
+      font-weight: 600 !important;
+      margin-bottom: 8px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+    }
+
+    .barcode-instruction {
+      color: #6c757d !important;
+      margin-bottom: 20px !important;
+      font-size: 14px !important;
+    }
+
+    .barcode-hint {
+      margin-top: 8px !important;
+      font-size: 12px !important;
+      color: #6c757d !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+    }
+
+    .barcode-input-group {
+      display: flex !important;
+      gap: 12px !important;
+      margin-bottom: 15px !important;
+    }
+
+    .barcode-input {
+      flex: 1 !important;
+      padding: 14px 16px !important;
+      border: 2px solid #e1e8ed !important;
+      border-radius: 8px !important;
+      font-size: 16px !important;
+      transition: all 0.2s ease !important;
+      font-family: 'Courier New', monospace !important;
+      background: white !important;
+    }
+
+    .barcode-input:focus {
+      outline: none !important;
+      border-color: #152d64 !important;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1) !important;
+    }
+
+    .add-barcode-btn {
+      padding: 14px 24px !important;
+      background: #152d64 !important;
+      color: white !important;
+      border: none !important;
+      border-radius: 8px !important;
+      cursor: pointer !important;
+      font-weight: 600 !important;
+      font-size: 14px !important;
+      transition: all 0.2s ease !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      white-space: nowrap !important;
+    }
+
+    .add-barcode-btn:hover {
+      background: #0d1f4a !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 15px rgba(21, 45, 100, 0.4) !important;
+    }
+
+    /* Items Sections */
+    .scanned-items-section,
+    .expected-items-section {
+      background: white !important;
+      border-radius: 12px !important;
+      padding: 20px !important;
+      margin-bottom: 20px !important;
+      border: 2px solid #e9ecef !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .scanned-items-section h4,
+    .expected-items-section h4 {
+      color: #152d64 !important;
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      margin-bottom: 15px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      border-bottom: 2px solid #e9ecef !important;
+      padding-bottom: 10px !important;
+    }
+
+    .scanned-items-list,
+    .expected-items-list {
+      max-height: 200px !important;
+      overflow-y: auto !important;
+    }
+
+    .empty-scanned-items {
+      text-align: center !important;
+      padding: 30px 20px !important;
+      color: #6c757d !important;
+    }
+
+    .empty-scanned-items i {
+      font-size: 32px !important;
+      margin-bottom: 10px !important;
+      opacity: 0.5 !important;
+    }
+
+    /* Scanned Item Row */
+    .scanned-item-row {
+      background: white !important;
+      border: 2px solid #28a745 !important;
+      border-radius: 8px !important;
+      padding: 16px !important;
+      margin-bottom: 12px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 16px !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .scanned-item-row:hover {
+      box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3) !important;
+    }
+
+    .scanned-item-info {
+      flex: 1 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+    }
+
+    .scanned-item-icon {
+      width: 40px !important;
+      height: 40px !important;
+      border-radius: 50% !important;
+      background: rgba(40, 167, 69, 0.1) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 18px !important;
+      color: #28a745 !important;
+      flex-shrink: 0 !important;
+    }
+
+    .scanned-item-details {
+      flex: 1 !important;
+    }
+
+    .scanned-item-name {
+      font-weight: 600 !important;
+      color: #152d64 !important;
+      font-size: 15px !important;
+      margin-bottom: 4px !important;
+    }
+
+    .scanned-item-time {
+      font-size: 12px !important;
+      color: #6c757d !important;
+    }
+
+    .scanned-item-quantity {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      background: #f8f9fa !important;
+      padding: 8px 12px !important;
+      border-radius: 6px !important;
+    }
+
+    .scanned-item-quantity label {
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: #495057 !important;
+      margin: 0 !important;
+    }
+
+    .quantity-input {
+      width: 60px !important;
+      padding: 6px 8px !important;
+      border: 2px solid #152d64 !important;
+      border-radius: 4px !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      text-align: center !important;
+      color: #152d64 !important;
+    }
+
+    .quantity-input:focus {
+      outline: none !important;
+      border-color: #28a745 !important;
+      box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1) !important;
+    }
+
+    .quantity-label {
+      font-size: 14px !important;
+      color: #6c757d !important;
+      font-weight: 500 !important;
+    }
+
+    .remove-scanned-btn {
+      padding: 8px 12px !important;
+      background: #dc3545 !important;
+      color: white !important;
+      border: none !important;
+      border-radius: 6px !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+      font-size: 14px !important;
+    }
+
+    .remove-scanned-btn:hover {
+      background: #c82333 !important;
+      transform: scale(1.05) !important;
+    }
+
+    .item-row {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      padding: 12px 15px !important;
+      border-radius: 8px !important;
+      margin-bottom: 8px !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .item-row.scanned {
+      background: linear-gradient(135deg, #d4edda, #c3e6cb) !important;
+      border: 1px solid #c3e6cb !important;
+    }
+
+    .item-row.expected {
+      background: #f8f9fa !important;
+      border: 1px solid #dee2e6 !important;
+    }
+
+    .item-row.scanned {
+      background: linear-gradient(135deg, #d1ecf1, #bee5eb) !important;
+      border: 1px solid #bee5eb !important;
+    }
+
+    .item-info {
+      flex: 1 !important;
+    }
+
+    .item-name {
+      font-weight: 600 !important;
+      color: #2c3e50 !important;
+      font-size: 14px !important;
+    }
+
+    .item-details {
+      font-size: 12px !important;
+      color: #6c757d !important;
+      margin-top: 2px !important;
+    }
+
+    .item-status {
+      padding: 4px 8px !important;
+      border-radius: 12px !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      text-transform: uppercase !important;
+    }
+
+    .status-scanned {
+      background: #152d64 !important;
+      color: white !important;
+    }
+
+    .status-expected {
+      background: #ffc107 !important;
+      color: #856404 !important;
+    }
+
+    .status-scanned {
+      background: #152d64 !important;
+      color: white !important;
+    }
+
+    .status-verified {
+      background: #28a745 !important;
+      color: white !important;
+    }
+
+    .status-pending {
+      background: #ffc107 !important;
+      color: #856404 !important;
+    }
+
+    /* Item Actions */
+    .item-actions {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+
+    .remove-item-btn, .quick-add-btn {
+      background: #dc3545 !important;
+      border: none !important;
+      color: white !important;
+      width: 24px !important;
+      height: 24px !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      font-size: 10px !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .quick-add-btn {
+      background: #28a745 !important;
+    }
+
+    .remove-item-btn:hover {
+      background: #c82333 !important;
+      transform: scale(1.1) !important;
+    }
+
+    .quick-add-btn:hover {
+      background: #218838 !important;
+      transform: scale(1.1) !important;
+    }
+
+    .item-row.verified {
+      background: linear-gradient(145deg, #e8f5e8, #f0f9ff) !important;
+    }
+
+    .item-row.pending {
+      background: linear-gradient(145deg, #fff3e0, #ffeaa7) !important;
+    }
+
+    .item-row.scanned {
+      background: linear-gradient(145deg, #e8f5e8, #f0f9ff) !important;
+    }
+
+    .item-details code {
+      background: rgba(255, 255, 255, 0.8) !important;
+      padding: 2px 6px !important;
+      border-radius: 4px !important;
+      font-family: 'Courier New', monospace !important;
+      font-size: 11px !important;
+      color: #333 !important;
+    }
+
+    /* Expected Items List Section */
+    .expected-items-list-section {
+      background: white !important;
+      border-radius: 12px !important;
+      padding: 0 !important;
+      margin-bottom: 20px !important;
+      border: 2px solid #152d64 !important;
+      box-shadow: 0 4px 12px rgba(21, 45, 100, 0.15) !important;
+      overflow: hidden !important;
+    }
+
+    .expected-items-header {
+      background: linear-gradient(135deg, #152d64 0%, #1e3a72 100%) !important;
+      color: white !important;
+      padding: 16px 20px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      border-bottom: 3px solid #0d1f4a !important;
+    }
+
+    .expected-items-header h4 {
+      margin: 0 !important;
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+    }
+
+    .expected-items-header h4 i {
+      font-size: 18px !important;
+      opacity: 0.9 !important;
+    }
+
+    .progress-badge {
+      background: rgba(255, 255, 255, 0.2) !important;
+      color: white !important;
+      padding: 6px 14px !important;
+      border-radius: 20px !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      border: 1px solid rgba(255, 255, 255, 0.3) !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+
+    .progress-badge.complete {
+      background: #28a745 !important;
+      border-color: #28a745 !important;
+    }
+
+    .progress-badge i {
+      font-size: 12px !important;
+    }
+
+    .expected-items-container {
+      padding: 15px !important;
+      max-height: 280px !important;
+      overflow-y: auto !important;
+      background: #f8f9fa !important;
+    }
+
+    .expected-items-container::-webkit-scrollbar {
+      width: 8px !important;
+    }
+
+    .expected-items-container::-webkit-scrollbar-track {
+      background: #e9ecef !important;
+      border-radius: 4px !important;
+    }
+
+    .expected-items-container::-webkit-scrollbar-thumb {
+      background: #152d64 !important;
+      border-radius: 4px !important;
+    }
+
+    .expected-items-container::-webkit-scrollbar-thumb:hover {
+      background: #0d1f4a !important;
+    }
+
+    .expected-item-card {
+      background: white !important;
+      border-radius: 8px !important;
+      padding: 14px 16px !important;
+      margin-bottom: 10px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 12px !important;
+      border: 2px solid #e9ecef !important;
+      transition: all 0.2s ease !important;
+      position: relative !important;
+    }
+
+    .expected-item-card:last-child {
+      margin-bottom: 0 !important;
+    }
+
+    .expected-item-card:hover {
+      border-color: #152d64 !important;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.15) !important;
+      transform: translateX(2px) !important;
+    }
+
+    .expected-item-card.scanned {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
+      border-color: #28a745 !important;
+    }
+
+    .expected-item-card.scanned::before {
+      content: '' !important;
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      bottom: 0 !important;
+      width: 4px !important;
+      background: #28a745 !important;
+      border-radius: 8px 0 0 8px !important;
+    }
+
+    .expected-item-info {
+      flex: 1 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+    }
+
+    .expected-item-icon {
+      width: 38px !important;
+      height: 38px !important;
+      border-radius: 8px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 16px !important;
+      background: #f8f9fa !important;
+      color: #152d64 !important;
+      flex-shrink: 0 !important;
+    }
+
+    .expected-item-card.scanned .expected-item-icon {
+      background: rgba(40, 167, 69, 0.15) !important;
+      color: #28a745 !important;
+    }
+
+    .expected-item-details {
+      flex: 1 !important;
+      min-width: 0 !important;
+    }
+
+    .expected-item-name {
+      font-weight: 600 !important;
+      color: #152d64 !important;
+      font-size: 14px !important;
+      margin-bottom: 3px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+
+    .expected-item-card.scanned .expected-item-name {
+      color: #155724 !important;
+    }
+
+    .expected-item-barcode {
+      font-size: 12px !important;
+      color: #6c757d !important;
+      font-family: 'Courier New', monospace !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 4px !important;
+    }
+
+    .expected-item-barcode i {
+      font-size: 11px !important;
+    }
+
+    .expected-item-quantity {
+      background: #e9ecef !important;
+      color: #495057 !important;
+      padding: 6px 12px !important;
+      border-radius: 6px !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      flex-shrink: 0 !important;
+    }
+
+    .expected-item-card.scanned .expected-item-quantity {
+      background: rgba(40, 167, 69, 0.2) !important;
+      color: #155724 !important;
+    }
+
+    .expected-item-status {
+      padding: 5px 12px !important;
+      border-radius: 16px !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 5px !important;
+      flex-shrink: 0 !important;
+    }
+
+    .expected-item-status.pending {
+      background: #fff3cd !important;
+      color: #856404 !important;
+      border: 1px solid #ffeaa7 !important;
+    }
+
+    .expected-item-status.scanned {
+      background: #d4edda !important;
+      color: #155724 !important;
+      border: 1px solid #c3e6cb !important;
+    }
+
+    .expected-item-status i {
+      font-size: 10px !important;
+    }
+
+    .empty-expected-list {
+      text-align: center !important;
+      padding: 40px 20px !important;
+      color: #6c757d !important;
+    }
+
+    .empty-expected-list i {
+      font-size: 48px !important;
+      color: #152d64 !important;
+      margin-bottom: 15px !important;
+      opacity: 0.3 !important;
+    }
+
+    .empty-expected-list p {
+      margin: 0 !important;
+      font-size: 15px !important;
+      color: #495057 !important;
+    }
+
+    /* Simple Items Table */
+    .simple-items-table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+    }
+
+    .simple-items-table thead {
+      background: linear-gradient(135deg, #152d64 0%, #1e3a72 100%) !important;
+    }
+
+    .simple-items-table th {
+      padding: 12px 16px !important;
+      text-align: left !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: white !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+      border-bottom: 2px solid #0d1f4a !important;
+    }
+
+    .simple-items-table th:first-child {
+      width: 50px !important;
+      text-align: center !important;
+    }
+
+    .simple-items-table th:last-child {
+      width: 100px !important;
+      text-align: center !important;
+    }
+
+    .simple-items-table td {
+      padding: 14px 16px !important;
+      border-bottom: 1px solid #e9ecef !important;
+      font-size: 14px !important;
+      color: #495057 !important;
+    }
+
+    .simple-items-table td:first-child {
+      text-align: center !important;
+      font-weight: 600 !important;
+      color: #6c757d !important;
+    }
+
+    .simple-items-table td:last-child {
+      text-align: center !important;
+      font-weight: 600 !important;
+      color: #152d64 !important;
+    }
+
+    .simple-items-table tbody tr {
+      transition: background-color 0.2s ease !important;
+    }
+
+    .simple-items-table tbody tr:hover {
+      background-color: #f8f9fa !important;
+    }
+
+    .simple-items-table tbody tr:last-child td {
+      border-bottom: none !important;
+    }
+
+    .simple-items-table .scanned-row {
+      background-color: #d4edda !important;
+    }
+
+    .simple-items-table .scanned-row:hover {
+      background-color: #c3e6cb !important;
+    }
+
+    .simple-items-table .item-name-cell {
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      font-weight: 500 !important;
+      color: #152d64 !important;
+    }
+
+    .simple-items-table .scanned-icon {
+      color: #28a745 !important;
+      font-size: 16px !important;
+    }
+
+    .simple-items-table .qty-cell {
+      font-size: 14px !important;
+    }
+
+    /* Items Summary Section */
+    .items-summary-section {
+      background: #e3f2fd !important;
+      padding: 15px 20px !important;
+      border-radius: 8px !important;
+      margin-bottom: 20px !important;
+    }
+
+    .summary-info {
+      display: flex !important;
+      gap: 30px !important;
+      align-items: center !important;
+    }
+
+    .summary-item {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      font-size: 14px !important;
+    }
+
+    .summary-item i {
+      color: #152d64 !important;
+      font-size: 16px !important;
+    }
+
+    .summary-label {
+      color: #555 !important;
+      font-weight: 500 !important;
+    }
+
+    .summary-value {
+      background: white !important;
+      padding: 4px 12px !important;
+      border-radius: 12px !important;
+      font-weight: 600 !important;
+      color: #152d64 !important;
+      min-width: 30px !important;
+      text-align: center !important;
+    }
+
+    .expected-items-hint {
+      margin-top: 10px !important;
+      padding: 8px 12px !important;
+      background: rgba(255, 255, 255, 0.7) !important;
+      border-radius: 6px !important;
+    }
+
+    .expected-items-hint small {
+      color: #495057 !important;
+    }
+
+    .total-card .card-icon {
+      background: #152d64 !important;
+    }
+
+    /* Loading and Empty States */
+    .loading-state, .empty-state {
+      padding: 30px 20px !important;
+      text-align: center !important;
+      color: #6c757d !important;
+      background: #f8f9fa !important;
+      border-radius: 8px !important;
+      border: 2px dashed #dee2e6 !important;
+    }
+
+    .loading-state i {
+      color: #152d64 !important;
+      margin-right: 8px !important;
+    }
+
+    .empty-expected-items, .empty-scanned-items {
+      padding: 30px 20px !important;
+      text-align: center !important;
+      color: #6c757d !important;
+      background: #f8f9fa !important;
+      border-radius: 8px !important;
+      border: 2px dashed #dee2e6 !important;
+    }
+
+    .empty-expected-items i, .empty-scanned-items i {
+      font-size: 24px !important;
+      color: #152d64 !important;
+      margin-bottom: 10px !important;
+      display: block !important;
+    }
+
+    /* Action Buttons */
+    .claim-modal-actions {
+      display: flex !important;
+      gap: 15px !important;
+      justify-content: flex-end !important;
+      padding-top: 20px !important;
+      border-top: 2px solid #e9ecef !important;
+      margin-top: 25px !important;
+    }
+
+    .claim-modal-btn {
+      padding: 14px 28px !important;
+      border: none !important;
+      border-radius: 8px !important;
+      cursor: pointer !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      transition: all 0.2s ease !important;
+      min-width: 140px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+    }
+
+    .claim-modal-btn.cancel {
+      background: #6c757d !important;
+      color: white !important;
+    }
+
+    .claim-modal-btn.cancel:hover {
+      background: #5a6268 !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .claim-modal-btn.secondary {
+      background: #28a745 !important;
+      color: white !important;
+      border: 2px solid #1e7e34 !important;
+    }
+
+    .claim-modal-btn.secondary:hover {
+      background: #218838 !important;
+      color: white !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .claim-modal-btn.primary {
+      background: #152d64 !important;
+      color: white !important;
+    }
+
+    .claim-modal-btn.primary:hover:not(:disabled) {
+      background: #0d1f4a !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 15px rgba(21, 45, 100, 0.4) !important;
+    }
+
+    .claim-modal-btn:disabled {
+      opacity: 0.5 !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideInScale {
+      from { 
+        opacity: 0;
+        transform: translateY(-50px) scale(0.95);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .claim-modal-content {
+        width: 98% !important;
+        margin: 1% auto !important;
+        max-height: 98vh !important;
+      }
+
+      .claim-modal-header {
+        padding: 20px 20px 15px !important;
+      }
+
+      .claim-modal-header h2 {
+        font-size: 20px !important;
+      }
+
+      .claim-modal-body {
+        padding: 20px !important;
+      }
+
+      .expected-items-list-section {
+        margin-bottom: 15px !important;
+      }
+
+      .expected-items-header {
+        padding: 12px 15px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+      }
+
+      .expected-items-header h4 {
+        font-size: 14px !important;
+      }
+
+      .progress-badge {
+        font-size: 12px !important;
+        padding: 5px 12px !important;
+      }
+
+      .expected-items-container {
+        max-height: 220px !important;
+        padding: 12px !important;
+      }
+
+      .expected-item-card {
+        padding: 12px !important;
+        flex-wrap: wrap !important;
+      }
+
+      .expected-item-info {
+        flex: 1 1 100% !important;
+        margin-bottom: 8px !important;
+      }
+
+      .expected-item-icon {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 14px !important;
+      }
+
+      .expected-item-name {
+        font-size: 13px !important;
+      }
+
+      .expected-item-barcode {
+        font-size: 11px !important;
+      }
+
+      .expected-item-quantity {
+        font-size: 12px !important;
+        padding: 5px 10px !important;
+      }
+
+      .expected-item-status {
+        font-size: 10px !important;
+        padding: 4px 10px !important;
+      }
+
+      .barcode-section {
+        padding: 20px !important;
+      }
+
+      .barcode-section h4 {
+        font-size: 16px !important;
+      }
+
+      .barcode-input-group {
+        flex-direction: column !important;
+      }
+
+      .barcode-input,
+      .add-barcode-btn {
+        width: 100% !important;
+      }
+
+      .scanned-items-section,
+      .expected-items-section {
+        padding: 15px !important;
+      }
+
+      .claim-modal-actions {
+        flex-direction: column !important;
+        gap: 8px !important;
+      }
+
+      .claim-modal-btn {
+        width: 100% !important;
+        padding: 12px 20px !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1020,7 +2083,9 @@
                       </thead>
                       <tbody>
                         {% for item in batch_request.items.all %}
-                        <tr>
+                        <tr data-supply-barcode="{{ item.supply.barcode }}" 
+                            data-supply-name="{{ item.supply.supply_name }}" 
+                            data-item-status="{{ item.status }}">
                           <td><strong>{{ item.supply.supply_name }}</strong></td>
                           <td>{{ item.quantity }}</td>
                           <td>
@@ -1129,12 +2194,13 @@
                     <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link">
                       <i class="fas fa-external-link-alt"></i> View
                     </a>
-                    <form method="post" action="{% url 'claim_batch_items' batch_request.id %}" style="display: inline;">
-                      {% csrf_token %}
-                      <button type="submit" class="claim-button" onclick="return confirm('Are you sure you want to claim all items in this request? This will deduct stock quantities.');">
-                        <i class="fas fa-shopping-cart"></i> Claim
-                      </button>
-                    </form>
+                    <button type="button" 
+                            class="claim-button open-claim-modal" 
+                            data-request-id="{{ batch_request.id }}"
+                            data-request-number="REQ-{{ batch_request.id|stringformat:'03d' }}"
+                            data-items='[{% for item in batch_request.items.all %}{% if item.status == "approved" %}{"id":"{{ item.supply.id }}","name":"{{ item.supply.supply_name|escapejs }}","barcode":"{{ item.supply.barcode|escapejs }}","quantity":{{ item.approved_quantity|default:item.quantity }}}{% if not forloop.last %},{% endif %}{% endif %}{% endfor %}]'>
+                      <i class="fas fa-qrcode"></i> Claim Items
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -1169,9 +2235,20 @@
                       </thead>
                       <tbody>
                         {% for item in batch_request.items.all %}
-                        <tr>
+                        <tr data-supply-barcode="{% if item.supply.barcode %}{{ item.supply.barcode }}{% else %}SUP-{{ item.supply.id }}{% endif %}" 
+                            data-supply-name="{{ item.supply.supply_name }}" 
+                            data-supply-id="{{ item.supply.id }}" 
+                            data-item-status="{{ item.status }}"
+                            data-item-quantity="{{ item.quantity }}"
+                            data-item-approved-quantity="{{ item.approved_quantity|default:item.quantity }}">
                           <td><strong>{{ item.supply.supply_name }}</strong></td>
-                          <td>{{ item.quantity }}</td>
+                          <td>
+                            {% if item.status == 'approved' and item.approved_quantity %}
+                              {{ item.approved_quantity }}
+                            {% else %}
+                              {{ item.quantity }}
+                            {% endif %}
+                          </td>
                           <td>
                             {% if item.status == 'approved' %}
                               <span class="item-status status-approved">Approved</span>
@@ -1335,7 +2412,9 @@
                       </thead>
                       <tbody>
                         {% for item in batch_request.items.all %}
-                        <tr>
+                        <tr data-supply-barcode="{{ item.supply.barcode }}" 
+                            data-supply-name="{{ item.supply.supply_name }}" 
+                            data-item-status="{{ item.status }}">
                           <td><strong>{{ item.supply.supply_name }}</strong></td>
                           <td>{{ item.quantity }}</td>
                           <td>{{ item.approved_quantity|default:"N/A" }}</td>
@@ -1468,7 +2547,9 @@
                       </thead>
                       <tbody>
                         {% for item in batch_request.items.all %}
-                        <tr>
+                        <tr data-supply-barcode="{{ item.supply.barcode }}" 
+                            data-supply-name="{{ item.supply.supply_name }}" 
+                            data-item-status="{{ item.status }}">
                           <td><strong>{{ item.supply.supply_name }}</strong></td>
                           <td>{{ item.quantity }}</td>
                           <td>
@@ -1606,7 +2687,9 @@
                       </thead>
                       <tbody>
                         {% for item in batch_request.items.all %}
-                        <tr>
+                        <tr data-supply-barcode="{{ item.supply.barcode }}" 
+                            data-supply-name="{{ item.supply.supply_name }}" 
+                            data-item-status="{{ item.status }}">
                           <td><strong>{{ item.supply.supply_name }}</strong></td>
                           <td>{{ item.quantity }}</td>
                           <td>
@@ -1666,6 +2749,95 @@
       </div>
 
     </main>
+  </div>
+
+  <!-- Claim Items Modal -->
+  <div id="claimModal" class="claim-modal" style="display: none;">
+    <div class="claim-modal-content">
+      <!-- Hidden CSRF token for AJAX requests -->
+      {% csrf_token %}
+      
+      <!-- Close Button -->
+      <span class="claim-modal-close" onclick="closeClaimModal()">&times;</span>
+      
+      <!-- Modal Header -->
+      <div class="claim-modal-header">
+        <h2>
+          <i class="fas fa-shopping-cart"></i>
+          Claim Items
+        </h2>
+        <p id="claimRequestNumber">Claiming items for request #</p>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="claim-modal-body">
+        <!-- Expected Items List Section -->
+        <div class="expected-items-list-section">
+          <div class="expected-items-header">
+            <h4>
+              <i class="fas fa-clipboard-list"></i>
+              <span>Items to Claim</span>
+            </h4>
+            <div class="progress-badge" id="progressBadge">
+              <i class="fas fa-hourglass-half"></i>
+              <span id="progressBadgeText">0 of 0 scanned</span>
+            </div>
+          </div>
+          <div class="expected-items-container" id="expectedItemsContainer">
+            <div class="empty-expected-list">
+              <i class="fas fa-box-open"></i>
+              <p>Loading items...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barcode Input Section -->
+        <div class="barcode-section">
+          <h4><i class="fas fa-barcode"></i> Scan or Enter Barcodes</h4>
+          <p class="barcode-instruction">Enter item barcodes to verify items before claiming</p>
+          
+          <!-- Barcode Entry -->
+          <div class="barcode-input-group">
+            <input type="text" 
+                   id="barcodeInput" 
+                   placeholder="Scan or enter barcode..." 
+                   class="barcode-input"
+                   autofocus>
+            <button type="button" id="addBarcodeBtn" class="add-barcode-btn">
+              <i class="fas fa-plus"></i> Add Item
+            </button>
+          </div>
+          <div class="barcode-hint">
+            <i class="fas fa-info-circle"></i>
+            Use a barcode scanner or type the barcode manually
+          </div>
+        </div>
+
+        <!-- Scanned Items Section -->
+        <div class="scanned-items-section">
+          <h4><i class="fas fa-list-check"></i> Scanned Items</h4>
+          <div id="scannedItemsList" class="scanned-items-list">
+            <div class="empty-scanned-items">
+              <i class="fas fa-barcode"></i>
+              <p>No items scanned yet. Enter barcodes above to verify items.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="claim-modal-actions">
+          <button type="button" class="claim-modal-btn cancel" onclick="closeClaimModal()">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button type="button" id="quickClaimBtn" class="claim-modal-btn secondary">
+            <i class="fas fa-flash"></i> Quick Claim All
+          </button>
+          <button type="button" id="claimScannedBtn" class="claim-modal-btn primary" disabled>
+            <i class="fas fa-check"></i> Claim Scanned Items
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -2070,5 +3242,799 @@
       }
     }
   </style>
+
+  <script>
+    // Simple Claim Modal JavaScript
+    let currentRequestId = null;
+    let currentRequestNumber = '';
+    let scannedItems = [];
+    let expectedItemsCount = 0;
+    let expectedItems = []; // For validation only, not display
+
+    // Initialize claim modal event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeClaimModal();
+    });
+
+    function initializeClaimModal() {
+      // Add event listeners for claim buttons
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('.open-claim-modal')) {
+          const button = e.target.closest('.open-claim-modal');
+          const requestId = button.dataset.requestId;
+          const requestNumber = button.dataset.requestNumber;
+          
+          // Parse items data from button
+          let itemsData = [];
+          try {
+            itemsData = JSON.parse(button.dataset.items || '[]');
+            console.log('Parsed items data:', itemsData);
+          } catch (e) {
+            console.error('Error parsing items data:', e);
+          }
+          
+          openClaimModal(requestId, requestNumber, itemsData);
+        }
+      });
+
+      // Barcode input
+      document.getElementById('addBarcodeBtn').addEventListener('click', addBarcode);
+      document.getElementById('barcodeInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          addBarcode();
+        }
+      });
+
+      // Claim buttons
+      document.getElementById('quickClaimBtn').addEventListener('click', quickClaimItems);
+      document.getElementById('claimScannedBtn').addEventListener('click', claimScannedItems);
+    }
+
+    function openClaimModal(requestId, requestNumber, itemsData) {
+      console.log('Opening claim modal for request:', requestId, 'number:', requestNumber);
+      console.log('Items data received:', itemsData);
+      
+      currentRequestId = requestId;
+      currentRequestNumber = requestNumber;
+      
+      document.getElementById('claimRequestNumber').textContent = `Claiming items for request ${requestNumber}`;
+      document.getElementById('claimModal').style.display = 'block';
+      
+      // Reset modal state
+      resetModalState();
+      
+      // Load items directly from the passed data
+      if (itemsData && Array.isArray(itemsData)) {
+        expectedItems = itemsData.map((item, index) => ({
+          id: index + 1,
+          supplyId: item.id,
+          name: item.name,
+          barcode: item.barcode,
+          quantity: item.quantity,
+          status: 'approved',
+          category: 'Supply'
+        }));
+        expectedItemsCount = expectedItems.length;
+        console.log('Loaded', expectedItemsCount, 'items:', expectedItems);
+        
+        // Update the display
+        updateItemsCounts();
+        updateClaimButtonState();
+      } else {
+        console.warn('No items data provided or invalid format');
+      }
+      
+      // Focus on barcode input
+      setTimeout(() => {
+        const barcodeInput = document.getElementById('barcodeInput');
+        if (barcodeInput) {
+          barcodeInput.focus();
+        }
+      }, 100);
+    }
+
+    function closeClaimModal() {
+      document.getElementById('claimModal').style.display = 'none';
+      resetModalState();
+    }
+
+    function resetModalState() {
+      scannedItems = [];
+      expectedItems = [];
+      expectedItemsCount = 0;
+      
+      // Reset expected items container
+      const expectedItemsContainer = document.getElementById('expectedItemsContainer');
+      if (expectedItemsContainer) {
+        expectedItemsContainer.innerHTML = `
+          <div class="empty-expected-list">
+            <i class="fas fa-box-open"></i>
+            <p>Loading items...</p>
+          </div>
+        `;
+      }
+      
+      // Reset progress badge
+      const progressBadge = document.getElementById('progressBadge');
+      const progressBadgeText = document.getElementById('progressBadgeText');
+      if (progressBadge && progressBadgeText) {
+        progressBadge.classList.remove('complete');
+        progressBadge.querySelector('i').className = 'fas fa-hourglass-half';
+        progressBadgeText.textContent = '0 of 0 scanned';
+      }
+      
+      // Reset scanned items list
+      document.getElementById('scannedItemsList').innerHTML = `
+        <div class="empty-scanned-items">
+          <i class="fas fa-barcode"></i>
+          <p>No items scanned yet. Enter barcodes above to verify items.</p>
+        </div>
+      `;
+      
+      // Clear barcode input and reset claim button
+      const barcodeInput = document.getElementById('barcodeInput');
+      const claimButton = document.getElementById('claimScannedBtn');
+      
+      if (barcodeInput) barcodeInput.value = '';
+      if (claimButton) claimButton.disabled = true;
+    }
+
+    function loadExpectedItemsCount(requestId) {
+      console.log('Loading expected items for validation, request ID:', requestId);
+      
+      // Clear existing items and show loading state
+      expectedItemsCount = 0;
+      expectedItems = [];
+      scannedItems = [];
+      
+      // Show loading indicator
+      document.getElementById('totalItemsCount').textContent = 'Loading...';
+      
+      // Skip API call and go directly to DOM extraction since API endpoint doesn't exist
+      console.log('Using DOM extraction method for loading items');
+      loadExpectedItemsCountFromDOM(requestId);
+    }
+
+    function loadExpectedItemsCountFromDOM(requestId) {
+      // Fallback method: extract items from the existing table row
+      expectedItemsCount = 0;
+      expectedItems = [];
+      console.log('Loading expected items from DOM for request ID:', requestId);
+      
+      // Find the request row in the current page
+      const requestRow = document.querySelector(`[data-request-id="${requestId}"]`);
+      if (requestRow) {
+        console.log('Found request row:', requestRow);
+        
+        // Look for the details row that contains the items table
+        const detailsRow = document.getElementById(`details-${requestId}`);
+        if (detailsRow) {
+          console.log('Found details row:', detailsRow);
+          
+          // Ensure details row is visible by expanding it temporarily
+          const wasHidden = !detailsRow.classList.contains('show');
+          if (wasHidden) {
+            console.log('Details row was hidden, temporarily expanding...');
+            detailsRow.classList.add('show');
+          }
+          
+          const itemRows = detailsRow.querySelectorAll('.items-table tbody tr');
+          expectedItemsCount = itemRows.length;
+          console.log('Found', expectedItemsCount, 'item rows in table');
+          
+          // Extract actual item data for validation
+          itemRows.forEach((row, index) => {
+            // Get data attributes from the row
+            const barcode = row.getAttribute('data-supply-barcode');
+            const itemName = row.getAttribute('data-supply-name');
+            const itemStatus = row.getAttribute('data-item-status');
+            const requestedQuantity = parseInt(row.getAttribute('data-item-quantity')) || 1;
+            const approvedQuantity = parseInt(row.getAttribute('data-item-approved-quantity')) || requestedQuantity;
+            
+            console.log(`Row ${index + 1} attributes:`, { barcode, itemName, itemStatus, requestedQuantity, approvedQuantity });
+            
+            // Only add if we have valid data and status is approved
+            if (barcode && itemName && itemStatus === 'approved') {
+              expectedItems.push({
+                id: expectedItems.length + 1,
+                name: itemName,
+                barcode: barcode.trim(),  // Use actual barcode from supply
+                quantity: approvedQuantity,  // Use approved quantity, not requested
+                status: itemStatus,
+                category: 'Supply'
+              });
+              
+              console.log(`Added item ${index + 1} for validation:`, itemName, barcode, `Approved Qty: ${approvedQuantity}`);
+            } else {
+              console.warn(`Skipped item ${index + 1}:`, {
+                name: itemName || '(missing)',
+                barcode: barcode || '(missing)',
+                status: itemStatus || '(missing)'
+              });
+            }
+          });
+          
+          // Hide details row again if it was hidden
+          if (wasHidden) {
+            detailsRow.classList.remove('show');
+            console.log('Details row hidden again');
+          }
+        } else {
+          console.log('Details row not found for request ID:', requestId);
+          
+          // Try to get total items from the main table
+          const totalItemsCell = requestRow.querySelector('td:nth-child(4)'); // 4th column has total items
+          if (totalItemsCell) {
+            expectedItemsCount = parseInt(totalItemsCell.textContent.trim()) || 0;
+            console.log('Got total items from main table:', expectedItemsCount);
+            
+            // Create generic expected items for validation
+            for (let i = 1; i <= expectedItemsCount; i++) {
+              const itemName = `Item ${i}`;
+              expectedItems.push({
+                id: i,
+                name: itemName,
+                barcode: generateBarcodeFromName(itemName),
+                quantity: 1,
+                status: 'Pending',
+                category: 'Supply'
+              });
+            }
+          }
+        }
+      } else {
+        console.log('Request row not found for request ID:', requestId);
+      }
+      
+      // Update expected items count based on approved items only
+      expectedItemsCount = expectedItems.length;
+      
+      // If still no items, log warning
+      if (expectedItemsCount === 0) {
+        console.warn('⚠ No approved items found for validation!');
+        console.log('This request may not have any approved items ready for claiming.');
+      }
+      
+      console.log('Final expected items for validation:', expectedItems);
+      console.log('Expected items with barcodes:', expectedItems.map(item => ({
+        name: item.name,
+        barcode: item.barcode,
+        quantity: item.quantity
+      })));
+      console.log('Final expected items count:', expectedItemsCount);
+      
+      updateItemsCounts();
+      updateClaimButtonState();
+    }
+
+    function generateBarcodeFromName(itemName) {
+      // Simple hash function to generate consistent barcode from item name
+      let hash = 0;
+      for (let i = 0; i < itemName.length; i++) {
+        const char = itemName.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      return Math.abs(hash).toString().padStart(10, '0').substring(0, 10);
+    }
+
+
+
+    function renderScannedItems() {
+      console.log('renderScannedItems called with:', scannedItems.length, 'items');
+      console.log('scannedItems data:', scannedItems);
+      
+      const container = document.getElementById('scannedItemsList');
+      console.log('Container found:', !!container);
+      
+      if (!container) {
+        console.error('scannedItemsList container not found!');
+        return;
+      }
+      
+      if (scannedItems.length === 0) {
+        console.log('No scanned items, showing empty state');
+        container.innerHTML = `
+          <div class="empty-scanned-items">
+            <i class="fas fa-barcode"></i>
+            <p>No items scanned yet. Enter barcodes above to verify items.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const html = scannedItems.map((item, index) => {
+        const supplyId = item.expectedItem?.supplyId || 'N/A';
+        const quantity = item.claimQuantity || item.requestedQuantity || 0;
+        
+        return `
+          <div class="scanned-item-row" data-scan-index="${index}">
+            <div class="scanned-item-info">
+              <div class="scanned-item-icon">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="scanned-item-details">
+                <div class="scanned-item-name">${item.name}</div>
+                <div class="scanned-item-time">SUP-${supplyId} &nbsp;&nbsp; Qty: ${quantity} &nbsp;&nbsp; Scanned: ${new Date(item.scannedAt).toLocaleTimeString()}</div>
+              </div>
+            </div>
+            <div class="scanned-item-status">
+              <span class="status-badge" style="background: #d4edda; color: #155724; padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                <i class="fas fa-check-circle"></i> VERIFIED
+              </span>
+            </div>
+            <button type="button" class="remove-scanned-btn" onclick="removeScannedItem(${index})" title="Remove">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+      
+      console.log('Generated HTML for scanned items:', html);
+      container.innerHTML = html;
+      console.log('Container innerHTML set, current content length:', container.innerHTML.length);
+    }
+
+    function updateClaimQuantity(index, newQuantity) {
+      const quantity = parseInt(newQuantity);
+      if (scannedItems[index] && quantity >= 1 && quantity <= scannedItems[index].requestedQuantity) {
+        scannedItems[index].claimQuantity = quantity;
+        updateItemsCounts();
+        showNotification(`Updated ${scannedItems[index].name} to claim ${quantity} units`, 'info');
+      }
+    }
+
+    function removeScannedItem(index) {
+      if (index >= 0 && index < scannedItems.length) {
+        const removedItem = scannedItems.splice(index, 1)[0];
+        
+        // Update UI
+        renderScannedItems();
+        updateClaimButtonState();
+        updateItemsCounts();
+        
+        showNotification(`Removed ${removedItem.name}`, 'info');
+      }
+    }
+
+    function addBarcode() {
+      const barcodeInput = document.getElementById('barcodeInput');
+      const barcode = barcodeInput.value.trim();
+      
+      if (!barcode) {
+        showNotification('Please enter a barcode.', 'warning');
+        return;
+      }
+      
+      // Find expected item that matches this barcode (flexible matching)
+      let expectedItem = expectedItems.find(item => {
+        if (!item.barcode) {
+          console.log('Skipping item without barcode:', item.name);
+          return false;
+        }
+        
+        // Normalize both barcodes: trim, uppercase, remove special characters
+        const normalizeBarcode = (bc) => {
+          return bc.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+        };
+        
+        const itemBarcode = item.barcode.trim();
+        const scannedBarcode = barcode.trim();
+        
+        console.log('Comparing:', { item: item.name, itemBarcode, scannedBarcode });
+        
+        // Direct match (trimmed)
+        if (itemBarcode === scannedBarcode) {
+          console.log('✓ Direct match');
+          return true;
+        }
+        
+        // Case-insensitive match (trimmed)
+        if (itemBarcode.toLowerCase() === scannedBarcode.toLowerCase()) {
+          console.log('✓ Case-insensitive match');
+          return true;
+        }
+        
+        // Handle URL vs text barcode (if barcode is an image URL, extract the text part)
+        if (itemBarcode.includes('/')) {
+          const barcodeText = itemBarcode.split('/').pop().split('.')[0];
+          if (barcodeText === scannedBarcode || barcodeText.toLowerCase() === scannedBarcode.toLowerCase()) {
+            console.log('✓ URL extraction match:', barcodeText);
+            return true;
+          }
+        }
+        
+        // Normalized comparison (removes hyphens, spaces, etc.)
+        const normalizedItem = normalizeBarcode(itemBarcode);
+        const normalizedScanned = normalizeBarcode(scannedBarcode);
+        if (normalizedItem === normalizedScanned) {
+          console.log('✓ Normalized match:', normalizedItem);
+          return true;
+        }
+        
+        return false;
+      });
+      
+      if (!expectedItem) {
+        // Try partial matching or show available barcodes for debugging
+        console.error('❌ Barcode not found!');
+        console.log('Scanned barcode:', barcode);
+        console.log('Available items:', expectedItems.map(item => ({ 
+          name: item.name, 
+          barcode: item.barcode,
+          id: item.id 
+        })));
+        showNotification(`Barcode "${barcode}" not found. Please scan items from this request.`, 'warning');
+        barcodeInput.value = '';
+        barcodeInput.focus();
+        return;
+      }
+      
+      // Check if this item exists in scanned items
+      let existingScannedItem = scannedItems.find(item => item.barcode === expectedItem.barcode);
+      
+      if (existingScannedItem) {
+        showNotification(`✅ ${expectedItem.name} is already scanned!`, 'info');
+        barcodeInput.value = '';
+        barcodeInput.focus();
+        return;
+      }
+      
+      // Add item with full quantity (can be adjusted later)
+      const scannedItem = {
+        barcode: expectedItem.barcode,
+        name: expectedItem.name,
+        scannedAt: new Date().toISOString(),
+        requestedQuantity: expectedItem.quantity,
+        claimQuantity: expectedItem.quantity, // Default to full quantity
+        expectedItem: expectedItem
+      };
+
+      scannedItems.push(scannedItem);
+      console.log('Added scanned item with full quantity:', scannedItem);
+      
+      showNotification(`✅ ${expectedItem.name} scanned! Claiming ${expectedItem.quantity} units.`, 'success');
+      
+      // Update UI
+      renderScannedItems();
+      updateClaimButtonState();
+      updateItemsCounts();
+      
+      // Clear input and focus for next entry
+      barcodeInput.value = '';
+      barcodeInput.focus();
+      
+      // Play success sound
+      playSuccessSound();
+      
+      console.log('Finished processing barcode addition');
+    }
+
+    function playSuccessSound() {
+      // Create audio feedback for successful scan
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.2);
+      } catch (e) {
+        // Fallback: use navigator.vibrate if available
+        if (navigator.vibrate) {
+          navigator.vibrate(100);
+        }
+      }
+    }
+
+    function playInfoSound() {
+      // Create different audio feedback for info/unknown items
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(400, audioContext.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.15);
+      } catch (e) {
+        // Fallback: use navigator.vibrate if available
+        if (navigator.vibrate) {
+          navigator.vibrate([50, 50, 50]);
+        }
+      }
+    }
+
+    function updateExpectedItemsStatus() {
+      expectedItems.forEach(expectedItem => {
+        const row = document.querySelector(`[data-barcode="${expectedItem.barcode}"]`);
+        if (row) {
+          const scannedItem = scannedItems.find(item => item.barcode === expectedItem.barcode);
+          const statusElement = row.querySelector('.item-status');
+          
+          if (scannedItem) {
+            row.classList.remove('expected');
+            row.classList.add('scanned');
+            statusElement.textContent = 'Scanned ✓';
+            statusElement.className = 'item-status status-scanned';
+          }
+        }
+      });
+    }
+
+    function updateClaimButtonState() {
+      const claimBtn = document.getElementById('claimScannedBtn');
+      
+      // Calculate total items and quantities
+      const totalItemsToScan = expectedItems.length;
+      const scannedItemsCount = scannedItems.length;
+      const totalQuantityClaiming = scannedItems.reduce((total, item) => total + (item.claimQuantity || 0), 0);
+      
+      if (scannedItems.length > 0) {
+        claimBtn.disabled = false;
+        if (scannedItemsCount === totalItemsToScan) {
+          claimBtn.innerHTML = `<i class="fas fa-check"></i> Claim Scanned Items (${scannedItemsCount}/${totalItemsToScan} scans)`;
+        } else {
+          claimBtn.innerHTML = `<i class="fas fa-check"></i> Claim Scanned Items (${scannedItemsCount}/${totalItemsToScan} scans)`;
+        }
+      } else {
+        claimBtn.disabled = true;
+        claimBtn.innerHTML = `<i class="fas fa-check"></i> Claim Scanned Items`;
+      }
+    }
+
+    function updateItemsCounts() {
+      // Calculate totals - now simpler since one scan = full quantity
+      const scannedItemsCount = scannedItems.length;
+      
+      // Update progress badge
+      const progressBadge = document.getElementById('progressBadge');
+      const progressBadgeText = document.getElementById('progressBadgeText');
+      
+      if (progressBadge && progressBadgeText) {
+        progressBadgeText.textContent = `${scannedItemsCount} of ${expectedItemsCount} scanned`;
+        
+        if (scannedItemsCount === expectedItemsCount && expectedItemsCount > 0) {
+          progressBadge.classList.add('complete');
+          progressBadge.querySelector('i').className = 'fas fa-check-circle';
+        } else {
+          progressBadge.classList.remove('complete');
+          progressBadge.querySelector('i').className = 'fas fa-hourglass-half';
+        }
+      }
+
+      // Render expected items list
+      renderExpectedItemsList();
+    }
+
+    function renderExpectedItemsList() {
+      const container = document.getElementById('expectedItemsContainer');
+      if (!container) return;
+
+      if (expectedItems.length === 0) {
+        container.innerHTML = `
+          <div class="empty-expected-list">
+            <i class="fas fa-box-open"></i>
+            <p>No items found for this request.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '<table class="simple-items-table">';
+      html += '<thead><tr><th>#</th><th>Item Name</th><th>Quantity</th></tr></thead>';
+      html += '<tbody>';
+      
+      expectedItems.forEach((item, index) => {
+        const isScanned = scannedItems.some(scanned => scanned.barcode === item.barcode);
+        const scannedClass = isScanned ? 'scanned-row' : '';
+        const displayName = item.supplyId ? `SUP-${item.supplyId} ${item.name}` : item.name;
+        
+        html += `
+          <tr class="${scannedClass}">
+            <td>${index + 1}</td>
+            <td>
+              <div class="item-name-cell">
+                ${isScanned ? '<i class="fas fa-check-circle scanned-icon"></i>' : ''}
+                ${displayName}
+              </div>
+            </td>
+            <td class="qty-cell">${item.quantity}</td>
+          </tr>
+        `;
+      });
+      
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    function quickClaimItems() {
+      if (confirm('Are you sure you want to claim all items without barcode verification? This will immediately deduct stock quantities.')) {
+        performClaimRequest(false);
+      }
+    }
+
+    function claimScannedItems() {
+      if (scannedItems.length === 0) {
+        showNotification('No items scanned. Please scan some barcodes first.', 'warning');
+        return;
+      }
+      
+      // Calculate scan completion statistics
+      const totalScansNeeded = expectedItems.reduce((total, item) => total + item.quantity, 0);
+      const totalScansCompleted = scannedItems.reduce((total, item) => total + (item.claimQuantity || item.requestedQuantity || 0), 0);
+      const fullyScannedItems = scannedItems.filter(item => (item.claimQuantity || item.requestedQuantity || 0) >= item.requestedQuantity);
+      const partiallyScannedItems = scannedItems.filter(item => (item.claimQuantity || item.requestedQuantity || 0) < item.requestedQuantity);
+      
+      let message = `Claim ${scannedItems.length} item${scannedItems.length !== 1 ? 's' : ''}?\n\n`;
+      message += `Scan Progress: ${totalScansCompleted}/${totalScansNeeded} total scans\n`;
+      message += `• ${fullyScannedItems.length} item${fullyScannedItems.length !== 1 ? 's' : ''} fully scanned\n`;
+      
+      if (partiallyScannedItems.length > 0) {
+        message += `• ${partiallyScannedItems.length} item${partiallyScannedItems.length !== 1 ? 's' : ''} partially scanned:\n`;
+        partiallyScannedItems.forEach(item => {
+          const claimQty = item.claimQuantity || item.requestedQuantity || 0;
+          message += `  - ${item.name}: ${claimQty}/${item.requestedQuantity}\n`;
+        });
+        message += `\nNote: Partially scanned items will only claim the scanned quantities.\n`;
+      }
+      
+      message += '\nThis will immediately deduct stock quantities.';
+      
+      if (confirm(message)) {
+        performClaimRequest(true);
+      }
+    }
+
+    function performClaimRequest(withVerification) {
+      // Show loading state
+      const claimBtn = withVerification ? 
+        document.getElementById('claimScannedBtn') : 
+        document.getElementById('quickClaimBtn');
+      
+      const originalText = claimBtn.innerHTML;
+      claimBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      claimBtn.disabled = true;
+
+      if (withVerification && scannedItems.length === 0) {
+        showNotification('No items scanned. Please scan some barcodes first.', 'warning');
+        claimBtn.innerHTML = originalText;
+        claimBtn.disabled = false;
+        return;
+      }
+
+      // Prepare claim data for backend
+      const claimData = {
+        request_id: currentRequestId,
+        verification_method: withVerification ? 'barcode_scanned' : 'quick_claim',
+        scanned_items: withVerification ? scannedItems : [],
+        scanned_count: withVerification ? scannedItems.length : 0,
+        timestamp: new Date().toISOString()
+      };
+
+      // Skip AJAX and submit directly via form
+      console.log('Submitting claim directly via form:', claimData);
+      submitClaimForm(claimData);
+    }
+
+    function submitClaimForm(claimData) {
+      // Create form for normal submission (for page redirect)
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/batch-request/${currentRequestId}/claim/`;
+      
+      // Add CSRF token if available
+      const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+      if (csrfTokenElement && csrfTokenElement.value) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfTokenElement.value;
+        form.appendChild(csrfInput);
+      }
+      
+      // Add claim data as individual fields for Django form processing
+      Object.keys(claimData).forEach(key => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = typeof claimData[key] === 'object' ? JSON.stringify(claimData[key]) : claimData[key];
+        form.appendChild(input);
+      });
+      
+      document.body.appendChild(form);
+      form.submit();
+    }
+
+    function showNotification(message, type = 'info') {
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = `claim-notification ${type}`;
+      notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+        ${message}
+      `;
+      
+      // Style the notification
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : '#17a2b8'};
+        color: ${type === 'warning' ? '#856404' : 'white'};
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10001;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        animation: slideInRight 0.3s ease-out;
+        max-width: 300px;
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Remove after 3 seconds
+      setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease-out';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 3000);
+    }
+
+    // Add CSS for notifications
+    const notificationCSS = `
+      <style>
+        @keyframes slideInRight {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOutRight {
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(100%); opacity: 0; }
+        }
+      </style>
+    `;
+    
+    document.head.insertAdjacentHTML('beforeend', notificationCSS);
+
+    // Close modal on outside click
+    window.addEventListener('click', function(e) {
+      const modal = document.getElementById('claimModal');
+      if (e.target === modal) {
+        closeClaimModal();
+      }
+    });
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && document.getElementById('claimModal').style.display === 'block') {
+        closeClaimModal();
+      }
+    });
+  </script>
 </body>
 </html>

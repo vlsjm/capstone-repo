@@ -1,0 +1,2584 @@
+{% extends 'userpanel/user_base.html' %}
+{% load static %}
+
+{% block title %}Request{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Toggle Switch Styles - Matching System Theme */
+.request-type-toggle {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+    padding: 0.5rem;
+    background: transparent;
+}
+
+.toggle-container {
+    background: white;
+    border-radius: 8px;
+    padding: 6px;
+    display: inline-flex;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e4e9;
+}
+
+.toggle-btn {
+    padding: 0.75rem 2.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: transparent;
+    color: #6c757d;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toggle-btn:hover {
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.toggle-btn.active {
+    background: #1e3a5f;
+    color: white;
+    box-shadow: 0 2px 4px rgba(30, 58, 95, 0.3);
+}
+
+.toggle-btn i {
+    font-size: 1rem;
+}
+
+/* Content Container */
+.request-content {
+    display: none;
+}
+
+.request-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced Search Styles */
+.search-input-wrapper {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.supply-search-input {
+    padding-left: 36px !important;
+    padding-right: 36px !important;
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    z-index: 1;
+}
+
+.clear-search-btn:hover {
+    background-color: #f8f9fa;
+    color: #dc3545;
+}
+
+#category-filter, #category-filter-borrow {
+    border-radius: 8px;
+    border: 2px solid #e1e5e9;
+    padding: 12px 15px;
+    font-size: 14px;
+    height: 46px;
+    box-sizing: border-box;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+#category-filter:focus, #category-filter-borrow:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.dropdown-header {
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.results-count {
+    font-style: italic;
+}
+
+/* Enhanced Option Styles */
+.select-option {
+    padding: 12px !important;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.select-option:not(.hidden) {
+    display: flex !important;
+}
+
+.select-option.hidden {
+    display: none !important;
+}
+
+.option-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.option-name {
+    font-weight: 500;
+    color: #2c3e50;
+    flex: 1;
+}
+
+.option-stock {
+    font-size: 12px;
+    color: #28a745;
+    font-weight: 600;
+    background-color: #d4edda;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.option-stock.low-stock {
+    color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.option-details {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    color: #6c757d;
+}
+
+.option-category {
+    background-color: #e7f3ff;
+    color: #0056b3;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.option-code {
+    color: #6c757d;
+}
+
+/* Highlight matching text */
+.highlight-match {
+    background-color: #fff3cd;
+    font-weight: 600;
+    padding: 0 2px;
+}
+
+/* Loading state */
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #152D64;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Toggle */
+@media (max-width: 768px) {
+    .toggle-btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+        gap: 0.4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .toggle-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .toggle-btn i {
+        font-size: 0.9rem;
+    }
+}
+
+/* Fix for Recent Requests Scrolling */
+.recent-requests {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.requests-list {
+    max-height: none;
+    overflow: visible;
+}
+
+/* Scrollbar styling for recent requests */
+.recent-requests::-webkit-scrollbar {
+    width: 8px;
+}
+
+.recent-requests::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.recent-requests::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.recent-requests::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Category dropdown option styling */
+#category-filter option, #category-filter-borrow option {
+    padding: 8px;
+    background-color: white;
+    color: #333;
+}
+
+/* Limit dropdown height and make it scrollable */
+.select-dropdown {
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Scrollbar styling for dropdown */
+.select-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.select-dropdown::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.select-dropdown::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.select-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* ===== MOBILE MODAL STYLES ===== */
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 999998;
+    animation: fadeIn 0.2s ease-out;
+    pointer-events: none;
+}
+
+.modal-backdrop.active {
+    display: block;
+    pointer-events: auto;
+}
+
+.item-selection-modal {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 50vh;
+    height: auto;
+    z-index: 999999;
+    background: white;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+    animation: slideUpFromBottom 0.4s ease-out;
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    touch-action: none;
+}
+
+@keyframes slideUpFromBottom {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideDownToBottom {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+.item-selection-modal.active {
+    display: flex;
+}
+
+.item-selection-modal.closing {
+    animation: slideDownToBottom 0.3s ease-out forwards;
+}
+
+.modal-header {
+    background: #152d64;
+    color: white;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+    cursor: grab;
+    cursor: -webkit-grab;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    touch-action: none;
+}
+
+.modal-header.dragging {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
+}
+
+.modal-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
+    margin: 4px auto 0;
+    transition: background 0.2s;
+}
+
+.modal-header:active .modal-handle {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    width: auto;
+    height: auto;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.modal-search-wrapper {
+    padding: 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e4e9;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.modal-search-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    background-color: white;
+    box-sizing: border-box;
+}
+
+.modal-search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.modal-category-filter {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: white;
+    box-sizing: border-box;
+    min-height: 38px;
+}
+
+.modal-category-filter:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.modal-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modal-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.modal-item-option {
+    padding: 14px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    transition: background-color 0.15s;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.modal-item-option:active {
+    background-color: #f0f7ff;
+}
+
+.modal-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.modal-item-name {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.modal-item-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.modal-item-category {
+    background-color: #e7f3ff;
+    color: #0056b3;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+.modal-item-code {
+    color: #6c757d;
+    font-size: 11px;
+}
+
+.modal-item-stock {
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.modal-item-stock.available {
+    color: #28a745;
+    background-color: #d4edda;
+}
+
+.modal-item-stock.low-stock {
+    color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.modal-no-results {
+    padding: 40px 16px;
+    text-align: center;
+    color: #6c757d;
+}
+
+.modal-no-results i {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 10px;
+}
+
+.modal-hidden {
+    display: none !important;
+}
+
+/* ===== MOBILE MEDIA QUERIES ===== */
+@media (max-width: 768px) {
+    /* Hide desktop dropdown on mobile, show modal instead */
+    .select-dropdown {
+        display: none !important;
+    }
+    
+    /* Hide category filter outside modal on mobile */
+    #category-filter,
+    #category-filter-borrow {
+        display: none !important;
+    }
+    
+    /* Ensure search input is always visible and clickable */
+    .supply-search-input,
+    .modal-search-input {
+        font-size: 16px; /* Prevents iOS zoom on input focus */
+        min-height: 44px; /* Touch target size */
+        cursor: pointer;
+    }
+    
+    /* Search input on mobile should appear clickable, not focusable */
+    .supply-search-input[readonly] {
+        cursor: pointer;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    
+    /* Make category filter tappable */
+    .modal-category-filter {
+        min-height: 44px;
+        font-size: 16px;
+    }
+    
+    /* Adjust modal height for smaller screens */
+    .item-selection-modal {
+        max-height: 60vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-header h2 {
+        font-size: 15px;
+    }
+    
+    .modal-search-wrapper {
+        padding: 8px;
+        gap: 6px;
+    }
+    
+    .modal-item-option {
+        padding: 10px 8px;
+    }
+    
+    .item-selection-modal {
+        max-height: 65vh;
+    }
+}
+
+/* Scrollbar styling for modal content */
+.modal-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Prevent body scroll when modal is active */
+body.modal-open {
+    overflow: hidden;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<style>
+    /* Prevent flash of wrong tab */
+    .request-content:not(.active) {
+        display: none !important;
+    }
+</style>
+
+<div class="request-page-layout">
+    <main class="request-form-container">
+        <!-- Request Type Toggle -->
+        <div class="request-type-toggle">
+            <div class="toggle-container">
+                <button class="toggle-btn" data-type="supply" id="supply-toggle-btn">
+                    <i class="fas fa-box"></i> Supply Request
+                </button>
+                <button class="toggle-btn" data-type="borrow" id="borrow-toggle-btn">
+                    <i class="fas fa-handshake"></i> Borrow Request
+                </button>
+            </div>
+        </div>
+
+        <script>
+            // Set active tab immediately to prevent flash
+            (function() {
+                // Check if backend specified an active tab, otherwise use localStorage
+                const backendTab = '{{ active_tab|default:"" }}';
+                const activeTab = backendTab || localStorage.getItem('activeRequestTab') || 'supply';
+                
+                // Update localStorage with the active tab
+                if (backendTab) {
+                    localStorage.setItem('activeRequestTab', backendTab);
+                }
+                
+                const supplyBtn = document.getElementById('supply-toggle-btn');
+                const borrowBtn = document.getElementById('borrow-toggle-btn');
+                const supplyContent = document.getElementById('supply-request-content');
+                const borrowContent = document.getElementById('borrow-request-content');
+                
+                if (activeTab === 'borrow') {
+                    borrowBtn.classList.add('active');
+                    if (borrowContent) borrowContent.classList.add('active');
+                } else {
+                    supplyBtn.classList.add('active');
+                    if (supplyContent) supplyContent.classList.add('active');
+                }
+            })();
+        </script>
+
+        <!-- Mobile Modal Backdrop -->
+        <div id="modal-backdrop" class="modal-backdrop"></div>
+
+        <!-- Supplies Data (stored as JSON in data attribute) -->
+        <div id="supplies-json-data" style="display:none;" data-supplies='[
+            {% for supply in available_supplies %}
+            {
+                "id": {{ supply.id }},
+                "name": "{{ supply.supply_name|escapejs }}",
+                "category_id": {{ supply.category.id }},
+                "category_name": "{{ supply.category.name|escapejs }}",
+                "code": "{{ supply.supply_number|default:""|escapejs }}",
+                "description": "{{ supply.description|default:""|escapejs }}",
+                "available": {{ supply.quantity_info.current_quantity }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]'></div>
+
+        <!-- Borrow Properties Data (stored as JSON in data attribute) -->
+        <div id="borrow-json-data" style="display:none;" data-supplies='[
+            {% for property in available_properties %}
+            {
+                "id": {{ property.id }},
+                "name": "{{ property.property_name|escapejs }}",
+                "category_id": {{ property.category.id }},
+                "category_name": "{{ property.category.name|escapejs }}",
+                "code": "{{ property.property_number|default:""|escapejs }}",
+                "description": "{{ property.description|default:""|escapejs }}",
+                "available": {{ property.quantity }},
+                "available_qty": {{ property.available_quantity }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]'></div>
+
+        <!-- Supply Item Selection Modal (Mobile) -->
+        <div id="supply-selection-modal" class="item-selection-modal">
+            <div class="modal-header" id="supply-modal-handle">
+                <div class="modal-handle"></div>
+                <h2><i class="fas fa-list"></i> Select Supply Item</h2>
+            </div>
+            <div class="modal-search-wrapper">
+                <input type="text" id="supply-modal-search" class="modal-search-input" 
+                       placeholder="Search by name or code..." autocomplete="off">
+                <select id="supply-modal-category" class="modal-category-filter">
+                    <option value="">All Categories</option>
+                    {% for category in supply_categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-content">
+                <div id="supply-modal-items-list" class="modal-items-list">
+                    <!-- Items will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Borrow Item Selection Modal (Mobile) -->
+        <div id="borrow-selection-modal" class="item-selection-modal">
+            <div class="modal-header" id="borrow-modal-handle">
+                <div class="modal-handle"></div>
+                <h2><i class="fas fa-handshake"></i> Select Item to Borrow</h2>
+            </div>
+            <div class="modal-search-wrapper">
+                <input type="text" id="borrow-modal-search" class="modal-search-input" 
+                       placeholder="Search by name or code..." autocomplete="off">
+                <select id="borrow-modal-category" class="modal-category-filter">
+                    <option value="">All Categories</option>
+                    {% for category in borrow_categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-content">
+                <div id="borrow-modal-items-list" class="modal-items-list">
+                    <!-- Items will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Supply Request Content -->
+        <div id="supply-request-content" class="request-content">
+            <h1><i class="fas fa-list"></i> Supply Request List</h1>
+            <p class="form-description">Add multiple supply items to your list, then submit your request all at once.</p>
+
+            <!-- Add Item to List Section -->
+            <div class="add-item-section">
+                <h3><i class="fas fa-plus"></i> Add Item to List</h3>
+                <form id="add-supply-form" class="add-item-form">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="supply-select">Supply Item:</label>
+                            <div class="searchable-select-container">
+                                <!-- Category Filter -->
+                                <select id="category-filter" class="form-control">
+                                    <option value="">All Categories</option>
+                                    {% for category in supply_categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                
+                                <!-- Search Input with Icon -->
+                                <div class="search-input-wrapper">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="text" id="supply-search" class="form-control supply-search-input" 
+                                           placeholder="Search by name, description, or code..." autocomplete="off">
+                                    <button type="button" id="clear-search" class="clear-search-btn" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Enhanced Dropdown -->
+                                <div id="supply-dropdown" class="select-dropdown">
+                                    <div class="dropdown-header">
+                                        <span class="results-count">{{ available_supplies|length }} items found</span>
+                                    </div>
+                                    <div class="select-option" data-value="">
+                                        <span class="option-name">Select a supply item...</span>
+                                    </div>
+                                    {% for supply in available_supplies %}
+                                    <div class="select-option" 
+                                         data-value="{{ supply.id }}" 
+                                         data-name="{{ supply.supply_name }}"
+                                         data-description="{{ supply.description|default:'' }}"
+                                         data-code="{{ supply.supply_number|default:'' }}"
+                                         data-category="{{ supply.category.id }}"
+                                         data-category-name="{{ supply.category.name }}"
+                                         data-available="{{ supply.quantity_info.current_quantity }}">
+                                        <div class="option-main">
+                                            <span class="option-name">{{ supply.supply_name }}</span>
+                                            <span class="option-stock {% if supply.quantity_info.current_quantity < 10 %}low-stock{% endif %}">
+                                                {{ supply.quantity_info.current_quantity }} available
+                                            </span>
+                                        </div>
+                                        <div class="option-details">
+                                            <span class="option-category">{{ supply.category.name }}</span>
+                                            {% if supply.supply_number %}<span class="option-code">Code: {{ supply.supply_number }}</span>{% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    <div class="select-option no-results" style="display: none;">
+                                        No items found
+                                    </div>
+                                </div>
+                                <input type="hidden" id="supply-select" name="supply_id" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="supply-quantity-input">Quantity:</label>
+                            <input type="number" id="supply-quantity-input" name="quantity" 
+                                   class="form-control" min="1" placeholder="Enter quantity" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn-add-to-list">
+                                <i class="fas fa-plus"></i> Add to List
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- List Items Section -->
+            <div class="list-section">
+                <h3><i class="fas fa-list"></i> Request Items <span id="supply-list-count">({{ supply_cart_items|length }})</span></h3>
+                <div id="supply-list-container">
+                    {% if supply_cart_items %}
+                    <table class="list-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="supply-list-body">
+                            {% for item in supply_cart_items %}
+                            <tr data-supply-id="{{ item.supply.id }}">
+                                <td>{{ item.supply_name }}</td>
+                                <td>
+                                    <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
+                                           value="{{ item.quantity }}" min="1">
+                                </td>
+                                <td>
+                                    <button class="btn-remove" data-supply-id="{{ item.supply.id }}">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-list">
+                        <i class="fas fa-list"></i>
+                        <p>Your request list is empty. Add items above to get started.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Submit Request Section -->
+            <div class="submit-section" id="supply-submit-section" {% if not supply_cart_items %}style="display: none;"{% endif %}>
+                <form id="submit-supply-form" method="post" action="{% url 'submit_list_request' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="submit_request">
+                    <div class="form-group">
+                        <label for="supply-purpose">Purpose/Description:</label>
+                        <textarea id="supply-purpose" name="purpose" class="form-control" 
+                                  rows="3" required placeholder="Please describe the purpose of this request..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-paper-plane"></i> Submit Request
+                        </button>
+                        <button type="button" class="btn-clear-supply-list btn-clear-list">
+                            <i class="fas fa-trash"></i> Clear List
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Borrow Request Content -->
+        <div id="borrow-request-content" class="request-content">
+            <h1><i class="fas fa-handshake"></i> Borrow Request List</h1>
+            <p class="form-description">Add multiple items to your borrow list, then submit your request all at once.</p>
+
+            <!-- Add Item to List Section -->
+            <div class="add-item-section">
+                <h3><i class="fas fa-plus"></i> Add Item to List</h3>
+                <form id="add-borrow-form" class="add-item-form">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="borrow-select">Equipment/Item:</label>
+                            <div class="searchable-select-container">
+                                <!-- Category Filter -->
+                                <select id="category-filter-borrow" class="form-control">
+                                    <option value="">All Categories</option>
+                                    {% for category in borrow_categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                
+                                <!-- Search Input with Icon -->
+                                <div class="search-input-wrapper">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="text" id="borrow-search" class="form-control supply-search-input" 
+                                           placeholder="Search by name, description, or code..." autocomplete="off">
+                                    <button type="button" id="clear-search-borrow" class="clear-search-btn" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Enhanced Dropdown -->
+                                <div id="borrow-dropdown" class="select-dropdown">
+                                    <div class="dropdown-header">
+                                        <span class="results-count">{{ available_properties|length }} items found</span>
+                                    </div>
+                                    <div class="select-option" data-value="">
+                                        <span class="option-name">Select an item...</span>
+                                    </div>
+                                    {% for property in available_properties %}
+                                    <div class="select-option" 
+                                         data-value="{{ property.id }}" 
+                                         data-name="{{ property.property_name }}"
+                                         data-description="{{ property.description|default:'' }}"
+                                         data-number="{{ property.property_number|default:'' }}"
+                                         data-category="{{ property.category.id }}"
+                                         data-category-name="{{ property.category.name }}"
+                                         data-available="{{ property.quantity }}"
+                                         data-available-qty="{{ property.available_quantity }}">
+                                        <div class="option-main">
+                                            <span class="option-name">{{ property.property_name }}</span>
+                                            <span class="option-stock {% if property.quantity < 5 %}low-stock{% endif %}">
+                                                {{ property.quantity }} available
+                                            </span>
+                                        </div>
+                                        <div class="option-details">
+                                            <span class="option-category">{{ property.category.name }}</span>
+                                            {% if property.property_number %}<span class="option-code">Code: {{ property.property_number }}</span>{% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    <div class="select-option no-results" style="display: none;">
+                                        No items found
+                                    </div>
+                                </div>
+                                <input type="hidden" id="borrow-select" name="property_id" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="borrow-quantity-input">Quantity:</label>
+                            <input type="number" id="borrow-quantity-input" name="quantity" 
+                                   class="form-control" min="1" placeholder="Enter quantity" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="return-date-input">Return Date:</label>
+                            <input type="date" id="return-date-input" name="return_date" 
+                                   class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn-add-to-list">
+                                <i class="fas fa-plus"></i> Add to List
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="purpose-input">Purpose:</label>
+                            <textarea id="purpose-input" name="purpose" class="form-control" 
+                                      placeholder="Describe the purpose for borrowing this item..." required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- List Items Section -->
+            <div class="list-section">
+                <h3><i class="fas fa-list"></i> Borrow Items <span id="borrow-list-count">({{ borrow_cart_items|length }})</span></h3>
+                <div id="borrow-list-container">
+                    {% if borrow_cart_items %}
+                    <table class="list-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Return Date</th>
+                                <th>Purpose</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in borrow_cart_items %}
+                            <tr data-supply-id="{{ item.supply.id }}">
+                                <td>{{ item.supply.property_name }}</td>
+                                <td>
+                                    <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
+                                           value="{{ item.quantity }}" min="1">
+                                </td>
+                                <td>
+                                    <input type="date" class="return-date-edit" data-supply-id="{{ item.supply.id }}" 
+                                           value="{{ item.return_date|date:'Y-m-d' }}">
+                                </td>
+                                <td>{{ item.purpose|truncatewords:5 }}</td>
+                                <td>
+                                    <button class="btn-remove-borrow" data-supply-id="{{ item.supply.id }}">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-list">
+                        <i class="fas fa-list"></i>
+                        <p>Your borrow list is empty. Add items above to get started.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Submit Request Section -->
+            <div class="submit-section" id="borrow-submit-section" {% if not borrow_cart_items %}style="display: none;"{% endif %}>
+                <form id="submit-borrow-form" method="post" action="{% url 'submit_borrow_list_request' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="submit_request">
+                    <div class="form-group">
+                        <label for="general-purpose">General Purpose/Notes (Optional):</label>
+                        <textarea id="general-purpose" name="general_purpose" class="form-control" 
+                                  placeholder="Add any general notes about this borrow request..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-paper-plane"></i> Submit Borrow Request
+                        </button>
+                        <button type="button" class="btn-clear-borrow-list btn-clear-list">
+                            <i class="fas fa-trash"></i> Clear List
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <aside class="recent-requests">
+        <h2><i class="fas fa-history"></i> Recent Requests</h2>
+        <div id="recent-requests-container">
+            <!-- This will be dynamically updated based on toggle -->
+        </div>
+    </aside>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Restore active tab from localStorage on page load (may be overridden by backend)
+    const backendTab = '{{ active_tab|default:"" }}';
+    const activeTab = backendTab || localStorage.getItem('activeRequestTab') || 'supply';
+    
+    // Update localStorage if backend specified a tab
+    if (backendTab) {
+        localStorage.setItem('activeRequestTab', backendTab);
+    }
+    
+    // Update toggle buttons and content visibility
+    $('.toggle-btn').removeClass('active');
+    $(`.toggle-btn[data-type="${activeTab}"]`).addClass('active');
+    
+    $('.request-content').removeClass('active');
+    $(`#${activeTab}-request-content`).addClass('active');
+    
+    // Update recent requests
+    updateRecentRequests(activeTab);
+    
+    // Toggle between Supply and Borrow Request
+    $('.toggle-btn').on('click', function() {
+        const type = $(this).data('type');
+        
+        // Store active tab in localStorage
+        localStorage.setItem('activeRequestTab', type);
+        
+        // Update active states
+        $('.toggle-btn').removeClass('active');
+        $(this).addClass('active');
+        
+        // Show/hide content
+        $('.request-content').removeClass('active');
+        $(`#${type}-request-content`).addClass('active');
+        
+        // Update recent requests
+        updateRecentRequests(type);
+    });
+    
+    // Function to update recent requests based on type
+    function updateRecentRequests(type) {
+        // Parse JSON data from Django
+        let supplyRequests = [];
+        let borrowRequests = [];
+        
+        try {
+            supplyRequests = JSON.parse('{{ supply_recent_requests|escapejs }}');
+        } catch(e) {
+            supplyRequests = [];
+        }
+        
+        try {
+            borrowRequests = JSON.parse('{{ borrow_recent_requests|escapejs }}');
+        } catch(e) {
+            borrowRequests = [];
+        }
+        
+        const requests = type === 'supply' ? supplyRequests : borrowRequests;
+        
+        if (requests.length === 0) {
+            $('#recent-requests-container').html(`
+                <div class="no-requests">
+                    <i class="fas fa-inbox"></i>
+                    <p>No recent requests found</p>
+                </div>
+            `);
+            return;
+        }
+        
+        let html = '<div class="requests-list">';
+        requests.forEach(req => {
+            html += `
+                <div class="request-card" data-request-id="${req.id}">
+                    <div class="request-header">
+                        <span class="request-date">${formatDate(req.date)}</span>
+                        <span class="status-badge status-${req.status.toLowerCase()}">${capitalizeFirst(req.status)}</span>
+                    </div>
+                    <div class="request-details">
+                        <p class="supply-name">${req.item}${req.quantity > 1 ? ' (x' + req.quantity + ')' : ''}</p>
+                        <p class="quantity">Quantity: ${req.quantity}</p>
+                        ${type === 'borrow' && req.return_date ? `<p class="return-date">Return: ${formatDate(req.return_date)}</p>` : ''}
+                        <div class="request-actions">
+                            ${req.status === 'pending' ? `
+                                <button class="btn-cancel-request" data-request-id="${req.id}" data-request-type="${req.type}">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            ` : ''}
+                            <button class="btn-request-again" data-request-id="${req.id}" data-request-type="${req.type}">
+                                <i class="fas fa-redo"></i> Request Again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        
+        $('#recent-requests-container').html(html);
+    }
+    
+    // Helper functions
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    
+    function capitalizeFirst(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+    
+    // Initialize recent requests with supply type
+    updateRecentRequests('supply');
+    
+    // Set minimum return date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minDate = tomorrow.toISOString().split('T')[0];
+    $('#return-date-input').attr('min', minDate);
+    
+    // Add supply item to list
+    $('#add-supply-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        formData.append('action', 'add_to_cart');
+        
+        const supplyId = document.getElementById('supply-select').value;
+        const supplyName = document.getElementById('supply-search').value;
+        const quantity = parseInt(document.getElementById('supply-quantity-input').value);
+        
+        if (!supplyId) {
+            showMessage('Please select a supply item', 'error');
+            return;
+        }
+        
+        if (!quantity || quantity < 1) {
+            showMessage('Please enter a valid quantity', 'error');
+            return;
+        }
+        
+        $.ajax({
+            url: '{% url "add_to_list" %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    showMessage(response.message, 'success');
+                    
+                    // Check if item already exists in table
+                    const existingRow = $(`#supply-list-body tr[data-supply-id="${supplyId}"]`);
+                    
+                    if (existingRow.length) {
+                        // Update existing row quantity
+                        const quantityInput = existingRow.find('.quantity-edit');
+                        const newQuantity = parseInt(quantityInput.val()) + parseInt(quantity);
+                        quantityInput.val(newQuantity);
+                    } else {
+                        // Add new row to table
+                        const table = $(`#supply-list-body`);
+                        const newRow = $(`
+                            <tr data-supply-id="${supplyId}">
+                                <td>${supplyName}</td>
+                                <td>
+                                    <input type="number" class="quantity-edit" data-supply-id="${supplyId}" 
+                                           value="${quantity}" min="1">
+                                </td>
+                                <td>
+                                    <button class="btn-remove" data-supply-id="${supplyId}">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                        
+                        // If table doesn't exist, create it
+                        if (table.length === 0) {
+                            const newTable = $(`
+                                <table class="list-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Quantity</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="supply-list-body">
+                                    </tbody>
+                                </table>
+                            `);
+                            $('#supply-list-container').html(newTable);
+                            newTable.find('#supply-list-body').append(newRow);
+                        } else {
+                            // If empty state exists, replace it
+                            const emptyState = $('#supply-list-container .empty-list');
+                            if (emptyState.length) {
+                                const newTable = $(`
+                                    <table class="list-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Item</th>
+                                                <th>Quantity</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="supply-list-body">
+                                        </tbody>
+                                    </table>
+                                `);
+                                $('#supply-list-container').html(newTable);
+                                newTable.find('#supply-list-body').append(newRow);
+                            } else {
+                                $('#supply-list-body').append(newRow);
+                            }
+                        }
+                    }
+                    
+                    // Update list count
+                    $('#supply-list-count').text(`(${response.list_count})`);
+                    
+                    // Show submit section if it's hidden
+                    if ($('#supply-submit-section').length && $('#supply-submit-section').is(':hidden')) {
+                        $('#supply-submit-section').show();
+                    }
+                    
+                    // Clear form
+                    document.getElementById('supply-search').value = '';
+                    document.getElementById('supply-select').value = '';
+                    document.getElementById('supply-quantity-input').value = '';
+                    
+                    // Clear any error highlighting
+                    $(this).find('.form-control').removeClass('error');
+                } else {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('Error adding item to list', 'error');
+            }
+        });
+    });
+    
+    // Add borrow item to list
+    $('#add-borrow-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        formData.append('action', 'add_to_cart');
+        
+        const propertyId = document.getElementById('borrow-select').value;
+        const propertyName = document.getElementById('borrow-search').value;
+        const quantity = parseInt(document.getElementById('borrow-quantity-input').value);
+        const returnDate = document.getElementById('return-date-input').value;
+        const purpose = document.getElementById('purpose-input').value;
+        
+        if (!propertyId) {
+            showMessage('Please select an item', 'error');
+            return;
+        }
+        
+        if (!quantity || quantity < 1) {
+            showMessage('Please enter a valid quantity', 'error');
+            return;
+        }
+        
+        if (!returnDate) {
+            showMessage('Please select a return date', 'error');
+            return;
+        }
+        
+        if (!purpose) {
+            showMessage('Please enter a purpose', 'error');
+            return;
+        }
+        
+        $.ajax({
+            url: '{% url "add_to_borrow_list" %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    showMessage(response.message, 'success');
+                    
+                    // Check if item already exists in table
+                    const existingRow = $(`#borrow-list-body tr[data-supply-id="${propertyId}"]`);
+                    
+                    if (existingRow.length) {
+                        // Update existing row
+                        const quantityInput = existingRow.find('.quantity-edit');
+                        const newQuantity = parseInt(quantityInput.val()) + parseInt(quantity);
+                        quantityInput.val(newQuantity);
+                        existingRow.find('.return-date-edit').val(returnDate);
+                        existingRow.find('td:nth-child(4)').text(purpose.split(' ').slice(0, 5).join(' ') + (purpose.split(' ').length > 5 ? '...' : ''));
+                    } else {
+                        // Add new row to table
+                        const table = $(`#borrow-list-body`);
+                        const newRow = $(`
+                            <tr data-supply-id="${propertyId}">
+                                <td>${propertyName}</td>
+                                <td>
+                                    <input type="number" class="quantity-edit" data-supply-id="${propertyId}" 
+                                           value="${quantity}" min="1">
+                                </td>
+                                <td>
+                                    <input type="date" class="return-date-edit" data-supply-id="${propertyId}" 
+                                           value="${returnDate}">
+                                </td>
+                                <td>${purpose.split(' ').slice(0, 5).join(' ')}${purpose.split(' ').length > 5 ? '...' : ''}</td>
+                                <td>
+                                    <button class="btn-remove-borrow" data-supply-id="${propertyId}">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                        
+                        // If table doesn't exist, create it
+                        if (table.length === 0) {
+                            const newTable = $(`
+                                <table class="list-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Quantity</th>
+                                            <th>Return Date</th>
+                                            <th>Purpose</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="borrow-list-body">
+                                    </tbody>
+                                </table>
+                            `);
+                            $('#borrow-list-container').html(newTable);
+                            newTable.find('#borrow-list-body').append(newRow);
+                        } else {
+                            // If empty state exists, replace it
+                            const emptyState = $('#borrow-list-container .empty-list');
+                            if (emptyState.length) {
+                                const newTable = $(`
+                                    <table class="list-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Item</th>
+                                                <th>Quantity</th>
+                                                <th>Return Date</th>
+                                                <th>Purpose</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="borrow-list-body">
+                                        </tbody>
+                                    </table>
+                                `);
+                                $('#borrow-list-container').html(newTable);
+                                newTable.find('#borrow-list-body').append(newRow);
+                            } else {
+                                $('#borrow-list-body').append(newRow);
+                            }
+                        }
+                    }
+                    
+                    // Update list count
+                    $('#borrow-list-count').text(`(${response.list_count})`);
+                    
+                    // Show submit section if it's hidden
+                    if ($('#borrow-submit-section').length && $('#borrow-submit-section').is(':hidden')) {
+                        $('#borrow-submit-section').show();
+                    }
+                    
+                    // Clear form
+                    document.getElementById('borrow-search').value = '';
+                    document.getElementById('borrow-select').value = '';
+                    document.getElementById('borrow-quantity-input').value = '';
+                    document.getElementById('return-date-input').value = '';
+                    document.getElementById('purpose-input').value = '';
+                    
+                    // Clear any error highlighting
+                    $(this).find('.form-control').removeClass('error');
+                } else {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('An error occurred while adding the item to your list', 'error');
+            }
+        });
+    });
+    
+    // Update supply list item
+    $(document).on('click', '.btn-update', function() {
+        const supplyId = $(this).data('supply-id');
+        const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
+        
+        $.ajax({
+            url: '{% url "update_list_item" %}',
+            type: 'POST',
+            data: {
+                'supply_id': supplyId,
+                'quantity': newQuantity,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    showMessage('Item updated successfully', 'success');
+                } else {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('Error updating list item', 'error');
+            }
+        });
+    });
+    
+    // Update borrow list item
+    $(document).on('click', '.btn-update-borrow', function() {
+        const supplyId = $(this).data('supply-id');
+        const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
+        const newReturnDate = $(`.return-date-edit[data-supply-id="${supplyId}"]`).val();
+        
+        $.ajax({
+            url: '{% url "update_borrow_list_item" %}',
+            type: 'POST',
+            data: {
+                'supply_id': supplyId,
+                'quantity': newQuantity,
+                'return_date': newReturnDate,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    showMessage('Item updated successfully', 'success');
+                } else {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('An error occurred while updating the item', 'error');
+            }
+        });
+    });
+    
+    // Remove supply item from list
+    $(document).on('click', '.btn-remove', function() {
+        const supplyId = $(this).data('supply-id');
+        
+        if (confirm('Are you sure you want to remove this item from your list?')) {
+            $.ajax({
+                url: '{% url "remove_from_list" %}',
+                type: 'POST',
+                data: {
+                    'supply_id': supplyId,
+                    'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showMessage('Item removed from list', 'success');
+                        location.reload();
+                    } else {
+                        showMessage(response.message, 'error');
+                    }
+                },
+                error: function() {
+                    showMessage('Error removing item from list', 'error');
+                }
+            });
+        }
+    });
+    
+    // Remove borrow item from list
+    $(document).on('click', '.btn-remove-borrow', function() {
+        const supplyId = $(this).data('supply-id');
+        
+        if (confirm('Are you sure you want to remove this item from your borrow list?')) {
+            $.ajax({
+                url: '{% url "remove_from_borrow_list" %}',
+                type: 'POST',
+                data: {
+                    'supply_id': supplyId,
+                    'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        showMessage('Item removed from borrow list', 'success');
+                        location.reload();
+                    } else {
+                        showMessage(response.message, 'error');
+                    }
+                },
+                error: function() {
+                    showMessage('An error occurred while removing the item', 'error');
+                }
+            });
+        }
+    });
+    
+    // Auto-save supply quantity on change
+    $(document).on('change', '#supply-list-body .quantity-edit', function() {
+        const supplyId = $(this).data('supply-id');
+        const newQuantity = $(this).val();
+        
+        $.ajax({
+            url: '{% url "update_list_item" %}',
+            type: 'POST',
+            data: {
+                'supply_id': supplyId,
+                'quantity': newQuantity,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (!response.success) {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('Error updating quantity', 'error');
+            }
+        });
+    });
+    
+    // Auto-save borrow quantity and return date on change
+    $(document).on('change', '#borrow-list-body .quantity-edit, #borrow-list-body .return-date-edit', function() {
+        const supplyId = $(this).closest('tr').data('supply-id');
+        const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
+        const newReturnDate = $(`.return-date-edit[data-supply-id="${supplyId}"]`).val();
+        
+        $.ajax({
+            url: '{% url "update_borrow_list_item" %}',
+            type: 'POST',
+            data: {
+                'supply_id': supplyId,
+                'quantity': newQuantity,
+                'return_date': newReturnDate,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.status !== 'success') {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function() {
+                showMessage('Error updating borrow details', 'error');
+            }
+        });
+    });
+    
+    // Clear supply list
+    $('.btn-clear-supply-list').on('click', function() {
+        if (confirm('Are you sure you want to clear your entire list?')) {
+            $.ajax({
+                url: '{% url "clear_supply_list" %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showMessage('List cleared successfully!', 'success');
+                        location.reload();
+                    } else {
+                        showMessage(response.message, 'error');
+                    }
+                },
+                error: function() {
+                    showMessage('Error clearing list. Please try again.', 'error');
+                }
+            });
+        }
+    });
+    
+    // Clear borrow list
+    $('.btn-clear-borrow-list').on('click', function() {
+        if (confirm('Are you sure you want to clear your entire borrow list?')) {
+            $.ajax({
+                url: '{% url "clear_borrow_list" %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        showMessage('Borrow list cleared successfully!', 'success');
+                        location.reload();
+                    } else {
+                        showMessage(response.message, 'error');
+                    }
+                },
+                error: function() {
+                    showMessage('An error occurred while clearing the list', 'error');
+                }
+            });
+        }
+    });
+    
+    // Submit supply request
+    $('#submit-supply-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        if (!confirm('Are you sure you want to submit this supply request?')) {
+            return;
+        }
+        
+        const formData = $(this).serialize();
+        
+        // Store active tab before redirect
+        localStorage.setItem('activeRequestTab', 'supply');
+        
+        $.ajax({
+            url: '{% url "submit_list_request" %}',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                console.log('Supply submit response:', response);
+                if (response.success) {
+                    showMessage(response.message || 'Supply request submitted successfully!', 'success');
+                    setTimeout(function() {
+                        window.location.href = '{% url "user_all_requests" %}';
+                    }, 1500);
+                } else {
+                    showMessage(response.message || 'Error submitting request', 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Supply submit error:', xhr.responseText, status, error);
+                let errorMessage = 'An error occurred while submitting the request';
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    errorMessage = response.message || response.error || errorMessage;
+                } catch(e) {
+                    errorMessage = xhr.responseText || errorMessage;
+                }
+                showMessage(errorMessage, 'error');
+            }
+        });
+    });
+    
+    // Submit borrow request
+    $('#submit-borrow-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        if (!confirm('Are you sure you want to submit this borrow request?')) {
+            return;
+        }
+        
+        const formData = $(this).serialize();
+        
+        // Store active tab before redirect
+        localStorage.setItem('activeRequestTab', 'borrow');
+        
+        $.ajax({
+            url: '{% url "submit_borrow_list_request" %}',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                console.log('Borrow submit response:', response);
+                if (response.status === 'success') {
+                    showMessage(response.message || 'Borrow request submitted successfully!', 'success');
+                    setTimeout(function() {
+                        window.location.href = '{% url "user_all_requests" %}';
+                    }, 1500);
+                } else {
+                    showMessage(response.message || 'Error submitting request', 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Borrow submit error:', xhr.responseText, status, error);
+                let errorMessage = 'An error occurred while submitting the request';
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    errorMessage = response.message || response.error || errorMessage;
+                } catch(e) {
+                    errorMessage = xhr.responseText || errorMessage;
+                }
+                showMessage(errorMessage, 'error');
+            }
+        });
+    });
+    
+    // Show message function
+    function showMessage(message, type) {
+        // Remove any existing messages first
+        $('.notification-message').remove();
+        
+        const messageClass = type === 'success' ? 'alert-success' : 'alert-error';
+        const messageHtml = `
+            <div class="notification-message ${messageClass}" style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 99999 !important;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: ${type === 'success' ? '#28a745' : '#dc3545'};
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                animation: slideIn 0.3s ease-out;
+            ">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            </div>
+        `;
+        
+        $('body').append(messageHtml);
+        
+        // Show error messages for 5 seconds to allow time to read important info like stock availability
+        const displayDuration = type === 'error' ? 5000 : 3000;
+        
+        setTimeout(function() {
+            $('.notification-message').fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, displayDuration);
+    }
+    
+    // Handle cancel and request again buttons
+    $(document).on('click', '.btn-cancel-request', function() {
+        const requestId = $(this).data('request-id');
+        const requestType = $(this).data('request-type');
+        cancelRequest(requestId, requestType);
+    });
+    
+    $(document).on('click', '.btn-request-again', function() {
+        const requestId = $(this).data('request-id');
+        const requestType = $(this).data('request-type');
+        requestAgain(requestId, requestType);
+    });
+    
+    function cancelRequest(requestId, type) {
+        if (!confirm('Are you sure you want to cancel this request?')) {
+            return;
+        }
+
+        const urlMap = {
+            'single': `/userpanel/cancel-supply-request/${requestId}/`,
+            'batch': `/userpanel/cancel-batch-supply-request/${requestId}/`,
+            'borrow-single': `/userpanel/cancel-borrow-request/${requestId}/`,
+            'borrow-batch': `/userpanel/cancel-batch-borrow-request/${requestId}/`
+        };
+        
+        const url = urlMap[type] || `/userpanel/cancel-supply-request/${requestId}/`;
+        const csrfToken = $('[name=csrfmiddlewaretoken]').val();
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const requestCard = $(`[data-request-id="${requestId}"]`);
+                const statusBadge = requestCard.find('.status-badge');
+                statusBadge.removeClass().addClass('status-badge status-cancelled').text('cancelled');
+                
+                const cancelButton = requestCard.find('.btn-cancel-request');
+                if (cancelButton.length) {
+                    cancelButton.remove();
+                }
+
+                showMessage(data.message, 'success');
+            } else {
+                showMessage(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            showMessage('An error occurred while cancelling the request', 'error');
+        });
+    }
+    
+    function requestAgain(requestId, type) {
+        // Determine which tab is active (supply or borrow)
+        const activeTab = $('.toggle-btn.active').data('type') || 'supply';
+        
+        // Construct the correct request type
+        let fullType = type; // 'single' or 'batch'
+        if (type === 'batch') {
+            fullType = `batch_${activeTab}`; // 'batch_supply' or 'batch_borrow'
+        } else {
+            fullType = activeTab; // 'supply' or 'borrow'
+        }
+        
+        const url = `{% url 'request_again' %}?type=${fullType}&id=${requestId}`;
+        window.location.href = url;
+    }
+});
+</script>
+
+<script>
+// ===== LOAD MODAL DATA FROM DATA ATTRIBUTE =====
+let allSupplies = [];
+let allProperties = [];
+document.addEventListener('DOMContentLoaded', function() {
+    // Load supply data
+    const suppliesDataElement = document.getElementById('supplies-json-data');
+    if (suppliesDataElement) {
+        try {
+            allSupplies = JSON.parse(suppliesDataElement.getAttribute('data-supplies'));
+        } catch (e) {
+            console.error('Failed to parse supplies data:', e);
+            allSupplies = [];
+        }
+    }
+    
+    // Load borrow properties data
+    const borrowDataElement = document.getElementById('borrow-json-data');
+    if (borrowDataElement) {
+        try {
+            allProperties = JSON.parse(borrowDataElement.getAttribute('data-supplies'));
+        } catch (e) {
+            console.error('Failed to parse borrow properties data:', e);
+            allProperties = [];
+        }
+    }
+});
+
+// ===== MOBILE MODAL FUNCTIONS =====
+function closeModal(type, animate = true) {
+    const modalId = type === 'supply' ? 'supply-selection-modal' : 'borrow-selection-modal';
+    const modal = document.getElementById(modalId);
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (animate) {
+        modal.classList.add('closing');
+        setTimeout(() => {
+            modal.classList.remove('active', 'closing');
+            backdrop.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }, 300);
+    } else {
+        modal.classList.remove('active', 'closing');
+        backdrop.classList.remove('active');
+        document.body.classList.remove('modal-open');
+    }
+}
+
+function openModal(type) {
+    const isMobile = window.innerWidth <= 768;
+    if (!isMobile) return;
+    
+    const modalId = type === 'supply' ? 'supply-selection-modal' : 'borrow-selection-modal';
+    const modal = document.getElementById(modalId);
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    modal.classList.add('active');
+    backdrop.classList.add('active');
+    document.body.classList.add('modal-open');
+    
+    // Populate modal items
+    populateModalItems(type);
+    
+    // Focus search input
+    const searchInput = type === 'supply' ? 
+        document.getElementById('supply-modal-search') : 
+        document.getElementById('borrow-modal-search');
+    searchInput.focus();
+    
+    // Setup drag to dismiss
+    setupDragToDismiss(type);
+}
+
+function setupDragToDismiss(type) {
+    const modalId = type === 'supply' ? 'supply-selection-modal' : 'borrow-selection-modal';
+    const handleId = type === 'supply' ? 'supply-modal-handle' : 'borrow-modal-handle';
+    
+    const modal = document.getElementById(modalId);
+    const handle = document.getElementById(handleId);
+    
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+    
+    function onTouchStart(e) {
+        startY = e.touches[0].clientY;
+        currentY = startY;
+        isDragging = true;
+        handle.classList.add('dragging');
+    }
+    
+    function onTouchMove(e) {
+        if (!isDragging) return;
+        
+        currentY = e.touches[0].clientY;
+        const diff = currentY - startY;
+        
+        // Only allow downward dragging
+        if (diff > 0) {
+            modal.style.transform = `translateY(${diff}px)`;
+            modal.style.borderRadius = `${16 - (diff / 50) * 4}px ${16 - (diff / 50) * 4}px 0 0`;
+        }
+    }
+    
+    function onTouchEnd(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        handle.classList.remove('dragging');
+        
+        const diff = currentY - startY;
+        const threshold = 100; // 100px threshold to close
+        
+        if (diff > threshold) {
+            // Close the modal
+            modal.style.transform = '';
+            modal.style.borderRadius = '';
+            closeModal(type, true);
+        } else {
+            // Snap back
+            modal.style.transform = '';
+            modal.style.borderRadius = '';
+        }
+    }
+    
+    // Remove old listeners if they exist
+    handle.removeEventListener('touchstart', onTouchStart);
+    handle.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('touchend', onTouchEnd);
+    
+    // Add new listeners
+    handle.addEventListener('touchstart', onTouchStart, { passive: true });
+    handle.addEventListener('touchmove', onTouchMove, { passive: true });
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
+}
+
+function populateModalItems(type) {
+    const listId = type === 'supply' ? 'supply-modal-items-list' : 'borrow-modal-items-list';
+    const listContainer = document.getElementById(listId);
+    const searchInput = type === 'supply' ? 
+        document.getElementById('supply-modal-search') : 
+        document.getElementById('borrow-modal-search');
+    const categoryFilter = type === 'supply' ? 
+        document.getElementById('supply-modal-category') : 
+        document.getElementById('borrow-modal-category');
+    
+    // Use correct data source based on type
+    const dataSource = type === 'supply' ? allSupplies : allProperties;
+    
+    function filterAndRender() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedCategory = categoryFilter.value.trim();
+        
+        const filtered = dataSource.filter(item => {
+            const matchesSearch = !searchTerm || 
+                item.name.toLowerCase().includes(searchTerm) ||
+                item.code.toLowerCase().includes(searchTerm) ||
+                item.description.toLowerCase().includes(searchTerm);
+            
+            const matchesCategory = !selectedCategory || 
+                String(item.category_id) === String(selectedCategory);
+            
+            return matchesSearch && matchesCategory;
+        });
+        
+        if (filtered.length === 0) {
+            listContainer.innerHTML = `
+                <div class="modal-no-results">
+                    <div><i class="fas fa-inbox"></i></div>
+                    <p>No items found</p>
+                </div>
+            `;
+            return;
+        }
+        
+        listContainer.innerHTML = filtered.map(item => `
+            <div class="modal-item-option" onclick="selectItemFromModal('${type}', ${item.id}, '${item.name.replace(/'/g, "\\'")}', ${item.available})">
+                <div class="modal-item-info">
+                    <div class="modal-item-name">${item.name}</div>
+                    <div class="modal-item-details">
+                        <span class="modal-item-category">${item.category_name}</span>
+                        ${item.code ? `<span class="modal-item-code">Code: ${item.code}</span>` : ''}
+                    </div>
+                </div>
+                <div class="modal-item-stock ${item.available < 10 ? 'low-stock' : 'available'}">
+                    ${item.available} available
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Initial render
+    filterAndRender();
+    
+    // Add event listeners for filtering
+    searchInput.addEventListener('input', filterAndRender);
+    categoryFilter.addEventListener('change', filterAndRender);
+}
+
+function selectItemFromModal(type, itemId, itemName, available) {
+    closeModal(type, false);
+    
+    if (type === 'supply') {
+        document.getElementById('supply-search').value = itemName;
+        document.getElementById('supply-select').value = itemId;
+        // No max limit - users can request any quantity
+        document.getElementById('supply-quantity-input').setAttribute('placeholder', `Enter quantity (${available} available)`);
+        setTimeout(() => document.getElementById('supply-quantity-input').focus(), 100);
+    } else {
+        document.getElementById('borrow-search').value = itemName;
+        document.getElementById('borrow-select').value = itemId;
+        // No max limit - users can request any quantity
+        document.getElementById('borrow-quantity-input').setAttribute('placeholder', `Enter quantity (${available} available)`);
+        setTimeout(() => document.getElementById('borrow-quantity-input').focus(), 100);
+    }
+}
+
+// Close modal when clicking backdrop
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('modal-backdrop').addEventListener('click', function() {
+        if (document.getElementById('supply-selection-modal').classList.contains('active')) {
+            closeModal('supply');
+        }
+        if (document.getElementById('borrow-selection-modal').classList.contains('active')) {
+            closeModal('borrow');
+        }
+    });
+    
+    // Initialize modal search on mobile
+    if (window.innerWidth <= 768) {
+        const supplySearch = document.getElementById('supply-search');
+        const borrowSearch = document.getElementById('borrow-search');
+        
+        // Prevent keyboard from opening on mobile
+        supplySearch.setAttribute('readonly', 'readonly');
+        borrowSearch.setAttribute('readonly', 'readonly');
+        
+        // Prevent focus on mobile (iOS)
+        supplySearch.addEventListener('focus', function(e) {
+            e.preventDefault();
+            this.blur();
+        });
+        borrowSearch.addEventListener('focus', function(e) {
+            e.preventDefault();
+            this.blur();
+        });
+        
+        supplySearch.addEventListener('click', function(e) {
+            e.preventDefault();
+            openModal('supply');
+        });
+        
+        borrowSearch.addEventListener('click', function(e) {
+            e.preventDefault();
+            openModal('borrow');
+        });
+    }
+});
+
+// ===== END MOBILE MODAL FUNCTIONS =====
+</script>
+
+<script>
+// Searchable Dropdown - Completely Rewritten for Systematic Debugging
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing dropdowns...');
+    
+    // Initialize Supply Request Dropdown
+    const supplySearchInput = document.getElementById('supply-search');
+    const supplyDropdown = document.getElementById('supply-dropdown');
+    const supplyHiddenInput = document.getElementById('supply-select');
+    const supplyCategoryFilter = document.getElementById('category-filter');
+    const supplyClearSearchBtn = document.getElementById('clear-search');
+    
+    if (supplySearchInput && supplyDropdown && supplyHiddenInput) {
+        console.log('Initializing supply dropdown');
+        initializeDropdown({
+            searchInput: supplySearchInput,
+            dropdown: supplyDropdown,
+            hiddenInput: supplyHiddenInput,
+            categoryFilter: supplyCategoryFilter,
+            clearSearchBtn: supplyClearSearchBtn,
+            quantityInput: document.getElementById('supply-quantity-input'),
+            name: 'supply'
+        });
+    }
+    
+    // Initialize Borrow Request Dropdown
+    const borrowSearchInput = document.getElementById('borrow-search');
+    const borrowDropdown = document.getElementById('borrow-dropdown');
+    const borrowHiddenInput = document.getElementById('borrow-select');
+    const borrowCategoryFilter = document.getElementById('category-filter-borrow');
+    const borrowClearSearchBtn = document.getElementById('clear-search-borrow');
+    
+    if (borrowSearchInput && borrowDropdown && borrowHiddenInput) {
+        console.log('Initializing borrow dropdown');
+        initializeDropdown({
+            searchInput: borrowSearchInput,
+            dropdown: borrowDropdown,
+            hiddenInput: borrowHiddenInput,
+            categoryFilter: borrowCategoryFilter,
+            clearSearchBtn: borrowClearSearchBtn,
+            quantityInput: document.getElementById('borrow-quantity-input'),
+            name: 'borrow'
+        });
+    }
+});
+
+function initializeDropdown(config) {
+    const { searchInput, dropdown, hiddenInput, categoryFilter, clearSearchBtn, quantityInput, name } = config;
+    
+    // Get all option elements (excluding header and no-results)
+    const getAllOptions = () => {
+        return Array.from(dropdown.querySelectorAll('.select-option'))
+            .filter(opt => !opt.classList.contains('no-results') && !opt.classList.contains('dropdown-header'));
+    };
+    
+    let isDropdownOpen = false;
+    let highlightedIndex = -1;
+    
+    // Helper: Highlight matching text
+    function highlightMatch(text, searchTerm) {
+        if (!searchTerm) return text;
+        const regex = new RegExp(`(${searchTerm})`, 'gi');
+        return text.replace(regex, '<span class="highlight-match">$1</span>');
+    }
+    
+    // Helper: Update results count
+    function updateResultsCount() {
+        const allOptions = getAllOptions();
+        const visibleOptions = allOptions.filter(opt => 
+            !opt.classList.contains('hidden') && opt.dataset.value !== ''
+        );
+        const count = visibleOptions.length;
+        const resultsCount = dropdown.querySelector('.results-count');
+        if (resultsCount) {
+            resultsCount.textContent = `${count} item${count !== 1 ? 's' : ''} found`;
+        }
+        console.log(`[${name}] Visible options: ${count}`);
+    }
+    
+    // Toggle dropdown visibility
+    function toggleDropdown() {
+        isDropdownOpen = !isDropdownOpen;
+        
+        if (isDropdownOpen) {
+            const inputRect = searchInput.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            
+            let dropdownWidth;
+            if (viewportWidth <= 768) {
+                dropdownWidth = Math.min(inputRect.width, viewportWidth - 32);
+                dropdown.style.left = Math.max(16, inputRect.left) + 'px';
+            } else {
+                dropdownWidth = inputRect.width;
+                dropdown.style.left = inputRect.left + 'px';
+            }
+            
+            dropdown.style.width = dropdownWidth + 'px';
+            dropdown.style.top = (inputRect.bottom + window.scrollY) + 'px';
+            dropdown.style.display = 'block';
+            dropdown.style.position = 'fixed';
+            dropdown.style.zIndex = '999999';
+            
+            document.body.appendChild(dropdown);
+            searchInput.focus();
+            console.log(`[${name}] Dropdown opened`);
+        } else {
+            dropdown.style.display = 'none';
+            if (dropdown.parentNode === document.body) {
+                searchInput.closest('.searchable-select-container').appendChild(dropdown);
+            }
+            console.log(`[${name}] Dropdown closed`);
+        }
+    }
+    
+    // Main filter function
+    function filterOptions() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedCategory = categoryFilter ? categoryFilter.value.trim() : '';
+        let hasVisibleOptions = false;
+        let matchedCount = 0;
+        let totalChecked = 0;
+        highlightedIndex = -1;
+        
+        console.log(`[${name}] === FILTERING START ===`);
+        console.log(`[${name}] Search: "${searchTerm}", Category: "${selectedCategory}"`);
+        
+        // Show/hide clear button
+        if (clearSearchBtn) {
+            clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
+        }
+        
+        const allOptions = getAllOptions();
+        console.log(`[${name}] Total options to filter: ${allOptions.length}`);
+        
+        allOptions.forEach((option, index) => {
+            // Always show the placeholder option
+            if (option.dataset.value === '') {
+                option.classList.remove('hidden');
+                return;
+            }
+            
+            totalChecked++;
+            
+            // Get option data
+            const name = (option.dataset.name || '').toLowerCase();
+            const description = (option.dataset.description || '').toLowerCase();
+            const number = (option.dataset.number || '').toLowerCase();
+            const code = (option.dataset.code || '').toLowerCase();
+            const categoryId = (option.dataset.category || '').trim();
+            const categoryName = (option.dataset.categoryName || '').toLowerCase();
+            
+            // Debug first 3 actual options
+            if (totalChecked <= 3) {
+                console.log(`[${name}] Option ${totalChecked}:`, {
+                    itemName: option.dataset.name,
+                    categoryId: categoryId,
+                    selectedCategory: selectedCategory,
+                    categoryIdType: typeof categoryId,
+                    selectedCategoryType: typeof selectedCategory,
+                    stringMatch: String(categoryId) === String(selectedCategory)
+                });
+            }
+            
+            // Check search match
+            const matchesSearch = !searchTerm || 
+                name.includes(searchTerm) || 
+                description.includes(searchTerm) ||
+                number.includes(searchTerm) ||
+                code.includes(searchTerm) ||
+                categoryName.includes(searchTerm);
+            
+            // Check category match - convert both to strings for comparison
+            const matchesCategory = !selectedCategory || (String(categoryId) === String(selectedCategory));
+            
+            // Determine visibility
+            const isVisible = matchesSearch && matchesCategory;
+            
+            // Apply visibility using classes to work with !important CSS
+            if (isVisible) {
+                option.classList.remove('hidden');
+                hasVisibleOptions = true;
+                matchedCount++;
+            } else {
+                option.classList.add('hidden');
+            }
+            
+            // Log visibility changes for first few items
+            if (totalChecked <= 5 && selectedCategory) {
+                console.log(`[${name}] Item "${option.dataset.name}" - Match: ${matchesCategory}, Visible: ${isVisible}, Hidden class: ${option.classList.contains('hidden')}`);
+            }
+            
+            if (isVisible) {
+                // Highlight search term
+                if (searchTerm) {
+                    const optionName = option.querySelector('.option-name');
+                    if (optionName) {
+                        const originalName = option.dataset.name;
+                        optionName.innerHTML = highlightMatch(originalName, searchTerm);
+                    }
+                } else {
+                    const optionName = option.querySelector('.option-name');
+                    if (optionName) {
+                        optionName.textContent = option.dataset.name;
+                    }
+                }
+            }
+        });
+        
+        console.log(`[${name}] Checked ${totalChecked} options, matched ${matchedCount}`);
+        
+        // Handle no results
+        const noResultsOption = dropdown.querySelector('.no-results');
+        if (!hasVisibleOptions && (searchTerm || selectedCategory)) {
+            if (noResultsOption) {
+                noResultsOption.classList.remove('hidden');
+                noResultsOption.style.display = 'flex';
+                if (searchTerm && selectedCategory) {
+                    noResultsOption.textContent = `No items found for "${searchInput.value}" in selected category`;
+                } else if (searchTerm) {
+                    noResultsOption.textContent = `No items found for "${searchInput.value}"`;
+                } else {
+                    noResultsOption.textContent = 'No items in this category';
+                }
+            }
+        } else if (noResultsOption) {
+            noResultsOption.classList.add('hidden');
+            noResultsOption.style.display = 'none';
+        }
+        
+        updateResultsCount();
+        console.log(`[${name}] === FILTERING END ===`);
+    }
+    
+    // Select an option
+    function selectOption(option) {
+        if (!option || option.dataset.value === '') return;
+        
+        const value = option.dataset.value;
+        const text = option.dataset.name || option.textContent;
+        const available = option.dataset.available;
+        
+        hiddenInput.value = value;
+        
+        if (available && quantityInput) {
+            // No max limit - users can request any quantity
+            quantityInput.setAttribute('placeholder', `Enter quantity (${available} available)`);
+        }
+        
+        // Close dropdown
+        if (isDropdownOpen) {
+            toggleDropdown();
+        }
+        
+        // Reset search but KEEP category filter
+        searchInput.value = text;
+        if (clearSearchBtn) {
+            clearSearchBtn.style.display = 'none';
+        }
+        
+        console.log(`[${config.name}] Selected: ${text} (ID: ${value})`);
+    }
+    
+    // Event: Search input click
+    searchInput.addEventListener('click', function() {
+        if (!isDropdownOpen) {
+            toggleDropdown();
+        }
+    });
+    
+    // Event: Search input typing
+    searchInput.addEventListener('input', function() {
+        filterOptions();
+    });
+    
+    // Event: Category filter change
+    if (categoryFilter) {
+        // Restore saved category filter on page load
+        const savedCategory = localStorage.getItem(`${name}_selectedCategory`);
+        if (savedCategory) {
+            categoryFilter.value = savedCategory;
+            // Apply filter immediately
+            filterOptions();
+        }
+        
+        categoryFilter.addEventListener('change', function() {
+            const selectedValue = categoryFilter.value;
+            console.log(`[${name}] Category changed to: "${selectedValue}"`);
+            
+            // Save to localStorage
+            if (selectedValue) {
+                localStorage.setItem(`${name}_selectedCategory`, selectedValue);
+            } else {
+                localStorage.removeItem(`${name}_selectedCategory`);
+            }
+            
+            console.log(`[${name}] Category filter element:`, categoryFilter);
+            console.log(`[${name}] Total options in dropdown:`, getAllOptions().length);
+            
+            // Log first few options for debugging
+            const allOpts = getAllOptions();
+            console.log(`[${name}] Sample options:`, allOpts.slice(1, 4).map(opt => ({
+                name: opt.dataset.name,
+                categoryId: opt.dataset.category,
+                matches: String(opt.dataset.category) === String(selectedValue)
+            })));
+            
+            filterOptions();
+            
+            // Auto-open dropdown when category is selected
+            if (!isDropdownOpen && categoryFilter.value) {
+                toggleDropdown();
+            }
+        });
+    }
+    
+    // Event: Clear search button
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            hiddenInput.value = '';
+            clearSearchBtn.style.display = 'none';
+            filterOptions();
+            searchInput.focus();
+        });
+    }
+    
+    // Event: Click on dropdown option
+    dropdown.addEventListener('click', function(e) {
+        const option = e.target.closest('.select-option');
+        if (option && !option.classList.contains('no-results') && !option.classList.contains('dropdown-header')) {
+            selectOption(option);
+        }
+    });
+    
+    // Event: Click outside to close
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && 
+            !dropdown.contains(e.target) && 
+            !(categoryFilter && categoryFilter.contains(e.target))) {
+            if (isDropdownOpen) {
+                toggleDropdown();
+            }
+        }
+    });
+    
+    // Event: Keyboard navigation
+    searchInput.addEventListener('keydown', function(e) {
+        const allOptions = getAllOptions();
+        const visibleOptions = allOptions.filter(opt => 
+            !opt.classList.contains('hidden') && opt.dataset.value !== ''
+        );
+        
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            
+            if (!isDropdownOpen) {
+                toggleDropdown();
+                return;
+            }
+            
+            // Remove previous highlight
+            allOptions.forEach(opt => opt.classList.remove('highlighted'));
+            
+            // Update index
+            if (e.key === 'ArrowDown') {
+                highlightedIndex = Math.min(highlightedIndex + 1, visibleOptions.length - 1);
+            } else {
+                highlightedIndex = Math.max(highlightedIndex - 1, 0);
+            }
+            
+            // Highlight new option
+            if (visibleOptions[highlightedIndex]) {
+                visibleOptions[highlightedIndex].classList.add('highlighted');
+                visibleOptions[highlightedIndex].scrollIntoView({ block: 'nearest' });
+            }
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (highlightedIndex >= 0 && visibleOptions[highlightedIndex]) {
+                selectOption(visibleOptions[highlightedIndex]);
+            }
+        } else if (e.key === 'Escape') {
+            if (isDropdownOpen) {
+                toggleDropdown();
+            }
+        }
+    });
+    
+    // Event: Close on scroll
+    window.addEventListener('scroll', function() {
+        if (isDropdownOpen && dropdown.parentNode === document.body) {
+            toggleDropdown();
+        }
+    });
+    
+    // Event: Close on resize
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        if (isDropdownOpen && dropdown.parentNode === document.body) {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                toggleDropdown();
+            }, 100);
+        }
+    });
+    
+    // Initialize: Set initial state
+    updateResultsCount();
+    console.log(`[${name}] Dropdown initialized`);
+}
+</script>
+{% endblock %}

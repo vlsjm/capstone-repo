@@ -12,16 +12,21 @@ from .views import (
     UserPasswordChangeDoneView,
     UserProfileView,
     UserAllRequestsView,
+    UserUnifiedRequestView,
 )
 from . import views
 
 urlpatterns = [
     path('user_dashboard/', UserDashboardView.as_view(), name='user_dashboard'),
+    path('user_unified_request/', UserUnifiedRequestView.as_view(), name='user_unified_request'),
+    
+    # DEPRECATED: These URLs are maintained for backward compatibility only (redirect to unified)
     path('user_request/', UserRequestView.as_view(), name='user_request'),
+    path('user_borrow/', UserBorrowView.as_view(), name='user_borrow'),
+    
     path('user_reserve/', UserReserveView.as_view(), name='user_reserve'),
     path('user_report/', UserReportView.as_view(), name='user_report'),
     path('login/user/', UserLoginView.as_view(), name='login_user'),  
-    path('user_borrow/', UserBorrowView.as_view(), name='user_borrow'),
     path('user_profile/', UserProfileView.as_view(), name='user_profile'),
     path('all_requests/', UserAllRequestsView.as_view(), name='user_all_requests'),
     path('get-item-availability/', views.get_item_availability, name='get_item_availability'),
@@ -44,12 +49,23 @@ urlpatterns = [
     path('request-detail/<str:type>/<int:request_id>/', views.request_detail, name='request_detail'),
     path('request-again/', views.request_again, name='request_again'),
     
+    # Requisition slip PDF URLs (user side)
+    path('supply-request/<int:batch_id>/requisition-slip/download/', views.user_download_requisition_slip, name='user_download_requisition_slip'),
+    path('supply-request/<int:batch_id>/requisition-slip/view/', views.user_view_requisition_slip, name='user_view_requisition_slip'),
+    
     # Borrow cart URLs
     path('add-to-borrow-list/', views.add_to_borrow_list, name='add_to_borrow_list'),
     path('remove-from-borrow-list/', views.remove_from_borrow_list, name='remove_from_borrow_list'),
     path('update-borrow-list-item/', views.update_borrow_list_item, name='update_borrow_list_item'),
     path('clear-borrow-list/', views.clear_borrow_list, name='clear_borrow_list'),
     path('submit-borrow-list-request/', views.submit_borrow_list_request, name='submit_borrow_list_request'),
+    
+    # Supply request cart URLs
+    path('add-to-list/', views.add_to_list, name='add_to_list'),
+    path('remove-from-list/', views.remove_from_list, name='remove_from_list'),
+    path('update-list-item/', views.update_list_item, name='update_list_item'),
+    path('clear-supply-list/', views.clear_supply_list, name='clear_supply_list'),
+    path('submit-list-request/', views.submit_list_request, name='submit_list_request'),
     
     # Reservation cart URLs
     path('add-to-reservation-list/', views.add_to_reservation_list, name='add_to_reservation_list'),

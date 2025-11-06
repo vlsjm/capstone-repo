@@ -270,33 +270,161 @@
     
     .claim-btn, .return-btn {
       padding: 6px 12px;
-      border: none;
-      border-radius: 4px;
+      border: 1px solid transparent;
+      border-radius: 6px;
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       transition: all 0.2s ease;
+      text-decoration: none;
+      text-align: center;
+      white-space: nowrap;
+      user-select: none;
+      line-height: 1.4;
     }
     
     .claim-btn {
       background: #28a745;
       color: white;
+      border-color: #28a745;
     }
     
     .claim-btn:hover {
       background: #218838;
+      border-color: #218838;
+      color: white;
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
     }
     
     .return-btn {
       background: #007bff;
       color: white;
+      border-color: #007bff;
     }
     
     .return-btn:hover {
       background: #0056b3;
+      border-color: #0056b3;
+      color: white;
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+    }
+    
+    /* Standard button styles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      white-space: nowrap;
+      user-select: none;
+      line-height: 1.4;
+    }
+    
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      gap: 4px;
+    }
+    
+    .btn-primary {
+      background: #152d64;
+      color: white;
+      border: 1px solid #152d64;
+    }
+    
+    .btn-primary:hover {
+      background: #0f1f45;
+      border-color: #0f1f45;
+      color: white;
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(21, 45, 100, 0.2);
+    }
+    
+    .btn-success {
+      background: #28a745;
+      color: white;
+      border: 1px solid #28a745;
+    }
+    
+    .btn-success:hover {
+      background: #218838;
+      border-color: #218838;
+      color: white;
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+    }
+    
+    .btn-warning {
+      background: #ffc107;
+      color: #212529;
+      border: 1px solid #ffc107;
+    }
+    
+    .btn-warning:hover {
+      background: #e0a800;
+      border-color: #d39e00;
+      color: #212529;
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(255, 193, 7, 0.2);
+    }
+    
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+      border: 1px solid #dc3545;
+    }
+    
+    .btn-danger:hover {
+      background: #c82333;
+      border-color: #bd2130;
+      color: white;
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+    }
+    
+    .btn i {
+      font-size: 12px;
+    }
+    
+    .btn-sm i {
+      font-size: 10px;
+    }
+    
+    /* Action column styling */
+    .requests-table td:last-child {
+      text-align: center;
+      white-space: nowrap;
+    }
+    
+    .requests-table td:last-child > div {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .requests-table td:last-child > a {
+      margin: 0;
     }
     
     /* Request items */
@@ -557,10 +685,33 @@
     }
     
     .details-content {
+      margin-bottom: 20px;
+    }
+    
+    .details-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
       margin-bottom: 20px;
+    }
+    
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .detail-label {
+      font-weight: 600;
+      color: #152d64;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .detail-value {
+      color: #495057;
+      font-size: 14px;
     }
     
     .details-section h5 {
@@ -587,28 +738,51 @@
       margin-top: 15px;
     }
     
+    .items-section {
+      width: 100%;
+      margin-top: 20px;
+    }
+    
+    .items-section h4 {
+      margin-bottom: 15px;
+      color: #152d64;
+      font-weight: 600;
+    }
+    
     .items-table {
       width: 100%;
       border: 1px solid #dee2e6;
       border-radius: 8px;
       overflow: hidden;
+      border-collapse: collapse;
+      table-layout: auto;
     }
     
     .items-table th {
-      background: #e9ecef;
-      color: #152d64;
-      padding: 10px;
-      font-size: 13px;
+      background: #152d64;
+      color: white;
+      padding: 12px 15px;
+      font-size: 12px;
       font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: left;
+      border-bottom: 2px solid #0d1f4a;
     }
     
     .items-table td {
-      padding: 10px;
-      border-bottom: 1px solid #dee2e6;
+      padding: 12px 15px;
+      border-bottom: 1px solid #e9ecef;
+      vertical-align: middle;
+      color: #495057;
     }
     
     .items-table tr:last-child td {
       border-bottom: none;
+    }
+    
+    .items-table tbody tr:hover {
+      background-color: #f8f9fa;
     }
     
     /* Text utility classes */
@@ -801,27 +975,33 @@
             <tr class="details-row" id="details-{{ batch_request.id }}">
               <td colspan="7">
                 <div class="details-content">
-                  <div class="details-section">
-                    <h5>Request Information</h5>
-                    <p><strong>Full Purpose:</strong> {{ batch_request.purpose }}</p>
-                    <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
-                    <p><strong>Department:</strong> {{ batch_request.user.userprofile.department }}</p>
+                  <div class="details-grid">
+                    <div class="detail-item">
+                      <span class="detail-label">Request Date:</span>
+                      <span class="detail-value">{{ batch_request.request_date|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">Department:</span>
+                      <span class="detail-value">{{ batch_request.user.userprofile.department }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">Full Purpose:</span>
+                      <span class="detail-value">{{ batch_request.purpose }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">Total Items:</span>
+                      <span class="detail-value">{{ batch_request.total_items }}</span>
+                    </div>
                   </div>
-                  <div class="details-section">
-                    <h5>Status Information</h5>
-                    <p><strong>Current Status:</strong> {{ batch_request.get_status_display }}</p>
-                    <p><strong>Total Items:</strong> {{ batch_request.total_items }}</p>
-                  </div>
-                </div>
-                <div class="items-list">
-                  <h5>Requested Items</h5>
-                  <table class="items-table">
+                  <div class="items-section">
+                    <h4>Requested Items</h4>
+                    <table class="items-table">
                     <thead>
                       <tr>
-                        <th>Item Name</th>
-                        <th>Quantity</th>
-                        <th>Return Date</th>
-                        <th>Status</th>
+                        <th>ITEM NAME</th>
+                        <th>QUANTITY</th>
+                        <th>RETURN DATE</th>
+                        <th>STATUS</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -839,6 +1019,7 @@
                       {% endfor %}
                     </tbody>
                   </table>
+                  </div>
                 </div>
               </td>
             </tr>
@@ -955,11 +1136,11 @@
                       <table class="items-table">
                         <thead>
                           <tr>
-                            <th>Item</th>
-                            <th>Quantity</th>
-                            <th>Return Date</th>
-                            <th>Approved Qty</th>
-                            <th>Status</th>
+                            <th>ITEM NAME</th>
+                            <th>QUANTITY</th>
+                            <th>RETURN DATE</th>
+                            <th>APPROVED QTY</th>
+                            <th>STATUS</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1123,11 +1304,11 @@
                       <table class="items-table">
                         <thead>
                           <tr>
-                            <th>Item</th>
-                            <th>Quantity</th>
-                            <th>Return Date</th>
-                            <th>Approved Qty</th>
-                            <th>Status</th>
+                            <th>ITEM NAME</th>
+                            <th>QUANTITY</th>
+                            <th>RETURN DATE</th>
+                            <th>APPROVED QTY</th>
+                            <th>STATUS</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1291,10 +1472,10 @@
                       <table class="items-table">
                         <thead>
                           <tr>
-                            <th>Item</th>
-                            <th>Quantity</th>
-                            <th>Expected Return</th>
-                            <th>Status</th>
+                            <th>ITEM NAME</th>
+                            <th>QUANTITY</th>
+                            <th>RETURN DATE</th>
+                            <th>STATUS</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1441,11 +1622,11 @@
                       <table class="items-table">
                         <thead>
                           <tr>
-                            <th>Item</th>
-                            <th>Quantity</th>
-                            <th>Expected Return</th>
-                            <th>Actual Return</th>
-                            <th>Status</th>
+                            <th>ITEM NAME</th>
+                            <th>QUANTITY</th>
+                            <th>RETURN DATE</th>
+                            <th>ACTUAL RETURN</th>
+                            <th>STATUS</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1608,10 +1789,10 @@
                       <table class="items-table">
                         <thead>
                           <tr>
-                            <th>Item</th>
-                            <th>Quantity</th>
-                            <th>Expected Return</th>
-                            <th>Status</th>
+                            <th>ITEM NAME</th>
+                            <th>QUANTITY</th>
+                            <th>RETURN DATE</th>
+                            <th>STATUS</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1700,8 +1881,8 @@
                 <i class="fas fa-times-circle"></i> {{ batch_request.get_status_display }}
               </span>
               <div style="margin-top: 8px;">
-                <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="detail-link" onclick="event.stopPropagation();">
-                  <i class="fas fa-external-link-alt"></i> View Details
+                <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="btn btn-sm btn-primary" onclick="event.stopPropagation();">
+                  <i class="fas fa-eye"></i> View Details
                 </a>
               </div>
             </div>

@@ -41,22 +41,59 @@ class DamagedItemsManagementView(PermissionRequiredMixin, TemplateView):
     template_name = 'app/damaged_items_management.html'
 
     def get_context_data(self, **kwargs):
+        from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
         context = super().get_context_data(**kwargs)
         
         # Get properties with unserviceable condition
-        unserviceable_properties = Property.objects.filter(condition__iexact='Unserviceable')
+        unserviceable_properties = Property.objects.filter(condition__iexact='Unserviceable').order_by('-id')
         
         # Get properties needing repair
-        needs_repair_properties = Property.objects.filter(condition__iexact='Needing repair')
+        needs_repair_properties = Property.objects.filter(condition__iexact='Needing repair').order_by('-id')
+        
+        # Get URL parameters for building pagination links
+        url_params = ""
+        
+        # Paginate each tab separately with 15 items per page
+        paginate_by = 15
+        
+        # Get page numbers for each tab
+        unserviceable_page = self.request.GET.get('unserviceable_page', 1)
+        needs_repair_page = self.request.GET.get('needs_repair_page', 1)
+        
+        # Paginate unserviceable items
+        unserviceable_paginator = Paginator(unserviceable_properties, paginate_by)
+        try:
+            unserviceable_page_obj = unserviceable_paginator.page(unserviceable_page)
+        except PageNotAnInteger:
+            unserviceable_page_obj = unserviceable_paginator.page(1)
+        except EmptyPage:
+            unserviceable_page_obj = unserviceable_paginator.page(unserviceable_paginator.num_pages)
+        
+        # Paginate needs repair items
+        needs_repair_paginator = Paginator(needs_repair_properties, paginate_by)
+        try:
+            needs_repair_page_obj = needs_repair_paginator.page(needs_repair_page)
+        except PageNotAnInteger:
+            needs_repair_page_obj = needs_repair_paginator.page(1)
+        except EmptyPage:
+            needs_repair_page_obj = needs_repair_paginator.page(needs_repair_paginator.num_pages)
         
         # Also include damage reports that have been classified (for backward compatibility)
         unserviceable_reports = DamageReport.objects.filter(status='resolved', remarks__icontains='Unserviceable')
         needs_repair_reports = DamageReport.objects.filter(status='resolved', remarks__icontains='Needs Repair')
         
-        context['unserviceable_items'] = unserviceable_properties
-        context['needs_repair_items'] = needs_repair_properties
+        # Add paginated objects to context
+        context['unserviceable_items'] = unserviceable_page_obj
+        context['needs_repair_items'] = needs_repair_page_obj
+        
+        # Add total counts for badges
+        context['unserviceable_count'] = unserviceable_properties.count()
+        context['needs_repair_count'] = needs_repair_properties.count()
+        
+        # Add legacy reports for backward compatibility
         context['unserviceable_reports'] = unserviceable_reports
         context['needs_repair_reports'] = needs_repair_reports
+        context['url_params'] = url_params
         
         return context
 from collections import defaultdict
@@ -68,18 +105,18 @@ from django.urls import reverse_lazy, reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, ListView
 from django.core.exceptions import ValidationError
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from django.views import View
 from django.contrib.auth import login, authenticate, logout
 from .models import(
     Supply, Property, BorrowRequest, BorrowRequestBatch, BorrowRequestItem,
-    SupplyRequest, DamageReport, Reservation,
+    SupplyRequest, DamageReport, Reservation, ReservationBatch, ReservationItem,
     ActivityLog, UserProfile, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
     Department, PropertyCategory, SupplyCategory, SupplySubcategory,
-    SupplyRequestBatch, SupplyRequestItem
+    SupplyRequestBatch, SupplyRequestItem, BadStockReport
 )
-from .forms import PropertyForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm, SupplyRequestBatchForm, SupplyRequestItemForm, SupplyRequestBatchForm, SupplyRequestItemForm
+from .forms import PropertyForm, PropertyNumberChangeForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm, SupplyRequestBatchForm, SupplyRequestItemForm, SupplyRequestBatchForm, SupplyRequestItemForm, BadStockReportForm
 from django.contrib.auth.forms import AuthenticationForm
 from datetime import timedelta, date, datetime
 import json
@@ -87,7 +124,7 @@ from django.utils import timezone
 from django.utils.timezone import now
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST, require_http_methods
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.contrib.auth.decorators import permission_required
 from django.db import models
@@ -101,45 +138,30 @@ from django.conf import settings
 import logging
 import os
 from .utils import generate_barcode
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from django.http import HttpResponse
 from datetime import datetime
-from openpyxl.styles import PatternFill, Border, Side
+from openpyxl.styles import PatternFill, Border, Side, Font
 from openpyxl.utils import get_column_letter
 from openpyxl.cell.cell import MergedCell
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, landscape, A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
+from io import BytesIO
 # Create a logger
 logger = logging.getLogger(__name__)
-
-
-def verify_email_settings():
-    """Verify email settings are properly configured"""
-    logger.info("Verifying email settings...")
-    logger.info(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
-    logger.info(f"EMAIL_HOST: {settings.EMAIL_HOST}")
-    logger.info(f"EMAIL_PORT: {settings.EMAIL_PORT}")
-    logger.info(f"EMAIL_USE_TLS: {settings.EMAIL_USE_TLS}")
-    logger.info(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
-    logger.info(f"EMAIL_HOST_PASSWORD is set: {'Yes' if settings.EMAIL_HOST_PASSWORD else 'No'}")
-    
-    # Check if .env file exists and is readable
-    env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
-    logger.info(f".env file exists: {'Yes' if os.path.exists(env_path) else 'No'}")
 
 #user create user 
 def create_user(request):
     if request.method == 'POST':
-        logger.info("Starting user creation process...")
-        # Verify email settings before proceeding
-        verify_email_settings()
-        
         form = UserRegistrationForm(request.POST)
-        logger.info("Checking form validity...")
         if form.is_valid():
-            logger.info("Form is valid, proceeding with user creation...")
             try:
                 # Create user
                 initial_password = form.cleaned_data['password']
-                logger.info(f"Creating user with email: {form.cleaned_data['email']}")
                 user = User.objects.create_user(
                     username=form.cleaned_data['username'],
                     first_name=form.cleaned_data['first_name'],
@@ -150,16 +172,13 @@ def create_user(request):
                 user.is_staff = True
                 user.save()
 
-                role = form.cleaned_data['role']  
-                logger.info(f"User created successfully with role: {role}")
+                role = form.cleaned_data['role']
             
                 # Add user to group
                 try:
                     group = Group.objects.get(name=role)
                     user.groups.add(group)
-                    logger.info(f"Added user to group: {role}")
                 except Group.DoesNotExist:
-                    logger.warning(f"Group {role} does not exist")
                     messages.warning(request, f'Group {role} does not exist. User created without group assignment.')
 
                 # Create user profile
@@ -169,7 +188,6 @@ def create_user(request):
                     department=form.cleaned_data['department'],
                     phone=form.cleaned_data['phone'],
                 )
-                logger.info("User profile created successfully")
 
                 # Send welcome email
                 try:
@@ -181,7 +199,6 @@ def create_user(request):
                     html_message = render_to_string('app/email/account_created.html', context)
                     plain_message = strip_tags(html_message)
                     
-                    logger.info(f"Attempting to send welcome email to {user.email}...")
                     send_mail(
                         subject='Welcome to ResourceHive - Your Account Has Been Created',
                         message=plain_message,
@@ -190,11 +207,9 @@ def create_user(request):
                         html_message=html_message,
                         fail_silently=False,
                     )
-                    logger.info("Welcome email sent successfully!")
                     messages.success(request, f'Account created successfully for {user.username} and welcome email sent.')
                 except Exception as e:
-                    logger.error(f"Failed to send welcome email: {str(e)}")
-                    messages.warning(request, f'Account created successfully but failed to send welcome email. Error: {str(e)}')
+                    messages.warning(request, f'Account created successfully but failed to send welcome email.')
 
                 # Log the activity
                 ActivityLog.log_activity(
@@ -208,17 +223,23 @@ def create_user(request):
                 return redirect('manage_users')
                 
             except Exception as e:
-                logger.error(f"Error in user creation process: {str(e)}")
                 messages.error(request, f'Error creating account: {str(e)}')
+                # Store form data in session to preserve it
+                request.session['form_data'] = request.POST.dict()
+                request.session['show_modal'] = True
                 return redirect('manage_users')
         else:
-            logger.error(f"Form validation failed. Errors: {form.errors}")
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        form = UserRegistrationForm()
-    users = UserProfile.objects.select_related('user').all()
-    departments = Department.objects.all()
-    return render(request, 'app/manage_users.html', {'form': form, 'users': users, 'departments': departments, })
+            # Store form data and errors in session as simple dict
+            request.session['form_data'] = request.POST.dict()
+            # Convert errors to simple list of strings per field
+            form_errors_dict = {}
+            for field, errors in form.errors.items():
+                form_errors_dict[field] = list(errors)
+            request.session['form_errors'] = form_errors_dict
+            request.session['show_modal'] = True
+            return redirect('manage_users')
+    
+    return redirect('manage_users')
 
 def create_department(request):
     if request.method == 'POST':
@@ -291,7 +312,14 @@ from django.utils import timezone
 from .models import Reservation, DamageReport, BorrowRequest, SupplyRequest, Notification
 
 def reservation_detail(request, pk):
+    """Detail view for individual reservation (redirects to batch view if part of batch)"""
     reservation = get_object_or_404(Reservation, pk=pk)
+    
+    # If this reservation is part of a batch, redirect to batch detail
+    if reservation.batch_id:
+        return redirect('reservation_batch_detail', batch_id=reservation.batch_id)
+    
+    # Legacy single reservation view
     if request.method == 'POST':
         action = request.POST.get('action')
         remarks = request.POST.get('remarks')
@@ -339,14 +367,297 @@ def reservation_detail(request, pk):
     return render(request, 'app/reservation_detail.html', {'reservation': reservation})
 
 
+@login_required
+@permission_required('app.view_admin_module', raise_exception=True)
+def reservation_batch_detail(request, batch_id):
+    """View and manage a batch reservation request"""
+    # Get the reservation batch
+    batch = get_object_or_404(ReservationBatch.objects.select_related('user').prefetch_related('items__property'), id=batch_id)
+    
+    # Get all items in this batch
+    items = batch.items.all().order_by('id')
+    
+    # Calculate status counts
+    status_counts = {}
+    for item in items:
+        status_counts[item.status] = status_counts.get(item.status, 0) + 1
+    
+    context = {
+        'batch': batch,
+        'items': items,
+        'batch_id': batch.id,
+        'batch_number': batch.id,
+        'batch_status': batch.status,
+        'total_items': batch.total_items,
+        'total_quantity': batch.total_quantity,
+        'status_counts': status_counts,
+    }
+    
+    return render(request, 'app/reservation_batch_detail.html', context)
+
+
+@login_required
+@permission_required('app.view_admin_module', raise_exception=True)
+def approve_reservation_item(request, batch_id, item_id):
+    """Approve a single item in a reservation batch"""
+    if request.method == 'POST':
+        batch = get_object_or_404(ReservationBatch, id=batch_id)
+        item = get_object_or_404(ReservationItem, id=item_id, batch_request=batch)
+        remarks = request.POST.get('remarks', '')
+        
+        # Get approved quantity from POST (default to original quantity if not provided)
+        approved_quantity = request.POST.get('approved_quantity', item.quantity)
+        try:
+            approved_quantity = int(approved_quantity)
+        except (ValueError, TypeError):
+            approved_quantity = item.quantity
+        
+        # Validate approved quantity
+        if approved_quantity < 1:
+            messages.error(request, 'Approved quantity must be at least 1.')
+            return redirect('reservation_batch_detail', batch_id=batch_id)
+        
+        if approved_quantity > item.quantity:
+            messages.error(request, f'Approved quantity cannot exceed requested quantity of {item.quantity}.')
+            return redirect('reservation_batch_detail', batch_id=batch_id)
+        
+        # Check available quantity (uses reserved_quantity from Property model)
+        if item.property.available_quantity >= approved_quantity:
+            # Update quantity to approved quantity
+            original_quantity = item.quantity
+            item.quantity = approved_quantity
+            item.status = 'approved'
+            
+            # Add remarks about quantity adjustment if different
+            if approved_quantity < original_quantity:
+                adjustment_note = f"Approved quantity: {approved_quantity} (Originally requested: {original_quantity})"
+                item.remarks = f"{adjustment_note}\n{remarks}" if remarks else adjustment_note
+            else:
+                item.remarks = remarks
+            
+            item.save()
+            
+            # Update batch approved_date if first approval
+            if not batch.approved_date:
+                batch.approved_date = timezone.now()
+            
+            # Check if all items are now approved/rejected
+            all_items = batch.items.all()
+            if all(i.status in ['approved', 'rejected'] for i in all_items):
+                # If some approved and some rejected
+                if any(i.status == 'approved' for i in all_items) and any(i.status == 'rejected' for i in all_items):
+                    batch.status = 'partially_approved'
+                # If all approved
+                elif all(i.status == 'approved' for i in all_items):
+                    batch.status = 'approved'
+                # If all rejected
+                elif all(i.status == 'rejected' for i in all_items):
+                    batch.status = 'rejected'
+                batch.save()
+            
+            # Notify user about approval (handled by ReservationItem save method if needed)
+            # For individual item approval, send a notification
+            approval_msg = f"Item {item.property.property_name} in reservation batch #{batch_id} has been approved."
+            if approved_quantity < original_quantity:
+                approval_msg += f" Approved quantity: {approved_quantity} (Requested: {original_quantity})"
+            
+            Notification.objects.create(
+                user=batch.user,
+                message=approval_msg,
+                remarks=remarks if remarks else None
+            )
+            
+            # Log activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='approve',
+                model_name='ReservationItem',
+                object_repr=f"{item.property.property_name} (Batch #{batch_id})",
+                description=f"Approved reservation item #{item_id} in batch #{batch_id} - Quantity: {approved_quantity}"
+            )
+            
+            success_msg = f'Reservation for {item.property.property_name} approved successfully.'
+            if approved_quantity < original_quantity:
+                success_msg += f' (Approved: {approved_quantity} out of {original_quantity} requested)'
+            messages.success(request, success_msg)
+        else:
+            messages.error(request, f'Cannot approve reservation. Only {item.property.available_quantity} units of {item.property.property_name} available (trying to approve {approved_quantity}).')
+        
+        return redirect('reservation_batch_detail', batch_id=batch_id)
+    
+    return redirect('user_reservations')
+
+
+@login_required
+@permission_required('app.view_admin_module', raise_exception=True)
+def reject_reservation_item(request, batch_id, item_id):
+    """Reject a single item in a reservation batch"""
+    if request.method == 'POST':
+        batch = get_object_or_404(ReservationBatch, id=batch_id)
+        item = get_object_or_404(ReservationItem, id=item_id, batch_request=batch)
+        remarks = request.POST.get('remarks', '')
+        
+        item.status = 'rejected'
+        item.remarks = remarks
+        item.save()
+        
+        # Update batch status if needed
+        all_items = batch.items.all()
+        if all(i.status in ['approved', 'rejected'] for i in all_items):
+            # If some approved and some rejected
+            if any(i.status == 'approved' for i in all_items) and any(i.status == 'rejected' for i in all_items):
+                batch.status = 'partially_approved'
+            # If all rejected
+            elif all(i.status == 'rejected' for i in all_items):
+                batch.status = 'rejected'
+                batch.approved_date = timezone.now()
+            batch.save()
+        
+        # Notify user about rejection
+        Notification.objects.create(
+            user=batch.user,
+            message=f"Item {item.property.property_name} in reservation batch #{batch_id} has been rejected.",
+            remarks=remarks if remarks else None
+        )
+        
+        # Log activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='reject',
+            model_name='ReservationItem',
+            object_repr=f"{item.property.property_name} (Batch #{batch_id})",
+            description=f"Rejected reservation item #{item_id} in batch #{batch_id}"
+        )
+        
+        messages.success(request, f'Reservation for {item.property.property_name} rejected.')
+        return redirect('reservation_batch_detail', batch_id=batch_id)
+    
+    return redirect('user_reservations')
+
+
+@login_required
+@permission_required('app.view_admin_module', raise_exception=True)
+def approve_reservation_batch(request, batch_id):
+    """Approve all pending items in a reservation batch"""
+    if request.method == 'POST':
+        batch = get_object_or_404(ReservationBatch, id=batch_id)
+        items = batch.items.filter(status='pending')
+        remarks = request.POST.get('remarks', '')
+        
+        if not items.exists():
+            messages.warning(request, 'No pending items to approve in this batch.')
+            return redirect('reservation_batch_detail', batch_id=batch_id)
+        
+        approved_count = 0
+        failed_items = []
+        
+        for item in items:
+            # Check available quantity (uses reserved_quantity from Property model)
+            if item.property.available_quantity >= item.quantity:
+                item.status = 'approved'
+                item.remarks = remarks
+                item.save()
+                approved_count += 1
+            else:
+                failed_items.append(f"{item.property.property_name} (only {item.property.available_quantity} available)")
+        
+        # Update batch status
+        if approved_count > 0:
+            if not batch.approved_date:
+                batch.approved_date = timezone.now()
+            
+            # Check final status
+            all_items = batch.items.all()
+            if all(i.status == 'approved' for i in all_items):
+                batch.status = 'approved'
+            elif any(i.status == 'approved' for i in all_items):
+                batch.status = 'partially_approved'
+            batch.save()
+            
+            # Notify user once for the batch
+            Notification.objects.create(
+                user=batch.user,
+                message=f"Your batch reservation request #{batch_id} has been approved ({approved_count} items).",
+                remarks=remarks if remarks else None
+            )
+            
+            # Log activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='approve',
+                model_name='ReservationBatch',
+                object_repr=f"Batch #{batch_id}",
+                description=f"Approved {approved_count} items in reservation batch"
+            )
+            
+            messages.success(request, f'{approved_count} item(s) approved successfully.')
+        
+        if failed_items:
+            messages.warning(request, f'Could not approve: {", ".join(failed_items)}')
+        
+        return redirect('reservation_batch_detail', batch_id=batch_id)
+    
+    return redirect('user_reservations')
+
+
+@login_required
+@permission_required('app.view_admin_module', raise_exception=True)
+def reject_reservation_batch(request, batch_id):
+    """Reject all pending items in a reservation batch"""
+    if request.method == 'POST':
+        batch = get_object_or_404(ReservationBatch, id=batch_id)
+        items = batch.items.filter(status='pending')
+        remarks = request.POST.get('remarks', '')
+        
+        if not items.exists():
+            messages.warning(request, 'No pending items to reject in this batch.')
+            return redirect('reservation_batch_detail', batch_id=batch_id)
+        
+        count = items.count()
+        
+        # Update all pending items
+        for item in items:
+            item.status = 'rejected'
+            item.remarks = remarks
+            item.save()
+        
+        # Update batch status
+        batch.status = 'rejected'
+        batch.approved_date = timezone.now()
+        batch.remarks = remarks
+        batch.save()
+        
+        # Notify user once for the batch
+        Notification.objects.create(
+            user=batch.user,
+            message=f"Your batch reservation request #{batch_id} has been rejected ({count} items).",
+            remarks=remarks if remarks else None
+        )
+        
+        # Log activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='reject',
+            model_name='ReservationBatch',
+            object_repr=f"Batch #{batch_id}",
+            description=f"Rejected {count} items in reservation batch"
+        )
+        
+        messages.success(request, f'{count} item(s) rejected.')
+        return redirect('reservation_batch_detail', batch_id=batch_id)
+    
+    return redirect('user_reservations')
+
+
 def damage_report_detail(request, pk):
     report_obj = get_object_or_404(DamageReport, pk=pk)
     if request.method == 'POST':
         action = request.POST.get('action')
         remarks = request.POST.get('remarks')
-        report_obj.remarks = remarks
-        if action == 'classify':
+        
+        if action == 'resolve':
             classification = request.POST.get('classification')
+            
             if classification == 'unserviceable':
                 report_obj.status = 'resolved'
                 report_obj.remarks = f"Classified as Unserviceable. {remarks}"
@@ -357,7 +668,7 @@ def damage_report_detail(request, pk):
                 report_obj.save()
                 Notification.objects.create(
                     user=report_obj.user,
-                    message=f"Your damage report for {report_obj.item.property_name} has been classified as Unserviceable.",
+                    message=f"Your damage report for {report_obj.item.property_name} has been resolved - Classified as Unserviceable.",
                     remarks=remarks
                 )
             elif classification == 'needs_repair':
@@ -370,11 +681,11 @@ def damage_report_detail(request, pk):
                 report_obj.save()
                 Notification.objects.create(
                     user=report_obj.user,
-                    message=f"Your damage report for {report_obj.item.property_name} has been classified as Needs Repair.",
+                    message=f"Your damage report for {report_obj.item.property_name} has been resolved - Classified as Needs Repair.",
                     remarks=remarks
                 )
             elif classification == 'good_condition':
-                report_obj.status = 'reviewed'
+                report_obj.status = 'resolved'
                 report_obj.remarks = f"Classified as Good Condition. {remarks}"
                 # Update property condition
                 report_obj.item.condition = 'In good condition'
@@ -383,28 +694,13 @@ def damage_report_detail(request, pk):
                 report_obj.save()
                 Notification.objects.create(
                     user=report_obj.user,
-                    message=f"Your damage report for {report_obj.item.property_name} has been reviewed and marked as Good Condition.",
+                    message=f"Your damage report for {report_obj.item.property_name} has been resolved - Item is in Good Condition.",
                     remarks=remarks
                 )
+            
+            messages.success(request, f'Damage report #{report_obj.id} has been classified and resolved successfully.')
             return redirect('user_damage_reports')
-        elif action == 'reviewed':
-            report_obj.status = 'reviewed'
-            Notification.objects.create(
-                user=report_obj.user,
-                message=f"Your damage report for {report_obj.item.property_name} has been reviewed.",
-                remarks=remarks
-            )
-            report_obj.save()
-            return redirect('user_damage_reports')
-        elif action == 'resolved':
-            report_obj.status = 'resolved'
-            Notification.objects.create(
-                user=report_obj.user,
-                message=f"Your damage report for {report_obj.item.property_name} has been resolved.",
-                remarks=remarks
-            )
-            report_obj.save()
-            return redirect('user_damage_reports')
+    
     return render(request, 'app/report_details.html', {'report_obj': report_obj})
 
 
@@ -551,8 +847,27 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = UserRegistrationForm()
+        
+        # Check if there's form data in session (from validation errors)
+        form_data = self.request.session.pop('form_data', None)
+        form_errors = self.request.session.pop('form_errors', None)
+        show_modal = self.request.session.pop('show_modal', False)
+        
+        if form_data:
+            # Recreate form with previous data
+            form = UserRegistrationForm(data=form_data)
+            if form_errors:
+                # Replace the form errors with stored errors
+                from django.forms.utils import ErrorDict
+                form._errors = ErrorDict()
+                for field, errors in form_errors.items():
+                    form._errors[field] = errors
+        else:
+            form = UserRegistrationForm()
+        
+        context['form'] = form
         context['departments'] = Department.objects.all()
+        context['show_modal'] = show_modal
         # Add current filter values to context
         context['search'] = self.request.GET.get('search', '')
         context['selected_role'] = self.request.GET.get('role', '')
@@ -635,10 +950,20 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
             else:
                 end_date = now_date.replace(day=1) - timedelta(days=30*(i-1))
 
-            count = BorrowRequest.objects.filter(
+            # Count old borrow requests
+            old_count = BorrowRequest.objects.filter(
                 borrow_date__date__gte=start_date,
                 borrow_date__date__lt=end_date
             ).count()
+            
+            # Count new batch borrow requests
+            batch_count = BorrowRequestBatch.objects.filter(
+                request_date__date__gte=start_date,
+                request_date__date__lt=end_date
+            ).count()
+            
+            # Total count combines both systems
+            count = old_count + batch_count
 
             month_str = start_date.strftime('%b %Y')
 
@@ -1043,7 +1368,7 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
     template_name = 'app/reports.html'
     permission_required = 'app.view_admin_module'
     context_object_name = 'damage_reports'
-    paginate_by = 10
+    paginate_by = 15  # Changed from 10 to 15
     
     def get_queryset(self):
         queryset = DamageReport.objects.select_related('user', 'user__userprofile', 'item').order_by('-report_date')
@@ -1075,37 +1400,111 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
         return queryset
     
     def get_context_data(self, **kwargs):
+        from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
         context = super().get_context_data(**kwargs)
         all_reports = self.get_queryset()
 
-        context['pending_reports'] = all_reports.filter(status='pending')
-        context['reviewed_reports'] = all_reports.filter(status='reviewed')
-        context['resolved_reports'] = all_reports.filter(status='resolved')
+        # Get URL parameters for building pagination links
+        url_params = ""
+        search = self.request.GET.get('search', '')
+        department = self.request.GET.get('department', '')
+        date_from = self.request.GET.get('date_from', '')
+        date_to = self.request.GET.get('date_to', '')
+        
+        params = []
+        if search:
+            params.append(f'search={search}')
+        if department:
+            params.append(f'department={department}')
+        if date_from:
+            params.append(f'date_from={date_from}')
+        if date_to:
+            params.append(f'date_to={date_to}')
+        
+        if params:
+            url_params = "&" + "&".join(params)
+
+        # Paginate each tab separately with 15 items per page
+        paginate_by = 15
+        
+        # Get page numbers for each tab
+        all_page = self.request.GET.get('all_page', 1)
+        pending_page = self.request.GET.get('pending_page', 1)
+        resolved_page = self.request.GET.get('resolved_page', 1)
+        
+        # Create paginators for each tab
+        # Pending reports: oldest first (ascending order)
+        pending_reports = all_reports.filter(status='pending').order_by('report_date')
+        # Resolved reports: newest first (descending order)
+        resolved_reports = all_reports.filter(status='resolved')
+        
+        # Paginate pending reports
+        pending_paginator = Paginator(pending_reports, paginate_by)
+        try:
+            pending_page_obj = pending_paginator.page(pending_page)
+        except PageNotAnInteger:
+            pending_page_obj = pending_paginator.page(1)
+        except EmptyPage:
+            pending_page_obj = pending_paginator.page(pending_paginator.num_pages)
+        
+        # Paginate resolved reports
+        resolved_paginator = Paginator(resolved_reports, paginate_by)
+        try:
+            resolved_page_obj = resolved_paginator.page(resolved_page)
+        except PageNotAnInteger:
+            resolved_page_obj = resolved_paginator.page(1)
+        except EmptyPage:
+            resolved_page_obj = resolved_paginator.page(resolved_paginator.num_pages)
+        
+        # Create combined all reports (mix of all statuses) and paginate
+        all_reports_combined = all_reports
+        all_paginator = Paginator(all_reports_combined, paginate_by)
+        try:
+            all_page_obj = all_paginator.page(all_page)
+        except PageNotAnInteger:
+            all_page_obj = all_paginator.page(1)
+        except EmptyPage:
+            all_page_obj = all_paginator.page(all_paginator.num_pages)
+
+        # Add paginated objects to context
+        context['pending_reports'] = pending_page_obj
+        context['resolved_reports'] = resolved_page_obj
+        context['all_reports'] = all_page_obj
+        
+        # Add total counts for badges
+        context['pending_count'] = pending_reports.count()
+        context['resolved_count'] = resolved_reports.count()
+        context['all_count'] = all_reports_combined.count()
         
         # Add departments for filter dropdown
         from .models import Department
         context['departments'] = Department.objects.all().order_by('name')
         
-        # Add search parameters for form persistence
-        context['search'] = self.request.GET.get('search', '')
-        context['department_filter'] = self.request.GET.get('department', '')
-        context['date_from'] = self.request.GET.get('date_from', '')
-        context['date_to'] = self.request.GET.get('date_to', '')
+        # Add search parameters for form persistence and URL building
+        context['search'] = search
+        context['department_filter'] = department
+        context['date_from'] = date_from
+        context['date_to'] = date_to
+        context['url_params'] = url_params
 
         return context
 
 
 class UserReservationListView(PermissionRequiredMixin, ListView):
-    model = Reservation
+    model = ReservationBatch
     template_name = 'app/reservation.html'
     permission_required = 'app.view_admin_module'
-    context_object_name = 'reservations'  # all reservations
+    context_object_name = 'reservation_batches'
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Reservation.objects.select_related(
-            'user', 'user__userprofile', 'item'
-        ).order_by('-reservation_date')
+        # Get all reservation batches
+        queryset = ReservationBatch.objects.select_related(
+            'user'
+        ).prefetch_related(
+            'user__userprofile',
+            'items__property'
+        ).order_by('-request_date')
         
         # Apply search filter
         search_query = self.request.GET.get('search')
@@ -1114,9 +1513,10 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
                 Q(user__first_name__icontains=search_query) |
                 Q(user__last_name__icontains=search_query) |
                 Q(user__username__icontains=search_query) |
-                Q(item__property_name__icontains=search_query) |
-                Q(purpose__icontains=search_query)
-            )
+                Q(items__property__property_name__icontains=search_query) |
+                Q(purpose__icontains=search_query) |
+                Q(id__icontains=search_query)
+            ).distinct()
         
         # Apply department filter
         department = self.request.GET.get('department')
@@ -1128,7 +1528,7 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         if date_from:
             try:
                 date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
-                queryset = queryset.filter(reservation_date__date__gte=date_from_obj)
+                queryset = queryset.filter(request_date__date__gte=date_from_obj)
             except ValueError:
                 pass
                 
@@ -1136,25 +1536,152 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         if date_to:
             try:
                 date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
-                queryset = queryset.filter(reservation_date__date__lte=date_to_obj)
+                queryset = queryset.filter(request_date__date__lte=date_to_obj)
             except ValueError:
                 pass
         
         return queryset
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        all_reservations = self.get_queryset()
+        from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
         
-        # Group reservations by status
-        context['pending_reservations'] = all_reservations.filter(status='pending')
-        context['approved_reservations'] = all_reservations.filter(status='approved')
-        context['active_reservations'] = all_reservations.filter(status='active')
-        context['completed_reservations'] = all_reservations.filter(status='completed')
-        context['rejected_reservations'] = all_reservations.filter(status='rejected')
+        # Update reservation batch statuses before displaying
+        ReservationBatch.check_and_update_batches()
+        
+        context = super().get_context_data(**kwargs)
+        all_batches = self.get_queryset()
+        
+        # Group batches by status
+        # Pending batches should show oldest first
+        pending_batches = all_batches.filter(status='pending').order_by('request_date')
+        approved_batches = all_batches.filter(status='approved')
+        active_batches = all_batches.filter(status='active')
+        completed_batches = all_batches.filter(status='completed')
+        rejected_batches = all_batches.filter(status='rejected')
+        expired_batches = all_batches.filter(status='expired')
+        
+        # Paginate each status group with 10 items per page
+        paginate_by = 10
+        
+        # Get page numbers for each status tab
+        all_page = self.request.GET.get('all_page', 1)
+        pending_page = self.request.GET.get('pending_page', 1)
+        approved_page = self.request.GET.get('approved_page', 1)
+        active_page = self.request.GET.get('active_page', 1)
+        completed_page = self.request.GET.get('completed_page', 1)
+        rejected_page = self.request.GET.get('rejected_page', 1)
+        expired_page = self.request.GET.get('expired_page', 1)
+        
+        # Paginate all batches
+        all_paginator = Paginator(all_batches, paginate_by)
+        try:
+            context['all_reservations'] = all_paginator.page(all_page)
+        except PageNotAnInteger:
+            context['all_reservations'] = all_paginator.page(1)
+        except EmptyPage:
+            context['all_reservations'] = all_paginator.page(all_paginator.num_pages)
+        
+        # Paginate pending batches
+        pending_paginator = Paginator(pending_batches, paginate_by)
+        try:
+            context['pending_reservations'] = pending_paginator.page(pending_page)
+        except PageNotAnInteger:
+            context['pending_reservations'] = pending_paginator.page(1)
+        except EmptyPage:
+            context['pending_reservations'] = pending_paginator.page(pending_paginator.num_pages)
+        
+        # Paginate approved batches
+        approved_paginator = Paginator(approved_batches, paginate_by)
+        try:
+            context['approved_reservations'] = approved_paginator.page(approved_page)
+        except PageNotAnInteger:
+            context['approved_reservations'] = approved_paginator.page(1)
+        except EmptyPage:
+            context['approved_reservations'] = approved_paginator.page(approved_paginator.num_pages)
+        
+        # Paginate active batches
+        active_paginator = Paginator(active_batches, paginate_by)
+        try:
+            context['active_reservations'] = active_paginator.page(active_page)
+        except PageNotAnInteger:
+            context['active_reservations'] = active_paginator.page(1)
+        except EmptyPage:
+            context['active_reservations'] = active_paginator.page(active_paginator.num_pages)
+        
+        # Paginate completed batches
+        completed_paginator = Paginator(completed_batches, paginate_by)
+        try:
+            context['completed_reservations'] = completed_paginator.page(completed_page)
+        except PageNotAnInteger:
+            context['completed_reservations'] = completed_paginator.page(1)
+        except EmptyPage:
+            context['completed_reservations'] = completed_paginator.page(completed_paginator.num_pages)
+        
+        # Paginate rejected batches
+        rejected_paginator = Paginator(rejected_batches, paginate_by)
+        try:
+            context['rejected_reservations'] = rejected_paginator.page(rejected_page)
+        except PageNotAnInteger:
+            context['rejected_reservations'] = rejected_paginator.page(1)
+        except EmptyPage:
+            context['rejected_reservations'] = rejected_paginator.page(rejected_paginator.num_pages)
+        
+        # Paginate expired batches
+        expired_paginator = Paginator(expired_batches, paginate_by)
+        try:
+            context['expired_reservations'] = expired_paginator.page(expired_page)
+        except PageNotAnInteger:
+            context['expired_reservations'] = expired_paginator.page(1)
+        except EmptyPage:
+            context['expired_reservations'] = expired_paginator.page(expired_paginator.num_pages)
+        
+        # Add total counts for badges
+        context['all_count'] = all_paginator.count
+        context['pending_count'] = pending_paginator.count
+        context['approved_count'] = approved_paginator.count
+        context['active_count'] = active_paginator.count
+        context['completed_count'] = completed_paginator.count
+        context['rejected_count'] = rejected_paginator.count
+        context['expired_count'] = expired_paginator.count
         
         # Add departments for the filter dropdown
         context['departments'] = Department.objects.all()
+        
+        # Prepare reservation data for JavaScript calendar (if needed)
+        reservation_data = []
+        for batch in all_batches:
+            # Get user display name
+            if batch.user.first_name or batch.user.last_name:
+                user_name = f"{batch.user.first_name} {batch.user.last_name}".strip()
+            else:
+                user_name = batch.user.username
+            
+            # Get first item name for display
+            first_item = batch.items.first()
+            item_name = first_item.property.property_name if first_item else "No items"
+            if batch.total_items > 1:
+                item_name += f" (+{batch.total_items - 1} more)"
+            
+            # Prepare batch object
+            batch_obj = {
+                'id': batch.id,
+                'status': batch.status,
+                'statusDisplay': batch.get_status_display(),
+                'itemName': item_name,
+                'userName': user_name,
+                'department': str(batch.user.userprofile.department) if batch.user.userprofile.department else '',
+                'quantity': batch.total_quantity,
+                'purpose': batch.purpose[:50] + ('...' if len(batch.purpose) > 50 else ''),
+                'neededDate': batch.earliest_needed_date.strftime('%Y-%m-%d') if batch.earliest_needed_date else '',
+                'returnDate': batch.latest_return_date.strftime('%Y-%m-%d') if batch.latest_return_date else '',
+                'requestDate': batch.request_date.strftime('%Y-%m-%d %H:%M'),
+                'approvedDate': batch.approved_date.strftime('%Y-%m-%d %H:%M') if batch.approved_date else None,
+                'remarks': batch.remarks if batch.remarks else '',
+            }
+                
+            reservation_data.append(batch_obj)
+        
+        context['reservation_data'] = json.dumps(reservation_data)
         
         return context
 
@@ -1168,7 +1695,87 @@ class SupplyListView(PermissionRequiredMixin, ListView):
     paginate_by = 15  # Enable pagination with 15 items per page
 
     def get_queryset(self):
-        return Supply.objects.filter(is_archived=False).select_related('quantity_info', 'category', 'subcategory').order_by('supply_name')
+        queryset = Supply.objects.filter(is_archived=False).select_related('quantity_info', 'category', 'subcategory').order_by('supply_name')
+        
+        # Apply search filter
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                Q(supply_name__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(category__name__icontains=search_query) |
+                Q(subcategory__name__icontains=search_query)
+            )
+        
+        # Apply category filter
+        category_filters = self.request.GET.getlist('category')
+        if category_filters:
+            queryset = queryset.filter(category__name__in=category_filters)
+        
+        # Apply status filter
+        status_filters = self.request.GET.getlist('status')
+        if status_filters:
+            status_conditions = []
+            for status in status_filters:
+                if status == 'available':
+                    # Available: current_quantity > minimum_threshold
+                    status_conditions.append(Q(quantity_info__current_quantity__gt=F('quantity_info__minimum_threshold')))
+                elif status == 'low_stock':
+                    # Low stock: current_quantity > 0 AND current_quantity <= minimum_threshold
+                    status_conditions.append(
+                        Q(quantity_info__current_quantity__gt=0) & 
+                        Q(quantity_info__current_quantity__lte=F('quantity_info__minimum_threshold'))
+                    )
+                elif status == 'out_of_stock':
+                    # Out of stock: current_quantity = 0
+                    status_conditions.append(Q(quantity_info__current_quantity=0))
+            
+            if status_conditions:
+                status_q = status_conditions[0]
+                for condition in status_conditions[1:]:
+                    status_q |= condition
+                queryset = queryset.filter(status_q)
+        
+        # Apply availability filter
+        availability_filters = self.request.GET.getlist('availability')
+        if availability_filters:
+            availability_conditions = []
+            for availability in availability_filters:
+                if availability == 'Yes':
+                    availability_conditions.append(Q(available_for_request=True))
+                elif availability == 'No':
+                    availability_conditions.append(Q(available_for_request=False))
+            
+            if availability_conditions:
+                availability_q = availability_conditions[0]
+                for condition in availability_conditions[1:]:
+                    availability_q |= condition
+                queryset = queryset.filter(availability_q)
+        
+        # Apply expiry filter
+        expiry_filters = self.request.GET.getlist('expiry')
+        if expiry_filters:
+            today = timezone.now().date()
+            
+            expiry_conditions = []
+            for expiry in expiry_filters:
+                if expiry == 'expired':
+                    expiry_conditions.append(Q(expiration_date__lt=today))
+                elif expiry == 'expiring_soon':
+                    # Expires within 30 days
+                    expiry_conditions.append(Q(expiration_date__gte=today, expiration_date__lte=today + timezone.timedelta(days=30)))
+                elif expiry == 'not_expired':
+                    expiry_conditions.append(Q(expiration_date__gt=today + timezone.timedelta(days=30)) | Q(expiration_date__isnull=True))
+                elif expiry == 'no_expiry':
+                    expiry_conditions.append(Q(expiration_date__isnull=True))
+            
+            if expiry_conditions:
+                expiry_q = expiry_conditions[0]
+                for condition in expiry_conditions[1:]:
+                    expiry_q |= condition
+                queryset = queryset.filter(expiry_q)
+        
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1176,12 +1783,18 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         context['form'] = form
         context['today'] = date.today()
         
-        # Get the paginated supplies from the parent context
+        # Get the paginated supplies from the current page
         supplies = context['supplies']
         
-        # Generate barcodes for each supply in the current page
+        # Ensure barcodes are generated for supplies that don't have them
+        from .utils import generate_barcode_image
         for supply in supplies:
-            supply.barcode = generate_barcode(f"SUP-{supply.id}")
+            if not supply.barcode or not supply.barcode_image:
+                barcode_text = f"SUP-{supply.id}"
+                supply.barcode = barcode_text
+                filename, content = generate_barcode_image(barcode_text)
+                supply.barcode_image.save(filename, content, save=False)
+                supply.save(update_fields=['barcode', 'barcode_image'])
             
             # Calculate days until expiration
             if supply.expiration_date:
@@ -1223,9 +1836,7 @@ def add_supply(request):
                     minimum_threshold=form.cleaned_data['minimum_threshold']
                 )
 
-                # Update available_for_request based on quantity
-                supply.available_for_request = (quantity_info.current_quantity > 0)
-                supply.save(user=request.user)
+                # available_for_request is already set from the form, no need to override
 
                 # Create activity log
                 ActivityLog.log_activity(
@@ -1257,6 +1868,7 @@ def edit_supply(request):
             old_values = {
                 'supply_name': supply.supply_name,
                 'description': supply.description,
+                'available_for_request': supply.available_for_request,
                 'category': supply.category.id if supply.category else None,
                 'subcategory': supply.subcategory.id if supply.subcategory else None,
                 'date_received': supply.date_received,
@@ -1268,6 +1880,7 @@ def edit_supply(request):
             # Update supply fields
             supply.supply_name = request.POST.get('supply_name')
             supply.description = request.POST.get('description')
+            supply.available_for_request = request.POST.get('available_for_request') == 'on'
             
             # Handle category and subcategory
             category_id = request.POST.get('category')
@@ -1353,6 +1966,75 @@ def delete_supply(request, pk):
     return redirect('supply_list')
 
 
+@permission_required('app.view_admin_module')
+@require_POST
+def report_bad_stock(request):
+    """Handle bad stock report submission via AJAX"""
+    try:
+        form = BadStockReportForm(request.POST)
+        if form.is_valid():
+            bad_stock = form.save(commit=False)
+            bad_stock.reported_by = request.user
+            bad_stock.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Successfully removed {bad_stock.quantity_removed} units of {bad_stock.supply.supply_name} from inventory.'
+            })
+        else:
+            errors = {}
+            for field, error_list in form.errors.items():
+                errors[field] = error_list[0]
+            return JsonResponse({
+                'success': False,
+                'errors': errors
+            })
+    except ValueError as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': 'An unexpected error occurred. Please try again.'
+        })
+
+
+@permission_required('app.view_admin_module')
+def bad_stock_list(request):
+    """Return list of bad stock reports as JSON for datatable"""
+    reports = BadStockReport.objects.select_related(
+        'supply', 'reported_by'
+    ).order_by('-reported_at')
+    
+    # Apply filters if provided
+    supply_id = request.GET.get('supply_id')
+    if supply_id:
+        reports = reports.filter(supply_id=supply_id)
+    
+    date_from = request.GET.get('date_from')
+    if date_from:
+        reports = reports.filter(reported_at__gte=date_from)
+    
+    date_to = request.GET.get('date_to')
+    if date_to:
+        reports = reports.filter(reported_at__lte=date_to)
+    
+    data = []
+    for report in reports:
+        data.append({
+            'id': report.id,
+            'supply_name': report.supply.supply_name,
+            'quantity_removed': report.quantity_removed,
+            'remarks': report.remarks,
+            'reported_by': report.reported_by.get_full_name() or report.reported_by.username if report.reported_by else 'Unknown',
+            'reported_at': report.reported_at.strftime('%Y-%m-%d %H:%M:%S')
+        })
+    
+    return JsonResponse({'data': data})
+
+
 class PropertyListView(PermissionRequiredMixin, ListView):
     model = Property
     template_name = 'app/property.html'
@@ -1373,10 +2055,10 @@ class PropertyListView(PermissionRequiredMixin, ListView):
                 Q(property_number__icontains=search_query)
             )
         
-        # Apply category filter
-        category_filter = self.request.GET.get('category')
-        if category_filter:
-            queryset = queryset.filter(category__name=category_filter)
+        # Apply category filter (support multiple categories)
+        category_filters = self.request.GET.getlist('category')
+        if category_filters:
+            queryset = queryset.filter(category__name__in=category_filters)
         
         # Apply availability filter
         availability_filter = self.request.GET.get('availability')
@@ -1385,10 +2067,17 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         elif availability_filter == 'not_available':
             queryset = queryset.exclude(availability='available')
         
-        # Apply condition filter
-        condition_filter = self.request.GET.get('condition')
-        if condition_filter:
-            queryset = queryset.filter(condition=condition_filter)
+        # Apply condition filter (support multiple conditions)
+        condition_filters = self.request.GET.getlist('condition')
+        if condition_filters:
+            queryset = queryset.filter(condition__in=condition_filters)
+        
+        # Apply price range filter
+        price_range_filter = self.request.GET.get('priceRange')
+        if price_range_filter == 'below50000':
+            queryset = queryset.filter(unit_value__lt=50000)
+        elif price_range_filter == 'above50000':
+            queryset = queryset.filter(unit_value__gte=50000)
         
         return queryset
 
@@ -1398,11 +2087,15 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         # Get the paginated properties from the parent context
         properties = context['properties']
         
-        # Generate barcodes for each property in the current page
+        # Ensure barcodes are generated for properties that don't have them
+        from .utils import generate_barcode_image
         for prop in properties:
-            # Use property_number for barcode if available, otherwise use ID
-            barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
-            prop.barcode = generate_barcode(barcode_number)
+            if not prop.barcode or not prop.barcode_image:
+                barcode_text = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+                prop.barcode = barcode_text
+                filename, content = generate_barcode_image(barcode_text)
+                prop.barcode_image.save(filename, content, save=False)
+                prop.save(update_fields=['barcode', 'barcode_image'])
         
         # Get all categories for the filter dropdown
         context['categories'] = PropertyCategory.objects.all()
@@ -1411,6 +2104,16 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         # Keep properties_by_category for backward compatibility with modals
         # Get all properties (not just current page) for modals
         all_properties = Property.objects.filter(is_archived=False).select_related('category').order_by('property_name')
+        
+        # Ensure barcodes are generated for all properties (needed for barcode selection modal)
+        for prop in all_properties:
+            if not prop.barcode or not prop.barcode_image:
+                barcode_text = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+                prop.barcode = barcode_text
+                filename, content = generate_barcode_image(barcode_text)
+                prop.barcode_image.save(filename, content, save=False)
+                prop.save(update_fields=['barcode', 'barcode_image'])
+        
         properties_by_category = defaultdict(list)
         for prop in all_properties:
             properties_by_category[prop.category].append(prop)
@@ -1452,7 +2155,6 @@ def modify_supply_quantity_generic(request):
 
         # Always add the quantity since we removed the action type selection
         quantity_info.current_quantity += amount
-        quantity_info.save(user=request.user)
 
         # Update supply's available_for_request status
         supply.available_for_request = (quantity_info.current_quantity > 0)
@@ -1467,6 +2169,9 @@ def modify_supply_quantity_generic(request):
             new_value=str(quantity_info.current_quantity),
             remarks=f"add {amount}"
         )
+        
+        # Save with skip_history to avoid duplicate entry
+        quantity_info.save(skip_history=True)
 
         # Add activity log
         ActivityLog.log_activity(
@@ -1523,11 +2228,15 @@ def add_property(request):
                 prop._logged_in_user = request.user
                 prop.save(user=request.user)  # Pass the user to save method
 
-
-            # Generate barcode based on property_number or ID
-                barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
-                prop.barcode = generate_barcode(barcode_number)
-                prop.save(user=request.user)
+                # Ensure barcode and barcode image are generated
+                if not prop.barcode or not prop.barcode_image:
+                    from .utils import generate_barcode_image
+                    barcode_text = prop.property_number if prop.property_number else f"PROP-{prop.id}"
+                    prop.barcode = barcode_text
+                    filename, content = generate_barcode_image(barcode_text)
+                    prop.barcode_image.save(filename, content, save=False)
+                    prop.save(update_fields=['barcode', 'barcode_image'], user=request.user)
+                
                 # Create activity log using log_activity method
                 ActivityLog.log_activity(
                     user=request.user,
@@ -1579,17 +2288,22 @@ def edit_property(request):
             }
 
             # Update property fields from POST data
-            property_obj.property_number = request.POST.get('property_number')
+            property_number = request.POST.get('property_number')
+            property_obj.property_number = property_number.upper() if property_number else property_number
             property_obj.property_name = request.POST.get('property_name')
             property_obj.description = request.POST.get('description')
             property_obj.barcode = request.POST.get('barcode')
             property_obj.unit_of_measure = request.POST.get('unit_of_measure')
 
-            # Convert unit_value to float safely
-            try:
-                property_obj.unit_value = float(request.POST.get('unit_value', 0))
-            except (TypeError, ValueError):
-                property_obj.unit_value = 0
+            # Convert unit_value to float safely - only if provided
+            unit_value_str = request.POST.get('unit_value')
+            if unit_value_str is not None and unit_value_str != '':
+                try:
+                    new_unit_value = float(unit_value_str)
+                    property_obj.unit_value = new_unit_value
+                except (TypeError, ValueError):
+                    # Keep the existing value if conversion fails
+                    pass
 
             # Convert overall_quantity to int safely
             try:
@@ -1650,6 +2364,8 @@ def edit_property(request):
                     if str(old_value) != str(new_value):
                         if field == 'overall_quantity':
                             changes.append(f"overall quantity: {old_value} → {new_value} (current quantity updated accordingly)")
+                        elif field == 'quantity_per_physical_count':
+                            changes.append(f"quantity per physical count: {old_value} → {new_value}")
                         elif field == 'condition' and new_value in unavailable_conditions:
                             changes.append(f"condition: {old_value} → {new_value} (automatically set availability to Not Available)")
                         else:
@@ -1674,6 +2390,50 @@ def edit_property(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 @permission_required('app.view_admin_module')
+def change_property_number(request, pk):
+    """View to handle changing property numbers"""
+    property_obj = get_object_or_404(Property, pk=pk)
+    
+    if request.method == 'POST':
+        form = PropertyNumberChangeForm(request.POST, instance=property_obj)
+        if form.is_valid():
+            old_number = property_obj.property_number
+            new_number = form.cleaned_data['new_property_number']
+            
+            # Save with user context for proper history tracking
+            form.save(user=request.user)
+            
+            # Create specific activity log for property number change
+            ActivityLog.log_activity(
+                user=request.user,
+                action='update',
+                model_name='Property',
+                object_repr=str(property_obj),
+                description=f"Changed property number from '{old_number}' to '{new_number}' for property '{property_obj.property_name}'"
+            )
+            
+            return JsonResponse({
+                'success': True, 
+                'message': f'Property number changed from {old_number} to {new_number}',
+                'new_number': new_number,
+                'old_number': old_number
+            })
+        else:
+            return JsonResponse({
+                'success': False, 
+                'errors': form.errors
+            })
+    
+    else:
+        form = PropertyNumberChangeForm(instance=property_obj)
+    
+    # For GET requests or form errors, return the form data
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method' if request.method != 'POST' else 'Form validation failed'
+    })
+
+@permission_required('app.view_admin_module')
 def delete_property(request, pk):
     prop = get_object_or_404(Property, pk=pk)
     if request.method == 'POST':
@@ -1694,26 +2454,137 @@ def delete_property(request, pk):
     return redirect('property_list')
 
 @permission_required('app.view_admin_module')
+@require_POST
+def admin_mark_property_damaged(request, property_id):
+    """
+    View for admins to mark a property as damaged directly.
+    Creates a damage report and immediately marks the property as damaged.
+    """
+    from .forms import AdminDamageReportForm
+    
+    property_obj = get_object_or_404(Property, id=property_id)
+    
+    form = AdminDamageReportForm(request.POST, request.FILES)
+    
+    if form.is_valid():
+        damage_report = form.save(commit=False)
+        damage_report.user = request.user  # Admin is the reporter
+        damage_report.item = property_obj  # Set the property
+        damage_report.status = 'approved'  # Automatically approved since admin created it
+        damage_report.save()
+        
+        # Immediately mark the property as damaged
+        property_obj.condition = 'Needing repair'
+        property_obj.availability = 'not_available'
+        property_obj.save(user=request.user)
+        
+        # Log the activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='report',
+            model_name='DamageReport',
+            object_repr=str(property_obj.property_name),
+            description=f"Admin marked property '{property_obj.property_name}' as damaged and moved to Damage Items. Reason: {damage_report.description[:100]}..."
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Property marked as damaged and moved to Damage Items successfully.',
+            'damage_report_id': damage_report.id
+        })
+    else:
+        return JsonResponse({
+            'success': False,
+            'errors': form.errors
+        }, status=400)
+
+@permission_required('app.view_admin_module')
 def add_property_category(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        uacs = request.POST.get('uacs')  # Get UACS field
+        
+        # Check if this is an AJAX request
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
         if name:
-            try:
-                category = PropertyCategory.objects.create(name=name)
-                
-                # Log the activity
-                ActivityLog.log_activity(
-                    user=request.user,
-                    action='create',
-                    model_name='PropertyCategory',
-                    object_repr=str(category),
-                    description=f"Added new property category '{name}'"
-                )
-                
-                messages.success(request, 'Category added successfully.')
-            except Exception as e:
-                messages.error(request, f'Error adding category: {str(e)}')
+            # Check if category already exists
+            if PropertyCategory.objects.filter(name=name).exists():
+                if is_ajax:
+                    return JsonResponse({
+                        'success': False, 
+                        'error': f'Category "{name}" already exists.'
+                    })
+                else:
+                    messages.error(request, f'Category "{name}" already exists.')
+            else:
+                try:
+                    # Convert UACS to integer if provided, otherwise set to None
+                    uacs_value = None
+                    if uacs and uacs.strip():
+                        try:
+                            uacs_value = int(uacs)
+                        except ValueError:
+                            if is_ajax:
+                                return JsonResponse({
+                                    'success': False, 
+                                    'error': 'UACS must be a valid number.'
+                                })
+                            else:
+                                messages.error(request, 'UACS must be a valid number.')
+                                return redirect('add_property_category')
+                    
+                    category = PropertyCategory.objects.create(name=name, uacs=uacs_value)
+                    
+                    # Log the activity
+                    ActivityLog.log_activity(
+                        user=request.user,
+                        action='create',
+                        model_name='PropertyCategory',
+                        object_repr=str(category),
+                        description=f"Added new property category '{name}'" + (f" with UACS {uacs_value}" if uacs_value else "")
+                    )
+                    
+                    if is_ajax:
+                        return JsonResponse({
+                            'success': True, 
+                            'message': 'Category added successfully.',
+                            'category': {
+                                'id': category.id,
+                                'name': category.name,
+                                'uacs': category.uacs
+                            }
+                        })
+                    else:
+                        messages.success(request, 'Category added successfully.')
+                except Exception as e:
+                    if is_ajax:
+                        return JsonResponse({
+                            'success': False, 
+                            'error': f'Error adding category: {str(e)}'
+                        })
+                    else:
+                        messages.error(request, f'Error adding category: {str(e)}')
+        else:
+            if is_ajax:
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Category name is required.'
+                })
+            else:
+                messages.error(request, 'Category name is required.')
+    
     return redirect('property_list')
+
+@login_required
+def get_property_categories(request):
+    """Return all property categories as JSON for dropdown updates"""
+    categories = PropertyCategory.objects.all().order_by('name')
+    categories_data = [
+        {'id': category.id, 'name': category.name}
+        for category in categories
+    ]
+    return JsonResponse({'categories': categories_data})
 
 class CheckOutPageView(PermissionRequiredMixin, TemplateView):
     template_name = 'app/checkout.html'
@@ -2038,11 +2909,11 @@ def submit_list_request(request):
             request.session.modified = True
             
             messages.success(request, f'Supply request submitted successfully! Your request ID is #{batch_request.id}.')
-            return redirect('user_request')
+            return redirect('user_unified_request')
             
         except Exception as e:
             messages.error(request, f'Error submitting request: {str(e)}')
-            return redirect('user_request')
+            return redirect('user_unified_request')
 
 
 @login_required
@@ -2116,45 +2987,491 @@ def reject_borrow_request(request, request_id):
 
 @login_required
 def get_supply_history(request, supply_id):
-    supply = get_object_or_404(Supply, id=supply_id)
-    history = supply.history.all().order_by('-timestamp')
-    
-    history_data = []
-    for entry in history:
-        history_data.append({
-            'date': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            'action': entry.action,
-            'field_name': entry.field_name,
-            'old_value': entry.old_value if entry.old_value is not None else '-',
-            'new_value': entry.new_value if entry.new_value is not None else '-',
-            'user': entry.user.username if entry.user else 'System',
-            'remarks': entry.remarks if entry.remarks else ''
+    try:
+        supply = get_object_or_404(Supply, id=supply_id)
+        history = supply.history.all().order_by('-timestamp')
+        
+        def get_field_display_name(field_name):
+            """Convert field names to user-friendly display names"""
+            field_mapping = {
+                'supply_name': 'Supply Name',
+                'category': 'Category',
+                'subcategory': 'Subcategory',
+                'description': 'Description',
+                'minimum_threshold': 'Minimum Threshold',
+                'current_quantity': 'Current Quantity',
+                'available_for_request': 'Available for Request',
+                'date_received': 'Date Received',
+                'expiration_date': 'Expiration Date',
+                'initial_creation': 'Supply Creation'
+            }
+            return field_mapping.get(field_name, field_name.replace('_', ' ').title())
+        
+        def get_action_display(action):
+            """Convert action codes to user-friendly display names"""
+            action_mapping = {
+                'create': 'Created',
+                'update': 'Updated',
+                'quantity_update': 'Quantity Changed'
+            }
+            return action_mapping.get(action, action.replace('_', ' ').title())
+        
+        def format_change_description(entry):
+            """Create a descriptive change summary"""
+            try:
+                field_display = get_field_display_name(entry.field_name)
+                
+                if entry.action == 'create':
+                    return f"Supply was created in the system"
+                elif entry.action == 'quantity_update':
+                    if entry.remarks:
+                        return f"{field_display}: {entry.remarks}"
+                    else:
+                        return f"{field_display} was modified"
+                elif entry.action == 'update':
+                    if entry.field_name == 'available_for_request':
+                        old_display = 'Available' if entry.old_value == 'True' else 'Not Available'
+                        new_display = 'Available' if entry.new_value == 'True' else 'Not Available'
+                        return f"Availability changed from '{old_display}' to '{new_display}'"
+                    elif entry.field_name == 'category':
+                        return f"Category changed from '{entry.old_value or 'None'}' to '{entry.new_value or 'None'}'"
+                    elif entry.field_name == 'subcategory':
+                        return f"Subcategory changed from '{entry.old_value or 'None'}' to '{entry.new_value or 'None'}'"
+                    elif entry.field_name == 'current_quantity':
+                        return f"Current Quantity changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    elif entry.field_name == 'minimum_threshold':
+                        return f"Minimum Threshold changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    elif 'quantity' in entry.field_name:
+                        return f"{field_display} changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    else:
+                        return f"{field_display} was updated"
+                else:
+                    return f"{field_display} was modified"
+            except Exception as e:
+                return f"Supply change recorded"
+        
+        def format_value_change(entry):
+            """Format the value change display"""
+            try:
+                if entry.action == 'create':
+                    return entry.new_value if entry.new_value else 'Supply created'
+                elif entry.old_value and entry.new_value and entry.old_value != entry.new_value:
+                    # Handle special formatting for different field types
+                    if 'quantity' in entry.field_name:
+                        return f"{entry.old_value} → {entry.new_value}"
+                    elif entry.field_name == 'available_for_request':
+                        old_display = 'Available' if entry.old_value == 'True' else 'Not Available'
+                        new_display = 'Available' if entry.new_value == 'True' else 'Not Available'
+                        return f"{old_display} → {new_display}"
+                    else:
+                        # Escape HTML and limit length for long values
+                        old_val = str(entry.old_value)[:100] + ('...' if len(str(entry.old_value)) > 100 else '')
+                        new_val = str(entry.new_value)[:100] + ('...' if len(str(entry.new_value)) > 100 else '')
+                        return f"{old_val} → {new_val}"
+                elif entry.new_value:
+                    new_val = str(entry.new_value)[:100] + ('...' if len(str(entry.new_value)) > 100 else '')
+                    return f"Set to: {new_val}"
+                elif entry.old_value:
+                    # Field was cleared/removed
+                    if 'quantity' in entry.field_name.lower():
+                        return f"{entry.old_value} → 0"
+                    else:
+                        old_val = str(entry.old_value)[:100] + ('...' if len(str(entry.old_value)) > 100 else '')
+                        return f"Removed: {old_val}"
+                else:
+                    return "No value change"
+            except Exception as e:
+                return "Value changed"
+        
+        history_data = []
+        for entry in history:
+            try:
+                # Format timestamp for better readability
+                formatted_date = entry.timestamp.strftime('%m/%d/%Y')
+                formatted_time = entry.timestamp.strftime('%I:%M %p')
+                formatted_datetime = f"{formatted_date}<br><small style='color: #6c757d;'>{formatted_time}</small>"
+                
+                history_data.append({
+                    'id': entry.id,
+                    'datetime': formatted_datetime,
+                    'action': entry.action,
+                    'action_display': get_action_display(entry.action),
+                    'field_name': entry.field_name,
+                    'field_display': get_field_display_name(entry.field_name),
+                    'old_value': entry.old_value if entry.old_value is not None else '',
+                    'new_value': entry.new_value if entry.new_value is not None else '',
+                    'value_change': format_value_change(entry),
+                    'change_description': format_change_description(entry),
+                    'user': entry.user.get_full_name() if entry.user and entry.user.get_full_name() else (entry.user.username if entry.user else 'System'),
+                    'remarks': entry.remarks if entry.remarks else '',
+                    'timestamp_iso': entry.timestamp.isoformat(),
+                    'raw_timestamp': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                    # Debug information
+                    'debug_field': entry.field_name,
+                    'debug_old': entry.old_value,
+                    'debug_new': entry.new_value
+                })
+            except Exception as e:
+                # Log error but continue processing other entries
+                print(f"Error processing supply history entry {entry.id}: {str(e)}")
+                continue
+        
+        return JsonResponse({
+            'success': True,
+            'history': history_data,
+            'supply_name': supply.supply_name,
+            'supply_id': supply.id
         })
-    
-    return JsonResponse({
-        'history': history_data
-    })
+        
+    except Supply.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Supply not found'
+        }, status=404)
+    except Exception as e:
+        print(f"Error in get_supply_history: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': 'An error occurred while fetching supply history'
+        }, status=500)
+
+@login_required
+def get_supply_quantity_activity(request, supply_id):
+    """
+    Fetch quantity change activity for a specific supply.
+    Returns JSON with quantity-related history entries only.
+    Supports filtering by user, date range, month, and activity type.
+    """
+    try:
+        supply = get_object_or_404(Supply, id=supply_id)
+        
+        # Get filter parameters
+        user_filter = request.GET.get('user_filter', 'all')
+        activity_type_filter = request.GET.get('activity_type_filter', 'all')
+        date_filter_type = request.GET.get('date_filter_type', 'all')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        month = request.GET.get('month')
+        year = request.GET.get('year')
+        
+        # Filter history for quantity-related changes only
+        quantity_history = supply.history.filter(
+            field_name__in=['quantity', 'current_quantity', 'initial_quantity']
+        ).order_by('-timestamp')
+        
+        # Apply user filter (filter by requestor name in remarks)
+        if user_filter != 'all' and user_filter:
+            # Filter by requestor name mentioned in remarks
+            quantity_history = quantity_history.filter(remarks__icontains=f'Supply request by {user_filter}')
+        
+        # Apply activity type filter
+        if activity_type_filter != 'all':
+            if activity_type_filter == 'supply_request':
+                quantity_history = quantity_history.filter(remarks__icontains='Supply request by')
+            elif activity_type_filter == 'manual':
+                quantity_history = quantity_history.exclude(remarks__icontains='Supply request by').exclude(action='create')
+            elif activity_type_filter == 'addition':
+                # For additions, we need to check if new_value > old_value
+                addition_entries = []
+                for entry in quantity_history:
+                    old_qty = int(entry.old_value) if entry.old_value and entry.old_value.isdigit() else 0
+                    new_qty = int(entry.new_value) if entry.new_value and entry.new_value.isdigit() else 0
+                    if entry.action == 'create' or new_qty > old_qty:
+                        addition_entries.append(entry.id)
+                quantity_history = quantity_history.filter(id__in=addition_entries)
+            elif activity_type_filter == 'deduction':
+                # For deductions, we need to check if new_value < old_value
+                deduction_entries = []
+                for entry in quantity_history:
+                    old_qty = int(entry.old_value) if entry.old_value and entry.old_value.isdigit() else 0
+                    new_qty = int(entry.new_value) if entry.new_value and entry.new_value.isdigit() else 0
+                    if entry.action != 'create' and new_qty < old_qty:
+                        deduction_entries.append(entry.id)
+                quantity_history = quantity_history.filter(id__in=deduction_entries)
+        
+        # Apply date filters
+        if date_filter_type == 'date_range' and start_date and end_date:
+            try:
+                from datetime import datetime
+                start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+                end_dt = datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+                quantity_history = quantity_history.filter(
+                    timestamp__range=[start_dt, end_dt]
+                )
+            except ValueError:
+                pass  # Invalid date format, ignore filter
+        elif date_filter_type == 'month' and month and year:
+            try:
+                month_int = int(month)
+                year_int = int(year)
+                quantity_history = quantity_history.filter(
+                    timestamp__year=year_int,
+                    timestamp__month=month_int
+                )
+            except ValueError:
+                pass  # Invalid month or year, ignore filter
+        
+        # Extract unique requestor names from remarks (e.g., "Supply request by john vales (Batch #4)")
+        import re
+        
+        request_entries = supply.history.filter(
+            field_name__in=['quantity', 'current_quantity', 'initial_quantity'],
+            remarks__icontains='Supply request by'
+        )
+        
+        requestor_names = set()
+        for entry in request_entries:
+            if entry.remarks and 'Supply request by' in entry.remarks:
+                # Extract requestor name using regex pattern
+                # Pattern matches "Supply request by [name] (" or "Supply request by [name]" at end
+                match = re.search(r'Supply request by ([^(]+?)(?:\s*\(|$)', entry.remarks)
+                if match:
+                    requestor_name = match.group(1).strip()
+                    if requestor_name:
+                        requestor_names.add(requestor_name)
+        
+        # Create users_data with requestor names
+        users_data = []
+        for name in sorted(requestor_names):
+            users_data.append({
+                'id': name,  # Use name as ID since we're filtering by name
+                'name': name,
+                'username': name
+            })
+        
+        activity_data = []
+        for entry in quantity_history:
+            try:
+                # Calculate quantity change
+                old_qty = int(entry.old_value) if entry.old_value and entry.old_value.isdigit() else 0
+                new_qty = int(entry.new_value) if entry.new_value and entry.new_value.isdigit() else 0
+                quantity_change = new_qty - old_qty
+                
+                # Determine action type based on change and remarks
+                if entry.action == 'create':
+                    action_type = 'Initial Creation'
+                    quantity_change = new_qty  # For creation, the change is the initial amount
+                elif 'Supply request by' in (entry.remarks or ''):
+                    action_type = 'Supply Request'
+                    # Keep the original quantity_change calculation
+                elif quantity_change > 0:
+                    action_type = 'Addition'
+                elif quantity_change < 0:
+                    action_type = 'Deduction'
+                else:
+                    action_type = 'Adjustment'
+                
+                activity_data.append({
+                    'id': entry.id,
+                    'date': entry.timestamp.isoformat(),
+                    'action': action_type,
+                    'quantity_change': quantity_change,
+                    'previous_quantity': old_qty,
+                    'new_quantity': new_qty,
+                    'user': entry.user.get_full_name() if entry.user and entry.user.get_full_name() else (entry.user.username if entry.user else 'System'),
+                    'user_id': entry.user.id if entry.user else None,
+                    'remarks': entry.remarks if entry.remarks else '',
+                    'timestamp': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+                })
+            except Exception as e:
+                print(f"Error processing quantity activity entry {entry.id}: {str(e)}")
+                continue
+        
+        return JsonResponse({
+            'success': True,
+            'activity': activity_data,
+            'users': users_data,
+            'supply_name': supply.supply_name,
+            'supply_id': supply.id,
+            'total_entries': len(activity_data),
+            'filters_applied': {
+                'user_filter': user_filter,
+                'activity_type_filter': activity_type_filter,
+                'date_filter_type': date_filter_type
+            }
+        })
+        
+    except Supply.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Supply not found'
+        }, status=404)
+    except Exception as e:
+        print(f"Error in get_supply_quantity_activity: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': 'An error occurred while fetching quantity activity'
+        }, status=500)
 
 @login_required
 def get_property_history(request, property_id):
-    property_obj = get_object_or_404(Property, id=property_id)
-    history = property_obj.history.all().order_by('-timestamp')
-    
-    history_data = []
-    for entry in history:
-        history_data.append({
-            'date': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            'action': entry.action,
-            'field_name': entry.field_name,
-            'old_value': entry.old_value if entry.old_value is not None else '-',
-            'new_value': entry.new_value if entry.new_value is not None else '-',
-            'user': entry.user.username if entry.user else 'System',
-            'remarks': entry.remarks if entry.remarks else ''
+    try:
+        property_obj = get_object_or_404(Property, id=property_id)
+        history = property_obj.history.all().order_by('-timestamp')
+        
+        def get_field_display_name(field_name):
+            """Convert field names to user-friendly display names"""
+            field_mapping = {
+                'property_number': 'Property Number',
+                'property_name': 'Property Name',
+                'category': 'Category',
+                'description': 'Description',
+                'barcode': 'Barcode',
+                'unit_of_measure': 'Unit of Measure',
+                'unit_value': 'Unit Value',
+                'overall_quantity': 'Overall Quantity',
+                'quantity': 'Current Quantity',
+                'quantity_per_physical_count': 'Physical Count Quantity',
+                'location': 'Location',
+                'accountable_person': 'Accountable Person',
+                'year_acquired': 'Year Acquired',
+                'condition': 'Condition',
+                'availability': 'Availability',
+                'initial_creation': 'Property Creation'
+            }
+            return field_mapping.get(field_name, field_name.replace('_', ' ').title())
+        
+        def get_action_display(action):
+            """Convert action codes to user-friendly display names"""
+            action_mapping = {
+                'create': 'Created',
+                'update': 'Updated',
+                'quantity_update': 'Quantity Changed'
+            }
+            return action_mapping.get(action, action.replace('_', ' ').title())
+        
+        def format_change_description(entry):
+            """Create a descriptive change summary"""
+            try:
+                field_display = get_field_display_name(entry.field_name)
+                
+                if entry.action == 'create':
+                    return f"Property was created in the system"
+                elif entry.action == 'quantity_update':
+                    if entry.remarks:
+                        return f"{field_display}: {entry.remarks}"
+                    else:
+                        return f"{field_display} was modified"
+                elif entry.action == 'update':
+                    if entry.field_name == 'condition':
+                        return f"Condition changed from '{entry.old_value}' to '{entry.new_value}'"
+                    elif entry.field_name == 'availability':
+                        old_display = 'Available' if entry.old_value == 'available' else 'Not Available'
+                        new_display = 'Available' if entry.new_value == 'available' else 'Not Available'
+                        return f"Availability changed from '{old_display}' to '{new_display}'"
+                    elif entry.field_name == 'category':
+                        return f"Category changed from '{entry.old_value or 'None'}' to '{entry.new_value or 'None'}'"
+                    elif entry.field_name == 'quantity_per_physical_count':
+                        return f"Physical Count Quantity changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    elif entry.field_name == 'overall_quantity':
+                        return f"Overall Quantity changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    elif entry.field_name == 'quantity':
+                        return f"Current Quantity changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    elif 'quantity' in entry.field_name:
+                        return f"{field_display} changed from {entry.old_value or '0'} to {entry.new_value or '0'}"
+                    else:
+                        return f"{field_display} was updated"
+                else:
+                    return f"{field_display} was modified"
+            except Exception as e:
+                return f"Property change recorded"
+        
+        def format_value_change(entry):
+            """Format the value change display"""
+            try:
+                if entry.action == 'create':
+                    return entry.new_value if entry.new_value else 'Property created'
+                elif entry.old_value and entry.new_value and entry.old_value != entry.new_value:
+                    # Handle special formatting for different field types
+                    if entry.field_name == 'unit_value':
+                        try:
+                            old_val = f"₱{float(entry.old_value):,.2f}"
+                            new_val = f"₱{float(entry.new_value):,.2f}"
+                            return f"{old_val} → {new_val}"
+                        except (ValueError, TypeError):
+                            return f"{entry.old_value} → {entry.new_value}"
+                    elif 'quantity' in entry.field_name:
+                        return f"{entry.old_value} → {entry.new_value}"
+                    elif entry.field_name == 'availability':
+                        old_display = 'Available' if entry.old_value == 'available' else 'Not Available'
+                        new_display = 'Available' if entry.new_value == 'available' else 'Not Available'
+                        return f"{old_display} → {new_display}"
+                    else:
+                        # Escape HTML and limit length for long values
+                        old_val = str(entry.old_value)[:100] + ('...' if len(str(entry.old_value)) > 100 else '')
+                        new_val = str(entry.new_value)[:100] + ('...' if len(str(entry.new_value)) > 100 else '')
+                        return f"{old_val} → {new_val}"
+                elif entry.new_value:
+                    new_val = str(entry.new_value)[:100] + ('...' if len(str(entry.new_value)) > 100 else '')
+                    return f"Set to: {new_val}"
+                elif entry.old_value:
+                    # Field was cleared/removed
+                    # Only show "Removed" for fields where it makes sense (not quantities)
+                    if 'quantity' in entry.field_name.lower():
+                        return f"{entry.old_value} → 0"
+                    else:
+                        old_val = str(entry.old_value)[:100] + ('...' if len(str(entry.old_value)) > 100 else '')
+                        return f"Removed: {old_val}"
+                else:
+                    return "No value change"
+            except Exception as e:
+                return "Value changed"
+        
+        history_data = []
+        for entry in history:
+            try:
+                # Debug logging for quantity-related entries
+                if 'quantity' in entry.field_name.lower():
+                    print(f"DEBUG: Processing quantity entry - Field: {entry.field_name}, Old: {entry.old_value}, New: {entry.new_value}, Action: {entry.action}")
+                
+                # Format timestamp for better readability
+                formatted_date = entry.timestamp.strftime('%m/%d/%Y')
+                formatted_time = entry.timestamp.strftime('%I:%M %p')
+                formatted_datetime = f"{formatted_date}<br><small style='color: #6c757d;'>{formatted_time}</small>"
+                
+                history_data.append({
+                    'id': entry.id,
+                    'datetime': formatted_datetime,
+                    'action': entry.action,
+                    'action_display': get_action_display(entry.action),
+                    'field_name': entry.field_name,
+                    'field_display': get_field_display_name(entry.field_name),
+                    'old_value': entry.old_value if entry.old_value is not None else '',
+                    'new_value': entry.new_value if entry.new_value is not None else '',
+                    'value_change': format_value_change(entry),
+                    'change_description': format_change_description(entry),
+                    'user': entry.user.get_full_name() if entry.user and entry.user.get_full_name() else (entry.user.username if entry.user else 'System'),
+                    'remarks': entry.remarks if entry.remarks else '',
+                    'timestamp_iso': entry.timestamp.isoformat(),
+                    'raw_timestamp': entry.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                    # Debug information
+                    'debug_field': entry.field_name,
+                    'debug_old': entry.old_value,
+                    'debug_new': entry.new_value
+                })
+            except Exception as e:
+                # Log error but continue processing other entries
+                print(f"Error processing history entry {entry.id}: {str(e)}")
+                continue
+        
+        return JsonResponse({
+            'success': True,
+            'history': history_data,
+            'property_name': property_obj.property_name,
+            'property_number': property_obj.property_number
         })
-    
-    return JsonResponse({
-        'history': history_data
-    })
+        
+    except Property.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Property not found'
+        }, status=404)
+    except Exception as e:
+        print(f"Error in get_property_history: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': 'An error occurred while fetching property history'
+        }, status=500)
 
 @require_POST
 def modify_supply_quantity_generic(request):
@@ -2174,7 +3491,6 @@ def modify_supply_quantity_generic(request):
 
         # Always add the quantity since we removed the action type selection
         quantity_info.current_quantity += amount
-        quantity_info.save(user=request.user)
 
         # Update supply's available_for_request status
         supply.available_for_request = (quantity_info.current_quantity > 0)
@@ -2189,6 +3505,9 @@ def modify_supply_quantity_generic(request):
             new_value=str(quantity_info.current_quantity),
             remarks=f"add {amount}"
         )
+        
+        # Save with skip_history to avoid duplicate entry
+        quantity_info.save(skip_history=True)
 
         # Add activity log
         ActivityLog.log_activity(
@@ -2312,20 +3631,42 @@ def update_property_category(request):
     if request.method == 'POST':
         category_id = request.POST.get('id')
         new_name = request.POST.get('name')
+        new_uacs = request.POST.get('uacs')
        
         try:
             category = PropertyCategory.objects.get(id=category_id)
             old_name = category.name
+            old_uacs = category.uacs
+            
+            # Update name
             category.name = new_name
+            
+            # Update UACS - convert to int if provided, otherwise set to None
+            if new_uacs and new_uacs.strip():
+                try:
+                    category.uacs = int(new_uacs)
+                except ValueError:
+                    return JsonResponse({'success': False, 'error': 'UACS must be a valid number'})
+            else:
+                category.uacs = None
+            
             category.save()
            
-            # Log the activity
+            # Log the activity with details
+            changes = []
+            if old_name != new_name:
+                changes.append(f"name from '{old_name}' to '{new_name}'")
+            if old_uacs != category.uacs:
+                changes.append(f"UACS from '{old_uacs}' to '{category.uacs}'")
+            
+            description = f"Updated category {' and '.join(changes)}" if changes else f"Updated category '{category.name}'"
+            
             ActivityLog.log_activity(
                 user=request.user,
                 action='update',
                 model_name='PropertyCategory',
                 object_repr=str(category),
-                description=f"Updated category name from '{old_name}' to '{new_name}'"
+                description=description
             )
            
             return JsonResponse({'success': True})
@@ -2523,322 +3864,971 @@ def export_supply_to_excel(request):
     wb.save(response)
     return response
 
-@permission_required('app.view_admin_module')
-def export_property_to_excel(request):
-    """Export property data to Excel with filters"""
+@login_required
+def generate_quantity_activity_report(request):
+    """
+    Generate a PDF or Excel report for supply quantity activity.
+    Supports filtering by date range, month, or all time.
+    """
+    try:
+        # Get parameters
+        supply_id = request.GET.get('supply_id')
+        filter_type = request.GET.get('filter_type', 'all')
+        user_filter = request.GET.get('user_filter', 'all')
+        activity_type_filter = request.GET.get('activity_type_filter', 'all')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        month = request.GET.get('month')
+        year = request.GET.get('year')
+        format_type = request.GET.get('format', 'pdf')  # 'pdf' or 'excel'
+        
+        if not supply_id:
+            return JsonResponse({'error': 'Supply ID is required'}, status=400)
+        
+        # Get supply
+        supply = get_object_or_404(Supply, id=supply_id)
+        
+        # Filter quantity activity
+        quantity_history = supply.history.filter(
+            field_name__in=['quantity', 'current_quantity', 'initial_quantity']
+        ).order_by('-timestamp')
+        
+        # Apply user filter (filter by requestor name in remarks)
+        if user_filter != 'all' and user_filter:
+            quantity_history = quantity_history.filter(remarks__icontains=f'Supply request by {user_filter}')
+        
+        # Apply activity type filter
+        if activity_type_filter != 'all':
+            if activity_type_filter == 'supply_request':
+                quantity_history = quantity_history.filter(remarks__icontains='Supply request by')
+            elif activity_type_filter == 'manual':
+                quantity_history = quantity_history.exclude(remarks__icontains='Supply request by').exclude(action='create')
+            elif activity_type_filter == 'addition':
+                # For additions, we need to check if new_value > old_value
+                addition_entries = []
+                for entry in quantity_history:
+                    old_qty = int(entry.old_value) if entry.old_value and entry.old_value.isdigit() else 0
+                    new_qty = int(entry.new_value) if entry.new_value and entry.new_value.isdigit() else 0
+                    if entry.action == 'create' or new_qty > old_qty:
+                        addition_entries.append(entry.id)
+                quantity_history = quantity_history.filter(id__in=addition_entries)
+            elif activity_type_filter == 'deduction':
+                # For deductions, we need to check if new_value < old_value
+                deduction_entries = []
+                for entry in quantity_history:
+                    old_qty = int(entry.old_value) if entry.old_value and entry.old_value.isdigit() else 0
+                    new_qty = int(entry.new_value) if entry.new_value and entry.new_value.isdigit() else 0
+                    if entry.action != 'create' and new_qty < old_qty:
+                        deduction_entries.append(entry.id)
+                quantity_history = quantity_history.filter(id__in=deduction_entries)
+        
+        # Apply date filters
+        if filter_type == 'date_range' and start_date and end_date:
+            try:
+                start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+                end_dt = datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+                quantity_history = quantity_history.filter(
+                    timestamp__range=[start_dt, end_dt]
+                )
+            except ValueError:
+                return JsonResponse({'error': 'Invalid date format'}, status=400)
+        elif filter_type == 'month' and month and year:
+            try:
+                month_int = int(month)
+                year_int = int(year)
+                quantity_history = quantity_history.filter(
+                    timestamp__year=year_int,
+                    timestamp__month=month_int
+                )
+            except ValueError:
+                return JsonResponse({'error': 'Invalid month or year'}, status=400)
+        
+        # Process activity data
+        activity_data = []
+        total_additions = 0
+        total_deductions = 0
+        
+        for entry in quantity_history:
+            try:
+                old_qty = int(entry.old_value) if entry.old_value and entry.old_value.isdigit() else 0
+                new_qty = int(entry.new_value) if entry.new_value and entry.new_value.isdigit() else 0
+                quantity_change = new_qty - old_qty
+                
+                if entry.action == 'create':
+                    action_type = 'Initial Creation'
+                    quantity_change = new_qty
+                elif quantity_change > 0:
+                    action_type = 'Addition'
+                    total_additions += quantity_change
+                elif quantity_change < 0:
+                    action_type = 'Deduction'
+                    total_deductions += abs(quantity_change)
+                else:
+                    action_type = 'Adjustment'
+                
+                activity_data.append({
+                    'date': entry.timestamp.strftime('%Y-%m-%d'),
+                    'time': entry.timestamp.strftime('%H:%M:%S'),
+                    'action': action_type,
+                    'quantity_change': quantity_change,
+                    'previous_quantity': old_qty,
+                    'new_quantity': new_qty,
+                    'user': entry.user.get_full_name() if entry.user and entry.user.get_full_name() else (entry.user.username if entry.user else 'System'),
+                    'remarks': entry.remarks if entry.remarks else 'N/A'
+                })
+            except Exception as e:
+                print(f"Error processing entry {entry.id}: {str(e)}")
+                continue
+        
+        net_change = total_additions - total_deductions
+        
+        # Prepare filter info for the report
+        filter_info = {
+            'filter_type': filter_type,
+            'user_filter': user_filter,
+            'activity_type_filter': activity_type_filter
+        }
+        
+        if format_type == 'excel':
+            return _generate_excel_quantity_report(supply, activity_data, total_additions, total_deductions, net_change, filter_info)
+        else:
+            return _generate_pdf_quantity_report(supply, activity_data, total_additions, total_deductions, net_change, filter_info)
+        
+    except Supply.DoesNotExist:
+        return JsonResponse({'error': 'Supply not found'}, status=404)
+    except Exception as e:
+        print(f"Error generating quantity activity report: {str(e)}")
+        return JsonResponse({'error': 'An error occurred while generating the report'}, status=500)
+
+def _generate_excel_quantity_report(supply, activity_data, total_additions, total_deductions, net_change, filter_info):
+    """Generate Excel report for quantity activity"""
     wb = Workbook()
     ws = wb.active
-    ws.title = "Property Inventory"
-
-    # Title and Header Styling
-    title_font = ws['A1'].font.copy(bold=True, size=16)
-    header_font = ws['A1'].font.copy(bold=True, color="FFFFFF")
-    header_fill = PatternFill(start_color="152D64", end_color="152D64", fill_type="solid")
-    thin_border = Side(border_style="thin", color="000000")
-    category_font = ws['A1'].font.copy(bold=True, size=12)
-
-    # Get selected fields from request
-    selected_fields = request.POST.getlist('fields', [
-        'property_number', 'property_name', 'description', 'unit_of_measure',
-        'unit_value', 'overall_quantity', 'current_quantity', 'location',
-        'accountable_person', 'year_acquired', 'condition', 'category'
-    ])
-
-    # Define all possible fields and their display names
-    field_mapping = {
-        'property_number': 'Property Number',
-        'property_name': 'Property Name',
-        'description': 'Description',
-        'unit_of_measure': 'Unit of Measure',
-        'unit_value': 'Unit Value',
-        'overall_quantity': 'Overall Quantity',
-        'current_quantity': 'Current Quantity',
-        'location': 'Location',
-        'accountable_person': 'Accountable Person',
-        'year_acquired': 'Year Acquired',
-        'condition': 'Condition',
-        'category': 'Category'
-    }
-
-    # Create header row with title and metadata
-    num_columns = len(selected_fields)
-    merge_range = f'A1:{chr(64 + num_columns)}1'
-    ws.merge_cells(merge_range)
-    ws['A1'] = 'INVENTORY REPORT FOR PROPERTY'
-    ws['A1'].font = title_font
-    ws['A1'].alignment = ws['A1'].alignment.copy(horizontal='center')
-
-    # Add metadata
-    ws['A3'] = 'Department:'
-    ws['B3'] = request.user.userprofile.department.name if hasattr(request.user, 'userprofile') and request.user.userprofile.department else '_____________________'
-    ws['G3'] = 'Date:'
-    ws['H3'] = datetime.now().strftime("%B %d, %Y")
+    ws.title = f"Quantity Activity - {supply.supply_name}"
     
-    ws['A4'] = 'Prepared by:'
-    ws['B4'] = f'{request.user.first_name} {request.user.last_name}'
-    ws['G4'] = 'Page:'
-    ws['H4'] = '1 of 1'
-
-    # Headers start at row 6
-    ws['A6'] = 'PROPERTY INVENTORY'
-    ws['A6'].font = ws['A6'].font.copy(bold=True)
-
-    # Get all properties with related data and group by category
-    properties = Property.objects.select_related('category').order_by('category__name', 'property_name').all()
-
-    # Group properties by category
-    properties_by_category = {}
-    for prop in properties:
-        category_name = prop.category.name if prop.category else 'Uncategorized'
-        if category_name not in properties_by_category:
-            properties_by_category[category_name] = []
-        properties_by_category[category_name].append(prop)
-
-    current_row = 8  # Start after the title and metadata
-
-    # Process each category
-    for category_name, category_properties in properties_by_category.items():
-        # Add category header
-        ws.cell(row=current_row, column=1, value=category_name)
-        ws.cell(row=current_row, column=1).font = category_font
-        current_row += 1
-
-        # Add headers for this category
-        headers = [field_mapping[field] for field in selected_fields]
-        for col, header in enumerate(headers, 1):
-            cell = ws.cell(row=current_row, column=col)
-            cell.value = header
-            cell.font = header_font
-            cell.fill = header_fill
-            cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
-        current_row += 1
-
-        # Add data for this category
-        for prop in category_properties:
-            row_data = []
-            for field in selected_fields:
-                if field == 'property_number':
-                    row_data.append(prop.property_number or 'N/A')
-                elif field == 'property_name':
-                    row_data.append(prop.property_name)
-                elif field == 'description':
-                    row_data.append(prop.description or 'N/A')
-                elif field == 'unit_of_measure':
-                    row_data.append(prop.unit_of_measure or 'N/A')
-                elif field == 'unit_value':
-                    row_data.append(prop.unit_value or 0)
-                elif field == 'overall_quantity':
-                    row_data.append(prop.overall_quantity or 0)
-                elif field == 'current_quantity':
-                    row_data.append(prop.quantity or 0)
-                elif field == 'location':
-                    row_data.append(prop.location or 'N/A')
-                elif field == 'accountable_person':
-                    row_data.append(prop.accountable_person or 'N/A')
-                elif field == 'year_acquired':
-                    row_data.append(prop.year_acquired.strftime('%B %d, %Y') if prop.year_acquired else 'N/A')
-                elif field == 'condition':
-                    row_data.append(prop.get_condition_display() if prop.condition else 'N/A')
-                elif field == 'category':
-                    row_data.append(prop.category.name if prop.category else 'N/A')
-
-            for col, value in enumerate(row_data, 1):
-                cell = ws.cell(row=current_row, column=col)
-                cell.value = value
-                cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
-            current_row += 1
-
-        current_row += 1  # Add space between categories
-
-    # Add signature section
-    signature_row = current_row + 2
-    ws.cell(row=signature_row, column=1, value='Prepared by:')
-    ws.cell(row=signature_row, column=4, value='Reviewed by:')
-    ws.cell(row=signature_row, column=7, value='Approved by:')
-
-    ws.cell(row=signature_row + 2, column=1, value='_____________________')
-    ws.cell(row=signature_row + 2, column=4, value='_____________________')
-    ws.cell(row=signature_row + 2, column=7, value='_____________________')
-
-    ws.cell(row=signature_row + 3, column=1, value='Inventory Officer')
-    ws.cell(row=signature_row + 3, column=4, value='Department Head')
-    ws.cell(row=signature_row + 3, column=7, value='Property Custodian')
-
-    # Add notes section
-    notes_row = signature_row + 5
-    ws.cell(row=notes_row, column=1, value='Notes:')
-    ws.cell(row=notes_row + 1, column=1, value='1. This report shows the current inventory status of properties.')
-    ws.cell(row=notes_row + 2, column=1, value='2. Please verify physical count against this report.')
-    ws.cell(row=notes_row + 3, column=1, value='3. Report any discrepancies to the inventory officer.')
-
-    # Auto-adjust column widths
-    for col_idx, column in enumerate(ws.columns, 1):
-        max_length = 0
-        column_letter = get_column_letter(col_idx)
-        
-        for cell in column[1:]:
-            if isinstance(cell, MergedCell):
-                continue
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(str(cell.value))
-            except:
-                pass
-        
-        adjusted_width = (max_length + 2)
-        ws.column_dimensions[column_letter].width = adjusted_width
-
+    # Set column widths
+    ws.column_dimensions['A'].width = 15  # Date
+    ws.column_dimensions['B'].width = 12  # Time
+    ws.column_dimensions['C'].width = 18  # Action
+    ws.column_dimensions['D'].width = 15  # Quantity Change
+    ws.column_dimensions['E'].width = 15  # Previous Qty
+    ws.column_dimensions['F'].width = 12  # New Qty
+    ws.column_dimensions['G'].width = 20  # User
+    ws.column_dimensions['H'].width = 30  # Remarks
+    
+    # Title and summary
+    ws['A1'] = f"Quantity Activity Report - {supply.supply_name}"
+    ws['A1'].font = Font(size=16, bold=True)
+    
+    # Add filter information
+    row_offset = 3
+    if filter_info['user_filter'] != 'all':
+        ws[f'A{row_offset}'] = f"Filtered by Requestor: {filter_info['user_filter']}"
+        row_offset += 1
+    if filter_info['activity_type_filter'] != 'all':
+        ws[f'A{row_offset}'] = f"Activity Type Filter: {filter_info['activity_type_filter']}"
+        row_offset += 1
+    
+    ws[f'A{row_offset}'] = f"Total Additions: {total_additions}"
+    ws[f'A{row_offset + 1}'] = f"Total Deductions: {total_deductions}"
+    ws[f'A{row_offset + 2}'] = f"Net Change: {net_change}"
+    ws[f'A{row_offset + 3}'] = f"Total Transactions: {len(activity_data)}"
+    
+    # Headers
+    headers = ['Date', 'Time', 'Action', 'Quantity Change', 'Previous Qty', 'New Qty', 'User', 'Remarks']
+    header_row = row_offset + 5
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=header_row, column=col, value=header)
+        cell.font = Font(bold=True)
+        cell.fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+    
+    # Data rows
+    for row, activity in enumerate(activity_data, header_row + 1):
+        ws.cell(row=row, column=1, value=activity['date'])
+        ws.cell(row=row, column=2, value=activity['time'])
+        ws.cell(row=row, column=3, value=activity['action'])
+        ws.cell(row=row, column=4, value=activity['quantity_change'])
+        ws.cell(row=row, column=5, value=activity['previous_quantity'])
+        ws.cell(row=row, column=6, value=activity['new_quantity'])
+        ws.cell(row=row, column=7, value=activity['user'])
+        ws.cell(row=row, column=8, value=activity['remarks'])
+    
     # Create response
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    response['Content-Disposition'] = f'attachment; filename=property_inventory_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="quantity_activity_{supply.supply_name}_{datetime.now().strftime("%Y%m%d")}.xlsx"'
     
     wb.save(response)
     return response
 
-# def generate_sample_inventory_report(request):
-#     """Generate a sample inventory report template"""
-#     wb = Workbook()
-#     ws = wb.active
-#     ws.title = "Sample Inventory Report"
-
-#     # Title and Header Styling
-#     title_font = ws['A1'].font.copy(bold=True, size=16)
-#     header_font = ws['A1'].font.copy(bold=True, color="FFFFFF")
-#     header_fill = PatternFill(start_color="152D64", end_color="152D64", fill_type="solid")
+def _generate_pdf_quantity_report(supply, activity_data, total_additions, total_deductions, net_change, filter_info):
+    """Generate PDF report for quantity activity"""
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="quantity_activity_{supply.supply_name}_{datetime.now().strftime("%Y%m%d")}.pdf"'
     
-#     # Merge cells for title
-#     ws.merge_cells('A1:J1')
-#     ws['A1'] = 'SAMPLE INVENTORY REPORT TEMPLATE'
-#     ws['A1'].font = title_font
-#     ws['A1'].alignment = ws['A1'].alignment.copy(horizontal='center')
-
-#     # Add metadata
-#     ws['A3'] = 'Department:'
-#     ws['B3'] = '_____________________'
-#     ws['G3'] = 'Date:'
-#     ws['H3'] = datetime.now().strftime("%B %d, %Y")
+    doc = SimpleDocTemplate(response, pagesize=landscape(A4))
+    styles = getSampleStyleSheet()
+    story = []
     
-#     ws['A4'] = 'Prepared by:'
-#     ws['B4'] = '_____________________'
-#     ws['G4'] = 'Page:'
-#     ws['H4'] = '1 of 1'
-
-#     # Add section headers
-#     ws['A6'] = 'SUPPLY INVENTORY'
-#     ws['A6'].font = ws['A6'].font.copy(bold=True)
+    # Title
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=18,
+        spaceAfter=30,
+        alignment=1  # Center
+    )
+    story.append(Paragraph(f"Quantity Activity Report - {supply.supply_name}", title_style))
     
-#     # Supply headers
-#     supply_headers = ['Item Code', 'Supply Name', 'Category', 'Current Quantity', 'Unit', 'Status', 'Remarks']
-#     for col, header in enumerate(supply_headers, 1):
-#         cell = ws.cell(row=7, column=col)
-#         cell.value = header
-#         cell.font = header_font
-#         cell.fill = header_fill
-
-#     # Sample supply data
-#     sample_supplies = [
-#         ['SUP-001', 'Ballpen (Black)', 'Office Supplies', 100, 'Pieces', 'Available', ''],
-#         ['SUP-002', 'A4 Paper', 'Office Supplies', 50, 'Reams', 'Low Stock', 'Need to reorder'],
-#         ['SUP-003', 'Printer Ink', 'Supplies', 5, 'Cartridges', 'Low Stock', 'Order pending'],
-#     ]
-
-#     for row, data in enumerate(sample_supplies, 8):
-#         for col, value in enumerate(data, 1):
-#             cell = ws.cell(row=row, column=col)
-#             cell.value = value
-
-#     # Add property section
-#     ws['A12'] = 'PROPERTY INVENTORY'
-#     ws['A12'].font = ws['A12'].font.copy(bold=True)
-
-#     # Property headers
-#     property_headers = ['Property No.', 'Property Name', 'Description', 'Quantity', 'Location', 'Condition', 'Remarks']
-#     for col, header in enumerate(property_headers, 1):
-#         cell = ws.cell(row=13, column=col)
-#         cell.value = header
-#         cell.font = header_font
-#         cell.fill = header_fill
-
-#     # Sample property data
-#     sample_properties = [
-#         ['PROP-001', 'Desktop Computer', 'Dell OptiPlex', 5, 'IT Room', 'Good Condition', ''],
-#         ['PROP-002', 'Office Chair', 'Ergonomic Chair', 10, 'Main Office', 'Good Condition', ''],
-#         ['PROP-003', 'Printer', 'HP LaserJet', 2, 'Admin Office', 'Needs Repair', 'Under maintenance'],
-#     ]
-
-#     for row, data in enumerate(sample_properties, 14):
-#         for col, value in enumerate(data, 1):
-#             cell = ws.cell(row=row, column=col)
-#             cell.value = value
-
-#     # Add signature section
-#     ws['A18'] = 'Prepared by:'
-#     ws['D18'] = 'Reviewed by:'
-#     ws['G18'] = 'Approved by:'
-
-#     ws['A20'] = '_____________________'
-#     ws['D20'] = '_____________________'
-#     ws['G20'] = '_____________________'
-
-#     ws['A21'] = 'Inventory Officer'
-#     ws['D21'] = 'Department Head'
-#     ws['G21'] = 'Property Custodian'
-
-#     # Add notes section
-#     ws['A23'] = 'Notes:'
-#     ws['A24'] = '1. This is a sample template for inventory reporting.'
-#     ws['A25'] = '2. Customize the sections and fields according to your needs.'
-#     ws['A26'] = '3. Regular inventory count is recommended for accurate record keeping.'
-
-#     # Adjust column widths
-#     column_widths = [15, 20, 15, 15, 15, 15, 30]
-#     for i, width in enumerate(column_widths, 1):
-#         ws.column_dimensions[get_column_letter(i)].width = width
-
-#     # Add borders to all cells with content
-#     thin_border = Side(border_style="thin", color="000000")
-#     max_row = ws.max_row
-#     max_col = ws.max_column
-
-#     for row in range(7, 11):  # Supply section
-#         for col in range(1, 8):
-#             cell = ws.cell(row=row, column=col)
-#             cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
-
-#     for row in range(13, 17):  # Property section
-#         for col in range(1, 8):
-#             cell = ws.cell(row=row, column=col)
-#             cell.border = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
-
-#     # Create response
-#     response = HttpResponse(
-#         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-#     )
-#     response['Content-Disposition'] = f'attachment; filename=inventory_report_template.xlsx'
+    # Add filter information
+    filter_text = []
+    if filter_info['user_filter'] != 'all':
+        filter_text.append(f"<b>Filtered by Requestor:</b> {filter_info['user_filter']}")
+    if filter_info['activity_type_filter'] != 'all':
+        filter_text.append(f"<b>Activity Type Filter:</b> {filter_info['activity_type_filter']}")
     
-#     wb.save(response)
-#     return response
+    if filter_text:
+        filter_para = Paragraph("<br/>".join(filter_text), styles['Normal'])
+        story.append(filter_para)
+        story.append(Spacer(1, 12))
+    
+    # Summary section
+    summary_data = [
+        ['Summary', '', '', ''],
+        ['Total Additions:', total_additions, 'Total Deductions:', total_deductions],
+        ['Net Change:', net_change, 'Total Transactions:', len(activity_data)]
+    ]
+    
+    summary_table = Table(summary_data, colWidths=[120, 80, 120, 80])
+    summary_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    
+    story.append(summary_table)
+    story.append(Spacer(1, 20))
+    
+    # Activity table
+    if activity_data:
+        table_data = [['Date', 'Time', 'Action', 'Change', 'Previous', 'New', 'User', 'Remarks']]
+        
+        for activity in activity_data:
+            table_data.append([
+                activity['date'],
+                activity['time'],
+                activity['action'],
+                str(activity['quantity_change']),
+                str(activity['previous_quantity']),
+                str(activity['new_quantity']),
+                activity['user'][:15] + '...' if len(activity['user']) > 15 else activity['user'],
+                activity['remarks'][:20] + '...' if len(activity['remarks']) > 20 else activity['remarks']
+            ])
+        
+        table = Table(table_data, colWidths=[80, 60, 80, 50, 60, 50, 100, 120])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ]))
+        story.append(table)
+    else:
+        story.append(Paragraph("No quantity activity found for the selected period.", styles['Normal']))
+    
+    doc.build(story)
+    return response
+
+@login_required
+def export_property_to_pdf_ics(request):
+    """Export properties with unit value below 50,000 as PDF Inventory Custodian Slip (ICS)"""
+    
+    # Get form data
+    college_campus = request.POST.get('college_campus', 'BACOOR')
+    accountable_person_filter = request.POST.get('accountable_person_ics', '(All)')
+    
+    # Get all properties
+    properties = Property.objects.select_related('category').all()
+    
+    # Filter properties with unit value (unit cost) below 50,000
+    filtered_properties = []
+    for prop in properties:
+        unit_cost = float(prop.unit_value or 0)
+        qty_per_card = int(prop.overall_quantity or 0)  # Use overall_quantity instead of quantity
+        total_value = unit_cost * qty_per_card
+        
+        # Filter based on unit cost being below 50,000
+        if unit_cost < 50000:
+            # Apply accountable person filter if specified
+            if accountable_person_filter == '(All)' or prop.accountable_person == accountable_person_filter:
+                filtered_properties.append({
+                    'article': prop.property_name or 'N/A',  # Property name as Article
+                    'description': prop.description or '',
+                    'property_number': prop.property_number or 'N/A',
+                    'unit_of_measure': prop.unit_of_measure or 'unit',
+                    'unit_cost': unit_cost,
+                    'total_value': total_value,
+                    'qty_per_card': qty_per_card,
+                    'qty_per_physical_count': prop.quantity_per_physical_count or qty_per_card,
+                    'remarks': 'test',
+                    'accountable_person': prop.accountable_person or 'N/A',
+                    'year_acquired': prop.year_acquired.strftime('%m/%d/%Y') if prop.year_acquired else 'N/A'
+                })
+    
+    # Create PDF with A4 landscape for more width
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), 
+                           topMargin=0.4*inch, bottomMargin=0.4*inch,
+                           leftMargin=0.3*inch, rightMargin=0.3*inch)
+    
+    # Container for PDF elements
+    elements = []
+    
+    # Styles
+    styles = getSampleStyleSheet()
+    
+    # Style for table content - smaller for data cells
+    normal_style = ParagraphStyle(
+        'Normal',
+        fontName='Helvetica',
+        fontSize=8,
+        leading=10
+    )
+    
+    # Style for header cells - black text to be visible
+    header_style = ParagraphStyle(
+        'Header',
+        fontName='Helvetica-Bold',
+        fontSize=9,
+        textColor=colors.black,  # Changed from white to black
+        alignment=1  # Center
+    )
+    
+    # Header information with title - using simple Paragraphs aligned to left
+    title_para = Paragraph("<b>List of Inventories / Inventory Custodian Slip (ICS)</b>", normal_style)
+    elements.append(title_para)
+    elements.append(Spacer(1, 0.1*inch))
+    
+    campus_para = Paragraph(f"<b>College / Campus:</b> {college_campus}", normal_style)
+    elements.append(campus_para)
+    elements.append(Spacer(1, 0.05*inch))
+    
+    person_para = Paragraph(f"<b>Accountable Person:</b> {accountable_person_filter}", normal_style)
+    elements.append(person_para)
+    elements.append(Spacer(1, 0.2*inch))
+    
+    # Table data
+    table_data = [
+        [Paragraph('Article', header_style), 
+         Paragraph('Description', header_style), 
+         Paragraph('Property Number', header_style), 
+         Paragraph('Unit Of Measure', header_style), 
+         Paragraph('Unit Cost', header_style), 
+         Paragraph('Total Value', header_style), 
+         Paragraph('QTY Per card', header_style), 
+         Paragraph('Qty Per Physical Count', header_style), 
+         Paragraph('Remarks', header_style), 
+         Paragraph('Accountable Person', header_style), 
+         Paragraph('Year Acquired', header_style)]
+    ]
+    
+    # Add property data
+    for prop in filtered_properties:
+        table_data.append([
+            Paragraph(str(prop['article']), normal_style),
+            Paragraph(str(prop['description'])[:80], normal_style),  # Increased description length
+            Paragraph(str(prop['property_number']), normal_style),
+            Paragraph(str(prop['unit_of_measure']), normal_style),
+            Paragraph(f"{prop['unit_cost']:.2f}", normal_style),
+            Paragraph(f"{prop['total_value']:.2f}", normal_style),
+            Paragraph(str(prop['qty_per_card']), normal_style),
+            Paragraph(str(prop['qty_per_physical_count']), normal_style),
+            Paragraph(str(prop['remarks']), normal_style),
+            Paragraph(str(prop['accountable_person']), normal_style),
+            Paragraph(str(prop['year_acquired']), normal_style)
+        ])
+    
+    # If no properties found
+    if len(table_data) == 1:
+        table_data.append([
+            Paragraph('No properties found with unit cost below ₱50,000.00', normal_style),
+            '', '', '', '', '', '', '', '', '', ''
+        ])
+    
+    # Create table with adjusted column widths for A4 landscape (11.69 x 8.27 inches)
+    # A4 landscape provides approximately 11 inches of usable width
+    # Increased Remarks column from 0.6 to 1.0 inch
+    col_widths = [1.5*inch, 2.0*inch, 1.0*inch, 0.7*inch, 0.7*inch, 
+                  0.8*inch, 0.7*inch, 0.8*inch, 1.0*inch, 1.0*inch, 0.8*inch]
+    
+    property_table = Table(table_data, colWidths=col_widths, repeatRows=1)
+    
+    # Table style - matching the simple format from the image
+    property_table.setStyle(TableStyle([
+        # Header styling - simple black text on white background
+        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+        ('TOPPADDING', (0, 0), (-1, 0), 6),
+        
+        # Data cells
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 1), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
+        
+        # Align numbers to center/right
+        ('ALIGN', (4, 1), (5, -1), 'RIGHT'),  # Unit Cost, Total Value
+        ('ALIGN', (6, 1), (7, -1), 'CENTER'),  # QTY columns
+        ('ALIGN', (2, 1), (2, -1), 'CENTER'),  # Property Number
+        ('ALIGN', (3, 1), (3, -1), 'CENTER'),  # Unit of Measure
+        
+        # Grid - simple black lines
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('LINEBELOW', (0, 0), (-1, 0), 2, colors.black),  # Thicker line below header
+    ]))
+    
+    elements.append(property_table)
+    
+    # Build PDF
+    doc.build(elements)
+    
+    # Get PDF from buffer
+    pdf = buffer.getvalue()
+    buffer.close()
+    
+    # Create response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=ICS_Below_50000_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+    response.write(pdf)
+    
+    return response
+
+
+@login_required
+def export_inventory_count_form_cvsu(request):
+    """
+    Generate Excel Inventory Count Form matching CvSU format.
+    Filters items with unit value > 50,000 and groups them by PPE Account Group (category).
+    All categories are in one sheet with footer sections between them.
+    """
+    from openpyxl.styles import Alignment, Border, Side, Font as OpenpyxlFont
+    from openpyxl.drawing.image import Image as OpenpyxlImage
+    from PIL import Image as PILImage
+    from collections import OrderedDict
+    
+    # Filter properties with unit_value above 50,000
+    properties = Property.objects.filter(
+        unit_value__gt=50000
+    ).select_related('category').order_by('category__name', 'property_name')
+    
+    # Group properties by category
+    properties_by_category = OrderedDict()
+    for prop in properties:
+        if prop.category:
+            category_key = prop.category.id
+            if category_key not in properties_by_category:
+                properties_by_category[category_key] = {
+                    'category': prop.category,
+                    'properties': []
+                }
+            properties_by_category[category_key]['properties'].append(prop)
+        else:
+            # Handle properties without category
+            if 'uncategorized' not in properties_by_category:
+                properties_by_category['uncategorized'] = {
+                    'category': None,
+                    'properties': []
+                }
+            properties_by_category['uncategorized']['properties'].append(prop)
+    
+    # Get optional column selections from request
+    include_accountable_person = request.POST.get('include_accountable_person') == 'yes'
+    include_year_acquired = request.POST.get('include_year_acquired') == 'yes'
+    
+    # Calculate total columns and last column letter
+    base_columns = 11  # A-K (Article to Remarks)
+    total_columns = base_columns
+    if include_accountable_person:
+        total_columns += 1
+    if include_year_acquired:
+        total_columns += 1
+    last_col_letter = chr(64 + total_columns)  # Convert to letter (A=65, so A=1+64)
+    
+    # Create workbook with single sheet
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Inventory Count Form"
+    
+    # Define styles
+    thin_border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+    
+    header_font = OpenpyxlFont(name='Calibri', size=10, bold=True)
+    normal_font = OpenpyxlFont(name='Calibri', size=9)
+    title_font = OpenpyxlFont(name='Calibri', size=11, bold=True)
+    center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+    left_alignment = Alignment(horizontal='left', vertical='center', wrap_text=True)
+    
+    # Set column widths
+    ws.column_dimensions['A'].width = 18  # Article/Item
+    ws.column_dimensions['B'].width = 35  # Description
+    ws.column_dimensions['C'].width = 15  # Old Property No.
+    ws.column_dimensions['D'].width = 15  # New Property No.
+    ws.column_dimensions['E'].width = 10  # Unit of Measure
+    ws.column_dimensions['F'].width = 12  # Unit Value
+    ws.column_dimensions['G'].width = 10  # Qty per Property Card
+    ws.column_dimensions['H'].width = 10  # Qty per Physical Count
+    ws.column_dimensions['I'].width = 20  # Location
+    ws.column_dimensions['J'].width = 15  # Condition
+    ws.column_dimensions['K'].width = 15  # Remarks
+    
+    # Set widths for optional columns
+    current_col_index = 12  # Start after K (column 11)
+    if include_accountable_person:
+        ws.column_dimensions[chr(64 + current_col_index)].width = 18  # Accountable Person
+        current_col_index += 1
+    if include_year_acquired:
+        ws.column_dimensions[chr(64 + current_col_index)].width = 12  # Year Acquired
+    
+    current_row = 1
+    
+    # Process each category
+    for idx, (cat_key, cat_data) in enumerate(properties_by_category.items()):
+        category = cat_data['category']
+        category_properties = cat_data['properties']
+        
+        # Add header for each category section
+        # Add logo for EVERY section - position it on the left side overlapping rows 1-5
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'cvsu logo.png')
+        if os.path.exists(logo_path):
+            try:
+                # Load and resize logo
+                img = OpenpyxlImage(logo_path)
+                # Resize logo to approximately 80x80 pixels to span multiple rows
+                img.width = 80
+                img.height = 80
+                # Position logo at C row (left area, will span across rows 1-5)
+                ws.add_image(img, f'C{current_row}')
+            except Exception as e:
+                print(f"Error adding logo: {e}")
+        
+        # Row 1: Republic of the Philippines
+        ws.merge_cells(f'A{current_row}:{last_col_letter}{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = 'Republic of the Philippines'
+        cell.font = OpenpyxlFont(name='Calibri', size=10, bold=False)
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Row 2: CAVITE STATE UNIVERSITY
+        ws.merge_cells(f'A{current_row}:{last_col_letter}{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = 'CAVITE STATE UNIVERSITY'
+        cell.font = OpenpyxlFont(name='Calibri', size=12, bold=True)
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Row 3: Don Severino de las Alas Campus
+        ws.merge_cells(f'A{current_row}:{last_col_letter}{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = 'Don Severino de las Alas Campus'
+        cell.font = OpenpyxlFont(name='Calibri', size=10, bold=True)
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Row 4: Indang, Cavite
+        ws.merge_cells(f'A{current_row}:{last_col_letter}{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = 'Indang, Cavite'
+        cell.font = OpenpyxlFont(name='Calibri', size=10, bold=False)
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Row 5: www.cvsu.edu.ph
+        ws.merge_cells(f'A{current_row}:{last_col_letter}{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = 'www.cvsu.edu.ph'
+        cell.font = OpenpyxlFont(name='Calibri', size=9, bold=False, color='0000FF', underline='single')
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Blank row
+        current_row += 1
+        
+        # Inventory Count Form title
+        ws.merge_cells(f'A{current_row}:{last_col_letter}{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = 'Inventory Count Form'
+        cell.font = OpenpyxlFont(name='Calibri', size=12, bold=True)
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Blank row
+        current_row += 1
+        
+        # PPE Account Group - Label in column A
+        cell = ws.cell(row=current_row, column=1)
+        cell.value = 'PPE Account Group:'
+        cell.font = OpenpyxlFont(name='Calibri', size=10, bold=True)
+        cell.alignment = left_alignment
+        
+        # UACS + Category in columns B-C (merged with bottom border)
+        ws.merge_cells(f'B{current_row}:C{current_row}')
+        cell_b = ws.cell(row=current_row, column=2)
+        cell_c = ws.cell(row=current_row, column=3)
+        
+        if category and category.uacs:
+            cell_b.value = f'{category.uacs} - {category.name}'
+        elif category:
+            cell_b.value = f'{category.name}'
+        else:
+            cell_b.value = 'Uncategorized'
+        
+        cell_b.font = OpenpyxlFont(name='Calibri', size=10, bold=False)
+        cell_b.alignment = left_alignment
+        # Add bottom border to both B and C cells
+        cell_b.border = Border(bottom=Side(style='thin', color='000000'))
+        cell_c.border = Border(bottom=Side(style='thin', color='000000'))
+        current_row += 1
+        
+        # Blank row
+        current_row += 1
+        
+        # Table Headers (base columns)
+        headers = [
+            'Article/Item',
+            'Description',
+            'Old Property No.\nassigned',
+            'New Property No.\nassigned\n(to be filled up during\nvalidation)',
+            'Unit of\nMeasure',
+            'Unit Value',
+            'Quantity per\nProperty Card',
+            'Quantity per\nPhysical Count',
+            'Location/Whereabouts\n(Building, Floor and\nRoom No.)',
+            'Condition\n(in good condition,\nneeding repair,\nunserviceable,\nobsolete, etc.)',
+            'Remarks\n(Non-existing\nor Missing)'
+        ]
+        
+        # Add optional headers
+        if include_accountable_person:
+            headers.append('Accountable Person')
+        if include_year_acquired:
+            headers.append('Year Acquired')
+        
+        for col_idx, header in enumerate(headers, start=1):
+            cell = ws.cell(row=current_row, column=col_idx)
+            cell.value = header
+            cell.font = header_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+        
+        # Set row height for header
+        ws.row_dimensions[current_row].height = 60
+        current_row += 1
+        
+        # Data rows
+        for prop in category_properties:
+            # Article/Item
+            cell = ws.cell(row=current_row, column=1)
+            cell.value = prop.property_name or ''
+            cell.font = normal_font
+            cell.alignment = left_alignment
+            cell.border = thin_border
+            
+            # Description
+            cell = ws.cell(row=current_row, column=2)
+            cell.value = prop.description or ''
+            cell.font = normal_font
+            cell.alignment = left_alignment
+            cell.border = thin_border
+            
+            # Old Property No.
+            cell = ws.cell(row=current_row, column=3)
+            cell.value = prop.old_property_number or ''
+            cell.font = normal_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+            
+            # New Property No.
+            cell = ws.cell(row=current_row, column=4)
+            cell.value = prop.property_number or ''
+            cell.font = normal_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+            
+            # Unit of Measure
+            cell = ws.cell(row=current_row, column=5)
+            cell.value = prop.unit_of_measure or ''
+            cell.font = normal_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+            
+            # Unit Value
+            cell = ws.cell(row=current_row, column=6)
+            cell.value = float(prop.unit_value) if prop.unit_value else 0
+            cell.font = normal_font
+            cell.alignment = Alignment(horizontal='right', vertical='center')
+            cell.border = thin_border
+            cell.number_format = '#,##0.00'
+            
+            # Quantity per Property Card
+            cell = ws.cell(row=current_row, column=7)
+            cell.value = prop.quantity or 0
+            cell.font = normal_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+            
+            # Quantity per Physical Count
+            cell = ws.cell(row=current_row, column=8)
+            cell.value = prop.quantity_per_physical_count or 0
+            cell.font = normal_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+            
+            # Location/Whereabouts
+            cell = ws.cell(row=current_row, column=9)
+            cell.value = prop.location or ''
+            cell.font = normal_font
+            cell.alignment = left_alignment
+            cell.border = thin_border
+            
+            # Condition
+            cell = ws.cell(row=current_row, column=10)
+            cell.value = prop.condition or ''
+            cell.font = normal_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
+            
+            # Remarks
+            cell = ws.cell(row=current_row, column=11)
+            cell.value = ''  # Empty for manual entry
+            cell.font = normal_font
+            cell.alignment = left_alignment
+            cell.border = thin_border
+            
+            # Optional columns - dynamically add after Remarks
+            opt_col = 12  # Start after column 11 (Remarks)
+            if include_accountable_person:
+                cell = ws.cell(row=current_row, column=opt_col)
+                cell.value = prop.accountable_person or ''
+                cell.font = normal_font
+                cell.alignment = left_alignment
+                cell.border = thin_border
+                opt_col += 1
+            
+            if include_year_acquired:
+                cell = ws.cell(row=current_row, column=opt_col)
+                cell.value = prop.year_acquired.strftime('%Y') if prop.year_acquired else ''
+                cell.font = normal_font
+                cell.alignment = center_alignment
+                cell.border = thin_border
+            
+            # Set row height
+            ws.row_dimensions[current_row].height = 30
+            current_row += 1
+        
+        # Add footer section after each category
+        # Blank row
+        current_row += 1
+        
+        # Note section - "Note:" in column A (bold), rest of text in B-lastcol (not bold)
+        cell = ws.cell(row=current_row, column=1)
+        cell.value = 'Note:'
+        cell.font = OpenpyxlFont(name='Calibri', size=9, bold=True)
+        cell.alignment = left_alignment
+        
+        # Note content text - merge dynamically based on total columns
+        ws.merge_cells(f'B{current_row}:{last_col_letter}{current_row}')
+        cell = ws[f'B{current_row}']
+        cell.value = 'for PPE items without Property No., provide in the "Remarks" column other information such as Serial No./Model No./brief description that can be useful during the reconciliation process.'
+        cell.font = OpenpyxlFont(name='Calibri', size=9, bold=False)
+        cell.alignment = left_alignment
+        current_row += 1
+        
+        # Blank rows for spacing
+        current_row += 2
+        
+        # Prepared by section (LEFT SIDE - Columns A-C)
+        prepared_row = current_row
+        cell = ws.cell(row=current_row, column=1)
+        cell.value = 'Prepared by:'
+        cell.font = OpenpyxlFont(name='Calibri', size=9, bold=True)
+        cell.alignment = left_alignment
+        
+        # Reviewed by section (RIGHT SIDE - Column G)
+        cell = ws.cell(row=current_row, column=7)
+        cell.value = 'Reviewed by:'
+        cell.font = OpenpyxlFont(name='Calibri', size=9, bold=True)
+        cell.alignment = left_alignment
+        current_row += 1
+        
+        # Blank row before signatures
+        current_row += 1
+        
+        # Signature line for Prepared by (bottom border only in column B)
+        cell = ws.cell(row=current_row, column=2)
+        cell.border = Border(bottom=Side(style='thin', color='000000'))
+        cell.alignment = center_alignment
+        
+        # Signature line for Reviewed by (bottom border in columns H-J)
+        ws.merge_cells(f'H{current_row}:J{current_row}')
+        for col in range(8, 11):  # Columns H, I, J
+            cell = ws.cell(row=current_row, column=col)
+            cell.border = Border(bottom=Side(style='thin', color='000000'))
+            cell.alignment = center_alignment
+        current_row += 1
+        
+        # Title for Prepared by (only in column B)
+        cell = ws.cell(row=current_row, column=2)
+        cell.value = 'Concerned Inventory Committee Member'
+        cell.font = OpenpyxlFont(name='Calibri', size=9)
+        cell.alignment = center_alignment
+        
+        # Title for Reviewed by (merged in H-J)
+        ws.merge_cells(f'H{current_row}:J{current_row}')
+        cell = ws.cell(row=current_row, column=8)
+        cell.value = 'Chairman, Inventory Committee'
+        cell.font = OpenpyxlFont(name='Calibri', size=9)
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Blank rows
+        current_row += 2
+        
+        # Date section (LEFT SIDE)
+        cell = ws.cell(row=current_row, column=1)
+        cell.value = 'Date:'
+        cell.font = OpenpyxlFont(name='Calibri', size=9, bold=True)
+        cell.alignment = left_alignment
+        current_row += 1
+        
+        # Blank row before date line
+        current_row += 1
+        
+        # Date line for left side (bottom border only in column A)
+        cell = ws.cell(row=current_row, column=1)
+        cell.border = Border(bottom=Side(style='thin', color='000000'))
+        cell.alignment = center_alignment
+        current_row += 1
+        
+        # Add spacing before next category (7 blank rows)
+        if idx < len(properties_by_category) - 1:
+            current_row += 7
+    
+    # Create response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename=Inventory_Count_Over50k_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    
+    wb.save(response)
+    return response
+
 
 @login_required
 def get_supply_by_barcode(request, barcode):
+    import logging
+    import re
+    logger = logging.getLogger(__name__)
+
+    # Preserve original for logging, then normalize scanned barcode
+    original_barcode = barcode
+    # Replace non-breaking spaces and collapse whitespace, then strip
+    barcode = (barcode or '').replace('\u00A0', ' ')
+    barcode = re.sub(r"\s+", ' ', barcode).strip()
+
+    logger.info(f"Barcode lookup - Original: {repr(original_barcode)} | Normalized: {repr(barcode)} | Length: {len(barcode)}")
+    logger.info(f"Barcode bytes: {original_barcode.encode('utf-8')}")
+
+    supply = None
+
+    # 1) Try exact (case-sensitive) then case-insensitive exact
     try:
-        # Try to find the supply by the exact barcode first
         supply = Supply.objects.get(barcode=barcode)
+        logger.info(f"Found supply by exact barcode match: {supply.id}, archived: {supply.is_archived}")
     except Supply.DoesNotExist:
         try:
-            # If not found, try to find by ID (extract ID from SUP-{id} format)
-            if barcode.startswith('SUP-'):
-                supply_id = barcode.split('-')[1]
-                supply = Supply.objects.get(id=supply_id)
-            else:
-                raise Supply.DoesNotExist
-        except (Supply.DoesNotExist, IndexError):
-            return JsonResponse({
-                'success': False,
-                'error': 'Supply not found'
-            })
+            supply = Supply.objects.get(barcode__iexact=barcode)
+            logger.info(f"Found supply by case-insensitive barcode match: {supply.id}, archived: {supply.is_archived}")
+        except Supply.DoesNotExist:
+            logger.info(f"No direct barcode match for '{barcode}', attempting ID and fuzzy searches")
+
+    # 2) If still not found, try extracting numeric ID from SUP-{id}
+    if not supply and barcode.upper().startswith('SUP-'):
+        try:
+            supply_id = int(barcode.split('-')[1])
+            logger.info(f"Attempting lookup by extracted ID: {supply_id}")
+            supply = Supply.objects.get(id=supply_id)
+            logger.info(f"Found supply by ID: {supply.id}, archived: {supply.is_archived}")
+        except (IndexError, ValueError, Supply.DoesNotExist) as e:
+            logger.debug(f"Lookup by extracted ID failed: {e}")
+
+    # 3) Fallback: scan for exact barcode match (case-insensitive, trimmed) or barcode image filename
+    # REMOVED partial "contains" matching to avoid matching wrong items on partial scans
+    if not supply and len(barcode) >= 5:  # Only run fallback if barcode is reasonable length
+        logger.info("Running fallback search for exact/filename matches")
+        candidates = Supply.objects.filter(is_archived=False)[:500]  # Only non-archived
+        scanned_lower = barcode.lower()
+        for cand in candidates:
+            try:
+                # Exact match (case-insensitive, trimmed)
+                cand_barcode = (cand.barcode or '').strip().lower()
+                if cand_barcode and cand_barcode == scanned_lower:
+                    supply = cand
+                    logger.info(f"Matched by exact candidate barcode: {supply.id}")
+                    break
+
+                # If barcode image present, compare filename (SUP-26.png etc.)
+                if cand.barcode_image:
+                    img_name = cand.barcode_image.name.split('/')[-1].split('\\')[-1].split('.')[0]
+                    if img_name and img_name.strip().lower() == scanned_lower:
+                        supply = cand
+                        logger.info(f"Matched by barcode image filename: {supply.id}")
+                        break
+            except Exception:
+                continue
+
+    # If still not found, return not found with log samples
+    if not supply:
+        logger.error(f"Supply not found for barcode after all attempts: {repr(barcode)}")
+        try:
+            sample = list(Supply.objects.filter(barcode__icontains='SUP').values_list('id', 'barcode')[:10])
+            logger.info(f"Sample supplies: {sample}")
+        except Exception:
+            logger.exception('Error fetching sample supplies')
+        return JsonResponse({
+            'success': False,
+            'error': f'Supply not found for barcode: {barcode}'
+        })
+
+    # Check if supply is archived
+    if supply.is_archived:
+        logger.info(f"Supply {supply.id} is archived; rejecting barcode use")
+        return JsonResponse({
+            'success': False,
+            'error': f'Supply "{supply.supply_name}" is archived and cannot be used'
+        })
     
     return JsonResponse({
         'success': True,
@@ -2849,6 +4839,41 @@ def get_supply_by_barcode(request, barcode):
             'description': supply.description or ''
         }
     })
+
+@login_required
+def get_all_supply_barcodes(request):
+    """
+    Returns all supply barcodes as JSON for the barcode selection modal
+    """
+    try:
+        # Get all non-archived supplies
+        supplies = Supply.objects.filter(is_archived=False).order_by('supply_name')
+        
+        barcodes_data = []
+        for supply in supplies:
+            # Get barcode URL - prefer barcode_image if available
+            barcode_url = supply.barcode_image.url if supply.barcode_image else supply.barcode
+            
+            # Get category name
+            category_name = supply.category.name if supply.category else 'N/A'
+            
+            barcodes_data.append({
+                'id': supply.id,
+                'supply_name': supply.supply_name,
+                'category': category_name,
+                'barcode': barcode_url
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'count': len(barcodes_data),
+            'barcodes': barcodes_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 @permission_required('app.view_admin_module')
 @require_POST
@@ -2906,6 +4931,18 @@ def modify_property_quantity_generic(request):
 
 @login_required
 def get_property_by_barcode(request, barcode):
+    # Strip whitespace from scanned barcode (handles padded barcodes)
+    barcode = barcode.strip()
+    
+    # Check if request is AJAX/JSON
+    if not request.headers.get('Content-Type') == 'application/json' and not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # For non-AJAX requests, handle authentication differently
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                'success': False,
+                'error': 'Authentication required'
+            }, status=401)
+    
     try:
         # Try to find the property by the exact barcode first
         property = Property.objects.get(barcode=barcode)
@@ -2921,20 +4958,138 @@ def get_property_by_barcode(request, barcode):
                     property = Property.objects.get(id=property_id)
                 else:
                     raise Property.DoesNotExist
-            except (Property.DoesNotExist, IndexError):
+            except (Property.DoesNotExist, IndexError, ValueError):
                 return JsonResponse({
                     'success': False,
                     'error': 'Property not found'
                 })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Database error: {str(e)}'
+        })
     
     return JsonResponse({
         'success': True,
         'property': {
             'id': property.id,
-            'name': property.property_name,
-            'current_quantity': property.quantity
+            'property_name': property.property_name,
+            'property_number': property.property_number,
+            'quantity': property.quantity
         }
     })
+
+@login_required
+def modify_property_quantity_batch(request):
+    """
+    Handle batch property quantity modifications from barcode scanning
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+    
+    try:
+        import json
+        data = json.loads(request.body)
+        items = data.get('items', [])
+        
+        if not items:
+            return JsonResponse({'success': False, 'error': 'No items provided'})
+        
+        updated_count = 0
+        errors = []
+        
+        for item_data in items:
+            try:
+                property_id = item_data.get('property_id')
+                quantity_to_add = int(item_data.get('quantity_to_add', 0))
+                
+                if quantity_to_add <= 0:
+                    continue
+                    
+                prop = get_object_or_404(Property, pk=property_id)
+                old_quantity = prop.quantity
+                
+                # Add the quantity
+                prop.quantity += quantity_to_add
+                prop.overall_quantity += quantity_to_add
+                prop.save()
+                
+                # Create history record
+                PropertyHistory.objects.create(
+                    property=prop,
+                    user=request.user,
+                    action='quantity_update',
+                    field_name='quantity',
+                    old_value=str(old_quantity),
+                    new_value=str(prop.quantity),
+                    remarks=f"Batch add: {quantity_to_add} units"
+                )
+                
+                # Add activity log
+                ActivityLog.log_activity(
+                    user=request.user,
+                    action='quantity_update',
+                    model_name='Property',
+                    object_repr=str(prop),
+                    description=f"Batch added {quantity_to_add} units to property '{prop.property_name}'. Changed quantity from {old_quantity} to {prop.quantity}"
+                )
+                
+                updated_count += 1
+                
+            except Exception as e:
+                errors.append(f"Error updating property {property_id}: {str(e)}")
+                continue
+        
+        if updated_count > 0:
+            return JsonResponse({
+                'success': True,
+                'updated_count': updated_count,
+                'message': f'Successfully updated {updated_count} properties',
+                'errors': errors if errors else None
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'No properties were updated',
+                'errors': errors
+            })
+            
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+def get_all_property_barcodes(request):
+    """
+    Returns all property barcodes as JSON for the barcode selection modal
+    """
+    try:
+        # Get all non-archived properties
+        properties = Property.objects.filter(is_archived=False).order_by('property_name')
+        
+        barcodes_data = []
+        for prop in properties:
+            # Get barcode URL - prefer barcode_image if available
+            barcode_url = prop.barcode_image.url if prop.barcode_image else prop.barcode
+            
+            barcodes_data.append({
+                'id': prop.id,
+                'property_name': prop.property_name,
+                'property_number': prop.property_number or 'Not assigned',
+                'barcode': barcode_url
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'count': len(barcodes_data),
+            'barcodes': barcodes_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 @permission_required('app.view_admin_module')
 @login_required
@@ -3030,9 +5185,8 @@ class ArchivedItemsView(PermissionRequiredMixin, TemplateView):
             'category', 'subcategory', 'quantity_info'
         ).order_by('supply_name')
         
-        # Generate barcodes for supplies
-        for supply in supplies:
-            supply.barcode = generate_barcode(f"SUP-{supply.id}")
+        # Barcodes are already stored in database, no need to generate
+        # They will be displayed using barcode_image field
         
         # Group supplies by category
         supplies_by_category = defaultdict(list)
@@ -3043,10 +5197,8 @@ class ArchivedItemsView(PermissionRequiredMixin, TemplateView):
         # Get archived properties
         properties = Property.objects.filter(is_archived=True).select_related('category').order_by('property_name')
         
-        # Generate barcodes for properties
-        for prop in properties:
-            barcode_number = prop.property_number if prop.property_number else f"PROP-{prop.id}"
-            prop.barcode = generate_barcode(barcode_number)
+        # Barcodes are already stored in database, no need to generate
+        # They will be displayed using barcode_image field
         
         # Group properties by category
         properties_by_category = defaultdict(list)
@@ -3226,6 +5378,23 @@ def approve_batch_item(request, batch_id, item_id):
     except (ValueError, TypeError):
         approved_quantity = item.quantity
     
+    # CHECK AVAILABLE STOCK BEFORE APPROVING
+    quantity_info = item.supply.quantity_info
+    available_qty = quantity_info.available_quantity
+    
+    if approved_quantity > available_qty:
+        error_msg = f'Cannot approve {approved_quantity} units of {item.supply.supply_name}. Only {available_qty} units available (Current: {quantity_info.current_quantity}, Reserved: {quantity_info.reserved_quantity}).'
+        
+        # Check if this is an AJAX request
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': error_msg
+            })
+        else:
+            messages.error(request, error_msg)
+            return redirect('batch_request_detail', batch_id=batch_id)
+    
     # Mark item as approved
     item.approved = True
     item.status = 'approved'  # Also update the status field
@@ -3234,6 +5403,10 @@ def approve_batch_item(request, batch_id, item_id):
     if remarks:
         item.remarks = remarks
     item.save()
+    
+    # Reserve the approved quantity to prevent overbooking
+    quantity_info.reserved_quantity += approved_quantity
+    quantity_info.save(user=request.user)
     
     # Check if all items in the batch are processed
     total_items = batch_request.items.count()
@@ -3293,6 +5466,12 @@ def reject_batch_item(request, batch_id, item_id):
     """Reject an individual item in a batch request"""
     batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
     item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
+    
+    # If the item was previously approved, release the reserved quantity
+    if item.status == 'approved' and item.approved_quantity:
+        quantity_info = item.supply.quantity_info
+        quantity_info.reserved_quantity = max(0, quantity_info.reserved_quantity - item.approved_quantity)
+        quantity_info.save(user=request.user)
     
     # Mark item as not approved and add remarks
     item.approved = False
@@ -3368,21 +5547,49 @@ def batch_request_detail(request, batch_id):
             item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
             
             if action == 'approve':
+                # Get approved quantity from form (defaults to requested quantity)
+                approved_quantity = request.POST.get('approved_quantity', item.quantity)
+                try:
+                    approved_quantity = int(approved_quantity)
+                    if approved_quantity <= 0 or approved_quantity > item.quantity:
+                        approved_quantity = item.quantity
+                except (ValueError, TypeError):
+                    approved_quantity = item.quantity
+                
+                # CHECK AVAILABLE STOCK BEFORE APPROVING
+                quantity_info = item.supply.quantity_info
+                available_qty = quantity_info.available_quantity
+                
+                if approved_quantity > available_qty:
+                    messages.error(request, f'Cannot approve {approved_quantity} units of {item.supply.supply_name}. Only {available_qty} units available (Current: {quantity_info.current_quantity}, Reserved: {quantity_info.reserved_quantity}).')
+                    return redirect('batch_request_detail', batch_id=batch_id)
+                
                 item.status = 'approved'
+                item.approved_quantity = approved_quantity
                 if remarks:
                     item.remarks = remarks
                 item.save()
                 
+                # Reserve the approved quantity to prevent overbooking
+                quantity_info.reserved_quantity += approved_quantity
+                quantity_info.save(user=request.user)
+                
                 # Create notification
                 Notification.objects.create(
                     user=batch_request.user,
-                    message=f"Item '{item.supply.supply_name}' in your batch request #{batch_request.id} has been approved.",
+                    message=f"Item '{item.supply.supply_name}' in your batch request #{batch_request.id} has been approved for {approved_quantity} units.",
                     remarks=remarks
                 )
                 
                 messages.success(request, f'Item "{item.supply.supply_name}" approved successfully.')
                 
             elif action == 'reject':
+                # If the item was previously approved, release the reserved quantity
+                if item.status == 'approved' and item.approved_quantity:
+                    quantity_info = item.supply.quantity_info
+                    quantity_info.reserved_quantity = max(0, quantity_info.reserved_quantity - item.approved_quantity)
+                    quantity_info.save(user=request.user)
+                
                 item.status = 'rejected'
                 if remarks:
                     item.remarks = remarks
@@ -3493,9 +5700,27 @@ def claim_batch_items(request, batch_id):
         
         # Deduct from stock
         if hasattr(item.supply, 'quantity_info') and item.supply.quantity_info:
-            current_qty = item.supply.quantity_info.current_quantity or 0
-            item.supply.quantity_info.current_quantity = max(0, current_qty - approved_qty)
-            item.supply.quantity_info.save()
+            old_qty = item.supply.quantity_info.current_quantity or 0
+            new_qty = max(0, old_qty - approved_qty)
+            item.supply.quantity_info.current_quantity = new_qty
+            
+            # Also release the reserved quantity
+            item.supply.quantity_info.reserved_quantity = max(0, item.supply.quantity_info.reserved_quantity - approved_qty)
+            
+            # Create SupplyHistory entry for quantity deduction
+            requester_name = batch_request.user.get_full_name() if batch_request.user.get_full_name() else batch_request.user.username
+            SupplyHistory.objects.create(
+                supply=item.supply,
+                user=request.user,  # The admin/staff who processed the claim
+                action='quantity_update',
+                field_name='current_quantity',
+                old_value=str(old_qty),
+                new_value=str(new_qty),
+                remarks=f"Supply request by {requester_name} (Batch #{batch_id})"
+            )
+            
+            # Save with skip_history to avoid duplicate entry
+            item.supply.quantity_info.save(skip_history=True)
         
         # Update the approved_quantity if it was None
         if item.approved_quantity is None:
@@ -3573,9 +5798,27 @@ def claim_individual_item(request, batch_id, item_id):
     
     # Deduct from stock
     if hasattr(item.supply, 'quantity_info') and item.supply.quantity_info:
-        current_qty = item.supply.quantity_info.current_quantity or 0
-        item.supply.quantity_info.current_quantity = max(0, current_qty - approved_qty)
-        item.supply.quantity_info.save()
+        old_qty = item.supply.quantity_info.current_quantity or 0
+        new_qty = max(0, old_qty - approved_qty)
+        item.supply.quantity_info.current_quantity = new_qty
+        
+        # Also release the reserved quantity
+        item.supply.quantity_info.reserved_quantity = max(0, item.supply.quantity_info.reserved_quantity - approved_qty)
+        
+        # Create SupplyHistory entry for quantity deduction
+        requester_name = batch_request.user.get_full_name() if batch_request.user.get_full_name() else batch_request.user.username
+        SupplyHistory.objects.create(
+            supply=item.supply,
+            user=request.user,  # The admin/staff who processed the claim
+            action='quantity_update',
+            field_name='current_quantity',
+            old_value=str(old_qty),
+            new_value=str(new_qty),
+            remarks=f"Supply request by {requester_name} (Batch #{batch_id})"
+        )
+        
+        # Save with skip_history to avoid duplicate entry
+        item.supply.quantity_info.save(skip_history=True)
     
     # Update the approved_quantity if it was None
     if item.approved_quantity is None:
@@ -4024,9 +6267,10 @@ def approve_borrow_item(request, batch_id, item_id):
         approved_quantity = item.quantity
     
     # Check if enough property units are available
-    available_quantity = item.property.quantity or 0
+    # Use available_quantity which accounts for already reserved/approved items
+    available_quantity = item.property.available_quantity
     if approved_quantity > available_quantity:
-        messages.error(request, f'Only {available_quantity} units of {item.property.property_name} are available.')
+        messages.error(request, f'Only {available_quantity} units of {item.property.property_name} are available (including approved reservations and borrows).')
         return redirect('borrow_batch_request_detail', batch_id=batch_id)
     
     # Mark item as approved
@@ -4295,25 +6539,10 @@ class AdminProfileView(PermissionRequiredMixin, View):
             request.user.last_name = form.cleaned_data['last_name']
             request.user.email = form.cleaned_data['email']
             
-            # Update phone in user profile
+            # Update phone and designation in user profile
             user_profile.phone = form.cleaned_data['phone']
+            user_profile.designation = form.cleaned_data['designation']
             user_profile.save()
-            
-            # Handle password change if provided
-            if form.cleaned_data.get('new_password'):
-                request.user.set_password(form.cleaned_data['new_password'])
-                # Update session auth hash to prevent logout
-                from django.contrib.auth import update_session_auth_hash
-                update_session_auth_hash(request, request.user)
-                
-                # Log password change activity
-                ActivityLog.log_activity(
-                    user=request.user,
-                    action='change_password',
-                    model_name='User',
-                    object_repr=request.user.username,
-                    description="Admin changed their password"
-                )
             
             request.user.save()
             
@@ -4509,3 +6738,165 @@ def view_requisition_slip(request, batch_id):
     except Exception as e:
         messages.error(request, f'Error generating requisition slip: {str(e)}')
         return redirect('batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_supply_requests', batch_id=batch_id)
+
+
+# Barcode Inventory Management Views
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class ManagePropertyInventoryView(PermissionRequiredMixin, TemplateView):
+    template_name = 'app/manage_property_inventory.html'
+    permission_required = 'app.view_admin_module'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+class ManageSupplyInventoryView(PermissionRequiredMixin, TemplateView):
+    template_name = 'app/manage_supply_inventory.html'
+    permission_required = 'app.view_admin_module'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+# View to serve damage report images from database
+from django.http import HttpResponse
+
+def damage_report_image(request, report_id):
+    """
+    Serve damage report image stored as binary data in PostgreSQL.
+    Returns the image as HTTP response with proper MIME type.
+    """
+    report = get_object_or_404(DamageReport, pk=report_id)
+    
+    # Check if report has image and it hasn't been deleted
+    if report.image_data and not report.deleted_at:
+        response = HttpResponse(report.image_data, content_type=report.image_type)
+        response['Content-Disposition'] = f'inline; filename="{report.image_name or f"damage_report_{report_id}.jpg"}"'
+        return response
+    else:
+        # Return 404 if no image or image was deleted
+        from django.http import Http404
+        raise Http404("Image not found or has been deleted")
+
+
+@login_required
+@user_passes_test(lambda u: u.userprofile.role == 'ADMIN', login_url='user_dashboard')
+@require_http_methods(["POST"])
+def delete_damage_report_image(request, report_id):
+    """
+    Delete a damage report image (admin only).
+    Marks the image as deleted with audit trail.
+    """
+    from django.utils import timezone
+    from django.contrib import messages
+    from django.http import JsonResponse
+    
+    report = get_object_or_404(DamageReport, pk=report_id)
+    
+    # Check if report has an image to delete
+    if not report.has_image:
+        return JsonResponse({
+            'success': False,
+            'message': 'No image to delete or image already deleted.'
+        }, status=400)
+    
+    # Soft delete: Mark as deleted but keep the data for audit
+    report.deleted_at = timezone.now()
+    report.deleted_by = request.user
+    report.save()
+    
+    # Log activity
+    ActivityLog.log_activity(
+        user=request.user,
+        action='delete',
+        model_name='DamageReport Image',
+        object_repr=f"Report #{report.id} - {report.item.property_name}",
+        description=f"Deleted image '{report.image_name}' from damage report #{report.id}"
+    )
+    
+    # Notify the user who submitted the report
+    Notification.objects.create(
+        user=report.user,
+        message=f"The image attached to your damage report #{report.id} for {report.item.property_name} has been removed by an administrator.",
+        remarks=f"Image removed by {request.user.username} on {timezone.now().strftime('%Y-%m-%d %H:%M')}"
+    )
+    
+    return JsonResponse({
+        'success': True,
+        'message': f'Image deleted successfully. Report #{report.id} remains in the system.'
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.userprofile.role == 'ADMIN', login_url='user_dashboard')
+@require_http_methods(["POST"])
+def bulk_delete_damage_report_images(request):
+    """
+    Bulk delete damage report images (admin only).
+    Accepts a list of report IDs via POST.
+    """
+    from django.utils import timezone
+    from django.http import JsonResponse
+    import json
+    
+    try:
+        data = json.loads(request.body)
+        report_ids = data.get('report_ids', [])
+        
+        if not report_ids:
+            return JsonResponse({
+                'success': False,
+                'message': 'No reports selected.'
+            }, status=400)
+        
+        # Get reports that have images
+        reports = DamageReport.objects.filter(
+            id__in=report_ids,
+            image_data__isnull=False,
+            deleted_at__isnull=True
+        )
+        
+        deleted_count = 0
+        for report in reports:
+            report.deleted_at = timezone.now()
+            report.deleted_by = request.user
+            report.save()
+            
+            # Log activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='delete',
+                model_name='DamageReport Image',
+                object_repr=f"Report #{report.id} - {report.item.property_name}",
+                description=f"Bulk deleted image '{report.image_name}' from damage report #{report.id}"
+            )
+            
+            # Notify the user
+            Notification.objects.create(
+                user=report.user,
+                message=f"The image attached to your damage report #{report.id} for {report.item.property_name} has been removed by an administrator.",
+                remarks=f"Bulk deletion by {request.user.username} on {timezone.now().strftime('%Y-%m-%d %H:%M')}"
+            )
+            
+            deleted_count += 1
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'{deleted_count} image(s) deleted successfully.',
+            'deleted_count': deleted_count
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid request data.'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        }, status=500)
+

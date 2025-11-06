@@ -18,7 +18,18 @@ SECRET_KEY = 'django-insecure-#4^q#*41gu^s0-yr^tqy(c*z$*br@h-+d$w9*ojsej)k=2l^vx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.ngrok-free.app',
+    'https://*.ngrok-free.dev',
+]
+
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '.ngrok-free.app',
+    '.ngrok-free.dev',
+]
+
 LOGIN_REDIRECT_URL = '//' 
 LOGOUT_REDIRECT_URL = '/'
 
@@ -30,15 +41,15 @@ SESSION_COOKIE_AGE = 3600
 # Application definition
 
 INSTALLED_APPS = [
+    'app.apps.AppConfig',  # Load app templates first to override admin templates
+    'accounts',
+    'userpanel',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app.apps.AppConfig',
-    'accounts',
-    'userpanel',
 ]
 
 MIDDLEWARE = [
@@ -79,10 +90,21 @@ WSGI_APPLICATION = 'ResourceHive.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.getenv('DB_NAME', 'resourcehivedb'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
+
+# Old SQLite configuration (backup)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+# }
 
 
 # Password validation
@@ -109,7 +131,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Manila'
 
 USE_I18N = True
 
@@ -132,12 +154,19 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# For development: use console backend (prints emails to console)
+# For production: switch to SMTP backend
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Development
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Production
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER', 'noreply@resourcehive.com')
+
+# Password Reset Settings
+PASSWORD_RESET_TIMEOUT = 3600  # Token valid for 1 hour (in seconds)
 
 # Logging Configuration
 LOGGING = {
