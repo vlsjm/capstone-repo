@@ -1,0 +1,134 @@
+/* General styles for both login and register pages */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f7fc;
+}
+
+
+
+/* Container for both login and register forms */
+.auth-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.auth-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.body-login .auth-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+.body-register .auth-container form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* Two columns for register form */
+  gap: 20px;
+  grid-auto-rows: minmax(40px, auto);
+}
+
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+/* Required field asterisk styling */
+.required-asterisk {
+  color: #dc3545;
+  font-weight: bold;
+  margin-left: 3px;
+  font-size: 1em;
+}
+
+.form-group input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+
+.errorlist {
+  margin-top: 5px;
+  color: red;
+  font-size: 12px;
+}
+
+.errorlist li {
+  list-style-type: none;
+}
+
+.errorlist li::before {
+  content: "⚠️ ";
+}
+
+button {
+  padding: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.register-btn,
+.login-btn {
+  grid-column: span 2;
+  background-color: #152d64;
+  color: white;
+}
+
+.register-btn:hover,
+.login-btn:hover {
+  background-color: #152d64;
+}
+
+.clear-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.clear-btn:hover {
+  background-color: #e53935;
+}
+
+
+p {
+  text-align: center;
+}
+
+a {
+  color: #152d64;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .body-register .auth-container form {
+    grid-template-columns: 1fr;
+  }
+
+  .register-btn {
+    grid-column: span 1;
+  }
+}
