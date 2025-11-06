@@ -1362,7 +1362,7 @@
               // Handle reservations
               const idMatch = message.match(/#(\d+)/i);
               if (idMatch) {
-                window.location.href = `/reservation/${idMatch[1]}/`;
+                window.location.href = `/reservation-batch/${idMatch[1]}/`;
               } else {
                 window.location.href = '/my-reservations/';
               }
@@ -1549,7 +1549,7 @@
           
           if (idMatch) {
             requestId = idMatch[1];
-            redirectUrl = `/reservation/${requestId}/`;
+            redirectUrl = `/reservation-batch/${requestId}/`;
             console.log('Found reservation ID from message:', requestId);
             markReadAndRedirect(notificationId, redirectUrl);
           } else {
@@ -1571,7 +1571,7 @@
               .then(data => {
                 if (data.reservation_id) {
                   console.log('Found reservation ID:', data.reservation_id);
-                  markReadAndRedirect(notificationId, `/reservation/${data.reservation_id}/`);
+                  markReadAndRedirect(notificationId, `/reservation-batch/${data.reservation_id}/`);
                 } else {
                   console.log('No reservation found, redirecting to reservations list');
                   markReadAndRedirect(notificationId, '/my-reservations/');

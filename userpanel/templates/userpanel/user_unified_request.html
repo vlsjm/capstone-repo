@@ -78,6 +78,7 @@
 /* Enhanced Search Styles */
 .search-input-wrapper {
     position: relative;
+    margin-top: 5px;
 }
 
 .search-icon {
@@ -248,11 +249,31 @@
     }
 }
 
-/* Fix for Recent Requests Scrolling */
+/* Fix for Recent Requests Scrolling - Updated for sticky header */
 .recent-requests {
     max-height: calc(100vh - 120px);
+    overflow: visible; /* Changed from overflow-y: auto to allow sticky header */
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.recent-requests h2 {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+    margin: 0 0 1rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    flex-shrink: 0;
+}
+
+#recent-requests-container {
+    flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    padding-right: 8px;
 }
 
 .requests-list {
@@ -260,22 +281,22 @@
     overflow: visible;
 }
 
-/* Scrollbar styling for recent requests */
-.recent-requests::-webkit-scrollbar {
+/* Scrollbar styling for recent requests container */
+#recent-requests-container::-webkit-scrollbar {
     width: 8px;
 }
 
-.recent-requests::-webkit-scrollbar-track {
+#recent-requests-container::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 4px;
 }
 
-.recent-requests::-webkit-scrollbar-thumb {
+#recent-requests-container::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 4px;
 }
 
-.recent-requests::-webkit-scrollbar-thumb:hover {
+#recent-requests-container::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
 

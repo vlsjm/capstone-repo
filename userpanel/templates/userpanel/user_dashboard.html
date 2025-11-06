@@ -5,8 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Dashboard</title>
-    <link rel="stylesheet" href="{% static 'css/userStyle.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/mobile.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/userStyle.css' %}?v=2024110701" />
+    <link rel="stylesheet" href="{% static 'css/mobile.css' %}?v=2024110701" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
@@ -589,7 +589,13 @@
           localStorage.setItem('activeRequestTab', 'borrow');
           redirectUrl = '/userpanel/user_unified_request/';
         } else if (message.toLowerCase().includes('reservation')) {
-          redirectUrl = '/userpanel/user_reserve/';
+          // Extract reservation ID from the message
+          const idMatch = message.match(/#(\d+)/i);
+          if (idMatch) {
+            redirectUrl = `/userpanel/request-detail/reservation/${idMatch[1]}/`;
+          } else {
+            redirectUrl = '/userpanel/user_reserve/';
+          }
         } else if (message.toLowerCase().includes('damage report')) {
           redirectUrl = '/userpanel/user_report/';
         }

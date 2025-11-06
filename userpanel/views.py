@@ -419,7 +419,42 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
         damage_page = self.request.GET.get('damage_page', 1)
 
         # Querysets ordered by date descending
-        request_history_qs = SupplyRequest.objects.filter(user=user).order_by('-request_date')
+        # Combine old SupplyRequest and new SupplyRequestBatch systems
+        legacy_supply_requests = SupplyRequest.objects.filter(user=user).select_related('supply')
+        batch_supply_requests = SupplyRequestBatch.objects.filter(user=user)
+        
+        # Create a combined list for supply requests with unified structure
+        combined_supply_requests = []
+        
+        # Add legacy supply requests
+        for req in legacy_supply_requests:
+            combined_supply_requests.append({
+                'supply': req.supply,
+                'quantity': req.quantity,
+                'status': req.status,
+                'request_date': req.request_date,
+                'purpose': req.purpose,
+                'sort_date': req.request_date,
+                'type': 'legacy'
+            })
+        
+        # Add batch supply requests
+        for batch in batch_supply_requests:
+            first_item = batch.items.first()
+            combined_supply_requests.append({
+                'supply': first_item.supply if first_item else None,
+                'quantity': batch.total_quantity,
+                'status': batch.status,
+                'request_date': batch.request_date,
+                'purpose': batch.purpose,
+                'sort_date': batch.request_date,
+                'type': 'batch',
+                'batch_obj': batch
+            })
+        
+        # Sort combined list by date descending
+        combined_supply_requests.sort(key=lambda x: x['sort_date'], reverse=True)
+        request_history_qs = combined_supply_requests
         
         # Combine old BorrowRequest and new BorrowRequestBatch systems
         # Get old borrow requests
@@ -464,7 +499,47 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
         # Convert to queryset-like list for pagination
         borrow_history_qs = combined_borrows
         
-        reservation_history_qs = Reservation.objects.filter(user=user).order_by('-reservation_date')
+        # Combine old Reservation and new ReservationBatch systems
+        legacy_reservations = Reservation.objects.filter(user=user).select_related('item')
+        batch_reservations = ReservationBatch.objects.filter(user=user)
+        
+        # Create a combined list for reservations with unified structure
+        combined_reservations = []
+        
+        # Add legacy reservations
+        for res in legacy_reservations:
+            combined_reservations.append({
+                'item': res.item,
+                'quantity': res.quantity,
+                'status': res.status,
+                'needed_date': res.needed_date,
+                'return_date': res.return_date,
+                'purpose': res.purpose,
+                'reservation_date': res.reservation_date,
+                'sort_date': res.reservation_date,
+                'type': 'legacy'
+            })
+        
+        # Add batch reservations
+        for batch in batch_reservations:
+            first_item = batch.items.first()
+            combined_reservations.append({
+                'item': first_item.property if first_item else None,
+                'quantity': batch.total_quantity,
+                'status': batch.status,
+                'needed_date': batch.earliest_needed_date,
+                'return_date': batch.latest_return_date,
+                'purpose': batch.purpose,
+                'reservation_date': batch.request_date,
+                'sort_date': batch.request_date,
+                'type': 'batch',
+                'batch_obj': batch
+            })
+        
+        # Sort combined list by date descending
+        combined_reservations.sort(key=lambda x: x['sort_date'], reverse=True)
+        reservation_history_qs = combined_reservations
+        
         damage_history_qs = DamageReport.objects.filter(user=user).order_by('-report_date')
 
         # Paginators
@@ -481,13 +556,33 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
 
         # Convert page object items to dicts
         def request_to_dict(req):
-            return {
-                'item': req.supply.supply_name,
-                'quantity': req.quantity,
-                'status': req.status,
-                'date': req.request_date,
-                'purpose': req.purpose,
-            }
+            # Handle both legacy SupplyRequest and batch format
+            if isinstance(req, dict):
+                if req['type'] == 'legacy':
+                    return {
+                        'item': req['supply'].supply_name,
+                        'quantity': req['quantity'],
+                        'status': req['status'],
+                        'date': req['request_date'],
+                        'purpose': req['purpose'],
+                    }
+                else:  # batch
+                    return {
+                        'item': req['supply'].supply_name if req['supply'] else 'Batch Request',
+                        'quantity': req['quantity'],
+                        'status': req['status'],
+                        'date': req['request_date'],
+                        'purpose': req['purpose'],
+                    }
+            else:
+                # Fallback for legacy SupplyRequest object
+                return {
+                    'item': req.supply.supply_name,
+                    'quantity': req.quantity,
+                    'status': req.status,
+                    'date': req.request_date,
+                    'purpose': req.purpose,
+                }
 
         def borrow_to_dict(borrow):
             # Handle both old BorrowRequest objects and new combined dict format
@@ -510,14 +605,36 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
                 }
 
         def reservation_to_dict(res):
-            return {
-                'item': res.item.property_name,
-                'quantity': res.quantity,
-                'status': res.status,
-                'needed_date': res.needed_date,
-                'return_date': res.return_date,
-                'purpose': res.purpose,
-            }
+            # Handle both legacy Reservation and batch format
+            if isinstance(res, dict):
+                if res['type'] == 'legacy':
+                    return {
+                        'item': res['item'].property_name,
+                        'quantity': res['quantity'],
+                        'status': res['status'],
+                        'needed_date': res['needed_date'],
+                        'return_date': res['return_date'],
+                        'purpose': res['purpose'],
+                    }
+                else:  # batch
+                    return {
+                        'item': res['item'].property_name if res['item'] else 'Batch Reservation',
+                        'quantity': res['quantity'],
+                        'status': res['status'],
+                        'needed_date': res['needed_date'],
+                        'return_date': res['return_date'],
+                        'purpose': res['purpose'],
+                    }
+            else:
+                # Fallback for legacy Reservation object
+                return {
+                    'item': res.item.property_name,
+                    'quantity': res.quantity,
+                    'status': res.status,
+                    'needed_date': res.needed_date,
+                    'return_date': res.return_date,
+                    'purpose': res.purpose,
+                }
 
         def damage_to_dict(report):
             return {
@@ -528,21 +645,36 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
             }
 
         # Calculate stats counts
-        request_count = request_history_qs.count()
+        request_count = len(combined_supply_requests)  # Now it's a list, not a queryset
         borrow_count = len(borrow_history_qs)  # Now it's a list, not a queryset
-        reservation_count = reservation_history_qs.count()
+        reservation_count = len(combined_reservations)  # Now it's a list, not a queryset
         damage_count = damage_history_qs.count()
 
         # Get recent activity (last 5 activities from all types)
         recent_activity = []
         
-        # Add recent requests
+        # Add recent requests (from combined list)
         for req in request_history_qs[:3]:
-            recent_activity.append({
-                'message': f'Requested {req.supply.supply_name} (x{req.quantity})',
-                'timestamp': req.request_date,
-                'type': 'request'
-            })
+            if isinstance(req, dict):
+                if req['type'] == 'legacy':
+                    recent_activity.append({
+                        'message': f'Requested {req["supply"].supply_name} (x{req["quantity"]})',
+                        'timestamp': req['request_date'],
+                        'type': 'request'
+                    })
+                else:  # batch
+                    recent_activity.append({
+                        'message': f'Submitted supply request batch (x{req["quantity"]} items)',
+                        'timestamp': req['request_date'],
+                        'type': 'request'
+                    })
+            else:
+                # Fallback for legacy request
+                recent_activity.append({
+                    'message': f'Requested {req.supply.supply_name} (x{req.quantity})',
+                    'timestamp': req.request_date,
+                    'type': 'request'
+                })
         
         # Add recent borrows (from combined list)
         for borrow in borrow_history_qs[:3]:
@@ -559,13 +691,28 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
                     'type': 'borrow'
                 })
         
-        # Add recent reservations
+        # Add recent reservations (from combined list)
         for res in reservation_history_qs[:3]:
-            recent_activity.append({
-                'message': f'Reserved {res.item.property_name} (x{res.quantity})',
-                'timestamp': res.reservation_date,
-                'type': 'reservation'
-            })
+            if isinstance(res, dict):
+                if res['type'] == 'legacy':
+                    recent_activity.append({
+                        'message': f'Reserved {res["item"].property_name} (x{res["quantity"]})',
+                        'timestamp': res['reservation_date'],
+                        'type': 'reservation'
+                    })
+                else:  # batch
+                    recent_activity.append({
+                        'message': f'Submitted reservation batch (x{res["quantity"]} items)',
+                        'timestamp': res['reservation_date'],
+                        'type': 'reservation'
+                    })
+            else:
+                # Fallback for legacy reservation
+                recent_activity.append({
+                    'message': f'Reserved {res.item.property_name} (x{res.quantity})',
+                    'timestamp': res.reservation_date,
+                    'type': 'reservation'
+                })
         
         # Sort by timestamp and get the 5 most recent
         recent_activity.sort(key=lambda x: x['timestamp'], reverse=True)
