@@ -250,3 +250,20 @@ if not DEBUG:
     SECURE_CONTENT_SECURITY_POLICY = {
         'default-src': ("'self'",),
     }
+
+# Auto-run migrations on startup (for Railway)
+if os.getenv('RAILWAY_ENVIRONMENT') == 'production':
+    import django
+    from django.core.management import call_command
+    
+    def run_migrations():
+        try:
+            django.setup()
+            call_command('migrate', '--noinput', verbosity=0)
+        except Exception as e:
+            print(f"Migration error: {e}")
+    
+    # Run migrations on first import
+    if not hasattr(django, '_migration_run'):
+        run_migrations()
+        django._migration_run = True
