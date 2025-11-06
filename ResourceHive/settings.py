@@ -260,8 +260,16 @@ if os.getenv('RAILWAY_ENVIRONMENT') == 'production':
         try:
             django.setup()
             call_command('migrate', '--noinput', verbosity=0)
+            
+            # Create default superuser only if RAILWAY_INIT_ADMIN_PASSWORD is set
+            admin_password = os.getenv('RAILWAY_INIT_ADMIN_PASSWORD')
+            if admin_password:
+                from django.contrib.auth.models import User
+                if not User.objects.filter(username='admin').exists():
+                    User.objects.create_superuser('admin', 'admin@resourcehive.com', admin_password)
+                    print("Default superuser created: admin")
         except Exception as e:
-            print(f"Migration error: {e}")
+            print(f"Setup error: {e}")
     
     # Run migrations on first import
     if not hasattr(django, '_migration_run'):
