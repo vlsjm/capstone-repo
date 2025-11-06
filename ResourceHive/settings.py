@@ -34,7 +34,7 @@ ALLOWED_HOSTS = [
 ]
 ALLOWED_HOSTS.extend(os.getenv('ALLOWED_HOSTS', '').split(',')) if os.getenv('ALLOWED_HOSTS') else None
 
-LOGIN_REDIRECT_URL = '//' 
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 LOGIN_URL = '/login_user/'  
