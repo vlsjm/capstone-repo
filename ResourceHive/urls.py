@@ -7,8 +7,8 @@ from django.views.generic import RedirectView
 from django.conf.urls.static import static
 
 urlpatterns = [
-    # Root redirect
-    path('', RedirectView.as_view(url='/dashboard/', permanent=False)),
+    # Root redirect to login
+    path('', RedirectView.as_view(url='/accounts/login/', permanent=False)),
     
     # Authentication URLs (must come before admin to avoid conflicts)
     path('login_user/', LoginView.as_view(template_name='registration/login.html'), name='login_user'),
