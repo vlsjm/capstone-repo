@@ -13,14 +13,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-#4^q#*41gu^s0-yr^tqy(c*z$*br@h-+d$w9*ojsej)k=2l^vx'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-#4^q#*41gu^s0-yr^tqy(c*z$*br@h-+d$w9*ojsej)k=2l^vx')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.ngrok-free.app',
     'https://*.ngrok-free.dev',
+    'https://*.railway.app',
 ]
 
 ALLOWED_HOSTS = [
@@ -28,7 +29,9 @@ ALLOWED_HOSTS = [
     'localhost',
     '.ngrok-free.app',
     '.ngrok-free.dev',
+    '.railway.app',
 ]
+ALLOWED_HOSTS.extend(os.getenv('ALLOWED_HOSTS', '').split(',')) if os.getenv('ALLOWED_HOSTS') else None
 
 LOGIN_REDIRECT_URL = '//' 
 LOGOUT_REDIRECT_URL = '/'
@@ -54,6 +57,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -216,3 +220,16 @@ LOGGING = {
         },
     },
 }
+
+# WhiteNoise Configuration for production static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Security Settings for Production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_SECURITY_POLICY = {
+        'default-src': ("'self'",),
+    }
