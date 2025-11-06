@@ -1,7 +1,12 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-import dj_database_url
+
+try:
+    import dj_database_url
+    HAS_DJ_DATABASE_URL = True
+except ImportError:
+    HAS_DJ_DATABASE_URL = False
 
 # Load environment variables
 load_dotenv()
@@ -34,10 +39,10 @@ ALLOWED_HOSTS = [
 ]
 ALLOWED_HOSTS.extend(os.getenv('ALLOWED_HOSTS', '').split(',')) if os.getenv('ALLOWED_HOSTS') else None
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-LOGIN_URL = '/login_user/'  
+LOGIN_URL = '/accounts/login/'  
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 3600
@@ -94,7 +99,7 @@ WSGI_APPLICATION = 'ResourceHive.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 # Use DATABASE_URL if available (Railway), otherwise use individual variables
-if os.getenv('DATABASE_URL'):
+if os.getenv('DATABASE_URL') and HAS_DJ_DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(
             default=os.getenv('DATABASE_URL'),
@@ -238,10 +243,35 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Security Settings for Production
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
+    # SECURE_SSL_REDIRECT = True  # Temporarily disabled to fix redirect loop on Railway
+    # SESSION_COOKIE_SECURE = True  # Temporarily disabled for testing
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_SECURITY_POLICY = {
         'default-src': ("'self'",),
     }
+
+# Auto-run migrations on startup (for Railway)
+if os.getenv('RAILWAY_ENVIRONMENT') == 'production':
+    import django
+    from django.core.management import call_command
+    
+    def run_migrations():
+        try:
+            django.setup()
+            call_command('migrate', '--noinput', verbosity=0)
+            
+            # Create default superuser only if RAILWAY_INIT_ADMIN_PASSWORD is set
+            admin_password = os.getenv('RAILWAY_INIT_ADMIN_PASSWORD')
+            if admin_password:
+                from django.contrib.auth.models import User
+                if not User.objects.filter(username='admin').exists():
+                    User.objects.create_superuser('admin', 'admin@resourcehive.com', admin_password)
+                    print("Default superuser created: admin")
+        except Exception as e:
+            print(f"Setup error: {e}")
+    
+    # Run migrations on first import
+    if not hasattr(django, '_migration_run'):
+        run_migrations()
+        django._migration_run = True

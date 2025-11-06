@@ -99,7 +99,6 @@ urlpatterns = [
     path('damaged-items/', views.DamagedItemsManagementView.as_view(), name='damaged_items_management'),
     path('update-damage-status/<int:pk>/', views.update_damage_status, name='update_damage_status'),
     path('update-property-condition/<str:property_number>/', views.update_property_condition, name='update_property_condition'),
-    path('', CustomLoginView.as_view(), name='login'),
     path('accounts/login/', CustomLoginView.as_view(), name='login'),
 
     path('logout/', logout_view, name='logout'),
