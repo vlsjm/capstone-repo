@@ -1,7 +1,12 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-import dj_database_url
+
+try:
+    import dj_database_url
+    HAS_DJ_DATABASE_URL = True
+except ImportError:
+    HAS_DJ_DATABASE_URL = False
 
 # Load environment variables
 load_dotenv()
@@ -34,10 +39,10 @@ ALLOWED_HOSTS = [
 ]
 ALLOWED_HOSTS.extend(os.getenv('ALLOWED_HOSTS', '').split(',')) if os.getenv('ALLOWED_HOSTS') else None
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-LOGIN_URL = '/login_user/'  
+LOGIN_URL = '/accounts/login/'  
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 3600
@@ -94,7 +99,7 @@ WSGI_APPLICATION = 'ResourceHive.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 # Use DATABASE_URL if available (Railway), otherwise use individual variables
-if os.getenv('DATABASE_URL'):
+if os.getenv('DATABASE_URL') and HAS_DJ_DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(
             default=os.getenv('DATABASE_URL'),
