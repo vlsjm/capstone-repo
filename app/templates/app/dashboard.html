@@ -632,8 +632,13 @@
 
       .requests-preview h3 {
         margin-bottom: 20px;
-        color: #333;
+        color: #152d64;
         font-size: 1.4em;
+      }
+
+      .requests-preview h3 i {
+        color: #152d64;
+        margin-right: 8px;
       }
 
       .requests-table {
@@ -849,6 +854,57 @@
         margin-top: 0;
         padding: 20px;
       }
+
+      /* Chart Filter Styles */
+      .chart-filter {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .filter-select,
+      .filter-input {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        background-color: #fff;
+        cursor: pointer;
+      }
+
+      .filter-select:hover,
+      .filter-input:hover {
+        border-color: #999;
+      }
+
+      .filter-select:focus,
+      .filter-input:focus {
+        outline: none;
+        border-color: #152d64;
+        box-shadow: 0 0 3px rgba(21, 45, 100, 0.3);
+      }
+
+      .filter-btn {
+        padding: 8px 16px;
+        background-color: #152d64;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+      }
+
+      .filter-btn:hover {
+        background-color: #1a3575;
+      }
+
+      .filter-btn:active {
+        background-color: #0f1f47;
+      }
     </style>
   </head>
   <body>
@@ -953,39 +1009,108 @@
         <div class="div2">
           <div class="dashboard-content">
             <div class="dashboard-summary">
-            <div class="summary-card">
-              <div class="card-icon">📦</div>
-              <div class="card-data">
-                <h3>{{ supply_count }}</h3>
-                <p>Total Supplies</p>
+              <div class="summary-card">
+                <div class="card-header">
+                  <span class="card-title">Total Supplies</span>
+                  <button class="card-menu">⋮</button>
+                </div>
+                <div class="card-body">
+                  <div class="card-main">
+                    <div class="card-amount">{{ supply_count }}</div>
+                    <div class="card-icon-badge">
+                      <i class="fas fa-box"></i>
+                    </div>
+                  </div>
+                  <div class="card-subtitle">
+                    <span class="status-available">Available: {{ supply_available }}</span> | <span class="status-low">Low Stock: {{ supply_low_stock }}</span>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="summary-card">
-              <div class="card-icon">🏢</div>
-              <div class="card-data">
-                <h3>{{ property_count }}</h3>
-                <p>Total Properties</p>
+              <div class="summary-card">
+                <div class="card-header">
+                  <span class="card-title">Total Properties</span>
+                  <button class="card-menu">⋮</button>
+                </div>
+                <div class="card-body">
+                  <div class="card-main">
+                    <div class="card-amount">{{ property_count }}</div>
+                    <div class="card-icon-badge">
+                      <i class="fas fa-building"></i>
+                    </div>
+                  </div>
+                  <div class="card-subtitle">
+                    <span class="status-good">Good Condition: {{ property_in_good_condition }}</span>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="summary-card">
-              <div class="card-icon">⏳</div>
-              <div class="card-data">
-                <h3>{{ pending_requests }}</h3>
-                <p>Pending Requests</p>
+              <div class="summary-card">
+                <div class="card-header">
+                  <span class="card-title">Pending Requests</span>
+                  <div class="card-menu-wrapper">
+                    <button class="card-menu" id="requestsMenuBtn">⋮</button>
+                    <div class="card-menu-dropdown" id="requestsMenuDropdown">
+                      <button class="menu-item" data-type="all" selected>All Requests</button>
+                      <button class="menu-item" data-type="supply">Supply Requests</button>
+                      <button class="menu-item" data-type="borrow">Borrow Requests</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="card-main">
+                    <div class="card-amount" id="requestsCount">{{ pending_requests }}</div>
+                    <div class="card-icon-badge">
+                      <i class="fas fa-clock"></i>
+                    </div>
+                  </div>
+                  <div class="card-change {{ pending_requests_change.direction }}">
+                    <span class="change-arrow">{% if pending_requests_change.direction == 'positive' %}↑{% elif pending_requests_change.direction == 'negative' %}↓{% else %}—{% endif %}</span>
+                    <span class="change-percentage">{{ pending_requests_change.percentage }}%</span>
+                    <span class="change-label">vs Last month</span>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="summary-card">
-              <div class="card-icon">⚠️</div>
-              <div class="card-data">
-                <h3>{{ damage_reports }}</h3>
-                <p>Damage Reports</p>
+              <div class="summary-card">
+                <div class="card-header">
+                  <span class="card-title">Damage Reports</span>
+                  <button class="card-menu">⋮</button>
+                </div>
+                <div class="card-body">
+                  <div class="card-main">
+                    <div class="card-amount">{{ damage_reports }}</div>
+                    <div class="card-icon-badge">
+                      <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                  </div>
+                  <div class="card-subtitle">
+                    Pending Review
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="summary-card">
-              <div class="card-icon">⏰</div>
-              <div class="card-data">
-                <h3>{{ near_expiry_count }}</h3>
-                <p>Near Expiry Items</p>
+              <div class="summary-card">
+                <div class="card-header">
+                  <span class="card-title">Near Expiry Items</span>
+                  <div class="card-menu-wrapper">
+                    <button class="card-menu" id="expiryMenuBtn">⋮</button>
+                    <div class="card-menu-dropdown" id="expiryMenuDropdown">
+                      <button class="menu-item" data-days="7">Next 7 Days</button>
+                      <button class="menu-item" data-days="14">Next 14 Days</button>
+                      <button class="menu-item" data-days="30" selected>Next 30 Days</button>
+                      <button class="menu-item" data-days="60">Next 60 Days</button>
+                      <button class="menu-item" data-days="90">Next 90 Days</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="card-main">
+                    <div class="card-amount" id="expiryCount">{{ near_expiry_count }}</div>
+                    <div class="card-icon-badge">
+                      <i class="fas fa-calendar-alt"></i>
+                    </div>
+                  </div>
+                  <div class="card-subtitle">
+                    Next <span id="expiryDays">30</span> Days
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1080,12 +1205,34 @@
             </div>
 
             <div class="chart-container">
-              <h3>Property Categories</h3>
-              <canvas id="propertyCategoriesChart"></canvas>
+              <h3>Top 10 Most Requested Supplies</h3>
+              <div class="chart-filter">
+                <select id="suppliesDateFilter" class="filter-select">
+                  <option value="">All Time</option>
+                  <option value="30">Last 30 Days</option>
+                  <option value="90">Last 90 Days</option>
+                  <option value="custom">Custom Range</option>
+                </select>
+                <input type="date" id="suppliesDateFrom" class="filter-input" style="display:none;" placeholder="From">
+                <input type="date" id="suppliesDateTo" class="filter-input" style="display:none;" placeholder="To">
+                <button id="suppliesFilterBtn" class="filter-btn" style="display:none;">Apply</button>
+              </div>
+              <canvas id="topRequestedSuppliesChart"></canvas>
             </div>
 
             <div class="chart-container">
               <h3>Requests by Department</h3>
+              <div class="chart-filter">
+                <select id="departmentDateFilter" class="filter-select">
+                  <option value="">All Time</option>
+                  <option value="30">Last 30 Days</option>
+                  <option value="90">Last 90 Days</option>
+                  <option value="custom">Custom Range</option>
+                </select>
+                <input type="date" id="departmentDateFrom" class="filter-input" style="display:none;" placeholder="From">
+                <input type="date" id="departmentDateTo" class="filter-input" style="display:none;" placeholder="To">
+                <button id="departmentFilterBtn" class="filter-btn" style="display:none;">Apply</button>
+              </div>
               <canvas id="departmentRequestsChart"></canvas>
             </div>
 
@@ -1608,6 +1755,90 @@
             window.location.href = redirectUrl;
           });
         }
+      });
+
+      // Near Expiry Items Filter Functionality
+      const expiryMenuBtn = document.getElementById('expiryMenuBtn');
+      const expiryMenuDropdown = document.getElementById('expiryMenuDropdown');
+      const menuItems = expiryMenuDropdown.querySelectorAll('.menu-item');
+
+      expiryMenuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        expiryMenuDropdown.classList.toggle('active');
+      });
+
+      menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          const days = this.getAttribute('data-days');
+          
+          // Remove selected attribute from all items
+          menuItems.forEach(m => m.removeAttribute('selected'));
+          
+          // Add selected attribute to clicked item
+          this.setAttribute('selected', '');
+          
+          // Update the display
+          document.getElementById('expiryDays').textContent = days;
+          
+          // Fetch new count for the selected days
+          fetch(`/api/near-expiry-count/?days=${days}`, {
+            headers: {
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('expiryCount').textContent = data.count;
+          })
+          .catch(error => console.error('Error fetching expiry count:', error));
+          
+          expiryMenuDropdown.classList.remove('active');
+        });
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.card-menu-wrapper')) {
+          expiryMenuDropdown.classList.remove('active');
+        }
+      });
+
+      // Pending Requests Filter Functionality
+      const requestsMenuBtn = document.getElementById('requestsMenuBtn');
+      const requestsMenuDropdown = document.getElementById('requestsMenuDropdown');
+      const requestsMenuItems = requestsMenuDropdown.querySelectorAll('.menu-item');
+
+      requestsMenuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        requestsMenuDropdown.classList.toggle('active');
+      });
+
+      requestsMenuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          const type = this.getAttribute('data-type');
+          
+          // Remove selected attribute from all items
+          requestsMenuItems.forEach(m => m.removeAttribute('selected'));
+          
+          // Add selected attribute to clicked item
+          this.setAttribute('selected', '');
+          
+          // Fetch new count for the selected type
+          fetch(`/api/pending-requests-count/?type=${type}`, {
+            headers: {
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('requestsCount').textContent = data.count;
+          })
+          .catch(error => console.error('Error fetching requests count:', error));
+          
+          requestsMenuDropdown.classList.remove('active');
+        });
       });
     </script>
     {% endblock content %}

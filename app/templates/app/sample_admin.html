@@ -1,0 +1,435 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample Admin - Modern Sidebar Preview</title>
+    
+    <!-- Link to Modern Sidebar CSS -->
+    <link rel="stylesheet" href="{% static 'css/modern-sidebar.css' %}">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            color: #2c3e50;
+        }
+
+        /* Force correct sidebar colors */
+        :root {
+            --sidebar-bg: #152d64 !important;
+            --sidebar-text: #ffffff !important;
+            --sidebar-hover: #1d4c92 !important;
+            --sidebar-border: #2d5a8a !important;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+            padding: 30px 40px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+                padding-top: 80px;
+            }
+        }
+
+        /* Header */
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #152d64;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .card-icon.primary {
+            background: linear-gradient(135deg, #152d64, #1d4c92);
+        }
+
+        .card-icon.success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .card-icon.info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #152d64;
+        }
+
+        .card-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #152d64;
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Feature Section */
+        .features-section {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+            margin-bottom: 40px;
+        }
+
+        .features-section h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #152d64;
+            margin-bottom: 24px;
+        }
+
+        .features-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 16px;
+        }
+
+        .feature-icon {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(21, 45, 100, 0.1);
+            color: #152d64;
+            font-size: 18px;
+        }
+
+        .feature-text h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #152d64;
+            margin-bottom: 4px;
+        }
+
+        .feature-text p {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        /* Alert Styles */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+            color: #1565c0;
+        }
+
+        .alert-success {
+            background-color: #e8f5e9;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .alert-warning {
+            background-color: #fff3e0;
+            border-color: #ff9800;
+            color: #e65100;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 24px;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .features-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Modern Sidebar Navigation -->
+    {% include "app/includes/admin_navbar.html" %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Welcome to ResourceHive Admin</h1>
+            <p>Modern Sidebar - Sample Preview Page</p>
+        </div>
+
+        <!-- Information Alerts -->
+        <div class="alert alert-info">
+            <strong>ℹ️ Preview Mode:</strong> This is a sample page demonstrating the new modern sidebar design. Test the sidebar functionality by clicking menu items, collapsible sections, and checking responsiveness on mobile devices.
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="content-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon primary">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="card-title">Total Properties</div>
+                </div>
+                <div class="card-value">248</div>
+                <div class="card-description">Active in the system</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon success">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="card-title">Total Supplies</div>
+                </div>
+                <div class="card-value">1,356</div>
+                <div class="card-description">Items in inventory</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon info">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <div class="card-title">Pending Requests</div>
+                </div>
+                <div class="card-value">24</div>
+                <div class="card-description">Awaiting approval</div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features-section">
+            <h2>✨ New Sidebar Features</h2>
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Organized Sections</h3>
+                        <p>Menu items grouped into logical sections: Main Menu, Requests, Reports, Management, and Profile.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-expand-alt"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Collapsible Groups</h3>
+                        <p>Requests and Reports sections can be expanded/collapsed for a cleaner interface. Click to toggle!</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Responsive Design</h3>
+                        <p>Adapts seamlessly from desktop to mobile. Try resizing your browser or opening on a mobile device!</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Light Theme</h3>
+                        <p>Modern light theme with smooth hover effects, active states, and polished transitions.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>User Profile</h3>
+                        <p>Footer section displays user avatar, name, and email for quick access to profile settings.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-keyboard"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Smooth Animations</h3>
+                        <p>Polished animations and transitions for all interactions including menu toggles and hover effects.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Instructions -->
+        <div class="features-section">
+            <h2>🧪 Test the Sidebar</h2>
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Collapsible Sections</h3>
+                        <p>Click on "Requests" or "Reports" headers to expand/collapse submenu items with smooth animation.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Navigation Links</h3>
+                        <p>Hover over menu items to see smooth transitions. Click any link to navigate to that page.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Mobile Menu</h3>
+                        <p>On mobile, use the hamburger menu (☰) button to open/close the sidebar drawer.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Active Link Indication</h3>
+                        <p>The current page menu item is highlighted with a blue indicator on the left side.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div class="alert alert-success">
+            <strong>✓ Sidebar Ready!</strong> The new modern sidebar is ready for integration into the main admin dashboard. Review this sample page to verify all functionality is working as expected before full deployment.
+        </div>
+
+        <!-- Footer Info -->
+        <div style="text-align: center; padding: 40px 0; color: #7f8c8d; border-top: 1px solid #e0e0e0; margin-top: 40px;">
+            <p>Modern Sidebar Implementation - v1.0</p>
+            <p style="font-size: 12px; margin-top: 8px;">Built with Light Theme | Responsive Design | Smooth Animations</p>
+        </div>
+
+    </main>
+
+    <!-- Load Modern Sidebar JavaScript -->
+    <script src="{% static 'scripts/modern-sidebar.js' %}"></script>
+
+    <!-- Optional: Log sidebar instance for debugging -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Modern Sidebar initialized:', window.sidebarInstance);
+            
+            // Test: Log when sidebar methods are available
+            if (window.sidebarInstance) {
+                console.log('Available methods:');
+                console.log('- openMenuGroup(index)');
+                console.log('- closeMenuGroup(index)');
+                console.log('- collapseAll()');
+                console.log('- expandAll()');
+                console.log('- updateUserProfile(userData)');
+            }
+        });
+    </script>
+
+</body>
+</html>

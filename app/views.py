@@ -874,6 +874,175 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
         context['selected_department'] = self.request.GET.get('department', '')
         return context
 
+@permission_required('app.view_admin_module')
+@login_required
+@permission_required('app.view_admin_module')
+@login_required
+def get_top_requested_supplies(request):
+    """
+    API endpoint to get top 10 most requested supplies with optional date filtering
+    """
+    try:
+        # Get filter parameters from request
+        days = request.GET.get('days')  # 30, 90, etc.
+        date_from = request.GET.get('date_from')
+        date_to = request.GET.get('date_to')
+        
+        # Build filter
+        filter_kwargs = {}
+        if days:
+            try:
+                days = int(days)
+                cutoff_date = timezone.now() - timedelta(days=days)
+                filter_kwargs['request_date__gte'] = cutoff_date
+            except ValueError:
+                pass
+        elif date_from and date_to:
+            try:
+                from datetime import datetime
+                start_dt = datetime.strptime(date_from, '%Y-%m-%d')
+                end_dt = datetime.strptime(date_to, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+                filter_kwargs['request_date__range'] = [start_dt, end_dt]
+            except ValueError:
+                pass
+        
+        # Get supply requests from both legacy and batch systems
+        legacy_requests = SupplyRequest.objects.filter(**filter_kwargs).values('supply_id', 'supply__supply_name').annotate(
+            total_quantity=models.Sum('quantity'),
+            request_count=models.Count('id')
+        ).order_by('-total_quantity')[:10]
+        
+        batch_items = SupplyRequestItem.objects.filter(
+            batch_request__status__in=['approved', 'completed', 'for_claiming'],
+            batch_request__request_date__gte=filter_kwargs.get('request_date__gte', timezone.now() - timedelta(days=999)),
+            **(  # Apply date range if specified
+                {'batch_request__request_date__range': filter_kwargs['request_date__range']}
+                if 'request_date__range' in filter_kwargs else {}
+            )
+        ).values('supply_id', 'supply__supply_name').annotate(
+            total_quantity=models.Sum('quantity'),
+            request_count=models.Count('id')
+        ).order_by('-total_quantity')[:10]
+        
+        # Combine and deduplicate
+        combined_data = {}
+        for item in legacy_requests:
+            combined_data[item['supply_id']] = {
+                'supply_id': item['supply_id'],
+                'supply_name': item['supply__supply_name'],
+                'total_quantity': item['total_quantity'],
+                'request_count': item['request_count']
+            }
+        
+        for item in batch_items:
+            if item['supply_id'] in combined_data:
+                combined_data[item['supply_id']]['total_quantity'] += item['total_quantity']
+                combined_data[item['supply_id']]['request_count'] += item['request_count']
+            else:
+                combined_data[item['supply_id']] = {
+                    'supply_id': item['supply_id'],
+                    'supply_name': item['supply__supply_name'],
+                    'total_quantity': item['total_quantity'],
+                    'request_count': item['request_count']
+                }
+        
+        # Sort and get top 10
+        sorted_data = sorted(combined_data.values(), key=lambda x: x['total_quantity'], reverse=True)[:10]
+        
+        return JsonResponse({
+            'success': True,
+            'data': sorted_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@permission_required('app.view_admin_module')
+@login_required
+def get_department_requests_filtered(request):
+    """
+    API endpoint to get department requests with optional date filtering
+    """
+    try:
+        # Get filter parameters from request
+        days = request.GET.get('days')  # 30, 90, etc.
+        date_from = request.GET.get('date_from')
+        date_to = request.GET.get('date_to')
+        
+        # Build filter
+        filter_kwargs = {}
+        if days:
+            try:
+                days = int(days)
+                cutoff_date = timezone.now() - timedelta(days=days)
+                filter_kwargs['request_date__gte'] = cutoff_date
+            except ValueError:
+                pass
+        elif date_from and date_to:
+            try:
+                from datetime import datetime
+                start_dt = datetime.strptime(date_from, '%Y-%m-%d')
+                end_dt = datetime.strptime(date_to, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+                filter_kwargs['request_date__range'] = [start_dt, end_dt]
+            except ValueError:
+                pass
+        
+        # Get requests by department
+        departments = Department.objects.all()
+        department_request_data = []
+        
+        for department in departments:
+            # Count supply requests
+            legacy_supply_count = SupplyRequest.objects.filter(
+                user__userprofile__department=department,
+                **filter_kwargs
+            ).count()
+            batch_supply_count = SupplyRequestBatch.objects.filter(
+                user__userprofile__department=department,
+                **filter_kwargs
+            ).count()
+            total_supply_requests = legacy_supply_count + batch_supply_count
+            
+            # Count borrow requests
+            borrow_count = BorrowRequest.objects.filter(
+                user__userprofile__department=department,
+                **({} if not filter_kwargs else {'borrow_date__gte': filter_kwargs.get('request_date__gte', timezone.now() - timedelta(days=999))})
+            ).count()
+            
+            # Count reservations
+            reservation_count = Reservation.objects.filter(
+                user__userprofile__department=department,
+                **({} if not filter_kwargs else {'reservation_date__gte': filter_kwargs.get('request_date__gte', timezone.now() - timedelta(days=999))})
+            ).count()
+            
+            total_requests = total_supply_requests + borrow_count + reservation_count
+            
+            if total_requests > 0:
+                department_request_data.append({
+                    'department': department.name,
+                    'total_requests': total_requests,
+                    'supply_requests': total_supply_requests,
+                    'borrow_requests': borrow_count,
+                    'reservations': reservation_count
+                })
+        
+        # Sort by total requests
+        department_request_data.sort(key=lambda x: x['total_requests'], reverse=True)
+        
+        return JsonResponse({
+            'success': True,
+            'data': department_request_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
 class DashboardPageView(PermissionRequiredMixin,TemplateView):
     template_name = 'app/dashboard.html'
     permission_required = 'app.view_admin_module'  
@@ -887,12 +1056,23 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
         user_notifications = Notification.objects.filter(user=self.request.user).order_by('-timestamp')
         unread_notifications = user_notifications.filter(is_read=False)
 
+        # Calculate date ranges for percentage changes
+        today = timezone.now().date()
+        first_day_this_month = today.replace(day=1)
+        last_day_last_month = first_day_this_month - timedelta(days=1)
+        first_day_last_month = last_day_last_month.replace(day=1)
 
         #expiry count
-        today = timezone.now().date()
         seven_days_later = today + timedelta(days=30) #30 days before the expiry date para ma trigger
-        context['near_expiry_count'] = Supply.objects.filter(
+        near_expiry_count = Supply.objects.filter(
             expiration_date__range=(today, seven_days_later),
+            quantity_info__current_quantity__gt=0
+        ).count()
+        context['near_expiry_count'] = near_expiry_count
+        
+        # Calculate near expiry count for last month
+        near_expiry_count_last_month = Supply.objects.filter(
+            expiration_date__range=(first_day_last_month, last_day_last_month),
             quantity_info__current_quantity__gt=0
         ).count()
 
@@ -1163,21 +1343,135 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
 
             # JSON serialized data for charts
             'borrow_trends_data': json.dumps(borrow_trends_data),
-            'property_categories_counts': json.dumps(property_categories_data),
             'user_activity_by_role': json.dumps(user_activity_data),
             'department_requests_data': json.dumps(department_request_data),
 
             # total counts for cards
             'supply_count': Supply.objects.count(),
             'property_count': Property.objects.count(),
-            'pending_requests': SupplyRequest.objects.filter(status__iexact='pending').count() + SupplyRequestBatch.objects.filter(status__iexact='pending').count(),
+            'pending_supply_requests': SupplyRequest.objects.filter(status__iexact='pending').count() + SupplyRequestBatch.objects.filter(status__iexact='pending').count(),
+            'pending_borrow_requests': BorrowRequest.objects.filter(status__iexact='pending').count() + BorrowRequestBatch.objects.filter(status__iexact='pending').count(),
+            'pending_requests': SupplyRequest.objects.filter(status__iexact='pending').count() + SupplyRequestBatch.objects.filter(status__iexact='pending').count() + BorrowRequest.objects.filter(status__iexact='pending').count() + BorrowRequestBatch.objects.filter(status__iexact='pending').count(),
             'damage_reports': DamageReport.objects.filter(status__iexact='pending').count(),
             
             # Recent requests for preview table
             'recent_requests_preview': recent_requests_preview,
         })
+        
+        # Calculate percentage changes for dashboard cards
+        # Helper function to calculate percentage change
+        def calculate_percentage_change(current, previous):
+            if previous == 0:
+                return {'percentage': 0, 'direction': 'neutral'} if current == 0 else {'percentage': 100, 'direction': 'positive'}
+            change = ((current - previous) / previous) * 100
+            return {
+                'percentage': abs(round(change, 1)),
+                'direction': 'positive' if change > 0 else 'negative' if change < 0 else 'neutral'
+            }
+        
+        # Count items created/added last month for comparison
+        supply_count_current = context['supply_count']
+        supply_count_last_month = Supply.objects.filter(
+            created_at__lt=first_day_this_month
+        ).count() if hasattr(Supply, 'created_at') else supply_count_current
+        
+        property_count_current = context['property_count']
+        property_count_last_month = Property.objects.filter(
+            created_at__lt=first_day_this_month
+        ).count() if hasattr(Property, 'created_at') else property_count_current
+        
+        pending_requests_current = context['pending_requests']
+        pending_requests_last_month = (
+            SupplyRequest.objects.filter(
+                status__iexact='pending',
+                request_date__gte=first_day_last_month,
+                request_date__lt=first_day_this_month
+            ).count() +
+            SupplyRequestBatch.objects.filter(
+                status__iexact='pending',
+                request_date__gte=first_day_last_month,
+                request_date__lt=first_day_this_month
+            ).count() +
+            BorrowRequest.objects.filter(
+                status__iexact='pending',
+                borrow_date__gte=first_day_last_month,
+                borrow_date__lt=first_day_this_month
+            ).count() +
+            BorrowRequestBatch.objects.filter(
+                status__iexact='pending',
+                request_date__gte=first_day_last_month,
+                request_date__lt=first_day_this_month
+            ).count()
+        )
+        
+        damage_reports_current = context['damage_reports']
+        damage_reports_last_month = DamageReport.objects.filter(
+            status__iexact='pending',
+            report_date__gte=first_day_last_month,
+            report_date__lt=first_day_this_month
+        ).count()
+        
+        # Add percentage changes to context
+        context.update({
+            'supply_change': calculate_percentage_change(supply_count_current, supply_count_last_month),
+            'property_change': calculate_percentage_change(property_count_current, property_count_last_month),
+            'pending_requests_change': calculate_percentage_change(pending_requests_current, pending_requests_last_month),
+            'damage_reports_change': calculate_percentage_change(damage_reports_current, damage_reports_last_month),
+            'near_expiry_change': calculate_percentage_change(near_expiry_count, near_expiry_count_last_month),
+        })
 
         return context
+
+
+@login_required
+def get_near_expiry_count(request):
+    """API endpoint to get near expiry count based on days filter"""
+    from django.http import JsonResponse
+    
+    try:
+        days = int(request.GET.get('days', 30))
+        today = timezone.now().date()
+        end_date = today + timedelta(days=days)
+        
+        count = Supply.objects.filter(
+            expiration_date__range=(today, end_date),
+            quantity_info__current_quantity__gt=0
+        ).count()
+        
+        return JsonResponse({'count': count})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+def get_pending_requests_count(request):
+    """API endpoint to get pending requests count by type (all, supply, borrow)"""
+    from django.http import JsonResponse
+    
+    try:
+        request_type = request.GET.get('type', 'all')
+        
+        if request_type == 'supply':
+            count = (
+                SupplyRequest.objects.filter(status__iexact='pending').count() +
+                SupplyRequestBatch.objects.filter(status__iexact='pending').count()
+            )
+        elif request_type == 'borrow':
+            count = (
+                BorrowRequest.objects.filter(status__iexact='pending').count() +
+                BorrowRequestBatch.objects.filter(status__iexact='pending').count()
+            )
+        else:  # all
+            count = (
+                SupplyRequest.objects.filter(status__iexact='pending').count() +
+                SupplyRequestBatch.objects.filter(status__iexact='pending').count() +
+                BorrowRequest.objects.filter(status__iexact='pending').count() +
+                BorrowRequestBatch.objects.filter(status__iexact='pending').count()
+            )
+        
+        return JsonResponse({'count': count})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
 
 class ActivityPageView(PermissionRequiredMixin, ListView):
@@ -6899,4 +7193,10 @@ def bulk_delete_damage_report_images(request):
             'success': False,
             'message': f'Error: {str(e)}'
         }, status=500)
+
+
+@login_required
+def sample_admin(request):
+    """Sample page demonstrating modern sidebar implementation"""
+    return render(request, 'app/sample_admin.html')
 
