@@ -146,6 +146,7 @@ urlpatterns = [
 
     path('manage-users/', UserProfileListView.as_view(), name='manage_users'),
     path('create-user/', create_user, name='create_user'),
+    path('toggle-user-status/<int:user_id>/', views.toggle_user_status, name='toggle_user_status'),
     path('create-department/', views.create_department, name='create_department'),
     path('edit-department/<int:dept_id>/', views.edit_department, name='edit_department'),
     path('delete-department/<int:dept_id>/', views.delete_department, name='delete_department'),

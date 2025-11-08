@@ -189,6 +189,14 @@ DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER', 'noreply@resourcehive.com')
 # Password Reset Settings
 PASSWORD_RESET_TIMEOUT = 3600  # Token valid for 1 hour (in seconds)
 
+# Borrow Request Notification Settings
+# These settings control when near-overdue email reminders are sent
+# The reminder is triggered at (borrow_period * percentage_remaining)
+# But capped between MIN and MAX days before return date
+BORROW_REMINDER_MIN_DAYS = 1  # Always remind at least 1 day before return date
+BORROW_REMINDER_MAX_DAYS = 5  # Never remind more than 5 days before return date
+BORROW_REMINDER_PERCENTAGE = 0.20  # Remind at 20% of borrow period remaining
+
 # Logging Configuration
 LOGGING = {
     'version': 1,

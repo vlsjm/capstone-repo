@@ -274,6 +274,77 @@ def delete_department(request, dept_id):
         return JsonResponse({"success": True})
     return JsonResponse({"success": False})
 
+@permission_required('app.view_admin_module')
+@require_POST
+def toggle_user_status(request, user_id):
+    """Toggle user active/inactive status"""
+    try:
+        user = get_object_or_404(User, id=user_id)
+        user_profile = get_object_or_404(UserProfile, user=user)
+        
+        # Prevent admin from deactivating themselves
+        if user == request.user:
+            messages.error(request, "You cannot deactivate your own account.")
+            return redirect('manage_users')
+        
+        # Toggle the is_active status
+        user.is_active = not user.is_active
+        
+        if not user.is_active:
+            # User is being deactivated - check for auto-reactivation date
+            auto_enable_date = request.POST.get('auto_enable_date')
+            if auto_enable_date:
+                try:
+                    from datetime import datetime
+                    # Parse the datetime-local input format
+                    enable_datetime = datetime.strptime(auto_enable_date, '%Y-%m-%dT%H:%M')
+                    # Make it timezone aware
+                    from django.utils import timezone as tz
+                    enable_datetime_aware = tz.make_aware(enable_datetime)
+                    
+                    # Ensure the date is in the future
+                    if enable_datetime_aware > timezone.now():
+                        user_profile.auto_enable_at = enable_datetime_aware
+                        user_profile.save()
+                        status_text = f"deactivated (will auto-reactivate on {enable_datetime_aware.strftime('%b %d, %Y at %I:%M %p')})"
+                    else:
+                        messages.warning(request, "Auto-reactivation date must be in the future. Account deactivated without auto-reactivation.")
+                        user_profile.auto_enable_at = None
+                        user_profile.save()
+                        status_text = "deactivated"
+                except ValueError:
+                    messages.warning(request, "Invalid date format. Account deactivated without auto-reactivation.")
+                    user_profile.auto_enable_at = None
+                    user_profile.save()
+                    status_text = "deactivated"
+            else:
+                user_profile.auto_enable_at = None
+                user_profile.save()
+                status_text = "deactivated"
+        else:
+            # User is being reactivated - clear auto_enable_at
+            user_profile.auto_enable_at = None
+            user_profile.save()
+            status_text = "activated"
+        
+        user.save()
+        
+        # Log the activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='activate' if user.is_active else 'update',
+            model_name='User',
+            object_repr=user.username,
+            description=f"{status_text.capitalize()} user account for {user.username}"
+        )
+        
+        messages.success(request, f"User {user.username} has been {status_text}.")
+        return redirect('manage_users')
+        
+    except Exception as e:
+        messages.error(request, f"Error updating user status: {str(e)}")
+        return redirect('manage_users')
+
 @login_required
 @require_POST
 def mark_all_notifications_as_read(request):
@@ -404,6 +475,7 @@ def approve_reservation_item(request, batch_id, item_id):
         batch = get_object_or_404(ReservationBatch, id=batch_id)
         item = get_object_or_404(ReservationItem, id=item_id, batch_request=batch)
         remarks = request.POST.get('remarks', '')
+        scroll_position = request.POST.get('scroll_position', '0')
         
         # Get approved quantity from POST (default to original quantity if not provided)
         approved_quantity = request.POST.get('approved_quantity', item.quantity)
@@ -415,11 +487,15 @@ def approve_reservation_item(request, batch_id, item_id):
         # Validate approved quantity
         if approved_quantity < 1:
             messages.error(request, 'Approved quantity must be at least 1.')
-            return redirect('reservation_batch_detail', batch_id=batch_id)
+            response = redirect('reservation_batch_detail', batch_id=batch_id)
+            response['Location'] += f'#scroll-{scroll_position}'
+            return response
         
         if approved_quantity > item.quantity:
             messages.error(request, f'Approved quantity cannot exceed requested quantity of {item.quantity}.')
-            return redirect('reservation_batch_detail', batch_id=batch_id)
+            response = redirect('reservation_batch_detail', batch_id=batch_id)
+            response['Location'] += f'#scroll-{scroll_position}'
+            return response
         
         # Check available quantity (uses reserved_quantity from Property model)
         if item.property.available_quantity >= approved_quantity:
@@ -483,7 +559,9 @@ def approve_reservation_item(request, batch_id, item_id):
         else:
             messages.error(request, f'Cannot approve reservation. Only {item.property.available_quantity} units of {item.property.property_name} available (trying to approve {approved_quantity}).')
         
-        return redirect('reservation_batch_detail', batch_id=batch_id)
+        response = redirect('reservation_batch_detail', batch_id=batch_id)
+        response['Location'] += f'#scroll-{scroll_position}'
+        return response
     
     return redirect('user_reservations')
 
@@ -496,6 +574,7 @@ def reject_reservation_item(request, batch_id, item_id):
         batch = get_object_or_404(ReservationBatch, id=batch_id)
         item = get_object_or_404(ReservationItem, id=item_id, batch_request=batch)
         remarks = request.POST.get('remarks', '')
+        scroll_position = request.POST.get('scroll_position', '0')
         
         item.status = 'rejected'
         item.remarks = remarks
@@ -530,7 +609,9 @@ def reject_reservation_item(request, batch_id, item_id):
         )
         
         messages.success(request, f'Reservation for {item.property.property_name} rejected.')
-        return redirect('reservation_batch_detail', batch_id=batch_id)
+        response = redirect('reservation_batch_detail', batch_id=batch_id)
+        response['Location'] += f'#scroll-{scroll_position}'
+        return response
     
     return redirect('user_reservations')
 
@@ -827,6 +908,7 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
         search = self.request.GET.get('search', '')
         role = self.request.GET.get('role', '')
         department = self.request.GET.get('department', '')
+        status = self.request.GET.get('status', '')
         
         if search:
             queryset = queryset.filter(
@@ -842,6 +924,12 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
             
         if department:
             queryset = queryset.filter(department__name=department)
+        
+        if status:
+            if status == 'active':
+                queryset = queryset.filter(user__is_active=True)
+            elif status == 'inactive':
+                queryset = queryset.filter(user__is_active=False)
             
         return queryset
 
@@ -868,10 +956,12 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
         context['form'] = form
         context['departments'] = Department.objects.all()
         context['show_modal'] = show_modal
+        context['now'] = timezone.now()
         # Add current filter values to context
         context['search'] = self.request.GET.get('search', '')
         context['selected_role'] = self.request.GET.get('role', '')
         context['selected_department'] = self.request.GET.get('department', '')
+        context['selected_status'] = self.request.GET.get('status', '')
         return context
 
 @permission_required('app.view_admin_module')
@@ -2896,6 +2986,21 @@ class LandingPageView(TemplateView):
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
     
+    def get_form_class(self):
+        """Use custom authentication form"""
+        from .forms import CustomAuthenticationForm
+        return CustomAuthenticationForm
+    
+    def form_invalid(self, form):
+        """Override to replace default inactive message with custom one"""
+        # Check if the error is about inactive account and replace the message
+        if form.errors.get('__all__'):
+            for i, error in enumerate(form.errors['__all__']):
+                # Replace Django's default inactive account messages
+                if 'inactive' in str(error).lower() or 'disabled' in str(error).lower():
+                    form.errors['__all__'][i] = 'This account is inactive. Please contact the administrator for assistance.'
+        return super().form_invalid(form)
+    
     def get_success_url(self):
         user = self.request.user
 
@@ -4619,7 +4724,7 @@ def export_property_to_pdf_ics(request):
 def export_inventory_count_form_cvsu(request):
     """
     Generate Excel Inventory Count Form matching CvSU format.
-    Filters items with unit value > 50,000 and groups them by PPE Account Group (category).
+    Filters items with unit value >= 50,000 and groups them by PPE Account Group (category).
     All categories are in one sheet with footer sections between them.
     """
     from openpyxl.styles import Alignment, Border, Side, Font as OpenpyxlFont
@@ -4627,10 +4732,15 @@ def export_inventory_count_form_cvsu(request):
     from PIL import Image as PILImage
     from collections import OrderedDict
     
-    # Filter properties with unit_value above 50,000
+    # Filter properties with unit_value at or above 50,000
     properties = Property.objects.filter(
-        unit_value__gt=50000
+        unit_value__gte=50000
     ).select_related('category').order_by('category__name', 'property_name')
+    
+    # Check if there are any properties
+    if not properties.exists():
+        messages.warning(request, 'No properties with unit value at or above ₱50,000.00 were found. Please ensure you have properties meeting this criteria in your inventory.')
+        return redirect('property')
     
     # Group properties by category
     properties_by_category = OrderedDict()
@@ -5661,6 +5771,7 @@ def approve_batch_item(request, batch_id, item_id):
     """Approve an individual item in a batch request"""
     batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
     item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
+    scroll_position = request.POST.get('scroll_position', '0')
     
     # Get approved quantity from form
     approved_quantity = request.POST.get('approved_quantity', item.quantity)
@@ -5668,7 +5779,9 @@ def approve_batch_item(request, batch_id, item_id):
         approved_quantity = int(approved_quantity)
         if approved_quantity <= 0 or approved_quantity > item.quantity:
             messages.error(request, f'Invalid approved quantity. Must be between 1 and {item.quantity}.')
-            return redirect('batch_request_detail', batch_id=batch_id)
+            response = redirect('batch_request_detail', batch_id=batch_id)
+            response['Location'] += f'#scroll-{scroll_position}'
+            return response
     except (ValueError, TypeError):
         approved_quantity = item.quantity
     
@@ -5687,7 +5800,9 @@ def approve_batch_item(request, batch_id, item_id):
             })
         else:
             messages.error(request, error_msg)
-            return redirect('batch_request_detail', batch_id=batch_id)
+            response = redirect('batch_request_detail', batch_id=batch_id)
+            response['Location'] += f'#scroll-{scroll_position}'
+            return response
     
     # Mark item as approved
     item.approved = True
@@ -5751,7 +5866,9 @@ def approve_batch_item(request, batch_id, item_id):
     
     # Remove success message since user can see status change immediately on the page
     # messages.success(request, f'Item "{item.supply.supply_name}" approved successfully.')
-    return redirect('batch_request_detail', batch_id=batch_id)
+    response = redirect('batch_request_detail', batch_id=batch_id)
+    response['Location'] += f'#scroll-{scroll_position}'
+    return response
 
 @permission_required('app.view_admin_module')
 @login_required
@@ -5760,6 +5877,7 @@ def reject_batch_item(request, batch_id, item_id):
     """Reject an individual item in a batch request"""
     batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
     item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
+    scroll_position = request.POST.get('scroll_position', '0')
     
     # If the item was previously approved, release the reserved quantity
     if item.status == 'approved' and item.approved_quantity:
@@ -5824,7 +5942,9 @@ def reject_batch_item(request, batch_id, item_id):
     
     # Remove success message since user can see status change immediately on the page
     # messages.success(request, f'Item "{item.supply.supply_name}" rejected successfully.')
-    return redirect('batch_request_detail', batch_id=batch_id)
+    response = redirect('batch_request_detail', batch_id=batch_id)
+    response['Location'] += f'#scroll-{scroll_position}'
+    return response
 
 @permission_required('app.view_admin_module')
 @login_required
@@ -6587,6 +6707,7 @@ def approve_borrow_item(request, batch_id, item_id):
         # All items have been processed (approved or rejected)
         if approved_items > 0:
             batch_request.status = 'for_claiming'
+            batch_request.approved_date = timezone.now()
         else:
             batch_request.status = 'rejected'
     elif approved_items > 0:
@@ -6648,6 +6769,7 @@ def reject_borrow_item(request, batch_id, item_id):
         # All items have been processed (approved or rejected)
         if approved_items > 0:
             batch_request.status = 'for_claiming'
+            batch_request.approved_date = timezone.now()
         else:
             batch_request.status = 'rejected'
     elif approved_items > 0:

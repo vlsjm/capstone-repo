@@ -2509,6 +2509,49 @@
         });
       }, 5000);
     });
+    
+    // Scroll position preservation - outside DOMContentLoaded for immediate execution
+    (function() {
+      console.log('Supply scroll preservation script loaded'); // Debug: script is running
+      
+      // Restore scroll position if hash exists
+      const hash = window.location.hash;
+      if (hash && hash.startsWith('#scroll-')) {
+        const scrollPos = parseInt(hash.replace('#scroll-', ''));
+        if (!isNaN(scrollPos)) {
+          // Use requestAnimationFrame to ensure DOM is ready
+          requestAnimationFrame(function() {
+            window.scrollTo(0, scrollPos);
+          });
+          // Clean up the hash without triggering page jump
+          if (history.replaceState) {
+            const cleanUrl = window.location.href.split('#')[0];
+            history.replaceState(null, null, cleanUrl);
+          }
+        }
+      }
+      
+      // Add scroll position to all approve/reject forms when DOM is ready
+      document.addEventListener('DOMContentLoaded', function() {
+        const batchActionForms = document.querySelectorAll('form[action*="approve_batch_item"], form[action*="reject_batch_item"]');
+        console.log('Found', batchActionForms.length, 'supply action forms'); // Debug: how many forms found
+        batchActionForms.forEach(form => {
+          form.addEventListener('submit', function(e) {
+            // Add current scroll position to form
+            let scrollInput = form.querySelector('input[name="scroll_position"]');
+            if (!scrollInput) {
+              scrollInput = document.createElement('input');
+              scrollInput.type = 'hidden';
+              scrollInput.name = 'scroll_position';
+              form.appendChild(scrollInput);
+            }
+            const scrollPos = window.pageYOffset || document.documentElement.scrollTop;
+            scrollInput.value = scrollPos;
+            console.log('Saving scroll position:', scrollPos); // Debug log
+          });
+        });
+      });
+    })();
   </script>
 
   <!-- Claim Items Modal -->

@@ -4,6 +4,12 @@
 
 {% block content %}
 <style>
+    /* Required field asterisk */
+    .required-asterisk {
+        color: #dc3545;
+        margin-left: 3px;
+    }
+
     /* Override overflow hidden for searchable dropdown */
     .form-group:has(.searchable-select-container) {
         overflow: visible !important;
@@ -386,11 +392,11 @@
             <h3 style="margin-top: 0; color: #152d64;"><i class="fas fa-calendar-check" style="color: #152d64;"></i> Reservation Period (All Items)</h3>
             <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="form-group">
-                    <label for="batch-needed-date"><strong>Needed Date:</strong></label>
+                    <label for="batch-needed-date"><strong>Needed Date:<span class="required-asterisk">*</span></strong></label>
                     <input type="date" id="batch-needed-date" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="batch-return-date"><strong>Return Date:</strong></label>
+                    <label for="batch-return-date"><strong>Return Date:<span class="required-asterisk">*</span></strong></label>
                     <input type="date" id="batch-return-date" class="form-control" required>
                 </div>
             </div>
@@ -406,7 +412,7 @@
                 {% csrf_token %}
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="supply-search">Equipment/Item:</label>
+                        <label for="supply-search">Equipment/Item:<span class="required-asterisk">*</span></label>
                         <div class="searchable-select-container">
                             <input type="text" id="supply-search" class="form-control supply-search-input" 
                                    placeholder="Search for an item..." autocomplete="off" required>
@@ -422,7 +428,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="quantity-input">Quantity:</label>
+                        <label for="quantity-input">Quantity:<span class="required-asterisk">*</span></label>
                         <input type="number" id="quantity-input" name="quantity" 
                                class="form-control" min="1" placeholder="Enter quantity" required>
                     </div>
@@ -488,7 +494,7 @@
                 <input type="hidden" id="batch-needed-date-hidden" name="batch_needed_date">
                 <input type="hidden" id="batch-return-date-hidden" name="batch_return_date">
                 <div class="form-group">
-                    <label for="general-purpose">Purpose/Description:</label>
+                    <label for="general-purpose">Purpose/Description:<span class="required-asterisk">*</span></label>
                     <textarea id="general-purpose" name="general_purpose" class="form-control" 
                               rows="3" placeholder="Please describe the purpose of this request..." required></textarea>
                 </div>

@@ -5,6 +5,12 @@
 
 {% block extra_css %}
 <style>
+/* Required field asterisk */
+.required-asterisk {
+    color: #dc3545;
+    margin-left: 3px;
+}
+
 /* Toggle Switch Styles - Matching System Theme */
 .request-type-toggle {
     display: flex;
@@ -938,7 +944,7 @@ body.modal-open {
                     {% csrf_token %}
                     <input type="hidden" name="action" value="submit_request">
                     <div class="form-group">
-                        <label for="supply-purpose">Purpose/Description:</label>
+                        <label for="supply-purpose">Purpose/Description:<span class="required-asterisk">*</span></label>
                         <textarea id="supply-purpose" name="purpose" class="form-control" 
                                   rows="3" required placeholder="Please describe the purpose of this request..."></textarea>
                     </div>
@@ -1041,7 +1047,7 @@ body.modal-open {
                     </div>
                     <div class="form-row">
                         <div class="form-group full-width">
-                            <label for="purpose-input">Purpose:</label>
+                            <label for="purpose-input">Purpose:<span class="required-asterisk">*</span></label>
                             <textarea id="purpose-input" name="purpose" class="form-control" 
                                       placeholder="Describe the purpose for borrowing this item..." required></textarea>
                         </div>
