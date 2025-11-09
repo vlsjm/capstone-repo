@@ -794,7 +794,8 @@ class ReservationBatch(models.Model):
         """
         from django.db import transaction
         
-        today = timezone.now().date()
+        # Get today's date in the configured timezone (not UTC)
+        today = timezone.now().astimezone().date()
         
         # 1. Update pending batches to expired when latest return_date has passed
         for batch in cls.objects.filter(status='pending'):

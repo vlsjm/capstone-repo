@@ -442,6 +442,9 @@ def reservation_detail(request, pk):
 @permission_required('app.view_admin_module', raise_exception=True)
 def reservation_batch_detail(request, batch_id):
     """View and manage a batch reservation request"""
+    # Check and update reservation batch statuses (triggers active reservations)
+    ReservationBatch.check_and_update_batches()
+    
     # Get the reservation batch
     batch = get_object_or_404(ReservationBatch.objects.select_related('user').prefetch_related('items__property'), id=batch_id)
     

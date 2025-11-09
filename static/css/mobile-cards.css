@@ -1,0 +1,394 @@
+/* 
+   Mobile Card Styles - PRIORITY OVERRIDES
+   This file contains aggressive mobile card styling to prevent conflicts
+   Load this AFTER all other CSS files to ensure these styles take priority
+*/
+
+/* ==============================================
+   MOBILE CARD CONTAINER STYLES (max-width: 768px)
+   ============================================== */
+
+@media (max-width: 768px) {
+
+    /* CRITICAL: OVERRIDE mobile.css .stat-card > div:first-child to use GRID instead of FLEX */
+    .stat-card>div:first-child {
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        flex-direction: unset !important;
+        justify-content: unset !important;
+        align-items: center !important;
+        gap: 0 !important;
+    }
+
+    /* CRITICAL: Force parent container to show all content */
+    .parent {
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+        margin-top: 60px !important;
+        padding-top: 15px !important;
+    }
+
+    /* Dashboard Stats Container - FORCE 2x2 GRID */
+    .dashboard-stats {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        grid-auto-rows: auto !important;
+        gap: 8px !important;
+        margin: 0 0 20px 0 !important;
+        padding: 4px 0 0 0 !important;
+        width: 100% !important;
+        background: transparent !important;
+        height: auto !important;
+        overflow: visible !important;
+        max-height: none !important;
+        position: relative !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Individual Stat Cards - 2x2 Mobile Layout - CRITICAL OVERRIDES */
+    .stat-card {
+        background-color: #ffffff !important;
+        border-radius: 8px !important;
+        padding: 12px !important;
+        border: 1px solid #e5e7eb !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        justify-content: unset !important;
+        align-items: unset !important;
+        transition: box-shadow 0.2s ease !important;
+        position: relative !important;
+        min-height: auto !important;
+        height: auto !important;
+        transform: none !important;
+        overflow: visible !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin-top: 0 !important;
+        gap: 0 !important;
+        text-align: left !important;
+    }
+
+    .stat-card:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        transform: none !important;
+    }
+
+    /* Card Header - Mobile Compact - FORCE GRID LAYOUT */
+    .stat-card .card-header,
+    .card-header,
+    .mobile-card-top-row,
+    .stat-card>div:first-child {
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        grid-auto-rows: auto !important;
+        align-items: center !important;
+        align-content: center !important;
+        margin-bottom: 8px !important;
+        position: relative !important;
+        gap: 0 !important;
+        width: 100% !important;
+        flex-direction: unset !important;
+        justify-content: unset !important;
+        padding: 0 !important;
+    }
+
+    /* Card Title - Left side, fill available space */
+    .stat-card .card-title,
+    .mobile-card-label,
+    span.card-title,
+    span.mobile-card-label {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 12px !important;
+        color: #152d64 !important;
+        font-weight: 600 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        align-self: center !important;
+        justify-self: start !important;
+        text-align: left !important;
+        display: block !important;
+        width: auto !important;
+        max-width: 100% !important;
+    }
+
+    /* Card menu wrapper - Right side, compact */
+    .stat-card .card-menu-wrapper,
+    .mobile-card-action {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+        align-self: center !important;
+        justify-self: end !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        position: relative !important;
+        width: auto !important;
+        height: auto !important;
+        flex-shrink: 0 !important;
+        gap: 0 !important;
+    }
+
+    /* Card Menu Button - Compact and clean */
+    .stat-card .card-menu {
+        background: none !important;
+        border: none !important;
+        font-size: 16px !important;
+        color: #9ca3af !important;
+        cursor: pointer !important;
+        padding: 2px 4px !important;
+        margin: 0 !important;
+        line-height: 1 !important;
+        transition: color 0.2s ease !important;
+        border-radius: 4px !important;
+        width: auto !important;
+        height: auto !important;
+        min-width: auto !important;
+        min-height: auto !important;
+        display: inline-block !important;
+        vertical-align: middle !important;
+        flex-shrink: 0 !important;
+        transform: none !important;
+    }
+
+    .stat-card .card-menu:hover {
+        color: #6b7280 !important;
+    }
+
+    /* Card Menu Dropdown - Ensure it doesn't affect layout */
+    .stat-card .card-menu-dropdown {
+        display: none !important;
+        position: absolute !important;
+        top: 100% !important;
+        right: 0 !important;
+        background: white !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        border: 1px solid #e5e7eb !important;
+        min-width: 150px !important;
+        z-index: 10 !important;
+        margin-top: 4px !important;
+        overflow: hidden !important;
+    }
+
+    .stat-card .card-menu-dropdown.active {
+        display: block !important;
+    }
+
+    /* Card Body - Mobile Compact */
+    .stat-card .card-body {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+    }
+
+    /* Card Main - Mobile Row Layout */
+    .stat-card .card-main {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+    }
+
+    /* Icon Badge - Mobile Size */
+    .stat-card .card-icon-badge {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 32px !important;
+        height: 32px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .stat-card .card-icon-badge i {
+        font-size: 20px !important;
+        color: #152d64 !important;
+    }
+
+    /* Amount - Mobile Size */
+    .stat-card .card-amount {
+        font-size: 20px !important;
+        font-weight: 600 !important;
+        color: #152d64 !important;
+        margin-bottom: 0 !important;
+        line-height: 1 !important;
+    }
+
+    /* ==============================================
+       MOBILE TABLE ROW STYLES - Compact Cards
+       ============================================== */
+
+    .responsive-table tr,
+    .mobile-stack-table tr {
+        display: block !important;
+        border: 1px solid #ddd !important;
+        margin-bottom: 12px !important;
+        padding: 12px !important;
+        border-radius: 8px !important;
+        background: white !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .responsive-table tbody tr:hover,
+    .mobile-stack-table tbody tr:hover {
+        background: #f9f9f9 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .responsive-table td,
+    .mobile-stack-table td {
+        display: block !important;
+        text-align: left !important;
+        border: none !important;
+        padding: 8px 10px 8px 35% !important;
+        position: relative !important;
+        font-size: 13px !important;
+        line-height: 1.5 !important;
+    }
+
+    .responsive-table td:before,
+    .mobile-stack-table td:before {
+        content: attr(data-label) ": " !important;
+        position: absolute !important;
+        left: 10px !important;
+        width: 30% !important;
+        padding-right: 8px !important;
+        white-space: nowrap !important;
+        font-weight: bold !important;
+        color: #152d64 !important;
+        font-size: 11px !important;
+        text-transform: uppercase !important;
+    }
+
+    /* ==============================================
+       MOBILE GENERAL CARD STYLES
+       ============================================== */
+
+    .card,
+    .info-card {
+        margin-bottom: 12px !important;
+        padding: 12px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    /* Grid and Flex layouts */
+    .grid,
+    .dashboard-grid,
+    .card-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    .flex-row {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .flex-wrap {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    /* History section containers */
+    .history-table-container {
+        margin-bottom: 15px !important;
+    }
+
+    .history-section {
+        margin-top: 15px !important;
+    }
+
+    /* Recent Activity */
+    .recent-activity {
+        margin-bottom: 15px !important;
+    }
+
+    .recent-activity ul {
+        margin: 0 !important;
+        padding: 10px !important;
+    }
+
+    .recent-activity li {
+        padding: 8px !important;
+        margin-bottom: 6px !important;
+    }
+}
+
+/* ==============================================
+   ULTRA MOBILE OPTIMIZATION (max-width: 480px)
+   ============================================== */
+
+@media (max-width: 480px) {
+
+    /* Make cards compact on smaller screens but still readable */
+    .dashboard-stats {
+        gap: 8px !important;
+        margin: 0 0 15px 0 !important;
+    }
+
+    .stat-card {
+        padding: 12px 10px !important;
+        min-height: 55px !important;
+    }
+
+    .stat-card .stat-title {
+        font-size: 10px !important;
+    }
+
+    .stat-card .stat-value {
+        font-size: 20px !important;
+    }
+
+    .stat-card i,
+    .stat-card .stat-icon {
+        font-size: 20px !important;
+        margin-left: 8px !important;
+    }
+
+    .responsive-table tr,
+    .mobile-stack-table tr {
+        margin-bottom: 10px !important;
+        padding: 10px !important;
+    }
+
+    .responsive-table td,
+    .mobile-stack-table td {
+        padding: 7px 8px 7px 32% !important;
+        font-size: 12px !important;
+    }
+
+    .responsive-table td:before,
+    .mobile-stack-table td:before {
+        font-size: 10px !important;
+        left: 8px !important;
+    }
+}
+
+/* ==============================================
+   PREVENT HOVER TRANSFORM ON MOBILE
+   ============================================== */
+
+@media (max-width: 768px) {
+    .stat-card:hover {
+        transform: none !important;
+    }
+
+    .stat-card:active {
+        transform: none !important;
+    }
+
+    button:hover,
+    a:hover {
+        transform: none !important;
+    }
+}

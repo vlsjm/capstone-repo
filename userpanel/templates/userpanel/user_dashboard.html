@@ -7,10 +7,12 @@
     <title>User Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/userStyle.css' %}?v=2024110701" />
     <link rel="stylesheet" href="{% static 'css/mobile.css' %}?v=2024110701" />
+    <link rel="stylesheet" href="{% static 'css/mobile-cards.css' %}?v=2024110701" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
     />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     
 
   </head>
@@ -227,294 +229,324 @@
 
       <!-- Quick Stats Cards -->
       <div class="dashboard-stats">
-        <div class="stat-card">
-          <div class="stat-title">Requests</div>
-          <div class="stat-value">{{ request_count }}</div>
+        <!-- Pending Card -->
+        <div class="stat-card stat-card-pending mobile-stat-card-layout">
+          <div class="card-header mobile-card-top-row">
+            <span class="card-title mobile-card-label">Pending</span>
+            <div class="card-menu-wrapper mobile-card-action">
+              <button class="card-menu" id="pendingMenuBtn">⋮</button>
+              <div class="card-menu-dropdown" id="pendingMenuDropdown">
+                <button class="menu-item" data-type="all" selected>All Pending</button>
+                <button class="menu-item" data-type="supply">Supply Requests</button>
+                <button class="menu-item" data-type="borrow">Borrow Requests</button>
+                <button class="menu-item" data-type="reservation">Reservations</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body mobile-card-bottom-row">
+            <div class="card-main mobile-card-content-grid">
+              <div class="card-amount mobile-card-count" id="pendingCount">{{ pending_count }}</div>
+              <div class="card-icon-badge mobile-card-icon">
+                <i class="fas fa-clock"></i>
+              </div>
+            </div>
+            <div class="card-subtitle">
+              Awaiting Approval
+            </div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-title">Borrows</div>
-          <div class="stat-value">{{ borrow_count }}</div>
+
+        <!-- Approved Card -->
+        <div class="stat-card stat-card-approved mobile-stat-card-layout">
+          <div class="card-header mobile-card-top-row">
+            <span class="card-title mobile-card-label">Approved</span>
+            <div class="card-menu-wrapper mobile-card-action">
+              <button class="card-menu" id="approvedMenuBtn">⋮</button>
+              <div class="card-menu-dropdown" id="approvedMenuDropdown">
+                <button class="menu-item" data-type="all" selected>All Approved</button>
+                <button class="menu-item" data-type="supply">Supply Requests</button>
+                <button class="menu-item" data-type="borrow">Borrow Requests</button>
+                <button class="menu-item" data-type="reservation">Reservations</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body mobile-card-bottom-row">
+            <div class="card-main mobile-card-content-grid">
+              <div class="card-amount mobile-card-count" id="approvedCount">{{ approved_count }}</div>
+              <div class="card-icon-badge mobile-card-icon">
+                <i class="fas fa-check-circle"></i>
+              </div>
+            </div>
+            <div class="card-subtitle">
+              <span class="approval-rate">{{ approval_rate }}% Approval Rate</span>
+            </div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-title">Reservations</div>
-          <div class="stat-value">{{ reservation_count }}</div>
+
+        <!-- Overdue Card -->
+        <div class="stat-card stat-card-overdue mobile-stat-card-layout">
+          <div class="card-header mobile-card-top-row">
+            <span class="card-title mobile-card-label">Overdue</span>
+            <button class="card-menu mobile-card-action" style="visibility: hidden; pointer-events: none;">⋮</button>
+          </div>
+          <div class="card-body mobile-card-bottom-row">
+            <div class="card-main mobile-card-content-grid">
+              <div class="card-amount mobile-card-count">{{ overdue_count }}</div>
+              <div class="card-icon-badge mobile-card-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+            </div>
+            <div class="card-subtitle">
+              <span class="overdue-text">Needs Attention</span>
+            </div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-title">Damage Reports</div>
-          <div class="stat-value">{{ damage_count }}</div>
+
+        <!-- Active Card -->
+        <div class="stat-card stat-card-active mobile-stat-card-layout">
+          <div class="card-header mobile-card-top-row">
+            <span class="card-title mobile-card-label">Active</span>
+            <div class="card-menu-wrapper mobile-card-action">
+              <button class="card-menu" id="activeMenuBtn">⋮</button>
+              <div class="card-menu-dropdown" id="activeMenuDropdown">
+                <button class="menu-item" data-type="all" selected>All Active</button>
+                <button class="menu-item" data-type="borrow">Borrow Requests</button>
+                <button class="menu-item" data-type="reservation">Reservations</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body mobile-card-bottom-row">
+            <div class="card-main mobile-card-content-grid">
+              <div class="card-amount mobile-card-count" id="activeCount">{{ active_count }}</div>
+              <div class="card-icon-badge mobile-card-icon">
+                <i class="fas fa-play-circle"></i>
+              </div>
+            </div>
+            <div class="card-subtitle">
+              Currently In Use
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Recent Activity Feed -->
-      <div class="recent-activity">
-        <h3><i class="fas fa-history"></i> Recent Activity</h3>
-        <ul>
-          {% if recent_activity %}
-            {% for activity in recent_activity %}
-              <li>
-                <span class="activity-message">{{ activity.message }}</span>
-                <span class="activity-timestamp">{{ activity.timestamp|date:"M d, Y H:i" }}</span>
-              </li>
+      <!-- Request Status Distribution Horizontal Bar Chart (Modern) -->
+      <div class="chart-section">
+        <div class="chart-container chart-full-width">
+          <h3 style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px; font-weight: 600; color: #1f1f1f;">
+            <i class="fas fa-tasks" style="color: #2196F3; font-size: 18px;"></i>
+            Request Status Overview
+          </h3>
+          <div class="chart-wrapper status-chart-wrapper">
+            <canvas id="statusBarChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items for Action Section -->
+      <div class="action-items-section">
+        <!-- Items for Claiming -->
+        {% if items_for_claiming %}
+        <div class="action-items-container">
+          <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-weight: 600; color: #1f1f1f;">
+            <i class="fas fa-clipboard-check" style="color: #FF6B6B; font-size: 18px;"></i>
+            Ready for Claiming ({{ items_for_claiming|length }})
+          </h3>
+          <div class="action-items-list">
+            {% for item in items_for_claiming_page %}
+            <div class="action-item-card claiming-card">
+              <div class="action-item-icon">
+                <i class="fas {{ item.icon }}" style="color: #FF6B6B;"></i>
+              </div>
+              <div class="action-item-content">
+                <div class="action-item-title">{{ item.item_name }}</div>
+                <div class="action-item-meta">
+                  <span class="action-item-type">{{ item.type }}</span>
+                  <span class="action-item-qty">Qty: {{ item.quantity }}</span>
+                </div>
+              </div>
+              <div class="action-item-action">
+                {% if item.type == 'Supply Request' %}
+                  <a href="{% url 'request_detail' 'batch_supply' item.id %}" class="action-btn-small" title="View details">
+                    <i class="fas fa-arrow-right"></i>
+                  </a>
+                {% elif item.type == 'Borrow Request' %}
+                  <a href="{% url 'request_detail' 'batch_borrow' item.id %}" class="action-btn-small" title="View details">
+                    <i class="fas fa-arrow-right"></i>
+                  </a>
+                {% endif %}
+              </div>
+            </div>
             {% endfor %}
-          {% else %}
-            <li>No recent activity.</li>
+          </div>
+          
+          <!-- Mobile-Friendly Pagination -->
+          {% if items_for_claiming_page.has_other_pages %}
+          <div class="action-items-pagination">
+            {% if items_for_claiming_page.has_previous %}
+            <a href="?claiming_page={{ items_for_claiming_page.previous_page_number }}" class="pagination-btn">
+              <i class="fas fa-chevron-left"></i>
+              <span class="pagination-text">Previous</span>
+            </a>
+            {% else %}
+            <span class="pagination-btn disabled">
+              <i class="fas fa-chevron-left"></i>
+              <span class="pagination-text">Previous</span>
+            </span>
+            {% endif %}
+            
+            <span class="pagination-info">
+              Page <span class="current-page">{{ items_for_claiming_page.number }}</span> of <span class="total-pages">{{ items_for_claiming_page.paginator.num_pages }}</span>
+            </span>
+            
+            {% if items_for_claiming_page.has_next %}
+            <a href="?claiming_page={{ items_for_claiming_page.next_page_number }}" class="pagination-btn">
+              <span class="pagination-text">Next</span>
+              <i class="fas fa-chevron-right"></i>
+            </a>
+            {% else %}
+            <span class="pagination-btn disabled">
+              <span class="pagination-text">Next</span>
+              <i class="fas fa-chevron-right"></i>
+            </span>
+            {% endif %}
+          </div>
           {% endif %}
-        </ul>
-      </div>
-
-      <!-- History Tables Section -->
-      <div class="history-section">
-      <!-- Request History -->
-      <div class="history-table-container">
-        <h3><i class="fas fa-file-alt"></i> Request History</h3>
-        {% if request_history %}
-        <div class="table-wrapper">
-          <table class="history-table responsive-table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Purpose</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for request in request_history %}
-              <tr>
-                <td data-label="Item">{{ request.item|truncatechars:30 }}</td>
-                <td data-label="Qty">{{ request.quantity }}</td>
-                <td data-label="Status">
-                  <span
-                    class="status-badge status-{{ request.status|lower|cut:' ' }}"
-                  >
-                    {{ request.status }}
-                  </span>
-                </td>
-                <td data-label="Date">{{ request.date|date:"M d, Y" }}</td>
-                <td data-label="Purpose">{{ request.purpose|truncatechars:40 }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          <div class="pagination">
-            {% if request_history_page.has_previous %}
-            <a
-              href="?request_page={{ request_history_page.previous_page_number }}"
-              >&laquo; Previous</a
-            >
-            {% endif %}
-
-            <span
-              >Page {{ request_history_page.number }} of
-              <!-- comment wag alisin pls-->
-              {{ request_history_page.paginator.num_pages }}</span
-            >
-
-            {% if request_history_page.has_next %}
-            <a href="?request_page={{ request_history_page.next_page_number }}"
-              >Next &raquo;</a
-            >
-            {% endif %}
-          </div>
-        </div>
-        {% else %}
-        <div class="no-history">
-          <i class="fas fa-inbox"></i>
-          <p>No request history found.</p>
         </div>
         {% endif %}
-      </div>
 
-      <!-- Borrow History -->
-      <div class="history-table-container">
-        <h3><i class="fas fa-hand-holding"></i> Borrow History</h3>
-        {% if borrow_history %}
-        <div class="table-wrapper">
-          <table class="history-table responsive-table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Status</th>
-                <th>Borrow Date</th>
-                <th>Return Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for borrow in borrow_history %}
-              <tr>
-                <td data-label="Item">{{ borrow.item|truncatechars:30 }}</td>
-                <td data-label="Qty">{{ borrow.quantity }}</td>
-                <td data-label="Status">
-                  <span
-                    class="status-badge status-{{ borrow.status|lower|cut:' ' }}"
-                  >
-                    {{ borrow.status }}
-                  </span>
-                </td>
-                <td data-label="Borrow Date">{{ borrow.borrow_date|date:"M d, Y" }}</td>
-                <td data-label="Return Date">{{ borrow.return_date|date:"M d, Y" }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          <div class="pagination">
-            {% if borrow_history_page.has_previous %}
-            <a
-              href="?borrow_page={{ borrow_history_page.previous_page_number }}"
-              >&laquo; Previous</a
-            >
-            {% endif %}
+        <!-- Active Reservations -->
+        {% if active_reservations %}
+        <div class="action-items-container">
+          <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-weight: 600; color: #1f1f1f;">
+            <i class="fas fa-calendar-check" style="color: #51CF66; font-size: 18px;"></i>
+            Active Reservations ({{ active_reservations|length }})
+          </h3>
+          <div class="action-items-list">
+            {% for item in active_reservations_page %}
+            <div class="action-item-card reservation-card">
+              <div class="action-item-icon">
+                <i class="fas {{ item.icon }}" style="color: #51CF66;"></i>
+              </div>
+              <div class="action-item-content">
+                <div class="action-item-title">{{ item.item_name }}</div>
+                <div class="action-item-meta">
+                  <span class="action-item-type">{{ item.type }}</span>
+                  <span class="action-item-qty">Qty: {{ item.quantity }}</span>
+                </div>
+                <div class="action-item-dates">
+                  <small>Return: {{ item.return_date|date:"M d, Y" }} ({{ item.days_remaining }} days left)</small>
+                </div>
+              </div>
+              <div class="action-item-action">
+                <a href="{% url 'request_detail' 'reservation' item.id %}" class="action-btn-small" title="View details">
+                  <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
 
-            <span>
-              Page {{ borrow_history_page.number }} of
-              <!-- comment wag alisin pls-->
-              {{ borrow_history_page.paginator.num_pages }}
+          <!-- Mobile-Friendly Pagination -->
+          {% if active_reservations_page.has_other_pages %}
+          <div class="action-items-pagination">
+            {% if active_reservations_page.has_previous %}
+            <a href="?reservations_page={{ active_reservations_page.previous_page_number }}" class="pagination-btn">
+              <i class="fas fa-chevron-left"></i>
+              <span class="pagination-text">Previous</span>
+            </a>
+            {% else %}
+            <span class="pagination-btn disabled">
+              <i class="fas fa-chevron-left"></i>
+              <span class="pagination-text">Previous</span>
             </span>
-
-            {% if borrow_history_page.has_next %}
-            <a href="?borrow_page={{ borrow_history_page.next_page_number }}"
-              >Next &raquo;</a
-            >
             {% endif %}
-          </div>
-        </div>
-        {% else %}
-        <div class="no-history">
-          <i class="fas fa-inbox"></i>
-          <p>No borrow history found.</p>
-        </div>
-        {% endif %}
-      </div>
-
-      <!-- Reservation History -->
-      <div class="history-table-container">
-        <h3><i class="fas fa-calendar-alt"></i> Reservation History</h3>
-        {% if reservation_history %}
-        <div class="table-wrapper">
-          <table class="history-table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Status</th>
-                <th>Needed Date</th>
-                <th>Return Date</th>
-                <th>Purpose</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for reservation in reservation_history %}
-              <tr>
-                <td>{{ reservation.item|truncatechars:30 }}</td>
-                <td>{{ reservation.quantity }}</td>
-                <td>
-                  <span
-                    class="status-badge status-{{ reservation.status|lower|cut:' ' }}"
-                  >
-                    {{ reservation.status }}
-                  </span>
-                </td>
-                <td>{{ reservation.needed_date|date:"M d, Y" }}</td>
-                <td>{{ reservation.return_date|date:"M d, Y" }}</td>
-                <td>{{ reservation.purpose|truncatechars:40 }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          <div class="pagination">
-            {% if reservation_history_page.has_previous %}
-            <a
-              href="?reservation_page={{ reservation_history_page.previous_page_number }}"
-              >&laquo; Previous</a
-            >
-            {% endif %}
-
-            <span>
-              Page {{ reservation_history_page.number }} of
-              <!-- comment wag alisin pls-->
-              {{ reservation_history_page.paginator.num_pages }}
+            
+            <span class="pagination-info">
+              Page <span class="current-page">{{ active_reservations_page.number }}</span> of <span class="total-pages">{{ active_reservations_page.paginator.num_pages }}</span>
             </span>
-
-            {% if reservation_history_page.has_next %}
-            <a
-              href="?reservation_page={{ reservation_history_page.next_page_number }}"
-              >Next &raquo;</a
-            >
-            {% endif %}
-          </div>
-        </div>
-        {% else %}
-        <div class="no-history">
-          <i class="fas fa-inbox"></i>
-          <p>No reservation history found.</p>
-        </div>
-        {% endif %}
-      </div>
-
-      <!-- Damage Report History -->
-      <div class="history-table-container">
-        <h3>
-          <i class="fas fa-exclamation-triangle"></i> Damage Report History
-        </h3>
-        {% if damage_history %}
-        <div class="table-wrapper">
-          <table class="history-table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Status</th>
-                <th>Report Date</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for report in damage_history %}
-              <tr>
-                <td>{{ report.item|truncatechars:30 }}</td>
-                <td>
-                  <span
-                    class="status-badge status-{{ report.status|lower|cut:' ' }}"
-                  >
-                    {{ report.status }}
-                  </span>
-                </td>
-                <td>{{ report.date|date:"M d, Y" }}</td>
-                <td>{{ report.description|truncatechars:50 }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          <div class="pagination">
-            {% if damage_history_page.has_previous %}
-            <a
-              href="?damage_page={{ damage_history_page.previous_page_number }}"
-              >&laquo; Previous</a
-            >
-            {% endif %}
-
-            <span>
-              Page {{ damage_history_page.number }} of
-              <!-- comment wag alisin pls-->
-              {{ damage_history_page.paginator.num_pages }}
+            
+            {% if active_reservations_page.has_next %}
+            <a href="?reservations_page={{ active_reservations_page.next_page_number }}" class="pagination-btn">
+              <span class="pagination-text">Next</span>
+              <i class="fas fa-chevron-right"></i>
+            </a>
+            {% else %}
+            <span class="pagination-btn disabled">
+              <span class="pagination-text">Next</span>
+              <i class="fas fa-chevron-right"></i>
             </span>
-
-            {% if damage_history_page.has_next %}
-            <a href="?damage_page={{ damage_history_page.next_page_number }}"
-              >Next &raquo;</a
-            >
             {% endif %}
           </div>
-        </div>
-        {% else %}
-        <div class="no-history">
-          <i class="fas fa-inbox"></i>
-          <p>No damage report history found.</p>
+          {% endif %}
         </div>
         {% endif %}
-      </div>
-    </div>
+
+        <!-- Active Borrows -->
+        {% if active_borrows %}
+        <div class="action-items-container">
+          <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-weight: 600; color: #1f1f1f;">
+            <i class="fas fa-hand-holding-heart" style="color: #9C27B0; font-size: 18px;"></i>
+            Currently Borrowed ({{ active_borrows|length }})
+          </h3>
+          <div class="action-items-list">
+            {% for item in active_borrows_page %}
+            <div class="action-item-card borrowed-card">
+              <div class="action-item-icon">
+                <i class="fas {{ item.icon }}" style="color: #9C27B0;"></i>
+              </div>
+              <div class="action-item-content">
+                <div class="action-item-title">{{ item.item_name }}</div>
+                <div class="action-item-meta">
+                  <span class="action-item-type">{{ item.type }}</span>
+                  <span class="action-item-qty">Qty: {{ item.quantity }}</span>
+                </div>
+                <div class="action-item-dates">
+                  <small>Return: {{ item.return_date|date:"M d, Y" }} ({{ item.days_remaining }} days left)</small>
+                </div>
+              </div>
+              <div class="action-item-action">
+                <a href="{% url 'request_detail' 'batch_borrow' item.id %}" class="action-btn-small" title="View details">
+                  <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Mobile-Friendly Pagination -->
+          {% if active_borrows_page.has_other_pages %}
+          <div class="action-items-pagination">
+            {% if active_borrows_page.has_previous %}
+            <a href="?borrows_page={{ active_borrows_page.previous_page_number }}" class="pagination-btn">
+              <i class="fas fa-chevron-left"></i>
+              <span class="pagination-text">Previous</span>
+            </a>
+            {% else %}
+            <span class="pagination-btn disabled">
+              <i class="fas fa-chevron-left"></i>
+              <span class="pagination-text">Previous</span>
+            </span>
+            {% endif %}
+            
+            <span class="pagination-info">
+              Page <span class="current-page">{{ active_borrows_page.number }}</span> of <span class="total-pages">{{ active_borrows_page.paginator.num_pages }}</span>
+            </span>
+            
+            {% if active_borrows_page.has_next %}
+            <a href="?borrows_page={{ active_borrows_page.next_page_number }}" class="pagination-btn">
+              <span class="pagination-text">Next</span>
+              <i class="fas fa-chevron-right"></i>
+            </a>
+            {% else %}
+            <span class="pagination-btn disabled">
+              <span class="pagination-text">Next</span>
+              <i class="fas fa-chevron-right"></i>
+            </span>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
     
     </div>
 
@@ -735,6 +767,261 @@
           }
         });
       }
+
+      // Card Filter Functionality for Pending Card
+      const pendingMenuBtn = document.getElementById('pendingMenuBtn');
+      const pendingMenuDropdown = document.getElementById('pendingMenuDropdown');
+      const pendingMenuItems = pendingMenuDropdown ? pendingMenuDropdown.querySelectorAll('.menu-item') : [];
+
+      if (pendingMenuBtn && pendingMenuDropdown) {
+        pendingMenuBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          pendingMenuDropdown.classList.toggle('active');
+          // Close approved dropdown if open
+          if (approvedMenuDropdown) approvedMenuDropdown.classList.remove('active');
+        });
+
+        pendingMenuItems.forEach(item => {
+          item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const type = this.getAttribute('data-type');
+            
+            // Remove selected attribute from all items
+            pendingMenuItems.forEach(m => m.removeAttribute('selected'));
+            
+            // Add selected attribute to clicked item
+            this.setAttribute('selected', '');
+            
+            // Fetch new count for the selected type
+            fetch(`/userpanel/api/pending-count/?type=${type}`, {
+              headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+              }
+            })
+            .then(response => response.json())
+            .then(data => {
+              document.getElementById('pendingCount').textContent = data.count;
+            })
+            .catch(error => console.error('Error fetching pending count:', error));
+            
+            pendingMenuDropdown.classList.remove('active');
+          });
+        });
+      }
+
+      // Card Filter Functionality for Approved Card
+      const approvedMenuBtn = document.getElementById('approvedMenuBtn');
+      const approvedMenuDropdown = document.getElementById('approvedMenuDropdown');
+      const approvedMenuItems = approvedMenuDropdown ? approvedMenuDropdown.querySelectorAll('.menu-item') : [];
+
+      if (approvedMenuBtn && approvedMenuDropdown) {
+        approvedMenuBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          approvedMenuDropdown.classList.toggle('active');
+          // Close pending dropdown if open
+          if (pendingMenuDropdown) pendingMenuDropdown.classList.remove('active');
+        });
+
+        approvedMenuItems.forEach(item => {
+          item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const type = this.getAttribute('data-type');
+            
+            // Remove selected attribute from all items
+            approvedMenuItems.forEach(m => m.removeAttribute('selected'));
+            
+            // Add selected attribute to clicked item
+            this.setAttribute('selected', '');
+            
+            // Fetch new count for the selected type
+            fetch(`/userpanel/api/approved-count/?type=${type}`, {
+              headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+              }
+            })
+            .then(response => response.json())
+            .then(data => {
+              document.getElementById('approvedCount').textContent = data.count;
+            })
+            .catch(error => console.error('Error fetching approved count:', error));
+            
+            approvedMenuDropdown.classList.remove('active');
+          });
+        });
+      }
+
+      // Card Filter Functionality for Active Card
+      const activeMenuBtn = document.getElementById('activeMenuBtn');
+      const activeMenuDropdown = document.getElementById('activeMenuDropdown');
+      const activeMenuItems = activeMenuDropdown ? activeMenuDropdown.querySelectorAll('.menu-item') : [];
+
+      console.log('Active menu setup:', { activeMenuBtn, activeMenuDropdown, itemsCount: activeMenuItems.length });
+
+      if (activeMenuBtn && activeMenuDropdown) {
+        activeMenuBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          console.log('Active menu button clicked');
+          activeMenuDropdown.classList.toggle('active');
+          // Close other dropdowns if open
+          if (pendingMenuDropdown) pendingMenuDropdown.classList.remove('active');
+          if (approvedMenuDropdown) approvedMenuDropdown.classList.remove('active');
+        });
+
+        activeMenuItems.forEach(item => {
+          item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const type = this.getAttribute('data-type');
+            console.log('Active menu item clicked:', type);
+            
+            // Remove selected attribute from all items
+            activeMenuItems.forEach(m => m.removeAttribute('selected'));
+            
+            // Add selected attribute to clicked item
+            this.setAttribute('selected', '');
+            
+            // Fetch new count for the selected type
+            const url = `/userpanel/api/active-count/?type=${type}`;
+            console.log('Fetching from:', url);
+            fetch(url, {
+              headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+              }
+            })
+            .then(response => {
+              console.log('Response status:', response.status);
+              return response.json();
+            })
+            .then(data => {
+              console.log('Active count data:', data);
+              document.getElementById('activeCount').textContent = data.count;
+            })
+            .catch(error => console.error('Error fetching active count:', error));
+            
+            activeMenuDropdown.classList.remove('active');
+          });
+        });
+      }
+
+      // Close card dropdowns when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.card-menu-wrapper')) {
+          if (pendingMenuDropdown) pendingMenuDropdown.classList.remove('active');
+          if (approvedMenuDropdown) approvedMenuDropdown.classList.remove('active');
+          if (activeMenuDropdown) activeMenuDropdown.classList.remove('active');
+        }
+      });
+
+      // Initialize Modern Horizontal Bar Chart for Status Distribution
+      const chartDataStr = '{{ status_chart_data|safe }}';
+      if (chartDataStr) {
+        try {
+          const chartData = JSON.parse(chartDataStr);
+          const ctx = document.getElementById('statusBarChart').getContext('2d');
+          
+          const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: chartData.labels,
+              datasets: [{
+                label: 'Count',
+                data: chartData.data,
+                backgroundColor: chartData.backgroundColor,
+                borderRadius: 6,
+                borderSkipped: false,
+                barThickness: 'flex',
+                maxBarThickness: 45
+              }]
+            },
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: false
+                },
+                tooltip: {
+                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                  padding: 12,
+                  titleFont: {
+                    size: 13,
+                    weight: 'bold'
+                  },
+                  bodyFont: {
+                    size: 12
+                  },
+                  callbacks: {
+                    label: function(context) {
+                      const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                      const percentage = ((context.parsed.x / total) * 100).toFixed(1);
+                      return 'Count: ' + context.parsed.x + ' (' + percentage + '%)';
+                    }
+                  }
+                }
+              },
+              scales: {
+                x: {
+                  beginAtZero: true,
+                  max: Math.max(...chartData.data) + 2,
+                  grid: {
+                    color: 'rgba(0, 0, 0, 0.05)',
+                    drawBorder: false
+                  },
+                  ticks: {
+                    font: {
+                      size: 11,
+                      weight: '500'
+                    },
+                    stepSize: 1
+                  }
+                },
+                y: {
+                  grid: {
+                    display: false,
+                    drawBorder: false
+                  },
+                  ticks: {
+                    font: {
+                      size: 12,
+                      weight: '500'
+                    },
+                    color: '#333',
+                    padding: 8
+                  }
+                }
+              }
+            }
+          });
+        } catch (e) {
+          console.error('Error initializing status bar chart:', e);
+        }
+      }
     </script>
   </body>
 </html>
+
+<script>
+  // Retain scroll position for action items pagination
+  document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're returning from pagination
+    const scrollPos = sessionStorage.getItem('actionItemsScrollPos');
+    if (scrollPos) {
+      setTimeout(() => {
+        window.scrollTo(0, parseInt(scrollPos));
+        sessionStorage.removeItem('actionItemsScrollPos');
+      }, 100);
+    }
+
+    // Store scroll position before pagination
+    const paginationButtons = document.querySelectorAll('.action-items-pagination a');
+    paginationButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const actionItemsSection = document.querySelector('.action-items-section');
+        if (actionItemsSection) {
+          const scrollOffset = actionItemsSection.getBoundingClientRect().top + window.pageYOffset - 20;
+          sessionStorage.setItem('actionItemsScrollPos', scrollOffset);
+        }
+      });
+    });
+  });
+</script>

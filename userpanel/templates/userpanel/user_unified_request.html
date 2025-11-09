@@ -963,7 +963,21 @@ body.modal-open {
         <!-- Borrow Request Content -->
         <div id="borrow-request-content" class="request-content">
             <h1><i class="fas fa-handshake"></i> Borrow Request List</h1>
-            <p class="form-description">Add multiple items to your borrow list, then submit your request all at once.</p>
+            <p class="form-description">Set your return date first, then add multiple items to your borrow list.</p>
+
+            <!-- Borrow Period (All Items) -->
+            <div class="borrow-period-section" style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h3 style="margin-top: 0; color: #152d64;"><i class="fas fa-calendar-alt" style="color: #152d64;"></i> Return Period (All Items)</h3>
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="borrow-batch-return-date"><strong>Return Date:<span class="required-asterisk">*</span></strong></label>
+                        <input type="date" id="borrow-batch-return-date" class="form-control" required>
+                    </div>
+                </div>
+                <small style="color: #6c757d; display: block; margin-top: 8px;">
+                    <i class="fas fa-info-circle"></i> This return date will apply to all items in your borrow request.
+                </small>
+            </div>
 
             <!-- Add Item to List Section -->
             <div class="add-item-section">
@@ -1035,11 +1049,6 @@ body.modal-open {
                                    class="form-control" min="1" placeholder="Enter quantity" required>
                         </div>
                         <div class="form-group">
-                            <label for="return-date-input">Return Date:</label>
-                            <input type="date" id="return-date-input" name="return_date" 
-                                   class="form-control" required>
-                        </div>
-                        <div class="form-group">
                             <button type="submit" class="btn-add-to-list">
                                 <i class="fas fa-plus"></i> Add to List
                             </button>
@@ -1055,6 +1064,9 @@ body.modal-open {
                 </form>
             </div>
 
+            <!-- Hidden batch return date for form submission -->
+            <input type="hidden" id="borrow-batch-return-date-hidden" name="batch_return_date">
+
             <!-- List Items Section -->
             <div class="list-section">
                 <h3><i class="fas fa-list"></i> Borrow Items <span id="borrow-list-count">({{ borrow_cart_items|length }})</span></h3>
@@ -1065,7 +1077,6 @@ body.modal-open {
                             <tr>
                                 <th>Item</th>
                                 <th>Quantity</th>
-                                <th>Return Date</th>
                                 <th>Purpose</th>
                                 <th>Actions</th>
                             </tr>
@@ -1077,10 +1088,6 @@ body.modal-open {
                                 <td>
                                     <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
                                            value="{{ item.quantity }}" min="1">
-                                </td>
-                                <td>
-                                    <input type="date" class="return-date-edit" data-supply-id="{{ item.supply.id }}" 
-                                           value="{{ item.return_date|date:'Y-m-d' }}">
                                 </td>
                                 <td>{{ item.purpose|truncatewords:5 }}</td>
                                 <td>
@@ -1106,6 +1113,7 @@ body.modal-open {
                 <form id="submit-borrow-form" method="post" action="{% url 'submit_borrow_list_request' %}">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="submit_request">
+                    <input type="hidden" id="borrow-batch-return-date-hidden" name="batch_return_date">
                     <div class="form-group">
                         <label for="general-purpose">General Purpose/Notes (Optional):</label>
                         <textarea id="general-purpose" name="general_purpose" class="form-control" 
@@ -1247,11 +1255,12 @@ $(document).ready(function() {
     // Initialize recent requests with supply type
     updateRecentRequests('supply');
     
-    // Set minimum return date to tomorrow
+    // Set minimum return date to tomorrow for both supply and borrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const minDate = tomorrow.toISOString().split('T')[0];
     $('#return-date-input').attr('min', minDate);
+    $('#borrow-batch-return-date').attr('min', minDate);
     
     // Add supply item to list
     $('#add-supply-form').on('submit', function(e) {
@@ -1390,8 +1399,15 @@ $(document).ready(function() {
         const propertyId = document.getElementById('borrow-select').value;
         const propertyName = document.getElementById('borrow-search').value;
         const quantity = parseInt(document.getElementById('borrow-quantity-input').value);
-        const returnDate = document.getElementById('return-date-input').value;
+        const batchReturnDate = document.getElementById('borrow-batch-return-date').value;
         const purpose = document.getElementById('purpose-input').value;
+        
+        // Validate batch return date is set
+        if (!batchReturnDate) {
+            showMessage('Please set the return date first in the "Return Period" section', 'error');
+            document.getElementById('borrow-batch-return-date').focus();
+            return;
+        }
         
         if (!propertyId) {
             showMessage('Please select an item', 'error');
@@ -1403,15 +1419,13 @@ $(document).ready(function() {
             return;
         }
         
-        if (!returnDate) {
-            showMessage('Please select a return date', 'error');
-            return;
-        }
-        
         if (!purpose) {
             showMessage('Please enter a purpose', 'error');
             return;
         }
+        
+        // Add batch return date to form data
+        formData.append('return_date', batchReturnDate);
         
         $.ajax({
             url: '{% url "add_to_borrow_list" %}',
@@ -1430,12 +1444,11 @@ $(document).ready(function() {
                     const existingRow = $(`#borrow-list-body tr[data-supply-id="${propertyId}"]`);
                     
                     if (existingRow.length) {
-                        // Update existing row
+                        // Update existing row - just update quantity
                         const quantityInput = existingRow.find('.quantity-edit');
                         const newQuantity = parseInt(quantityInput.val()) + parseInt(quantity);
                         quantityInput.val(newQuantity);
-                        existingRow.find('.return-date-edit').val(returnDate);
-                        existingRow.find('td:nth-child(4)').text(purpose.split(' ').slice(0, 5).join(' ') + (purpose.split(' ').length > 5 ? '...' : ''));
+                        existingRow.find('td:nth-child(3)').text(purpose.split(' ').slice(0, 5).join(' ') + (purpose.split(' ').length > 5 ? '...' : ''));
                     } else {
                         // Add new row to table
                         const table = $(`#borrow-list-body`);
@@ -1445,10 +1458,6 @@ $(document).ready(function() {
                                 <td>
                                     <input type="number" class="quantity-edit" data-supply-id="${propertyId}" 
                                            value="${quantity}" min="1">
-                                </td>
-                                <td>
-                                    <input type="date" class="return-date-edit" data-supply-id="${propertyId}" 
-                                           value="${returnDate}">
                                 </td>
                                 <td>${purpose.split(' ').slice(0, 5).join(' ')}${purpose.split(' ').length > 5 ? '...' : ''}</td>
                                 <td>
@@ -1467,7 +1476,6 @@ $(document).ready(function() {
                                         <tr>
                                             <th>Item</th>
                                             <th>Quantity</th>
-                                            <th>Return Date</th>
                                             <th>Purpose</th>
                                             <th>Actions</th>
                                         </tr>
@@ -1488,7 +1496,6 @@ $(document).ready(function() {
                                             <tr>
                                                 <th>Item</th>
                                                 <th>Quantity</th>
-                                                <th>Return Date</th>
                                                 <th>Purpose</th>
                                                 <th>Actions</th>
                                             </tr>
@@ -1517,7 +1524,6 @@ $(document).ready(function() {
                     document.getElementById('borrow-search').value = '';
                     document.getElementById('borrow-select').value = '';
                     document.getElementById('borrow-quantity-input').value = '';
-                    document.getElementById('return-date-input').value = '';
                     document.getElementById('purpose-input').value = '';
                     
                     // Clear any error highlighting
@@ -1558,11 +1564,10 @@ $(document).ready(function() {
         });
     });
     
-    // Update borrow list item
+    // Update borrow list item quantity only (no return date)
     $(document).on('click', '.btn-update-borrow', function() {
         const supplyId = $(this).data('supply-id');
         const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
-        const newReturnDate = $(`.return-date-edit[data-supply-id="${supplyId}"]`).val();
         
         $.ajax({
             url: '{% url "update_borrow_list_item" %}',
@@ -1570,7 +1575,6 @@ $(document).ready(function() {
             data: {
                 'supply_id': supplyId,
                 'quantity': newQuantity,
-                'return_date': newReturnDate,
                 'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
             },
             success: function(response) {
@@ -1664,11 +1668,10 @@ $(document).ready(function() {
         });
     });
     
-    // Auto-save borrow quantity and return date on change
-    $(document).on('change', '#borrow-list-body .quantity-edit, #borrow-list-body .return-date-edit', function() {
+    // Auto-save borrow quantity on change
+    $(document).on('change', '#borrow-list-body .quantity-edit', function() {
         const supplyId = $(this).closest('tr').data('supply-id');
         const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
-        const newReturnDate = $(`.return-date-edit[data-supply-id="${supplyId}"]`).val();
         
         $.ajax({
             url: '{% url "update_borrow_list_item" %}',
@@ -1676,7 +1679,6 @@ $(document).ready(function() {
             data: {
                 'supply_id': supplyId,
                 'quantity': newQuantity,
-                'return_date': newReturnDate,
                 'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
             },
             success: function(response) {
@@ -1685,7 +1687,7 @@ $(document).ready(function() {
                 }
             },
             error: function() {
-                showMessage('Error updating borrow details', 'error');
+                showMessage('Error updating borrow quantity', 'error');
             }
         });
     });
@@ -1784,19 +1786,34 @@ $(document).ready(function() {
     $('#submit-borrow-form').on('submit', function(e) {
         e.preventDefault();
         
+        // Validate batch return date
+        const batchReturnDate = document.getElementById('borrow-batch-return-date').value;
+        if (!batchReturnDate) {
+            showMessage('Please set the return date first', 'error');
+            document.getElementById('borrow-batch-return-date').focus();
+            return;
+        }
+        
         if (!confirm('Are you sure you want to submit this borrow request?')) {
             return;
         }
         
-        const formData = $(this).serialize();
-        
         // Store active tab before redirect
         localStorage.setItem('activeRequestTab', 'borrow');
+        
+        // Use FormData to ensure all data is properly included
+        const formData = new FormData(this);
+        formData.append('batch_return_date', batchReturnDate);
         
         $.ajax({
             url: '{% url "submit_borrow_list_request" %}',
             type: 'POST',
             data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
             success: function(response) {
                 console.log('Borrow submit response:', response);
                 if (response.status === 'success') {

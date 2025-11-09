@@ -31,6 +31,11 @@ urlpatterns = [
     path('all_requests/', UserAllRequestsView.as_view(), name='user_all_requests'),
     path('get-item-availability/', views.get_item_availability, name='get_item_availability'),
     
+    # Dashboard API endpoints for card filters
+    path('api/pending-count/', views.get_pending_count, name='get_pending_count'),
+    path('api/approved-count/', views.get_approved_count, name='get_approved_count'),
+    path('api/active-count/', views.get_active_count, name='get_active_count'),
+    
     # Password change URLs with custom views
     path('password/change/', 
          UserPasswordChangeView.as_view(), 

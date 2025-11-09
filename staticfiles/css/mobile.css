@@ -43,6 +43,133 @@
 }
 
 /* ==============================================
+   MOBILE DASHBOARD CARD GRID (PRIORITY)
+   ============================================== */
+
+@media (max-width: 768px) {
+
+    /* Reset everything for mobile dashboard */
+    body {
+        padding-top: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Mobile header stays fixed */
+    .mobile-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 60px !important;
+        z-index: 1000 !important;
+    }
+
+    /* Content wrapper - starts below mobile header */
+    .content-wrapper {
+        padding-top: 0 !important;
+        margin-top: 60px !important;
+    }
+
+    /* Hide desktop sidebar completely */
+    .sidebar {
+        position: fixed !important;
+        transform: translateX(-100%) !important;
+    }
+
+    /* Parent container - clean slate */
+    .parent {
+        margin: 0 !important;
+        padding: 10px 15px !important;
+        background-color: #f5f5f5 !important;
+        min-height: calc(100vh - 60px) !important;
+    }
+
+    /* Dashboard stats - 2x2 grid */
+    .dashboard-stats {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 4px !important;
+        row-gap: 4px !important;
+        column-gap: 4px !important;
+        margin: 0 0 15px 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Individual stat cards - ULTRA COMPACT */
+    .stat-card {
+        background: white !important;
+        color: #152d64 !important;
+        padding: 4px 8px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+        text-align: left !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border: 1px solid #ddd !important;
+        transition: all 0.2s ease !important;
+        position: relative !important;
+        min-height: 0 !important;
+        height: auto !important;
+    }
+
+    .stat-card:hover {
+        box-shadow: 0 4px 10px rgba(21, 45, 100, 0.12) !important;
+        transform: translateY(-2px) !important;
+    }
+
+    .stat-card:active {
+        transform: translateY(0) !important;
+    }
+
+    /* Stat card content wrapper (left side) */
+    .stat-card>div:first-child {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        gap: 0px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        line-height: 1 !important;
+    }
+
+    /* Stat card title */
+    .stat-card .stat-title {
+        font-size: 7px !important;
+        font-weight: 600 !important;
+        color: #152d64 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.3px !important;
+        margin: 0 0 0px 0 !important;
+        padding: 0 !important;
+        opacity: 0.8 !important;
+        line-height: 1 !important;
+    }
+
+    /* Stat card value */
+    .stat-card .stat-value {
+        font-size: 15px !important;
+        font-weight: bold !important;
+        color: #152d64 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1 !important;
+    }
+
+    /* Icon container on the right */
+    .stat-card i,
+    .stat-card .stat-icon {
+        font-size: 15px !important;
+        color: #152d64 !important;
+        opacity: 1 !important;
+        flex-shrink: 0 !important;
+        margin-left: 4px !important;
+    }
+}
+
+/* ==============================================
    MOBILE TOUCH OPTIMIZATIONS
    ============================================== */
 
@@ -112,7 +239,7 @@
    ============================================== */
 
 @media (max-width: 768px) {
-    
+
     /* Mobile header enhancements */
     .mobile-header {
         position: fixed !important;
@@ -226,26 +353,26 @@
     .dashboard-grid,
     .card-grid {
         grid-template-columns: 1fr !important;
-        gap: 15px;
+        gap: 10px;
     }
 
     /* Flex layouts */
     .flex-row {
         flex-direction: column !important;
-        gap: 15px;
+        gap: 10px;
     }
 
     .flex-wrap {
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 8px;
     }
 
     /* Card components */
     .card,
     .info-card,
     .stat-card {
-        margin-bottom: 15px;
-        padding: 15px;
+        margin-bottom: 10px;
+        padding: 12px;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
@@ -256,7 +383,7 @@
    ============================================== */
 
 @media (max-width: 768px) {
-    
+
     /* Sidebar mobile improvements */
     .sidebar {
         position: fixed !important;
@@ -299,7 +426,7 @@
         -webkit-user-select: none !important;
         -webkit-tap-highlight-color: rgba(251, 255, 0, 0.1) !important;
         touch-action: manipulation !important;
-                box-sizing: border-box !important;
+        box-sizing: border-box !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
         position: relative !important;
         z-index: 1051 !important;
@@ -350,25 +477,7 @@
 
     /* Close button for sidebar */
     .sidebar-close {
-        position: absolute !important;
-        top: 15px !important;
-        right: 15px !important;
-        background: none !important;
-        border: none !important;
-        color: #fbff00 !important;
-        font-size: 20px !important;
-        padding: 8px !important;
-        border-radius: 50% !important;
-        cursor: pointer !important;
-        z-index: 1060 !important;
-        min-width: 36px !important;
-        min-height: 36px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        transition: background-color 0.2s ease !important;
-        touch-action: manipulation !important;
-        -webkit-tap-highlight-color: rgba(251, 255, 0, 0.1) !important;
+        display: none !important;
     }
 
     .sidebar-close:hover,
@@ -390,6 +499,7 @@
         background-color: rgba(255, 255, 255, 0.2) !important;
         border-color: rgba(255, 255, 255, 0.3) !important;
     }
+
     /* Navigation menu improvements */
     .sidebar ul {
         padding: 10px 0 !important;
@@ -498,8 +608,8 @@
     .mobile-stack-table tr {
         display: block;
         border: 1px solid #ddd;
-        margin-bottom: 15px;
-        padding: 15px;
+        margin-bottom: 10px;
+        padding: 12px;
         border-radius: 8px;
         background: white;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -510,7 +620,7 @@
         display: block;
         text-align: left;
         border: none;
-        padding: 8px 8px 8px 35%;
+        padding: 6px 8px 6px 35%;
         position: relative;
     }
 
@@ -524,7 +634,7 @@
         white-space: nowrap;
         font-weight: bold;
         color: #152d64;
-        font-size: 12px;
+        font-size: 11px;
         text-transform: uppercase;
     }
 }
@@ -867,7 +977,28 @@
    ============================================== */
 
 @media (max-width: 480px) {
-    
+
+    /* Dashboard cards on extra small screens - maintain 2x2 */
+    .dashboard-stats {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+        margin: 75px 0 15px 0 !important;
+    }
+
+    .stat-card {
+        padding: 14px 10px !important;
+        min-height: 90px !important;
+    }
+
+    .stat-card .stat-title {
+        font-size: 10px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .stat-card .stat-value {
+        font-size: 24px !important;
+    }
+
     /* Sidebar adjustments for very small screens */
     .sidebar {
         width: 260px !important;
@@ -915,7 +1046,7 @@
    ============================================== */
 
 @media (max-width: 360px) {
-    
+
     .sidebar {
         width: 240px !important;
     }

@@ -693,8 +693,8 @@ h3 {
   margin: 3% auto;
   padding: 30px;
   border-radius: 12px;
-  width: 90%;
-  max-width: 900px;
+  width: 80%;
+  max-width: 1400px;
   max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
@@ -727,12 +727,64 @@ h3 {
   padding-bottom: 10px;
 }
 
-/* Form container - landscape grid layout */
+/* Form container - landscape flex layout for wrapping */
 .modal-content form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px 30px;
-  align-items: start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+/* ===== FORM LAYOUT VARIANTS ===== */
+
+/* Three-column layout for form fields */
+.form-layout-3col form .form-group,
+.form-layout-3col form p {
+  flex: 1 1 calc(33.333% - 20px);
+  min-width: 250px;
+}
+
+/* Field styling for 3-column layouts */
+.form-layout-3col form p,
+.form-layout-3col form .form-group {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.form-layout-3col form p label,
+.form-layout-3col form .form-group label {
+  font-weight: bold;
+  color: #152d64;
+  margin-bottom: 6px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-layout-3col form p input,
+.form-layout-3col form p select,
+.form-layout-3col form p textarea,
+.form-layout-3col form .form-group input,
+.form-layout-3col form .form-group select,
+.form-layout-3col form .form-group textarea {
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.form-layout-3col form p input:focus,
+.form-layout-3col form p select:focus,
+.form-layout-3col form p textarea:focus,
+.form-layout-3col form .form-group input:focus,
+.form-layout-3col form .form-group select:focus,
+.form-layout-3col form .form-group textarea:focus {
+  outline: none;
+  border-color: #152d64;
+  box-shadow: 0 0 5px rgba(21, 45, 100, 0.3);
 }
 
 /* Form field containers */
@@ -746,13 +798,9 @@ h3 {
   margin: 0;
 }
 
-/* Style for Django form.as_p paragraphs */
-.modal-content form p {
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-content form p label {
+/* Default styling for form inputs across all modals */
+.modal-content form p label,
+.modal-content form>label {
   font-weight: bold;
   color: #152d64;
   margin-bottom: 6px;
@@ -761,7 +809,10 @@ h3 {
 
 .modal-content form p input,
 .modal-content form p select,
-.modal-content form p textarea {
+.modal-content form p textarea,
+.modal-content form>input,
+.modal-content form>select,
+.modal-content form>textarea {
   padding: 12px;
   border: 2px solid #ddd;
   border-radius: 8px;
@@ -771,31 +822,7 @@ h3 {
 
 .modal-content form p input:focus,
 .modal-content form p select:focus,
-.modal-content form p textarea:focus {
-  outline: none;
-  border-color: #152d64;
-  box-shadow: 0 0 5px rgba(21, 45, 100, 0.3);
-}
-
-/* Direct form elements (for edit modal) */
-.modal-content form>label {
-  font-weight: bold;
-  color: #152d64;
-  margin-bottom: 6px;
-  font-size: 14px;
-}
-
-.modal-content form>input,
-.modal-content form>select,
-.modal-content form>textarea {
-  padding: 12px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: border-color 0.3s ease;
-  margin-bottom: 0;
-}
-
+.modal-content form p textarea:focus,
 .modal-content form>input:focus,
 .modal-content form>select:focus,
 .modal-content form>textarea:focus {
