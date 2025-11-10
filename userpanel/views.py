@@ -980,8 +980,11 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
     def _calculate_30day_activity_trend(self, requests, borrows, reservations):
         """Calculate activity trend for the last 30 days for line chart"""
         from datetime import timedelta, datetime
+        from django.conf import settings
+        from zoneinfo import ZoneInfo
         
-        today = timezone.now().date()
+        local_tz = ZoneInfo(settings.TIME_ZONE)
+        today = timezone.now().astimezone(local_tz).date()
         thirty_days_ago = today - timedelta(days=29)  # 30 days including today
         
         # Create a dictionary to track daily counts
@@ -1120,8 +1123,12 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
 
     def _get_active_reservations(self, reservations):
         """Get reservations that are approved and currently active"""
+        from django.conf import settings
+        from zoneinfo import ZoneInfo
+        
         active_reservations = []
-        today = timezone.now().date()
+        local_tz = ZoneInfo(settings.TIME_ZONE)
+        today = timezone.now().astimezone(local_tz).date()
         
         for item in reservations:
             if isinstance(item, dict):
@@ -1153,8 +1160,12 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
 
     def _get_active_borrows(self, borrows):
         """Get borrows that are active and currently borrowed"""
+        from django.conf import settings
+        from zoneinfo import ZoneInfo
+        
         active_borrows = []
-        today = timezone.now().date()
+        local_tz = ZoneInfo(settings.TIME_ZONE)
+        today = timezone.now().astimezone(local_tz).date()
         seen_batch_requests = {}  # Track batch requests to avoid duplicates
         
         for item in borrows:
@@ -1509,10 +1520,10 @@ def add_to_borrow_list(request):
             # Validate return date
             if return_date:
                 return_date_obj = datetime.strptime(return_date, '%Y-%m-%d').date()
-                if return_date_obj <= datetime.now().date():
+                if return_date_obj < datetime.now().date():
                     return JsonResponse({
                         'status': 'error',
-                        'message': 'Return date must be in the future'
+                        'message': 'Return date cannot be in the past'
                     })
             
             # Get or create cart in session
@@ -1675,10 +1686,10 @@ def submit_borrow_list_request(request):
             batch_return_date_obj = datetime.strptime(batch_return_date, '%Y-%m-%d').date()
             
             # Validate return date
-            if batch_return_date_obj <= datetime.now().date():
+            if batch_return_date_obj < datetime.now().date():
                 return JsonResponse({
                     'status': 'error',
-                    'message': 'Return date must be in the future'
+                    'message': 'Return date cannot be in the past'
                 })
             
             # Create the batch borrow request
@@ -2278,7 +2289,10 @@ class UserAllRequestsView(LoginRequiredMixin, PermissionRequiredMixin, TemplateV
                 req for req in all_requests
                 if (search_query in req['item_name'].lower() or 
                     search_query in req['purpose'].lower() or
-                    search_query in req['type'].lower())
+                    search_query in req['type'].lower() or
+                    search_query in req['id'].lower() or
+                    search_query in req['status'].lower() or
+                    search_query in str(req['quantity']).lower())
             ]
         
         # Sort by date (most recent first)
@@ -2290,8 +2304,12 @@ class UserAllRequestsView(LoginRequiredMixin, PermissionRequiredMixin, TemplateV
             unique_statuses.add((req['status_raw'], req['status']))
         unique_statuses = sorted(list(unique_statuses))
         
-        # Pagination
-        paginator = Paginator(all_requests, 10)  # Show 10 requests per page
+        # Pagination - use 6 items per page on mobile, 10 on desktop
+        user_agent = self.request.META.get('HTTP_USER_AGENT', '').lower()
+        is_mobile = any(device in user_agent for device in ['mobile', 'android', 'iphone', 'ipad', 'windows phone'])
+        
+        items_per_page = 6 if is_mobile else 10
+        paginator = Paginator(all_requests, items_per_page)
         page_number = self.request.GET.get('page', 1)
         
         try:
@@ -2308,7 +2326,8 @@ class UserAllRequestsView(LoginRequiredMixin, PermissionRequiredMixin, TemplateV
             'status_filter': status_filter,
             'search_query': search_query,
             'unique_statuses': unique_statuses,
-            'total_requests': len(all_requests)
+            'total_requests': len(all_requests),
+            'is_mobile': is_mobile
         })
         
         return context

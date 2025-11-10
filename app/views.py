@@ -1,6 +1,27 @@
 from django.views.decorators.http import require_POST, require_http_methods
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+import re
+
+def redirect_with_tab(request, view_name):
+    """
+    Helper function to redirect while preserving the current tab from the referer URL.
+    
+    Args:
+        request: The HTTP request object
+        view_name: The name of the view to redirect to
+    
+    Returns:
+        HttpResponseRedirect to the view, optionally with tab parameter preserved
+    """
+    referer = request.META.get('HTTP_REFERER', '')
+    if 'tab=' in referer:
+        # Extract the tab parameter from the referer
+        tab_match = re.search(r'tab=([^&]+)', referer)
+        if tab_match:
+            tab = tab_match.group(1)
+            return redirect(f"{reverse(view_name)}?tab={tab}")
+    return redirect(view_name)
 
 @require_POST
 def update_damage_status(request, pk):
@@ -6083,14 +6104,14 @@ def claim_batch_items(request, batch_id):
     # Only allow claiming if batch is in for_claiming status
     if batch_request.status != 'for_claiming':
         messages.error(request, 'This request is not available for claiming.')
-        return redirect('user_supply_requests')
+        return redirect_with_tab(request, 'user_supply_requests')
     
     # Get all approved items that haven't been claimed yet
     approved_items = batch_request.items.filter(status='approved', claimed_date__isnull=True)
     
     if not approved_items.exists():
         messages.error(request, 'No approved items available for claiming.')
-        return redirect('user_supply_requests')
+        return redirect_with_tab(request, 'user_supply_requests')
     
     # Check stock availability for all items before processing
     insufficient_stock_items = []
@@ -6107,7 +6128,7 @@ def claim_batch_items(request, batch_id):
     
     if insufficient_stock_items:
         messages.error(request, f"Insufficient stock for items: {', '.join(insufficient_stock_items)}")
-        return redirect('user_supply_requests')
+        return redirect_with_tab(request, 'user_supply_requests')
     
     # Process each approved item
     claimed_items = []
@@ -6182,7 +6203,7 @@ def claim_batch_items(request, batch_id):
         description=f"Completed batch request #{batch_id} with {len(claimed_items)} items claimed"
     )
     
-    return redirect('user_supply_requests')
+    return redirect_with_tab(request, 'user_supply_requests')
 
 
 @permission_required('app.view_admin_module') 
@@ -6385,20 +6406,30 @@ def claim_borrow_batch_items(request, batch_id):
     """
     Handle claiming of all approved items in a batch borrow request.
     This will deduct stock and mark items as active.
+    Returns JSON response for AJAX calls from list view.
     """
     batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
     
+    # Check if this is an AJAX request
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    
     # Only allow claiming if batch is in for_claiming status
     if batch_request.status != 'for_claiming':
-        messages.error(request, 'This request is not available for claiming.')
-        return redirect('user_borrow_requests')
+        error_msg = 'This request is not available for claiming.'
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': error_msg})
+        messages.error(request, error_msg)
+        return redirect_with_tab(request, 'user_borrow_requests')
     
     # Get all approved items that haven't been claimed yet
     approved_items = batch_request.items.filter(status='approved', claimed_date__isnull=True)
     
     if not approved_items.exists():
-        messages.error(request, 'No approved items available for claiming.')
-        return redirect('user_borrow_requests')
+        error_msg = 'No approved items available for claiming.'
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': error_msg})
+        messages.error(request, error_msg)
+        return redirect_with_tab(request, 'user_borrow_requests')
     
     # Check stock availability for all items before processing
     insufficient_stock_items = []
@@ -6410,8 +6441,11 @@ def claim_borrow_batch_items(request, batch_id):
             insufficient_stock_items.append(f"{item.property.property_name} (need: {approved_qty}, available: {available_quantity})")
     
     if insufficient_stock_items:
-        messages.error(request, f"Insufficient stock for: {', '.join(insufficient_stock_items)}")
-        return redirect('user_borrow_requests')
+        error_msg = f"Insufficient stock for: {', '.join(insufficient_stock_items)}"
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': error_msg})
+        messages.error(request, error_msg)
+        return redirect_with_tab(request, 'user_borrow_requests')
     
     # Process all approved items
     claimed_items = []
@@ -6465,8 +6499,14 @@ def claim_borrow_batch_items(request, batch_id):
         description=f"Activated batch borrow request #{batch_id} with {len(claimed_items)} items claimed"
     )
     
-    messages.success(request, f'Successfully claimed {len(claimed_items)} items.')
-    return redirect('user_borrow_requests')
+    success_msg = f'Successfully claimed {len(claimed_items)} items.'
+    
+    # Return JSON response for AJAX, or redirect for normal form submission
+    if is_ajax:
+        return JsonResponse({'success': True, 'message': success_msg})
+    
+    messages.success(request, success_msg)
+    return redirect_with_tab(request, 'user_borrow_requests')
 
 @permission_required('app.view_admin_module')
 @login_required
@@ -6475,20 +6515,30 @@ def return_borrow_batch_items(request, batch_id):
     """
     Handle returning of all active items in a batch borrow request.
     This will increase stock and mark items as returned.
+    Returns JSON response for AJAX calls from list view.
     """
     batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
     
+    # Check if this is an AJAX request
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    
     # Only allow returning if batch is in active or overdue status
     if batch_request.status not in ['active', 'overdue']:
-        messages.error(request, 'This request is not available for returning.')
-        return redirect('user_borrow_requests')
+        error_msg = 'This request is not available for returning.'
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': error_msg})
+        messages.error(request, error_msg)
+        return redirect_with_tab(request, 'user_borrow_requests')
     
     # Get all active items
     active_items = batch_request.items.filter(status__in=['active', 'overdue'])
     
     if not active_items.exists():
-        messages.error(request, 'No active items available for returning.')
-        return redirect('user_borrow_requests')
+        error_msg = 'No active items available for returning.'
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': error_msg})
+        messages.error(request, error_msg)
+        return redirect_with_tab(request, 'user_borrow_requests')
     
     # Process all active items
     returned_items = []
@@ -6538,8 +6588,14 @@ def return_borrow_batch_items(request, batch_id):
         description=f"Completed batch borrow request #{batch_id} with {len(returned_items)} items returned"
     )
     
-    messages.success(request, f'Successfully returned {len(returned_items)} items.')
-    return redirect('user_borrow_requests')
+    success_msg = f'Successfully returned {len(returned_items)} items.'
+    
+    # Return JSON response for AJAX, or redirect for normal form submission
+    if is_ajax:
+        return JsonResponse({'success': True, 'message': success_msg})
+    
+    messages.success(request, success_msg)
+    return redirect_with_tab(request, 'user_borrow_requests')
 
 class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
     """View for displaying batch borrow requests - shows all for admin, user's own for regular users"""

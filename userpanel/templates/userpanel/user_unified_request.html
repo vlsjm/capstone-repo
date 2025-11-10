@@ -685,6 +685,15 @@
 body.modal-open {
     overflow: hidden;
 }
+
+/* Mobile table optimization */
+@media (max-width: 768px) {
+    .list-table td:nth-child(2),
+    .list-table td:nth-child(3) {
+        text-align: center;
+    }
+}
+
 </style>
 {% endblock %}
 
@@ -1048,17 +1057,19 @@ body.modal-open {
                             <input type="number" id="borrow-quantity-input" name="quantity" 
                                    class="form-control" min="1" placeholder="Enter quantity" required>
                         </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn-add-to-list">
-                                <i class="fas fa-plus"></i> Add to List
-                            </button>
-                        </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group full-width">
                             <label for="purpose-input">Purpose:<span class="required-asterisk">*</span></label>
                             <textarea id="purpose-input" name="purpose" class="form-control" 
                                       placeholder="Describe the purpose for borrowing this item..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <button type="submit" class="btn-add-to-list">
+                                <i class="fas fa-plus"></i> Add to List
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -1077,11 +1088,10 @@ body.modal-open {
                             <tr>
                                 <th>Item</th>
                                 <th>Quantity</th>
-                                <th>Purpose</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="borrow-list-body">
                             {% for item in borrow_cart_items %}
                             <tr data-supply-id="{{ item.supply.id }}">
                                 <td>{{ item.supply.property_name }}</td>
@@ -1089,7 +1099,6 @@ body.modal-open {
                                     <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
                                            value="{{ item.quantity }}" min="1">
                                 </td>
-                                <td>{{ item.purpose|truncatewords:5 }}</td>
                                 <td>
                                     <button class="btn-remove-borrow" data-supply-id="{{ item.supply.id }}">
                                         <i class="fas fa-trash"></i> Remove
@@ -2294,30 +2303,52 @@ function initializeDropdown(config) {
         console.log(`[${name}] Visible options: ${count}`);
     }
     
+    // Update dropdown position (for scroll/resize handling)
+    function updateDropdownPosition() {
+        if (!isDropdownOpen) return;
+        
+        const inputRect = searchInput.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        
+        // Calculate position
+        let dropdownWidth;
+        let left;
+        
+        if (viewportWidth <= 768) {
+            dropdownWidth = Math.min(inputRect.width, viewportWidth - 32);
+            left = Math.max(16, inputRect.left);
+        } else {
+            dropdownWidth = inputRect.width;
+            left = inputRect.left;
+        }
+        
+        // Update dropdown position and size
+        dropdown.style.width = dropdownWidth + 'px';
+        dropdown.style.left = left + 'px';
+        dropdown.style.top = inputRect.bottom + 'px';
+        
+        // Check if dropdown would go off screen
+        const dropdownHeight = Math.min(300, dropdown.scrollHeight);
+        if (inputRect.bottom + dropdownHeight > viewportHeight) {
+            // Not enough space below, check if there's space above
+            if (inputRect.top > dropdownHeight) {
+                dropdown.style.top = (inputRect.top - dropdownHeight) + 'px';
+            }
+        }
+    }
+    
     // Toggle dropdown visibility
     function toggleDropdown() {
         isDropdownOpen = !isDropdownOpen;
         
         if (isDropdownOpen) {
-            const inputRect = searchInput.getBoundingClientRect();
-            const viewportWidth = window.innerWidth;
-            
-            let dropdownWidth;
-            if (viewportWidth <= 768) {
-                dropdownWidth = Math.min(inputRect.width, viewportWidth - 32);
-                dropdown.style.left = Math.max(16, inputRect.left) + 'px';
-            } else {
-                dropdownWidth = inputRect.width;
-                dropdown.style.left = inputRect.left + 'px';
-            }
-            
-            dropdown.style.width = dropdownWidth + 'px';
-            dropdown.style.top = (inputRect.bottom + window.scrollY) + 'px';
             dropdown.style.display = 'block';
             dropdown.style.position = 'fixed';
             dropdown.style.zIndex = '999999';
             
             document.body.appendChild(dropdown);
+            updateDropdownPosition();
             searchInput.focus();
             console.log(`[${name}] Dropdown opened`);
         } else {
@@ -2602,20 +2633,31 @@ function initializeDropdown(config) {
         }
     });
     
-    // Event: Close on scroll
+    // Event: Update position on scroll
     window.addEventListener('scroll', function() {
         if (isDropdownOpen && dropdown.parentNode === document.body) {
-            toggleDropdown();
+            updateDropdownPosition();
         }
-    });
+    }, true); // Use capture phase to catch all scroll events
     
-    // Event: Close on resize
+    // Event: Update position when any parent element scrolls
+    let scrollableParent = searchInput.parentElement;
+    while (scrollableParent) {
+        scrollableParent.addEventListener('scroll', function() {
+            if (isDropdownOpen && dropdown.parentNode === document.body) {
+                updateDropdownPosition();
+            }
+        });
+        scrollableParent = scrollableParent.parentElement;
+    }
+    
+    // Event: Update position on resize
     let resizeTimeout;
     window.addEventListener('resize', function() {
         if (isDropdownOpen && dropdown.parentNode === document.body) {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(function() {
-                toggleDropdown();
+                updateDropdownPosition();
             }, 100);
         }
     });
