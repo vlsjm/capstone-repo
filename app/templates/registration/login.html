@@ -31,19 +31,52 @@
 
       .illustration-section {
         flex: 1;
-        background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+        background-image: url("{% static 'images/CvSU Bacoor Campus New Campus.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 30px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .illustration-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.85);
+        z-index: 1;
+      }
+
+      .illustration-section::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 120px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120' preserveAspectRatio='none'%3E%3Cpath fill='%23152d64' d='M0,0 L0,40 Q360,100 720,60 T1440,40 L1440,0 L1440,120 L0,120 Z'/%3E%3C/svg%3E");
+        background-size: cover;
+        background-repeat: no-repeat;
+        z-index: 4;
+        display: none;
       }
 
       .illustration {
-        max-width: 70%;
-        max-height: 50vh;
+        max-width: 85%;
+        max-height: 65vh;
         width: auto;
         height: auto;
         object-fit: contain;
+        position: relative;
+        z-index: 2;
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
       }
 
       .form-section {
@@ -54,6 +87,20 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        border-radius: 0;
+        position: relative;
+      }
+
+      .form-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100px;
+        width: 200px;
+        height: 100%;
+        background: #152d64;
+        transform: skewX(-10deg);
+        z-index: -1;
       }
 
       .form-wrapper {
@@ -82,32 +129,6 @@
 
       .create-account-link:hover {
         color: #7092db;
-      }
-
-      .divider {
-        display: flex;
-        align-items: center;
-        margin: 30px 0;
-
-        font-size: 14px;
-      }
-
-      .divider::before,
-      .divider::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background: #e5e7eb;
-      }
-
-      .divider span {
-        padding: 0 20px;
-        background: #152d64;
-        color: #ffffff;
-      }
-
-      .or-text {
-        color: #ffffff;
       }
 
       .form-group {
@@ -139,7 +160,7 @@
         width: 100%;
         padding: 16px 50px 16px 16px;
         border: 2px solid #e5e7eb;
-        border-radius: 8px;
+        border-radius: 12px;
         font-size: 16px;
         transition: all 0.3s ease;
         background: #f9fafb;
@@ -178,7 +199,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        color: #374151;
+        color: #ffffff;
         font-size: 14px;
       }
 
@@ -267,7 +288,7 @@
       .errorlist {
         background: #fef2f2;
         border: 1px solid #fecaca;
-        border-radius: 6px;
+        border-radius: 12px;
         padding: 12px;
         margin-bottom: 16px;
         list-style: none;
@@ -285,7 +306,7 @@
 
       .messages li {
         padding: 12px 16px;
-        border-radius: 6px;
+        border-radius: 12px;
         margin-bottom: 12px;
         font-size: 14px;
       }
@@ -316,20 +337,35 @@
         }
 
         .illustration-section {
-          min-height: 35vh;
-          padding: 20px;
+          min-height: 25vh;
+          padding: 15px;
           flex: 0 0 auto;
+          border-radius: 0;
+          clip-path: none;
+        }
+
+        .illustration-section::after {
+          display: block;
+          height: 100px;
         }
 
         .illustration {
-          max-width: 200px;
-          max-height: 200px;
+          max-width: 300px;
+          max-height: 300px;
         }
 
         .form-section {
-          padding: 30px 20px;
+          padding: 35px 20px;
           min-height: auto;
           flex: 1;
+          border-radius: 0;
+          margin-top: 0;
+          position: relative;
+          z-index: 3;
+        }
+
+        .form-section::before {
+          display: none;
         }
 
         .form-wrapper {
@@ -349,14 +385,14 @@
 
         .inputAut {
           padding: 14px 45px 14px 14px;
-          font-size: 15px;
+          font-size: 16px;
         }
 
         .login-btn,
         .clear-btn {
           width: 70%;
           padding: 14px;
-          font-size: 15px;
+          font-size: 16px;
         }
 
         .form-options {
@@ -369,25 +405,29 @@
         .forgot-password {
           margin-left: 0;
         }
-
-        .divider {
-          margin: 20px 0;
-        }
       }
 
       @media (max-width: 480px) {
         .illustration-section {
-          min-height: 30vh;
-          padding: 15px;
+          min-height: 20vh;
+          padding: 12px;
+          border-radius: 0;
+        }
+
+        .illustration-section::after {
+          display: block;
+          height: 80px;
         }
 
         .illustration {
-          max-width: 160px;
-          max-height: 160px;
+          max-width: 240px;
+          max-height: 240px;
         }
 
         .form-section {
-          padding: 25px 15px;
+          padding: 30px 15px;
+          margin-top: 0;
+          min-height: auto;
         }
 
         .sign-in-title {
@@ -404,12 +444,12 @@
 
         .inputAut {
           padding: 12px 40px 12px 12px;
-          font-size: 14px;
+          font-size: 16px;
         }
 
         .login-btn {
           padding: 13px;
-          font-size: 14px;
+          font-size: 16px;
         }
 
         .clear-btn {
@@ -428,17 +468,25 @@
 
       @media (max-width: 360px) {
         .illustration-section {
-          min-height: 25vh;
+          min-height: 18vh;
           padding: 10px;
+          border-radius: 0;
+        }
+
+        .illustration-section::after {
+          display: block;
+          height: 70px;
         }
 
         .illustration {
-          max-width: 140px;
-          max-height: 140px;
+          max-width: 200px;
+          max-height: 200px;
         }
 
         .form-section {
-          padding: 20px 12px;
+          padding: 25px 12px;
+          margin-top: 0;
+          min-height: auto;
         }
 
         .sign-in-title {
@@ -455,12 +503,12 @@
 
         .inputAut {
           padding: 11px 35px 11px 11px;
-          font-size: 13px;
+          font-size: 16px;
         }
 
         .login-btn {
           padding: 12px;
-          font-size: 13px;
+          font-size: 16px;
           margin-bottom: 15px;
         }
 
@@ -488,7 +536,7 @@
       <div class="form-section">
         <div class="form-wrapper">
           <div class="form-header">
-            <h1 class="sign-in-title">Sign in to Resource Hive</h1>
+            <h1 class="sign-in-title">Sign in to <span style="color: #ffd700;">Resource Hive</span></h1>
             <!-- <span class="or-text"
               >or
               <a href="{% url 'register' %}" class="create-account-link"
@@ -513,10 +561,6 @@
               {% endfor %}
             </ul>
             {% endif %}
-
-            <div class="divider">
-              <span>or</span>
-            </div>
 
             <div class="form-group">
               <label for="id_username">
