@@ -32,6 +32,11 @@ class Command(BaseCommand):
             
             sample_batch = type('obj', (object,), {'id': 999})()
             
+            # Build absolute URL for dashboard
+            import os
+            site_url = os.getenv('SITE_URL', 'http://localhost:8000')
+            dashboard_url = f"{site_url}/userpanel/dashboard/"
+            
             context = {
                 'user': sample_user,
                 'batch_request': sample_batch,
@@ -39,7 +44,7 @@ class Command(BaseCommand):
                 'quantity': 2,
                 'return_date': date.today() + timedelta(days=2),
                 'days_until_return': 2,
-                'dashboard_url': "http://localhost:8000/userpanel/dashboard/",
+                'dashboard_url': dashboard_url,
                 'current_year': timezone.now().year,
             }
 

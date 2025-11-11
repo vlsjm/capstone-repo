@@ -99,6 +99,10 @@ def send_batch_request_completion_email(batch_request, approved_items, rejected_
             return False
             
         # Prepare context for email template
+        # Build absolute URL for dashboard
+        site_url = os.getenv('SITE_URL', 'http://localhost:8000')
+        dashboard_url = f"{site_url}/userpanel/dashboard/"
+        
         context = {
             'user': user,
             'batch_request': batch_request,
@@ -109,7 +113,7 @@ def send_batch_request_completion_email(batch_request, approved_items, rejected_
             'total_approved': approved_items.count(),
             'total_rejected': rejected_items.count(),
             'total_items': batch_request.items.count(),
-            'dashboard_url': "http://localhost:8000/userpanel/dashboard/",
+            'dashboard_url': dashboard_url,
             'current_year': timezone.now().year,
         }
         
@@ -160,6 +164,10 @@ def send_borrow_batch_request_completion_email(batch_request, approved_items, re
             return False
             
         # Prepare context for email template
+        # Build absolute URL for dashboard
+        site_url = os.getenv('SITE_URL', 'http://localhost:8000')
+        dashboard_url = f"{site_url}/userpanel/dashboard/"
+        
         context = {
             'user': user,
             'batch_request': batch_request,
@@ -170,7 +178,7 @@ def send_borrow_batch_request_completion_email(batch_request, approved_items, re
             'total_approved': approved_items.count(),
             'total_rejected': rejected_items.count(),
             'total_items': batch_request.items.count(),
-            'dashboard_url': "http://localhost:8000/userpanel/dashboard/",
+            'dashboard_url': dashboard_url,
             'current_year': timezone.now().year,
         }
         
@@ -382,6 +390,10 @@ def send_near_overdue_borrow_email(borrow_request_item):
         days_until_return = (borrow_request_item.return_date - date.today()).days
         
         # Prepare context for email template
+        # Build absolute URL for dashboard
+        site_url = os.getenv('SITE_URL', 'http://localhost:8000')
+        dashboard_url = f"{site_url}/userpanel/dashboard/"
+        
         context = {
             'user': user,
             'batch_request': borrow_request_item.batch_request,
@@ -390,7 +402,7 @@ def send_near_overdue_borrow_email(borrow_request_item):
             'quantity': borrow_request_item.quantity,
             'return_date': borrow_request_item.return_date,
             'days_until_return': days_until_return,
-            'dashboard_url': "http://localhost:8000/userpanel/dashboard/",
+            'dashboard_url': dashboard_url,
             'current_year': timezone.now().year,
         }
         

@@ -260,27 +260,27 @@ if not DEBUG:
         'default-src': ("'self'",),
     }
 
-# Auto-run migrations on startup (for Railway)
-if os.getenv('RAILWAY_ENVIRONMENT') == 'production':
-    import django
-    from django.core.management import call_command
+# # Auto-run migrations on startup (for Railway)
+# if os.getenv('RAILWAY_ENVIRONMENT') == 'production':
+#     import django
+#     from django.core.management import call_command
     
-    def run_migrations():
-        try:
-            django.setup()
-            call_command('migrate', '--noinput', verbosity=0)
+#     def run_migrations():
+#         try:
+#             django.setup()
+#             call_command('migrate', '--noinput', verbosity=0)
             
-            # Create default superuser only if RAILWAY_INIT_ADMIN_PASSWORD is set
-            admin_password = os.getenv('RAILWAY_INIT_ADMIN_PASSWORD')
-            if admin_password:
-                from django.contrib.auth.models import User
-                if not User.objects.filter(username='admin').exists():
-                    User.objects.create_superuser('admin', 'admin@resourcehive.com', admin_password)
-                    print("Default superuser created: admin")
-        except Exception as e:
-            print(f"Setup error: {e}")
+#             # Create default superuser only if RAILWAY_INIT_ADMIN_PASSWORD is set
+#             admin_password = os.getenv('RAILWAY_INIT_ADMIN_PASSWORD')
+#             if admin_password:
+#                 from django.contrib.auth.models import User
+#                 if not User.objects.filter(username='admin').exists():
+#                     User.objects.create_superuser('admin', 'admin@resourcehive.com', admin_password)
+#                     print("Default superuser created: admin")
+#         except Exception as e:
+#             print(f"Setup error: {e}")
     
-    # Run migrations on first import
-    if not hasattr(django, '_migration_run'):
-        run_migrations()
-        django._migration_run = True
+#     # Run migrations on first import
+#     if not hasattr(django, '_migration_run'):
+#         run_migrations()
+#         django._migration_run = True
