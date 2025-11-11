@@ -6606,8 +6606,9 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        # Check for overdue batches before getting the queryset
+        # Check for overdue batches and near-overdue items before getting the queryset
         BorrowRequestBatch.check_overdue_batches()
+        BorrowRequestBatch.check_near_overdue_items()
         
         queryset = BorrowRequestBatch.objects \
             .select_related('user', 'user__userprofile', 'claimed_by') \

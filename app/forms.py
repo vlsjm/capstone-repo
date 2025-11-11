@@ -132,7 +132,16 @@ class UserRegistrationForm(forms.ModelForm):
         required=False,
         widget=forms.Select(attrs={'class': 'department-select form-control'})
     )
-    phone = forms.CharField(required=False)
+    phone = forms.CharField(
+        required=False,
+        max_length=11,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '09123456789',
+            'pattern': '09[0-9]{9}',
+            'title': 'Phone number must be 11 digits starting with 09 (e.g., 09123456789)'
+        })
+    )
     designation = forms.CharField(max_length=100, required=False)
 
     class Meta:
@@ -153,6 +162,26 @@ class UserRegistrationForm(forms.ModelForm):
             raise forms.ValidationError("This email is already registered.")
         return email
 
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone')
+        if phone:
+            # Remove any spaces or dashes
+            phone = phone.replace(' ', '').replace('-', '')
+            
+            # Check if it's exactly 11 digits
+            if len(phone) != 11:
+                raise forms.ValidationError("Phone number must be exactly 11 digits.")
+            
+            # Check if it starts with 09
+            if not phone.startswith('09'):
+                raise forms.ValidationError("Phone number must start with 09.")
+            
+            # Check if all characters are digits
+            if not phone.isdigit():
+                raise forms.ValidationError("Phone number must contain only digits.")
+        
+        return phone
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data['password'])
@@ -168,7 +197,13 @@ class UserProfileForm(forms.ModelForm):
         widgets = {
             'role': forms.Select(attrs={'class': 'form-control'}),
             'department': forms.TextInput(attrs={'class': 'form-control'}),
-            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '09123456789',
+                'pattern': '09[0-9]{9}',
+                'title': 'Phone number must be 11 digits starting with 09 (e.g., 09123456789)',
+                'maxlength': '11'
+            }),
             'designation': forms.TextInput(attrs={'class': 'form-control'}),
         }
         labels = {
@@ -177,6 +212,26 @@ class UserProfileForm(forms.ModelForm):
             'phone': 'Phone',
             'designation': 'Designation',
         }
+
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone')
+        if phone:
+            # Remove any spaces or dashes
+            phone = phone.replace(' ', '').replace('-', '')
+            
+            # Check if it's exactly 11 digits
+            if len(phone) != 11:
+                raise forms.ValidationError("Phone number must be exactly 11 digits.")
+            
+            # Check if it starts with 09
+            if not phone.startswith('09'):
+                raise forms.ValidationError("Phone number must start with 09.")
+            
+            # Check if all characters are digits
+            if not phone.isdigit():
+                raise forms.ValidationError("Phone number must contain only digits.")
+        
+        return phone
 
 class PropertyForm(forms.ModelForm):
     class Meta:
