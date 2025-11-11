@@ -186,6 +186,37 @@
         color: #9ca3af;
         width: 20px;
         height: 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .input-icon:hover {
+        color: #3b82f6;
+      }
+
+      .toggle-password {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        transition: all 0.2s ease;
+      }
+
+      .toggle-password:hover {
+        color: #3b82f6;
+      }
+
+      .toggle-password svg {
+        width: 20px;
+        height: 20px;
       }
 
       .form-options {
@@ -257,7 +288,7 @@
         cursor: pointer;
         transition: all 0.3s ease;
         margin-bottom: 20px;
-        display: block;
+        display: none;
         margin-left: auto;
         margin-right: auto;
       }
@@ -536,7 +567,7 @@
       <div class="form-section">
         <div class="form-wrapper">
           <div class="form-header">
-            <h1 class="sign-in-title">Sign in to <span style="color: #ffd700;">Resource Hive</span></h1>
+            <h1 class="sign-in-title">Sign in to Resource Hive</h1>
             <!-- <span class="or-text"
               >or
               <a href="{% url 'register' %}" class="create-account-link"
@@ -596,6 +627,17 @@
                   placeholder="Enter your password"
                   required
                 />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  onclick="togglePassword()"
+                  title="Show/Hide Password"
+                >
+                  <svg id="eyeIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                </button>
               </div>
               {% for error in form.password.errors %}
               <ul class="errorlist">
@@ -624,4 +666,18 @@
     </div>
     {% endblock content %}
   </body>
+  <script>
+    function togglePassword() {
+      const passwordInput = document.getElementById('id_password');
+      const eyeIcon = document.getElementById('eyeIcon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-2.29m5.159-2.674A9.01 9.01 0 0112 5c4.478 0 8.268 2.943 9.543 7a9.97 9.97 0 01-1.563 2.29m-5.159 2.674A9.01 9.01 0 0112 5m0 0a6.975 6.975 0 016.93 5m-6.93 5a6.975 6.975 0 01-6.93-5m13.849-1.175a10.05 10.05 0 01-1.567 2.29m-2.654 2.29a10.05 10.05 0 01-5.037 1.31"></path>';
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>';
+      }
+    }
+  </script>
 </html>

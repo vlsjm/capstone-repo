@@ -954,8 +954,9 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
                 queryset = queryset.filter(user__is_active=True)
             elif status == 'inactive':
                 queryset = queryset.filter(user__is_active=False)
-            
-        return queryset
+        
+        # Order by account creation date (newest first) to fix pagination warning
+        return queryset.order_by('-user__date_joined')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
