@@ -93,9 +93,14 @@ from .views import (
     update_supply_subcategory,
     delete_supply_category,
     delete_supply_subcategory,
+    get_top_requested_supplies,
+    get_department_requests_filtered,
 )
 
 urlpatterns = [
+    # Sample page for sidebar preview
+    path('sample-admin/', views.sample_admin, name='sample_admin'),
+    
     path('damaged-items/', views.DamagedItemsManagementView.as_view(), name='damaged_items_management'),
     path('update-damage-status/<int:pk>/', views.update_damage_status, name='update_damage_status'),
     path('update-property-condition/<str:property_number>/', views.update_property_condition, name='update_property_condition'),
@@ -104,6 +109,8 @@ urlpatterns = [
     path('logout/', logout_view, name='logout'),
 
     path('dashboard/', DashboardPageView.as_view(), name='dashboard'),
+    path('api/near-expiry-count/', views.get_near_expiry_count, name='get_near_expiry_count'),
+    path('api/pending-requests-count/', views.get_pending_requests_count, name='get_pending_requests_count'),
     path('activity/', ActivityPageView.as_view(), name='activity'),
 
     path('supplies/', SupplyListView.as_view(), name='supply_list'),
@@ -139,6 +146,7 @@ urlpatterns = [
 
     path('manage-users/', UserProfileListView.as_view(), name='manage_users'),
     path('create-user/', create_user, name='create_user'),
+    path('toggle-user-status/<int:user_id>/', views.toggle_user_status, name='toggle_user_status'),
     path('create-department/', views.create_department, name='create_department'),
     path('edit-department/<int:dept_id>/', views.edit_department, name='edit_department'),
     path('delete-department/<int:dept_id>/', views.delete_department, name='delete_department'),
@@ -236,4 +244,8 @@ urlpatterns = [
     
     # Admin Profile
     path('profile/', views.AdminProfileView.as_view(), name='admin_profile'),
+    
+    # Dashboard chart data API endpoints
+    path('get-top-requested-supplies/', views.get_top_requested_supplies, name='get_top_requested_supplies'),
+    path('get-department-requests-filtered/', views.get_department_requests_filtered, name='get_department_requests_filtered'),
 ]

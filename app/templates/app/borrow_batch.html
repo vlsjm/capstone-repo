@@ -877,6 +877,35 @@
     <!-- Page Title -->
     <h1 class="requests-title">Borrow Requests</h1>
     
+    <!-- Custom Alert Modal -->
+    <div id="customAlertModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+      <div style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: slideDown 0.3s ease;">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+          <i id="alertIcon" class="fas" style="font-size: 32px;"></i>
+          <h3 id="alertTitle" style="margin: 0; color: #152d64; font-size: 20px;"></h3>
+        </div>
+        <p id="alertMessage" style="color: #495057; font-size: 16px; line-height: 1.6; margin-bottom: 25px;"></p>
+        <div style="text-align: right;">
+          <button onclick="closeCustomAlert()" style="background: #152d64; color: white; border: none; padding: 10px 24px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+            <i class="fas fa-check"></i> OK
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <style>
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+    
     <!-- Search and Filter Section -->
     <div class="search-filter-section">
       <form method="get" class="search-form">
@@ -1266,7 +1295,7 @@
                       <i class="fas fa-eye"></i> View Details
                     </a>
                     {% if perms.app.view_admin_module %}
-                    <form method="post" action="{% url 'claim_borrow_batch_items' batch_request.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to claim all approved items in this request?');">
+                    <form method="post" action="{% url 'claim_borrow_batch_items' batch_request.id %}" class="ajax-action-form" data-confirm="Are you sure you want to claim all approved items in this request?" style="display: inline;">
                       {% csrf_token %}
                       <button type="submit" class="btn btn-sm claim-btn">
                         <i class="fas fa-check"></i> Claim Items
@@ -1434,7 +1463,7 @@
                       <i class="fas fa-eye"></i> View Details
                     </a>
                     {% if perms.app.view_admin_module %}
-                    <form method="post" action="{% url 'return_borrow_batch_items' batch_request.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to mark all items as returned?');">
+                    <form method="post" action="{% url 'return_borrow_batch_items' batch_request.id %}" class="ajax-action-form" data-confirm="Are you sure you want to mark all items as returned?" style="display: inline;">
                       {% csrf_token %}
                       <button type="submit" class="btn btn-sm return-btn">
                         <i class="fas fa-undo"></i> Return Items
@@ -1751,7 +1780,7 @@
                       <i class="fas fa-eye"></i> View Details
                     </a>
                     {% if perms.app.view_admin_module %}
-                    <form method="post" action="{% url 'return_borrow_batch_items' batch_request.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to mark all items as returned?');">
+                    <form method="post" action="{% url 'return_borrow_batch_items' batch_request.id %}" class="ajax-action-form" data-confirm="Are you sure you want to mark all items as returned?" style="display: inline;">
                       {% csrf_token %}
                       <button type="submit" class="btn btn-sm return-btn">
                         <i class="fas fa-undo"></i> Return Items
@@ -1943,7 +1972,50 @@
   </div>
 
 <script>
+// Custom Alert Modal Functions
+function showCustomAlert(title, message, type = 'info') {
+  const modal = document.getElementById('customAlertModal');
+  const icon = document.getElementById('alertIcon');
+  const titleEl = document.getElementById('alertTitle');
+  const messageEl = document.getElementById('alertMessage');
+  
+  // Set content
+  titleEl.textContent = title;
+  messageEl.textContent = message;
+  
+  // Set icon and color based on type
+  icon.className = 'fas ';
+  if (type === 'success') {
+    icon.className += 'fa-check-circle';
+    icon.style.color = '#28a745';
+  } else if (type === 'error') {
+    icon.className += 'fa-exclamation-circle';
+    icon.style.color = '#dc3545';
+  } else if (type === 'warning') {
+    icon.className += 'fa-exclamation-triangle';
+    icon.style.color = '#ffc107';
+  } else {
+    icon.className += 'fa-info-circle';
+    icon.style.color = '#17a2b8';
+  }
+  
+  // Show modal
+  modal.style.display = 'flex';
+}
+
+function closeCustomAlert() {
+  const modal = document.getElementById('customAlertModal');
+  modal.style.display = 'none';
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+  // Close modal on outside click
+  document.getElementById('customAlertModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeCustomAlert();
+    }
+  });
+  
   // Tab navigation
   const tabButtons = document.querySelectorAll('.tab-button');
   const tabContents = document.querySelectorAll('.tab-content');
@@ -1967,7 +2039,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Table row expansion (matching supply requests behavior)
+  // Table row expansion (matching supply requests behavior with accordion)
   document.addEventListener('click', function(e) {
     // Only trigger expansion if not clicking on action buttons/links
     if (!e.target.closest('a, button, .detail-link')) {
@@ -1978,18 +2050,88 @@ document.addEventListener('DOMContentLoaded', function() {
         const detailsRow = document.getElementById('details-' + requestId);
         
         if (expandIcon && detailsRow) {
-          if (detailsRow.classList.contains('show')) {
-            // Hide details
-            detailsRow.classList.remove('show');
-            expandIcon.classList.remove('expanded');
-          } else {
-            // Show details
+          const isCurrentlyExpanded = detailsRow.classList.contains('show');
+          
+          // Collapse all other rows first (accordion behavior)
+          document.querySelectorAll('.details-row.show').forEach(function(row) {
+            row.classList.remove('show');
+          });
+          document.querySelectorAll('.expand-icon.expanded').forEach(function(icon) {
+            icon.classList.remove('expanded');
+          });
+          
+          if (!isCurrentlyExpanded) {
+            // Show this row's details
             detailsRow.classList.add('show');
             expandIcon.classList.add('expanded');
           }
         }
       }
     }
+  });
+
+  // AJAX handler for claim/return forms
+  document.addEventListener('submit', function(e) {
+    const form = e.target;
+    
+    // Only handle forms with class 'ajax-action-form'
+    if (!form.classList.contains('ajax-action-form')) {
+      return;
+    }
+    
+    e.preventDefault();
+    
+    const actionUrl = form.action;
+    const formData = new FormData(form);
+    const confirmMsg = form.getAttribute('data-confirm');
+    
+    // Show confirmation dialog
+    if (confirmMsg && !confirm(confirmMsg)) {
+      return;
+    }
+    
+    // Get CSRF token
+    const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // Disable submit button to prevent double submission
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    
+    // Send AJAX request
+    fetch(actionUrl, {
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': csrfToken
+      },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Show success modal
+        showCustomAlert('Success', data.message, 'success');
+        // Reload page after user closes modal
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        // Show error modal
+        showCustomAlert('Error', data.message, 'error');
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showCustomAlert('Error', 'An error occurred while processing your request. Please try again.', 'error');
+      // Re-enable button
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnText;
+    });
   });
 });
 </script>

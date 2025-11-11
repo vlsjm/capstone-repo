@@ -486,7 +486,7 @@
                     <!-- Desktop Buttons -->
                     <button class="btn-request-again desktop-action-btn" 
                             data-request-id="{{ request_obj.id }}" 
-                            data-model-type="{% if is_batch %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}"
+                            data-model-type="{% if request_type == 'Reservation' %}reservation{% else %}{% if is_batch %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}{% endif %}"
                             style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #152d64; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;"
                             onmouseover="this.style.background='#0f1f4a'"
                             onmouseout="this.style.background='#152d64'"
@@ -496,7 +496,7 @@
                     {% if request_obj.status == 'pending' %}
                     <button class="btn-cancel-request desktop-action-btn" 
                             data-request-id="{{ request_obj.id }}" 
-                            data-model-type="{% if is_batch %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}"
+                            data-model-type="{% if request_type == 'Reservation' %}reservation{% else %}{% if is_batch %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}{% endif %}"
                             style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;"
                             onmouseover="this.style.background='#c82333'"
                             onmouseout="this.style.background='#dc3545'"
@@ -514,7 +514,7 @@
                     <div class="mobile-dropdown-menu" id="mobileDropdownMenu" style="display: none; position: absolute; top: 45px; right: 0; background: white; border: 1px solid #e9ecef; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 200px; z-index: 1000;">
                         <button class="dropdown-item btn-request-again-mobile" 
                                 data-request-id="{{ request_obj.id }}" 
-                                data-model-type="{% if is_batch %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}"
+                                data-model-type="{% if request_type == 'Reservation' %}reservation{% else %}{% if is_batch %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}{% endif %}"
                                 style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: none; border: none; color: #152d64; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s ease; text-align: left;"
                                 onmouseover="this.style.background='#f8f9fa'"
                                 onmouseout="this.style.background='none'">
@@ -524,7 +524,7 @@
                         {% if request_obj.status == 'pending' %}
                         <button class="dropdown-item btn-cancel-request-mobile" 
                                 data-request-id="{{ request_obj.id }}" 
-                                data-model-type="{% if is_batch %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}"
+                                data-model-type="{% if request_type == 'Reservation' %}reservation{% else %}{% if is_batch %}batch_{% endif %}{{ request_type|lower|cut:' request'|cut:' (batch)' }}{% endif %}"
                                 style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: none; border: none; border-top: 1px solid #f8f9fa; color: #dc3545; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s ease; text-align: left;"
                                 onmouseover="this.style.background='#fff5f5'"
                                 onmouseout="this.style.background='none'">
@@ -841,30 +841,110 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Initialize toast container
+    function initializeToastContainer() {
+        if (!document.getElementById('request-detail-toast-container')) {
+            const container = document.createElement('div');
+            container.id = 'request-detail-toast-container';
+            container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 11000; pointer-events: none; display: flex; flex-direction: column; gap: 10px;';
+            document.body.appendChild(container);
+        }
+    }
+
+    // Show toast notification
+    let toastQueue = [];
+    let toastDisplaying = false;
+
+    function showToast(message, type) {
+        // Initialize container if needed
+        initializeToastContainer();
+        
+        // Add to queue
+        toastQueue.push({ message, type });
+        
+        // Process queue if not already displaying
+        if (!toastDisplaying) {
+            processToastQueue();
+        }
+    }
+
+    function processToastQueue() {
+        if (toastQueue.length === 0) {
+            toastDisplaying = false;
+            return;
+        }
+
+        toastDisplaying = true;
+        const { message, type } = toastQueue.shift();
+        const container = document.getElementById('request-detail-toast-container');
+        
+        // Determine colors based on type
+        let bgColor = '#28a745'; // success - green
+        let borderColor = '#28a745';
+        if (type === 'error') {
+            bgColor = '#dc3545'; // error - red
+            borderColor = '#dc3545';
+        }
+        
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            background-color: ${bgColor};
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-weight: 500;
+            font-size: 14px;
+            min-width: 300px;
+            max-width: 400px;
+            word-wrap: break-word;
+            border-left: 4px solid ${borderColor};
+            animation: slideIn 0.3s ease-out;
+            pointer-events: auto;
+            transform: translateX(0);
+            opacity: 1;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        `;
+        
+        toast.textContent = message;
+        container.appendChild(toast);
+
+        // Display for 4.5 seconds then fade out
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(450px)';
+            setTimeout(() => {
+                toast.remove();
+                toastDisplaying = false;
+                processToastQueue();
+            }, 300);
+        }, 4500);
+    }
+
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(450px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
     // Request again functionality (both desktop and mobile)
     function handleRequestAgain(button) {
         const requestId = button.dataset.requestId;
         const modelType = button.dataset.modelType;
         
-        // Determine the correct URL based on model type
-        let requestAgainUrl = '';
-        switch(modelType) {
-            case 'supply':
-            case 'batch_supply':
-                requestAgainUrl = `{% url 'request_again' %}?type=${modelType}&id=${requestId}`;
-                break;
-            case 'borrow':
-            case 'batch_borrow':
-                requestAgainUrl = `{% url 'request_again' %}?type=${modelType}&id=${requestId}`;
-                break;
-            case 'reservation':
-                requestAgainUrl = `{% url 'request_again' %}?type=${modelType}&id=${requestId}`;
-                break;
-        }
-
-        if (requestAgainUrl) {
-            window.location.href = requestAgainUrl;
-        }
+        // For all types, redirect to request_again with type and id
+        const requestAgainUrl = `{% url 'request_again' %}?type=${modelType}&id=${requestId}`;
+        window.location.href = requestAgainUrl;
     }
     
     const requestAgainBtn = document.querySelector('.btn-request-again');
@@ -932,35 +1012,59 @@ document.addEventListener('DOMContentLoaded', function() {
             let cancelUrl = '';
             switch(modelType) {
                 case 'supply':
-                case 'batch_supply':
                     cancelUrl = `{% url 'cancel_supply_request' 0 %}`.replace('0', requestId);
                     break;
+                case 'batch_supply':
+                    cancelUrl = `{% url 'cancel_batch_supply_request' 0 %}`.replace('0', requestId);
+                    break;
                 case 'borrow':
-                case 'batch_borrow':
                     cancelUrl = `{% url 'cancel_borrow_request' 0 %}`.replace('0', requestId);
                     break;
+                case 'batch_borrow':
+                    cancelUrl = `{% url 'cancel_batch_borrow_request' 0 %}`.replace('0', requestId);
+                    break;
                 case 'reservation':
+                case 'batch_reservation':
                     cancelUrl = `{% url 'cancel_reservation' 0 %}`.replace('0', requestId);
                     break;
             }
 
             if (cancelUrl) {
-                // Create and submit form
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = cancelUrl;
-                
+                // Use AJAX to cancel the request
                 const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-                if (csrfToken) {
-                    const csrfInput = document.createElement('input');
-                    csrfInput.type = 'hidden';
-                    csrfInput.name = 'csrfmiddlewaretoken';
-                    csrfInput.value = csrfToken.value;
-                    form.appendChild(csrfInput);
-                }
                 
-                document.body.appendChild(form);
-                form.submit();
+                fetch(cancelUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken ? csrfToken.value : '',
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Show success toast for reservation, alert for others
+                        if (modelType === 'reservation' || modelType === 'batch_reservation') {
+                            showToast('Request cancelled successfully', 'success');
+                            // Delay reload to allow toast to display for 4.5 seconds
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 5000);
+                        } else {
+                            alert(data.message);
+                            // Reload the page to reflect changes
+                            window.location.reload();
+                        }
+                    } else {
+                        // Show error message
+                        showToast(data.message || 'An error occurred while cancelling the request.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('An error occurred while cancelling the request.', 'error');
+                });
             }
             closeModalFunc();
         });

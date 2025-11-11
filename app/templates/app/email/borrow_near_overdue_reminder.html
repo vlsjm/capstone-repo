@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light only">
+    <meta name="supported-color-schemes" content="light">
+    <title>Borrow Reminder - Resource Hive</title>
+    <style>
+        :root {
+            color-scheme: light only;
+            supported-color-schemes: light;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .borrow-reminder-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .borrow-reminder-header {
+            background: linear-gradient(135deg, #152d64 0%, #0f1f42 100%);
+            color: #ffffff !important;
+            padding: 30px;
+            text-align: center;
+        }
+        .borrow-reminder-header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff !important;
+        }
+        .borrow-reminder-header p {
+            margin: 10px 0 0 0;
+            font-size: 14px;
+            color: #ffffff !important;
+        }
+        .borrow-reminder-content {
+            padding: 30px;
+            color: #333333;
+        }
+        .borrow-reminder-greeting {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .borrow-reminder-alert {
+            background-color: #fff3cd;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .borrow-reminder-alert p {
+            margin: 0;
+            color: #856404;
+            font-weight: 600;
+        }
+        .borrow-reminder-item-details {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        .borrow-reminder-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .borrow-reminder-detail-row:last-child {
+            border-bottom: none;
+        }
+        .borrow-reminder-detail-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .borrow-reminder-detail-value {
+            color: #333;
+            text-align: right;
+        }
+        .borrow-reminder-days-remaining {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ff6b6b;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .borrow-reminder-action-section {
+            background-color: #f0f4f8;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .borrow-reminder-action-button {
+            display: inline-block;
+            background-color: #152d64 !important;
+            color: #ffffff !important;
+            text-decoration: none !important;
+            padding: 12px 30px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin: 10px 5px;
+            border: none;
+        }
+        .borrow-reminder-action-button:hover {
+            background-color: #0f1f42 !important;
+        }
+        .borrow-reminder-important-notice {
+            background-color: #f8d7da;
+            padding: 16px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .borrow-reminder-important-notice p {
+            margin: 0;
+            color: #721c24;
+        }
+        .borrow-reminder-footer {
+            background-color: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            color: #777;
+            font-size: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .borrow-reminder-tips-list {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+        .borrow-reminder-tips-list li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="borrow-reminder-container">
+        <!-- Header -->
+        <div class="borrow-reminder-header" style="background: linear-gradient(135deg, #152d64 0%, #0f1f42 100%); background-color: #152d64; padding: 30px; text-align: center;">
+            <h1 style="color: #ffffff !important; margin: 0; font-size: 24px; font-weight: 600; -webkit-text-fill-color: #ffffff;">Return Reminder</h1>
+            <p style="color: #ffffff !important; margin: 10px 0 0 0; font-size: 14px; -webkit-text-fill-color: #ffffff;">Resource Hive Borrow System</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="borrow-reminder-content">
+            <!-- Greeting -->
+            <div class="borrow-reminder-greeting">
+                Hello {{ user.first_name|default:user.username }},
+            </div>
+
+            <!-- Alert Box -->
+            <div class="borrow-reminder-alert">
+                <p>This is a friendly reminder that your borrowed item is due soon!</p>
+            </div>
+
+            <!-- Days Remaining -->
+            <div class="borrow-reminder-days-remaining">
+                {{ days_until_return }} day{% if days_until_return != 1 %}s{% endif %} remaining
+            </div>
+
+            <!-- Item Details -->
+            <div class="borrow-reminder-item-details">
+                <div class="borrow-reminder-detail-row">
+                    <span class="borrow-reminder-detail-label">Item Name:</span>
+                    <span class="borrow-reminder-detail-value"><strong>{{ property_name }}</strong></span>
+                </div>
+                <div class="borrow-reminder-detail-row">
+                    <span class="borrow-reminder-detail-label">Quantity:</span>
+                    <span class="borrow-reminder-detail-value">{{ quantity }}</span>
+                </div>
+                <div class="borrow-reminder-detail-row">
+                    <span class="borrow-reminder-detail-label">Request Batch:</span>
+                    <span class="borrow-reminder-detail-value">#{{ batch_request.id|stringformat:"03d" }}</span>
+                </div>
+                <div class="borrow-reminder-detail-row">
+                    <span class="borrow-reminder-detail-label">Expected Return Date:</span>
+                    <span class="borrow-reminder-detail-value"><strong>{{ return_date|date:"M d, Y" }}</strong></span>
+                </div>
+            </div>
+
+            <!-- Message -->
+            <p style="line-height: 1.6; margin: 20px 0;">
+                Please make sure to return this item by the scheduled date. If you need an extension or have any questions, 
+                please contact the Resource Hive office as soon as possible.
+            </p>
+
+            <!-- Action Section -->
+            <div class="borrow-reminder-action-section" style="background-color: #f0f4f8; padding: 20px; border-radius: 6px; margin: 20px 0; text-align: center;">
+                <p style="margin-top: 0;">View your borrow details:</p>
+                <a href="{{ dashboard_url }}" class="borrow-reminder-action-button" style="display: inline-block; background-color: #152d64 !important; color: #ffffff !important; text-decoration: none; padding: 12px 30px; border-radius: 4px; font-weight: 600; margin: 10px 5px; border: none; -webkit-text-fill-color: #ffffff;">Go to Dashboard</a>
+            </div>
+
+            <!-- Important Notice -->
+            <div class="borrow-reminder-important-notice">
+                <p>
+                    <strong>Important:</strong> Failing to return items on time may affect your ability to borrow resources in the future.
+                </p>
+            </div>
+
+            <!-- Tips -->
+            <p><strong>Quick Tips:</strong></p>
+            <ul class="borrow-reminder-tips-list">
+                <li>Plan your return well in advance</li>
+                <li>Contact admin if you need more time before the deadline</li>
+                <li>Check the condition of the item before returning it</li>
+                <li>Keep this email for your records</li>
+            </ul>
+
+            <p style="margin-top: 25px;">
+                Thank you for using Resource Hive!<br>
+                <strong>Resource Hive Team</strong>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="borrow-reminder-footer">
+            <p style="margin: 0;">
+                This is an automated reminder from Resource Hive. Please do not reply to this email.
+            </p>
+            <p style="margin: 10px 0 0 0; color: #999;">
+                © {{ current_year }} Resource Hive. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -68,8 +68,16 @@ class UserReserveView(PermissionRequiredMixin, TemplateView):
     permission_required = 'app.view_user_module'
 
     def get(self, request):
+        # Check and update reservation batch statuses (triggers active reservations)
+        from app.models import ReservationBatch
+        ReservationBatch.check_and_update_batches()
+        
         # Get cart items from session
         cart_items = request.session.get('reservation_cart', [])
+        
+        # Get batch-level dates from session (set by request_again)
+        batch_needed_date = request.session.get('reservation_needed_date')
+        batch_return_date = request.session.get('reservation_return_date')
         
         # Convert cart items to objects with property details
         cart_items_data = []
@@ -79,11 +87,31 @@ class UserReserveView(PermissionRequiredMixin, TemplateView):
                     continue
                     
                 property_obj = Property.objects.get(id=item['property_id'])
+                
+                # Try to get dates from item, fallback to batch-level dates
+                needed_date_str = item.get('needed_date', batch_needed_date)
+                return_date_str = item.get('return_date', batch_return_date)
+                
+                needed_date = None
+                return_date = None
+                
+                if needed_date_str:
+                    try:
+                        needed_date = datetime.strptime(needed_date_str, '%Y-%m-%d').date()
+                    except (ValueError, TypeError):
+                        pass
+                
+                if return_date_str:
+                    try:
+                        return_date = datetime.strptime(return_date_str, '%Y-%m-%d').date()
+                    except (ValueError, TypeError):
+                        pass
+                
                 enriched_item = {
                     'supply': property_obj,  # Using 'supply' for template consistency
                     'quantity': item['quantity'],
-                    'needed_date': datetime.strptime(item['needed_date'], '%Y-%m-%d').date() if item.get('needed_date') else None,
-                    'return_date': datetime.strptime(item['return_date'], '%Y-%m-%d').date() if item.get('return_date') else None,
+                    'needed_date': needed_date,
+                    'return_date': return_date,
                     'purpose': item.get('purpose', '')
                 }
                 cart_items_data.append(enriched_item)
@@ -124,7 +152,9 @@ class UserReserveView(PermissionRequiredMixin, TemplateView):
             'cart_items': cart_items_data,
             'available_supplies': available_supplies,
             'supply_categories': supply_categories,
-            'recent_requests': recent_requests_data
+            'recent_requests': recent_requests_data,
+            'batch_needed_date': batch_needed_date,
+            'batch_return_date': batch_return_date
         })
 
     def post(self, request):
@@ -419,7 +449,44 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
         damage_page = self.request.GET.get('damage_page', 1)
 
         # Querysets ordered by date descending
-        request_history_qs = SupplyRequest.objects.filter(user=user).order_by('-request_date')
+        # Combine old SupplyRequest and new SupplyRequestBatch systems
+        legacy_supply_requests = SupplyRequest.objects.filter(user=user).select_related('supply')
+        batch_supply_requests = SupplyRequestBatch.objects.filter(user=user)
+        
+        # Create a combined list for supply requests with unified structure
+        combined_supply_requests = []
+        
+        # Add legacy supply requests
+        for req in legacy_supply_requests:
+            combined_supply_requests.append({
+                'id': req.id,
+                'supply': req.supply,
+                'quantity': req.quantity,
+                'status': req.status,
+                'request_date': req.request_date,
+                'purpose': req.purpose,
+                'sort_date': req.request_date,
+                'type': 'legacy'
+            })
+        
+        # Add batch supply requests
+        for batch in batch_supply_requests:
+            first_item = batch.items.first()
+            combined_supply_requests.append({
+                'id': batch.id,
+                'supply': first_item.supply if first_item else None,
+                'quantity': batch.total_quantity,
+                'status': batch.status,
+                'request_date': batch.request_date,
+                'purpose': batch.purpose,
+                'sort_date': batch.request_date,
+                'type': 'batch',
+                'batch_obj': batch
+            })
+        
+        # Sort combined list by date descending
+        combined_supply_requests.sort(key=lambda x: x['sort_date'], reverse=True)
+        request_history_qs = combined_supply_requests
         
         # Combine old BorrowRequest and new BorrowRequestBatch systems
         # Get old borrow requests
@@ -435,6 +502,7 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
         # Add old borrow requests
         for borrow in old_borrow_requests:
             combined_borrows.append({
+                'id': borrow.id,
                 'property': borrow.property,
                 'quantity': borrow.quantity,
                 'status': borrow.status,
@@ -444,19 +512,25 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
                 'type': 'old'
             })
         
-        # Add batch borrow items
+        # Add batch borrow items - deduplicate by batch_item_id
+        seen_batch_items = set()
         for item in batch_borrow_items:
-            # Use approved_quantity if available, otherwise quantity
-            qty = item.approved_quantity if item.approved_quantity else item.quantity
-            combined_borrows.append({
-                'property': item.property,
-                'quantity': qty,
-                'status': item.status,
-                'borrow_date': item.claimed_date if item.claimed_date else item.batch_request.request_date,
-                'return_date': item.return_date,
-                'sort_date': item.claimed_date if item.claimed_date else item.batch_request.request_date,
-                'type': 'batch'
-            })
+            if item.id not in seen_batch_items:
+                seen_batch_items.add(item.id)
+                # Use approved_quantity if available, otherwise quantity
+                qty = item.approved_quantity if item.approved_quantity else item.quantity
+                combined_borrows.append({
+                    'id': item.batch_request.id,
+                    'batch_item_id': item.id,  # Add unique item ID
+                    'property': item.property,
+                    'quantity': qty,
+                    'status': item.status,
+                    'borrow_date': item.claimed_date if item.claimed_date else item.batch_request.request_date,
+                    'return_date': item.return_date,
+                    'sort_date': item.claimed_date if item.claimed_date else item.batch_request.request_date,
+                    'type': 'batch',
+                    'item_id': item.id  # Store the actual item id
+                })
         
         # Sort combined list by date descending
         combined_borrows.sort(key=lambda x: x['sort_date'], reverse=True)
@@ -464,7 +538,49 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
         # Convert to queryset-like list for pagination
         borrow_history_qs = combined_borrows
         
-        reservation_history_qs = Reservation.objects.filter(user=user).order_by('-reservation_date')
+        # Combine old Reservation and new ReservationBatch systems
+        legacy_reservations = Reservation.objects.filter(user=user).select_related('item')
+        batch_reservations = ReservationBatch.objects.filter(user=user)
+        
+        # Create a combined list for reservations with unified structure
+        combined_reservations = []
+        
+        # Add legacy reservations
+        for res in legacy_reservations:
+            combined_reservations.append({
+                'id': res.id,
+                'item': res.item,
+                'quantity': res.quantity,
+                'status': res.status,
+                'needed_date': res.needed_date,
+                'return_date': res.return_date,
+                'purpose': res.purpose,
+                'reservation_date': res.reservation_date,
+                'sort_date': res.reservation_date,
+                'type': 'legacy'
+            })
+        
+        # Add batch reservations
+        for batch in batch_reservations:
+            first_item = batch.items.first()
+            combined_reservations.append({
+                'id': batch.id,
+                'item': first_item.property if first_item else None,
+                'quantity': batch.total_quantity,
+                'status': batch.status,
+                'needed_date': batch.earliest_needed_date,
+                'return_date': batch.latest_return_date,
+                'purpose': batch.purpose,
+                'reservation_date': batch.request_date,
+                'sort_date': batch.request_date,
+                'type': 'batch',
+                'batch_obj': batch
+            })
+        
+        # Sort combined list by date descending
+        combined_reservations.sort(key=lambda x: x['sort_date'], reverse=True)
+        reservation_history_qs = combined_reservations
+        
         damage_history_qs = DamageReport.objects.filter(user=user).order_by('-report_date')
 
         # Paginators
@@ -481,13 +597,33 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
 
         # Convert page object items to dicts
         def request_to_dict(req):
-            return {
-                'item': req.supply.supply_name,
-                'quantity': req.quantity,
-                'status': req.status,
-                'date': req.request_date,
-                'purpose': req.purpose,
-            }
+            # Handle both legacy SupplyRequest and batch format
+            if isinstance(req, dict):
+                if req['type'] == 'legacy':
+                    return {
+                        'item': req['supply'].supply_name,
+                        'quantity': req['quantity'],
+                        'status': req['status'],
+                        'date': req['request_date'],
+                        'purpose': req['purpose'],
+                    }
+                else:  # batch
+                    return {
+                        'item': req['supply'].supply_name if req['supply'] else 'Batch Request',
+                        'quantity': req['quantity'],
+                        'status': req['status'],
+                        'date': req['request_date'],
+                        'purpose': req['purpose'],
+                    }
+            else:
+                # Fallback for legacy SupplyRequest object
+                return {
+                    'item': req.supply.supply_name,
+                    'quantity': req.quantity,
+                    'status': req.status,
+                    'date': req.request_date,
+                    'purpose': req.purpose,
+                }
 
         def borrow_to_dict(borrow):
             # Handle both old BorrowRequest objects and new combined dict format
@@ -510,14 +646,36 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
                 }
 
         def reservation_to_dict(res):
-            return {
-                'item': res.item.property_name,
-                'quantity': res.quantity,
-                'status': res.status,
-                'needed_date': res.needed_date,
-                'return_date': res.return_date,
-                'purpose': res.purpose,
-            }
+            # Handle both legacy Reservation and batch format
+            if isinstance(res, dict):
+                if res['type'] == 'legacy':
+                    return {
+                        'item': res['item'].property_name,
+                        'quantity': res['quantity'],
+                        'status': res['status'],
+                        'needed_date': res['needed_date'],
+                        'return_date': res['return_date'],
+                        'purpose': res['purpose'],
+                    }
+                else:  # batch
+                    return {
+                        'item': res['item'].property_name if res['item'] else 'Batch Reservation',
+                        'quantity': res['quantity'],
+                        'status': res['status'],
+                        'needed_date': res['needed_date'],
+                        'return_date': res['return_date'],
+                        'purpose': res['purpose'],
+                    }
+            else:
+                # Fallback for legacy Reservation object
+                return {
+                    'item': res.item.property_name,
+                    'quantity': res.quantity,
+                    'status': res.status,
+                    'needed_date': res.needed_date,
+                    'return_date': res.return_date,
+                    'purpose': res.purpose,
+                }
 
         def damage_to_dict(report):
             return {
@@ -528,21 +686,36 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
             }
 
         # Calculate stats counts
-        request_count = request_history_qs.count()
+        request_count = len(combined_supply_requests)  # Now it's a list, not a queryset
         borrow_count = len(borrow_history_qs)  # Now it's a list, not a queryset
-        reservation_count = reservation_history_qs.count()
+        reservation_count = len(combined_reservations)  # Now it's a list, not a queryset
         damage_count = damage_history_qs.count()
 
         # Get recent activity (last 5 activities from all types)
         recent_activity = []
         
-        # Add recent requests
+        # Add recent requests (from combined list)
         for req in request_history_qs[:3]:
-            recent_activity.append({
-                'message': f'Requested {req.supply.supply_name} (x{req.quantity})',
-                'timestamp': req.request_date,
-                'type': 'request'
-            })
+            if isinstance(req, dict):
+                if req['type'] == 'legacy':
+                    recent_activity.append({
+                        'message': f'Requested {req["supply"].supply_name} (x{req["quantity"]})',
+                        'timestamp': req['request_date'],
+                        'type': 'request'
+                    })
+                else:  # batch
+                    recent_activity.append({
+                        'message': f'Submitted supply request batch (x{req["quantity"]} items)',
+                        'timestamp': req['request_date'],
+                        'type': 'request'
+                    })
+            else:
+                # Fallback for legacy request
+                recent_activity.append({
+                    'message': f'Requested {req.supply.supply_name} (x{req.quantity})',
+                    'timestamp': req.request_date,
+                    'type': 'request'
+                })
         
         # Add recent borrows (from combined list)
         for borrow in borrow_history_qs[:3]:
@@ -559,17 +732,46 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
                     'type': 'borrow'
                 })
         
-        # Add recent reservations
+        # Add recent reservations (from combined list)
         for res in reservation_history_qs[:3]:
-            recent_activity.append({
-                'message': f'Reserved {res.item.property_name} (x{res.quantity})',
-                'timestamp': res.reservation_date,
-                'type': 'reservation'
-            })
+            if isinstance(res, dict):
+                if res['type'] == 'legacy':
+                    recent_activity.append({
+                        'message': f'Reserved {res["item"].property_name} (x{res["quantity"]})',
+                        'timestamp': res['reservation_date'],
+                        'type': 'reservation'
+                    })
+                else:  # batch
+                    recent_activity.append({
+                        'message': f'Submitted reservation batch (x{res["quantity"]} items)',
+                        'timestamp': res['reservation_date'],
+                        'type': 'reservation'
+                    })
+            else:
+                # Fallback for legacy reservation
+                recent_activity.append({
+                    'message': f'Reserved {res.item.property_name} (x{res.quantity})',
+                    'timestamp': res.reservation_date,
+                    'type': 'reservation'
+                })
         
         # Sort by timestamp and get the 5 most recent
         recent_activity.sort(key=lambda x: x['timestamp'], reverse=True)
         recent_activity = recent_activity[:5]
+
+        # Calculate 30-day activity trend for line chart
+        activity_trend = self._calculate_30day_activity_trend(
+            combined_supply_requests,
+            combined_borrows,
+            combined_reservations
+        )
+
+        # Calculate status distribution for pie chart
+        status_distribution = self._calculate_status_distribution(
+            combined_supply_requests, 
+            combined_borrows, 
+            combined_reservations
+        )
 
         context.update({
             'notifications': Notification.objects.filter(user=user).order_by('-timestamp'),
@@ -580,7 +782,23 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
             'borrow_count': borrow_count,
             'reservation_count': reservation_count,
             'damage_count': damage_count,
+            
+            # New dashboard metrics
+            'pending_count': self._calculate_pending_count(combined_supply_requests, combined_borrows, combined_reservations),
+            'approved_count': self._calculate_approved_count(combined_supply_requests, combined_borrows, combined_reservations),
+            'overdue_count': self._calculate_overdue_count(combined_supply_requests, combined_borrows, combined_reservations),
+            'active_count': self._calculate_active_count(combined_supply_requests, combined_borrows, combined_reservations),
+            'approval_rate': self._calculate_approval_rate(combined_supply_requests, combined_borrows, combined_reservations),
+            
             'recent_activity': recent_activity,
+            
+            # Items for action - with pagination
+            'items_for_claiming': self._get_items_for_claiming(combined_supply_requests, combined_borrows),
+            'items_for_claiming_page': Paginator(self._get_items_for_claiming(combined_supply_requests, combined_borrows), 5).get_page(self.request.GET.get('claiming_page', 1)),
+            'active_reservations': self._get_active_reservations(combined_reservations),
+            'active_reservations_page': Paginator(self._get_active_reservations(combined_reservations), 5).get_page(self.request.GET.get('reservations_page', 1)),
+            'active_borrows': self._get_active_borrows(combined_borrows),
+            'active_borrows_page': Paginator(self._get_active_borrows(combined_borrows), 5).get_page(self.request.GET.get('borrows_page', 1)),
 
             # Pass paginated page objects (converted to dict)
             'request_history': [request_to_dict(r) for r in request_history_page],
@@ -594,9 +812,421 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
 
             'damage_history': [damage_to_dict(d) for d in damage_history_page],
             'damage_history_page': damage_history_page,
+            
+            # Chart data
+            'status_chart_data': json.dumps(status_distribution),
+            'activity_trend_data': json.dumps(activity_trend),
         })
 
         return context
+
+    def _calculate_pending_count(self, requests, borrows, reservations):
+        """Count items with pending/pending_approval status - deduplicates batch items by batch ID, excludes items with return_date < tomorrow"""
+        from django.utils import timezone
+        from datetime import timedelta
+        count = 0
+        today = timezone.now().astimezone().date()
+        tomorrow = today + timedelta(days=1)
+        seen_batch_requests = set()
+        for item in requests + borrows + reservations:
+            if isinstance(item, dict):
+                status = item.get('status', '').lower()
+                return_date = item.get('return_date')
+                if status in ['pending', 'pending_approval']:
+                    # Exclude items with return_date < tomorrow (only count items with future return dates)
+                    if return_date and return_date < tomorrow:
+                        continue
+                    # For batch items, group by batch ID to avoid counting each item in a batch
+                    batch_id = item.get('id')
+                    if batch_id not in seen_batch_requests:
+                        seen_batch_requests.add(batch_id)
+                        count += 1
+        return count
+
+    def _calculate_approved_count(self, requests, borrows, reservations):
+        """Count items with approved/for_claiming status - deduplicates batch items by batch ID"""
+        count = 0
+        seen_batch_requests = set()
+        for item in requests + borrows + reservations:
+            if isinstance(item, dict):
+                status = item.get('status', '').lower()
+                if status in ['approved', 'for_claiming']:
+                    # For batch items, group by batch ID to avoid counting each item in a batch
+                    batch_id = item.get('id')
+                    if batch_id not in seen_batch_requests:
+                        seen_batch_requests.add(batch_id)
+                        count += 1
+        return count
+
+    def _calculate_overdue_count(self, requests, borrows, reservations):
+        """Count items with return_date < today and status in active/approved/for_claiming - deduplicates batch items by batch ID"""
+        from django.utils import timezone
+        count = 0
+        today = timezone.now().astimezone().date()
+        seen_batch_requests = set()
+        for item in requests + borrows + reservations:
+            if isinstance(item, dict):
+                status = item.get('status', '').lower()
+                return_date = item.get('return_date')
+                if status in ['active', 'approved', 'for_claiming'] and return_date and return_date < today:
+                    # For batch items, group by batch ID to avoid counting each item in a batch
+                    batch_id = item.get('id')
+                    if batch_id not in seen_batch_requests:
+                        seen_batch_requests.add(batch_id)
+                        count += 1
+        return count
+
+    def _calculate_active_count(self, requests, borrows, reservations):
+        """Count items with active status that are currently active by date - grouped by batch"""
+        count = 0
+        today = timezone.now().astimezone().date()  # Use local timezone, not UTC
+        seen_batch_requests = set()  # Track batch requests to avoid duplicates
+        
+        # Count active borrows that are within date range
+        for item in borrows:
+            if isinstance(item, dict):
+                status = item.get('status', '').lower()
+                if status == 'active':
+                    borrow_date = item.get('borrow_date')
+                    return_date = item.get('return_date')
+                    if borrow_date and return_date:
+                        borrow_date_only = borrow_date.date() if hasattr(borrow_date, 'date') else borrow_date
+                        return_date_only = return_date.date() if hasattr(return_date, 'date') else return_date
+                        if borrow_date_only <= today <= return_date_only:
+                            # Group by batch ID for batch items
+                            item_type = item.get('type', 'old')
+                            if item_type == 'batch':
+                                batch_id = item.get('id')
+                                if batch_id not in seen_batch_requests:
+                                    seen_batch_requests.add(batch_id)
+                                    count += 1
+                            else:
+                                # Old borrow requests count individually
+                                count += 1
+        
+        # Count active reservations that are within date range
+        for item in reservations:
+            if isinstance(item, dict):
+                status = item.get('status', '').lower()
+                if status == 'active':
+                    needed_date = item.get('needed_date')
+                    return_date = item.get('return_date')
+                    if needed_date and return_date:
+                        if needed_date <= today <= return_date:
+                            count += 1
+        
+        return count
+
+    def _calculate_approval_rate(self, requests, borrows, reservations):
+        """Calculate the approval rate percentage"""
+        all_items = requests + borrows + reservations
+        total = len(all_items)
+        
+        if total == 0:
+            return 0
+        
+        approved = 0
+        for item in all_items:
+            if isinstance(item, dict):
+                status = item.get('status', '').lower()
+                # Count approved, for_claiming, partially_approved, completed, and returned as "approved"
+                if status in ['approved', 'for_claiming', 'partially_approved', 'completed', 'returned', 'active']:
+                    approved += 1
+        
+        rate = round((approved / total) * 100)
+        return rate
+
+    def _calculate_status_distribution(self, requests, borrows, reservations):
+        """Calculate request status distribution for pie chart"""
+        all_items = requests + borrows + reservations
+        
+        status_counts = {
+            'pending': 0,
+            'approved': 0,
+            'rejected': 0,
+            'completed': 0,
+            'active': 0,
+        }
+        
+        for item in all_items:
+            if isinstance(item, dict):
+                status = item.get('status', '').lower()
+                # Normalize status values to our categories
+                if status in ['pending', 'pending_approval']:
+                    status_counts['pending'] += 1
+                elif status in ['approved', 'for_claiming', 'partially_approved']:
+                    status_counts['approved'] += 1
+                elif status == 'rejected':
+                    status_counts['rejected'] += 1
+                elif status == 'completed':
+                    status_counts['completed'] += 1
+                elif status == 'active':
+                    status_counts['active'] += 1
+                elif status == 'returned':
+                    status_counts['completed'] += 1  # Count returned as completed
+        
+        return {
+            'labels': ['Pending', 'Approved', 'Rejected', 'Completed', 'Active'],
+            'data': [
+                status_counts['pending'],
+                status_counts['approved'],
+                status_counts['rejected'],
+                status_counts['completed'],
+                status_counts['active'],
+            ],
+            'backgroundColor': ['#FFC107', '#4CAF50', '#F44336', '#2196F3', '#FF9800']
+        }
+
+    def _calculate_30day_activity_trend(self, requests, borrows, reservations):
+        """Calculate activity trend for the last 30 days for line chart"""
+        from datetime import timedelta, datetime
+        from django.conf import settings
+        from zoneinfo import ZoneInfo
+        
+        local_tz = ZoneInfo(settings.TIME_ZONE)
+        today = timezone.now().astimezone(local_tz).date()
+        thirty_days_ago = today - timedelta(days=29)  # 30 days including today
+        
+        # Create a dictionary to track daily counts
+        daily_counts = {}
+        current_date = thirty_days_ago
+        
+        # Initialize all 30 days with 0 count
+        while current_date <= today:
+            daily_counts[current_date] = 0
+            current_date += timedelta(days=1)
+        
+        # Count requests by date
+        all_items = requests + borrows + reservations
+        
+        for item in all_items:
+            if isinstance(item, dict):
+                # Get the relevant date field
+                date_field = None
+                if 'sort_date' in item:
+                    date_field = item['sort_date']
+                elif 'request_date' in item:
+                    date_field = item['request_date']
+                elif 'borrow_date' in item:
+                    date_field = item['borrow_date']
+                elif 'reservation_date' in item:
+                    date_field = item['reservation_date']
+                
+                # Convert to date if it's datetime
+                if date_field:
+                    if isinstance(date_field, datetime):
+                        date_key = date_field.date()
+                    else:
+                        date_key = date_field
+                    
+                    # Only count items within the 30-day range
+                    if thirty_days_ago <= date_key <= today:
+                        daily_counts[date_key] = daily_counts.get(date_key, 0) + 1
+        
+        # Create labels (day abbreviations) and data points
+        labels = []
+        data = []
+        current_date = thirty_days_ago
+        
+        while current_date <= today:
+            # Format: "Mon 5" (day abbreviation + date)
+            label = current_date.strftime('%a %d')
+            labels.append(label)
+            data.append(daily_counts.get(current_date, 0))
+            current_date += timedelta(days=1)
+        
+        return {
+            'labels': labels,
+            'data': data,
+            'borderColor': '#2196F3',
+            'backgroundColor': 'rgba(33, 150, 243, 0.1)',
+            'tension': 0.4,
+            'fill': True
+        }
+
+    def _get_items_for_claiming(self, requests, borrows):
+        """Get supply requests and borrows that are approved and ready for claiming"""
+        items_for_claiming = []
+        seen_batch_requests = {}  # Track batch requests and sum quantities
+        
+        # Get supply requests ready for claiming
+        for item in requests:
+            if isinstance(item, dict):
+                status = item.get('status', '').lower()
+                if status in ['approved', 'for_claiming']:
+                    item_name = item.get('item', '')
+                    if not item_name:
+                        request_id = item.get('id', '?')
+                        request_date = item.get('request_date', '')
+                        if request_date:
+                            request_date = request_date.date() if hasattr(request_date, 'date') else request_date
+                        item_name = f"Batch Request #{request_id} ({request_date})"
+                    items_for_claiming.append({
+                        'type': 'Supply Request',
+                        'item_name': item_name,
+                        'quantity': item.get('quantity', 0),
+                        'date': item.get('request_date'),
+                        'id': item.get('id'),
+                        'icon': 'fa-box'
+                    })
+        
+        # Get borrows ready for claiming - group by batch request to avoid duplicates
+        for item in borrows:
+            if isinstance(item, dict):
+                status = item.get('status', '').lower()
+                if status in ['approved', 'for_claiming']:
+                    item_type = item.get('type', 'old')
+                    batch_req_id = item.get('id')
+                    
+                    if item_type == 'batch':
+                        # For batch items, group by batch request ID and sum quantities
+                        if batch_req_id not in seen_batch_requests:
+                            borrow_id = batch_req_id
+                            borrow_date = item.get('borrow_date', '')
+                            if borrow_date:
+                                borrow_date = borrow_date.date() if hasattr(borrow_date, 'date') else borrow_date
+                            item_name = f"Borrow Request #{borrow_id} ({borrow_date})"
+                            
+                            seen_batch_requests[batch_req_id] = {
+                                'type': 'Borrow Request',
+                                'item_name': item_name,
+                                'quantity': item.get('quantity', 0),
+                                'date': item.get('borrow_date'),
+                                'id': batch_req_id,
+                                'icon': 'fa-hand-holding'
+                            }
+                        else:
+                            # Add to existing batch quantity
+                            seen_batch_requests[batch_req_id]['quantity'] += item.get('quantity', 0)
+                    else:
+                        # For old borrow requests, add individually
+                        item_name = item.get('item', '')
+                        if not item_name:
+                            borrow_id = item.get('id', '?')
+                            borrow_date = item.get('borrow_date', '')
+                            if borrow_date:
+                                borrow_date = borrow_date.date() if hasattr(borrow_date, 'date') else borrow_date
+                            item_name = f"Borrow Request #{borrow_id} ({borrow_date})"
+                        items_for_claiming.append({
+                            'type': 'Borrow Request',
+                            'item_name': item_name,
+                            'quantity': item.get('quantity', 0),
+                            'date': item.get('borrow_date'),
+                            'id': item.get('id'),
+                            'icon': 'fa-hand-holding'
+                        })
+        
+        # Add grouped batch requests
+        items_for_claiming.extend(seen_batch_requests.values())
+        
+        return sorted(items_for_claiming, key=lambda x: x['date'] if x['date'] else '', reverse=True)
+
+    def _get_active_reservations(self, reservations):
+        """Get reservations that are approved and currently active"""
+        from django.conf import settings
+        from zoneinfo import ZoneInfo
+        
+        active_reservations = []
+        local_tz = ZoneInfo(settings.TIME_ZONE)
+        today = timezone.now().astimezone(local_tz).date()
+        
+        for item in reservations:
+            if isinstance(item, dict):
+                status = item.get('status', '').lower()
+                if status in ['approved', 'active']:
+                    needed_date = item.get('needed_date')
+                    return_date = item.get('return_date')
+                    
+                    # Check if reservation is currently active (needed_date <= today <= return_date)
+                    if needed_date and return_date:
+                        if needed_date <= today <= return_date:
+                            res_id = item.get('id', '?')
+                            res_date = item.get('reservation_date', '')
+                            if res_date:
+                                res_date = res_date.date() if hasattr(res_date, 'date') else res_date
+                            item_name = f"Reservation #{res_id} ({res_date})"
+                            active_reservations.append({
+                                'type': 'Reservation',
+                                'item_name': item_name,
+                                'quantity': item.get('quantity', 0),
+                                'needed_date': needed_date,
+                                'return_date': return_date,
+                                'id': item.get('id'),
+                                'icon': 'fa-calendar-check',
+                                'days_remaining': (return_date - today).days
+                            })
+        
+        return sorted(active_reservations, key=lambda x: x['days_remaining'])
+
+    def _get_active_borrows(self, borrows):
+        """Get borrows that are active and currently borrowed"""
+        from django.conf import settings
+        from zoneinfo import ZoneInfo
+        
+        active_borrows = []
+        local_tz = ZoneInfo(settings.TIME_ZONE)
+        today = timezone.now().astimezone(local_tz).date()
+        seen_batch_requests = {}  # Track batch requests to avoid duplicates
+        
+        for item in borrows:
+            if isinstance(item, dict):
+                status = item.get('status', '').lower()
+                if status == 'active':
+                    borrow_date = item.get('borrow_date')
+                    return_date = item.get('return_date')
+                    
+                    # Check if borrow is currently active (borrow_date <= today <= return_date)
+                    if borrow_date and return_date:
+                        # Convert datetime to date if necessary for comparison
+                        borrow_date_only = borrow_date.date() if hasattr(borrow_date, 'date') else borrow_date
+                        return_date_only = return_date.date() if hasattr(return_date, 'date') else return_date
+                        
+                        if borrow_date_only <= today <= return_date_only:
+                            item_type = item.get('type', 'old')
+                            batch_req_id = item.get('id')
+                            
+                            if item_type == 'batch':
+                                # For batch items, group by batch request ID to avoid duplicates
+                                if batch_req_id not in seen_batch_requests:
+                                    borrow_id = batch_req_id
+                                    borrow_date_formatted = borrow_date.date() if hasattr(borrow_date, 'date') else borrow_date
+                                    item_name = f"Borrow Request #{borrow_id} ({borrow_date_formatted})"
+                                    
+                                    seen_batch_requests[batch_req_id] = {
+                                        'type': 'Borrow Request',
+                                        'item_name': item_name,
+                                        'quantity': item.get('quantity', 0),
+                                        'borrow_date': borrow_date,
+                                        'return_date': return_date,
+                                        'id': batch_req_id,
+                                        'icon': 'fa-hand-holding-heart',
+                                        'days_remaining': (return_date - today).days
+                                    }
+                                else:
+                                    # Add to existing batch quantity
+                                    seen_batch_requests[batch_req_id]['quantity'] += item.get('quantity', 0)
+                            else:
+                                # For old borrow requests, add individually
+                                item_name = item.get('item', '')
+                                if not item_name:
+                                    borrow_id = item.get('id', '?')
+                                    borrow_date_formatted = borrow_date.date() if hasattr(borrow_date, 'date') else borrow_date
+                                    item_name = f"Borrow Request #{borrow_id} ({borrow_date_formatted})"
+                                active_borrows.append({
+                                    'type': 'Borrow Request',
+                                    'item_name': item_name,
+                                    'quantity': item.get('quantity', 0),
+                                    'borrow_date': borrow_date,
+                                    'return_date': return_date,
+                                    'id': item.get('id'),
+                                    'icon': 'fa-hand-holding-heart',
+                                    'days_remaining': (return_date - today).days
+                                })
+        
+        # Add grouped batch requests
+        active_borrows.extend(seen_batch_requests.values())
+        
+        return sorted(active_borrows, key=lambda x: x['days_remaining'])
 
 
 def get_item_availability(request):
@@ -854,11 +1484,11 @@ def cancel_damage_report(request, request_id):
 # Borrow Cart Functionality
 @login_required
 def add_to_borrow_list(request):
-    """Add item to borrow cart session"""
+    """Add item to borrow cart session - uses batch return date"""
     if request.method == 'POST':
         property_id = request.POST.get('property_id')  # Changed from 'supply' to 'property_id'
         quantity = int(request.POST.get('quantity', 1))
-        return_date = request.POST.get('return_date')
+        return_date = request.POST.get('return_date')  # Batch return date from form
         purpose = request.POST.get('purpose', '')
         
         if not property_id:
@@ -890,10 +1520,10 @@ def add_to_borrow_list(request):
             # Validate return date
             if return_date:
                 return_date_obj = datetime.strptime(return_date, '%Y-%m-%d').date()
-                if return_date_obj <= datetime.now().date():
+                if return_date_obj < datetime.now().date():
                     return JsonResponse({
                         'status': 'error',
-                        'message': 'Return date must be in the future'
+                        'message': 'Return date cannot be in the past'
                     })
             
             # Get or create cart in session
@@ -904,6 +1534,7 @@ def add_to_borrow_list(request):
             for item in cart:
                 if item['property_id'] == property_id:
                     item['quantity'] += quantity
+                    # Return date is now the same for all items (batch date)
                     item['return_date'] = return_date
                     item['purpose'] = purpose
                     item_exists = True
@@ -913,7 +1544,7 @@ def add_to_borrow_list(request):
                 cart.append({
                     'property_id': property_id,
                     'quantity': quantity,
-                    'return_date': return_date,
+                    'return_date': return_date,  # All items use batch return date
                     'purpose': purpose
                 })
             
@@ -963,38 +1594,26 @@ def remove_from_borrow_list(request):
 
 @login_required
 def update_borrow_list_item(request):
-    """Update item quantity and return date in borrow cart session"""
+    """Update item quantity in borrow cart session - return date is batch-wide and cannot be changed per-item"""
     import logging
     logger = logging.getLogger(__name__)
     
     if request.method == 'POST':
         property_id = request.POST.get('supply_id')
         quantity = int(request.POST.get('quantity', 1))
-        return_date = request.POST.get('return_date')
         
-        logger.info(f"Updating borrow cart item: property_id={property_id}, quantity={quantity}, return_date={return_date}")
+        logger.info(f"Updating borrow cart item: property_id={property_id}, quantity={quantity}")
         
         try:
             property_obj = Property.objects.get(id=property_id)
             
-            # Validate return date
-            if return_date:
-                return_date_obj = datetime.strptime(return_date, '%Y-%m-%d').date()
-                if return_date_obj <= datetime.now().date():
-                    logger.warning(f"Invalid return date: {return_date_obj}")
-                    return JsonResponse({
-                        'status': 'error',
-                        'message': 'Return date must be in the future'
-                    })
-            
             cart = request.session.get('borrow_cart', [])
             logger.info(f"Current borrow cart before update: {cart}")
             
-            # Find and update the item
+            # Find and update the item - only quantity, return date is batch-wide
             for item in cart:
                 if item['property_id'] == int(property_id):
                     item['quantity'] = quantity
-                    item['return_date'] = return_date
                     logger.info(f"Updated borrow item in cart: {item}")
                     break
             
@@ -1041,7 +1660,7 @@ def clear_borrow_list(request):
 
 @login_required
 def submit_borrow_list_request(request):
-    """Submit all items in borrow cart as a batch borrow request"""
+    """Submit all items in borrow cart as a batch borrow request with single return date"""
     if request.method == 'POST':
         cart = request.session.get('borrow_cart', [])
         
@@ -1051,9 +1670,28 @@ def submit_borrow_list_request(request):
                 'message': 'No items in borrow list'
             })
         
+        # Get batch return date from form
+        batch_return_date = request.POST.get('batch_return_date')
+        
+        if not batch_return_date:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Return date is required'
+            })
+        
         general_purpose = request.POST.get('general_purpose', '')
         
         try:
+            # Parse batch return date
+            batch_return_date_obj = datetime.strptime(batch_return_date, '%Y-%m-%d').date()
+            
+            # Validate return date
+            if batch_return_date_obj < datetime.now().date():
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Return date cannot be in the past'
+                })
+            
             # Create the batch borrow request
             batch_request = BorrowRequestBatch.objects.create(
                 user=request.user,
@@ -1061,7 +1699,7 @@ def submit_borrow_list_request(request):
                 status='pending'
             )
             
-            # Create individual borrow request items
+            # Create individual borrow request items - all with same return date
             for item in cart:
                 try:
                     property_obj = Property.objects.get(id=item['property_id'])
@@ -1096,14 +1734,14 @@ def submit_borrow_list_request(request):
                         property=property_obj,
                         defaults={
                             'quantity': item['quantity'],
-                            'return_date': datetime.strptime(item['return_date'], '%Y-%m-%d').date(),
+                            'return_date': batch_return_date_obj,  # Use batch return date for all items
                             'status': 'pending'
                         }
                     )
                     # If item already existed, update it
                     if not created:
                         item_obj.quantity = item['quantity']
-                        item_obj.return_date = datetime.strptime(item['return_date'], '%Y-%m-%d').date()
+                        item_obj.return_date = batch_return_date_obj  # Use batch return date
                         item_obj.save()
                 except Exception as create_error:
                     # Delete the batch request if creating an item fails
@@ -1132,7 +1770,7 @@ def submit_borrow_list_request(request):
                 action='request',
                 model_name='BorrowRequestBatch',
                 object_repr=f"Batch #{batch_request.id}",
-                description=f"Submitted batch borrow request with {len(cart)} items: {item_list}"
+                description=f"Submitted batch borrow request with {len(cart)} items (Return: {batch_return_date_obj}): {item_list}"
             )
             
             # Clear the cart
@@ -1401,8 +2039,11 @@ def submit_reservation_list_request(request):
                 description=f"Submitted batch reservation request with {len(cart)} items: {item_list}"
             )
             
-            # Clear the cart
+            # Clear the cart and batch dates
             request.session['reservation_cart'] = []
+            request.session['reservation_needed_date'] = None
+            request.session['reservation_return_date'] = None
+            request.session['reservation_purpose'] = None
             request.session.modified = True
             
             # Show success message and redirect
@@ -1485,6 +2126,10 @@ class UserAllRequestsView(LoginRequiredMixin, PermissionRequiredMixin, TemplateV
     permission_required = 'app.view_user_module'
 
     def get_context_data(self, **kwargs):
+        # Check and update reservation batch statuses (triggers active reservations)
+        from app.models import ReservationBatch
+        ReservationBatch.check_and_update_batches()
+        
         context = super().get_context_data(**kwargs)
         
         # Get filter parameters from request
@@ -1644,7 +2289,10 @@ class UserAllRequestsView(LoginRequiredMixin, PermissionRequiredMixin, TemplateV
                 req for req in all_requests
                 if (search_query in req['item_name'].lower() or 
                     search_query in req['purpose'].lower() or
-                    search_query in req['type'].lower())
+                    search_query in req['type'].lower() or
+                    search_query in req['id'].lower() or
+                    search_query in req['status'].lower() or
+                    search_query in str(req['quantity']).lower())
             ]
         
         # Sort by date (most recent first)
@@ -1656,8 +2304,12 @@ class UserAllRequestsView(LoginRequiredMixin, PermissionRequiredMixin, TemplateV
             unique_statuses.add((req['status_raw'], req['status']))
         unique_statuses = sorted(list(unique_statuses))
         
-        # Pagination
-        paginator = Paginator(all_requests, 10)  # Show 10 requests per page
+        # Pagination - use 6 items per page on mobile, 10 on desktop
+        user_agent = self.request.META.get('HTTP_USER_AGENT', '').lower()
+        is_mobile = any(device in user_agent for device in ['mobile', 'android', 'iphone', 'ipad', 'windows phone'])
+        
+        items_per_page = 6 if is_mobile else 10
+        paginator = Paginator(all_requests, items_per_page)
         page_number = self.request.GET.get('page', 1)
         
         try:
@@ -1674,7 +2326,8 @@ class UserAllRequestsView(LoginRequiredMixin, PermissionRequiredMixin, TemplateV
             'status_filter': status_filter,
             'search_query': search_query,
             'unique_statuses': unique_statuses,
-            'total_requests': len(all_requests)
+            'total_requests': len(all_requests),
+            'is_mobile': is_mobile
         })
         
         return context
@@ -1683,6 +2336,11 @@ class UserAllRequestsView(LoginRequiredMixin, PermissionRequiredMixin, TemplateV
 @login_required
 def request_detail(request, type, request_id):
     """View to show detailed information about a specific request"""
+    # Check and update reservation batch statuses (triggers active reservations)
+    if type in ['reservation', 'batch_reservation']:
+        from app.models import ReservationBatch
+        ReservationBatch.check_and_update_batches()
+    
     try:
         if type == 'supply':
             request_obj = get_object_or_404(SupplyRequest, id=request_id, user=request.user)
@@ -1825,10 +2483,14 @@ def request_again(request):
             for item in original_request.items.all():
                 reservation_items.append({
                     'property_id': item.property.id,
-                    'quantity': item.quantity
+                    'property_name': item.property.property_name,
+                    'quantity': item.quantity,
+                    'needed_date': item.needed_date.strftime('%Y-%m-%d') if item.needed_date else None,
+                    'return_date': item.return_date.strftime('%Y-%m-%d') if item.return_date else None,
+                    'purpose': item.remarks if item.remarks else ''
                 })
             request.session['reservation_cart'] = reservation_items
-            # Store batch-level dates and purpose (get from properties or first item)
+            # Store batch-level dates and purpose for display
             earliest_date = original_request.earliest_needed_date
             latest_date = original_request.latest_return_date
             request.session['reservation_needed_date'] = earliest_date.strftime('%Y-%m-%d') if earliest_date else None
@@ -2145,3 +2807,199 @@ def user_view_requisition_slip(request, batch_id):
         print(f"Error viewing requisition slip: {error_details}")  # Log to console
         messages.error(request, f'Error generating requisition slip: {str(e)}')
         return redirect('request_detail', type='batch_supply', request_id=batch_id)
+
+
+@login_required
+def get_pending_count(request):
+    """API endpoint to get pending count filtered by type - counts items grouped by batch ID, excludes return_date < tomorrow"""
+    from django.utils import timezone
+    from datetime import timedelta
+    user = request.user
+    request_type = request.GET.get('type', 'all')
+    today = timezone.now().astimezone().date()
+    tomorrow = today + timedelta(days=1)
+    
+    # Get all requests for the user
+    legacy_supply_requests = SupplyRequest.objects.filter(user=user)
+    batch_supply_requests = SupplyRequestBatch.objects.filter(user=user)
+    old_borrow_requests = BorrowRequest.objects.filter(user=user)
+    batch_borrow_items = BorrowRequestItem.objects.filter(batch_request__user=user)
+    legacy_reservations = Reservation.objects.filter(user=user)
+    batch_reservations = ReservationBatch.objects.filter(user=user)
+    
+    count = 0
+    seen_batch_requests = set()  # Track batch requests to avoid counting duplicates (group by batch ID)
+    
+    if request_type == 'all':
+        # Count all pending items (legacy items counted directly, batch items grouped by batch ID)
+        # For supply - exclude if return_date < tomorrow
+        for item in legacy_supply_requests.filter(status__in=['pending', 'pending_approval']):
+            if not item.return_date or item.return_date >= tomorrow:
+                count += 1
+        # Batch supply requests - count unique batches and exclude if return_date < tomorrow
+        for item in batch_supply_requests.filter(status__in=['pending', 'pending_approval']):
+            if (not item.earliest_return_date or item.earliest_return_date >= tomorrow) and item.id not in seen_batch_requests:
+                seen_batch_requests.add(item.id)
+                count += 1
+        # For borrow - exclude if return_date < tomorrow
+        for item in old_borrow_requests.filter(status__in=['pending', 'pending_approval']):
+            if not item.return_date or item.return_date >= tomorrow:
+                count += 1
+        # Batch borrow items - count unique batches (group by batch_request.id) and exclude if return_date < tomorrow
+        for item in batch_borrow_items.filter(status__in=['pending', 'pending_approval']):
+            if (not item.return_date or item.return_date >= tomorrow):
+                batch_id = item.batch_request.id
+                if batch_id not in seen_batch_requests:
+                    seen_batch_requests.add(batch_id)
+                    count += 1
+        # For reservation - no return_date filter for pending reservations
+        for item in legacy_reservations.filter(status__in=['pending', 'pending_approval']):
+            count += 1
+        # Batch reservations - count unique batches
+        for item in batch_reservations.filter(status__in=['pending', 'pending_approval']):
+            if item.id not in seen_batch_requests:
+                seen_batch_requests.add(item.id)
+                count += 1
+    elif request_type == 'supply':
+        # Count only supply requests
+        for item in legacy_supply_requests.filter(status__in=['pending', 'pending_approval']):
+            if not item.return_date or item.return_date >= tomorrow:
+                count += 1
+        # Batch supply requests - count unique batches and exclude if return_date < tomorrow
+        for item in batch_supply_requests.filter(status__in=['pending', 'pending_approval']):
+            if (not item.earliest_return_date or item.earliest_return_date >= tomorrow) and item.id not in seen_batch_requests:
+                seen_batch_requests.add(item.id)
+                count += 1
+    elif request_type == 'borrow':
+        # Count only borrow requests
+        for item in old_borrow_requests.filter(status__in=['pending', 'pending_approval']):
+            if not item.return_date or item.return_date >= tomorrow:
+                count += 1
+        # Batch borrow items - count unique batches (group by batch_request.id) and exclude if return_date < tomorrow
+        for item in batch_borrow_items.filter(status__in=['pending', 'pending_approval']):
+            if (not item.return_date or item.return_date >= tomorrow):
+                batch_id = item.batch_request.id
+                if batch_id not in seen_batch_requests:
+                    seen_batch_requests.add(batch_id)
+                    count += 1
+    elif request_type == 'reservation':
+        # Count only reservations
+        for item in legacy_reservations.filter(status__in=['pending', 'pending_approval']):
+            count += 1
+        # Batch reservations - count unique batches
+        for item in batch_reservations.filter(status__in=['pending', 'pending_approval']):
+            if item.id not in seen_batch_requests:
+                seen_batch_requests.add(item.id)
+                count += 1
+    
+    return JsonResponse({'count': count})
+
+
+@login_required
+def get_active_count(request):
+    """API endpoint to get active count filtered by type - counts items currently active by date"""
+    user = request.user
+    request_type = request.GET.get('type', 'all')
+    today = timezone.now().astimezone().date()  # Use local timezone, not UTC
+    
+    count = 0
+    seen_batch_requests = set()  # Track batch requests to avoid counting duplicates (group by batch ID)
+    
+    # Get batch borrow items that are active and within date range
+    if request_type in ['all', 'borrow']:
+        batch_borrow_items = BorrowRequestItem.objects.filter(batch_request__user=user, status='active')
+        for item in batch_borrow_items:
+            # Use borrow_date from claimed_date or request_date
+            borrow_date = item.claimed_date if item.claimed_date else item.batch_request.request_date
+            return_date = item.return_date
+            
+            if borrow_date and return_date:
+                borrow_date_only = borrow_date.date() if hasattr(borrow_date, 'date') else borrow_date
+                return_date_only = return_date.date() if hasattr(return_date, 'date') else return_date
+                
+                if borrow_date_only <= today <= return_date_only:
+                    # Group by batch request ID to avoid counting duplicates (multiple items in same batch)
+                    batch_id = item.batch_request.id
+                    if batch_id not in seen_batch_requests:
+                        seen_batch_requests.add(batch_id)
+                        count += 1
+    
+    # Get batch reservations that are active and within date range
+    if request_type in ['all', 'reservation']:
+        batch_reservations = ReservationBatch.objects.filter(user=user, status='active')
+        for batch in batch_reservations:
+            needed_date = batch.earliest_needed_date
+            return_date = batch.latest_return_date
+            
+            if needed_date and return_date:
+                if needed_date <= today <= return_date:
+                    count += 1
+    
+    return JsonResponse({'count': count})
+
+
+@login_required
+def get_approved_count(request):
+    """API endpoint to get approved count filtered by type - counts items grouped by batch ID"""
+    user = request.user
+    request_type = request.GET.get('type', 'all')
+    
+    # Get all requests for the user
+    legacy_supply_requests = SupplyRequest.objects.filter(user=user)
+    batch_supply_requests = SupplyRequestBatch.objects.filter(user=user)
+    old_borrow_requests = BorrowRequest.objects.filter(user=user)
+    batch_borrow_items = BorrowRequestItem.objects.filter(batch_request__user=user)
+    legacy_reservations = Reservation.objects.filter(user=user)
+    batch_reservations = ReservationBatch.objects.filter(user=user)
+    
+    count = 0
+    seen_batch_requests = set()  # Track batch requests to avoid counting duplicates (group by batch ID)
+    
+    if request_type == 'all':
+        # Count all approved items (legacy items counted directly, batch items grouped by batch ID)
+        count += legacy_supply_requests.filter(status__in=['approved', 'for_claiming']).count()
+        # Batch supply requests - count unique batches
+        for item in batch_supply_requests.filter(status__in=['approved', 'for_claiming', 'partially_approved']):
+            if item.id not in seen_batch_requests:
+                seen_batch_requests.add(item.id)
+                count += 1
+        count += old_borrow_requests.filter(status__in=['approved', 'for_claiming']).count()
+        # Batch borrow items - count unique batches (group by batch_request.id)
+        for item in batch_borrow_items.filter(status__in=['approved', 'for_claiming']):
+            batch_id = item.batch_request.id
+            if batch_id not in seen_batch_requests:
+                seen_batch_requests.add(batch_id)
+                count += 1
+        count += legacy_reservations.filter(status__in=['approved', 'for_claiming']).count()
+        # Batch reservations - count unique batches
+        for item in batch_reservations.filter(status__in=['approved', 'for_claiming', 'partially_approved']):
+            if item.id not in seen_batch_requests:
+                seen_batch_requests.add(item.id)
+                count += 1
+    elif request_type == 'supply':
+        # Count only supply requests
+        count += legacy_supply_requests.filter(status__in=['approved', 'for_claiming']).count()
+        # Batch supply requests - count unique batches
+        for item in batch_supply_requests.filter(status__in=['approved', 'for_claiming', 'partially_approved']):
+            if item.id not in seen_batch_requests:
+                seen_batch_requests.add(item.id)
+                count += 1
+    elif request_type == 'borrow':
+        # Count only borrow requests
+        count += old_borrow_requests.filter(status__in=['approved', 'for_claiming']).count()
+        # Batch borrow items - count unique batches (group by batch_request.id)
+        for item in batch_borrow_items.filter(status__in=['approved', 'for_claiming']):
+            batch_id = item.batch_request.id
+            if batch_id not in seen_batch_requests:
+                seen_batch_requests.add(batch_id)
+                count += 1
+    elif request_type == 'reservation':
+        # Count only reservations
+        count += legacy_reservations.filter(status__in=['approved', 'for_claiming']).count()
+        # Batch reservations - count unique batches
+        for item in batch_reservations.filter(status__in=['approved', 'for_claiming', 'partially_approved']):
+            if item.id not in seen_batch_requests:
+                seen_batch_requests.add(item.id)
+                count += 1
+    
+    return JsonResponse({'count': count})

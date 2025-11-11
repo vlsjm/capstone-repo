@@ -5,6 +5,12 @@
 
 {% block extra_css %}
 <style>
+/* Required field asterisk */
+.required-asterisk {
+    color: #dc3545;
+    margin-left: 3px;
+}
+
 /* Toggle Switch Styles - Matching System Theme */
 .request-type-toggle {
     display: flex;
@@ -78,6 +84,7 @@
 /* Enhanced Search Styles */
 .search-input-wrapper {
     position: relative;
+    margin-top: 5px;
 }
 
 .search-icon {
@@ -248,11 +255,31 @@
     }
 }
 
-/* Fix for Recent Requests Scrolling */
+/* Fix for Recent Requests Scrolling - Updated for sticky header */
 .recent-requests {
     max-height: calc(100vh - 120px);
+    overflow: visible; /* Changed from overflow-y: auto to allow sticky header */
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.recent-requests h2 {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+    margin: 0 0 1rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    flex-shrink: 0;
+}
+
+#recent-requests-container {
+    flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    padding-right: 8px;
 }
 
 .requests-list {
@@ -260,22 +287,22 @@
     overflow: visible;
 }
 
-/* Scrollbar styling for recent requests */
-.recent-requests::-webkit-scrollbar {
+/* Scrollbar styling for recent requests container */
+#recent-requests-container::-webkit-scrollbar {
     width: 8px;
 }
 
-.recent-requests::-webkit-scrollbar-track {
+#recent-requests-container::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 4px;
 }
 
-.recent-requests::-webkit-scrollbar-thumb {
+#recent-requests-container::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 4px;
 }
 
-.recent-requests::-webkit-scrollbar-thumb:hover {
+#recent-requests-container::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
 
@@ -658,6 +685,15 @@
 body.modal-open {
     overflow: hidden;
 }
+
+/* Mobile table optimization */
+@media (max-width: 768px) {
+    .list-table td:nth-child(2),
+    .list-table td:nth-child(3) {
+        text-align: center;
+    }
+}
+
 </style>
 {% endblock %}
 
@@ -917,7 +953,7 @@ body.modal-open {
                     {% csrf_token %}
                     <input type="hidden" name="action" value="submit_request">
                     <div class="form-group">
-                        <label for="supply-purpose">Purpose/Description:</label>
+                        <label for="supply-purpose">Purpose/Description:<span class="required-asterisk">*</span></label>
                         <textarea id="supply-purpose" name="purpose" class="form-control" 
                                   rows="3" required placeholder="Please describe the purpose of this request..."></textarea>
                     </div>
@@ -936,7 +972,21 @@ body.modal-open {
         <!-- Borrow Request Content -->
         <div id="borrow-request-content" class="request-content">
             <h1><i class="fas fa-handshake"></i> Borrow Request List</h1>
-            <p class="form-description">Add multiple items to your borrow list, then submit your request all at once.</p>
+            <p class="form-description">Set your return date first, then add multiple items to your borrow list.</p>
+
+            <!-- Borrow Period (All Items) -->
+            <div class="borrow-period-section" style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h3 style="margin-top: 0; color: #152d64;"><i class="fas fa-calendar-alt" style="color: #152d64;"></i> Return Period (All Items)</h3>
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="borrow-batch-return-date"><strong>Return Date:<span class="required-asterisk">*</span></strong></label>
+                        <input type="date" id="borrow-batch-return-date" class="form-control" required>
+                    </div>
+                </div>
+                <small style="color: #6c757d; display: block; margin-top: 8px;">
+                    <i class="fas fa-info-circle"></i> This return date will apply to all items in your borrow request.
+                </small>
+            </div>
 
             <!-- Add Item to List Section -->
             <div class="add-item-section">
@@ -1007,26 +1057,26 @@ body.modal-open {
                             <input type="number" id="borrow-quantity-input" name="quantity" 
                                    class="form-control" min="1" placeholder="Enter quantity" required>
                         </div>
-                        <div class="form-group">
-                            <label for="return-date-input">Return Date:</label>
-                            <input type="date" id="return-date-input" name="return_date" 
-                                   class="form-control" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="purpose-input">Purpose:<span class="required-asterisk">*</span></label>
+                            <textarea id="purpose-input" name="purpose" class="form-control" 
+                                      placeholder="Describe the purpose for borrowing this item..." required></textarea>
                         </div>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
                             <button type="submit" class="btn-add-to-list">
                                 <i class="fas fa-plus"></i> Add to List
                             </button>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group full-width">
-                            <label for="purpose-input">Purpose:</label>
-                            <textarea id="purpose-input" name="purpose" class="form-control" 
-                                      placeholder="Describe the purpose for borrowing this item..." required></textarea>
-                        </div>
-                    </div>
                 </form>
             </div>
+
+            <!-- Hidden batch return date for form submission -->
+            <input type="hidden" id="borrow-batch-return-date-hidden" name="batch_return_date">
 
             <!-- List Items Section -->
             <div class="list-section">
@@ -1038,12 +1088,10 @@ body.modal-open {
                             <tr>
                                 <th>Item</th>
                                 <th>Quantity</th>
-                                <th>Return Date</th>
-                                <th>Purpose</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="borrow-list-body">
                             {% for item in borrow_cart_items %}
                             <tr data-supply-id="{{ item.supply.id }}">
                                 <td>{{ item.supply.property_name }}</td>
@@ -1051,11 +1099,6 @@ body.modal-open {
                                     <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
                                            value="{{ item.quantity }}" min="1">
                                 </td>
-                                <td>
-                                    <input type="date" class="return-date-edit" data-supply-id="{{ item.supply.id }}" 
-                                           value="{{ item.return_date|date:'Y-m-d' }}">
-                                </td>
-                                <td>{{ item.purpose|truncatewords:5 }}</td>
                                 <td>
                                     <button class="btn-remove-borrow" data-supply-id="{{ item.supply.id }}">
                                         <i class="fas fa-trash"></i> Remove
@@ -1079,6 +1122,7 @@ body.modal-open {
                 <form id="submit-borrow-form" method="post" action="{% url 'submit_borrow_list_request' %}">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="submit_request">
+                    <input type="hidden" id="borrow-batch-return-date-hidden" name="batch_return_date">
                     <div class="form-group">
                         <label for="general-purpose">General Purpose/Notes (Optional):</label>
                         <textarea id="general-purpose" name="general_purpose" class="form-control" 
@@ -1220,11 +1264,12 @@ $(document).ready(function() {
     // Initialize recent requests with supply type
     updateRecentRequests('supply');
     
-    // Set minimum return date to tomorrow
+    // Set minimum return date to tomorrow for both supply and borrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const minDate = tomorrow.toISOString().split('T')[0];
     $('#return-date-input').attr('min', minDate);
+    $('#borrow-batch-return-date').attr('min', minDate);
     
     // Add supply item to list
     $('#add-supply-form').on('submit', function(e) {
@@ -1363,8 +1408,15 @@ $(document).ready(function() {
         const propertyId = document.getElementById('borrow-select').value;
         const propertyName = document.getElementById('borrow-search').value;
         const quantity = parseInt(document.getElementById('borrow-quantity-input').value);
-        const returnDate = document.getElementById('return-date-input').value;
+        const batchReturnDate = document.getElementById('borrow-batch-return-date').value;
         const purpose = document.getElementById('purpose-input').value;
+        
+        // Validate batch return date is set
+        if (!batchReturnDate) {
+            showMessage('Please set the return date first in the "Return Period" section', 'error');
+            document.getElementById('borrow-batch-return-date').focus();
+            return;
+        }
         
         if (!propertyId) {
             showMessage('Please select an item', 'error');
@@ -1376,15 +1428,13 @@ $(document).ready(function() {
             return;
         }
         
-        if (!returnDate) {
-            showMessage('Please select a return date', 'error');
-            return;
-        }
-        
         if (!purpose) {
             showMessage('Please enter a purpose', 'error');
             return;
         }
+        
+        // Add batch return date to form data
+        formData.append('return_date', batchReturnDate);
         
         $.ajax({
             url: '{% url "add_to_borrow_list" %}',
@@ -1403,12 +1453,11 @@ $(document).ready(function() {
                     const existingRow = $(`#borrow-list-body tr[data-supply-id="${propertyId}"]`);
                     
                     if (existingRow.length) {
-                        // Update existing row
+                        // Update existing row - just update quantity
                         const quantityInput = existingRow.find('.quantity-edit');
                         const newQuantity = parseInt(quantityInput.val()) + parseInt(quantity);
                         quantityInput.val(newQuantity);
-                        existingRow.find('.return-date-edit').val(returnDate);
-                        existingRow.find('td:nth-child(4)').text(purpose.split(' ').slice(0, 5).join(' ') + (purpose.split(' ').length > 5 ? '...' : ''));
+                        existingRow.find('td:nth-child(3)').text(purpose.split(' ').slice(0, 5).join(' ') + (purpose.split(' ').length > 5 ? '...' : ''));
                     } else {
                         // Add new row to table
                         const table = $(`#borrow-list-body`);
@@ -1418,10 +1467,6 @@ $(document).ready(function() {
                                 <td>
                                     <input type="number" class="quantity-edit" data-supply-id="${propertyId}" 
                                            value="${quantity}" min="1">
-                                </td>
-                                <td>
-                                    <input type="date" class="return-date-edit" data-supply-id="${propertyId}" 
-                                           value="${returnDate}">
                                 </td>
                                 <td>${purpose.split(' ').slice(0, 5).join(' ')}${purpose.split(' ').length > 5 ? '...' : ''}</td>
                                 <td>
@@ -1440,7 +1485,6 @@ $(document).ready(function() {
                                         <tr>
                                             <th>Item</th>
                                             <th>Quantity</th>
-                                            <th>Return Date</th>
                                             <th>Purpose</th>
                                             <th>Actions</th>
                                         </tr>
@@ -1461,7 +1505,6 @@ $(document).ready(function() {
                                             <tr>
                                                 <th>Item</th>
                                                 <th>Quantity</th>
-                                                <th>Return Date</th>
                                                 <th>Purpose</th>
                                                 <th>Actions</th>
                                             </tr>
@@ -1490,7 +1533,6 @@ $(document).ready(function() {
                     document.getElementById('borrow-search').value = '';
                     document.getElementById('borrow-select').value = '';
                     document.getElementById('borrow-quantity-input').value = '';
-                    document.getElementById('return-date-input').value = '';
                     document.getElementById('purpose-input').value = '';
                     
                     // Clear any error highlighting
@@ -1531,11 +1573,10 @@ $(document).ready(function() {
         });
     });
     
-    // Update borrow list item
+    // Update borrow list item quantity only (no return date)
     $(document).on('click', '.btn-update-borrow', function() {
         const supplyId = $(this).data('supply-id');
         const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
-        const newReturnDate = $(`.return-date-edit[data-supply-id="${supplyId}"]`).val();
         
         $.ajax({
             url: '{% url "update_borrow_list_item" %}',
@@ -1543,7 +1584,6 @@ $(document).ready(function() {
             data: {
                 'supply_id': supplyId,
                 'quantity': newQuantity,
-                'return_date': newReturnDate,
                 'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
             },
             success: function(response) {
@@ -1637,11 +1677,10 @@ $(document).ready(function() {
         });
     });
     
-    // Auto-save borrow quantity and return date on change
-    $(document).on('change', '#borrow-list-body .quantity-edit, #borrow-list-body .return-date-edit', function() {
+    // Auto-save borrow quantity on change
+    $(document).on('change', '#borrow-list-body .quantity-edit', function() {
         const supplyId = $(this).closest('tr').data('supply-id');
         const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
-        const newReturnDate = $(`.return-date-edit[data-supply-id="${supplyId}"]`).val();
         
         $.ajax({
             url: '{% url "update_borrow_list_item" %}',
@@ -1649,7 +1688,6 @@ $(document).ready(function() {
             data: {
                 'supply_id': supplyId,
                 'quantity': newQuantity,
-                'return_date': newReturnDate,
                 'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
             },
             success: function(response) {
@@ -1658,7 +1696,7 @@ $(document).ready(function() {
                 }
             },
             error: function() {
-                showMessage('Error updating borrow details', 'error');
+                showMessage('Error updating borrow quantity', 'error');
             }
         });
     });
@@ -1757,19 +1795,34 @@ $(document).ready(function() {
     $('#submit-borrow-form').on('submit', function(e) {
         e.preventDefault();
         
+        // Validate batch return date
+        const batchReturnDate = document.getElementById('borrow-batch-return-date').value;
+        if (!batchReturnDate) {
+            showMessage('Please set the return date first', 'error');
+            document.getElementById('borrow-batch-return-date').focus();
+            return;
+        }
+        
         if (!confirm('Are you sure you want to submit this borrow request?')) {
             return;
         }
         
-        const formData = $(this).serialize();
-        
         // Store active tab before redirect
         localStorage.setItem('activeRequestTab', 'borrow');
+        
+        // Use FormData to ensure all data is properly included
+        const formData = new FormData(this);
+        formData.append('batch_return_date', batchReturnDate);
         
         $.ajax({
             url: '{% url "submit_borrow_list_request" %}',
             type: 'POST',
             data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
             success: function(response) {
                 console.log('Borrow submit response:', response);
                 if (response.status === 'success') {
@@ -2250,30 +2303,52 @@ function initializeDropdown(config) {
         console.log(`[${name}] Visible options: ${count}`);
     }
     
+    // Update dropdown position (for scroll/resize handling)
+    function updateDropdownPosition() {
+        if (!isDropdownOpen) return;
+        
+        const inputRect = searchInput.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        
+        // Calculate position
+        let dropdownWidth;
+        let left;
+        
+        if (viewportWidth <= 768) {
+            dropdownWidth = Math.min(inputRect.width, viewportWidth - 32);
+            left = Math.max(16, inputRect.left);
+        } else {
+            dropdownWidth = inputRect.width;
+            left = inputRect.left;
+        }
+        
+        // Update dropdown position and size
+        dropdown.style.width = dropdownWidth + 'px';
+        dropdown.style.left = left + 'px';
+        dropdown.style.top = inputRect.bottom + 'px';
+        
+        // Check if dropdown would go off screen
+        const dropdownHeight = Math.min(300, dropdown.scrollHeight);
+        if (inputRect.bottom + dropdownHeight > viewportHeight) {
+            // Not enough space below, check if there's space above
+            if (inputRect.top > dropdownHeight) {
+                dropdown.style.top = (inputRect.top - dropdownHeight) + 'px';
+            }
+        }
+    }
+    
     // Toggle dropdown visibility
     function toggleDropdown() {
         isDropdownOpen = !isDropdownOpen;
         
         if (isDropdownOpen) {
-            const inputRect = searchInput.getBoundingClientRect();
-            const viewportWidth = window.innerWidth;
-            
-            let dropdownWidth;
-            if (viewportWidth <= 768) {
-                dropdownWidth = Math.min(inputRect.width, viewportWidth - 32);
-                dropdown.style.left = Math.max(16, inputRect.left) + 'px';
-            } else {
-                dropdownWidth = inputRect.width;
-                dropdown.style.left = inputRect.left + 'px';
-            }
-            
-            dropdown.style.width = dropdownWidth + 'px';
-            dropdown.style.top = (inputRect.bottom + window.scrollY) + 'px';
             dropdown.style.display = 'block';
             dropdown.style.position = 'fixed';
             dropdown.style.zIndex = '999999';
             
             document.body.appendChild(dropdown);
+            updateDropdownPosition();
             searchInput.focus();
             console.log(`[${name}] Dropdown opened`);
         } else {
@@ -2558,20 +2633,31 @@ function initializeDropdown(config) {
         }
     });
     
-    // Event: Close on scroll
+    // Event: Update position on scroll
     window.addEventListener('scroll', function() {
         if (isDropdownOpen && dropdown.parentNode === document.body) {
-            toggleDropdown();
+            updateDropdownPosition();
         }
-    });
+    }, true); // Use capture phase to catch all scroll events
     
-    // Event: Close on resize
+    // Event: Update position when any parent element scrolls
+    let scrollableParent = searchInput.parentElement;
+    while (scrollableParent) {
+        scrollableParent.addEventListener('scroll', function() {
+            if (isDropdownOpen && dropdown.parentNode === document.body) {
+                updateDropdownPosition();
+            }
+        });
+        scrollableParent = scrollableParent.parentElement;
+    }
+    
+    // Event: Update position on resize
     let resizeTimeout;
     window.addEventListener('resize', function() {
         if (isDropdownOpen && dropdown.parentNode === document.body) {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(function() {
-                toggleDropdown();
+                updateDropdownPosition();
             }, 100);
         }
     });

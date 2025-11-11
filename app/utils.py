@@ -308,3 +308,115 @@ def send_overdue_borrow_sms(borrow_request):
     except Exception as e:
         logger.error(f"Error sending overdue SMS reminder: {str(e)}")
         return False
+
+
+def calculate_reminder_trigger_date(borrow_date, return_date):
+    """
+    Calculate when to send a near-overdue reminder based on borrow duration.
+    
+    Uses a hybrid approach:
+    - Calculate reminder based on percentage of borrow period remaining
+    - Cap between MIN and MAX days to avoid too-early or too-late reminders
+    
+    Args:
+        borrow_date: The date when the item was borrowed
+        return_date: The date when the item should be returned
+    
+    Returns:
+        datetime.date: The date on which the reminder should be sent
+    """
+    from datetime import timedelta
+    
+    try:
+        # Calculate total days borrowed
+        days_borrowed = (return_date - borrow_date).days
+        
+        # Calculate reminder days before return based on percentage of borrow period
+        reminder_days_before = days_borrowed * settings.BORROW_REMINDER_PERCENTAGE
+        
+        # Apply min/max caps
+        reminder_days_before = max(
+            settings.BORROW_REMINDER_MIN_DAYS,
+            min(settings.BORROW_REMINDER_MAX_DAYS, reminder_days_before)
+        )
+        
+        # Calculate the trigger date
+        reminder_trigger_date = return_date - timedelta(days=reminder_days_before)
+        
+        logger.debug(
+            f"Reminder trigger calculated: borrowed {days_borrowed} days, "
+            f"reminder {reminder_days_before:.1f} days before return ({reminder_trigger_date})"
+        )
+        
+        return reminder_trigger_date
+        
+    except Exception as e:
+        logger.error(f"Error calculating reminder trigger date: {str(e)}")
+        return return_date  # Fallback to return date if error
+
+
+def send_near_overdue_borrow_email(borrow_request_item):
+    """
+    Send an email reminder for a borrow request item that is approaching its return date.
+    
+    Args:
+        borrow_request_item: The BorrowRequestItem instance
+    
+    Returns:
+        bool: True if email was sent successfully, False otherwise
+    """
+    try:
+        from datetime import date
+        
+        user = borrow_request_item.batch_request.user
+        
+        # Skip if user doesn't have an email
+        if not user.email:
+            logger.warning(
+                f"User {user.username} doesn't have an email address. "
+                f"Skipping near-overdue reminder."
+            )
+            return False
+        
+        # Calculate days until return
+        days_until_return = (borrow_request_item.return_date - date.today()).days
+        
+        # Prepare context for email template
+        context = {
+            'user': user,
+            'batch_request': borrow_request_item.batch_request,
+            'item': borrow_request_item,
+            'property_name': borrow_request_item.property.property_name,
+            'quantity': borrow_request_item.quantity,
+            'return_date': borrow_request_item.return_date,
+            'days_until_return': days_until_return,
+            'dashboard_url': "http://localhost:8000/userpanel/dashboard/",
+            'current_year': timezone.now().year,
+        }
+        
+        # Render email template
+        html_message = render_to_string('app/email/borrow_near_overdue_reminder.html', context)
+        plain_message = strip_tags(html_message)
+        
+        # Create subject
+        subject = f"Reminder: Your borrowed item '{borrow_request_item.property.property_name}' is due in {days_until_return} day(s)"
+        
+        # Send email
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        
+        logger.info(
+            f"Near-overdue reminder email sent to {user.email} for item "
+            f"{borrow_request_item.property.property_name} (due {borrow_request_item.return_date})"
+        )
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to send near-overdue reminder email: {str(e)}")
+        return False

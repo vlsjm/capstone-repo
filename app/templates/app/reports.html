@@ -1345,14 +1345,24 @@
             const detailsRow = document.getElementById(detailsId);
             
             if (detailsRow) {
-              if (detailsRow.style.display === 'none' || detailsRow.style.display === '') {
+              const isCurrentlyExpanded = detailsRow.style.display === 'table-row';
+              
+              // Collapse all other rows first (accordion behavior)
+              document.querySelectorAll('.details-row').forEach(function(row) {
+                if (row.style.display === 'table-row') {
+                  row.style.display = 'none';
+                }
+              });
+              document.querySelectorAll('.expand-icon').forEach(function(icon) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-right');
+              });
+              
+              if (!isCurrentlyExpanded) {
+                // Show this row's details
                 detailsRow.style.display = 'table-row';
                 expandIcon.classList.remove('fa-chevron-right');
                 expandIcon.classList.add('fa-chevron-down');
-              } else {
-                detailsRow.style.display = 'none';
-                expandIcon.classList.remove('fa-chevron-down');
-                expandIcon.classList.add('fa-chevron-right');
               }
             }
           }

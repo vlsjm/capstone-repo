@@ -230,6 +230,14 @@ class DamageReportForm(forms.ModelForm):
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
         }
+        labels = {
+            'description': 'Description',
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add required asterisk to description label
+        self.fields['description'].label = 'Description<span class="required-asterisk">*</span>'
     
     def clean_image(self):
         image = self.cleaned_data.get('image')

@@ -1,6 +1,27 @@
 from django.views.decorators.http import require_POST, require_http_methods
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+import re
+
+def redirect_with_tab(request, view_name):
+    """
+    Helper function to redirect while preserving the current tab from the referer URL.
+    
+    Args:
+        request: The HTTP request object
+        view_name: The name of the view to redirect to
+    
+    Returns:
+        HttpResponseRedirect to the view, optionally with tab parameter preserved
+    """
+    referer = request.META.get('HTTP_REFERER', '')
+    if 'tab=' in referer:
+        # Extract the tab parameter from the referer
+        tab_match = re.search(r'tab=([^&]+)', referer)
+        if tab_match:
+            tab = tab_match.group(1)
+            return redirect(f"{reverse(view_name)}?tab={tab}")
+    return redirect(view_name)
 
 @require_POST
 def update_damage_status(request, pk):
@@ -274,6 +295,77 @@ def delete_department(request, dept_id):
         return JsonResponse({"success": True})
     return JsonResponse({"success": False})
 
+@permission_required('app.view_admin_module')
+@require_POST
+def toggle_user_status(request, user_id):
+    """Toggle user active/inactive status"""
+    try:
+        user = get_object_or_404(User, id=user_id)
+        user_profile = get_object_or_404(UserProfile, user=user)
+        
+        # Prevent admin from deactivating themselves
+        if user == request.user:
+            messages.error(request, "You cannot deactivate your own account.")
+            return redirect('manage_users')
+        
+        # Toggle the is_active status
+        user.is_active = not user.is_active
+        
+        if not user.is_active:
+            # User is being deactivated - check for auto-reactivation date
+            auto_enable_date = request.POST.get('auto_enable_date')
+            if auto_enable_date:
+                try:
+                    from datetime import datetime
+                    # Parse the datetime-local input format
+                    enable_datetime = datetime.strptime(auto_enable_date, '%Y-%m-%dT%H:%M')
+                    # Make it timezone aware
+                    from django.utils import timezone as tz
+                    enable_datetime_aware = tz.make_aware(enable_datetime)
+                    
+                    # Ensure the date is in the future
+                    if enable_datetime_aware > timezone.now():
+                        user_profile.auto_enable_at = enable_datetime_aware
+                        user_profile.save()
+                        status_text = f"deactivated (will auto-reactivate on {enable_datetime_aware.strftime('%b %d, %Y at %I:%M %p')})"
+                    else:
+                        messages.warning(request, "Auto-reactivation date must be in the future. Account deactivated without auto-reactivation.")
+                        user_profile.auto_enable_at = None
+                        user_profile.save()
+                        status_text = "deactivated"
+                except ValueError:
+                    messages.warning(request, "Invalid date format. Account deactivated without auto-reactivation.")
+                    user_profile.auto_enable_at = None
+                    user_profile.save()
+                    status_text = "deactivated"
+            else:
+                user_profile.auto_enable_at = None
+                user_profile.save()
+                status_text = "deactivated"
+        else:
+            # User is being reactivated - clear auto_enable_at
+            user_profile.auto_enable_at = None
+            user_profile.save()
+            status_text = "activated"
+        
+        user.save()
+        
+        # Log the activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='activate' if user.is_active else 'update',
+            model_name='User',
+            object_repr=user.username,
+            description=f"{status_text.capitalize()} user account for {user.username}"
+        )
+        
+        messages.success(request, f"User {user.username} has been {status_text}.")
+        return redirect('manage_users')
+        
+    except Exception as e:
+        messages.error(request, f"Error updating user status: {str(e)}")
+        return redirect('manage_users')
+
 @login_required
 @require_POST
 def mark_all_notifications_as_read(request):
@@ -371,6 +463,9 @@ def reservation_detail(request, pk):
 @permission_required('app.view_admin_module', raise_exception=True)
 def reservation_batch_detail(request, batch_id):
     """View and manage a batch reservation request"""
+    # Check and update reservation batch statuses (triggers active reservations)
+    ReservationBatch.check_and_update_batches()
+    
     # Get the reservation batch
     batch = get_object_or_404(ReservationBatch.objects.select_related('user').prefetch_related('items__property'), id=batch_id)
     
@@ -404,6 +499,7 @@ def approve_reservation_item(request, batch_id, item_id):
         batch = get_object_or_404(ReservationBatch, id=batch_id)
         item = get_object_or_404(ReservationItem, id=item_id, batch_request=batch)
         remarks = request.POST.get('remarks', '')
+        scroll_position = request.POST.get('scroll_position', '0')
         
         # Get approved quantity from POST (default to original quantity if not provided)
         approved_quantity = request.POST.get('approved_quantity', item.quantity)
@@ -415,11 +511,15 @@ def approve_reservation_item(request, batch_id, item_id):
         # Validate approved quantity
         if approved_quantity < 1:
             messages.error(request, 'Approved quantity must be at least 1.')
-            return redirect('reservation_batch_detail', batch_id=batch_id)
+            response = redirect('reservation_batch_detail', batch_id=batch_id)
+            response['Location'] += f'#scroll-{scroll_position}'
+            return response
         
         if approved_quantity > item.quantity:
             messages.error(request, f'Approved quantity cannot exceed requested quantity of {item.quantity}.')
-            return redirect('reservation_batch_detail', batch_id=batch_id)
+            response = redirect('reservation_batch_detail', batch_id=batch_id)
+            response['Location'] += f'#scroll-{scroll_position}'
+            return response
         
         # Check available quantity (uses reserved_quantity from Property model)
         if item.property.available_quantity >= approved_quantity:
@@ -483,7 +583,9 @@ def approve_reservation_item(request, batch_id, item_id):
         else:
             messages.error(request, f'Cannot approve reservation. Only {item.property.available_quantity} units of {item.property.property_name} available (trying to approve {approved_quantity}).')
         
-        return redirect('reservation_batch_detail', batch_id=batch_id)
+        response = redirect('reservation_batch_detail', batch_id=batch_id)
+        response['Location'] += f'#scroll-{scroll_position}'
+        return response
     
     return redirect('user_reservations')
 
@@ -496,6 +598,7 @@ def reject_reservation_item(request, batch_id, item_id):
         batch = get_object_or_404(ReservationBatch, id=batch_id)
         item = get_object_or_404(ReservationItem, id=item_id, batch_request=batch)
         remarks = request.POST.get('remarks', '')
+        scroll_position = request.POST.get('scroll_position', '0')
         
         item.status = 'rejected'
         item.remarks = remarks
@@ -530,7 +633,9 @@ def reject_reservation_item(request, batch_id, item_id):
         )
         
         messages.success(request, f'Reservation for {item.property.property_name} rejected.')
-        return redirect('reservation_batch_detail', batch_id=batch_id)
+        response = redirect('reservation_batch_detail', batch_id=batch_id)
+        response['Location'] += f'#scroll-{scroll_position}'
+        return response
     
     return redirect('user_reservations')
 
@@ -827,6 +932,7 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
         search = self.request.GET.get('search', '')
         role = self.request.GET.get('role', '')
         department = self.request.GET.get('department', '')
+        status = self.request.GET.get('status', '')
         
         if search:
             queryset = queryset.filter(
@@ -842,8 +948,15 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
             
         if department:
             queryset = queryset.filter(department__name=department)
-            
-        return queryset
+        
+        if status:
+            if status == 'active':
+                queryset = queryset.filter(user__is_active=True)
+            elif status == 'inactive':
+                queryset = queryset.filter(user__is_active=False)
+        
+        # Order by account creation date (newest first) to fix pagination warning
+        return queryset.order_by('-user__date_joined')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -868,11 +981,182 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
         context['form'] = form
         context['departments'] = Department.objects.all()
         context['show_modal'] = show_modal
+        context['now'] = timezone.now()
         # Add current filter values to context
         context['search'] = self.request.GET.get('search', '')
         context['selected_role'] = self.request.GET.get('role', '')
         context['selected_department'] = self.request.GET.get('department', '')
+        context['selected_status'] = self.request.GET.get('status', '')
         return context
+
+@permission_required('app.view_admin_module')
+@login_required
+@permission_required('app.view_admin_module')
+@login_required
+def get_top_requested_supplies(request):
+    """
+    API endpoint to get top 10 most requested supplies with optional date filtering
+    """
+    try:
+        # Get filter parameters from request
+        days = request.GET.get('days')  # 30, 90, etc.
+        date_from = request.GET.get('date_from')
+        date_to = request.GET.get('date_to')
+        
+        # Build filter
+        filter_kwargs = {}
+        if days:
+            try:
+                days = int(days)
+                cutoff_date = timezone.now() - timedelta(days=days)
+                filter_kwargs['request_date__gte'] = cutoff_date
+            except ValueError:
+                pass
+        elif date_from and date_to:
+            try:
+                from datetime import datetime
+                start_dt = datetime.strptime(date_from, '%Y-%m-%d')
+                end_dt = datetime.strptime(date_to, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+                filter_kwargs['request_date__range'] = [start_dt, end_dt]
+            except ValueError:
+                pass
+        
+        # Get supply requests from both legacy and batch systems
+        legacy_requests = SupplyRequest.objects.filter(**filter_kwargs).values('supply_id', 'supply__supply_name').annotate(
+            total_quantity=models.Sum('quantity'),
+            request_count=models.Count('id')
+        ).order_by('-total_quantity')[:10]
+        
+        batch_items = SupplyRequestItem.objects.filter(
+            batch_request__status__in=['approved', 'completed', 'for_claiming'],
+            batch_request__request_date__gte=filter_kwargs.get('request_date__gte', timezone.now() - timedelta(days=999)),
+            **(  # Apply date range if specified
+                {'batch_request__request_date__range': filter_kwargs['request_date__range']}
+                if 'request_date__range' in filter_kwargs else {}
+            )
+        ).values('supply_id', 'supply__supply_name').annotate(
+            total_quantity=models.Sum('quantity'),
+            request_count=models.Count('id')
+        ).order_by('-total_quantity')[:10]
+        
+        # Combine and deduplicate
+        combined_data = {}
+        for item in legacy_requests:
+            combined_data[item['supply_id']] = {
+                'supply_id': item['supply_id'],
+                'supply_name': item['supply__supply_name'],
+                'total_quantity': item['total_quantity'],
+                'request_count': item['request_count']
+            }
+        
+        for item in batch_items:
+            if item['supply_id'] in combined_data:
+                combined_data[item['supply_id']]['total_quantity'] += item['total_quantity']
+                combined_data[item['supply_id']]['request_count'] += item['request_count']
+            else:
+                combined_data[item['supply_id']] = {
+                    'supply_id': item['supply_id'],
+                    'supply_name': item['supply__supply_name'],
+                    'total_quantity': item['total_quantity'],
+                    'request_count': item['request_count']
+                }
+        
+        # Sort and get top 10
+        sorted_data = sorted(combined_data.values(), key=lambda x: x['total_quantity'], reverse=True)[:10]
+        
+        return JsonResponse({
+            'success': True,
+            'data': sorted_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@permission_required('app.view_admin_module')
+@login_required
+def get_department_requests_filtered(request):
+    """
+    API endpoint to get department requests with optional date filtering
+    """
+    try:
+        # Get filter parameters from request
+        days = request.GET.get('days')  # 30, 90, etc.
+        date_from = request.GET.get('date_from')
+        date_to = request.GET.get('date_to')
+        
+        # Build filter
+        filter_kwargs = {}
+        if days:
+            try:
+                days = int(days)
+                cutoff_date = timezone.now() - timedelta(days=days)
+                filter_kwargs['request_date__gte'] = cutoff_date
+            except ValueError:
+                pass
+        elif date_from and date_to:
+            try:
+                from datetime import datetime
+                start_dt = datetime.strptime(date_from, '%Y-%m-%d')
+                end_dt = datetime.strptime(date_to, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+                filter_kwargs['request_date__range'] = [start_dt, end_dt]
+            except ValueError:
+                pass
+        
+        # Get requests by department
+        departments = Department.objects.all()
+        department_request_data = []
+        
+        for department in departments:
+            # Count supply requests
+            legacy_supply_count = SupplyRequest.objects.filter(
+                user__userprofile__department=department,
+                **filter_kwargs
+            ).count()
+            batch_supply_count = SupplyRequestBatch.objects.filter(
+                user__userprofile__department=department,
+                **filter_kwargs
+            ).count()
+            total_supply_requests = legacy_supply_count + batch_supply_count
+            
+            # Count borrow requests
+            borrow_count = BorrowRequest.objects.filter(
+                user__userprofile__department=department,
+                **({} if not filter_kwargs else {'borrow_date__gte': filter_kwargs.get('request_date__gte', timezone.now() - timedelta(days=999))})
+            ).count()
+            
+            # Count reservations
+            reservation_count = Reservation.objects.filter(
+                user__userprofile__department=department,
+                **({} if not filter_kwargs else {'reservation_date__gte': filter_kwargs.get('request_date__gte', timezone.now() - timedelta(days=999))})
+            ).count()
+            
+            total_requests = total_supply_requests + borrow_count + reservation_count
+            
+            if total_requests > 0:
+                department_request_data.append({
+                    'department': department.name,
+                    'total_requests': total_requests,
+                    'supply_requests': total_supply_requests,
+                    'borrow_requests': borrow_count,
+                    'reservations': reservation_count
+                })
+        
+        # Sort by total requests
+        department_request_data.sort(key=lambda x: x['total_requests'], reverse=True)
+        
+        return JsonResponse({
+            'success': True,
+            'data': department_request_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
 
 class DashboardPageView(PermissionRequiredMixin,TemplateView):
     template_name = 'app/dashboard.html'
@@ -887,12 +1171,23 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
         user_notifications = Notification.objects.filter(user=self.request.user).order_by('-timestamp')
         unread_notifications = user_notifications.filter(is_read=False)
 
+        # Calculate date ranges for percentage changes
+        today = timezone.now().date()
+        first_day_this_month = today.replace(day=1)
+        last_day_last_month = first_day_this_month - timedelta(days=1)
+        first_day_last_month = last_day_last_month.replace(day=1)
 
         #expiry count
-        today = timezone.now().date()
         seven_days_later = today + timedelta(days=30) #30 days before the expiry date para ma trigger
-        context['near_expiry_count'] = Supply.objects.filter(
+        near_expiry_count = Supply.objects.filter(
             expiration_date__range=(today, seven_days_later),
+            quantity_info__current_quantity__gt=0
+        ).count()
+        context['near_expiry_count'] = near_expiry_count
+        
+        # Calculate near expiry count for last month
+        near_expiry_count_last_month = Supply.objects.filter(
+            expiration_date__range=(first_day_last_month, last_day_last_month),
             quantity_info__current_quantity__gt=0
         ).count()
 
@@ -1163,21 +1458,135 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
 
             # JSON serialized data for charts
             'borrow_trends_data': json.dumps(borrow_trends_data),
-            'property_categories_counts': json.dumps(property_categories_data),
             'user_activity_by_role': json.dumps(user_activity_data),
             'department_requests_data': json.dumps(department_request_data),
 
             # total counts for cards
             'supply_count': Supply.objects.count(),
             'property_count': Property.objects.count(),
-            'pending_requests': SupplyRequest.objects.filter(status__iexact='pending').count() + SupplyRequestBatch.objects.filter(status__iexact='pending').count(),
+            'pending_supply_requests': SupplyRequest.objects.filter(status__iexact='pending').count() + SupplyRequestBatch.objects.filter(status__iexact='pending').count(),
+            'pending_borrow_requests': BorrowRequest.objects.filter(status__iexact='pending').count() + BorrowRequestBatch.objects.filter(status__iexact='pending').count(),
+            'pending_requests': SupplyRequest.objects.filter(status__iexact='pending').count() + SupplyRequestBatch.objects.filter(status__iexact='pending').count() + BorrowRequest.objects.filter(status__iexact='pending').count() + BorrowRequestBatch.objects.filter(status__iexact='pending').count(),
             'damage_reports': DamageReport.objects.filter(status__iexact='pending').count(),
             
             # Recent requests for preview table
             'recent_requests_preview': recent_requests_preview,
         })
+        
+        # Calculate percentage changes for dashboard cards
+        # Helper function to calculate percentage change
+        def calculate_percentage_change(current, previous):
+            if previous == 0:
+                return {'percentage': 0, 'direction': 'neutral'} if current == 0 else {'percentage': 100, 'direction': 'positive'}
+            change = ((current - previous) / previous) * 100
+            return {
+                'percentage': abs(round(change, 1)),
+                'direction': 'positive' if change > 0 else 'negative' if change < 0 else 'neutral'
+            }
+        
+        # Count items created/added last month for comparison
+        supply_count_current = context['supply_count']
+        supply_count_last_month = Supply.objects.filter(
+            created_at__lt=first_day_this_month
+        ).count() if hasattr(Supply, 'created_at') else supply_count_current
+        
+        property_count_current = context['property_count']
+        property_count_last_month = Property.objects.filter(
+            created_at__lt=first_day_this_month
+        ).count() if hasattr(Property, 'created_at') else property_count_current
+        
+        pending_requests_current = context['pending_requests']
+        pending_requests_last_month = (
+            SupplyRequest.objects.filter(
+                status__iexact='pending',
+                request_date__gte=first_day_last_month,
+                request_date__lt=first_day_this_month
+            ).count() +
+            SupplyRequestBatch.objects.filter(
+                status__iexact='pending',
+                request_date__gte=first_day_last_month,
+                request_date__lt=first_day_this_month
+            ).count() +
+            BorrowRequest.objects.filter(
+                status__iexact='pending',
+                borrow_date__gte=first_day_last_month,
+                borrow_date__lt=first_day_this_month
+            ).count() +
+            BorrowRequestBatch.objects.filter(
+                status__iexact='pending',
+                request_date__gte=first_day_last_month,
+                request_date__lt=first_day_this_month
+            ).count()
+        )
+        
+        damage_reports_current = context['damage_reports']
+        damage_reports_last_month = DamageReport.objects.filter(
+            status__iexact='pending',
+            report_date__gte=first_day_last_month,
+            report_date__lt=first_day_this_month
+        ).count()
+        
+        # Add percentage changes to context
+        context.update({
+            'supply_change': calculate_percentage_change(supply_count_current, supply_count_last_month),
+            'property_change': calculate_percentage_change(property_count_current, property_count_last_month),
+            'pending_requests_change': calculate_percentage_change(pending_requests_current, pending_requests_last_month),
+            'damage_reports_change': calculate_percentage_change(damage_reports_current, damage_reports_last_month),
+            'near_expiry_change': calculate_percentage_change(near_expiry_count, near_expiry_count_last_month),
+        })
 
         return context
+
+
+@login_required
+def get_near_expiry_count(request):
+    """API endpoint to get near expiry count based on days filter"""
+    from django.http import JsonResponse
+    
+    try:
+        days = int(request.GET.get('days', 30))
+        today = timezone.now().date()
+        end_date = today + timedelta(days=days)
+        
+        count = Supply.objects.filter(
+            expiration_date__range=(today, end_date),
+            quantity_info__current_quantity__gt=0
+        ).count()
+        
+        return JsonResponse({'count': count})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+def get_pending_requests_count(request):
+    """API endpoint to get pending requests count by type (all, supply, borrow)"""
+    from django.http import JsonResponse
+    
+    try:
+        request_type = request.GET.get('type', 'all')
+        
+        if request_type == 'supply':
+            count = (
+                SupplyRequest.objects.filter(status__iexact='pending').count() +
+                SupplyRequestBatch.objects.filter(status__iexact='pending').count()
+            )
+        elif request_type == 'borrow':
+            count = (
+                BorrowRequest.objects.filter(status__iexact='pending').count() +
+                BorrowRequestBatch.objects.filter(status__iexact='pending').count()
+            )
+        else:  # all
+            count = (
+                SupplyRequest.objects.filter(status__iexact='pending').count() +
+                SupplyRequestBatch.objects.filter(status__iexact='pending').count() +
+                BorrowRequest.objects.filter(status__iexact='pending').count() +
+                BorrowRequestBatch.objects.filter(status__iexact='pending').count()
+            )
+        
+        return JsonResponse({'count': count})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
 
 class ActivityPageView(PermissionRequiredMixin, ListView):
@@ -2601,6 +3010,21 @@ class LandingPageView(TemplateView):
 #meow   
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
+    
+    def get_form_class(self):
+        """Use custom authentication form"""
+        from .forms import CustomAuthenticationForm
+        return CustomAuthenticationForm
+    
+    def form_invalid(self, form):
+        """Override to replace default inactive message with custom one"""
+        # Check if the error is about inactive account and replace the message
+        if form.errors.get('__all__'):
+            for i, error in enumerate(form.errors['__all__']):
+                # Replace Django's default inactive account messages
+                if 'inactive' in str(error).lower() or 'disabled' in str(error).lower():
+                    form.errors['__all__'][i] = 'This account is inactive. Please contact the administrator for assistance.'
+        return super().form_invalid(form)
     
     def get_success_url(self):
         user = self.request.user
@@ -4325,7 +4749,7 @@ def export_property_to_pdf_ics(request):
 def export_inventory_count_form_cvsu(request):
     """
     Generate Excel Inventory Count Form matching CvSU format.
-    Filters items with unit value > 50,000 and groups them by PPE Account Group (category).
+    Filters items with unit value >= 50,000 and groups them by PPE Account Group (category).
     All categories are in one sheet with footer sections between them.
     """
     from openpyxl.styles import Alignment, Border, Side, Font as OpenpyxlFont
@@ -4333,10 +4757,15 @@ def export_inventory_count_form_cvsu(request):
     from PIL import Image as PILImage
     from collections import OrderedDict
     
-    # Filter properties with unit_value above 50,000
+    # Filter properties with unit_value at or above 50,000
     properties = Property.objects.filter(
-        unit_value__gt=50000
+        unit_value__gte=50000
     ).select_related('category').order_by('category__name', 'property_name')
+    
+    # Check if there are any properties
+    if not properties.exists():
+        messages.warning(request, 'No properties with unit value at or above ₱50,000.00 were found. Please ensure you have properties meeting this criteria in your inventory.')
+        return redirect('property')
     
     # Group properties by category
     properties_by_category = OrderedDict()
@@ -5367,6 +5796,7 @@ def approve_batch_item(request, batch_id, item_id):
     """Approve an individual item in a batch request"""
     batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
     item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
+    scroll_position = request.POST.get('scroll_position', '0')
     
     # Get approved quantity from form
     approved_quantity = request.POST.get('approved_quantity', item.quantity)
@@ -5374,7 +5804,9 @@ def approve_batch_item(request, batch_id, item_id):
         approved_quantity = int(approved_quantity)
         if approved_quantity <= 0 or approved_quantity > item.quantity:
             messages.error(request, f'Invalid approved quantity. Must be between 1 and {item.quantity}.')
-            return redirect('batch_request_detail', batch_id=batch_id)
+            response = redirect('batch_request_detail', batch_id=batch_id)
+            response['Location'] += f'#scroll-{scroll_position}'
+            return response
     except (ValueError, TypeError):
         approved_quantity = item.quantity
     
@@ -5393,7 +5825,9 @@ def approve_batch_item(request, batch_id, item_id):
             })
         else:
             messages.error(request, error_msg)
-            return redirect('batch_request_detail', batch_id=batch_id)
+            response = redirect('batch_request_detail', batch_id=batch_id)
+            response['Location'] += f'#scroll-{scroll_position}'
+            return response
     
     # Mark item as approved
     item.approved = True
@@ -5457,7 +5891,9 @@ def approve_batch_item(request, batch_id, item_id):
     
     # Remove success message since user can see status change immediately on the page
     # messages.success(request, f'Item "{item.supply.supply_name}" approved successfully.')
-    return redirect('batch_request_detail', batch_id=batch_id)
+    response = redirect('batch_request_detail', batch_id=batch_id)
+    response['Location'] += f'#scroll-{scroll_position}'
+    return response
 
 @permission_required('app.view_admin_module')
 @login_required
@@ -5466,6 +5902,7 @@ def reject_batch_item(request, batch_id, item_id):
     """Reject an individual item in a batch request"""
     batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
     item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
+    scroll_position = request.POST.get('scroll_position', '0')
     
     # If the item was previously approved, release the reserved quantity
     if item.status == 'approved' and item.approved_quantity:
@@ -5530,7 +5967,9 @@ def reject_batch_item(request, batch_id, item_id):
     
     # Remove success message since user can see status change immediately on the page
     # messages.success(request, f'Item "{item.supply.supply_name}" rejected successfully.')
-    return redirect('batch_request_detail', batch_id=batch_id)
+    response = redirect('batch_request_detail', batch_id=batch_id)
+    response['Location'] += f'#scroll-{scroll_position}'
+    return response
 
 @permission_required('app.view_admin_module')
 @login_required
@@ -5666,14 +6105,14 @@ def claim_batch_items(request, batch_id):
     # Only allow claiming if batch is in for_claiming status
     if batch_request.status != 'for_claiming':
         messages.error(request, 'This request is not available for claiming.')
-        return redirect('user_supply_requests')
+        return redirect_with_tab(request, 'user_supply_requests')
     
     # Get all approved items that haven't been claimed yet
     approved_items = batch_request.items.filter(status='approved', claimed_date__isnull=True)
     
     if not approved_items.exists():
         messages.error(request, 'No approved items available for claiming.')
-        return redirect('user_supply_requests')
+        return redirect_with_tab(request, 'user_supply_requests')
     
     # Check stock availability for all items before processing
     insufficient_stock_items = []
@@ -5690,7 +6129,7 @@ def claim_batch_items(request, batch_id):
     
     if insufficient_stock_items:
         messages.error(request, f"Insufficient stock for items: {', '.join(insufficient_stock_items)}")
-        return redirect('user_supply_requests')
+        return redirect_with_tab(request, 'user_supply_requests')
     
     # Process each approved item
     claimed_items = []
@@ -5765,7 +6204,7 @@ def claim_batch_items(request, batch_id):
         description=f"Completed batch request #{batch_id} with {len(claimed_items)} items claimed"
     )
     
-    return redirect('user_supply_requests')
+    return redirect_with_tab(request, 'user_supply_requests')
 
 
 @permission_required('app.view_admin_module') 
@@ -5968,20 +6407,30 @@ def claim_borrow_batch_items(request, batch_id):
     """
     Handle claiming of all approved items in a batch borrow request.
     This will deduct stock and mark items as active.
+    Returns JSON response for AJAX calls from list view.
     """
     batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
     
+    # Check if this is an AJAX request
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    
     # Only allow claiming if batch is in for_claiming status
     if batch_request.status != 'for_claiming':
-        messages.error(request, 'This request is not available for claiming.')
-        return redirect('user_borrow_requests')
+        error_msg = 'This request is not available for claiming.'
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': error_msg})
+        messages.error(request, error_msg)
+        return redirect_with_tab(request, 'user_borrow_requests')
     
     # Get all approved items that haven't been claimed yet
     approved_items = batch_request.items.filter(status='approved', claimed_date__isnull=True)
     
     if not approved_items.exists():
-        messages.error(request, 'No approved items available for claiming.')
-        return redirect('user_borrow_requests')
+        error_msg = 'No approved items available for claiming.'
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': error_msg})
+        messages.error(request, error_msg)
+        return redirect_with_tab(request, 'user_borrow_requests')
     
     # Check stock availability for all items before processing
     insufficient_stock_items = []
@@ -5993,8 +6442,11 @@ def claim_borrow_batch_items(request, batch_id):
             insufficient_stock_items.append(f"{item.property.property_name} (need: {approved_qty}, available: {available_quantity})")
     
     if insufficient_stock_items:
-        messages.error(request, f"Insufficient stock for: {', '.join(insufficient_stock_items)}")
-        return redirect('user_borrow_requests')
+        error_msg = f"Insufficient stock for: {', '.join(insufficient_stock_items)}"
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': error_msg})
+        messages.error(request, error_msg)
+        return redirect_with_tab(request, 'user_borrow_requests')
     
     # Process all approved items
     claimed_items = []
@@ -6048,8 +6500,14 @@ def claim_borrow_batch_items(request, batch_id):
         description=f"Activated batch borrow request #{batch_id} with {len(claimed_items)} items claimed"
     )
     
-    messages.success(request, f'Successfully claimed {len(claimed_items)} items.')
-    return redirect('user_borrow_requests')
+    success_msg = f'Successfully claimed {len(claimed_items)} items.'
+    
+    # Return JSON response for AJAX, or redirect for normal form submission
+    if is_ajax:
+        return JsonResponse({'success': True, 'message': success_msg})
+    
+    messages.success(request, success_msg)
+    return redirect_with_tab(request, 'user_borrow_requests')
 
 @permission_required('app.view_admin_module')
 @login_required
@@ -6058,20 +6516,30 @@ def return_borrow_batch_items(request, batch_id):
     """
     Handle returning of all active items in a batch borrow request.
     This will increase stock and mark items as returned.
+    Returns JSON response for AJAX calls from list view.
     """
     batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
     
+    # Check if this is an AJAX request
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    
     # Only allow returning if batch is in active or overdue status
     if batch_request.status not in ['active', 'overdue']:
-        messages.error(request, 'This request is not available for returning.')
-        return redirect('user_borrow_requests')
+        error_msg = 'This request is not available for returning.'
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': error_msg})
+        messages.error(request, error_msg)
+        return redirect_with_tab(request, 'user_borrow_requests')
     
     # Get all active items
     active_items = batch_request.items.filter(status__in=['active', 'overdue'])
     
     if not active_items.exists():
-        messages.error(request, 'No active items available for returning.')
-        return redirect('user_borrow_requests')
+        error_msg = 'No active items available for returning.'
+        if is_ajax:
+            return JsonResponse({'success': False, 'message': error_msg})
+        messages.error(request, error_msg)
+        return redirect_with_tab(request, 'user_borrow_requests')
     
     # Process all active items
     returned_items = []
@@ -6121,8 +6589,14 @@ def return_borrow_batch_items(request, batch_id):
         description=f"Completed batch borrow request #{batch_id} with {len(returned_items)} items returned"
     )
     
-    messages.success(request, f'Successfully returned {len(returned_items)} items.')
-    return redirect('user_borrow_requests')
+    success_msg = f'Successfully returned {len(returned_items)} items.'
+    
+    # Return JSON response for AJAX, or redirect for normal form submission
+    if is_ajax:
+        return JsonResponse({'success': True, 'message': success_msg})
+    
+    messages.success(request, success_msg)
+    return redirect_with_tab(request, 'user_borrow_requests')
 
 class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
     """View for displaying batch borrow requests - shows all for admin, user's own for regular users"""
@@ -6132,8 +6606,9 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        # Check for overdue batches before getting the queryset
+        # Check for overdue batches and near-overdue items before getting the queryset
         BorrowRequestBatch.check_overdue_batches()
+        BorrowRequestBatch.check_near_overdue_items()
         
         queryset = BorrowRequestBatch.objects \
             .select_related('user', 'user__userprofile', 'claimed_by') \
@@ -6293,6 +6768,7 @@ def approve_borrow_item(request, batch_id, item_id):
         # All items have been processed (approved or rejected)
         if approved_items > 0:
             batch_request.status = 'for_claiming'
+            batch_request.approved_date = timezone.now()
         else:
             batch_request.status = 'rejected'
     elif approved_items > 0:
@@ -6354,6 +6830,7 @@ def reject_borrow_item(request, batch_id, item_id):
         # All items have been processed (approved or rejected)
         if approved_items > 0:
             batch_request.status = 'for_claiming'
+            batch_request.approved_date = timezone.now()
         else:
             batch_request.status = 'rejected'
     elif approved_items > 0:
@@ -6899,4 +7376,10 @@ def bulk_delete_damage_report_images(request):
             'success': False,
             'message': f'Error: {str(e)}'
         }, status=500)
+
+
+@login_required
+def sample_admin(request):
+    """Sample page demonstrating modern sidebar implementation"""
+    return render(request, 'app/sample_admin.html')
 

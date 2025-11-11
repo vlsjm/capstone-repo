@@ -807,35 +807,43 @@
     position: sticky;
     top: 0;
     background: white;
+    z-index: 10;
     padding-bottom: 1rem;
     border-bottom: 1px solid #e9ecef;
+}
+
+#recent-requests-container {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+#recent-requests-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+#recent-requests-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#recent-requests-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+#recent-requests-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 }
 
 .requests-list {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    overflow-y: auto;
-    padding-right: 0.5rem;
+    /* Removed overflow-y: auto and padding-right since #recent-requests-container handles scrolling */
 }
 
-.requests-list::-webkit-scrollbar {
-    width: 6px;
-}
-
-.requests-list::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
-}
-
-.requests-list::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 3px;
-}
-
-.requests-list::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-}
+/* Removed .requests-list scrollbar styles - now handled by #recent-requests-container */
 
 .request-details {
     font-size: 0.9rem;
@@ -2801,6 +2809,85 @@ body>.select-dropdown {
         font-size: 18px;
         margin-bottom: 15px;
     }
+
+    /* Mobile responsive table styles for borrow list ONLY */
+    #borrow-list-container {
+        overflow-x: auto;
+        border-radius: 8px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #borrow-list-container .list-table {
+        min-width: 500px; /* Ensure table has minimum width for all columns */
+        font-size: 14px;
+    }
+
+    #borrow-list-container .list-table th {
+        padding: 8px 6px;
+        font-size: 12px;
+        white-space: nowrap;
+        position: sticky;
+        top: 0;
+        background: #f8f9fa;
+        z-index: 10;
+    }
+
+    #borrow-list-container .list-table td {
+        padding: 8px 6px;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    /* Column specific widths for better mobile layout - BORROW LIST ONLY */
+    #borrow-list-container .list-table th:nth-child(1), 
+    #borrow-list-container .list-table td:nth-child(1) {
+        min-width: 140px; /* Item name column */
+        max-width: 140px;
+        word-wrap: break-word;
+    }
+
+    #borrow-list-container .list-table th:nth-child(2), 
+    #borrow-list-container .list-table td:nth-child(2) {
+        width: 80px; /* Quantity column */
+        text-align: center;
+    }
+
+    #borrow-list-container .list-table th:nth-child(3), 
+    #borrow-list-container .list-table td:nth-child(3) {
+        min-width: 110px; /* Return date column */
+    }
+
+    #borrow-list-container .list-table th:nth-child(4), 
+    #borrow-list-container .list-table td:nth-child(4) {
+        width: 70px; /* Update button column */
+        text-align: center;
+    }
+
+    #borrow-list-container .list-table th:nth-child(5), 
+    #borrow-list-container .list-table td:nth-child(5) {
+        width: 70px; /* Remove button column */
+        text-align: center;
+    }
+
+    /* Better button styling for mobile - BORROW LIST ONLY */
+    #borrow-list-container .quantity-edit, 
+    #borrow-list-container .return-date-edit {
+        width: 100%;
+        min-width: 60px;
+        padding: 6px 8px;
+        font-size: 14px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    #borrow-list-container .btn-update-borrow, 
+    #borrow-list-container .btn-remove-borrow {
+        padding: 6px 8px;
+        font-size: 12px;
+        min-width: auto;
+        width: auto;
+        white-space: nowrap;
+    }
 }
 
 @media (max-width: 480px) {
@@ -3745,5 +3832,97 @@ body>.select-dropdown {
     .request-detail-wrapper .btn-back {
         padding: 8px 16px;
         font-size: 13px;
+    }
+}
+
+/* List items container mobile responsiveness */
+#list-items-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    #list-items-container {
+        padding: 0 5px;
+        margin: 0 -5px;
+    }
+    
+    #list-items-container .list-table {
+        min-width: 100%;
+        font-size: 0.85rem;
+    }
+    
+    #list-items-container .list-table th,
+    #list-items-container .list-table td {
+        padding: 8px 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    #list-items-container .list-table th:first-child,
+    #list-items-container .list-table td:first-child {
+        min-width: 120px;
+        max-width: 150px;
+    }
+    
+    #list-items-container .list-table th:nth-child(2),
+    #list-items-container .list-table td:nth-child(2) {
+        min-width: 80px;
+        text-align: center;
+    }
+    
+    #list-items-container .list-table th:last-child,
+    #list-items-container .list-table td:last-child {
+        min-width: 100px;
+        text-align: center;
+    }
+    
+    #list-items-container .quantity-edit {
+        width: 60px;
+        padding: 4px 6px;
+        font-size: 0.85rem;
+    }
+    
+    #list-items-container .btn-remove {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+        min-width: 70px;
+    }
+}
+
+@media (max-width: 480px) {
+    #list-items-container {
+        margin: 0 -10px;
+        padding: 0 10px;
+    }
+    
+    #list-items-container .list-table {
+        font-size: 0.8rem;
+    }
+    
+    #list-items-container .list-table th,
+    #list-items-container .list-table td {
+        padding: 6px 2px;
+    }
+    
+    #list-items-container .list-table th:first-child,
+    #list-items-container .list-table td:first-child {
+        min-width: 100px;
+        max-width: 120px;
+        font-size: 0.75rem;
+    }
+    
+    #list-items-container .quantity-edit {
+        width: 50px;
+        padding: 2px 4px;
+        font-size: 0.8rem;
+    }
+    
+    #list-items-container .btn-remove {
+        padding: 2px 6px;
+        font-size: 0.7rem;
+        min-width: 60px;
     }
 }

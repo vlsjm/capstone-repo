@@ -225,137 +225,247 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Chart 6: Property Categories (Fixed to handle empty data)
-    if (propertyCategoriesData && propertyCategoriesData.length > 0) {
-        createChart('propertyCategoriesChart', {
-            type: 'polarArea',
-            data: {
-                labels: propertyCategoriesData.map(item => item.category || ''),
-                datasets: [{
-                    data: propertyCategoriesData.map(item => item.count || 0),
-                    backgroundColor: [
-                        '#FF6384',
-                        '#36A2EB',
-                        '#FFCE56',
-                        '#4BC0C0',
-                        '#9966FF',
-                        '#FF9F40',
-                        '#FF6384',
-                        '#C9CBCF'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 10,
-                            usePointStyle: true
+    // Chart 6: Top Requested Supplies (with filtering)
+    let topRequestedSuppliesChart = null;
+
+    function loadTopRequestedSupplies(days = '', dateFrom = '', dateTo = '') {
+        let url = '/get-top-requested-supplies/?';
+        if (days) {
+            url += `days=${days}&`;
+        } else if (dateFrom && dateTo) {
+            url += `date_from=${dateFrom}&date_to=${dateTo}&`;
+        }
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    const labels = data.data.map(item => item.supply_name);
+                    const quantities = data.data.map(item => item.total_quantity);
+
+                    if (topRequestedSuppliesChart) {
+                        topRequestedSuppliesChart.destroy();
+                    }
+
+                    topRequestedSuppliesChart = createChart('topRequestedSuppliesChart', {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Total Requested Quantity',
+                                data: quantities,
+                                backgroundColor: '#FF9800',
+                                borderColor: '#F57C00',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
                         }
+                    });
+                } else {
+                    // Create empty chart
+                    if (topRequestedSuppliesChart) {
+                        topRequestedSuppliesChart.destroy();
                     }
+                    topRequestedSuppliesChart = createChart('topRequestedSuppliesChart', {
+                        type: 'bar',
+                        data: {
+                            labels: ['No Data'],
+                            datasets: [{
+                                label: 'Total Requested Quantity',
+                                data: [0],
+                                backgroundColor: '#E0E0E0'
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
                 }
-            }
-        });
-    } else {
-        // Create empty chart
-        createChart('propertyCategoriesChart', {
-            type: 'polarArea',
-            data: {
-                labels: ['No Data'],
-                datasets: [{
-                    data: [1],
-                    backgroundColor: ['#E0E0E0']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
+            })
+            .catch(error => console.error('Error loading top requested supplies:', error));
+    }
+
+    // Load initial data
+    loadTopRequestedSupplies();
+
+    // Add event listeners for filtering
+    const suppliesDateFilter = document.getElementById('suppliesDateFilter');
+    const suppliesDateFrom = document.getElementById('suppliesDateFrom');
+    const suppliesDateTo = document.getElementById('suppliesDateTo');
+    const suppliesFilterBtn = document.getElementById('suppliesFilterBtn');
+
+    if (suppliesDateFilter) {
+        suppliesDateFilter.addEventListener('change', function () {
+            if (this.value === 'custom') {
+                suppliesDateFrom.style.display = 'inline-block';
+                suppliesDateTo.style.display = 'inline-block';
+                suppliesFilterBtn.style.display = 'inline-block';
+            } else {
+                suppliesDateFrom.style.display = 'none';
+                suppliesDateTo.style.display = 'none';
+                suppliesFilterBtn.style.display = 'none';
+                loadTopRequestedSupplies(this.value);
             }
         });
     }
 
-    // Chart 7: Department Requests (Fixed to handle empty data)
-    if (departmentRequestsData && departmentRequestsData.length > 0) {
-        createChart('departmentRequestsChart', {
-            type: 'bar',
-            data: {
-                labels: departmentRequestsData.map(item => item.department || ''),
-                datasets: [{
-                    label: 'Total Requests',
-                    data: departmentRequestsData.map(item => item.total_requests || 0),
-                    backgroundColor: '#3498db',
-                    borderColor: '#2980b9',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
+    if (suppliesFilterBtn) {
+        suppliesFilterBtn.addEventListener('click', function () {
+            loadTopRequestedSupplies('', suppliesDateFrom.value, suppliesDateTo.value);
+        });
+    }
+
+    // Chart 7: Department Requests (with filtering)
+    let departmentRequestsChartInstance = null;
+
+    function loadDepartmentRequests(days = '', dateFrom = '', dateTo = '') {
+        let url = '/get-department-requests-filtered/?';
+        if (days) {
+            url += `days=${days}&`;
+        } else if (dateFrom && dateTo) {
+            url += `date_from=${dateFrom}&date_to=${dateTo}&`;
+        }
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    const labels = data.data.map(item => item.department);
+                    const totals = data.data.map(item => item.total_requests);
+
+                    if (departmentRequestsChartInstance) {
+                        departmentRequestsChartInstance.destroy();
                     }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            afterBody: function (context) {
-                                const index = context[0].dataIndex;
-                                const data = departmentRequestsData[index];
-                                return [
-                                    `Supply Requests: ${data.supply_requests || 0}`,
-                                    `Borrow Requests: ${data.borrow_requests || 0}`,
-                                    `Reservations: ${data.reservations || 0}`
-                                ];
+
+                    departmentRequestsChartInstance = createChart('departmentRequestsChart', {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Total Requests',
+                                data: totals,
+                                backgroundColor: '#3498db',
+                                borderColor: '#2980b9',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        afterBody: function (context) {
+                                            const index = context[0].dataIndex;
+                                            const depData = data.data[index];
+                                            return [
+                                                `Supply Requests: ${depData.supply_requests || 0}`,
+                                                `Borrow Requests: ${depData.borrow_requests || 0}`,
+                                                `Reservations: ${depData.reservations || 0}`
+                                            ];
+                                        }
+                                    }
+                                }
                             }
                         }
+                    });
+                } else {
+                    // Create empty chart
+                    if (departmentRequestsChartInstance) {
+                        departmentRequestsChartInstance.destroy();
                     }
+                    departmentRequestsChartInstance = createChart('departmentRequestsChart', {
+                        type: 'bar',
+                        data: {
+                            labels: ['No Data'],
+                            datasets: [{
+                                label: 'Total Requests',
+                                data: [0],
+                                backgroundColor: '#E0E0E0'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
                 }
+            })
+            .catch(error => console.error('Error loading department requests:', error));
+    }
+
+    // Load initial data
+    loadDepartmentRequests();
+
+    // Add event listeners for department filter
+    const departmentDateFilter = document.getElementById('departmentDateFilter');
+    const departmentDateFrom = document.getElementById('departmentDateFrom');
+    const departmentDateTo = document.getElementById('departmentDateTo');
+    const departmentFilterBtn = document.getElementById('departmentFilterBtn');
+
+    if (departmentDateFilter) {
+        departmentDateFilter.addEventListener('change', function () {
+            if (this.value === 'custom') {
+                departmentDateFrom.style.display = 'inline-block';
+                departmentDateTo.style.display = 'inline-block';
+                departmentFilterBtn.style.display = 'inline-block';
+            } else {
+                departmentDateFrom.style.display = 'none';
+                departmentDateTo.style.display = 'none';
+                departmentFilterBtn.style.display = 'none';
+                loadDepartmentRequests(this.value);
             }
         });
-    } else {
-        // Create empty chart
-        createChart('departmentRequestsChart', {
-            type: 'bar',
-            data: {
-                labels: ['No Data'],
-                datasets: [{
-                    label: 'Total Requests',
-                    data: [0],
-                    backgroundColor: '#E0E0E0'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
+    }
+
+    if (departmentFilterBtn) {
+        departmentFilterBtn.addEventListener('click', function () {
+            loadDepartmentRequests('', departmentDateFrom.value, departmentDateTo.value);
         });
     }
 

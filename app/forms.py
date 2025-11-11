@@ -1,10 +1,82 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate
 from .models import Property, Supply, SupplyQuantity, SupplyCategory, SupplySubcategory, BadStockReport
 from django.contrib.auth.models import User
 from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation, Department,PropertyCategory, SupplyRequestBatch, SupplyRequestItem, Supply, SupplyQuantity
 from datetime import date
 import os
+
+class CustomAuthenticationForm(AuthenticationForm):
+    """Custom authentication form that provides better error message for inactive users"""
+    
+    error_messages = {
+        **AuthenticationForm.error_messages,
+        'inactive': 'This account is inactive. Please contact the administrator for assistance.',
+    }
+    
+    def clean(self):
+        """Override clean to check for auto-reactivation BEFORE authentication"""
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+        
+        if username and password:
+            # Try to get the user first
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            
+            try:
+                user = User.objects.get(username=username)
+                
+                # Check if user is inactive but has auto-reactivation set
+                if not user.is_active:
+                    try:
+                        from django.utils import timezone
+                        user_profile = UserProfile.objects.get(user=user)
+                        
+                        if user_profile.auto_enable_at:
+                            current_time = timezone.now()
+                            
+                            # Check if the reactivation time has passed
+                            if user_profile.auto_enable_at <= current_time:
+                                # Time has passed, reactivate the user BEFORE authentication
+                                user.is_active = True
+                                user.save()
+                                
+                                # Clear the auto_enable_at field
+                                user_profile.auto_enable_at = None
+                                user_profile.save()
+                                
+                                # Log the reactivation
+                                from app.models import ActivityLog
+                                ActivityLog.log_activity(
+                                    user=None,
+                                    action='activate',
+                                    model_name='User',
+                                    object_repr=user.username,
+                                    description=f"User {user.username} reactivated on login attempt"
+                                )
+                    except UserProfile.DoesNotExist:
+                        pass
+                    except Exception:
+                        pass
+                        
+            except User.DoesNotExist:
+                pass
+        
+        # Now call the parent clean which does the actual authentication
+        return super().clean()
+    
+    def confirm_login_allowed(self, user):
+        """
+        Override to provide custom error message for inactive users
+        """
+        if not user.is_active:
+            raise ValidationError(
+                self.error_messages['inactive'],
+                code='inactive',
+            )
 
 class DepartmentForm(forms.ModelForm):
     class Meta:
@@ -51,13 +123,25 @@ class UserRegistrationForm(forms.ModelForm):
     last_name = forms.CharField(max_length=30)
     email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput)
-    role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES)
+    role = forms.ChoiceField(
+        choices=[('', 'Select Role')] + list(UserProfile.ROLE_CHOICES),
+        initial=''
+    )
     department = forms.ModelChoiceField(
         queryset=Department.objects.all(),
         required=False,
         widget=forms.Select(attrs={'class': 'department-select form-control'})
     )
-    phone = forms.CharField(required=False)
+    phone = forms.CharField(
+        required=False,
+        max_length=11,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '09123456789',
+            'pattern': '09[0-9]{9}',
+            'title': 'Phone number must be 11 digits starting with 09 (e.g., 09123456789)'
+        })
+    )
     designation = forms.CharField(max_length=100, required=False)
 
     class Meta:
@@ -78,6 +162,26 @@ class UserRegistrationForm(forms.ModelForm):
             raise forms.ValidationError("This email is already registered.")
         return email
 
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone')
+        if phone:
+            # Remove any spaces or dashes
+            phone = phone.replace(' ', '').replace('-', '')
+            
+            # Check if it's exactly 11 digits
+            if len(phone) != 11:
+                raise forms.ValidationError("Phone number must be exactly 11 digits.")
+            
+            # Check if it starts with 09
+            if not phone.startswith('09'):
+                raise forms.ValidationError("Phone number must start with 09.")
+            
+            # Check if all characters are digits
+            if not phone.isdigit():
+                raise forms.ValidationError("Phone number must contain only digits.")
+        
+        return phone
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data['password'])
@@ -93,7 +197,13 @@ class UserProfileForm(forms.ModelForm):
         widgets = {
             'role': forms.Select(attrs={'class': 'form-control'}),
             'department': forms.TextInput(attrs={'class': 'form-control'}),
-            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '09123456789',
+                'pattern': '09[0-9]{9}',
+                'title': 'Phone number must be 11 digits starting with 09 (e.g., 09123456789)',
+                'maxlength': '11'
+            }),
             'designation': forms.TextInput(attrs={'class': 'form-control'}),
         }
         labels = {
@@ -102,6 +212,26 @@ class UserProfileForm(forms.ModelForm):
             'phone': 'Phone',
             'designation': 'Designation',
         }
+
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone')
+        if phone:
+            # Remove any spaces or dashes
+            phone = phone.replace(' ', '').replace('-', '')
+            
+            # Check if it's exactly 11 digits
+            if len(phone) != 11:
+                raise forms.ValidationError("Phone number must be exactly 11 digits.")
+            
+            # Check if it starts with 09
+            if not phone.startswith('09'):
+                raise forms.ValidationError("Phone number must start with 09.")
+            
+            # Check if all characters are digits
+            if not phone.isdigit():
+                raise forms.ValidationError("Phone number must contain only digits.")
+        
+        return phone
 
 class PropertyForm(forms.ModelForm):
     class Meta:
@@ -284,9 +414,10 @@ class SupplyForm(forms.ModelForm):
         # Set required fields
         for field in self.fields.values():
             field.required = True
-        # Make description and expiration_date optional
+        # Make description, expiration_date, and available_for_request optional
         self.fields['description'].required = False
         self.fields['expiration_date'].required = False
+        self.fields['available_for_request'].required = False
         
         # Set initial values for quantity fields if editing existing supply
         if self.instance.pk:

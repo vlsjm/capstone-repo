@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from datetime import date, datetime, timedelta
 from django.utils import timezone
+import logging
 
 
 class ActivityLog(models.Model):
@@ -65,6 +66,7 @@ class UserProfile(models.Model):
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     designation = models.CharField(max_length=100, blank=True, null=True)
+    auto_enable_at = models.DateTimeField(null=True, blank=True, help_text="If set, account will be automatically reactivated at this date/time")
 
     def __str__(self):
         return self.user.username
@@ -793,7 +795,8 @@ class ReservationBatch(models.Model):
         """
         from django.db import transaction
         
-        today = timezone.now().date()
+        # Get today's date in the configured timezone (not UTC)
+        today = timezone.now().astimezone().date()
         
         # 1. Update pending batches to expired when latest return_date has passed
         for batch in cls.objects.filter(status='pending'):
@@ -1496,7 +1499,13 @@ class BorrowRequest(models.Model):
 
     @classmethod
     def check_overdue_items(cls):
-        today = timezone.now().date()
+        # Get today's date in the local timezone (not UTC)
+        from django.conf import settings
+        from zoneinfo import ZoneInfo
+        
+        local_tz = ZoneInfo(settings.TIME_ZONE)
+        today = timezone.now().astimezone(local_tz).date()
+        
         overdue_requests = cls.objects.filter(
             status='approved',
             return_date__lt=today
@@ -1623,22 +1632,178 @@ class BorrowRequestBatch(models.Model):
 
     @classmethod
     def check_overdue_batches(cls):
-        """Check and update batch statuses based on return dates"""
-        today = timezone.now().date()
+        """Check and update batch statuses based on return dates and send SMS notifications"""
+        # Get today's date in the local timezone (not UTC)
+        from django.conf import settings
+        from zoneinfo import ZoneInfo
+        from app.utils import send_sms_alert
+        
+        logger = logging.getLogger(__name__)
+        local_tz = ZoneInfo(settings.TIME_ZONE)
+        today = timezone.now().astimezone(local_tz).date()
         
         # Find active batches where any item is overdue
         active_batches = cls.objects.filter(status='active')
         for batch in active_batches:
             overdue_items = batch.items.filter(
-                status='active',
+                status__in=['active', 'overdue'],  # Check both active and already-overdue items
                 return_date__lt=today
             )
             if overdue_items.exists():
+                # Get the count and data BEFORE updating status
+                overdue_items_list = list(overdue_items)  # Convert to list to preserve data
+                item_count = len(overdue_items_list)
+                
+                # Mark batch as overdue
                 batch.status = 'overdue'
                 batch.save()
                 
-                # Mark individual items as overdue
+                # Mark individual items as overdue and track notification
                 overdue_items.update(status='overdue')
+                
+                # Send SMS notification to the user (only if not already notified)
+                user = batch.user
+                try:
+                    # Check if we've already sent SMS for all these items
+                    already_notified_count = 0
+                    for item in overdue_items_list:
+                        if item.overdue_notified:
+                            already_notified_count += 1
+                    
+                    # Only send SMS if at least one item hasn't been notified yet
+                    if already_notified_count == len(overdue_items_list):
+                        logger.info(f"Skipping SMS for batch #{batch.id} - user {user.username} already notified about all items")
+                        continue
+                    
+                    # Get user phone number
+                    phone_number = None
+                    try:
+                        user_profile = user.userprofile
+                        phone_number = user_profile.phone
+                    except:
+                        logger.warning(f"User {user.username} doesn't have a phone number. Skipping SMS.")
+                        continue
+                    
+                    if not phone_number:
+                        logger.warning(f"User {user.username} has no phone number on file. Skipping SMS.")
+                        continue
+                    
+                    # Create SMS message
+                    user_name = user.first_name or user.username
+                    
+                    # Calculate days overdue
+                    days_overdue_list = [(today - item.return_date).days for item in overdue_items_list]
+                    max_days_overdue = max(days_overdue_list) if days_overdue_list else 0
+                    
+                    # Create item summary (list ALL items)
+                    item_summary = ", ".join([
+                        f"{item.property.property_name} - {item.property.property_number} (x{item.quantity})"
+                        for item in overdue_items_list
+                    ])
+                    
+                    # Use consistent format for all messages
+                    message = (
+                        f"Hello {user_name},\n\n"
+                        f"Borrow Request #{batch.id}\n"
+                        f"You have {item_count} OVERDUE item(s):\n"
+                        f"{item_summary}\n\n"
+                        f"Most overdue: {max_days_overdue} days\n\n"
+                        f"Please return these items ASAP.\n\n"
+                        f"Thank you,\nResource Hive Team"
+                    )
+                    
+                    # Print SMS message to console for debugging
+                    logger.info(f"\n{'='*60}\nSMS MESSAGE TO {phone_number}:\n{'='*60}\n{message}\n{'='*60}")
+                    
+                    # Send SMS
+                    success, response = send_sms_alert(phone_number, message)
+                    
+                    if success:
+                        # Mark all items as notified
+                        for item in overdue_items_list:
+                            item.overdue_notified = True
+                            item.save(update_fields=['overdue_notified'])
+                        logger.info(f"[OK] Overdue SMS sent to {user.username} ({phone_number}) for batch #{batch.id}")
+                    else:
+                        logger.error(f"[FAIL] Failed to send overdue SMS to {user.username}: {response}")
+                    
+                    # Also create in-app notification
+                    Notification.objects.create(
+                        user=user,
+                        message=f"Your borrow request batch #{batch.id} is now OVERDUE. Please return the items immediately.",
+                        remarks=f"{item_count} item(s) overdue"
+                    )
+                    
+                except Exception as e:
+                    logger.error(f"Error sending overdue notification for batch #{batch.id}: {str(e)}")
+
+    @classmethod
+    def check_near_overdue_items(cls):
+        """Check and send email reminders for items approaching their return date"""
+        from django.utils import timezone
+        from app.utils import calculate_reminder_trigger_date, send_near_overdue_borrow_email
+        
+        logger = logging.getLogger(__name__)
+        today = timezone.now().date()
+        
+        try:
+            # Get all active borrow items that haven't been returned and haven't been notified yet
+            active_items = BorrowRequestItem.objects.filter(
+                status='active',
+                actual_return_date__isnull=True,
+                near_overdue_notified=False,
+                batch_request__status__in=['active', 'overdue']
+            ).select_related('batch_request', 'batch_request__user', 'property')
+            
+            if not active_items.exists():
+                logger.debug("No active borrow items needing near-overdue notifications")
+                return
+            
+            logger.info(f"Checking {active_items.count()} active borrow items for near-overdue status")
+            
+            success_count = 0
+            failure_count = 0
+            
+            for item in active_items:
+                try:
+                    # Calculate when reminder should be sent
+                    reminder_trigger_date = calculate_reminder_trigger_date(
+                        item.batch_request.request_date.date(),
+                        item.return_date
+                    )
+                    
+                    # Check if today is the trigger date or later (but before return date)
+                    if today >= reminder_trigger_date and today <= item.return_date:
+                        user = item.batch_request.user
+                        days_until_return = (item.return_date - today).days
+                        
+                        logger.info(
+                            f"Sending near-overdue reminder to {user.username} for "
+                            f"{item.property.property_name} ({days_until_return} days until return)"
+                        )
+                        
+                        # Send email reminder
+                        success = send_near_overdue_borrow_email(item)
+                        
+                        if success:
+                            # Mark as notified
+                            item.near_overdue_notified = True
+                            item.save(update_fields=['near_overdue_notified'])
+                            success_count += 1
+                            logger.info(f"[OK] Near-overdue email sent to {user.email} for item #{item.id}")
+                        else:
+                            failure_count += 1
+                            logger.error(f"[FAIL] Failed to send near-overdue email to {user.email}")
+                
+                except Exception as e:
+                    failure_count += 1
+                    logger.error(f"Error sending near-overdue notification for item #{item.id}: {str(e)}")
+            
+            if success_count + failure_count > 0:
+                logger.info(f"Near-overdue check complete: {success_count} sent, {failure_count} failed")
+
+        except Exception as e:
+            logger.error(f"Error in check_near_overdue_items: {str(e)}")
 
 class BorrowRequestItem(models.Model):
     """
@@ -1664,6 +1829,8 @@ class BorrowRequestItem(models.Model):
     approved = models.BooleanField(default=False)  # Keep for backward compatibility
     claimed_date = models.DateTimeField(null=True, blank=True)  # When item was claimed
     remarks = models.TextField(blank=True, null=True)
+    near_overdue_notified = models.BooleanField(default=False)  # Track if near-overdue reminder was sent
+    overdue_notified = models.BooleanField(default=False)  # Track if overdue SMS was sent
 
     class Meta:
         unique_together = ['batch_request', 'property']  # Prevent duplicate items in same batch

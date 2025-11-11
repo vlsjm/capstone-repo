@@ -705,7 +705,6 @@
             <tr>
               <th><i class="fas fa-box"></i> Item & Description</th>
               <th><i class="fas fa-hashtag"></i> Requested</th>
-              <th><i class="fas fa-warehouse"></i> Stock</th>
               <th><i class="fas fa-calendar"></i> Return Date</th>
               <th><i class="fas fa-info-circle"></i> Status</th>
               <th><i class="fas fa-cogs"></i> Actions</th>
@@ -745,11 +744,6 @@
                     {{ item.quantity }}
                   {% endif %}
                 {% endif %}
-              </td>
-              <td class="quantity-cell">
-                <div class="stock-info">
-                  <span class="stock-available">{{ item.property.quantity|default:"N/A" }}</span>
-                </div>
               </td>
               <td class="quantity-cell">{{ item.return_date|date:"M d, Y" }}</td>
               <td class="status-cell">

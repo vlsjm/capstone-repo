@@ -16,7 +16,7 @@
                 <div class="search-container">
                     <div class="search-wrapper">
                         <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="searchInput" placeholder="Search requests..." value="{{ search_query }}"
+                        <input type="text" id="searchInput" placeholder="Search" value="{{ search_query }}"
                                class="search-input">
                     </div>
                 </div>
@@ -170,6 +170,7 @@
                                     </td>
                                     <td class="actions" data-label="Actions">
                                         <div class="action-buttons">
+                                            <!-- Desktop buttons -->
                                             <button class="btn-action btn-cancel {% if not request.can_cancel %}btn-hidden{% endif %}" 
                                                     data-request-id="{{ request.real_id }}" 
                                                     data-model-type="{{ request.model_type }}"
@@ -192,6 +193,34 @@
                                                     aria-label="Request Again">
                                                 <i class="fas fa-redo" aria-hidden="true"></i>
                                             </button>
+                                            
+                                            <!-- Mobile dropdown -->
+                                            <div class="mobile-action-dropdown">
+                                                <button class="mobile-action-toggle" type="button" data-row-id="{{ forloop.counter }}">
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </button>
+                                                <div class="mobile-action-menu" id="action-menu-{{ forloop.counter }}">
+                                                    <button class="mobile-action-item view-action" type="button"
+                                                            data-request-id="{{ request.real_id }}" 
+                                                            data-model-type="{{ request.model_type }}">
+                                                        <i class="fas fa-eye"></i>
+                                                        <span>View Details</span>
+                                                    </button>
+                                                    <button class="mobile-action-item cancel-action {% if not request.can_cancel %}disabled{% endif %}" type="button"
+                                                            data-request-id="{{ request.real_id }}" 
+                                                            data-model-type="{{ request.model_type }}"
+                                                            {% if not request.can_cancel %}disabled{% endif %}>
+                                                        <i class="fas fa-times"></i>
+                                                        <span>Cancel</span>
+                                                    </button>
+                                                    <button class="mobile-action-item request-again-action" type="button"
+                                                            data-request-id="{{ request.real_id }}" 
+                                                            data-model-type="{{ request.model_type }}">
+                                                        <i class="fas fa-redo"></i>
+                                                        <span>Request Again</span>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -204,17 +233,47 @@
                 {% if is_paginated %}
                 <div class="actlog-pagination">
                     {% if page_obj.has_previous %}
-                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1">&laquo; First</a>
-                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">Previous</a>
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" class="pagination-arrow">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    {% else %}
+                        <span class="pagination-arrow disabled">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
                     {% endif %}
 
-                    <span class="current">
-                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                    </span>
+                    {% if page_obj.number > 2 %}
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1">1</a>
+                    {% endif %}
+                    
+                    {% if page_obj.number > 3 %}
+                        <span class="pagination-ellipsis">...</span>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <span class="current">{{ num }}</span>
+                        {% elif num >= page_obj.number|add:"-1" and num <= page_obj.number|add:"1" %}
+                            <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.number < page_obj.paginator.num_pages|add:"-2" %}
+                        <span class="pagination-ellipsis">...</span>
+                    {% endif %}
+                    
+                    {% if page_obj.number < page_obj.paginator.num_pages|add:"-1" %}
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+                    {% endif %}
 
                     {% if page_obj.has_next %}
-                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">Next</a>
-                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" class="pagination-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% else %}
+                        <span class="pagination-arrow disabled">
+                            <i class="fas fa-chevron-right"></i>
+                        </span>
                     {% endif %}
                 </div>
                 {% endif %}
@@ -615,6 +674,11 @@ html, body {
     grid-column: 3;
 }
 
+/* Hide mobile dropdown on desktop */
+.mobile-action-dropdown {
+    display: none;
+}
+
 /* Top Controls and Filter Styles */
 .top-controls {
     margin-bottom: 20px;
@@ -809,32 +873,62 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 20px;
   margin-top: 20px;
 }
 
-.actlog-pagination a {
+.actlog-pagination a,
+.actlog-pagination .current,
+.actlog-pagination .pagination-arrow,
+.actlog-pagination .pagination-ellipsis {
+  min-width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: #152d64;
   text-decoration: none;
-  padding: 8px 16px;
-  border: 1px solid #152d64;
-  border-radius: 4px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
   transition: all 0.3s ease;
   font-weight: 500;
+  font-size: 14px;
+  padding: 0 12px;
 }
 
 .actlog-pagination a:hover {
   background-color: #152d64;
   color: white;
+  border-color: #152d64;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(21, 45, 100, 0.2);
 }
 
 .actlog-pagination .current {
   background-color: #152d64;
   color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-weight: 500;
+  border-color: #152d64;
+  font-weight: 600;
+  box-shadow: 0 4px 8px rgba(21, 45, 100, 0.2);
+}
+
+.actlog-pagination .pagination-arrow {
+  font-size: 12px;
+  background-color: white;
+}
+
+.actlog-pagination .pagination-arrow.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.actlog-pagination .pagination-ellipsis {
+  border: none;
+  cursor: default;
+  pointer-events: none;
+  color: #6c757d;
 }
 
 /* Empty state */
@@ -986,7 +1080,70 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
     .form-description {
         font-size: 14px;
         margin-bottom: 15px;
-        padding: 0 10px;
+        padding: 0 20px;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+    
+    /* Hide the results summary "Showing 1-10..." on mobile */
+    .results-summary {
+        display: none;
+    }
+    
+    /* Search and Filter side by side on mobile */
+    .search-filter-group {
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        align-items: stretch;
+        justify-content: space-between;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+    
+    .search-container {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    
+    .simple-filter-container {
+        flex: 0 0 auto;
+        margin-right: 0;
+    }
+    
+    .search-wrapper {
+        width: 100%;
+        position: relative;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 10px 12px 10px 42px !important;
+        font-size: 14px !important;
+        height: 44px;
+        box-sizing: border-box;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+    }
+    
+    .search-icon {
+        font-size: 14px;
+        left: 14px;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        z-index: 2;
+        color: #6c757d;
+    }
+    
+    .simple-filter-toggle {
+        padding: 10px 14px;
+        font-size: 14px;
+        height: 44px;
+        min-width: auto;
+        white-space: nowrap;
     }
     
     /* Hide columns on mobile - keep only ID, Type, Status, Date, Actions */
@@ -1121,14 +1278,39 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
         margin: 0;
         padding: 0 8px;
         width: 100%;
+        overflow-y: visible;
     }
     
     .requests-table {
         min-width: 100%;
+        overflow: visible !important;
+    }
+    
+    .requests-table tbody {
+        overflow: visible !important;
+    }
+    
+    .requests-table tbody tr {
+        overflow: visible !important;
+    }
+    
+    .requests-table tbody tr td {
+        overflow: visible !important;
+    }
+    
+    .requests-table {
         width: 100%;
         font-size: 12px;
         border-collapse: collapse;
         table-layout: fixed;
+    }
+    
+    .requests-table tbody {
+        position: relative;
+    }
+    
+    .requests-table tr {
+        position: relative;
     }
     
     .requests-table th {
@@ -1170,7 +1352,7 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
         border-bottom: 1px solid #e9ecef;
         background: white;
         font-size: 12px;
-        overflow: hidden;
+        overflow: visible;
         text-overflow: ellipsis;
     }
     
@@ -1196,10 +1378,21 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
     .requests-table td:last-child {
         padding-right: 10px;
         width: 26%;
+        overflow: visible !important;
+    }
+    
+    .request-row {
+        position: relative;
     }
     
     .request-row:hover {
         background: #f8f9fa;
+    }
+    
+    /* Increase z-index for rows with active dropdown */
+    .request-row:has(.mobile-action-dropdown.active) {
+        z-index: 10000 !important;
+        position: relative !important;
     }
     
     .request-id {
@@ -1219,6 +1412,156 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
         border: none;
         transition: all 0.3s ease;
         font-size: 13px;
+    }
+    
+    /* Hide desktop action buttons on mobile */
+    .action-buttons .btn-action {
+        display: none !important;
+    }
+    
+    /* Show mobile action dropdown on mobile */
+    .mobile-action-dropdown {
+        display: block;
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Increase z-index when dropdown is open */
+    .mobile-action-dropdown.active {
+        z-index: 10000;
+    }
+    
+    /* Ensure parent row has proper z-index when dropdown is active */
+    tr:has(.mobile-action-dropdown.active) {
+        position: relative;
+        z-index: 10000;
+    }
+    
+    .action-buttons {
+        position: relative;
+        width: 100%;
+    }
+    
+    .mobile-action-toggle {
+        background: transparent;
+        color: #152d64;
+        border: none;
+        padding: 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        transition: all 0.3s ease;
+        width: 100%;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+    
+    .mobile-action-toggle:active {
+        background: rgba(21, 45, 100, 0.15);
+    }
+    
+    @media (hover: hover) {
+        .mobile-action-toggle:hover {
+            background: rgba(21, 45, 100, 0.1);
+        }
+    }
+    
+    .mobile-action-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: calc(100% + 2px);
+        background: white;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        z-index: 99999;
+        min-width: 160px;
+        margin-top: 4px;
+    }
+    
+    .mobile-action-menu.show {
+        display: block !important;
+        z-index: 99999 !important;
+    }
+    
+    .mobile-action-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 13px;
+        color: #333;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+    
+    .mobile-action-item:first-child {
+        border-radius: 6px 6px 0 0;
+    }
+    
+    .mobile-action-item:last-child {
+        border-radius: 0 0 6px 6px;
+    }
+    
+    .mobile-action-item:active {
+        background: #f8f9fa;
+    }
+    
+    @media (hover: hover) {
+        .mobile-action-item:hover {
+            background: #f8f9fa;
+        }
+    }
+    
+    .mobile-action-item.cancel-action {
+        color: #dc3545;
+    }
+    
+    .mobile-action-item.cancel-action:active {
+        background: #dc3545;
+        color: white;
+    }
+    
+    @media (hover: hover) {
+        .mobile-action-item.cancel-action:hover {
+            background: #dc3545;
+            color: white;
+        }
+    }
+    
+    .mobile-action-item.view-action {
+        color: #152d64;
+    }
+    
+    .mobile-action-item.view-action:hover {
+        background: #152d64;
+        color: white;
+    }
+    
+    .mobile-action-item.request-again-action {
+        color: #28a745;
+    }
+    
+    .mobile-action-item.request-again-action:hover {
+        background: #28a745;
+        color: white;
+    }
+    
+    .mobile-action-item.disabled {
+        display: none;
     }
     
     .action-buttons {
@@ -1312,58 +1655,10 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
     /* Filter controls mobile */
     .top-controls {
         margin-bottom: 15px;
-        padding: 0 10px;
-    }
-    
-    .search-filter-group {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .search-container {
-        width: 100%;
-    }
-    
-    .search-wrapper {
-        width: 100%;
-    }
-    
-    .search-input {
-        width: 100%;
-        padding: 12px 12px 12px 45px !important;
-        font-size: 16px !important;
-        min-height: 44px;
-        border: 2px solid #e1e5e9;
-        border-radius: 8px;
-        box-sizing: border-box;
-    }
-    
-    .search-input::placeholder {
-        color: #999;
-        font-size: 15px;
-    }
-    
-    .search-input:focus {
-        border-color: #152d64;
-        box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
-    }
-    
-    .search-icon {
-        left: 14px;
-        font-size: 14px;
-        color: #6c757d;
-    }
-    
-    .simple-filter-container {
-        width: 100%;
-        margin-right: 0;
-    }
-    
-    .simple-filter-toggle {
-        width: 100%;
-        min-height: 42px;
-        font-size: 14px;
-        padding: 10px 12px;
+        padding: 0;
+        margin-left: calc(-50vw + 50%);
+        margin-right: calc(-50vw + 50%);
+        width: 100vw;
     }
     
     /* Enhanced empty state with brand styling */
@@ -1429,7 +1724,7 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
     .actlog-pagination {
         flex-wrap: wrap;
         justify-content: center;
-        gap: 8px;
+        gap: 6px;
         padding: 15px 10px;
         background: #f8f9fa;
         border-radius: 0;
@@ -1437,35 +1732,49 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
     }
     
     .actlog-pagination a,
-    .actlog-pagination .current {
-        min-height: 40px;
-        min-width: 40px;
-        padding: 10px 12px;
-        font-size: 14px;
-        border-radius: 6px;
-        display: flex;
+    .actlog-pagination .current,
+    .actlog-pagination .pagination-arrow,
+    .actlog-pagination .pagination-ellipsis {
+        min-height: 36px;
+        min-width: 36px;
+        height: 36px;
+        width: 36px;
+        padding: 0;
+        font-size: 13px;
+        border-radius: 8px;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        text-decoration: none;
+    }
+    
+    .actlog-pagination .pagination-arrow {
+        font-size: 11px;
+    }
+    
+    .actlog-pagination .pagination-ellipsis {
+        border: none;
+        width: 30px;
+        min-width: 30px;
     }
     
     .actlog-pagination a {
+        background-color: white;
+        border: 1px solid #dee2e6;
         color: #152d64;
-        border: 2px solid #152d64;
-        background: white;
     }
     
     .actlog-pagination a:hover {
-        background: #152d64;
+        background-color: #152d64;
         color: white;
+        border-color: #152d64;
+        transform: scale(1.05);
     }
     
     .actlog-pagination .current {
-        background: #152d64;
+        background-color: #152d64;
         color: white;
-        border: 2px solid #152d64;
+        border-color: #152d64;
+        font-weight: 600;
     }
 }
 
@@ -1476,16 +1785,28 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
     
     h1 {
         font-size: 20px;
-        padding: 0 8px;
+        padding: 0 15px;
     }
     
     .form-description {
         font-size: 13px;
-        padding: 0 8px;
+        padding: 0 15px;
     }
     
     .top-controls {
         padding: 0 8px;
+    }
+    
+    /* Fix search input on smaller screens */
+    .search-input {
+        padding: 10px 12px 10px 40px !important;
+        font-size: 13px !important;
+        height: 42px;
+    }
+    
+    .search-icon {
+        font-size: 13px;
+        left: 12px;
     }
     
     .requests-table {
@@ -1552,8 +1873,7 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
     }
     
     .results-summary {
-        padding: 8px 10px;
-        font-size: 12px;
+        display: none;
     }
     
     .summary-stats {
@@ -1561,11 +1881,24 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
     }
     
     .actlog-pagination a,
-    .actlog-pagination .current {
-        min-height: 36px;
-        min-width: 36px;
-        padding: 8px 10px;
-        font-size: 13px;
+    .actlog-pagination .current,
+    .actlog-pagination .pagination-arrow,
+    .actlog-pagination .pagination-ellipsis {
+        min-height: 32px;
+        min-width: 32px;
+        height: 32px;
+        width: 32px;
+        padding: 0;
+        font-size: 12px;
+    }
+    
+    .actlog-pagination .pagination-arrow {
+        font-size: 10px;
+    }
+    
+    .actlog-pagination .pagination-ellipsis {
+        width: 28px;
+        min-width: 28px;
     }
 }
 
@@ -1581,17 +1914,29 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
     h1 {
         font-size: 18px;
         margin-bottom: 10px;
-        padding: 0 5px;
+        padding: 0 12px;
     }
     
     .form-description {
         font-size: 12px;
         margin-bottom: 10px;
-        padding: 0 5px;
+        padding: 0 12px;
     }
     
     .top-controls {
         padding: 0 5px;
+    }
+    
+    /* Fix search input on smallest screens */
+    .search-input {
+        padding: 8px 10px 8px 38px !important;
+        font-size: 13px !important;
+        height: 40px;
+    }
+    
+    .search-icon {
+        font-size: 12px;
+        left: 11px;
     }
     
     .table-container {
@@ -1653,9 +1998,7 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
     }
     
     .results-summary {
-        margin: 0 0 10px;
-        padding: 6px 8px;
-        font-size: 11px;
+        display: none;
     }
     
     .summary-stats {
@@ -1674,15 +2017,28 @@ html[data-filter-initially-open="true"] .simple-filter-dropdown.show {
     
     .actlog-pagination {
         padding: 10px 5px;
-        gap: 5px;
+        gap: 4px;
     }
     
     .actlog-pagination a,
-    .actlog-pagination .current {
-        min-height: 32px;
-        min-width: 32px;
-        padding: 6px 8px;
-        font-size: 12px;
+    .actlog-pagination .current,
+    .actlog-pagination .pagination-arrow,
+    .actlog-pagination .pagination-ellipsis {
+        min-height: 30px;
+        min-width: 30px;
+        height: 30px;
+        width: 30px;
+        padding: 0;
+        font-size: 11px;
+    }
+    
+    .actlog-pagination .pagination-arrow {
+        font-size: 9px;
+    }
+    
+    .actlog-pagination .pagination-ellipsis {
+        width: 26px;
+        min-width: 26px;
     }
     
     /* Filter container mobile optimization */
@@ -1823,14 +2179,43 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
     
     if (searchInput) {
+        // Only trigger search on Enter key press
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const searchTerm = this.value.trim();
+                applySearch(searchTerm);
+            }
+        });
+        
+        // Monitor for clearing the search input
         searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase().trim();
-            filterTable(searchTerm);
-            updateResultsCount();
+            const searchTerm = this.value.trim();
+            // If search is cleared, reload to show all results
+            if (searchTerm === '' && window.location.search.includes('search=')) {
+                applySearch('');
+            }
         });
     }
     
-    // Function to filter table rows based on search term
+    // Function to apply search by updating URL and reloading
+    function applySearch(searchTerm) {
+        const currentUrl = new URL(window.location);
+        
+        // Remove page parameter when search changes
+        currentUrl.searchParams.delete('page');
+        
+        // Set or remove search parameter
+        if (searchTerm && searchTerm !== '') {
+            currentUrl.searchParams.set('search', searchTerm);
+        } else {
+            currentUrl.searchParams.delete('search');
+        }
+        
+        // Reload page with new search
+        window.location.href = currentUrl.toString();
+    }
+    
+    // Function to filter table rows based on search term (DEPRECATED - keeping for reference)
     function filterTable(searchTerm) {
         const tableRows = document.querySelectorAll('.requests-table tbody tr');
         let visibleRows = 0;
@@ -1983,7 +2368,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateActiveFilterCount();
 
     // Cancel request functionality
-    const cancelBtns = document.querySelectorAll('.btn-cancel');
+    const cancelBtns = document.querySelectorAll('.btn-cancel, .mobile-action-item.cancel-action');
     // modal already declared at the top - reuse it
     const closeModal = document.querySelector('.close-modal');
     const cancelModalBtn = document.querySelector('.btn-cancel-modal');
@@ -1991,30 +2376,42 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentRequestId = null;
     let currentModelType = null;
 
-    cancelBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            // IMMEDIATELY stop if we're not ready
-            if (!modalCanBeShown) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                return false;
-            }
-            
-            // Prevent if button is disabled or hidden
-            if (this.disabled || this.classList.contains('btn-hidden')) {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-            }
-            
-            // Only show modal if this is a genuine user click
-            if (e.isTrusted) {
+    const handleCancelClick = function(e) {
+        // IMMEDIATELY stop if we're not ready
+        if (!modalCanBeShown) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            return false;
+        }
+        
+        // Prevent if button is disabled or hidden
+        if (this.disabled || this.classList.contains('btn-hidden') || this.classList.contains('disabled')) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+        
+        // Only show modal if this is a genuine user click/touch
+        if (e.isTrusted) {
                 currentRequestId = this.dataset.requestId;
                 currentModelType = this.dataset.modelType;
                 modal.style.display = 'flex';
+                
+                // Close mobile dropdown if open
+                const activeMenu = document.querySelector('.mobile-action-menu.show');
+                if (activeMenu) {
+                    activeMenu.classList.remove('show');
+                }
             }
-        });
+    };
+    
+    cancelBtns.forEach(btn => {
+        btn.addEventListener('click', handleCancelClick);
+        btn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            handleCancelClick.call(this, e);
+        }, { passive: false });
     });
 
     function closeModalFunc() {
@@ -2098,11 +2495,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // View details functionality
-    const viewBtns = document.querySelectorAll('.btn-view');
+    const viewBtns = document.querySelectorAll('.btn-view, .mobile-action-item.view-action');
     viewBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        const handleViewClick = function() {
             const requestId = this.dataset.requestId;
             const modelType = this.dataset.modelType;
+            
+            console.log('View clicked:', requestId, modelType);
             
             // Navigate to detail view
             let detailUrl = '';
@@ -2127,15 +2526,23 @@ document.addEventListener('DOMContentLoaded', function() {
             if (detailUrl) {
                 window.location.href = detailUrl;
             }
-        });
+        };
+        
+        btn.addEventListener('click', handleViewClick);
+        btn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            handleViewClick.call(this);
+        }, { passive: false });
     });
 
     // Request again functionality
-    const requestAgainBtns = document.querySelectorAll('.btn-request-again');
+    const requestAgainBtns = document.querySelectorAll('.btn-request-again, .mobile-action-item.request-again-action');
     requestAgainBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        const handleRequestAgain = function() {
             const requestId = this.dataset.requestId;
             const modelType = this.dataset.modelType;
+            
+            console.log('Request again clicked:', requestId, modelType);
             
             // Determine the correct URL based on model type
             let requestAgainUrl = '';
@@ -2157,11 +2564,136 @@ document.addEventListener('DOMContentLoaded', function() {
                     break;
             }
 
+            console.log('Request again URL:', requestAgainUrl);
+
             if (requestAgainUrl) {
                 window.location.href = requestAgainUrl;
             }
-        });
+        };
+        
+        btn.addEventListener('click', handleRequestAgain);
+        btn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            handleRequestAgain.call(this);
+        }, { passive: false });
     });
+    
+    // Mobile action dropdown functionality
+    const mobileActionToggles = document.querySelectorAll('.mobile-action-toggle');
+    console.log('Found mobile toggles:', mobileActionToggles.length);
+    
+    // Function to handle toggle
+    function handleToggle(toggle, e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const rowId = toggle.dataset.rowId;
+        const menu = document.getElementById(`action-menu-${rowId}`);
+        const dropdown = toggle.closest('.mobile-action-dropdown');
+        
+        console.log('Toggle clicked, rowId:', rowId, 'menu:', menu);
+        
+        // Close all other menus and remove active class
+        document.querySelectorAll('.mobile-action-menu.show').forEach(m => {
+            if (m !== menu) {
+                m.classList.remove('show');
+                m.style.position = '';
+                m.style.top = '';
+                m.style.bottom = '';
+                m.style.right = '';
+                const otherDropdown = m.closest('.mobile-action-dropdown');
+                if (otherDropdown) {
+                    otherDropdown.classList.remove('active');
+                }
+            }
+        });
+        
+        // Toggle current menu and active class
+        if (menu) {
+            const isShowing = menu.classList.contains('show');
+            menu.classList.toggle('show');
+            
+            if (!isShowing) {
+                // Position menu using fixed positioning
+                const rect = toggle.getBoundingClientRect();
+                const menuHeight = 150; // Approximate height of menu (3 items x 50px)
+                const spaceBelow = window.innerHeight - rect.bottom;
+                const spaceAbove = rect.top;
+                
+                menu.style.position = 'fixed';
+                menu.style.right = (window.innerWidth - rect.right) + 'px';
+                
+                // Check if there's enough space below, otherwise open upward
+                if (spaceBelow < menuHeight && spaceAbove > menuHeight) {
+                    // Open upward
+                    menu.style.bottom = (window.innerHeight - rect.top + 2) + 'px';
+                    menu.style.top = 'auto';
+                    console.log('Menu positioned ABOVE toggle');
+                } else {
+                    // Open downward (default)
+                    menu.style.top = (rect.bottom + 2) + 'px';
+                    menu.style.bottom = 'auto';
+                    console.log('Menu positioned BELOW toggle');
+                }
+                
+                console.log('Menu positioned at:', menu.style.top, menu.style.bottom, menu.style.right);
+            } else {
+                menu.style.position = '';
+                menu.style.top = '';
+                menu.style.bottom = '';
+                menu.style.right = '';
+            }
+            
+            if (dropdown) {
+                dropdown.classList.toggle('active', menu.classList.contains('show'));
+            }
+            console.log('Menu show class:', menu.classList.contains('show'));
+        }
+    }
+    
+    mobileActionToggles.forEach(toggle => {
+        // Handle both click and touch events
+        toggle.addEventListener('click', function(e) {
+            handleToggle(this, e);
+        });
+        
+        toggle.addEventListener('touchend', function(e) {
+            handleToggle(this, e);
+        }, { passive: false });
+    });
+    
+    // Close mobile action dropdowns when clicking/touching outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.mobile-action-dropdown')) {
+            document.querySelectorAll('.mobile-action-menu.show').forEach(menu => {
+                menu.classList.remove('show');
+                menu.style.position = '';
+                menu.style.top = '';
+                menu.style.bottom = '';
+                menu.style.right = '';
+                const dropdown = menu.closest('.mobile-action-dropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('active');
+                }
+            });
+        }
+    });
+    
+    document.addEventListener('touchend', function(e) {
+        if (!e.target.closest('.mobile-action-dropdown')) {
+            document.querySelectorAll('.mobile-action-menu.show').forEach(menu => {
+                menu.classList.remove('show');
+                menu.style.position = '';
+                menu.style.top = '';
+                menu.style.bottom = '';
+                menu.style.right = '';
+                const dropdown = menu.closest('.mobile-action-dropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('active');
+                }
+            });
+        }
+    }, { passive: true });
 });
 </script>
 {% endblock %}

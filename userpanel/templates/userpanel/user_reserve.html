@@ -4,6 +4,22 @@
 
 {% block content %}
 <style>
+    /* ===== TOAST NOTIFICATIONS (Reservation Alerts) ===== */
+    /* Minimal CSS - all styling done via inline styles in JavaScript */
+    #reservation-toast-container {
+        position: fixed !important;
+        top: 20px !important;
+        right: 20px !important;
+        z-index: 11000 !important;
+        pointer-events: none !important;
+    }
+
+    /* Required field asterisk */
+    .required-asterisk {
+        color: #dc3545;
+        margin-left: 3px;
+    }
+
     /* Override overflow hidden for searchable dropdown */
     .form-group:has(.searchable-select-container) {
         overflow: visible !important;
@@ -386,12 +402,12 @@
             <h3 style="margin-top: 0; color: #152d64;"><i class="fas fa-calendar-check" style="color: #152d64;"></i> Reservation Period (All Items)</h3>
             <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="form-group">
-                    <label for="batch-needed-date"><strong>Needed Date:</strong></label>
-                    <input type="date" id="batch-needed-date" class="form-control" required>
+                    <label for="batch-needed-date"><strong>Needed Date:<span class="required-asterisk">*</span></strong></label>
+                    <input type="date" id="batch-needed-date" class="form-control" value="{{ batch_needed_date }}" required>
                 </div>
                 <div class="form-group">
-                    <label for="batch-return-date"><strong>Return Date:</strong></label>
-                    <input type="date" id="batch-return-date" class="form-control" required>
+                    <label for="batch-return-date"><strong>Return Date:<span class="required-asterisk">*</span></strong></label>
+                    <input type="date" id="batch-return-date" class="form-control" value="{{ batch_return_date }}" required>
                 </div>
             </div>
             <small style="color: #6c757d; display: block; margin-top: 8px;">
@@ -406,7 +422,7 @@
                 {% csrf_token %}
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="supply-search">Equipment/Item:</label>
+                        <label for="supply-search">Equipment/Item:<span class="required-asterisk">*</span></label>
                         <div class="searchable-select-container">
                             <input type="text" id="supply-search" class="form-control supply-search-input" 
                                    placeholder="Search for an item..." autocomplete="off" required>
@@ -422,7 +438,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="quantity-input">Quantity:</label>
+                        <label for="quantity-input">Quantity:<span class="required-asterisk">*</span></label>
                         <input type="number" id="quantity-input" name="quantity" 
                                class="form-control" min="1" placeholder="Enter quantity" required>
                     </div>
@@ -488,7 +504,7 @@
                 <input type="hidden" id="batch-needed-date-hidden" name="batch_needed_date">
                 <input type="hidden" id="batch-return-date-hidden" name="batch_return_date">
                 <div class="form-group">
-                    <label for="general-purpose">Purpose/Description:</label>
+                    <label for="general-purpose">Purpose/Description:<span class="required-asterisk">*</span></label>
                     <textarea id="general-purpose" name="general_purpose" class="form-control" 
                               rows="3" placeholder="Please describe the purpose of this request..." required></textarea>
                 </div>
@@ -975,25 +991,42 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cancel request function
     function cancelRequest(requestId, requestType) {
         if (confirm('Are you sure you want to cancel this request?')) {
-            fetch(`/cancel-${requestType}/${requestId}/`, {
+            // Use the proper Django URL tag approach
+            let cancelUrl = '';
+            if (requestType === 'reservation') {
+                cancelUrl = `{% url 'cancel_reservation' 0 %}`.replace('0', requestId);
+            }
+            
+            if (!cancelUrl) {
+                showToast('Invalid request type', 'error');
+                return;
+            }
+            
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            
+            fetch(cancelUrl, {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
                     'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken ? csrfToken.value : '',
                 },
+                credentials: 'same-origin'
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
+                if (data.status === 'success') {
                     showToast('Request cancelled successfully', 'success');
-                    location.reload();
+                    // Delay reload to allow toast to display for 4.5 seconds
+                    setTimeout(() => {
+                        location.reload();
+                    }, 5000);
                 } else {
                     showToast(data.message || 'Error cancelling request', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('An error occurred', 'error');
+                showToast('An error occurred while cancelling the request', 'error');
             });
         }
     }
@@ -1003,26 +1036,102 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = `{% url 'request_again' %}?type=${requestType}&id=${requestId}`;
     }
 
-    // Show toast function
+    // Show toast function (for AJAX responses)
+    let toastQueue = [];
+    let toastDisplaying = false;
+
+    function initializeToastContainer() {
+        if (!document.getElementById('reservation-toast-container')) {
+            const container = document.createElement('div');
+            container.id = 'reservation-toast-container';
+            container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 11000; pointer-events: none; display: flex; flex-direction: column; gap: 10px;';
+            document.body.appendChild(container);
+            console.log('[TOAST] Container created');
+        }
+    }
+
     function showToast(message, type) {
+        console.log('[TOAST] showToast called:', message, type);
+        
+        // Initialize container if needed
+        initializeToastContainer();
+        
+        // Add to queue
+        toastQueue.push({ message, type });
+        
+        // Process queue if not already displaying
+        if (!toastDisplaying) {
+            processToastQueue();
+        }
+    }
+
+    function processToastQueue() {
+        if (toastQueue.length === 0) {
+            toastDisplaying = false;
+            console.log('[TOAST] Queue empty');
+            return;
+        }
+
+        toastDisplaying = true;
+        const { message, type } = toastQueue.shift();
+        console.log('[TOAST] Processing:', message, type);
+
+        // Create toast element
+        const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
         const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
         
-        document.body.appendChild(toast);
+        // Apply inline styles to force override CSS conflicts
+        toast.style.cssText = `
+            padding: 16px 20px;
+            background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
+            border: 2px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'};
+            color: ${type === 'success' ? '#155724' : '#721c24'};
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            max-width: 380px;
+            word-wrap: break-word;
+            line-height: 1.4;
+            pointer-events: auto;
+            opacity: 0;
+            transform: translateX(450px);
+            transition: opacity 500ms ease, transform 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+        `;
         
-        // Show toast
+        toast.innerHTML = `
+            <i class="fas fa-${icon}" style="color: ${type === 'success' ? '#28a745' : '#dc3545'}; font-size: 20px; flex-shrink: 0;"></i>
+            <span style="flex: 1;">${message}</span>
+        `;
+
+        const container = document.getElementById('reservation-toast-container');
+        container.appendChild(toast);
+        console.log('[TOAST] Toast added to DOM');
+
+        // Trigger animation - show toast
         setTimeout(() => {
-            toast.classList.add('show');
-        }, 100);
-        
-        // Hide and remove toast after 6 seconds
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(0)';
+            console.log('[TOAST] Animation triggered - showing');
+        }, 50);
+
+        // Auto remove after 4.5 seconds
         setTimeout(() => {
-            toast.classList.remove('show');
+            console.log('[TOAST] Starting hide animation');
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(450px)';
+            
             setTimeout(() => {
-                document.body.removeChild(toast);
-            }, 300);
-        }, 6000);
+                console.log('[TOAST] Removing from DOM');
+                toast.remove();
+                // Process next in queue
+                toastDisplaying = false;
+                processToastQueue();
+            }, 500);
+        }, 4500);
     }
 
 });

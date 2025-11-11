@@ -4,6 +4,12 @@
 
 {% block content %}
 <style>
+    /* Required field asterisk */
+    .required-asterisk {
+        color: #dc3545;
+        margin-left: 3px;
+    }
+
     /* ===== MOBILE MODAL STYLES (from unified request) ===== */
     .modal-backdrop {
         display: none;
@@ -408,7 +414,7 @@
             
             <!-- Item Search for Damage Report -->
             <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label for="supply-search" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Equipment/Item Damaged:</label>
+                <label for="supply-search" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Equipment/Item Damaged:<span class="required-asterisk">*</span></label>
                 <div class="searchable-select-container">
                     <input type="text" id="supply-search" class="form-control supply-search-input" 
                            placeholder="Search for the damaged item..." autocomplete="off">
@@ -426,7 +432,7 @@
             
             <!-- Form fields excluding 'item' since we handle it above -->
             <div class="form-group">
-                {{ form.description.label_tag }}
+                <label for="{{ form.description.id_for_label }}">{{ form.description.label|safe }}</label>
                 {{ form.description }}
                 {% if form.description.errors %}<span class="field-error">{{ form.description.errors }}</span>{% endif %}
             </div>

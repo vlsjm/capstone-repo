@@ -2479,10 +2479,18 @@
       }
       
       if (detailsRow && expandIcon) {
-        if (detailsRow.classList.contains('show')) {
-          detailsRow.classList.remove('show');
-          expandIcon.classList.remove('expanded');
-        } else {
+        const isCurrentlyExpanded = detailsRow.classList.contains('show');
+        
+        // Collapse all other rows first (accordion behavior)
+        document.querySelectorAll('.details-row.show').forEach(function(row) {
+          row.classList.remove('show');
+        });
+        document.querySelectorAll('.expand-icon.expanded').forEach(function(icon) {
+          icon.classList.remove('expanded');
+        });
+        
+        if (!isCurrentlyExpanded) {
+          // Show this row's details
           detailsRow.classList.add('show');
           expandIcon.classList.add('expanded');
         }

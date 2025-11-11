@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('searchInput');
     const roleFilter = document.getElementById('roleFilter');
     const departmentFilter = document.getElementById('departmentFilter');
+    const statusFilter = document.getElementById('statusFilter');
     const applyFiltersBtn = document.getElementById('applyFilters');
     const table = document.querySelector('.searchable-table');
 
@@ -12,18 +13,20 @@ document.addEventListener('DOMContentLoaded', function () {
             page: params.get('page') || '1',
             search: params.get('search') || '',
             role: params.get('role') || '',
-            department: params.get('department') || ''
+            department: params.get('department') || '',
+            status: params.get('status') || ''
         };
     }
 
     // Function to update URL with filters
-    function updateUrl(search, role, department) {
+    function updateUrl(search, role, department, status) {
         const params = new URLSearchParams();
         if (search) params.append('search', search);
         if (role) params.append('role', role);
         if (department) params.append('department', department);
+        if (status) params.append('status', status);
         params.append('page', '1'); // Reset to first page when applying filters
-        
+
         window.location.href = `${window.location.pathname}?${params.toString()}`;
     }
 
@@ -33,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
         searchInput.value = params.search || '';
         roleFilter.value = params.role || '';
         departmentFilter.value = params.department || '';
+        statusFilter.value = params.status || '';
     }
 
     // Apply filters when the button is clicked
@@ -40,15 +44,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const searchTerm = searchInput.value;
         const selectedRole = roleFilter.value;
         const selectedDepartment = departmentFilter.value;
+        const selectedStatus = statusFilter.value;
 
-        updateUrl(searchTerm, selectedRole, selectedDepartment);
+        updateUrl(searchTerm, selectedRole, selectedDepartment, selectedStatus);
     }
 
     // Add event listener for the apply filters button
     applyFiltersBtn.addEventListener('click', applyFilters);
 
     // Handle enter key in search input
-    searchInput.addEventListener('keypress', function(e) {
+    searchInput.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             applyFilters();
         }
@@ -61,11 +66,11 @@ document.addEventListener('DOMContentLoaded', function () {
     function updatePaginationLinks() {
         const paginationLinks = document.querySelectorAll('.actlog-pagination a');
         const currentParams = new URLSearchParams(window.location.search);
-        
+
         paginationLinks.forEach(link => {
             const linkUrl = new URL(link.href);
             const pageParam = linkUrl.searchParams.get('page');
-            
+
             // Copy all current parameters except page
             const newParams = new URLSearchParams();
             for (const [key, value] of currentParams.entries()) {
@@ -77,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (pageParam) {
                 newParams.append('page', pageParam);
             }
-            
+
             link.href = `${window.location.pathname}?${newParams.toString()}`;
         });
     }

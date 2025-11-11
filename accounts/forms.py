@@ -1,7 +1,18 @@
 # accounts/forms.py
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordResetForm
 from app.models import UserProfile
+
+class CustomPasswordResetForm(PasswordResetForm):
+    """Custom password reset form that validates email exists in the system"""
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not User.objects.filter(email=email, is_active=True).exists():
+            raise forms.ValidationError(
+                "There is no user registered with the specified email address."
+            )
+        return email
 
 class UserRegistrationForm(forms.ModelForm):
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
