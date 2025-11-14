@@ -165,8 +165,8 @@ class Command(BaseCommand):
             near_overdue_notified=False,  # NOT notified yet - so email will send
         )
 
-        # Calculate trigger date to verify
-        trigger_date = calculate_reminder_trigger_date(
+        # Calculate trigger datetime to verify (now returns datetime, not date)
+        trigger_datetime = calculate_reminder_trigger_date(
             batch.request_date.date(),
             return_date
         )
@@ -177,6 +177,6 @@ class Command(BaseCommand):
         self.stdout.write(f'  Property: {property_item.property_name}')
         self.stdout.write(f'  Request Date: {batch.request_date.date()}')
         self.stdout.write(f'  Return Date: {return_date} (in 2 days)')
-        self.stdout.write(f'  Trigger Date: {trigger_date} (TODAY = should trigger!)')
+        self.stdout.write(f'  Trigger DateTime: {trigger_datetime} (should trigger based on current time!)')
         self.stdout.write(f'  User: {user.username} ({user.email})')
         self.stdout.write(self.style.SUCCESS(f'\n✓ When scheduler runs, it will send email to {user.email}'))

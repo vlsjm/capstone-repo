@@ -198,6 +198,10 @@ BORROW_REMINDER_MIN_DAYS = 1  # Always remind at least 1 day before return date
 BORROW_REMINDER_MAX_DAYS = 5  # Never remind more than 5 days before return date
 BORROW_REMINDER_PERCENTAGE = 0.20  # Remind at 20% of borrow period remaining
 
+# Special handling for short-term borrows (1-2 days)
+BORROW_SHORT_TERM_DAYS = 2  # Borrows <= 2 days are considered "short-term"
+BORROW_SHORT_TERM_NOTICE_HOURS = 10  # Send reminder 10 hours before return date for short-term borrows
+
 # Logging Configuration
 LOGGING = {
     'version': 1,

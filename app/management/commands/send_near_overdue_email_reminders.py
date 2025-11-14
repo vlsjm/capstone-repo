@@ -44,17 +44,18 @@ class Command(BaseCommand):
 
         # Filter items that need reminders
         items_needing_reminder = []
-        today = date.today()
+        now = timezone.now()
+        today = now.date()
 
         for item in active_items:
-            # Calculate when reminder should be sent
-            reminder_trigger_date = calculate_reminder_trigger_date(
+            # Calculate when reminder should be sent (returns datetime)
+            reminder_trigger_datetime = calculate_reminder_trigger_date(
                 item.batch_request.request_date.date(),
                 item.return_date
             )
 
-            # Check if today is the trigger date or later (but before return date)
-            if today >= reminder_trigger_date and today <= item.return_date:
+            # Check if current time has passed trigger datetime (but before return date)
+            if now >= reminder_trigger_datetime and today <= item.return_date:
                 items_needing_reminder.append(item)
 
         if not items_needing_reminder:
@@ -75,11 +76,16 @@ class Command(BaseCommand):
             try:
                 days_until_return = (item.return_date - today).days
                 user = item.batch_request.user
+                
+                # Calculate hours for short-term borrows
+                from datetime import datetime, time
+                return_datetime = datetime.combine(item.return_date, time(23, 59))
+                hours_until_return = (return_datetime - now).total_seconds() / 3600
 
                 self.stdout.write(
                     f"Processing: {user.username} - "
                     f"{item.property.property_name} "
-                    f"({days_until_return} days until return)"
+                    f"({days_until_return} days / {hours_until_return:.1f} hours until return)"
                 )
 
                 if dry_run:

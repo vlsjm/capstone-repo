@@ -323,7 +323,8 @@ def calculate_reminder_trigger_date(borrow_date, return_date):
     Calculate when to send a near-overdue reminder based on borrow duration.
     
     Uses a hybrid approach:
-    - Calculate reminder based on percentage of borrow period remaining
+    - For SHORT-TERM borrows (1-2 days): Send reminder X hours before return date
+    - For LONGER borrows: Calculate reminder based on percentage of borrow period remaining
     - Cap between MIN and MAX days to avoid too-early or too-late reminders
     
     Args:
@@ -331,14 +332,37 @@ def calculate_reminder_trigger_date(borrow_date, return_date):
         return_date: The date when the item should be returned
     
     Returns:
-        datetime.date: The date on which the reminder should be sent
+        datetime.datetime: The timezone-aware datetime on which the reminder should be sent
     """
-    from datetime import timedelta
+    from datetime import timedelta, datetime, time
+    from django.utils import timezone as tz
+    from zoneinfo import ZoneInfo
     
     try:
+        # Get the configured timezone
+        local_tz = ZoneInfo(settings.TIME_ZONE)
+        
         # Calculate total days borrowed
         days_borrowed = (return_date - borrow_date).days
         
+        # Special handling for short-term borrows (1-2 days)
+        if days_borrowed <= settings.BORROW_SHORT_TERM_DAYS:
+            # For short-term borrows, send reminder X hours before return date
+            # Assuming return date is end of day (23:59), subtract the notice hours
+            return_datetime = datetime.combine(return_date, time(23, 59))
+            # Make it timezone-aware
+            return_datetime = return_datetime.replace(tzinfo=local_tz)
+            reminder_trigger_datetime = return_datetime - timedelta(hours=settings.BORROW_SHORT_TERM_NOTICE_HOURS)
+            
+            logger.debug(
+                f"SHORT-TERM borrow ({days_borrowed} days): "
+                f"Reminder will trigger {settings.BORROW_SHORT_TERM_NOTICE_HOURS} hours before return "
+                f"({reminder_trigger_datetime})"
+            )
+            
+            return reminder_trigger_datetime
+        
+        # For longer borrows, use the percentage-based calculation
         # Calculate reminder days before return based on percentage of borrow period
         reminder_days_before = days_borrowed * settings.BORROW_REMINDER_PERCENTAGE
         
@@ -348,19 +372,23 @@ def calculate_reminder_trigger_date(borrow_date, return_date):
             min(settings.BORROW_REMINDER_MAX_DAYS, reminder_days_before)
         )
         
-        # Calculate the trigger date
+        # Calculate the trigger date (at start of day for longer borrows)
         reminder_trigger_date = return_date - timedelta(days=reminder_days_before)
+        reminder_trigger_datetime = datetime.combine(reminder_trigger_date, time(0, 0))
+        # Make it timezone-aware
+        reminder_trigger_datetime = reminder_trigger_datetime.replace(tzinfo=local_tz)
         
         logger.debug(
-            f"Reminder trigger calculated: borrowed {days_borrowed} days, "
-            f"reminder {reminder_days_before:.1f} days before return ({reminder_trigger_date})"
+            f"LONG-TERM borrow ({days_borrowed} days): "
+            f"Reminder {reminder_days_before:.1f} days before return ({reminder_trigger_datetime.date()})"
         )
         
-        return reminder_trigger_date
+        return reminder_trigger_datetime
         
     except Exception as e:
         logger.error(f"Error calculating reminder trigger date: {str(e)}")
-        return return_date  # Fallback to return date if error
+        return datetime.combine(return_date, time(0, 0)).replace(tzinfo=ZoneInfo(settings.TIME_ZONE))  # Fallback to return date if error
+
 
 
 def send_near_overdue_borrow_email(borrow_request_item):
@@ -374,7 +402,7 @@ def send_near_overdue_borrow_email(borrow_request_item):
         bool: True if email was sent successfully, False otherwise
     """
     try:
-        from datetime import date
+        from datetime import date, datetime, time
         
         user = borrow_request_item.batch_request.user
         
@@ -387,7 +415,17 @@ def send_near_overdue_borrow_email(borrow_request_item):
             return False
         
         # Calculate days until return
-        days_until_return = (borrow_request_item.return_date - date.today()).days
+        today = date.today()
+        days_until_return = (borrow_request_item.return_date - today).days
+        
+        # Calculate hours until return for short-term borrows
+        now = timezone.now()
+        return_datetime = datetime.combine(borrow_request_item.return_date, time(23, 59))
+        hours_until_return = (return_datetime - now).total_seconds() / 3600
+        
+        # Determine if this is a short-term borrow
+        borrow_duration = (borrow_request_item.return_date - borrow_request_item.batch_request.request_date.date()).days
+        is_short_term = borrow_duration <= settings.BORROW_SHORT_TERM_DAYS
         
         # Prepare context for email template
         # Build absolute URL for dashboard
@@ -402,6 +440,8 @@ def send_near_overdue_borrow_email(borrow_request_item):
             'quantity': borrow_request_item.quantity,
             'return_date': borrow_request_item.return_date,
             'days_until_return': days_until_return,
+            'hours_until_return': int(hours_until_return),
+            'is_short_term': is_short_term,
             'dashboard_url': dashboard_url,
             'current_year': timezone.now().year,
         }
@@ -410,8 +450,11 @@ def send_near_overdue_borrow_email(borrow_request_item):
         html_message = render_to_string('app/email/borrow_near_overdue_reminder.html', context)
         plain_message = strip_tags(html_message)
         
-        # Create subject
-        subject = f"Reminder: Your borrowed item '{borrow_request_item.property.property_name}' is due in {days_until_return} day(s)"
+        # Create subject - show hours for short-term, days for longer borrows
+        if is_short_term and hours_until_return < 24:
+            subject = f"Reminder: Your borrowed item '{borrow_request_item.property.property_name}' is due in {int(hours_until_return)} hour(s)"
+        else:
+            subject = f"Reminder: Your borrowed item '{borrow_request_item.property.property_name}' is due in {days_until_return} day(s)"
         
         # Send email
         send_mail(
@@ -425,7 +468,8 @@ def send_near_overdue_borrow_email(borrow_request_item):
         
         logger.info(
             f"Near-overdue reminder email sent to {user.email} for item "
-            f"{borrow_request_item.property.property_name} (due {borrow_request_item.return_date})"
+            f"{borrow_request_item.property.property_name} (due {borrow_request_item.return_date}) "
+            f"- {days_until_return} days / {int(hours_until_return)} hours remaining"
         )
         return True
         

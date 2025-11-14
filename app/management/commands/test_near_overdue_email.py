@@ -85,14 +85,16 @@ class Command(BaseCommand):
         self.stdout.write(f'  Return Date: {return_date}')
         self.stdout.write(f'  Days Until Return: {days_until_return}')
 
-        # Calculate reminder trigger date
-        reminder_trigger_date = calculate_reminder_trigger_date(
+        # Calculate reminder trigger datetime (now returns datetime, not date)
+        reminder_trigger_datetime = calculate_reminder_trigger_date(
             batch.request_date.date(),
             item.return_date
         )
 
-        self.stdout.write(f'  Reminder Trigger Date: {reminder_trigger_date}')
-        self.stdout.write(f'  Should trigger today? {reminder_trigger_date <= date.today()}')
+        self.stdout.write(f'  Reminder Trigger DateTime: {reminder_trigger_datetime}')
+        from django.utils import timezone
+        now = timezone.now()
+        self.stdout.write(f'  Should trigger now? {now >= reminder_trigger_datetime}')
 
         # Send the test email
         self.stdout.write(self.style.WARNING('\nSending test email...'))

@@ -859,21 +859,37 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
         return count
 
     def _calculate_overdue_count(self, requests, borrows, reservations):
-        """Count items with return_date < today and status in active/approved/for_claiming - deduplicates batch items by batch ID"""
+        """
+        Count items that are overdue:
+        1. Items with status='overdue' 
+        2. Items with return_date < today and status in active/approved/for_claiming
+        Deduplicates batch items by batch_item_id for accurate counting
+        """
         from django.utils import timezone
         count = 0
         today = timezone.now().astimezone().date()
-        seen_batch_requests = set()
-        for item in requests + borrows + reservations:
+        seen_batch_items = set()  # Track individual batch items, not batches
+        
+        for item in borrows:  # Focus on borrows for overdue count
             if isinstance(item, dict):
                 status = item.get('status', '').lower()
                 return_date = item.get('return_date')
-                if status in ['active', 'approved', 'for_claiming'] and return_date and return_date < today:
-                    # For batch items, group by batch ID to avoid counting each item in a batch
-                    batch_id = item.get('id')
-                    if batch_id not in seen_batch_requests:
-                        seen_batch_requests.add(batch_id)
+                
+                # Count items that are explicitly marked as overdue OR past their return date
+                is_overdue = (status == 'overdue') or \
+                            (status in ['active', 'approved', 'for_claiming'] and return_date and return_date < today)
+                
+                if is_overdue:
+                    # For batch items, track by unique batch_item_id to count each item separately
+                    batch_item_id = item.get('batch_item_id')
+                    if batch_item_id:
+                        if batch_item_id not in seen_batch_items:
+                            seen_batch_items.add(batch_item_id)
+                            count += 1
+                    else:
+                        # Old borrow system - count directly
                         count += 1
+        
         return count
 
     def _calculate_active_count(self, requests, borrows, reservations):
@@ -1159,7 +1175,7 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
         return sorted(active_reservations, key=lambda x: x['days_remaining'])
 
     def _get_active_borrows(self, borrows):
-        """Get borrows that are active and currently borrowed"""
+        """Get borrows that are active or overdue and currently borrowed"""
         from django.conf import settings
         from zoneinfo import ZoneInfo
         
@@ -1171,26 +1187,34 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
         for item in borrows:
             if isinstance(item, dict):
                 status = item.get('status', '').lower()
-                if status == 'active':
+                # Include both active and overdue items
+                if status in ['active', 'overdue']:
                     borrow_date = item.get('borrow_date')
                     return_date = item.get('return_date')
                     
-                    # Check if borrow is currently active (borrow_date <= today <= return_date)
+                    # Check if borrow is currently active/overdue (borrow_date <= today)
                     if borrow_date and return_date:
                         # Convert datetime to date if necessary for comparison
                         borrow_date_only = borrow_date.date() if hasattr(borrow_date, 'date') else borrow_date
                         return_date_only = return_date.date() if hasattr(return_date, 'date') else return_date
                         
-                        if borrow_date_only <= today <= return_date_only:
+                        # Include if it's started (borrow_date <= today) and not yet returned
+                        if borrow_date_only <= today:
                             item_type = item.get('type', 'old')
                             batch_req_id = item.get('id')
+                            
+                            # Calculate days remaining (negative if overdue)
+                            days_remaining = (return_date_only - today).days
                             
                             if item_type == 'batch':
                                 # For batch items, group by batch request ID to avoid duplicates
                                 if batch_req_id not in seen_batch_requests:
                                     borrow_id = batch_req_id
                                     borrow_date_formatted = borrow_date.date() if hasattr(borrow_date, 'date') else borrow_date
-                                    item_name = f"Borrow Request #{borrow_id} ({borrow_date_formatted})"
+                                    
+                                    # Add status indicator for overdue items
+                                    status_indicator = " [OVERDUE]" if status == 'overdue' or days_remaining < 0 else ""
+                                    item_name = f"Borrow Request #{borrow_id} ({borrow_date_formatted}){status_indicator}"
                                     
                                     seen_batch_requests[batch_req_id] = {
                                         'type': 'Borrow Request',
@@ -1199,33 +1223,37 @@ class UserDashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateVie
                                         'borrow_date': borrow_date,
                                         'return_date': return_date,
                                         'id': batch_req_id,
-                                        'icon': 'fa-hand-holding-heart',
-                                        'days_remaining': (return_date - today).days
+                                        'icon': 'fa-exclamation-triangle' if status == 'overdue' or days_remaining < 0 else 'fa-hand-holding-heart',
+                                        'days_remaining': days_remaining,
+                                        'is_overdue': status == 'overdue' or days_remaining < 0
                                     }
                                 else:
                                     # Add to existing batch quantity
                                     seen_batch_requests[batch_req_id]['quantity'] += item.get('quantity', 0)
                             else:
                                 # For old borrow requests, add individually
-                                item_name = item.get('item', '')
-                                if not item_name:
-                                    borrow_id = item.get('id', '?')
-                                    borrow_date_formatted = borrow_date.date() if hasattr(borrow_date, 'date') else borrow_date
-                                    item_name = f"Borrow Request #{borrow_id} ({borrow_date_formatted})"
+                                property_obj = item.get('property')
+                                item_name = property_obj.property_name if property_obj else f"Item #{item.get('id', '?')}"
+                                
+                                # Add status indicator for overdue items
+                                status_indicator = " [OVERDUE]" if status == 'overdue' or days_remaining < 0 else ""
+                                
                                 active_borrows.append({
                                     'type': 'Borrow Request',
-                                    'item_name': item_name,
+                                    'item_name': f"{item_name}{status_indicator}",
                                     'quantity': item.get('quantity', 0),
                                     'borrow_date': borrow_date,
                                     'return_date': return_date,
                                     'id': item.get('id'),
-                                    'icon': 'fa-hand-holding-heart',
-                                    'days_remaining': (return_date - today).days
+                                    'icon': 'fa-exclamation-triangle' if status == 'overdue' or days_remaining < 0 else 'fa-hand-holding-heart',
+                                    'days_remaining': days_remaining,
+                                    'is_overdue': status == 'overdue' or days_remaining < 0
                                 })
         
         # Add grouped batch requests
         active_borrows.extend(seen_batch_requests.values())
         
+        # Sort by days_remaining (overdue items first - they have negative values)
         return sorted(active_borrows, key=lambda x: x['days_remaining'])
 
 

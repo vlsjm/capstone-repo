@@ -162,7 +162,11 @@
 
             <!-- Days Remaining -->
             <div class="borrow-reminder-days-remaining">
-                {{ days_until_return }} day{% if days_until_return != 1 %}s{% endif %} remaining
+                {% if is_short_term and hours_until_return < 24 %}
+                    {{ hours_until_return }} hour{% if hours_until_return != 1 %}s{% endif %} remaining
+                {% else %}
+                    {{ days_until_return }} day{% if days_until_return != 1 %}s{% endif %} remaining
+                {% endif %}
             </div>
 
             <!-- Item Details -->
