@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Access Denied</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            max-height: 60px;
+            width: auto;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #152d64;
+            margin-bottom: 10px;
+        }
+
+        .status-code {
+            font-size: 14px;
+            color: #152d64;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #152d64;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        a:hover {
+            background-color: #0d1f47;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="/static/images/resourcehivelogov2.png" alt="Resource Hive Logo">
+        </div>
+        <h1>Access Denied</h1>
+        <div class="status-code">403</div>
+        <p>You don't have permission to access this resource.</p>
+        <a href="/">Return to Home</a>
+    </div>
+</body>
+</html>
