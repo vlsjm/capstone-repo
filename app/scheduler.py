@@ -65,29 +65,58 @@ def start_scheduler():
     scheduler = BackgroundScheduler(timezone=settings.TIME_ZONE)
     scheduler.add_jobstore(DjangoJobStore(), "default")
 
-    # Schedule near-overdue email reminders - run every 6 hours
-    scheduler.add_job(
-        send_near_overdue_reminders,
-        "interval",
-        hours=6,
-        id="send_near_overdue_reminders",
-        name="Send Near-Overdue Email Reminders",
-        replace_existing=True,
-    )
-    logger.info("Scheduled task: send_near_overdue_reminders (every 6 hours)")
+    # Check if jobs already exist to avoid duplicates
+    try:
+        # Check if the job already exists
+        existing_jobs = scheduler.get_jobs()
+        job_ids = [job.id for job in existing_jobs]
+        
+        # Only add jobs if they don't already exist
+        if "send_near_overdue_reminders" not in job_ids:
+            scheduler.add_job(
+                send_near_overdue_reminders,
+                "interval",
+                hours=6,
+                id="send_near_overdue_reminders",
+                name="Send Near-Overdue Email Reminders",
+                replace_existing=True,
+            )
+            logger.info("Scheduled task: send_near_overdue_reminders (every 6 hours)")
+        else:
+            logger.info("Task send_near_overdue_reminders already exists, skipping")
 
-    # Schedule overdue checking and SMS notifications - run every 2 hours
-    # This ensures items are checked and marked as overdue throughout the day
-    # and SMS notifications are sent promptly
-    scheduler.add_job(
-        check_and_notify_overdue_items,
-        "interval",
-        hours=2,
-        id="check_and_notify_overdue_items",
-        name="Check and Notify Overdue Items (Every 2 Hours)",
-        replace_existing=True,
-    )
-    logger.info("Scheduled task: check_and_notify_overdue_items (every 2 hours)")
+        if "check_and_notify_overdue_items" not in job_ids:
+            scheduler.add_job(
+                check_and_notify_overdue_items,
+                "interval",
+                hours=2,
+                id="check_and_notify_overdue_items",
+                name="Check and Notify Overdue Items (Every 2 Hours)",
+                replace_existing=True,
+            )
+            logger.info("Scheduled task: check_and_notify_overdue_items (every 2 hours)")
+        else:
+            logger.info("Task check_and_notify_overdue_items already exists, skipping")
+
+    except Exception as e:
+        logger.warning(f"Could not check existing jobs, adding with replace_existing=True: {e}")
+        # Fallback: just add jobs with replace_existing=True
+        scheduler.add_job(
+            send_near_overdue_reminders,
+            "interval",
+            hours=6,
+            id="send_near_overdue_reminders",
+            name="Send Near-Overdue Email Reminders",
+            replace_existing=True,
+        )
+        scheduler.add_job(
+            check_and_notify_overdue_items,
+            "interval",
+            hours=2,
+            id="check_and_notify_overdue_items",
+            name="Check and Notify Overdue Items (Every 2 Hours)",
+            replace_existing=True,
+        )
 
     if not scheduler.running:
         scheduler.start()
