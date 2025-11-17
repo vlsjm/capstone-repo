@@ -1655,8 +1655,8 @@ class BorrowRequestBatch(models.Model):
         
         logger.info(f"Checking for overdue batches (today: {today})...")
         
-        # Find active batches where any item is past the return date
-        active_batches = cls.objects.filter(status='active').prefetch_related('items__property', 'user__userprofile')
+        # Find active OR overdue batches where any item is past the return date
+        active_batches = cls.objects.filter(status__in=['active', 'overdue']).prefetch_related('items__property', 'user__userprofile')
         
         total_batches_checked = active_batches.count()
         batches_marked_overdue = 0
