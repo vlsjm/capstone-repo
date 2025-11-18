@@ -389,14 +389,21 @@ def clear_all_notifications(request):
 @login_required
 @require_POST
 def mark_notification_as_read_ajax(request):
-    notification_id = request.POST.get('notification_id')
-    if not notification_id:
-        return JsonResponse({'error': 'No notification ID provided'}, status=400)
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            notification_id = data.get('notification_id')
+        except json.JSONDecodeError:
+            notification_id = request.POST.get('notification_id')
+        
+        if not notification_id:
+            return JsonResponse({'error': 'No notification ID provided'}, status=400)
 
-    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
-    notification.is_read = True
-    notification.save()
-    return JsonResponse({'success': True})
+        notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+        notification.is_read = True
+        notification.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 from django.shortcuts import render, get_object_or_404, redirect
