@@ -1342,29 +1342,6 @@
             openRequestModal(this);
           });
         });
-
-        // Handle three-dot actions dropdown
-        const actionsToggle = document.getElementById('actionsToggle');
-        const actionsDropdown = document.getElementById('actionsDropdown');
-        
-        if (actionsToggle && actionsDropdown) {
-          actionsToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            actionsDropdown.classList.toggle('active');
-          });
-
-          // Close dropdown when clicking outside
-          document.addEventListener('click', function(e) {
-            if (!actionsToggle.contains(e.target) && !actionsDropdown.contains(e.target)) {
-              actionsDropdown.classList.remove('active');
-            }
-          });
-
-          // Close dropdown when an action is clicked
-          actionsDropdown.addEventListener('click', function() {
-            actionsDropdown.classList.remove('active');
-          });
-        }
       });
       
       function openRequestModal(row) {
@@ -1446,29 +1423,31 @@
             
             const message = this.getAttribute('data-message');
             const notificationId = this.getAttribute('data-id');
+            const element = this;
             console.log('Notification clicked, message:', message);
+            
+            // Determine redirect URL
+            let redirectUrl = '/';
             
             // Handle different notification types
             if (message.includes('borrow request')) {
               // Handle borrow requests
               const batchMatch = message.match(/#(\d+)/i);
               if (batchMatch) {
-                window.location.href = `/borrow-batch-detail/${batchMatch[1]}/`;
+                redirectUrl = `/borrow-batch-detail/${batchMatch[1]}/`;
               } else {
                 const usernameMatch = message.match(/by (\w+)/i);
                 if (usernameMatch) {
                   fetch(`/get-latest-batch-request/?username=${usernameMatch[1]}`)
                     .then(response => response.json())
                     .then(data => {
-                      if (data.batch_id) {
-                        window.location.href = `/borrow-batch-detail/${data.batch_id}/`;
-                      } else {
-                        window.location.href = '/my-borrow-requests/';
-                      }
+                      redirectUrl = data.batch_id ? `/borrow-batch-detail/${data.batch_id}/` : '/my-borrow-requests/';
+                      markAsReadAndRedirect(element, notificationId, redirectUrl);
                     })
                     .catch(error => {
-                      window.location.href = '/my-borrow-requests/';
+                      markAsReadAndRedirect(element, notificationId, '/my-borrow-requests/');
                     });
+                  return; // Exit early, async redirect
                 }
               }
             } else if (message.includes('supply request')) {
@@ -1476,46 +1455,102 @@
               const idMatch = message.match(/#(\d+)/i);
               if (idMatch) {
                 if (message.includes('batch supply request')) {
-                  window.location.href = `/batch-request/${idMatch[1]}/`;
+                  redirectUrl = `/batch-request/${idMatch[1]}/`;
                 } else {
-                  window.location.href = `/request/${idMatch[1]}/`;
+                  redirectUrl = `/request/${idMatch[1]}/`;
                 }
               } else {
-                window.location.href = '/my-supply-requests/';
+                redirectUrl = '/my-supply-requests/';
               }
             } else if (message.includes('damage report')) {
               // Handle damage reports
               const idMatch = message.match(/#(\d+)/i);
               if (idMatch) {
-                window.location.href = `/damage-report/${idMatch[1]}/`;
+                redirectUrl = `/damage-report/${idMatch[1]}/`;
               } else {
                 const usernameMatch = message.match(/by (\w+)/i);
                 if (usernameMatch) {
                   fetch(`/get-latest-damage-report/?username=${usernameMatch[1]}`)
                     .then(response => response.json())
                     .then(data => {
-                      if (data.report_id) {
-                        window.location.href = `/damage-report/${data.report_id}/`;
-                      } else {
-                        window.location.href = '/my-damage-reports/';
-                      }
+                      redirectUrl = data.report_id ? `/damage-report/${data.report_id}/` : '/my-damage-reports/';
+                      markAsReadAndRedirect(element, notificationId, redirectUrl);
                     })
                     .catch(error => {
-                      window.location.href = '/my-damage-reports/';
+                      markAsReadAndRedirect(element, notificationId, '/my-damage-reports/');
                     });
+                  return; // Exit early, async redirect
                 }
               }
             } else if (message.includes('reservation')) {
               // Handle reservations
               const idMatch = message.match(/#(\d+)/i);
               if (idMatch) {
-                window.location.href = `/reservation-batch/${idMatch[1]}/`;
+                redirectUrl = `/reservation-batch/${idMatch[1]}/`;
               } else {
-                window.location.href = '/my-reservations/';
+                redirectUrl = '/my-reservations/';
               }
             }
+            
+            // Mark as read and redirect
+            markAsReadAndRedirect(element, notificationId, redirectUrl);
           });
         });
+        
+        function markAsReadAndRedirect(element, notificationId, redirectUrl) {
+          // Mark as read visually
+          if (element.classList.contains('unread')) {
+            element.classList.remove('unread');
+            const unreadIndicator = element.querySelector('.unread-indicator');
+            if (unreadIndicator) {
+              unreadIndicator.remove();
+            }
+            
+            // Update badge count
+            const badge = document.getElementById('notificationCount');
+            if (badge) {
+              let count = parseInt(badge.textContent) || 0;
+              if (count > 1) {
+                badge.textContent = count - 1;
+              } else {
+                badge.remove();
+              }
+            }
+            
+            // Mark as read in backend, then redirect
+            fetch('/mark-notification-read/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+              },
+              body: JSON.stringify({ 'notification_id': notificationId })
+            }).then(() => {
+              window.location.href = redirectUrl;
+            }).catch(error => {
+              console.error('Error marking notification as read:', error);
+              window.location.href = redirectUrl;
+            });
+          } else {
+            // Already read, just redirect
+            window.location.href = redirectUrl;
+          }
+        }
+        
+        function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+              cookie = cookie.trim();
+              if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
         
         // Handle borrow request notifications
         function handleBorrowRequestNotification(message, notificationId) {

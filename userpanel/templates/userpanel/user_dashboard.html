@@ -556,60 +556,35 @@
     <script>
       // User dashboard specific notification handling
       document.addEventListener('DOMContentLoaded', function() {
-        // Add click event listeners to notification items
-        document.getElementById('notificationsContainer').addEventListener('click', function(e) {
-          const notificationItem = e.target.closest('.clickable-notification');
-          if (notificationItem) {
-            const message = notificationItem.dataset.message;
-            const notificationId = notificationItem.dataset.id;
-            handleNotificationClick(notificationItem, message, parseInt(notificationId));
-          }
-        });
-
-        // Handle three-dot actions dropdown
-        const actionsToggle = document.getElementById('actionsToggle');
-        const actionsDropdown = document.getElementById('actionsDropdown');
+        // Add click event listeners to both mobile and desktop notification containers
+        const mobileContainer = document.getElementById('notificationsContainer');
+        const desktopContainer = document.querySelector('.desktop-notifications-body');
         
-        if (actionsToggle && actionsDropdown) {
-          actionsToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            actionsDropdown.classList.toggle('active');
-          });
-
-          // Close dropdown when clicking outside
-          document.addEventListener('click', function(e) {
-            if (!actionsToggle.contains(e.target) && !actionsDropdown.contains(e.target)) {
-              actionsDropdown.classList.remove('active');
+        if (mobileContainer) {
+          mobileContainer.addEventListener('click', function(e) {
+            const notificationItem = e.target.closest('.clickable-notification');
+            if (notificationItem) {
+              const message = notificationItem.dataset.message;
+              const notificationId = notificationItem.dataset.id;
+              handleNotificationClick(notificationItem, message, parseInt(notificationId));
             }
           });
-
-          // Close dropdown when an action is clicked
-          actionsDropdown.addEventListener('click', function() {
-            actionsDropdown.classList.remove('active');
+        }
+        
+        if (desktopContainer) {
+          desktopContainer.addEventListener('click', function(e) {
+            const notificationItem = e.target.closest('.clickable-notification');
+            if (notificationItem) {
+              const message = notificationItem.dataset.message;
+              const notificationId = notificationItem.dataset.id;
+              handleNotificationClick(notificationItem, message, parseInt(notificationId));
+            }
           });
         }
       });
 
       function handleNotificationClick(element, message, notificationId) {
         console.log('Notification clicked:', message, notificationId);
-        
-        // Mark as read visually
-        if (element.classList.contains('unread')) {
-          element.classList.remove('unread');
-          const unreadIndicator = element.querySelector('.unread-indicator');
-          if (unreadIndicator) {
-            unreadIndicator.remove();
-          }
-          
-          // Update count
-          const currentBadge = document.getElementById('notificationCount');
-          let count = currentBadge ? parseInt(currentBadge.textContent) : 0;
-          if (count > 1) {
-            currentBadge.textContent = count - 1;
-          } else {
-            if (currentBadge) currentBadge.remove();
-          }
-        }
         
         // Determine redirect URL based on message content
         let redirectUrl = '/userpanel/user_dashboard/'; // default fallback
@@ -632,20 +607,47 @@
           redirectUrl = '/userpanel/user_report/';
         }
         
-        // Mark notification as read and redirect
-        fetch('/mark-notification-read/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-          },
-          body: JSON.stringify({ 'notification_id': notificationId })
-        }).then(() => {
+        // Mark as read visually and update badge count
+        if (element.classList.contains('unread')) {
+          element.classList.remove('unread');
+          const unreadIndicator = element.querySelector('.unread-indicator');
+          if (unreadIndicator) {
+            unreadIndicator.remove();
+          }
+          
+          // Update both mobile and desktop badge counts
+          const mobileBadge = document.getElementById('notificationCount');
+          const desktopBadge = document.getElementById('notificationCountDesktop');
+          
+          [mobileBadge, desktopBadge].forEach(badge => {
+            if (badge) {
+              let count = parseInt(badge.textContent) || 0;
+              if (count > 1) {
+                badge.textContent = count - 1;
+              } else {
+                badge.remove();
+              }
+            }
+          });
+          
+          // Mark the notification as read in the backend, then redirect
+          fetch('/mark-notification-read/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ 'notification_id': notificationId })
+          }).then(() => {
+            window.location.href = redirectUrl;
+          }).catch(error => {
+            console.error('Error marking notification as read:', error);
+            window.location.href = redirectUrl;
+          });
+        } else {
+          // Already read, just redirect
           window.location.href = redirectUrl;
-        }).catch(error => {
-          console.error('Error marking notification as read:', error);
-          window.location.href = redirectUrl;
-        });
+        }
       }
       
       function getCookie(name) {
@@ -718,49 +720,12 @@
         }
       }
 
-      // Desktop notification bell handling
-      const desktopBell = document.getElementById('notificationBellDesktop');
-      const desktopDropdown = document.getElementById('notificationsDropdownDesktop');
-      
-      if (desktopBell && desktopDropdown) {
-        // Toggle dropdown on bell click
-        desktopBell.addEventListener('click', function(e) {
-          e.stopPropagation();
-          desktopDropdown.classList.toggle('active');
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-          if (!desktopBell.contains(e.target) && !desktopDropdown.contains(e.target)) {
-            desktopDropdown.classList.remove('active');
-          }
-        });
-
-        // Desktop three-dot actions
-        const desktopActionsToggle = document.querySelector('.desktop-actions-toggle');
-        const desktopActionsDropdown = document.querySelector('.desktop-actions-dropdown');
-        
-        if (desktopActionsToggle && desktopActionsDropdown) {
-          desktopActionsToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            desktopActionsDropdown.classList.toggle('active');
-          });
-
-          document.addEventListener('click', function(e) {
-            if (!desktopActionsToggle.contains(e.target) && !desktopActionsDropdown.contains(e.target)) {
-              desktopActionsDropdown.classList.remove('active');
-            }
-          });
-
-          desktopActionsDropdown.addEventListener('click', function() {
-            desktopActionsDropdown.classList.remove('active');
-          });
-        }
-
-        // Desktop notification click handlers
-        document.querySelector('.desktop-notifications-body').addEventListener('click', function(e) {
+      // Desktop notification click handlers (notificationBell.js handles the dropdown toggle)
+      const desktopNotifBody = document.querySelector('.desktop-notifications-body');
+      if (desktopNotifBody) {
+        desktopNotifBody.addEventListener('click', function(e) {
           const notificationItem = e.target.closest('.clickable-notification');
-          if (notificationItem) {
+          if (notificationItem && !e.target.closest('.action-btn')) {
             const message = notificationItem.dataset.message;
             const notificationId = notificationItem.dataset.id;
             handleNotificationClick(notificationItem, message, parseInt(notificationId));
