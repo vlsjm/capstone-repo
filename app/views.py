@@ -476,6 +476,9 @@ def reservation_batch_detail(request, batch_id):
     # Get the reservation batch
     batch = get_object_or_404(ReservationBatch.objects.select_related('user').prefetch_related('items__property'), id=batch_id)
     
+    # Refresh the batch object to get updated item statuses
+    batch = ReservationBatch.objects.select_related('user').prefetch_related('items__property').get(id=batch_id)
+    
     # Get all items in this batch
     items = batch.items.all().order_by('id')
     
@@ -1715,11 +1718,12 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         
         # Apply pagination to each status filter
         from django.core.paginator import Paginator
+        from django.db.models import Q
         
-        pending_requests = base_queryset.filter(status='pending')
+        # Merge pending and partially_approved into pending
+        pending_requests = base_queryset.filter(Q(status='pending') | Q(status='partially_approved'))
         approved_requests = base_queryset.filter(status='approved')
         rejected_requests = base_queryset.filter(status='rejected')
-        partially_approved_requests = base_queryset.filter(status='partially_approved')
         for_claiming_requests = base_queryset.filter(status='for_claiming')
         # Completed requests ordered by completion date (most recent first)
         completed_requests = base_queryset.filter(status='completed').order_by('-completed_date')
@@ -1728,7 +1732,6 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         pending_paginator = Paginator(pending_requests, self.paginate_by)
         approved_paginator = Paginator(approved_requests, self.paginate_by)
         rejected_paginator = Paginator(rejected_requests, self.paginate_by)
-        partially_approved_paginator = Paginator(partially_approved_requests, self.paginate_by)
         for_claiming_paginator = Paginator(for_claiming_requests, self.paginate_by)
         completed_paginator = Paginator(completed_requests, self.paginate_by)
         
@@ -1736,7 +1739,6 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         pending_page = self.request.GET.get('pending_page', 1)
         approved_page = self.request.GET.get('approved_page', 1)
         rejected_page = self.request.GET.get('rejected_page', 1)
-        partially_approved_page = self.request.GET.get('partially_approved_page', 1)
         for_claiming_page = self.request.GET.get('for_claiming_page', 1)
         completed_page = self.request.GET.get('completed_page', 1)
         
@@ -1744,7 +1746,6 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         context['pending_batch_requests'] = pending_paginator.get_page(pending_page)
         context['approved_batch_requests'] = approved_paginator.get_page(approved_page)
         context['rejected_batch_requests'] = rejected_paginator.get_page(rejected_page)
-        context['partially_approved_batch_requests'] = partially_approved_paginator.get_page(partially_approved_page)
         context['for_claiming_batch_requests'] = for_claiming_paginator.get_page(for_claiming_page)
         context['completed_batch_requests'] = completed_paginator.get_page(completed_page)
         
@@ -6598,6 +6599,16 @@ def return_borrow_batch_items(request, batch_id):
     batch_request.completed_date = timezone.now()
     batch_request.save()
     
+    # If this borrow batch was created from a reservation, update the reservation status
+    if batch_request.source_reservation_batch:
+        source_reservation = batch_request.source_reservation_batch
+        # Mark the reservation items as completed
+        source_reservation.items.filter(status='active').update(status='completed')
+        # Update the reservation batch status to completed if all items are done
+        if not source_reservation.items.filter(status__in=['pending', 'approved']).exists():
+            source_reservation.status = 'completed'
+            source_reservation.save()
+    
     # Create notification for the requester
     Notification.objects.create(
         user=batch_request.user,
@@ -6631,9 +6642,10 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        # Check for overdue batches and near-overdue items before getting the queryset
+        # Check for overdue batches, near-overdue items, and expired items before getting the queryset
         BorrowRequestBatch.check_overdue_batches()
         BorrowRequestBatch.check_near_overdue_items()
+        BorrowRequestBatch.check_expired_batches()
         
         queryset = BorrowRequestBatch.objects \
             .select_related('user', 'user__userprofile', 'claimed_by') \
@@ -6702,41 +6714,42 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
                 pass
         
         # Get filtered requests by status
-        pending_requests = base_queryset.filter(status='pending')
-        partially_approved_requests = base_queryset.filter(status='partially_approved')
+        # Merge pending, partially_approved, and expired into pending
+        pending_requests = base_queryset.filter(Q(status='pending') | Q(status='partially_approved') | Q(status='expired'))
         for_claiming_requests = base_queryset.filter(status='for_claiming')
         active_requests = base_queryset.filter(status='active')
         returned_requests = base_queryset.filter(status='returned')
         overdue_requests = base_queryset.filter(status='overdue')
         rejected_requests = base_queryset.filter(status='rejected')
+        expired_requests = base_queryset.filter(status='expired')
         
         # Pagination for each tab
         paginator_pending = Paginator(pending_requests, self.paginate_by)
-        paginator_partially_approved = Paginator(partially_approved_requests, self.paginate_by)
         paginator_for_claiming = Paginator(for_claiming_requests, self.paginate_by)
         paginator_active = Paginator(active_requests, self.paginate_by)
         paginator_returned = Paginator(returned_requests, self.paginate_by)
         paginator_overdue = Paginator(overdue_requests, self.paginate_by)
         paginator_rejected = Paginator(rejected_requests, self.paginate_by)
+        paginator_expired = Paginator(expired_requests, self.paginate_by)
         
         # Get page numbers for each tab
         page_pending = self.request.GET.get('pending_page', 1)
-        page_partially_approved = self.request.GET.get('partially_approved_page', 1)
         page_for_claiming = self.request.GET.get('for_claiming_page', 1)
         page_active = self.request.GET.get('active_page', 1)
         page_returned = self.request.GET.get('returned_page', 1)
         page_overdue = self.request.GET.get('overdue_page', 1)
         page_rejected = self.request.GET.get('rejected_page', 1)
+        page_expired = self.request.GET.get('expired_page', 1)
         
         context.update({
             'current_tab': current_tab,
             'pending_requests': paginator_pending.get_page(page_pending),
-            'partially_approved_requests': paginator_partially_approved.get_page(page_partially_approved),
             'for_claiming_requests': paginator_for_claiming.get_page(page_for_claiming),
             'active_requests': paginator_active.get_page(page_active),
             'returned_requests': paginator_returned.get_page(page_returned),
             'overdue_requests': paginator_overdue.get_page(page_overdue),
             'rejected_requests': paginator_rejected.get_page(page_rejected),
+            'expired_requests': paginator_expired.get_page(page_expired),
             'search_query': search_query,
             'department_filter': department_filter,
             'date_from': date_from,
@@ -6991,6 +7004,16 @@ def return_individual_borrow_item(request, batch_id, item_id):
         batch_request.returned_date = timezone.now()
         batch_request.completed_date = timezone.now()
         batch_request.save()
+        
+        # If this borrow batch was created from a reservation, update the reservation status
+        if batch_request.source_reservation_batch:
+            source_reservation = batch_request.source_reservation_batch
+            # Mark the reservation items as completed
+            source_reservation.items.filter(status='active').update(status='completed')
+            # Update the reservation batch status to completed if all items are done
+            if not source_reservation.items.filter(status__in=['pending', 'approved']).exists():
+                source_reservation.status = 'completed'
+                source_reservation.save()
         
         # Notify user
         Notification.objects.create(

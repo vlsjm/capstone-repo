@@ -209,6 +209,23 @@
     max-height: 5000px;
 }
 
+.items-list-container.limited {
+    max-height: 400px;
+    overflow: hidden;
+    position: relative;
+}
+
+.items-list-container.limited::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(transparent, white);
+    pointer-events: none;
+}
+
 /* Hide mobile cards on desktop */
 .items-cards-mobile {
     display: none;
@@ -608,6 +625,7 @@
                 <h2><i class="fas fa-boxes"></i> Requested Items</h2>
                 <button class="toggle-items-btn" id="toggleItemsBtn" type="button">
                     <span class="item-count-badge">{{ items|length }}</span>
+                    <span class="toggle-text" id="toggleText" style="display: none;">Show More</span>
                     <i class="fas fa-chevron-down" id="toggleIcon"></i>
                 </button>
             </div>
@@ -813,13 +831,38 @@ document.addEventListener('DOMContentLoaded', function() {
     const itemsContainer = document.getElementById('itemsListContainer');
     const toggleBtn = document.getElementById('toggleItemsBtn');
     const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
     
-    // Start collapsed
-    itemsContainer.classList.remove('expanded');
+    // Count the number of items in the table
+    const itemRows = itemsContainer.querySelectorAll('tbody tr').length;
+    
+    // If more than 5 items, start with limited view, otherwise expanded
+    if (itemRows > 5) {
+        itemsContainer.classList.add('limited');
+        toggleBtn.classList.remove('active');
+        toggleText.style.display = 'inline';
+    } else {
+        itemsContainer.classList.add('expanded');
+        toggleBtn.classList.add('active');
+        toggleText.style.display = 'none';
+    }
     
     window.toggleItemsList = function() {
-        itemsContainer.classList.toggle('expanded');
-        toggleBtn.classList.toggle('active');
+        if (itemsContainer.classList.contains('limited')) {
+            // Currently limited, expand it
+            itemsContainer.classList.remove('limited');
+            itemsContainer.classList.add('expanded');
+            toggleBtn.classList.add('active');
+            toggleText.textContent = 'Show Less';
+            toggleIcon.style.transform = 'rotate(180deg)';
+        } else {
+            // Currently expanded, limit it
+            itemsContainer.classList.remove('expanded');
+            itemsContainer.classList.add('limited');
+            toggleBtn.classList.remove('active');
+            toggleText.textContent = 'Show More';
+            toggleIcon.style.transform = 'rotate(0deg)';
+        }
     };
     
     // Mobile menu functionality

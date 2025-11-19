@@ -107,6 +107,12 @@
       border: 2px solid #f9d27f;
     }
     
+    .batch-status.status-expired {
+      background: linear-gradient(135deg, #e2e3e5 0%, #d3d4d6 100%);
+      color: #383d41;
+      border: 2px solid #d3d4d6;
+    }
+    
     .items-container {
       background: white;
       border-radius: 12px;
@@ -199,6 +205,12 @@
       background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
       color: #0c5460;
       border: 1px solid #bee5eb;
+    }
+    
+    .status-badge.status-expired {
+      background: linear-gradient(135deg, #e2e3e5 0%, #d3d4d6 100%);
+      color: #383d41;
+      border: 1px solid #d3d4d6;
     }
     
     .action-buttons {
@@ -403,7 +415,7 @@
         <div class="info-item">
           <strong>Batch Status</strong>
           <span class="batch-status status-{{ batch_status }}">
-            <i class="fas fa-{% if batch_status == 'pending' %}clock{% elif batch_status == 'approved' %}check{% elif batch_status == 'rejected' %}times{% elif batch_status == 'active' %}play{% else %}info{% endif %}"></i>
+            <i class="fas fa-{% if batch_status == 'pending' %}clock{% elif batch_status == 'approved' %}check{% elif batch_status == 'rejected' %}times{% elif batch_status == 'active' %}play{% elif batch_status == 'expired' %}ban{% else %}info{% endif %}"></i>
             {{ batch_status|capfirst }}
           </span>
         </div>
@@ -464,12 +476,12 @@
             <td style="text-align: center;">{{ item.return_date|date:"M d, Y" }}</td>
             <td style="text-align: center;">
               <span class="status-badge status-{{ item.status }}">
-                <i class="fas fa-{% if item.status == 'pending' %}clock{% elif item.status == 'approved' %}check{% elif item.status == 'rejected' %}times{% elif item.status == 'active' %}play{% else %}info{% endif %}"></i>
+                <i class="fas fa-{% if item.status == 'pending' %}clock{% elif item.status == 'approved' %}check{% elif item.status == 'rejected' %}times{% elif item.status == 'active' %}play{% elif item.status == 'expired' %}ban{% else %}info{% endif %}"></i>
                 {{ item.status|capfirst }}
               </span>
             </td>
             <td>
-              {% if item.status == 'pending' %}
+              {% if item.status == 'pending' and batch_status != 'expired' %}
               <div class="action-cell">
                 <form method="post" action="{% url 'approve_reservation_item' batch_id item.id %}" style="display: inline;">
                   {% csrf_token %}
