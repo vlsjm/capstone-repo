@@ -811,31 +811,75 @@ class ReservationBatch(models.Model):
             item.status = 'expired'
             item.save()
         
+        # 0b. Update pending/approved batches to expired when ALL their items are expired
+        # This ensures batch status matches item status
+        pending_batches = cls.objects.filter(status='pending')
+        for batch in pending_batches:
+            all_items = batch.items.all()
+            if all_items and all(item.status == 'expired' for item in all_items):
+                batch.status = 'expired'
+                batch.save()
+                # Notify the user about the expired reservation
+                Notification.objects.create(
+                    user=batch.user,
+                    message=f"Your reservation batch #{batch.id} has expired.",
+                    remarks=f"All items in the batch have expired before approval."
+                )
+        
         # 1. Update pending batches to expired when latest return_date has passed
         for batch in cls.objects.filter(status='pending'):
             if batch.latest_return_date and batch.latest_return_date < today:
                 batch.status = 'expired'
                 batch.save()
                 
-                # Notify the user about the expired reservation
-                Notification.objects.create(
+                # Notify the user about the expired reservation (only if not already notified)
+                existing_notification = Notification.objects.filter(
                     user=batch.user,
-                    message=f"Your reservation batch #{batch.id} has expired.",
-                    remarks=f"The reservation period ended on {batch.latest_return_date} before approval."
-                )
+                    message__contains=f"batch #{batch.id} has expired"
+                ).exists()
+                if not existing_notification:
+                    Notification.objects.create(
+                        user=batch.user,
+                        message=f"Your reservation batch #{batch.id} has expired.",
+                        remarks=f"The reservation period ended on {batch.latest_return_date} before approval."
+                    )
         
-        # 2. Update approved batches to expired when latest return_date has passed without becoming active
+        # 2a. Update approved batches to expired when ALL their items are expired
+        approved_batches = cls.objects.filter(status='approved')
+        for batch in approved_batches:
+            all_items = batch.items.all()
+            if all_items and all(item.status == 'expired' for item in all_items):
+                batch.status = 'expired'
+                batch.save()
+                # Notify the user about the expired reservation
+                existing_notification = Notification.objects.filter(
+                    user=batch.user,
+                    message__contains=f"batch #{batch.id} has expired"
+                ).exists()
+                if not existing_notification:
+                    Notification.objects.create(
+                        user=batch.user,
+                        message=f"Your reservation batch #{batch.id} has expired.",
+                        remarks=f"All items in the batch have expired."
+                    )
+        
+        # 2b. Update approved batches to expired when latest return_date has passed without becoming active
         for batch in cls.objects.filter(status='approved'):
             if batch.latest_return_date and batch.latest_return_date < today and not batch.generated_borrow_batch:
                 batch.status = 'expired'
                 batch.save()
                 
-                # Notify the user about the expired reservation
-                Notification.objects.create(
+                # Notify the user about the expired reservation (only if not already notified)
+                existing_notification = Notification.objects.filter(
                     user=batch.user,
-                    message=f"Your reservation batch #{batch.id} has expired.",
-                    remarks=f"The reservation period ended on {batch.latest_return_date} without activation."
-                )
+                    message__contains=f"batch #{batch.id} has expired"
+                ).exists()
+                if not existing_notification:
+                    Notification.objects.create(
+                        user=batch.user,
+                        message=f"Your reservation batch #{batch.id} has expired.",
+                        remarks=f"The reservation period ended on {batch.latest_return_date} without activation."
+                    )
         
         # 3. AUTO-GENERATE BORROW REQUESTS: Update approved batches to active when earliest needed_date is reached
         approved_batches = cls.objects.filter(
