@@ -559,12 +559,135 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+// ===== GLOBAL TOAST FUNCTIONS =====
+let toastQueue = [];
+let toastDisplaying = false;
+
+function initializeToastContainer() {
+    if (!document.getElementById('reservation-toast-container')) {
+        const container = document.createElement('div');
+        container.id = 'reservation-toast-container';
+        container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 11000; pointer-events: none; display: flex; flex-direction: column; gap: 10px;';
+        document.body.appendChild(container);
+        console.log('[TOAST] Container created');
+    }
+}
+
+function showToast(message, type) {
+    console.log('[TOAST] showToast called:', message, type);
+    
+    // Initialize container if needed
+    initializeToastContainer();
+    
+    // Add to queue
+    toastQueue.push({ message, type });
+    
+    // Process queue if not already displaying
+    if (!toastDisplaying) {
+        processToastQueue();
+    }
+}
+
+function processToastQueue() {
+    if (toastQueue.length === 0) {
+        toastDisplaying = false;
+        console.log('[TOAST] Queue empty');
+        return;
+    }
+
+    toastDisplaying = true;
+    const { message, type } = toastQueue.shift();
+    console.log('[TOAST] Processing:', message, type);
+
+    // Create toast element
+    const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+    const toast = document.createElement('div');
+    
+    // Apply inline styles to force override CSS conflicts
+    toast.style.cssText = `
+        padding: 16px 20px;
+        background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
+        border: 2px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'};
+        color: ${type === 'success' ? '#155724' : '#721c24'};
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 15px;
+        font-weight: 500;
+        max-width: 380px;
+        word-wrap: break-word;
+        line-height: 1.4;
+        pointer-events: auto;
+        opacity: 0;
+        transform: translateX(450px);
+        transition: opacity 500ms ease, transform 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    `;
+    
+    toast.innerHTML = `
+        <i class="fas fa-${icon}" style="color: ${type === 'success' ? '#28a745' : '#dc3545'}; font-size: 20px; flex-shrink: 0;"></i>
+        <span style="flex: 1;">${message}</span>
+    `;
+
+    const container = document.getElementById('reservation-toast-container');
+    container.appendChild(toast);
+    console.log('[TOAST] Toast added to DOM');
+
+    // Trigger animation - show toast
+    setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(0)';
+        console.log('[TOAST] Animation triggered - showing');
+    }, 50);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        console.log('[TOAST] Starting hide animation');
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(450px)';
+        
+        setTimeout(() => {
+            console.log('[TOAST] Removing from DOM');
+            toast.remove();
+            // Process next in queue
+            toastDisplaying = false;
+            processToastQueue();
+        }, 500);
+    }, 5000);
+}
+
+// Show message function - redirect to showToast
+function showMessage(message, type) {
+    showToast(message, type);
+}
+
 $(document).ready(function() {
+    // Set minimum date to today (cannot select past dates)
+    const today = new Date();
+    const minDate = today.toISOString().split('T')[0];
+    $('#batch-needed-date').attr('min', minDate);
+    
     // Set minimum return date to tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const minDate = tomorrow.toISOString().split('T')[0];
-    $('#return-date-input').attr('min', minDate);
+    const minReturnDate = tomorrow.toISOString().split('T')[0];
+    $('#batch-return-date').attr('min', minReturnDate);
+    
+    // Update return date minimum when needed date changes
+    $('#batch-needed-date').on('change', function() {
+        const neededDate = $(this).val();
+        if (neededDate) {
+            // Return date can be the same as needed date or later
+            $('#batch-return-date').attr('min', neededDate);
+            
+            // If current return date is before the new minimum, clear it
+            const currentReturnDate = $('#batch-return-date').val();
+            if (currentReturnDate && currentReturnDate < neededDate) {
+                $('#batch-return-date').val('');
+            }
+        }
+    });
     
     // Add item to list
     $('#add-item-form').on('submit', function(e) {
@@ -584,6 +707,23 @@ $(document).ready(function() {
         const supplyId = $('#supply-select').val();
         if (!supplyId) {
             showMessage('Please select an item', 'error');
+            return;
+        }
+        
+        // Validate quantity
+        const quantity = parseInt($('#quantity-input').val());
+        const selectedOption = $('#supply-dropdown').find(`.select-option[data-value="${supplyId}"]`);
+        const availableQty = parseInt(selectedOption.data('available'));
+        
+        if (!quantity || quantity <= 0) {
+            showMessage('Please enter a valid quantity', 'error');
+            $('#quantity-input').focus();
+            return;
+        }
+        
+        if (quantity > availableQty) {
+            showMessage(`Quantity cannot exceed available stock (${availableQty} available)`, 'error');
+            $('#quantity-input').focus();
             return;
         }
         
@@ -940,30 +1080,6 @@ $(document).ready(function() {
         hiddenInput.val('');
         $('#quantity-input').attr('max', '').attr('placeholder', 'Enter quantity');
     });
-    
-    // Show message function
-    function showMessage(message, type) {
-        // Remove existing messages
-        $('.message').remove();
-        
-        // Create new message
-        const messageClass = type === 'success' ? 'alert-success' : 'alert-error';
-        const messageHtml = `
-            <div class="message ${messageClass}">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-                ${message}
-            </div>
-        `;
-        
-        $('body').append(messageHtml);
-        
-        // Auto remove after 3 seconds
-        setTimeout(function() {
-            $('.message').fadeOut(300, function() {
-                $(this).remove();
-            });
-        }, 3000);
-    }
 });
 </script>
 
@@ -1034,104 +1150,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Request again function
     function requestAgain(requestId, requestType) {
         window.location.href = `{% url 'request_again' %}?type=${requestType}&id=${requestId}`;
-    }
-
-    // Show toast function (for AJAX responses)
-    let toastQueue = [];
-    let toastDisplaying = false;
-
-    function initializeToastContainer() {
-        if (!document.getElementById('reservation-toast-container')) {
-            const container = document.createElement('div');
-            container.id = 'reservation-toast-container';
-            container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 11000; pointer-events: none; display: flex; flex-direction: column; gap: 10px;';
-            document.body.appendChild(container);
-            console.log('[TOAST] Container created');
-        }
-    }
-
-    function showToast(message, type) {
-        console.log('[TOAST] showToast called:', message, type);
-        
-        // Initialize container if needed
-        initializeToastContainer();
-        
-        // Add to queue
-        toastQueue.push({ message, type });
-        
-        // Process queue if not already displaying
-        if (!toastDisplaying) {
-            processToastQueue();
-        }
-    }
-
-    function processToastQueue() {
-        if (toastQueue.length === 0) {
-            toastDisplaying = false;
-            console.log('[TOAST] Queue empty');
-            return;
-        }
-
-        toastDisplaying = true;
-        const { message, type } = toastQueue.shift();
-        console.log('[TOAST] Processing:', message, type);
-
-        // Create toast element
-        const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
-        const toast = document.createElement('div');
-        
-        // Apply inline styles to force override CSS conflicts
-        toast.style.cssText = `
-            padding: 16px 20px;
-            background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
-            border: 2px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'};
-            color: ${type === 'success' ? '#155724' : '#721c24'};
-            border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            font-size: 15px;
-            font-weight: 500;
-            max-width: 380px;
-            word-wrap: break-word;
-            line-height: 1.4;
-            pointer-events: auto;
-            opacity: 0;
-            transform: translateX(450px);
-            transition: opacity 500ms ease, transform 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
-        `;
-        
-        toast.innerHTML = `
-            <i class="fas fa-${icon}" style="color: ${type === 'success' ? '#28a745' : '#dc3545'}; font-size: 20px; flex-shrink: 0;"></i>
-            <span style="flex: 1;">${message}</span>
-        `;
-
-        const container = document.getElementById('reservation-toast-container');
-        container.appendChild(toast);
-        console.log('[TOAST] Toast added to DOM');
-
-        // Trigger animation - show toast
-        setTimeout(() => {
-            toast.style.opacity = '1';
-            toast.style.transform = 'translateX(0)';
-            console.log('[TOAST] Animation triggered - showing');
-        }, 50);
-
-        // Auto remove after 4.5 seconds
-        setTimeout(() => {
-            console.log('[TOAST] Starting hide animation');
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(450px)';
-            
-            setTimeout(() => {
-                console.log('[TOAST] Removing from DOM');
-                toast.remove();
-                // Process next in queue
-                toastDisplaying = false;
-                processToastQueue();
-            }, 500);
-        }, 4500);
     }
 
 });

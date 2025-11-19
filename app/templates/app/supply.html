@@ -2049,6 +2049,7 @@ tr.hidden {
                     data-description="{{ supply.description|default:'' }}"
                     data-category="{{ supply.category.name }}"
                     data-subcategory="{{ supply.subcategory.name }}"
+                    data-unit="{{ supply.unit|default:'' }}"
                     data-barcode="{% if supply.barcode_image %}{{ supply.barcode_image.url }}{% else %}{{ supply.barcode }}{% endif %}"
                     data-min-threshold="{{ supply.quantity_info.minimum_threshold|default:'N/A' }}"
                     data-date-received="{{ supply.date_received|default:'N/A' }}"
@@ -2065,6 +2066,7 @@ tr.hidden {
                     data-category="{{ supply.category.id }}"
                     data-subcategory="{{ supply.subcategory.id }}"
                     data-description="{{ supply.description|default:'' }}"
+                    data-unit="{{ supply.unit }}"
                     data-available-for-request="{{ supply.available_for_request|yesno:'true,false' }}"
                     data-date="{{ supply.date_received|date:'Y-m-d' }}"
                     data-expiration-date="{{ supply.expiration_date|date:'Y-m-d'|default:'' }}">
@@ -2178,6 +2180,13 @@ tr.hidden {
         </div>
 
         <div class="form-group">
+          <label for="{{ form.unit.id_for_label }}">
+            <i class="fas fa-ruler"></i> Unit
+          </label>
+          {{ form.unit }}
+        </div>
+
+        <div class="form-group">
           <label for="{{ form.available_for_request.id_for_label }}">
             <i class="fas fa-check-circle"></i> Available for Request
           </label>
@@ -2282,6 +2291,13 @@ tr.hidden {
             <i class="fas fa-align-left"></i> Description
           </label>
           <textarea name="description" id="edit_description" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="edit_unit">
+            <i class="fas fa-ruler"></i> Unit
+          </label>
+          <input type="text" name="unit" id="edit_unit" class="form-control" placeholder="e.g., pcs, ream, set, box" />
         </div>
 
         <div class="form-group">
@@ -3113,6 +3129,7 @@ tr.hidden {
           document.getElementById("edit_name").value = button.dataset.name;
           document.getElementById("edit_minimum_threshold").value = button.dataset.minimumThreshold;
           document.getElementById("edit_description").value = button.dataset.description || '';
+          document.getElementById("edit_unit").value = button.dataset.unit || '';
           document.getElementById("edit_available_for_request").checked = button.dataset.availableForRequest === 'true';
           document.getElementById("edit_date").value = button.dataset.date;
           document.getElementById("edit_expiration_date").value = button.dataset.expirationDate || '';
@@ -3705,6 +3722,61 @@ tr.hidden {
       // Initialize filtering
       loadFiltersFromURL();
 
+      // Handle Add Supply Form Submission via AJAX
+      const addSupplyForm = document.getElementById('addSupplyForm');
+      if (addSupplyForm) {
+        addSupplyForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const formData = new FormData(this);
+          
+          fetch('{% url "add_supply" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Clear form and close modal
+              addSupplyForm.reset();
+              document.getElementById('addSupplyModal').style.display = 'none';
+              // Show success message
+              const successDiv = document.createElement('div');
+              successDiv.className = 'success-container';
+              successDiv.innerHTML = `
+                <div class="success-message">
+                  <i class="fas fa-check"></i>
+                  <p class="success-text">${data.message}</p>
+                </div>
+              `;
+              document.querySelector('.parent').prepend(successDiv);
+              // Remove message after 3 seconds
+              setTimeout(() => successDiv.remove(), 3000);
+              // Reload the page to show the new supply
+              setTimeout(() => location.reload(), 1000);
+            } else if (data.errors) {
+              // Display field errors
+              let errorHtml = '<ul>';
+              for (const field in data.errors) {
+                const errors = data.errors[field];
+                errorHtml += `<li>${field}: ${errors.join(', ')}</li>`;
+              }
+              errorHtml += '</ul>';
+              alert('Please fix the following errors:\n' + errorHtml.replace(/<[^>]*>/g, ''));
+            } else {
+              alert(`Error: ${data.message}`);
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while submitting the form.');
+          });
+        });
+      }
+
       // Add Supply Modal Handling
       if (openAddBtn) {
         openAddBtn.onclick = function(e) {
@@ -4029,6 +4101,7 @@ tr.hidden {
           document.getElementById("edit_name").value = button.dataset.name;
           document.getElementById("edit_minimum_threshold").value = button.dataset.minimumThreshold;
           document.getElementById("edit_description").value = button.dataset.description || '';
+          document.getElementById("edit_unit").value = button.dataset.unit || '';
           document.getElementById("edit_available_for_request").checked = button.dataset.availableForRequest === 'true';
           document.getElementById("edit_date").value = button.dataset.date;
           document.getElementById("edit_expiration_date").value = button.dataset.expirationDate || '';
@@ -5777,6 +5850,10 @@ document.addEventListener('DOMContentLoaded', function() {
             <td id="info-subcategory">-</td>
           </tr>
           <tr>
+            <td>Unit</td>
+            <td id="info-unit">-</td>
+          </tr>
+          <tr>
             <td>Current Quantity</td>
             <td id="info-current-quantity">-</td>
           </tr>
@@ -5914,6 +5991,7 @@ if (!infoModal || !infoBtns.length || !closeInfoModalBtn) {
             const description = this.getAttribute('data-description') || 'No description available';
             const category = this.getAttribute('data-category') || 'N/A';
             const subcategory = this.getAttribute('data-subcategory') || 'N/A';
+            const unit = this.getAttribute('data-unit') || '(not specified)';
             const barcode = this.getAttribute('data-barcode') || '';
             const minThreshold = this.getAttribute('data-min-threshold') || 'N/A';
             const dateReceived = this.getAttribute('data-date-received') || 'N/A';
@@ -5926,6 +6004,7 @@ if (!infoModal || !infoBtns.length || !closeInfoModalBtn) {
             document.getElementById('info-description').textContent = description;
             document.getElementById('info-category').textContent = category;
             document.getElementById('info-subcategory').textContent = subcategory;
+            document.getElementById('info-unit').textContent = unit;
             document.getElementById('info-min-threshold').textContent = minThreshold;
             document.getElementById('info-date-received').textContent = dateReceived;
             document.getElementById('info-last-updated').textContent = lastUpdated;

@@ -874,11 +874,12 @@ body.modal-open {
                                          data-code="{{ supply.supply_number|default:'' }}"
                                          data-category="{{ supply.category.id }}"
                                          data-category-name="{{ supply.category.name }}"
-                                         data-available="{{ supply.quantity_info.current_quantity }}">
+                                         data-available="{{ supply.quantity_info.current_quantity }}"
+                                         data-unit="{{ supply.unit|default:'' }}">
                                         <div class="option-main">
                                             <span class="option-name">{{ supply.supply_name }}</span>
                                             <span class="option-stock {% if supply.quantity_info.current_quantity < 10 %}low-stock{% endif %}">
-                                                {{ supply.quantity_info.current_quantity }} available
+                                                {{ supply.quantity_info.current_quantity }}{% if supply.unit %} {{ supply.unit }}{% endif %} available
                                             </span>
                                         </div>
                                         <div class="option-details">
@@ -918,6 +919,7 @@ body.modal-open {
                             <tr>
                                 <th>Item</th>
                                 <th>Quantity</th>
+                                <th>Unit</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -928,6 +930,13 @@ body.modal-open {
                                 <td>
                                     <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
                                            value="{{ item.quantity }}" min="1">
+                                </td>
+                                <td>
+                                    {% if item.supply.unit %}
+                                        {{ item.supply.unit }}
+                                    {% else %}
+                                        <span style="color: #6c757d;">(not specified)</span>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     <button class="btn-remove" data-supply-id="{{ item.supply.id }}">
@@ -1032,11 +1041,12 @@ body.modal-open {
                                          data-category="{{ property.category.id }}"
                                          data-category-name="{{ property.category.name }}"
                                          data-available="{{ property.quantity }}"
-                                         data-available-qty="{{ property.available_quantity }}">
+                                         data-available-qty="{{ property.available_quantity }}"
+                                         data-unit="{{ property.unit_of_measure|default:'' }}">
                                         <div class="option-main">
                                             <span class="option-name">{{ property.property_name }}</span>
                                             <span class="option-stock {% if property.quantity < 5 %}low-stock{% endif %}">
-                                                {{ property.quantity }} available
+                                                {{ property.quantity }}{% if property.unit_of_measure %} {{ property.unit_of_measure }}{% endif %} available
                                             </span>
                                         </div>
                                         <div class="option-details">
@@ -1088,6 +1098,7 @@ body.modal-open {
                             <tr>
                                 <th>Item</th>
                                 <th>Quantity</th>
+                                <th>Unit</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -1098,6 +1109,13 @@ body.modal-open {
                                 <td>
                                     <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
                                            value="{{ item.quantity }}" min="1">
+                                </td>
+                                <td>
+                                    {% if item.supply.unit_of_measure %}
+                                        {{ item.supply.unit_of_measure }}
+                                    {% else %}
+                                        <span style="color: #6c757d;">(not specified)</span>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     <button class="btn-remove-borrow" data-supply-id="{{ item.supply.id }}">
@@ -1292,6 +1310,13 @@ $(document).ready(function() {
             return;
         }
         
+        // Check if quantity exceeds available stock
+        const supply = allSupplies.find(s => s.id === parseInt(supplyId));
+        if (supply && quantity > supply.available) {
+            showMessage(`Only ${supply.available} unit${supply.available !== 1 ? 's' : ''} available. Please request a smaller quantity.`, 'error');
+            return;
+        }
+        
         $.ajax({
             url: '{% url "add_to_list" %}',
             type: 'POST',
@@ -1430,6 +1455,13 @@ $(document).ready(function() {
         
         if (!purpose) {
             showMessage('Please enter a purpose', 'error');
+            return;
+        }
+        
+        // Check if quantity exceeds available stock
+        const property = allProperties.find(p => p.id === parseInt(propertyId));
+        if (property && quantity > property.available_qty) {
+            showMessage(`Only ${property.available_qty} unit${property.available_qty !== 1 ? 's' : ''} available. Please request a smaller quantity.`, 'error');
             return;
         }
         

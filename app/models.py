@@ -158,6 +158,7 @@ class Supply(models.Model):
     category = models.ForeignKey(SupplyCategory, on_delete=models.SET_NULL, null=True, blank=True)
     subcategory = models.ForeignKey(SupplySubcategory, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(blank=True, null=True)
+    unit = models.CharField(max_length=50, blank=True, null=True)
     barcode = models.CharField(max_length=100, unique=True, null=True, blank=True)  # Unique barcode text (e.g., "SUP-001")
     barcode_image = models.ImageField(upload_to='barcodes/supplies/', null=True, blank=True)  # Barcode image file
     available_for_request = models.BooleanField(default=True)
