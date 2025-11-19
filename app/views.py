@@ -41,8 +41,8 @@ def update_damage_status(request, pk):
     return HttpResponseRedirect(reverse('damaged_items_management'))
 
 @require_POST
-def update_property_condition(request, property_number):
-    property_obj = get_object_or_404(Property, property_number=property_number)
+def update_property_condition(request, pk):
+    property_obj = get_object_or_404(Property, pk=pk)
     new_condition = request.POST.get('condition')
     if new_condition in ['Unserviceable', 'Needing repair', 'Working', 'In good condition']:
         property_obj.condition = new_condition

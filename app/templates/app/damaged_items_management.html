@@ -358,7 +358,7 @@
                                 </span>
                             </td>
                             <td>
-                                <form method="post" action="{% url 'update_property_condition' item.property_number %}" style="display: inline;">
+                                <form method="post" action="{% url 'update_property_condition' item.id %}" style="display: inline;">
                                     {% csrf_token %}
                                     <input type="hidden" name="condition" value="Needing repair">
                                     <button type="submit" class="action-btn btn-move" title="Move to Repair List">
@@ -444,14 +444,14 @@
                                 </span>
                             </td>
                             <td>
-                                <form method="post" action="{% url 'update_property_condition' item.property_number %}" style="display: inline; margin-right: 5px;">
+                                <form method="post" action="{% url 'update_property_condition' item.id %}" style="display: inline; margin-right: 5px;">
                                     {% csrf_token %}
                                     <input type="hidden" name="condition" value="In good condition">
                                     <button type="submit" class="action-btn btn-repaired" title="Mark as Repaired">
                                         <i class="fas fa-check"></i> Repaired
                                     </button>
                                 </form>
-                                <form method="post" action="{% url 'update_property_condition' item.property_number %}" style="display: inline;">
+                                <form method="post" action="{% url 'update_property_condition' item.id %}" style="display: inline;">
                                     {% csrf_token %}
                                     <input type="hidden" name="condition" value="Unserviceable">
                                     <button type="submit" class="action-btn btn-move" title="Move to Unserviceable">
