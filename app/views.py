@@ -2263,12 +2263,28 @@ def add_supply(request):
                     description=f"Added new supply '{supply.supply_name}' with initial quantity {form.cleaned_data['current_quantity']}"
                 )
                 messages.success(request, 'Supply added successfully.')
+                # For AJAX requests, return JSON
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': True, 'message': 'Supply added successfully.'})
             except Exception as e:
                 if 'supply' in locals() and supply.pk:
                     supply.delete()
-                messages.error(request, f'Error adding supply: {str(e)}')
+                error_msg = f'Error adding supply: {str(e)}'
+                messages.error(request, error_msg)
+                # For AJAX requests, return JSON
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'message': error_msg})
         else:
-            messages.error(request, f'Errors: {form.errors}')
+            # Display form validation errors
+            error_messages = {}
+            for field, errors in form.errors.items():
+                error_messages[field] = [str(e) for e in errors]
+            # For AJAX requests, return JSON with field errors
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': error_messages})
+            # For regular requests, show error message
+            error_text = "; ".join([f"{field}: {', '.join(errors)}" for field, errors in error_messages.items()])
+            messages.error(request, f'Please fix the following errors: {error_text}')
     return redirect('supply_list')
 
 
@@ -2284,6 +2300,7 @@ def edit_supply(request):
             old_values = {
                 'supply_name': supply.supply_name,
                 'description': supply.description,
+                'unit': supply.unit,
                 'available_for_request': supply.available_for_request,
                 'category': supply.category.id if supply.category else None,
                 'subcategory': supply.subcategory.id if supply.subcategory else None,
@@ -2296,6 +2313,7 @@ def edit_supply(request):
             # Update supply fields
             supply.supply_name = request.POST.get('supply_name')
             supply.description = request.POST.get('description')
+            supply.unit = request.POST.get('unit') or None
             supply.available_for_request = request.POST.get('available_for_request') == 'on'
             
             # Handle category and subcategory

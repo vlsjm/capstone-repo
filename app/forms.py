@@ -383,6 +383,7 @@ class SupplyForm(forms.ModelForm):
             'category',
             'subcategory',
             'description',
+            'unit',
             'available_for_request',
             'date_received',
             'expiration_date'
@@ -394,10 +395,12 @@ class SupplyForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control custom-select'}),
             'subcategory': forms.Select(attrs={'class': 'form-control custom-select'}),
+            'unit': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., pcs, ream, set, box'}),
             'available_for_request': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         help_texts = {
             'expiration_date': 'Optional. Leave empty if the supply does not expire.',
+            'unit': 'Enter the unit of measurement (e.g., pcs, ream, set, box, pack, etc.)',
         }
 
     def __init__(self, *args, **kwargs):
@@ -414,9 +417,10 @@ class SupplyForm(forms.ModelForm):
         # Set required fields
         for field in self.fields.values():
             field.required = True
-        # Make description, expiration_date, and available_for_request optional
+        # Make description, expiration_date, unit, and available_for_request optional
         self.fields['description'].required = False
         self.fields['expiration_date'].required = False
+        self.fields['unit'].required = False
         self.fields['available_for_request'].required = False
         
         # Set initial values for quantity fields if editing existing supply
@@ -427,6 +431,13 @@ class SupplyForm(forms.ModelForm):
                 self.fields['minimum_threshold'].initial = quantity_info.minimum_threshold
             except SupplyQuantity.DoesNotExist:
                 pass
+
+    def clean_date_received(self):
+        date_received = self.cleaned_data.get('date_received')
+        if date_received:
+            if date_received > date.today():
+                raise forms.ValidationError("Date received cannot be in the future.")
+        return date_received
 
     def save(self, commit=True):
         supply = super().save(commit=False)  # Always use commit=False here
