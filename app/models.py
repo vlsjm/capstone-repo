@@ -68,6 +68,7 @@ class UserProfile(models.Model):
     phone = models.CharField(max_length=20, blank=True, null=True)
     designation = models.CharField(max_length=100, blank=True, null=True)
     auto_enable_at = models.DateTimeField(null=True, blank=True, help_text="If set, account will be automatically reactivated at this date/time")
+    must_change_password = models.BooleanField(default=False, help_text="If True, user must change password on next login")
 
     def __str__(self):
         return self.user.username
@@ -322,6 +323,7 @@ class Property(models.Model):
 
     property_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
     old_property_number = models.CharField(max_length=100, null=True, blank=True, help_text="Previous property number before change")
+    serial_number = models.CharField(max_length=100, null=True, blank=True, help_text="Serial number of the property")
     property_name = models.CharField(max_length=100)
     category = models.ForeignKey(PropertyCategory, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(null=True, blank=True)

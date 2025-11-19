@@ -209,6 +209,143 @@
             box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
         }
 
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            margin-left: 8px;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        /* Delete Confirmation Modal */
+        .delete-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .delete-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .delete-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .delete-modal-icon {
+            font-size: 48px;
+            color: #dc3545;
+        }
+
+        .delete-modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #152d64;
+            margin: 0;
+        }
+
+        .delete-modal-body {
+            margin-bottom: 25px;
+        }
+
+        .delete-modal-body p {
+            margin: 10px 0;
+            color: #495057;
+            line-height: 1.6;
+        }
+
+        .delete-item-name {
+            font-weight: 700;
+            color: #dc3545;
+        }
+
+        .delete-modal-warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+            color: #856404;
+        }
+
+        .delete-modal-warning i {
+            margin-right: 8px;
+        }
+
+        .delete-modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        .btn-confirm-delete {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-confirm-delete:hover {
+            background: #c82333;
+        }
+
         /* Status badges */
         .status-badge {
             padding: 4px 12px;
@@ -346,6 +483,14 @@
                                             <i class="fas fa-undo"></i> Unarchive
                                         </button>
                                     </form>
+                                    <button type="button" 
+                                            class="btn-action btn-delete" 
+                                            data-supply-id="{{ supply.id }}"
+                                            data-supply-name="{{ supply.supply_name }}"
+                                            data-delete-url="{% url 'delete_archived_supply' supply.id %}"
+                                            onclick="confirmDeleteSupply(this)">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -437,6 +582,14 @@
                                             <i class="fas fa-undo"></i> Unarchive
                                         </button>
                                     </form>
+                                    <button type="button" 
+                                            class="btn-action btn-delete" 
+                                            data-property-id="{{ property.id }}"
+                                            data-property-name="{{ property.property_name }}"
+                                            data-delete-url="{% url 'delete_archived_property' property.id %}"
+                                            onclick="confirmDeleteProperty(this)">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -584,7 +737,80 @@
         document.getElementById('property-condition-filter').value = '';
         filterProperties();
     }
+
+    // Delete confirmation functions
+    let deleteUrl = null;
+
+    function confirmDeleteSupply(button) {
+        const supplyName = button.dataset.supplyName;
+        deleteUrl = button.dataset.deleteUrl;
+        document.getElementById('deleteItemName').textContent = supplyName;
+        document.getElementById('deleteModal').classList.add('show');
+    }
+
+    function confirmDeleteProperty(button) {
+        const propertyName = button.dataset.propertyName;
+        deleteUrl = button.dataset.deleteUrl;
+        document.getElementById('deleteItemName').textContent = propertyName;
+        document.getElementById('deleteModal').classList.add('show');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('show');
+        deleteUrl = null;
+    }
+
+    function executeDelete() {
+        if (deleteUrl) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = deleteUrl;
+            
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function(event) {
+        const modal = document.getElementById('deleteModal');
+        if (event.target === modal) {
+            closeDeleteModal();
+        }
+    });
 </script>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="delete-modal">
+    <div class="delete-modal-content">
+        <div class="delete-modal-header">
+            <i class="fas fa-exclamation-triangle delete-modal-icon"></i>
+            <h2 class="delete-modal-title">Confirm Deletion</h2>
+        </div>
+        <div class="delete-modal-body">
+            <p>Are you sure you want to permanently delete <span id="deleteItemName" class="delete-item-name"></span>?</p>
+            <div class="delete-modal-warning">
+                <i class="fas fa-exclamation-circle"></i>
+                <strong>Warning:</strong> This action cannot be undone. The item will be permanently removed from the system.
+            </div>
+        </div>
+        <div class="delete-modal-footer">
+            <button type="button" class="btn-cancel" onclick="closeDeleteModal()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <button type="button" class="btn-confirm-delete" onclick="executeDelete()">
+                <i class="fas fa-trash"></i> Delete Permanently
+            </button>
+        </div>
+    </div>
+</div>
 </div>
 </body>
 </html> 

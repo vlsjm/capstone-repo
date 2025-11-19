@@ -238,6 +238,7 @@ class PropertyForm(forms.ModelForm):
         model = Property
         fields = [
             'property_number',
+            'serial_number',
             'property_name',
             'category',
             'description',
@@ -255,6 +256,7 @@ class PropertyForm(forms.ModelForm):
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
             'property_number': forms.TextInput(attrs={'placeholder': 'Enter unique property number'}),
+            'serial_number': forms.TextInput(attrs={'placeholder': 'Enter serial number'}),
             'unit_value': forms.NumberInput(attrs={'min': 0, 'step': '0.01'}),
             'overall_quantity': forms.NumberInput(attrs={'min': 0}),
             'quantity': forms.NumberInput(attrs={'min': 0, 'readonly': True}),
@@ -275,6 +277,7 @@ class PropertyForm(forms.ModelForm):
             self.fields[field].required = True
 
         self.fields['property_number'].required = False
+        self.fields['serial_number'].required = False
         self.fields['accountable_person'].required = False
         self.fields['year_acquired'].required = False
         self.fields['quantity_per_physical_count'].required = False

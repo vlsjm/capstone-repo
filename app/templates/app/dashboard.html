@@ -1207,6 +1207,12 @@
             <div class="chart-container">
               <h3>Top 10 Most Requested Supplies</h3>
               <div class="chart-filter">
+                <select id="suppliesDepartmentFilter" class="filter-select">
+                  <option value="">All Departments</option>
+                  {% for dept in departments %}
+                  <option value="{{ dept.id }}">{{ dept.name }}</option>
+                  {% endfor %}
+                </select>
                 <select id="suppliesDateFilter" class="filter-select">
                   <option value="">All Time</option>
                   <option value="30">Last 30 Days</option>

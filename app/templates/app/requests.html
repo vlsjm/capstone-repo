@@ -538,6 +538,33 @@
       text-decoration: none;
     }
     
+    .btn-generate-pdf {
+      height: 42px;
+      padding: 0 20px;
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      box-sizing: border-box;
+      border: 2px solid #dc3545;
+    }
+    
+    .btn-generate-pdf:hover {
+      background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+      color: white;
+      text-decoration: none;
+    }
+    
     /* Responsive design for search controls */
     @media (max-width: 1200px) {
       .search-row {
@@ -2308,6 +2335,9 @@
       <div id="completed" class="tab-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
           <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Completed Requests</h3>
+          <button type="button" class="btn-generate-pdf" onclick="openPdfModal()">
+            <i class="fas fa-file-pdf"></i> Generate Report PDF
+          </button>
         </div>
         {% if completed_batch_requests %}
         <div class="requests-table">
@@ -3873,8 +3903,8 @@
       }, 3000);
     }
 
-    // Add CSS for notifications
-    const notificationCSS = `
+    // Add CSS for notifications and modals
+    const additionalCSS = `
       <style>
         @keyframes slideInRight {
           from { transform: translateX(100%); opacity: 0; }
@@ -3885,10 +3915,21 @@
           from { transform: translateX(0); opacity: 1; }
           to { transform: translateX(100%); opacity: 0; }
         }
+        
+        @keyframes slideInScale {
+          from {
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
       </style>
     `;
     
-    document.head.insertAdjacentHTML('beforeend', notificationCSS);
+    document.head.insertAdjacentHTML('beforeend', additionalCSS);
 
     // Close modal on outside click
     window.addEventListener('click', function(e) {
@@ -3904,6 +3945,130 @@
         closeClaimModal();
       }
     });
+
+    // PDF Generation Modal Functions
+    function openPdfModal() {
+      document.getElementById('pdfModal').style.display = 'flex';
+    }
+
+    function closePdfModal() {
+      document.getElementById('pdfModal').style.display = 'none';
+    }
+
+    function generatePdfReport() {
+      const user = document.getElementById('pdf-user-filter').value;
+      const department = document.getElementById('pdf-department-filter').value;
+      const dateFrom = document.getElementById('pdf-date-from').value;
+      const dateTo = document.getElementById('pdf-date-to').value;
+      
+      // Build URL with parameters
+      let url = '{% url "generate_completed_supply_requests_pdf" %}?';
+      const params = [];
+      
+      if (user) params.push('user=' + user);
+      if (department) params.push('department=' + department);
+      if (dateFrom) params.push('date_from=' + dateFrom);
+      if (dateTo) params.push('date_to=' + dateTo);
+      
+      url += params.join('&');
+      
+      // Open in new tab to download
+      window.open(url, '_blank');
+      closePdfModal();
+    }
+
+    // Close modal on outside click
+    window.addEventListener('click', function(e) {
+      const modal = document.getElementById('pdfModal');
+      if (e.target === modal) {
+        closePdfModal();
+      }
+    });
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && document.getElementById('pdfModal') && document.getElementById('pdfModal').style.display === 'flex') {
+        closePdfModal();
+      }
+    });
   </script>
+
+  <!-- PDF Generation Modal -->
+  <div id="pdfModal" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; padding: 30px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: slideInScale 0.3s ease;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #e9ecef;">
+        <h2 style="color: #152d64; margin: 0; font-size: 24px; font-weight: 700;">
+          <i class="fas fa-file-pdf" style="color: #dc3545;"></i> Generate PDF Report
+        </h2>
+        <button onclick="closePdfModal()" style="background: none; border: none; font-size: 24px; color: #6c757d; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s ease;">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <p style="color: #495057; margin-bottom: 20px;">Select filters to customize your completed supply requests report:</p>
+        
+        <!-- User Filter -->
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; font-weight: 600; color: #152d64; margin-bottom: 8px; font-size: 14px;">
+            <i class="fas fa-user"></i> Filter by User
+          </label>
+          <select id="pdf-user-filter" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+            <option value="">All Users</option>
+            {% if users_with_requests %}
+              {% for user in users_with_requests %}
+                <option value="{{ user.id }}">
+                  {% if user.first_name or user.last_name %}
+                    {{ user.first_name }} {{ user.last_name }}
+                  {% else %}
+                    {{ user.username }}
+                  {% endif %}
+                </option>
+              {% endfor %}
+            {% endif %}
+          </select>
+        </div>
+        
+        <!-- Department Filter -->
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; font-weight: 600; color: #152d64; margin-bottom: 8px; font-size: 14px;">
+            <i class="fas fa-building"></i> Filter by Department
+          </label>
+          <select id="pdf-department-filter" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+            <option value="">All Departments</option>
+            {% for department in departments %}
+              <option value="{{ department.id }}">{{ department.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <!-- Date From Filter -->
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; font-weight: 600; color: #152d64; margin-bottom: 8px; font-size: 14px;">
+            <i class="fas fa-calendar-alt"></i> From Date
+          </label>
+          <input type="date" id="pdf-date-from" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+        </div>
+        
+        <!-- Date To Filter -->
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; font-weight: 600; color: #152d64; margin-bottom: 8px; font-size: 14px;">
+            <i class="fas fa-calendar-check"></i> To Date
+          </label>
+          <input type="date" id="pdf-date-to" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+        </div>
+      </div>
+      
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <button onclick="closePdfModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; font-size: 14px;">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button onclick="generatePdfReport()" style="padding: 10px 20px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; font-size: 14px; border: 2px solid #dc3545;">
+          <i class="fas fa-file-pdf"></i> Generate PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

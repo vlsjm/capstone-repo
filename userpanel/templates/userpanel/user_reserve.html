@@ -403,11 +403,13 @@
             <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="form-group">
                     <label for="batch-needed-date"><strong>Needed Date:<span class="required-asterisk">*</span></strong></label>
-                    <input type="date" id="batch-needed-date" class="form-control" value="{{ batch_needed_date }}" required>
+                    <input type="date" id="batch-needed-date" class="form-control" value="{{ batch_needed_date }}" min="{{ today }}" required 
+                           onchange="validateNeededDate(this)" oninput="validateNeededDate(this)">
                 </div>
                 <div class="form-group">
                     <label for="batch-return-date"><strong>Return Date:<span class="required-asterisk">*</span></strong></label>
-                    <input type="date" id="batch-return-date" class="form-control" value="{{ batch_return_date }}" required>
+                    <input type="date" id="batch-return-date" class="form-control" value="{{ batch_return_date }}" min="{{ today }}" required 
+                           onchange="validateReturnDate(this)" oninput="validateReturnDate(this)">
                 </div>
             </div>
             <small style="color: #6c757d; display: block; margin-top: 8px;">
@@ -662,22 +664,114 @@ function showMessage(message, type) {
     showToast(message, type);
 }
 
+// Inline validation functions (called from HTML onchange/oninput)
+function validateNeededDate(input) {
+    // Get min date from the input's min attribute (set by server)
+    const minDate = input.getAttribute('min');
+    const selectedDate = input.value;
+    
+    console.log('Validating needed date:', selectedDate, 'against minimum:', minDate);
+    
+    if (selectedDate && selectedDate < minDate) {
+        console.error('Date validation failed - selected date is in the past');
+        showMessage('Cannot select a past date. Please select today or a future date.', 'error');
+        input.value = '';
+        input.blur(); // Remove focus to trigger validation again
+        return false;
+    }
+    
+    // Update return date minimum
+    const returnDateInput = document.getElementById('batch-return-date');
+    if (returnDateInput && selectedDate) {
+        returnDateInput.setAttribute('min', selectedDate);
+        
+        // Clear return date if it's now before the new needed date
+        if (returnDateInput.value && returnDateInput.value < selectedDate) {
+            returnDateInput.value = '';
+        }
+    }
+    
+    return true;
+}
+
+function validateReturnDate(input) {
+    // Get min date from the input's min attribute (set by server)
+    const minDate = input.getAttribute('min');
+    const selectedDate = input.value;
+    const neededDate = document.getElementById('batch-needed-date').value;
+    
+    console.log('Validating return date:', selectedDate, 'against minimum:', minDate);
+    
+    if (selectedDate) {
+        // Check if return date is before today
+        if (selectedDate < minDate) {
+            console.error('Date validation failed - selected date is in the past');
+            showMessage('Cannot select a past date. Please select today or a future date.', 'error');
+            input.value = '';
+            input.blur(); // Remove focus to trigger validation again
+            return false;
+        }
+        
+        // Check if return date is before needed date
+        if (neededDate && selectedDate < neededDate) {
+            showMessage('Return date cannot be before the needed date.', 'error');
+            input.value = '';
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 $(document).ready(function() {
-    // Set minimum date to today (cannot select past dates)
+    // Get minimum date from server (more reliable than JS Date which can be affected by timezone)
+    const minDateFromServer = $('#batch-needed-date').attr('min') || $('#batch-return-date').attr('min');
+    
+    // Fallback to JS calculation if server didn't provide it
     const today = new Date();
-    const minDate = today.toISOString().split('T')[0];
+    const minDateJS = today.toISOString().split('T')[0];
+    
+    // Use server date if available, otherwise use JS date
+    const minDate = minDateFromServer || minDateJS;
+    
+    // Debug: Log what dates we're working with
+    console.log('=== DATE VALIDATION DEBUG ===');
+    console.log('Today (JS calculated):', minDateJS);
+    console.log('Min date from server:', minDateFromServer);
+    console.log('Using min date:', minDate);
+    console.log('Needed date input min attr:', $('#batch-needed-date').attr('min'));
+    console.log('Return date input min attr:', $('#batch-return-date').attr('min'));
+    
+    // Force set min attribute using the server date (most reliable)
     $('#batch-needed-date').attr('min', minDate);
+    $('#batch-return-date').attr('min', minDate);
     
-    // Set minimum return date to tomorrow
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const minReturnDate = tomorrow.toISOString().split('T')[0];
-    $('#batch-return-date').attr('min', minReturnDate);
+    // If there's already a value in needed date, validate it
+    const existingNeededDate = $('#batch-needed-date').val();
+    if (existingNeededDate && existingNeededDate < minDate) {
+        console.warn('Existing needed date is in the past, clearing:', existingNeededDate);
+        $('#batch-needed-date').val('');
+    }
     
-    // Update return date minimum when needed date changes
-    $('#batch-needed-date').on('change', function() {
+    // If there's already a value in return date, validate it
+    const existingReturnDate = $('#batch-return-date').val();
+    if (existingReturnDate && existingReturnDate < minDate) {
+        console.warn('Existing return date is in the past, clearing:', existingReturnDate);
+        $('#batch-return-date').val('');
+    }
+    
+    // Validate needed date on change and blur (prevent past dates)
+    $('#batch-needed-date').on('change blur', function() {
         const neededDate = $(this).val();
+        const currentMinDate = $(this).attr('min'); // Get current min from attribute
         if (neededDate) {
+            // Check if date is in the past
+            if (neededDate < currentMinDate) {
+                showMessage('Cannot select a past date. Please select today or a future date.', 'error');
+                $(this).val('');
+                return;
+            }
+            
             // Return date can be the same as needed date or later
             $('#batch-return-date').attr('min', neededDate);
             
@@ -689,9 +783,35 @@ $(document).ready(function() {
         }
     });
     
+    // Validate return date on change and blur (prevent past dates)
+    $('#batch-return-date').on('change blur', function() {
+        const returnDate = $(this).val();
+        const neededDate = $('#batch-needed-date').val();
+        const currentMinDate = $(this).attr('min'); // Get current min from attribute
+        
+        if (returnDate) {
+            // Check if return date is before today
+            if (returnDate < currentMinDate) {
+                showMessage('Cannot select a past date. Please select today or a future date.', 'error');
+                $(this).val('');
+                return;
+            }
+            
+            // Check if return date is before needed date
+            if (neededDate && returnDate < neededDate) {
+                showMessage('Return date cannot be before the needed date.', 'error');
+                $(this).val('');
+                return;
+            }
+        }
+    });
+    
     // Add item to list
     $('#add-item-form').on('submit', function(e) {
         e.preventDefault();
+        
+        // Get minimum date from the input's min attribute (server-provided, more reliable)
+        const minDate = $('#batch-needed-date').attr('min');
         
         // Validate batch dates are set
         const batchNeededDate = $('#batch-needed-date').val();
@@ -700,6 +820,26 @@ $(document).ready(function() {
         if (!batchNeededDate || !batchReturnDate) {
             showMessage('Please set the reservation dates first', 'error');
             $('#batch-needed-date').focus();
+            return;
+        }
+        
+        // Validate dates are not in the past
+        if (batchNeededDate < minDate) {
+            showMessage('Needed date cannot be in the past', 'error');
+            $('#batch-needed-date').focus();
+            return;
+        }
+        
+        if (batchReturnDate < minDate) {
+            showMessage('Return date cannot be in the past', 'error');
+            $('#batch-return-date').focus();
+            return;
+        }
+        
+        // Validate return date is not before needed date
+        if (batchReturnDate < batchNeededDate) {
+            showMessage('Return date cannot be before needed date', 'error');
+            $('#batch-return-date').focus();
             return;
         }
         
@@ -957,6 +1097,9 @@ $(document).ready(function() {
     
     // Handle form submission - populate batch dates
     $('#submit-request-form').on('submit', function(e) {
+        // Get minimum date from the input's min attribute (server-provided, more reliable)
+        const minDate = $('#batch-needed-date').attr('min');
+        
         const batchNeededDate = $('#batch-needed-date').val();
         const batchReturnDate = $('#batch-return-date').val();
         
@@ -964,6 +1107,29 @@ $(document).ready(function() {
             e.preventDefault();
             showMessage('Please set the reservation dates', 'error');
             $('#batch-needed-date').focus();
+            return false;
+        }
+        
+        // Validate dates are not in the past
+        if (batchNeededDate < minDate) {
+            e.preventDefault();
+            showMessage('Needed date cannot be in the past', 'error');
+            $('#batch-needed-date').focus();
+            return false;
+        }
+        
+        if (batchReturnDate < minDate) {
+            e.preventDefault();
+            showMessage('Return date cannot be in the past', 'error');
+            $('#batch-return-date').focus();
+            return false;
+        }
+        
+        // Validate return date is not before needed date
+        if (batchReturnDate < batchNeededDate) {
+            e.preventDefault();
+            showMessage('Return date cannot be before needed date', 'error');
+            $('#batch-return-date').focus();
             return false;
         }
         

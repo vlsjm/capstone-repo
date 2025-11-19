@@ -2115,23 +2115,27 @@ tr.hidden {
       
       <!-- Pagination -->
       <div class="actlog-pagination" style="margin-top: 20px;">
-        <span class="step-links">
-          {% if page_obj.has_previous %}
-            <a href="#" data-page="1" class="pagination-link">&laquo; first</a>
-            <a href="#" data-page="{{ page_obj.previous_page_number }}" class="pagination-link">previous</a>
+        <!-- Page Numbers (1-5) -->
+        {% for num in page_obj.paginator.page_range %}
+          {% if num <= 5 %}
+            {% if page_obj.number == num %}
+              <span class="pagination-link active">{{ num }}</span>
+            {% else %}
+              <a href="#" data-page="{{ num }}" class="pagination-link">{{ num }}</a>
+            {% endif %}
           {% endif %}
+        {% endfor %}
 
-          <span class="current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-            <span style="margin-left: 10px; color: white; font-size: 0.9em;">
-              (Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} items)
-            </span>
-          </span>
+        <!-- Next Button -->
+        {% if page_obj.has_next %}
+          <a href="#" data-page="{{ page_obj.next_page_number }}" class="pagination-link next-btn">Next</a>
+        {% else %}
+          <span class="pagination-link next-btn disabled">Next</span>
+        {% endif %}
 
-          {% if page_obj.has_next %}
-            <a href="#" data-page="{{ page_obj.next_page_number }}" class="pagination-link">next</a>
-            <a href="#" data-page="{{ page_obj.paginator.num_pages }}" class="pagination-link">last &raquo;</a>
-          {% endif %}
+        <!-- Info -->
+        <span class="pagination-info">
+          (Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} items)
         </span>
       </div>
     {% else %}

@@ -256,6 +256,23 @@
       color: #c82333;
     }
     
+    /* Resource allocation specific styles */
+    .requester-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    
+    .requester-info strong {
+      font-weight: 600;
+      color: #152d64;
+    }
+    
+    .requester-info small {
+      font-size: 12px;
+      color: #6c757d;
+    }
+    
     /* Detail link and action buttons */
     .detail-link {
       color: #152d64;
@@ -940,6 +957,11 @@
       <button class="tab-button {% if current_tab == 'for_claiming' %}active{% endif %}" data-tab="for_claiming">
         <i class="fas fa-hand-paper"></i> For Claiming
       </button>
+      {% if perms.app.view_admin_module %}
+      <button class="tab-button {% if current_tab == 'resource_allocation' %}active{% endif %}" data-tab="resource_allocation">
+        <i class="fas fa-box-open"></i> Resource Allocation
+      </button>
+      {% endif %}
       <button class="tab-button {% if current_tab == 'active' %}active{% endif %}" data-tab="active">
         <i class="fas fa-play-circle"></i> Active
       </button>
@@ -1262,6 +1284,133 @@
       </div>
       {% endif %}
     </div>
+
+    <!-- Resource Allocation Tab -->
+    {% if perms.app.view_admin_module %}
+    <div id="resource_allocation" class="tab-content {% if current_tab == 'resource_allocation' %}active{% endif %}">
+      <h3>Resource Allocation Overview</h3>
+      <p style="color: #6c757d; font-size: 14px; margin-bottom: 20px;">
+        <i class="fas fa-info-circle"></i> This tab shows all items currently allocated/reserved to users through approved borrow requests or reservations.
+      </p>
+      
+      {% if resource_allocations %}
+        <div class="table-container">
+          <table class="requests-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Request ID</th>
+                <th>Allocated To</th>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Request Date</th>
+                <th>Return/Needed Date</th>
+                <th>Purpose</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for allocation in resource_allocations %}
+              <tr>
+                <td>
+                  <span class="status-badge {% if allocation.type_class == 'borrow' %}status-active{% else %}status-pending{% endif %}">
+                    {% if allocation.type_class == 'borrow' %}
+                      <i class="fas fa-hand-holding"></i>
+                    {% else %}
+                      <i class="fas fa-calendar-check"></i>
+                    {% endif %}
+                    {{ allocation.type }}
+                  </span>
+                </td>
+                <td>
+                  {% if allocation.type_class == 'borrow' %}
+                    BRW-{{ allocation.request_id|stringformat:"03d" }}
+                  {% else %}
+                    RSV-{{ allocation.request_id|stringformat:"03d" }}
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="requester-info">
+                    <strong>
+                      {% if allocation.user.first_name or allocation.user.last_name %}
+                        {{ allocation.user.first_name }} {{ allocation.user.last_name }}
+                      {% else %}
+                        {{ allocation.user.username }}
+                      {% endif %}
+                    </strong>
+                    <small>{{ allocation.user.userprofile.department }}</small>
+                  </div>
+                </td>
+                <td>
+                  <strong>{{ allocation.property.property_name }}</strong>
+                  {% if allocation.property.property_number %}
+                    <br><small class="text-muted">{{ allocation.property.property_number }}</small>
+                  {% endif %}
+                </td>
+                <td><strong>{{ allocation.quantity }}</strong></td>
+                <td>
+                  <span class="status-badge status-{{ allocation.status_value|lower }}">
+                    {% if allocation.status_value == 'approved' %}
+                      <i class="fas fa-check-circle"></i>
+                    {% elif allocation.status_value == 'active' %}
+                      <i class="fas fa-play-circle"></i>
+                    {% endif %}
+                    {{ allocation.status }}
+                  </span>
+                </td>
+                <td>{{ allocation.request_date|date:"M d, Y" }}</td>
+                <td>
+                  {% if allocation.type_class == 'reservation' and allocation.needed_date %}
+                    <strong>Needed:</strong> {{ allocation.needed_date|date:"M d, Y" }}<br>
+                  {% endif %}
+                  <strong>Return:</strong> {{ allocation.return_date|date:"M d, Y" }}
+                </td>
+                <td>{{ allocation.purpose|truncatechars:40 }}</td>
+                <td>
+                  <a href="{% url allocation.detail_url allocation.request_id %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-eye"></i> View
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="no-requests">
+          <i class="fas fa-inbox"></i>
+          <p>No resource allocations found.</p>
+        </div>
+      {% endif %}
+
+      <!-- Pagination for Resource Allocation -->
+      {% if resource_allocations.has_other_pages %}
+      <div class="pagination-container">
+        <div class="pagination-info">
+          Showing {{ resource_allocations.start_index }}-{{ resource_allocations.end_index }} of {{ resource_allocations.paginator.count }} allocations
+        </div>
+        <div class="pagination-controls">
+          {% if resource_allocations.has_previous %}
+            <a href="?tab=resource_allocation&allocations_page={{ resource_allocations.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          {% endif %}
+          
+          <span class="pagination-current">
+            Page {{ resource_allocations.number }} of {{ resource_allocations.paginator.num_pages }}
+          </span>
+          
+          {% if resource_allocations.has_next %}
+            <a href="?tab=resource_allocation&allocations_page={{ resource_allocations.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
 
     <!-- Active Requests Tab -->
     <div id="active" class="tab-content {% if current_tab == 'active' %}active{% endif %}">

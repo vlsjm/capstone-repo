@@ -228,8 +228,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // Chart 6: Top Requested Supplies (with filtering)
     let topRequestedSuppliesChart = null;
 
-    function loadTopRequestedSupplies(days = '', dateFrom = '', dateTo = '') {
+    function loadTopRequestedSupplies(days = '', dateFrom = '', dateTo = '', departmentId = '') {
         let url = '/get-top-requested-supplies/?';
+        if (departmentId) {
+            url += `department=${departmentId}&`;
+        }
         if (days) {
             url += `days=${days}&`;
         } else if (dateFrom && dateTo) {
@@ -313,13 +316,26 @@ document.addEventListener('DOMContentLoaded', function () {
     loadTopRequestedSupplies();
 
     // Add event listeners for filtering
+    const suppliesDepartmentFilter = document.getElementById('suppliesDepartmentFilter');
     const suppliesDateFilter = document.getElementById('suppliesDateFilter');
     const suppliesDateFrom = document.getElementById('suppliesDateFrom');
     const suppliesDateTo = document.getElementById('suppliesDateTo');
     const suppliesFilterBtn = document.getElementById('suppliesFilterBtn');
 
+    // Department filter change
+    if (suppliesDepartmentFilter) {
+        suppliesDepartmentFilter.addEventListener('change', function () {
+            const departmentId = this.value;
+            const days = suppliesDateFilter.value === 'custom' ? '' : suppliesDateFilter.value;
+            const dateFrom = suppliesDateFilter.value === 'custom' ? suppliesDateFrom.value : '';
+            const dateTo = suppliesDateFilter.value === 'custom' ? suppliesDateTo.value : '';
+            loadTopRequestedSupplies(days, dateFrom, dateTo, departmentId);
+        });
+    }
+
     if (suppliesDateFilter) {
         suppliesDateFilter.addEventListener('change', function () {
+            const departmentId = suppliesDepartmentFilter ? suppliesDepartmentFilter.value : '';
             if (this.value === 'custom') {
                 suppliesDateFrom.style.display = 'inline-block';
                 suppliesDateTo.style.display = 'inline-block';
@@ -328,14 +344,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 suppliesDateFrom.style.display = 'none';
                 suppliesDateTo.style.display = 'none';
                 suppliesFilterBtn.style.display = 'none';
-                loadTopRequestedSupplies(this.value);
+                loadTopRequestedSupplies(this.value, '', '', departmentId);
             }
         });
     }
 
     if (suppliesFilterBtn) {
         suppliesFilterBtn.addEventListener('click', function () {
-            loadTopRequestedSupplies('', suppliesDateFrom.value, suppliesDateTo.value);
+            const departmentId = suppliesDepartmentFilter ? suppliesDepartmentFilter.value : '';
+            loadTopRequestedSupplies('', suppliesDateFrom.value, suppliesDateTo.value, departmentId);
         });
     }
 

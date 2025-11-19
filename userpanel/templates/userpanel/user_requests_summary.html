@@ -1,0 +1,670 @@
+{% extends 'userpanel/user_base.html' %}
+{% load static %}
+
+{% block title %}My Requests Summary{% endblock %}
+
+{% block content %}
+<div class="summary-container">
+    <div class="summary-header">
+        <h1><i class="fas fa-chart-line"></i> My Requests Summary</h1>
+        <p class="subtitle">A comprehensive overview of all items you've requested</p>
+    </div>
+
+    <!-- Filter and Export Section -->
+    <div class="controls-section">
+        <form method="get" class="filter-form">
+            <div class="filter-group">
+                <label for="year-filter"><i class="fas fa-calendar-alt"></i> Year:</label>
+                <select name="year" id="year-filter" class="year-select" onchange="this.form.submit()">
+                    <option value="">All Years</option>
+                    {% for year in available_years %}
+                        <option value="{{ year }}" {% if year_filter == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="month-filter"><i class="fas fa-calendar"></i> Month:</label>
+                <select name="month" id="month-filter" class="month-select" onchange="this.form.submit()">
+                    <option value="">All Months</option>
+                    {% for month_num, month_name in month_names %}
+                        <option value="{{ month_num }}" {% if month_filter == month_num|stringformat:"s" %}selected{% endif %}>{{ month_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {% if year_filter or month_filter %}
+            <a href="{% url 'user_requests_summary' %}" class="btn-clear-filter">
+                <i class="fas fa-times"></i> Clear Filters
+            </a>
+            {% endif %}
+        </form>
+        
+        <a href="{% url 'export_requests_summary_pdf' %}?year={{ year_filter }}&month={{ month_filter }}" class="btn-export">
+            <i class="fas fa-file-pdf"></i> Export to PDF
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card stat-blue">
+            <div class="stat-icon">
+                <i class="fas fa-boxes"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ total_items }}</h3>
+                <p>Total Items</p>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-orange">
+            <div class="stat-icon">
+                <i class="fas fa-hand-point-up"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ total_requested }}</h3>
+                <p>Total Requested</p>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-green">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ total_approved }}</h3>
+                <p>Total Approved</p>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-purple">
+            <div class="stat-icon">
+                <i class="fas fa-list"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ supply_count }} / {{ borrow_count }} / {{ reservation_count }}</h3>
+                <p>Supply / Borrow / Reserve</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="table-section">
+        <h2><i class="fas fa-table"></i> All Requested Items</h2>
+        
+        {% if items_summary %}
+            <div class="table-container">
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Type</th>
+                            <th>Item Name</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Approved</th>
+                            <th>Status</th>
+                            <th>Request Date</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items_summary %}
+                        <tr>
+                            <td class="request-id">{{ item.request_id }}</td>
+                            <td>
+                                <span class="type-badge type-{{ item.type|lower }}">
+                                    {% if item.type == 'Supply' %}
+                                        <i class="fas fa-box"></i>
+                                    {% elif item.type == 'Borrow' %}
+                                        <i class="fas fa-hand-holding"></i>
+                                    {% else %}
+                                        <i class="fas fa-calendar-check"></i>
+                                    {% endif %}
+                                    {{ item.type }}
+                                </span>
+                            </td>
+                            <td class="item-name">{{ item.item_name }}</td>
+                            <td>{{ item.category }}</td>
+                            <td class="qty-cell">{{ item.quantity }}</td>
+                            <td class="qty-cell">{{ item.approved_quantity }}</td>
+                            <td>
+                                <span class="status-badge status-{{ item.status|lower|cut:' ' }}">
+                                    {{ item.status }}
+                                </span>
+                            </td>
+                            <td>{{ item.request_date|date:"M d, Y" }}</td>
+                            <td class="purpose-cell">{{ item.purpose|truncatechars:50 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if items_summary.has_other_pages %}
+            <div class="pagination-container">
+                <div class="pagination">
+                    {% if items_summary.has_previous %}
+                        <a href="?page=1{% if year_filter %}&year={{ year_filter }}{% endif %}{% if month_filter %}&month={{ month_filter }}{% endif %}" class="page-link">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                        <a href="?page={{ items_summary.previous_page_number }}{% if year_filter %}&year={{ year_filter }}{% endif %}{% if month_filter %}&month={{ month_filter }}{% endif %}" class="page-link">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    {% else %}
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-double-left"></i>
+                        </span>
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-left"></i>
+                        </span>
+                    {% endif %}
+
+                    <span class="page-info">
+                        Page {{ items_summary.number }} of {{ items_summary.paginator.num_pages }}
+                    </span>
+
+                    {% if items_summary.has_next %}
+                        <a href="?page={{ items_summary.next_page_number }}{% if year_filter %}&year={{ year_filter }}{% endif %}{% if month_filter %}&month={{ month_filter }}{% endif %}" class="page-link">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                        <a href="?page={{ items_summary.paginator.num_pages }}{% if year_filter %}&year={{ year_filter }}{% endif %}{% if month_filter %}&month={{ month_filter }}{% endif %}" class="page-link">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    {% else %}
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-right"></i>
+                        </span>
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-double-right"></i>
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="page-summary">
+                    Showing {{ items_summary.start_index }} to {{ items_summary.end_index }} of {{ items_summary.paginator.count }} items
+                </div>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox empty-icon"></i>
+                <h3>No Requests Found</h3>
+                <p>You haven't made any requests{% if year_filter or month_filter %} for the selected period{% endif %}.</p>
+                {% if year_filter or month_filter %}
+                    <a href="{% url 'user_requests_summary' %}" class="btn-primary" style="background: #6c757d;">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </a>
+                {% endif %}
+                <a href="{% url 'user_unified_request' %}" class="btn-primary">
+                    <i class="fas fa-plus"></i> Make a Request
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.summary-container {
+    margin-left: 250px;
+    padding: 30px;
+    background: #f5f6fa;
+    min-height: 100vh;
+}
+
+.summary-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.summary-header h1 {
+    color: #152d64;
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.controls-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+}
+
+.filter-form {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: #152d64;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.year-select, .month-select {
+    padding: 10px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 150px;
+}
+
+.year-select:focus, .month-select:focus {
+    outline: none;
+    border-color: #152d64;
+    box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+}
+
+.btn-clear-filter {
+    background: #6c757d;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(108, 117, 125, 0.2);
+}
+
+.btn-clear-filter:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+    text-decoration: none;
+    color: white;
+}
+
+.btn-export {
+    background: linear-gradient(135deg, #152d64 0%, #1a3575 100%);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(21, 45, 100, 0.2);
+}
+
+.btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(21, 45, 100, 0.3);
+    text-decoration: none;
+    color: white;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: white;
+}
+
+.stat-blue .stat-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-orange .stat-icon {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stat-green .stat-icon {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.stat-purple .stat-icon {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.stat-content h3 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #152d64;
+    margin: 0 0 5px 0;
+}
+
+.stat-content p {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0;
+}
+
+.table-section {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+}
+
+.table-section h2 {
+    color: #152d64;
+    font-size: 24px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.summary-table thead th {
+    background: #152d64;
+    color: white;
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.summary-table tbody td {
+    padding: 12px;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.summary-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.request-id {
+    font-family: monospace;
+    font-weight: 600;
+    color: #152d64;
+}
+
+.type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.type-supply {
+    background: #d4edda;
+    color: #155724;
+}
+
+.type-borrow {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.type-reservation {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-rejected, .status-declined {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-returned, .status-completed {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.qty-cell {
+    text-align: center;
+    font-weight: 600;
+}
+
+.item-name {
+    font-weight: 600;
+    color: #152d64;
+}
+
+.purpose-cell {
+    max-width: 200px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+    color: #152d64;
+}
+
+.empty-state h3 {
+    color: #152d64;
+    margin-bottom: 15px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #152d64 0%, #1a3575 100%);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(21, 45, 100, 0.3);
+    text-decoration: none;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .summary-container {
+        margin-left: 0;
+        padding: 15px;
+    }
+    
+    .controls-section {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .filter-form {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+    
+    .filter-group {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 6px;
+    }
+    
+    .year-select, .month-select {
+        width: 100%;
+    }
+    
+    .btn-clear-filter {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .btn-export {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-table {
+        font-size: 12px;
+    }
+    
+    .summary-table thead th,
+    .summary-table tbody td {
+        padding: 8px;
+    }
+    
+    .empty-state .btn-primary {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+        margin: 10px auto;
+    }
+    
+    .pagination-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-link {
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    color: #152d64;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+}
+
+.page-link:hover:not(.disabled) {
+    background: #152d64;
+    color: white;
+    border-color: #152d64;
+    transform: translateY(-2px);
+}
+
+.page-link.disabled {
+    background: #f8f9fa;
+    color: #6c757d;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.page-info {
+    padding: 8px 16px;
+    color: #152d64;
+    font-weight: 500;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.page-summary {
+    color: #6c757d;
+    font-size: 14px;
+}
+</style>
+{% endblock %}
