@@ -686,11 +686,106 @@ body.modal-open {
     overflow: hidden;
 }
 
+/* ===== LIST ITEMS COLLAPSIBLE CONTAINER ===== */
+.list-items-wrapper {
+    position: relative;
+}
+
+.list-items-container {
+    max-height: none;
+    overflow: visible;
+    max-height: 600px;
+    overflow-y: hidden;
+    transition: max-height 0.4s ease-in-out;
+}
+
+.list-items-container.expanded {
+    max-height: none;
+    overflow-y: visible;
+}
+
+.list-items-container.collapsed {
+    max-height: 350px;
+    overflow-y: hidden;
+}
+
+/* Fade-out effect for collapsed state */
+.list-items-container.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(transparent, white);
+    pointer-events: none;
+    border-radius: 0 0 8px 8px;
+}
+
+.show-all-toggle-container {
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 0.5rem;
+}
+
+.btn-show-all {
+    background: linear-gradient(135deg, #1e3a5f 0%, #152d64 100%);
+    color: white;
+    border: none;
+    padding: 0.7rem 2rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.btn-show-all:hover {
+    background: linear-gradient(135deg, #152d64 0%, #0f1f42 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
+}
+
+.btn-show-all:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(30, 58, 95, 0.2);
+}
+
+.btn-show-all i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-show-all.collapsed i {
+    transform: rotate(0deg);
+}
+
+.btn-show-all.expanded i {
+    transform: rotate(180deg);
+}
+
+.items-count-badge {
+    background: #dc3545;
+    color: white;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
 /* Mobile table optimization */
 @media (max-width: 768px) {
     .list-table td:nth-child(2),
     .list-table td:nth-child(3) {
         text-align: center;
+    }
+    
+    .list-items-container.collapsed {
+        max-height: 300px;
     }
 }
 
@@ -912,41 +1007,50 @@ body.modal-open {
             <!-- List Items Section -->
             <div class="list-section">
                 <h3><i class="fas fa-list"></i> Request Items <span id="supply-list-count">({{ supply_cart_items|length }})</span></h3>
-                <div id="supply-list-container">
+                <div id="supply-list-container" class="list-items-wrapper">
                     {% if supply_cart_items %}
-                    <table class="list-table">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Quantity</th>
-                                <th>Unit</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="supply-list-body">
-                            {% for item in supply_cart_items %}
-                            <tr data-supply-id="{{ item.supply.id }}">
-                                <td>{{ item.supply_name }}</td>
-                                <td>
-                                    <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
-                                           value="{{ item.quantity }}" min="1">
-                                </td>
-                                <td>
-                                    {% if item.supply.unit %}
-                                        {{ item.supply.unit }}
-                                    {% else %}
-                                        <span style="color: #6c757d;">(not specified)</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <button class="btn-remove" data-supply-id="{{ item.supply.id }}">
-                                        <i class="fas fa-trash"></i> Remove
-                                    </button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="list-items-container expanded" id="supply-items-container">
+                        <table class="list-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Quantity</th>
+                                    <th>Unit</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="supply-list-body">
+                                {% for item in supply_cart_items %}
+                                <tr data-supply-id="{{ item.supply.id }}">
+                                    <td>{{ item.supply_name }}</td>
+                                    <td>
+                                        <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
+                                               value="{{ item.quantity }}" min="1">
+                                    </td>
+                                    <td>
+                                        {% if item.supply.unit %}
+                                            {{ item.supply.unit }}
+                                        {% else %}
+                                            <span style="color: #6c757d;">(not specified)</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn-remove" data-supply-id="{{ item.supply.id }}">
+                                            <i class="fas fa-trash"></i> Remove
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if supply_cart_items|length > 5 %}
+                    <div class="show-all-toggle-container">
+                        <button type="button" class="btn-show-all expanded" id="supply-toggle-btn" data-target="supply-items-container">
+                            <i class="fas fa-chevron-up"></i> Show Less Items <span class="items-count-badge">{{ supply_cart_items|length }}</span>
+                        </button>
+                    </div>
+                    {% endif %}
                     {% else %}
                     <div class="empty-list">
                         <i class="fas fa-list"></i>
@@ -1091,41 +1195,50 @@ body.modal-open {
             <!-- List Items Section -->
             <div class="list-section">
                 <h3><i class="fas fa-list"></i> Borrow Items <span id="borrow-list-count">({{ borrow_cart_items|length }})</span></h3>
-                <div id="borrow-list-container">
+                <div id="borrow-list-container" class="list-items-wrapper">
                     {% if borrow_cart_items %}
-                    <table class="list-table">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Quantity</th>
-                                <th>Unit</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="borrow-list-body">
-                            {% for item in borrow_cart_items %}
-                            <tr data-supply-id="{{ item.supply.id }}">
-                                <td>{{ item.supply.property_name }}</td>
-                                <td>
-                                    <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
-                                           value="{{ item.quantity }}" min="1">
-                                </td>
-                                <td>
-                                    {% if item.supply.unit_of_measure %}
-                                        {{ item.supply.unit_of_measure }}
-                                    {% else %}
-                                        <span style="color: #6c757d;">(not specified)</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <button class="btn-remove-borrow" data-supply-id="{{ item.supply.id }}">
-                                        <i class="fas fa-trash"></i> Remove
-                                    </button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="list-items-container expanded" id="borrow-items-container">
+                        <table class="list-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Quantity</th>
+                                    <th>Unit</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="borrow-list-body">
+                                {% for item in borrow_cart_items %}
+                                <tr data-supply-id="{{ item.supply.id }}">
+                                    <td>{{ item.supply.property_name }}</td>
+                                    <td>
+                                        <input type="number" class="quantity-edit" data-supply-id="{{ item.supply.id }}" 
+                                               value="{{ item.quantity }}" min="1">
+                                    </td>
+                                    <td>
+                                        {% if item.supply.unit_of_measure %}
+                                            {{ item.supply.unit_of_measure }}
+                                        {% else %}
+                                            <span style="color: #6c757d;">(not specified)</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn-remove-borrow" data-supply-id="{{ item.supply.id }}">
+                                            <i class="fas fa-trash"></i> Remove
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if borrow_cart_items|length > 5 %}
+                    <div class="show-all-toggle-container">
+                        <button type="button" class="btn-show-all expanded" id="borrow-toggle-btn" data-target="borrow-items-container">
+                            <i class="fas fa-chevron-up"></i> Show Less Items <span class="items-count-badge">{{ borrow_cart_items|length }}</span>
+                        </button>
+                    </div>
+                    {% endif %}
                     {% else %}
                     <div class="empty-list">
                         <i class="fas fa-list"></i>
@@ -1992,6 +2105,31 @@ $(document).ready(function() {
         const url = `{% url 'request_again' %}?type=${fullType}&id=${requestId}`;
         window.location.href = url;
     }
+    
+    // ===== TOGGLE SHOW ALL ITEMS =====
+    $(document).on('click', '.btn-show-all', function() {
+        const btn = $(this);
+        const targetId = btn.data('target');
+        const container = $(`#${targetId}`);
+        const isExpanded = btn.hasClass('expanded');
+        
+        if (isExpanded) {
+            // Collapse
+            container.removeClass('expanded').addClass('collapsed');
+            btn.removeClass('expanded').addClass('collapsed');
+            btn.html('<i class="fas fa-chevron-down"></i> Show All Items <span class="items-count-badge">' + btn.find('.items-count-badge').text() + '</span>');
+            
+            // Smooth scroll to button
+            $('html, body').animate({
+                scrollTop: btn.offset().top - 100
+            }, 300);
+        } else {
+            // Expand
+            container.removeClass('collapsed').addClass('expanded');
+            btn.removeClass('collapsed').addClass('expanded');
+            btn.html('<i class="fas fa-chevron-up"></i> Show Less Items <span class="items-count-badge">' + btn.find('.items-count-badge').text() + '</span>');
+        }
+    });
 });
 </script>
 

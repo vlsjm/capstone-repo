@@ -251,6 +251,11 @@
       color: #721c24;
     }
     
+    .status-expired {
+      background: #ffe6e6;
+      color: #c82333;
+    }
+    
     /* Detail link and action buttons */
     .detail-link {
       color: #152d64;
@@ -932,9 +937,6 @@
       <button class="tab-button {% if current_tab == 'pending' %}active{% endif %}" data-tab="pending">
         <i class="fas fa-clock"></i> Pending
       </button>
-      <button class="tab-button {% if current_tab == 'partially_approved' %}active{% endif %}" data-tab="partially_approved">
-        <i class="fas fa-exclamation-triangle"></i> Partially Approved
-      </button>
       <button class="tab-button {% if current_tab == 'for_claiming' %}active{% endif %}" data-tab="for_claiming">
         <i class="fas fa-hand-paper"></i> For Claiming
       </button>
@@ -949,6 +951,9 @@
       </button>
       <button class="tab-button {% if current_tab == 'rejected' %}active{% endif %}" data-tab="rejected">
         <i class="fas fa-times-circle"></i> Rejected
+      </button>
+      <button class="tab-button {% if current_tab == 'expired' %}active{% endif %}" data-tab="expired">
+        <i class="fas fa-calendar-times"></i> Expired
       </button>
     </div>
 
@@ -1082,152 +1087,6 @@
           
           {% if pending_requests.has_next %}
             <a href="?tab=pending&pending_page={{ pending_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
-              <i class="fas fa-chevron-right"></i>
-            </a>
-          {% endif %}
-        </div>
-      </div>
-      {% endif %}
-    </div>
-
-    <!-- Partially Approved Requests Tab -->
-    <div id="partially_approved" class="tab-content {% if current_tab == 'partially_approved' %}active{% endif %}">
-      <h3>Partially Approved Borrow Requests</h3>
-      {% if partially_approved_requests %}
-        <div class="table-container">
-          <table class="requests-table">
-            <thead>
-              <tr>
-                <th>Request ID</th>
-                <th>Requester</th>
-                <th>Purpose</th>
-                <th>Total Items</th>
-                <th>Status</th>
-                <th>Request Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for batch_request in partially_approved_requests %}
-              <tr class="expandable-row" data-request-id="{{ batch_request.id }}">
-                <td>
-                  <div style="display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-chevron-right expand-icon" id="icon-{{ batch_request.id }}"></i>
-                    <span class="request-id">{{ batch_request.id|stringformat:"03d" }}</span>
-                  </div>
-                </td>
-                <td>
-                  <div class="requester-info">
-                    <strong>
-                      {% if batch_request.user.first_name or batch_request.user.last_name %}
-                        {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
-                      {% else %}
-                        {{ batch_request.user.username }}
-                      {% endif %}
-                    </strong>
-                    <small>{{ batch_request.user.userprofile.department }}</small>
-                  </div>
-                </td>
-                <td>{{ batch_request.purpose|truncatechars:50 }}</td>
-                <td>{{ batch_request.total_items }}</td>
-                <td>
-                  <span class="status-badge status-{{ batch_request.status|lower }}">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    {{ batch_request.get_status_display }}
-                  </span>
-                </td>
-                <td>{{ batch_request.request_date|date:"M d, Y H:i" }}</td>
-                <td>
-                  <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-eye"></i> View Details
-                  </a>
-                </td>
-              </tr>
-              <tr class="details-row" id="details-{{ batch_request.id }}">
-                <td colspan="7">
-                  <div class="details-content">
-                    <div class="details-grid">
-                      <div class="detail-item">
-                        <span class="detail-label">Request Date:</span>
-                        <span class="detail-value">{{ batch_request.request_date|date:"M d, Y H:i" }}</span>
-                      </div>
-                      <div class="detail-item">
-                        <span class="detail-label">Department:</span>
-                        <span class="detail-value">{{ batch_request.user.userprofile.department }}</span>
-                      </div>
-                      <div class="detail-item">
-                        <span class="detail-label">Full Purpose:</span>
-                        <span class="detail-value">{{ batch_request.purpose }}</span>
-                      </div>
-                    </div>
-                    <div class="items-section">
-                      <h4>Requested Items</h4>
-                      <table class="items-table">
-                        <thead>
-                          <tr>
-                            <th>ITEM NAME</th>
-                            <th>QUANTITY</th>
-                            <th>RETURN DATE</th>
-                            <th>APPROVED QTY</th>
-                            <th>STATUS</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {% for item in batch_request.items.all %}
-                          <tr>
-                            <td>{{ item.property.property_name }}</td>
-                            <td>{{ item.quantity }}</td>
-                            <td>{{ item.return_date|date:"M d, Y" }}</td>
-                            <td>
-                              {% if item.approved_quantity and item.status == 'approved' %}
-                                {{ item.approved_quantity }}
-                              {% else %}
-                                —
-                              {% endif %}
-                            </td>
-                            <td>
-                              <span class="status-badge status-{{ item.status|lower }}">
-                                {{ item.get_status_display }}
-                              </span>
-                            </td>
-                          </tr>
-                          {% endfor %}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      {% else %}
-        <div class="no-requests">
-          <i class="fas fa-inbox"></i>
-          <p>No partially approved borrow requests found.</p>
-        </div>
-      {% endif %}
-
-      <!-- Pagination for Partially Approved -->
-      {% if partially_approved_requests.has_other_pages %}
-      <div class="pagination-container">
-        <div class="pagination-info">
-          Showing {{ partially_approved_requests.start_index }}-{{ partially_approved_requests.end_index }} of {{ partially_approved_requests.paginator.count }} partially approved requests
-        </div>
-        <div class="pagination-controls">
-          {% if partially_approved_requests.has_previous %}
-            <a href="?tab=partially_approved&partially_approved_page={{ partially_approved_requests.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
-              <i class="fas fa-chevron-left"></i>
-            </a>
-          {% endif %}
-          
-          <span class="pagination-current">
-            Page {{ partially_approved_requests.number }} of {{ partially_approved_requests.paginator.num_pages }}
-          </span>
-          
-          {% if partially_approved_requests.has_next %}
-            <a href="?tab=partially_approved&partially_approved_page={{ partially_approved_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
               <i class="fas fa-chevron-right"></i>
             </a>
           {% endif %}
@@ -1884,64 +1743,119 @@
     <!-- Rejected Requests Tab -->
     <div id="rejected" class="tab-content {% if current_tab == 'rejected' %}active{% endif %}">
       <h3>Rejected Borrow Requests</h3>
-      {% for batch_request in rejected_requests %}
-      <div class="request" data-request-id="{{ batch_request.id }}">
-        <div class="request-header" data-toggle-id="{{ batch_request.id }}">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <h4>
-                <i class="fas fa-chevron-down toggle-arrow" id="arrow-{{ batch_request.id }}"></i>
-                Borrow Request {{ batch_request.id|stringformat:"03d" }}
-              </h4>
-              <p><strong>Borrower:</strong> 
-                {% if batch_request.user.first_name or batch_request.user.last_name %}
-                  {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
-                {% else %}
-                  {{ batch_request.user.username }}
-                {% endif %}
-                ({{ batch_request.user.userprofile.department }})
-              </p>
-              <p><strong>Purpose:</strong> {{ batch_request.purpose }}</p>
-              <p><strong>Request Date:</strong> {{ batch_request.request_date|date:"M d, Y H:i" }}</p>
-              <p><strong>Total Items:</strong> {{ batch_request.total_items }}</p>
-            </div>
-            <div>
-              <span class="status-badge status-{{ batch_request.status|lower }}">
-                <i class="fas fa-times-circle"></i> {{ batch_request.get_status_display }}
-              </span>
-              <div style="margin-top: 8px;">
-                <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="btn btn-sm btn-primary" onclick="event.stopPropagation();">
-                  <i class="fas fa-eye"></i> View Details
-                </a>
-              </div>
-            </div>
-          </div>
+      {% if rejected_requests %}
+        <div class="table-container">
+          <table class="requests-table">
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Requester</th>
+                <th>Purpose</th>
+                <th>Total Items</th>
+                <th>Status</th>
+                <th>Request Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for batch_request in rejected_requests %}
+              <tr class="expandable-row" data-request-id="{{ batch_request.id }}">
+                <td>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-chevron-right expand-icon" id="icon-{{ batch_request.id }}"></i>
+                    <span class="request-id">{{ batch_request.id|stringformat:"03d" }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="requester-info">
+                    <strong>
+                      {% if batch_request.user.first_name or batch_request.user.last_name %}
+                        {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
+                      {% else %}
+                        {{ batch_request.user.username }}
+                      {% endif %}
+                    </strong>
+                    <small>{{ batch_request.user.userprofile.department }}</small>
+                  </div>
+                </td>
+                <td>{{ batch_request.purpose|truncatechars:50 }}</td>
+                <td>{{ batch_request.total_items }}</td>
+                <td>
+                  <span class="status-badge status-{{ batch_request.status|lower }}">
+                    <i class="fas fa-times-circle"></i>
+                    {{ batch_request.get_status_display }}
+                  </span>
+                </td>
+                <td>{{ batch_request.request_date|date:"M d, Y H:i" }}</td>
+                <td>
+                  <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-eye"></i> View Details
+                  </a>
+                </td>
+              </tr>
+              <tr class="details-row" id="details-{{ batch_request.id }}">
+                <td colspan="7">
+                  <div class="details-content">
+                    <div class="details-grid">
+                      <div class="detail-item">
+                        <span class="detail-label">Request Date:</span>
+                        <span class="detail-value">{{ batch_request.request_date|date:"M d, Y H:i" }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Department:</span>
+                        <span class="detail-value">{{ batch_request.user.userprofile.department }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Full Purpose:</span>
+                        <span class="detail-value">{{ batch_request.purpose }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Total Items:</span>
+                        <span class="detail-value">{{ batch_request.total_items }}</span>
+                      </div>
+                    </div>
+                    <div class="items-section">
+                      <h4>Requested Items</h4>
+                      <table class="items-table">
+                        <thead>
+                          <tr>
+                            <th>ITEM NAME</th>
+                            <th>QUANTITY</th>
+                            <th>RETURN DATE</th>
+                            <th>STATUS</th>
+                            {% if batch_request.items.first.remarks %}<th>REMARKS</th>{% endif %}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for item in batch_request.items.all %}
+                          <tr>
+                            <td>{{ item.property.property_name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.return_date|date:"M d, Y" }}</td>
+                            <td>
+                              <span class="status-badge status-{{ item.status|lower }}">
+                                {{ item.get_status_display }}
+                              </span>
+                            </td>
+                            {% if batch_request.items.first.remarks %}<td>{{ item.remarks|default:"—" }}</td>{% endif %}
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-        <div class="request-items" id="items-{{ batch_request.id }}" style="display: none;">
-          {% for item in batch_request.items.all %}
-          <div class="request-item">
-            <div class="item-info">
-              <strong>{{ item.property.property_name }}</strong> - Quantity: {{ item.quantity }}
-              <br><small>Return Date: {{ item.return_date|date:"M d, Y" }}</small>
-              {% if item.remarks %}
-                <br><small><em>Remarks: {{ item.remarks }}</em></small>
-              {% endif %}
-            </div>
-            <div class="item-status">
-              <span class="status-badge status-{{ item.status|lower }}">
-                {{ item.get_status_display }}
-              </span>
-            </div>
-          </div>
-          {% endfor %}
+      {% else %}
+        <div class="no-requests">
+          <i class="fas fa-inbox"></i>
+          <p>No rejected borrow requests found.</p>
         </div>
-      </div>
-      {% empty %}
-      <div class="no-requests">
-        <i class="fas fa-inbox"></i>
-        <p>No rejected borrow requests found.</p>
-      </div>
-      {% endfor %}
+      {% endif %}
 
       <!-- Pagination for Rejected -->
       {% if rejected_requests.has_other_pages %}
@@ -1962,6 +1876,165 @@
           
           {% if rejected_requests.has_next %}
             <a href="?tab=rejected&rejected_page={{ rejected_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Expired Requests Tab -->
+    <div id="expired" class="tab-content {% if current_tab == 'expired' %}active{% endif %}">
+      <h3>Expired Borrow Requests</h3>
+      {% if expired_requests %}
+        <div class="table-container">
+          <table class="requests-table">
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Requester</th>
+                <th>Purpose</th>
+                <th>Total Items</th>
+                <th>Status</th>
+                <th>Return Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for batch_request in expired_requests %}
+              <tr class="expandable-row" data-request-id="{{ batch_request.id }}">
+                <td>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-chevron-right expand-icon" id="icon-{{ batch_request.id }}"></i>
+                    <span class="request-id">{{ batch_request.id|stringformat:"03d" }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="requester-info">
+                    <strong>
+                      {% if batch_request.user.first_name or batch_request.user.last_name %}
+                        {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
+                      {% else %}
+                        {{ batch_request.user.username }}
+                      {% endif %}
+                    </strong>
+                    <small>{{ batch_request.user.userprofile.department }}</small>
+                  </div>
+                </td>
+                <td>{{ batch_request.purpose|truncatechars:50 }}</td>
+                <td>{{ batch_request.total_items }}</td>
+                <td>
+                  <span class="status-badge status-{{ batch_request.status|lower }}">
+                    <i class="fas fa-calendar-times"></i>
+                    {{ batch_request.get_status_display }}
+                  </span>
+                </td>
+                <td>
+                  <div style="color: #dc3545; font-weight: 600;">
+                    {% if batch_request.latest_return_date %}
+                      {{ batch_request.latest_return_date|date:"M d, Y" }}
+                    {% else %}
+                      —
+                    {% endif %}
+                    <small style="display: block; font-size: 11px;">(EXPIRED)</small>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 5px; align-items: center;">
+                    <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="btn btn-sm btn-primary">
+                      <i class="fas fa-eye"></i> View Details
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              <tr class="details-row" id="details-{{ batch_request.id }}">
+                <td colspan="7">
+                  <div class="details-content">
+                    <div class="details-grid">
+                      <div class="detail-item">
+                        <span class="detail-label">Request Date:</span>
+                        <span class="detail-value">{{ batch_request.request_date|date:"M d, Y H:i" }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Department:</span>
+                        <span class="detail-value">{{ batch_request.user.userprofile.department }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Full Purpose:</span>
+                        <span class="detail-value">{{ batch_request.purpose }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Expected Return Date:</span>
+                        <span class="detail-value" style="color: #dc3545; font-weight: 600;">
+                          {% if batch_request.latest_return_date %}
+                            {{ batch_request.latest_return_date|date:"M d, Y" }}
+                          {% else %}
+                            —
+                          {% endif %}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="items-section">
+                      <h4>Requested Items</h4>
+                      <table class="items-table">
+                        <thead>
+                          <tr>
+                            <th>ITEM NAME</th>
+                            <th>QUANTITY</th>
+                            <th>RETURN DATE</th>
+                            <th>STATUS</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for item in batch_request.items.all %}
+                          <tr>
+                            <td>{{ item.property.property_name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.return_date|date:"M d, Y" }}</td>
+                            <td>
+                              <span class="status-badge status-{{ item.status|lower }}">
+                                {{ item.get_status_display }}
+                              </span>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="no-requests">
+          <i class="fas fa-inbox"></i>
+          <p>No expired borrow requests found.</p>
+        </div>
+      {% endif %}
+
+      <!-- Pagination for Expired -->
+      {% if expired_requests.has_other_pages %}
+      <div class="pagination-container">
+        <div class="pagination-info">
+          Showing {{ expired_requests.start_index }}-{{ expired_requests.end_index }} of {{ expired_requests.paginator.count }} expired requests
+        </div>
+        <div class="pagination-controls">
+          {% if expired_requests.has_previous %}
+            <a href="?tab=expired&expired_page={{ expired_requests.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          {% endif %}
+          
+          <span class="pagination-current">
+            Page {{ expired_requests.number }} of {{ expired_requests.paginator.num_pages }}
+          </span>
+          
+          {% if expired_requests.has_next %}
+            <a href="?tab=expired&expired_page={{ expired_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
               <i class="fas fa-chevron-right"></i>
             </a>
           {% endif %}

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from datetime import date, datetime, timedelta
@@ -799,6 +800,17 @@ class ReservationBatch(models.Model):
         # Get today's date in the configured timezone (not UTC)
         today = timezone.now().astimezone().date()
         
+        # 0. Update individual items to expired when their needed_date OR return_date has passed
+        # This applies to both pending and approved items that haven't been activated yet
+        expired_items = ReservationItem.objects.filter(
+            status__in=['pending', 'approved']
+        ).filter(
+            Q(needed_date__lt=today) | Q(return_date__lt=today)
+        )
+        for item in expired_items:
+            item.status = 'expired'
+            item.save()
+        
         # 1. Update pending batches to expired when latest return_date has passed
         for batch in cls.objects.filter(status='pending'):
             if batch.latest_return_date and batch.latest_return_date < today:
@@ -879,6 +891,18 @@ class ReservationBatch(models.Model):
                             message=f"Borrow request #{borrow_batch.id} auto-generated from reservation batch #{batch.id}",
                             remarks=f"User: {batch.user.username}, {item_count} items, Status: For Claiming"
                         )
+        
+        # 4. Check active reservations to see if their linked borrow requests have been completed
+        active_batches = cls.objects.filter(status='active', generated_borrow_batch__isnull=False)
+        for batch in active_batches:
+            borrow_batch = batch.generated_borrow_batch
+            # Check if all items in the borrow batch have been returned
+            if borrow_batch.status == 'returned':
+                # Mark reservation items as completed
+                batch.items.filter(status='active').update(status='completed')
+                # Mark the reservation batch as completed
+                batch.status = 'completed'
+                batch.save()
 
 
 class ReservationItem(models.Model):
@@ -969,6 +993,7 @@ class ReservationItem(models.Model):
                 # Expired after approval: Release reserved quantity
                 self.property.reserved_quantity = max(0, self.property.reserved_quantity - self.quantity)
                 self.property.save(update_fields=['reserved_quantity'])
+                self.property.update_availability()
             
             elif self.status == 'expired' and old_status == 'pending':
                 # Expired while pending: No reserved quantity to release
@@ -1529,6 +1554,7 @@ class BorrowRequestBatch(models.Model):
         ('active', 'Active'),
         ('returned', 'Returned'),
         ('overdue', 'Overdue'),
+        ('expired', 'Expired'),
         ('completed', 'Completed'),
     ]
 
@@ -1855,6 +1881,82 @@ class BorrowRequestBatch(models.Model):
 
         except Exception as e:
             logger.error(f"Error in check_near_overdue_items: {str(e)}")
+
+    @classmethod
+    def check_expired_batches(cls):
+        """
+        Check and update batch statuses when items or batches expire.
+        
+        This method:
+        1. Marks pending/approved items as expired when their return_date has passed
+        2. Marks pending batches as expired when their latest return_date has passed
+        3. Unreserves quantities for expired items, freeing them for other requests
+        4. Called whenever a borrow batch page is loaded for immediate UI updates
+        """
+        logger = logging.getLogger(__name__)
+        today = timezone.now().astimezone().date()
+        
+        # 1. Mark pending/approved items as expired when return_date has passed
+        expired_items = BorrowRequestItem.objects.filter(
+            status__in=['pending', 'approved']
+        ).filter(
+            return_date__lt=today
+        )
+        
+        if expired_items.exists():
+            count = expired_items.count()
+            
+            # Unreserve quantities for each expired item
+            for item in expired_items:
+                if item.property:
+                    # Reduce the reserved quantity
+                    item.property.reserved_quantity = max(0, item.property.reserved_quantity - item.quantity)
+                    item.property.save(update_fields=['reserved_quantity'])
+                    item.property.update_availability()
+                    logger.info(f"Unreserved {item.quantity} units of {item.property.property_name} (batch #{item.batch_request.id}, item #{item.id})")
+            
+            expired_items.update(status='expired')
+            logger.info(f"Marked {count} borrow item(s) as expired and unreserved quantities")
+        
+        # 2. Mark pending batches as expired when latest return_date has passed
+        pending_batches = cls.objects.filter(status='pending')
+        
+        for batch in pending_batches:
+            if batch.latest_return_date and batch.latest_return_date < today:
+                # Unreserve all quantities for items in this batch before marking as expired
+                for item in batch.items.filter(status__in=['pending', 'approved']):
+                    if item.property:
+                        item.property.reserved_quantity = max(0, item.property.reserved_quantity - item.quantity)
+                        item.property.save(update_fields=['reserved_quantity'])
+                        item.property.update_availability()
+                        logger.info(f"Unreserved {item.quantity} units of {item.property.property_name} from expired batch #{batch.id}")
+                
+                batch.status = 'expired'
+                batch.save()
+                logger.info(f"Marked batch #{batch.id} as expired and unreserved all quantities")
+        
+        # 3. Mark for_claiming/active batches as expired when latest return_date has passed
+        # and mark their items as expired accordingly
+        active_batches = cls.objects.filter(status__in=['for_claiming', 'active'])
+        
+        for batch in active_batches:
+            if batch.latest_return_date and batch.latest_return_date < today:
+                # Unreserve quantities only for items that haven't been returned yet
+                for item in batch.items.filter(status__in=['pending', 'approved', 'active']):
+                    if item.property:
+                        item.property.reserved_quantity = max(0, item.property.reserved_quantity - item.quantity)
+                        item.property.save(update_fields=['reserved_quantity'])
+                        item.property.update_availability()
+                        logger.info(f"Unreserved {item.quantity} units of {item.property.property_name} from expired batch #{batch.id}")
+                    
+                    # Mark item as expired if not already returned
+                    if item.status != 'returned':
+                        item.status = 'expired'
+                        item.save()
+                
+                batch.status = 'expired'
+                batch.save()
+                logger.info(f"Marked active/for_claiming batch #{batch.id} as expired and unreserved all quantities")
 
 class BorrowRequestItem(models.Model):
     """
