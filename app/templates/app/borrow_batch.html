@@ -2330,7 +2330,12 @@ document.addEventListener('DOMContentLoaded', function() {
       },
       body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then(data => {
       if (data.success) {
         // Show success modal
@@ -2341,7 +2346,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2000);
       } else {
         // Show error modal
-        showCustomAlert('Error', data.message, 'error');
+        showCustomAlert('Error', data.message || 'An error occurred', 'error');
         // Re-enable button
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;

@@ -6686,14 +6686,15 @@ def return_borrow_batch_items(request, batch_id):
     batch_request.save()
     
     # If this borrow batch was created from a reservation, update the reservation status
-    if batch_request.source_reservation_batch:
-        source_reservation = batch_request.source_reservation_batch
-        # Mark the reservation items as completed
-        source_reservation.items.filter(status='active').update(status='completed')
-        # Update the reservation batch status to completed if all items are done
-        if not source_reservation.items.filter(status__in=['pending', 'approved']).exists():
-            source_reservation.status = 'completed'
-            source_reservation.save()
+    source_reservations = batch_request.source_reservation_batch.all()
+    if source_reservations.exists():
+        for source_reservation in source_reservations:
+            # Mark the reservation items as completed
+            source_reservation.items.filter(status='active').update(status='completed')
+            # Update the reservation batch status to completed if all items are done
+            if not source_reservation.items.filter(status__in=['pending', 'approved']).exists():
+                source_reservation.status = 'completed'
+                source_reservation.save()
     
     # Create notification for the requester
     Notification.objects.create(
@@ -6800,8 +6801,8 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
                 pass
         
         # Get filtered requests by status
-        # Merge pending, partially_approved, and expired into pending
-        pending_requests = base_queryset.filter(Q(status='pending') | Q(status='partially_approved') | Q(status='expired'))
+        # Pending and partially_approved statuses
+        pending_requests = base_queryset.filter(Q(status='pending') | Q(status='partially_approved'))
         for_claiming_requests = base_queryset.filter(status='for_claiming')
         active_requests = base_queryset.filter(status='active')
         returned_requests = base_queryset.filter(status='returned')

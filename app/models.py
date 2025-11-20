@@ -1934,17 +1934,19 @@ class BorrowRequestBatch(models.Model):
         Check and update batch statuses when items or batches expire.
         
         This method:
-        1. Marks pending/approved items as expired when their return_date has passed
-        2. Marks pending batches as expired when their latest return_date has passed
-        3. Unreserves quantities for expired items, freeing them for other requests
-        4. Called whenever a borrow batch page is loaded for immediate UI updates
+        1. Marks ONLY approved/active items as expired when their return_date has passed
+        2. Keeps pending items as pending (don't expire unapproved items)
+        3. Marks batches as expired when their latest return_date has passed
+        4. Unreserves quantities for expired items, freeing them for other requests
+        5. Called whenever a borrow batch page is loaded for immediate UI updates
         """
         logger = logging.getLogger(__name__)
         today = timezone.now().astimezone().date()
         
-        # 1. Mark pending/approved items as expired when return_date has passed
+        # 1. Mark ONLY approved/active items as expired when return_date has passed
+        # DO NOT mark pending items as expired - they can still be approved
         expired_items = BorrowRequestItem.objects.filter(
-            status__in=['pending', 'approved']
+            status__in=['approved', 'active']
         ).filter(
             return_date__lt=today
         )
@@ -1964,10 +1966,10 @@ class BorrowRequestBatch(models.Model):
             expired_items.update(status='expired')
             logger.info(f"Marked {count} borrow item(s) as expired and unreserved quantities")
         
-        # 2. Mark pending batches as expired when latest return_date has passed
-        pending_batches = cls.objects.filter(status='pending')
+        # 2. Mark pending, partially_approved batches as expired when latest return_date has passed
+        pending_or_partial_batches = cls.objects.filter(status__in=['pending', 'partially_approved'])
         
-        for batch in pending_batches:
+        for batch in pending_or_partial_batches:
             if batch.latest_return_date and batch.latest_return_date < today:
                 # Unreserve all quantities for items in this batch before marking as expired
                 for item in batch.items.filter(status__in=['pending', 'approved']):
