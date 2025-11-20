@@ -13,6 +13,8 @@ from .views import (
     UserProfileView,
     UserAllRequestsView,
     UserUnifiedRequestView,
+    UserRequestsSummaryView,
+    export_requests_summary_pdf,
 )
 from . import views
 
@@ -48,6 +50,10 @@ urlpatterns = [
     path('cancel-borrow-request/<int:request_id>/', views.cancel_borrow_request, name='cancel_borrow_request'),
     path('cancel-batch-borrow-request/<int:request_id>/', views.cancel_batch_borrow_request, name='cancel_batch_borrow_request'),
     path('cancel-reservation/<int:request_id>/', views.cancel_reservation, name='cancel_reservation'),
+    
+    # Requests Summary
+    path('requests-summary/', UserRequestsSummaryView.as_view(), name='user_requests_summary'),
+    path('export-requests-summary-pdf/', export_requests_summary_pdf, name='export_requests_summary_pdf'),
     path('cancel-damage-report/<int:request_id>/', views.cancel_damage_report, name='cancel_damage_report'),
     
     # Request detail and request again URLs

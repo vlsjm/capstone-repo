@@ -72,6 +72,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'app.middleware.DisableClientSideCachingMiddleware',
+    'userpanel.middleware.ForcePasswordChangeMiddleware',  # Force password change for new users
 
 ]
 

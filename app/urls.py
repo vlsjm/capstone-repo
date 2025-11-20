@@ -84,6 +84,8 @@ from .views import (
     get_all_supply_barcodes,
     archive_supply,
     unarchive_supply,
+    delete_archived_supply,
+    delete_archived_property,
     download_requisition_slip,
     view_requisition_slip,
     archive_property,
@@ -155,6 +157,7 @@ urlpatterns = [
     path('my-supply-requests/', UserSupplyRequestListView.as_view(), name='user_supply_requests'),
     path('my-damage-reports/', UserDamageReportListView.as_view(), name='user_damage_reports'),
     path('my-reservations/', UserReservationListView.as_view(), name='user_reservations'),
+    path('generate-completed-supply-requests-pdf/', views.generate_completed_supply_requests_pdf, name='generate_completed_supply_requests_pdf'),
 
     # Batch borrow request management URLs
     path('borrow-batch-detail/<int:batch_id>/', borrow_batch_request_detail, name='borrow_batch_request_detail'),
@@ -220,8 +223,10 @@ urlpatterns = [
 
     path('supply/<int:pk>/archive/', archive_supply, name='archive_supply'),
     path('supply/<int:pk>/unarchive/', unarchive_supply, name='unarchive_supply'),
+    path('supply/<int:pk>/delete-archived/', delete_archived_supply, name='delete_archived_supply'),
     path('property/<int:pk>/archive/', archive_property, name='archive_property'),
     path('property/<int:pk>/unarchive/', unarchive_property, name='unarchive_property'),
+    path('property/<int:pk>/delete-archived/', delete_archived_property, name='delete_archived_property'),
     path('archived-items/', ArchivedItemsView.as_view(), name='archived_items'),
     
     # Batch request management URLs

@@ -595,6 +595,147 @@
       color: #666;
       font-size: 14px;
     }
+
+    /* Confirmation Modal Styles */
+    .confirm-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      animation: fadeIn 0.2s ease;
+    }
+
+    .confirm-modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .confirm-modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      animation: slideInScale 0.3s ease;
+    }
+
+    .confirm-modal-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .confirm-modal-icon {
+      font-size: 48px;
+    }
+
+    .confirm-modal-icon.approve {
+      color: #28a745;
+    }
+
+    .confirm-modal-icon.reject {
+      color: #dc3545;
+    }
+
+    .confirm-modal-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #152d64;
+      margin: 0;
+    }
+
+    .confirm-modal-body {
+      margin-bottom: 25px;
+    }
+
+    .confirm-modal-body p {
+      margin: 10px 0;
+      color: #495057;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    .confirm-item-name {
+      font-weight: 700;
+      color: #152d64;
+    }
+
+    .confirm-modal-footer {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn-confirm-cancel {
+      background: #6c757d;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      font-size: 14px;
+    }
+
+    .btn-confirm-cancel:hover {
+      background: #5a6268;
+      transform: translateY(-1px);
+    }
+
+    .btn-confirm-action {
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      font-size: 14px;
+    }
+
+    .btn-confirm-action.approve {
+      background: #28a745;
+    }
+
+    .btn-confirm-action.approve:hover {
+      background: #218838;
+      transform: translateY(-1px);
+    }
+
+    .btn-confirm-action.reject {
+      background: #dc3545;
+    }
+
+    .btn-confirm-action.reject:hover {
+      background: #c82333;
+      transform: translateY(-1px);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
   </style>
 </head>
 <body>
@@ -765,22 +906,25 @@
               <td class="actions-cell">
                 {% if user.is_staff and item.status == 'pending' %}
                   <div class="action-buttons-inline">
-                    <form method="post" action="{% url 'approve_borrow_item' batch.id item.id %}" style="display: inline;">
+                    <form method="post" action="{% url 'approve_borrow_item' batch.id item.id %}" id="approve-form-{{ item.id }}" style="display: inline;">
                       {% csrf_token %}
-                      <input type="hidden" name="remarks" id="remarks-approve-{{ item.id }}">
-                      <input type="hidden" name="approved_quantity" id="approved-quantity-approve-{{ item.id }}">
-                      <button type="submit" class="btn-table btn-approve-table" onclick="
-                        document.getElementById('remarks-approve-{{ item.id }}').value = document.getElementById('remarks-{{ item.id }}') ? document.getElementById('remarks-{{ item.id }}').value : '';
-                        document.getElementById('approved-quantity-approve-{{ item.id }}').value = document.getElementById('approved-qty-{{ item.id }}').value;
-                        return confirm('Approve this item for ' + document.getElementById('approved-qty-{{ item.id }}').value + ' units?')">
+                      <input type="hidden" name="remarks" id="hidden-remarks-approve-{{ item.id }}">
+                      <input type="hidden" name="approved_quantity" id="hidden-quantity-approve-{{ item.id }}">
+                      <button type="button" class="btn-table btn-approve-table" 
+                              data-item-id="{{ item.id }}"
+                              data-item-name="{{ item.property.property_name }}"
+                              onclick="showConfirmModal('approve', this.getAttribute('data-item-name'), '{{ item.id }}', document.getElementById('approve-form-{{ item.id }}'))">
                         <i class="fas fa-check"></i> Approve
                       </button>
                     </form>
                     
-                    <form method="post" action="{% url 'reject_borrow_item' batch.id item.id %}" style="display: inline;">
+                    <form method="post" action="{% url 'reject_borrow_item' batch.id item.id %}" id="reject-form-{{ item.id }}" style="display: inline;">
                       {% csrf_token %}
-                      <input type="hidden" name="remarks" id="remarks-reject-{{ item.id }}">
-                      <button type="submit" class="btn-table btn-reject-table" onclick="document.getElementById('remarks-reject-{{ item.id }}').value = document.getElementById('remarks-{{ item.id }}') ? document.getElementById('remarks-{{ item.id }}').value : ''; return confirm('Reject this item?')">
+                      <input type="hidden" name="remarks" id="hidden-remarks-reject-{{ item.id }}">
+                      <button type="button" class="btn-table btn-reject-table" 
+                              data-item-id="{{ item.id }}"
+                              data-item-name="{{ item.property.property_name }}"
+                              onclick="showConfirmModal('reject', this.getAttribute('data-item-name'), '{{ item.id }}', document.getElementById('reject-form-{{ item.id }}'))">
                         <i class="fas fa-times"></i> Reject
                       </button>
                     </form>
@@ -1029,6 +1173,139 @@
         });
       });
     });
+
+    // Confirmation Modal Functions
+    let pendingFormId = null;
+    let pendingItemId = null;
+    let pendingAction = null;
+    
+    window.showConfirmModal = function(action, itemName, itemId, form) {
+      const modal = document.getElementById('confirmModal');
+      const title = document.getElementById('confirmTitle');
+      const message = document.getElementById('confirmMessage');
+      const icon = document.getElementById('confirmIcon');
+      const actionBtn = document.getElementById('confirmActionBtn');
+      
+      // Store form ID instead of form reference for reliability
+      pendingFormId = form ? form.id : null;
+      pendingItemId = itemId;
+      pendingAction = action;
+      
+      if (action === 'approve') {
+        title.textContent = 'Confirm Approval';
+        message.innerHTML = `Are you sure you want to <strong>approve</strong> "<span class="confirm-item-name">${itemName}</span>"?`;
+        icon.className = 'fas fa-check-circle confirm-modal-icon approve';
+        actionBtn.className = 'btn-confirm-action approve';
+        actionBtn.innerHTML = '<i class="fas fa-check"></i> Approve';
+      } else {
+        title.textContent = 'Confirm Rejection';
+        message.innerHTML = `Are you sure you want to <strong>reject</strong> "<span class="confirm-item-name">${itemName}</span>"?`;
+        icon.className = 'fas fa-times-circle confirm-modal-icon reject';
+        actionBtn.className = 'btn-confirm-action reject';
+        actionBtn.innerHTML = '<i class="fas fa-times"></i> Reject';
+      }
+      
+      modal.classList.add('show');
+    };
+    
+    window.closeConfirmModal = function() {
+      const modal = document.getElementById('confirmModal');
+      modal.classList.remove('show');
+      pendingFormId = null;
+      pendingItemId = null;
+      pendingAction = null;
+    };
+    
+    // Setup confirmation button listener when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupConfirmButton);
+    } else {
+      setupConfirmButton();
+    }
+    
+    function setupConfirmButton() {
+      const confirmBtn = document.getElementById('confirmActionBtn');
+      if (!confirmBtn) {
+        console.error('Confirm button not found');
+        return;
+      }
+      
+      confirmBtn.addEventListener('click', function() {
+        if (pendingFormId && pendingItemId && pendingAction) {
+          // Get the form by ID
+          const form = document.getElementById(pendingFormId);
+          
+          if (!form) {
+            console.error('Form not found:', pendingFormId);
+            closeConfirmModal();
+            return;
+          }
+          
+          if (pendingAction === 'approve') {
+            const quantityInput = document.getElementById(`approved-qty-${pendingItemId}`);
+            const remarksInput = document.getElementById(`remarks-${pendingItemId}`);
+            const hiddenQuantity = document.getElementById(`hidden-quantity-approve-${pendingItemId}`);
+            const hiddenRemarks = document.getElementById(`hidden-remarks-approve-${pendingItemId}`);
+            
+            if (hiddenQuantity && quantityInput) {
+              hiddenQuantity.value = quantityInput.value;
+            }
+            if (hiddenRemarks) {
+              hiddenRemarks.value = remarksInput ? remarksInput.value : '';
+            }
+          } else {
+            const remarksInput = document.getElementById(`remarks-${pendingItemId}`);
+            const hiddenRemarks = document.getElementById(`hidden-remarks-reject-${pendingItemId}`);
+            
+            if (hiddenRemarks) {
+              hiddenRemarks.value = remarksInput ? remarksInput.value : '';
+            }
+          }
+          
+          closeConfirmModal();
+          
+          // Submit the form
+          try {
+            form.submit();
+          } catch (error) {
+            console.error('Error submitting form:', error);
+            alert('Error submitting form. Please try again.');
+          }
+        }
+      });
+      
+      // Close modal when clicking outside
+      const modal = document.getElementById('confirmModal');
+      if (modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === this) {
+            closeConfirmModal();
+          }
+        });
+      }
+    }
   </script>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmModal" class="confirm-modal">
+    <div class="confirm-modal-content">
+      <div class="confirm-modal-header">
+        <i id="confirmIcon" class="fas confirm-modal-icon"></i>
+        <h2 class="confirm-modal-title" id="confirmTitle">Confirm Action</h2>
+      </div>
+      <div class="confirm-modal-body">
+        <p id="confirmMessage">Are you sure?</p>
+      </div>
+      <div class="confirm-modal-footer">
+        <button type="button" class="btn-confirm-cancel" onclick="closeConfirmModal()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button type="button" id="confirmActionBtn" class="btn-confirm-action">
+          <i class="fas fa-check"></i> Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

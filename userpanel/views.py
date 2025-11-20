@@ -23,6 +23,8 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
+# Import summary views
+from .views_summary import UserRequestsSummaryView, export_requests_summary_pdf
 
 
 class UserRequestView(PermissionRequiredMixin, TemplateView):
@@ -148,13 +150,18 @@ class UserReserveView(PermissionRequiredMixin, TemplateView):
                 'purpose': batch.purpose
             })
         
+        # Get today's date for min date validation
+        from datetime import date
+        today = date.today().strftime('%Y-%m-%d')
+        
         return render(request, self.template_name, {
             'cart_items': cart_items_data,
             'available_supplies': available_supplies,
             'supply_categories': supply_categories,
             'recent_requests': recent_requests_data,
             'batch_needed_date': batch_needed_date,
-            'batch_return_date': batch_return_date
+            'batch_return_date': batch_return_date,
+            'today': today
         })
 
     def post(self, request):
@@ -400,6 +407,15 @@ class UserLoginView(LoginView):
     template_name = 'registration/login.html'
 
     def get_success_url(self):
+        # Check if user must change password
+        user = self.request.user
+        try:
+            profile = UserProfile.objects.get(user=user)
+            if profile.must_change_password:
+                return reverse_lazy('user_password_change')
+        except UserProfile.DoesNotExist:
+            pass
+        
         return reverse_lazy('user_dashboard')  
 
     def form_valid(self, form):
@@ -423,6 +439,10 @@ class UserLoginView(LoginView):
                 object_repr=user.username,
                 description=f"User {user.username} logged in to user panel"
             )
+            
+            # Show message if password change is required
+            if profile.must_change_password:
+                messages.warning(self.request, 'You must change your password before continuing.')
 
         except UserProfile.DoesNotExist:
             messages.error(self.request, 'User profile not found.')
@@ -1322,7 +1342,19 @@ class UserPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(self.request, 'Your password was successfully updated!')
+        
+        # Clear the must_change_password flag after successful password change
+        try:
+            profile = UserProfile.objects.get(user=self.request.user)
+            if profile.must_change_password:
+                profile.must_change_password = False
+                profile.save()
+                messages.success(self.request, 'Your password was successfully updated! You can now access the dashboard.')
+            else:
+                messages.success(self.request, 'Your password was successfully updated!')
+        except UserProfile.DoesNotExist:
+            messages.success(self.request, 'Your password was successfully updated!')
+        
         return response
 
 class UserPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
@@ -1330,6 +1362,10 @@ class UserPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
 
     def get_template_names(self):
         return ['userpanel/password_change_done.html']
+    
+    def get(self, request, *args, **kwargs):
+        # Redirect to dashboard instead of showing done page
+        return redirect('user_dashboard')
 
 @login_required
 @require_POST

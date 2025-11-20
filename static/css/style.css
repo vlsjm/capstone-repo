@@ -200,31 +200,94 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 20px;
   margin-top: 20px;
+  flex-wrap: wrap;
 }
 
+.actlog-pagination .pagination-link {
+  color: #152d64;
+  text-decoration: none;
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  background-color: white;
+  min-width: 42px;
+  text-align: center;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actlog-pagination .pagination-link:hover:not(.disabled):not(.active) {
+  background-color: #f0f0f0;
+  border-color: #152d64;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.actlog-pagination .pagination-link.active {
+  background-color: #152d64;
+  color: white;
+  border-color: #152d64;
+  font-weight: 600;
+  cursor: default;
+}
+
+.actlog-pagination .pagination-link.next-btn {
+  padding: 10px 20px;
+  font-weight: 600;
+  background-color: #152d64;
+  color: white;
+  border-color: #152d64;
+}
+
+.actlog-pagination .pagination-link.next-btn:hover:not(.disabled) {
+  background-color: #1a3a7d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(21, 45, 100, 0.3);
+}
+
+.actlog-pagination .pagination-link.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #e9ecef;
+  color: #6c757d;
+  border-color: #ddd;
+}
+
+.actlog-pagination .pagination-info {
+  margin-left: 15px;
+  color: #6c757d;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+/* Legacy support */
 .actlog-pagination a {
   color: #152d64;
   text-decoration: none;
-  padding: 8px 16px;
-  border: 1px solid #152d64;
-  border-radius: 4px;
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   transition: all 0.3s ease;
   font-weight: 500;
 }
 
 .actlog-pagination a:hover {
-  background-color: #152d64;
-  color: white;
+  background-color: #f0f0f0;
+  border-color: #152d64;
 }
 
 .actlog-pagination .current {
   background-color: #152d64;
   color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 10px 16px;
+  border-radius: 6px;
   font-weight: 500;
 }
 
@@ -257,6 +320,21 @@ h1 {
 
   .actlog-pagination {
     flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .actlog-pagination .pagination-link {
+    padding: 8px 12px;
+    min-width: 38px;
+    font-size: 14px;
+  }
+
+  .actlog-pagination .pagination-info {
+    width: 100%;
+    text-align: center;
+    margin-left: 0;
+    margin-top: 10px;
+    font-size: 0.85em;
   }
 }
 

@@ -203,11 +203,15 @@ def create_user(request):
                     messages.warning(request, f'Group {role} does not exist. User created without group assignment.')
 
                 # Create user profile
+                # Set must_change_password to True for USER role (new users must change password on first login)
+                must_change_pwd = (role == 'USER')
+                
                 profile = UserProfile.objects.create(
                     user=user,
                     role=role,
                     department=form.cleaned_data['department'],
                     phone=form.cleaned_data['phone'],
+                    must_change_password=must_change_pwd,
                 )
 
                 # Send welcome email
@@ -1005,13 +1009,14 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
 @login_required
 def get_top_requested_supplies(request):
     """
-    API endpoint to get top 10 most requested supplies with optional date filtering
+    API endpoint to get top 10 most requested supplies with optional date and department filtering
     """
     try:
         # Get filter parameters from request
         days = request.GET.get('days')  # 30, 90, etc.
         date_from = request.GET.get('date_from')
         date_to = request.GET.get('date_to')
+        department_id = request.GET.get('department')  # department filter
         
         # Build filter
         filter_kwargs = {}
@@ -1031,20 +1036,31 @@ def get_top_requested_supplies(request):
             except ValueError:
                 pass
         
+        # Add department filter if specified
+        if department_id:
+            filter_kwargs['user__userprofile__department_id'] = department_id
+        
         # Get supply requests from both legacy and batch systems
         legacy_requests = SupplyRequest.objects.filter(**filter_kwargs).values('supply_id', 'supply__supply_name').annotate(
             total_quantity=models.Sum('quantity'),
             request_count=models.Count('id')
         ).order_by('-total_quantity')[:10]
         
-        batch_items = SupplyRequestItem.objects.filter(
-            batch_request__status__in=['approved', 'completed', 'for_claiming'],
-            batch_request__request_date__gte=filter_kwargs.get('request_date__gte', timezone.now() - timedelta(days=999)),
-            **(  # Apply date range if specified
-                {'batch_request__request_date__range': filter_kwargs['request_date__range']}
-                if 'request_date__range' in filter_kwargs else {}
-            )
-        ).values('supply_id', 'supply__supply_name').annotate(
+        # Build batch items filter
+        batch_filter = {
+            'batch_request__status__in': ['approved', 'completed', 'for_claiming'],
+            'batch_request__request_date__gte': filter_kwargs.get('request_date__gte', timezone.now() - timedelta(days=999))
+        }
+        
+        # Add date range if specified
+        if 'request_date__range' in filter_kwargs:
+            batch_filter['batch_request__request_date__range'] = filter_kwargs['request_date__range']
+        
+        # Add department filter if specified
+        if department_id:
+            batch_filter['batch_request__user__userprofile__department_id'] = department_id
+        
+        batch_items = SupplyRequestItem.objects.filter(**batch_filter).values('supply_id', 'supply__supply_name').annotate(
             total_quantity=models.Sum('quantity'),
             request_count=models.Count('id')
         ).order_by('-total_quantity')[:10]
@@ -1481,6 +1497,9 @@ class DashboardPageView(PermissionRequiredMixin,TemplateView):
             
             # Recent requests for preview table
             'recent_requests_preview': recent_requests_preview,
+            
+            # Departments for filters
+            'departments': Department.objects.all().order_by('name'),
         })
         
         # Calculate percentage changes for dashboard cards
@@ -1775,6 +1794,17 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         # Get all departments for the filter dropdown
         from .models import Department
         context['departments'] = Department.objects.all().order_by('name')
+        
+        # Get all users who have made supply requests for the filter dropdown
+        from django.contrib.auth.models import User
+        try:
+            users_with_requests = User.objects.filter(
+                supplyrequestbatch__isnull=False
+            ).distinct().order_by('first_name', 'last_name')
+            context['users_with_requests'] = users_with_requests
+        except Exception as e:
+            # Fallback to all active users if there's an issue
+            context['users_with_requests'] = User.objects.filter(is_active=True).order_by('first_name', 'last_name')
         
         return context
 
@@ -5628,6 +5658,62 @@ def unarchive_property(request, pk):
         messages.success(request, 'Property unarchived successfully.')
     return redirect('archived_items')
 
+@permission_required('app.view_admin_module')
+@login_required
+def delete_archived_supply(request, pk):
+    supply = get_object_or_404(Supply, pk=pk)
+    if request.method == 'POST':
+        # Check if the supply is archived before deleting
+        if not supply.is_archived:
+            messages.error(request, 'Cannot delete a supply that is not archived.')
+            return redirect('archived_items')
+        
+        supply_name = supply.supply_name
+        
+        try:
+            ActivityLog.log_activity(
+                user=request.user,
+                action='delete',
+                model_name='Supply',
+                object_repr=str(supply),
+                description=f"Permanently deleted archived supply '{supply_name}'"
+            )
+            
+            # Delete the supply and all related objects
+            supply.delete()
+            messages.success(request, f"Supply '{supply_name}' has been permanently deleted.")
+        except Exception as e:
+            messages.error(request, f"Error deleting supply: {str(e)}")
+    return redirect('archived_items')
+
+@permission_required('app.view_admin_module')
+@login_required
+def delete_archived_property(request, pk):
+    property_obj = get_object_or_404(Property, pk=pk)
+    if request.method == 'POST':
+        # Check if the property is archived before deleting
+        if not property_obj.is_archived:
+            messages.error(request, 'Cannot delete a property that is not archived.')
+            return redirect('archived_items')
+        
+        property_name = property_obj.property_name
+        
+        try:
+            ActivityLog.log_activity(
+                user=request.user,
+                action='delete',
+                model_name='Property',
+                object_repr=str(property_obj),
+                description=f"Permanently deleted archived property '{property_name}'"
+            )
+            
+            # Delete the property and all related objects
+            property_obj.delete()
+            messages.success(request, f"Property '{property_name}' has been permanently deleted.")
+        except Exception as e:
+            messages.error(request, f"Error deleting property: {str(e)}")
+    return redirect('archived_items')
+
 class ArchivedItemsView(PermissionRequiredMixin, TemplateView):
     template_name = 'app/archived_items.html'
     permission_required = 'app.view_admin_module'
@@ -6600,14 +6686,15 @@ def return_borrow_batch_items(request, batch_id):
     batch_request.save()
     
     # If this borrow batch was created from a reservation, update the reservation status
-    if batch_request.source_reservation_batch:
-        source_reservation = batch_request.source_reservation_batch
-        # Mark the reservation items as completed
-        source_reservation.items.filter(status='active').update(status='completed')
-        # Update the reservation batch status to completed if all items are done
-        if not source_reservation.items.filter(status__in=['pending', 'approved']).exists():
-            source_reservation.status = 'completed'
-            source_reservation.save()
+    source_reservations = batch_request.source_reservation_batch.all()
+    if source_reservations.exists():
+        for source_reservation in source_reservations:
+            # Mark the reservation items as completed
+            source_reservation.items.filter(status='active').update(status='completed')
+            # Update the reservation batch status to completed if all items are done
+            if not source_reservation.items.filter(status__in=['pending', 'approved']).exists():
+                source_reservation.status = 'completed'
+                source_reservation.save()
     
     # Create notification for the requester
     Notification.objects.create(
@@ -6714,14 +6801,68 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
                 pass
         
         # Get filtered requests by status
-        # Merge pending, partially_approved, and expired into pending
-        pending_requests = base_queryset.filter(Q(status='pending') | Q(status='partially_approved') | Q(status='expired'))
+        # Pending and partially_approved statuses
+        pending_requests = base_queryset.filter(Q(status='pending') | Q(status='partially_approved'))
         for_claiming_requests = base_queryset.filter(status='for_claiming')
         active_requests = base_queryset.filter(status='active')
         returned_requests = base_queryset.filter(status='returned')
         overdue_requests = base_queryset.filter(status='overdue')
         rejected_requests = base_queryset.filter(status='rejected')
         expired_requests = base_queryset.filter(status='expired')
+        
+        # Get resource allocations (only for admin users)
+        resource_allocations = []
+        if self.request.user.has_perm('app.view_admin_module'):
+            # Get all approved/active borrow request items
+            from app.models import BorrowRequestItem, ReservationItem
+            
+            borrow_items = BorrowRequestItem.objects.filter(
+                Q(status='approved') | Q(status='active')
+            ).select_related('batch_request__user', 'batch_request__user__userprofile', 'property').order_by('-batch_request__request_date')
+            
+            # Get all approved/active reservation items
+            reservation_items = ReservationItem.objects.filter(
+                Q(status='approved') | Q(status='active')
+            ).select_related('batch_request__user', 'batch_request__user__userprofile', 'property').order_by('-batch_request__request_date')
+            
+            # Combine both into a unified list
+            for item in borrow_items:
+                resource_allocations.append({
+                    'type': 'Borrow Request',
+                    'type_class': 'borrow',
+                    'request_id': item.batch_request.id,
+                    'user': item.batch_request.user,
+                    'property': item.property,
+                    'quantity': item.approved_quantity or item.quantity,
+                    'status': item.get_status_display(),
+                    'status_value': item.status,
+                    'request_date': item.batch_request.request_date,
+                    'return_date': item.return_date,
+                    'purpose': item.batch_request.purpose,
+                    'remarks': item.remarks or '',
+                    'detail_url': 'borrow_batch_request_detail',
+                })
+            
+            for item in reservation_items:
+                resource_allocations.append({
+                    'type': 'Reservation',
+                    'type_class': 'reservation',
+                    'request_id': item.batch_request.id,
+                    'user': item.batch_request.user,
+                    'property': item.property,
+                    'quantity': item.quantity,
+                    'status': item.get_status_display(),
+                    'status_value': item.status,
+                    'request_date': item.batch_request.request_date,
+                    'needed_date': item.needed_date,
+                    'return_date': item.return_date,
+                    'purpose': item.batch_request.purpose,
+                    'remarks': item.remarks or '',
+                    'detail_url': 'reservation_batch_detail',
+                })
+            
+            # Sort by request date (newest first)
+            resource_allocations.sort(key=lambda x: x['request_date'], reverse=True)
         
         # Pagination for each tab
         paginator_pending = Paginator(pending_requests, self.paginate_by)
@@ -6731,6 +6872,7 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
         paginator_overdue = Paginator(overdue_requests, self.paginate_by)
         paginator_rejected = Paginator(rejected_requests, self.paginate_by)
         paginator_expired = Paginator(expired_requests, self.paginate_by)
+        paginator_allocations = Paginator(resource_allocations, self.paginate_by)
         
         # Get page numbers for each tab
         page_pending = self.request.GET.get('pending_page', 1)
@@ -6740,6 +6882,18 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
         page_overdue = self.request.GET.get('overdue_page', 1)
         page_rejected = self.request.GET.get('rejected_page', 1)
         page_expired = self.request.GET.get('expired_page', 1)
+        page_allocations = self.request.GET.get('allocations_page', 1)
+        
+        # Build URL parameters string for pagination
+        url_params = ''
+        if search_query:
+            url_params += f'&search={search_query}'
+        if department_filter:
+            url_params += f'&department={department_filter}'
+        if date_from:
+            url_params += f'&date_from={date_from}'
+        if date_to:
+            url_params += f'&date_to={date_to}'
         
         context.update({
             'current_tab': current_tab,
@@ -6750,11 +6904,13 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
             'overdue_requests': paginator_overdue.get_page(page_overdue),
             'rejected_requests': paginator_rejected.get_page(page_rejected),
             'expired_requests': paginator_expired.get_page(page_expired),
+            'resource_allocations': paginator_allocations.get_page(page_allocations),
             'search_query': search_query,
             'department_filter': department_filter,
             'date_from': date_from,
             'date_to': date_to,
             'departments': Department.objects.all(),
+            'url_params': url_params,
         })
         
         return context
@@ -7424,6 +7580,299 @@ def bulk_delete_damage_report_images(request):
             'success': False,
             'message': f'Error: {str(e)}'
         }, status=500)
+
+
+@login_required
+@permission_required('app.view_admin_module', raise_exception=True)
+def generate_completed_supply_requests_pdf(request):
+    """Generate PDF report for completed supply requests with filters"""
+    try:
+        from reportlab.lib.pagesizes import letter, A4
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+        from reportlab.lib import colors
+        from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+        from django.db.models import Q
+        from io import BytesIO
+        from datetime import datetime
+    except ImportError as e:
+        return HttpResponse(f"Error importing required libraries: {str(e)}", status=500)
+    
+    # Get filter parameters
+    user_filter = request.GET.get('user', '')
+    department_filter = request.GET.get('department', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    
+    # Build queryset for completed requests
+    completed_requests = SupplyRequestBatch.objects.filter(
+        status='completed'
+    ).select_related(
+        'user', 
+        'user__userprofile', 
+        'user__userprofile__department'
+    ).prefetch_related(
+        'items__supply'
+    ).order_by('-completed_date')
+    
+    # Apply filters
+    if user_filter:
+        completed_requests = completed_requests.filter(user__id=user_filter)
+    
+    if department_filter:
+        completed_requests = completed_requests.filter(user__userprofile__department__id=department_filter)
+    
+    if date_from:
+        try:
+            date_from_obj = datetime.strptime(date_from, '%Y-%m-%d')
+            completed_requests = completed_requests.filter(completed_date__date__gte=date_from_obj.date())
+        except ValueError:
+            pass
+    
+    if date_to:
+        try:
+            date_to_obj = datetime.strptime(date_to, '%Y-%m-%d')
+            completed_requests = completed_requests.filter(completed_date__date__lte=date_to_obj.date())
+        except ValueError:
+            pass
+    
+    # Create the HttpResponse object with PDF headers
+    response = HttpResponse(content_type='application/pdf')
+    filename = f'Completed_Supply_Requests_{timezone.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
+    # Create the PDF object with LANDSCAPE orientation
+    from reportlab.lib.pagesizes import landscape
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, 
+        pagesize=landscape(A4),
+        rightMargin=0.5*inch, 
+        leftMargin=0.5*inch,
+        topMargin=0.5*inch, 
+        bottomMargin=0.5*inch
+    )
+    
+    # Container for the 'Flowable' objects
+    story = []
+    
+    # Define styles
+    styles = getSampleStyleSheet()
+    
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        textColor=colors.HexColor('#152d64'),
+        spaceAfter=20,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold'
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=12,
+        textColor=colors.HexColor('#152d64'),
+        spaceAfter=10,
+        fontName='Helvetica-Bold'
+    )
+    
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=9,
+        alignment=TA_LEFT
+    )
+    
+    # Title
+    story.append(Paragraph("COMPLETED SUPPLY REQUESTS REPORT", title_style))
+    story.append(Paragraph(f"Generated on: {timezone.now().strftime('%B %d, %Y at %I:%M %p')}", normal_style))
+    story.append(Spacer(1, 20))
+    
+    # Filter information
+    filter_info = []
+    if user_filter:
+        try:
+            from django.contrib.auth.models import User
+            user = User.objects.get(id=user_filter)
+            user_name = f"{user.first_name} {user.last_name}".strip() or user.username
+            filter_info.append(f"User: {user_name}")
+        except:
+            pass
+    
+    if department_filter:
+        try:
+            from .models import Department
+            dept = Department.objects.get(id=department_filter)
+            filter_info.append(f"Department: {dept.name}")
+        except:
+            pass
+    
+    if date_from:
+        filter_info.append(f"From: {date_from}")
+    
+    if date_to:
+        filter_info.append(f"To: {date_to}")
+    
+    if filter_info:
+        story.append(Paragraph("<b>Filters Applied:</b> " + " | ".join(filter_info), normal_style))
+        story.append(Spacer(1, 15))
+    
+    total_count = completed_requests.count()
+    story.append(Paragraph(f"<b>Total Requests:</b> {total_count}", normal_style))
+    story.append(Spacer(1, 15))
+    
+    # Check if there are no requests
+    if total_count == 0:
+        story.append(Paragraph("<b>No completed supply requests found with the selected filters.</b>", normal_style))
+        story.append(Spacer(1, 20))
+        story.append(Paragraph("Try adjusting your filter criteria or check back later.", normal_style))
+    else:
+        # Create a single consolidated table with all items from all completed requests
+        story.append(Paragraph("<b>All Completed Supply Requests</b>", heading_style))
+        story.append(Spacer(1, 10))
+        
+        # Prepare table data with all items
+        table_data = [
+            ["Req#", "Requester", "Dept", "Purpose", "Item Name", "Req\nQty", "App\nQty", "Request\nDate", "Completed\nDate", "Released By", "Remarks"]
+        ]
+        
+        for batch_request in completed_requests:
+            user_name = f"{batch_request.user.first_name} {batch_request.user.last_name}".strip() or batch_request.user.username
+            dept_name = batch_request.user.userprofile.department.name if batch_request.user.userprofile.department else "N/A"
+            
+            purpose_display = (batch_request.purpose[:25] + "...") if batch_request.purpose and len(batch_request.purpose) > 25 else (batch_request.purpose or "N/A")
+            
+            claimed_by_name = "N/A"
+            if batch_request.claimed_by:
+                claimed_by_name = f"{batch_request.claimed_by.first_name} {batch_request.claimed_by.last_name}".strip() or batch_request.claimed_by.username
+            
+            request_date_str = batch_request.request_date.strftime('%m/%d/%Y')
+            completed_date_str = batch_request.completed_date.strftime('%m/%d/%Y') if batch_request.completed_date else "N/A"
+            
+            # Add a row for each item in the request
+            items = batch_request.items.all().order_by('supply__supply_name')
+            if items.count() == 0:
+                # If no items, still show the request
+                table_data.append([
+                    f"#{batch_request.id:03d}",
+                    user_name,
+                    dept_name,
+                    purpose_display,
+                    "No items",
+                    "-",
+                    "-",
+                    request_date_str,
+                    completed_date_str,
+                    claimed_by_name,
+                    "-"
+                ])
+            else:
+                for idx, item in enumerate(items):
+                    remarks_display = "-"
+                    if item.remarks:
+                        remarks_display = item.remarks[:30] + "..." if len(item.remarks) > 30 else item.remarks
+                    
+                    # For first item, show all request details
+                    if idx == 0:
+                        table_data.append([
+                            f"#{batch_request.id:03d}",
+                            user_name,
+                            dept_name,
+                            purpose_display,
+                            item.supply.supply_name,
+                            str(item.quantity),
+                            str(item.approved_quantity) if item.approved_quantity else "-",
+                            request_date_str,
+                            completed_date_str,
+                            claimed_by_name,
+                            remarks_display
+                        ])
+                    else:
+                        # For subsequent items, only show item details
+                        table_data.append([
+                            "",  # Empty Req#
+                            "",  # Empty Requester
+                            "",  # Empty Department
+                            "",  # Empty Purpose
+                            item.supply.supply_name,
+                            str(item.quantity),
+                            str(item.approved_quantity) if item.approved_quantity else "-",
+                            "",  # Empty Request Date
+                            "",  # Empty Completed Date
+                            "",  # Empty Released By
+                            remarks_display
+                        ])
+        
+        # Create table with appropriate column widths for landscape
+        main_table = Table(table_data, colWidths=[
+            0.45*inch,  # Req#
+            1.1*inch,   # Requester
+            0.85*inch,  # Department
+            1.1*inch,   # Purpose
+            1.9*inch,   # Item Name
+            0.55*inch,  # Requested Qty
+            0.55*inch,  # Approved Qty
+            0.7*inch,   # Request Date
+            0.75*inch,  # Completed Date
+            1.0*inch,   # Released By
+            1.3*inch    # Remarks
+        ])
+        
+        main_table.setStyle(TableStyle([
+            # Header styling
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#152d64')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 7.5),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+            
+            # Data rows styling
+            ('FONTSIZE', (0, 1), (-1, -1), 7),
+            ('ALIGN', (0, 1), (0, -1), 'CENTER'),  # Req# center
+            ('ALIGN', (1, 1), (1, -1), 'LEFT'),    # Requester left
+            ('ALIGN', (2, 1), (2, -1), 'LEFT'),    # Department left
+            ('ALIGN', (3, 1), (3, -1), 'LEFT'),    # Purpose left
+            ('ALIGN', (4, 1), (4, -1), 'LEFT'),    # Item name left
+            ('ALIGN', (5, 1), (6, -1), 'CENTER'),  # Quantities center
+            ('ALIGN', (7, 1), (8, -1), 'CENTER'),  # Dates center
+            ('ALIGN', (9, 1), (9, -1), 'LEFT'),    # Released By left
+            ('ALIGN', (10, 1), (10, -1), 'LEFT'),  # Remarks left
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            
+            # Padding
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+            
+            # Grid
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('LINEBELOW', (0, 0), (-1, 0), 2, colors.HexColor('#152d64')),
+            
+            # Alternating row colors
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8f9fa')]),
+        ]))
+        
+        story.append(main_table)
+    
+    # Build PDF
+    try:
+        doc.build(story)
+        
+        # Get the value of the BytesIO buffer and write it to the response
+        pdf = buffer.getvalue()
+        buffer.close()
+        response.write(pdf)
+        
+        return response
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        return HttpResponse(f"Error generating PDF: {str(e)}\n\nDetails:\n{error_details}", status=500, content_type='text/plain')
 
 
 @login_required

@@ -91,19 +91,28 @@
 
             {% if is_paginated %}
             <div class="actlog-pagination">
-                {% if page_obj.has_previous %}
-                    <a href="?page=1">&laquo; First</a>
-                    <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                {% endif %}
+                <!-- Page Numbers (1-5) -->
+                {% for num in page_obj.paginator.page_range %}
+                  {% if num <= 5 %}
+                    {% if page_obj.number == num %}
+                      <span class="pagination-link active">{{ num }}</span>
+                    {% else %}
+                      <a href="?page={{ num }}" class="pagination-link">{{ num }}</a>
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
 
-                <span class="current">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                </span>
-
+                <!-- Next Button -->
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}">Next</a>
-                    <a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                  <a href="?page={{ page_obj.next_page_number }}" class="pagination-link next-btn">Next</a>
+                {% else %}
+                  <span class="pagination-link next-btn disabled">Next</span>
                 {% endif %}
+
+                <!-- Info -->
+                <span class="pagination-info">
+                  (Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} items)
+                </span>
             </div>
             {% endif %}
         </div>
