@@ -1674,26 +1674,46 @@ def update_borrow_list_item(request):
         property_id = request.POST.get('supply_id')
         quantity = int(request.POST.get('quantity', 1))
         
-        logger.info(f"Updating borrow cart item: property_id={property_id}, quantity={quantity}")
+        logger.info(f"Updating borrow cart item: property_id={property_id} (type: {type(property_id)}), quantity={quantity}")
         
         try:
             property_obj = Property.objects.get(id=property_id)
             
             cart = request.session.get('borrow_cart', [])
             logger.info(f"Current borrow cart before update: {cart}")
+            logger.info(f"Cart length: {len(cart)}")
+            
+            # Log all items in cart for debugging
+            for idx, item in enumerate(cart):
+                logger.info(f"  Cart item {idx}: property_id={item.get('property_id')} (type: {type(item.get('property_id'))}), quantity={item.get('quantity')}")
             
             # Find and update the item - only quantity, return date is batch-wide
+            updated = False
             for item in cart:
-                if item['property_id'] == int(property_id):
+                # Compare as strings since cart items are stored as strings
+                if str(item['property_id']) == str(property_id):
+                    old_qty = item['quantity']
                     item['quantity'] = quantity
-                    logger.info(f"Updated borrow item in cart: {item}")
+                    logger.info(f"Updated borrow item in cart: property_id={property_id}, old_qty={old_qty}, new_qty={quantity}, item={item}")
+                    updated = True
                     break
+            
+            if not updated:
+                logger.warning(f"Item {property_id} not found in borrow cart for update. Cart items: {[item.get('property_id') for item in cart]}")
             
             request.session['borrow_cart'] = cart
             request.session.modified = True
             request.session.save()  # Explicitly save the session
             
-            logger.info(f"Borrow cart after update: {request.session.get('borrow_cart', [])}")
+            # Verify the save
+            saved_cart = request.session.get('borrow_cart', [])
+            logger.info(f"Borrow cart after update and save: {saved_cart}")
+            
+            # Double check the item was saved
+            for item in saved_cart:
+                if str(item['property_id']) == str(property_id):
+                    logger.info(f"Verified saved borrow item: property_id={property_id}, quantity={item['quantity']}")
+                    break
             
             return JsonResponse({
                 'status': 'success',
@@ -1707,6 +1727,7 @@ def update_borrow_list_item(request):
                 'message': 'Item not found'
             })
         except ValueError:
+            logger.error(f"Invalid value for quantity: {request.POST.get('quantity')}")
             return JsonResponse({
                 'status': 'error',
                 'message': 'Invalid data provided'
@@ -1910,7 +1931,8 @@ def add_to_reservation_list(request):
         
         existing_item = None
         for i, item in enumerate(cart):
-            if item['property_id'] == property_id:
+            # Compare as strings since property_id from POST is a string
+            if str(item['property_id']) == str(property_id):
                 existing_item = i
                 break
         
@@ -1956,50 +1978,72 @@ def add_to_reservation_list(request):
 @login_required
 def update_reservation_list_item(request):
     """Update quantity, needed_date, and return_date of item in reservation cart"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     if request.method == 'POST':
         property_id = request.POST.get('property_id')
         new_quantity = int(request.POST.get('quantity', 1))
         needed_date = request.POST.get('needed_date')
         return_date = request.POST.get('return_date')
         
+        logger.info(f"Updating reservation item: property_id={property_id} (type: {type(property_id)}), new_quantity={new_quantity}")
+        
         cart = request.session.get('reservation_cart', [])
+        logger.info(f"Current reservation cart: {cart}")
         
         # Convert property_id to string for comparison (since session data stores strings)
         property_id_str = str(property_id)
         
         # Find and update the item
+        updated = False
         for i, item in enumerate(cart):
             # Compare as strings since session data is stored as strings
-            if str(item.get('property_id')) == property_id_str:
+            cart_property_id = str(item.get('property_id'))
+            logger.info(f"Comparing: {property_id_str} vs {cart_property_id}")
+            
+            if cart_property_id == property_id_str:
                 try:
                     property_obj = Property.objects.get(id=property_id)
                     
                     # Check if new quantity is available
                     if new_quantity > property_obj.quantity:
+                        logger.warning(f"Quantity {new_quantity} exceeds available {property_obj.quantity}")
                         return JsonResponse({
                             'status': 'error',
                             'message': f'Only {property_obj.quantity} units available'
                         })
                     
+                    old_qty = cart[i]['quantity']
                     cart[i]['quantity'] = new_quantity
                     if needed_date:
                         cart[i]['needed_date'] = needed_date
                     if return_date:
                         cart[i]['return_date'] = return_date
-                        
+                    
+                    logger.info(f"Updated reservation item: property_id={property_id}, old_qty={old_qty}, new_qty={new_quantity}")
+                    
                     request.session['reservation_cart'] = cart
                     request.session.modified = True
+                    request.session.save()
                     
+                    logger.info(f"Reservation cart after update: {request.session.get('reservation_cart', [])}")
+                    
+                    updated = True
                     return JsonResponse({
                         'status': 'success',
                         'message': 'Item updated successfully'
                     })
                     
                 except Property.DoesNotExist:
+                    logger.error(f"Property not found: {property_id}")
                     return JsonResponse({
                         'status': 'error',
                         'message': 'Property not found'
                     })
+        
+        if not updated:
+            logger.warning(f"Item {property_id} not found in reservation cart. Cart items: {[item.get('property_id') for item in cart]}")
         
         return JsonResponse({
             'status': 'error',
@@ -2017,8 +2061,8 @@ def remove_from_reservation_list(request):
         
         cart = request.session.get('reservation_cart', [])
         
-        # Remove the item
-        cart = [item for item in cart if item['property_id'] != property_id]
+        # Remove the item - compare as strings
+        cart = [item for item in cart if str(item['property_id']) != str(property_id)]
         
         request.session['reservation_cart'] = cart
         request.session.modified = True
@@ -2716,7 +2760,7 @@ def update_list_item(request):
     supply_id = request.POST.get('supply_id')
     new_quantity = int(request.POST.get('quantity', 0))
     
-    logger.info(f"Updating cart item: supply_id={supply_id}, new_quantity={new_quantity}")
+    logger.info(f"Updating cart item: supply_id={supply_id} (type: {type(supply_id)}), new_quantity={new_quantity}")
     
     try:
         supply = Supply.objects.get(id=supply_id)
@@ -2724,20 +2768,41 @@ def update_list_item(request):
         # Get the cart and create a new list with updated quantity
         cart = request.session.get('supply_cart', [])
         logger.info(f"Current cart before update: {cart}")
+        logger.info(f"Cart length: {len(cart)}")
+        
+        # Log all items in cart for debugging
+        for idx, item in enumerate(cart):
+            logger.info(f"  Cart item {idx}: supply_id={item.get('supply_id')} (type: {type(item.get('supply_id'))}), quantity={item.get('quantity')}")
         
         # Find and update the item
+        updated = False
         for item in cart:
-            if item['supply_id'] == int(supply_id):
+            cart_supply_id = item['supply_id']
+            # Compare as strings since cart items are stored as strings
+            if str(item['supply_id']) == str(supply_id):
+                old_qty = item['quantity']
                 item['quantity'] = new_quantity
-                logger.info(f"Updated item in cart: {item}")
+                logger.info(f"Updated item in cart: supply_id={supply_id}, old_qty={old_qty}, new_qty={new_quantity}, item={item}")
+                updated = True
                 break
+        
+        if not updated:
+            logger.warning(f"Item {supply_id} not found in cart for update. Cart items: {[item.get('supply_id') for item in cart]}")
         
         # Set the session with the updated cart
         request.session['supply_cart'] = cart
         request.session.modified = True
         request.session.save()  # Explicitly save the session
         
-        logger.info(f"Cart after update: {request.session.get('supply_cart', [])}")
+        # Verify the save
+        saved_cart = request.session.get('supply_cart', [])
+        logger.info(f"Cart after update and save: {saved_cart}")
+        
+        # Double check the item was saved
+        for item in saved_cart:
+            if str(item['supply_id']) == str(supply_id):
+                logger.info(f"Verified saved item: supply_id={supply_id}, quantity={item['quantity']}")
+                break
         
         return JsonResponse({
             'success': True,

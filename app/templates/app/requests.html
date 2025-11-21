@@ -1,4 +1,5 @@
 {% load static %}
+{% load user_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3290,7 +3291,8 @@
       document.getElementById('totalItemsCount').textContent = 'Loading...';
       
       // Skip API call and go directly to DOM extraction since API endpoint doesn't exist
-      console.log('Using DOM extraction method for loading items');
+      cons
+      ole.log('Using DOM extraction method for loading items');
       loadExpectedItemsCountFromDOM(requestId);
     }
 
@@ -3955,20 +3957,43 @@
       document.getElementById('pdfModal').style.display = 'none';
     }
 
+    function updateReportDescription() {
+      const reportType = document.querySelector('input[name="report-type"]:checked').value;
+      const descriptionEl = document.getElementById('report-description');
+      const statusFilterContainer = document.getElementById('status-filter-container');
+      
+      if (reportType === 'tally') {
+        descriptionEl.textContent = 'Select filters to customize your items tally report:';
+        statusFilterContainer.style.display = 'block';
+      } else {
+        descriptionEl.textContent = 'Select filters to customize your completed supply requests report:';
+        statusFilterContainer.style.display = 'none';
+      }
+    }
+
     function generatePdfReport() {
+      const reportType = document.querySelector('input[name="report-type"]:checked').value;
       const user = document.getElementById('pdf-user-filter').value;
       const department = document.getElementById('pdf-department-filter').value;
       const dateFrom = document.getElementById('pdf-date-from').value;
       const dateTo = document.getElementById('pdf-date-to').value;
+      const status = document.getElementById('pdf-status-filter').value;
       
-      // Build URL with parameters
-      let url = '{% url "generate_completed_supply_requests_pdf" %}?';
+      // Determine which URL to use
+      let url;
+      if (reportType === 'tally') {
+        url = '{% url "generate_items_tally_report_pdf" %}?';
+      } else {
+        url = '{% url "generate_completed_supply_requests_pdf" %}?';
+      }
+      
       const params = [];
       
       if (user) params.push('user=' + user);
       if (department) params.push('department=' + department);
       if (dateFrom) params.push('date_from=' + dateFrom);
       if (dateTo) params.push('date_to=' + dateTo);
+      if (status && reportType === 'tally') params.push('status=' + status);
       
       url += params.join('&');
       
@@ -3976,6 +4001,55 @@
       window.open(url, '_blank');
       closePdfModal();
     }
+
+    // Initialize PDF modal user filter behavior
+    document.addEventListener('DOMContentLoaded', function() {
+      const userFilterSelect = document.getElementById('pdf-user-filter');
+      const departmentFilterSelect = document.getElementById('pdf-department-filter');
+      
+      if (userFilterSelect && departmentFilterSelect) {
+        const departmentFilterContainer = departmentFilterSelect.parentElement;
+        const userOptions = Array.from(userFilterSelect.querySelectorAll('option'));
+        
+        // When user filter changes
+        userFilterSelect.addEventListener('change', function() {
+          if (this.value) {
+            // When a user is selected, hide the department filter and get their department
+            departmentFilterContainer.style.display = 'none';
+            const selectedOption = this.options[this.selectedIndex];
+            const userDept = selectedOption.getAttribute('data-department');
+            departmentFilterSelect.value = userDept || '';
+          } else {
+            // When "All Users" is selected, show the department filter and reset it
+            departmentFilterContainer.style.display = 'block';
+            departmentFilterSelect.value = '';
+          }
+        });
+        
+        // When department filter changes
+        departmentFilterSelect.addEventListener('change', function() {
+          if (this.value) {
+            // When a department is selected, filter users to show only those in that department
+            const selectedDept = this.value;
+            userFilterSelect.value = '';
+            
+            userOptions.forEach(option => {
+              if (option.value === '') {
+                option.style.display = 'block'; // Always show "All Users"
+              } else {
+                const userDept = option.getAttribute('data-department');
+                option.style.display = (userDept === selectedDept) ? 'block' : 'none';
+              }
+            });
+          } else {
+            // When "All Departments" is selected, show all users
+            userOptions.forEach(option => {
+              option.style.display = 'block';
+            });
+          }
+        });
+      }
+    });
 
     // Close modal on outside click
     window.addEventListener('click', function(e) {
@@ -3995,7 +4069,7 @@
 
   <!-- PDF Generation Modal -->
   <div id="pdfModal" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center;">
-    <div style="background: white; border-radius: 16px; padding: 30px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: slideInScale 0.3s ease;">
+    <div style="background: white; border-radius: 16px; padding: 30px; max-width: 550px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: slideInScale 0.3s ease;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #e9ecef;">
         <h2 style="color: #152d64; margin: 0; font-size: 24px; font-weight: 700;">
           <i class="fas fa-file-pdf" style="color: #dc3545;"></i> Generate PDF Report
@@ -4006,7 +4080,24 @@
       </div>
       
       <div style="margin-bottom: 20px;">
-        <p style="color: #495057; margin-bottom: 20px;">Select filters to customize your completed supply requests report:</p>
+        <!-- Report Type Selection -->
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; font-weight: 600; color: #152d64; margin-bottom: 12px; font-size: 14px;">
+            <i class="fas fa-list"></i> Report Type
+          </label>
+          <div style="display: flex; gap: 15px;">
+            <label style="display: flex; align-items: center; cursor: pointer; font-weight: 500; color: #495057;">
+              <input type="radio" id="report-type-completed" name="report-type" value="completed" checked style="margin-right: 8px; cursor: pointer;" onchange="updateReportDescription()">
+              Completed Requests
+            </label>
+            <label style="display: flex; align-items: center; cursor: pointer; font-weight: 500; color: #495057;">
+              <input type="radio" id="report-type-tally" name="report-type" value="tally" style="margin-right: 8px; cursor: pointer;" onchange="updateReportDescription()">
+              Items Tally
+            </label>
+          </div>
+        </div>
+        
+        <p style="color: #495057; margin-bottom: 20px;" id="report-description">Select filters to customize your completed supply requests report:</p>
         
         <!-- User Filter -->
         <div style="margin-bottom: 15px;">
@@ -4017,7 +4108,7 @@
             <option value="">All Users</option>
             {% if users_with_requests %}
               {% for user in users_with_requests %}
-                <option value="{{ user.id }}">
+                <option value="{{ user.id }}" data-department="{{ users_departments|get:user.id }}">
                   {% if user.first_name or user.last_name %}
                     {{ user.first_name }} {{ user.last_name }}
                   {% else %}
@@ -4056,6 +4147,20 @@
             <i class="fas fa-calendar-check"></i> To Date
           </label>
           <input type="date" id="pdf-date-to" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+        </div>
+
+        <!-- Status Filter (for tally reports) -->
+        <div style="margin-bottom: 15px; display: none;" id="status-filter-container">
+          <label style="display: block; font-weight: 600; color: #152d64; margin-bottom: 8px; font-size: 14px;">
+            <i class="fas fa-tag"></i> Filter by Status
+          </label>
+          <select id="pdf-status-filter" style="width: 100%; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="completed">Completed</option>
+          </select>
         </div>
       </div>
       

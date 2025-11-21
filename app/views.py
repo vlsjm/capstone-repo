@@ -1812,6 +1812,16 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
             # Fallback to all active users if there's an issue
             context['users_with_requests'] = User.objects.filter(is_active=True).order_by('first_name', 'last_name')
         
+        # Create a mapping of users to their departments for frontend filtering
+        users_departments = {}
+        for user in context['users_with_requests']:
+            try:
+                dept = user.userprofile.department
+                users_departments[str(user.id)] = str(dept.id) if dept else ''
+            except:
+                users_departments[str(user.id)] = ''
+        context['users_departments'] = users_departments
+        
         return context
 
 
@@ -2257,6 +2267,12 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         # Get all categories and subcategories for the filter dropdowns
         context['categories'] = SupplyCategory.objects.prefetch_related('supply_set').all()
         context['subcategories'] = SupplySubcategory.objects.prefetch_related('supply_set').all()
+        
+        # Get all non-archived supplies for the "Report Bad Stock" modal dropdown
+        # This includes all supplies (not paginated) so users can select any supply regardless of page
+        context['all_supplies'] = Supply.objects.filter(
+            is_archived=False
+        ).select_related('quantity_info', 'category', 'subcategory').order_by('supply_name')
         
         # Only include paginated supplies for grouped view (not all supplies)
         # This improves page load performance by not loading entire database
@@ -5628,9 +5644,9 @@ def unarchive_supply(request, pk):
 def archive_property(request, pk):
     property_obj = get_object_or_404(Property, pk=pk)
     if request.method == 'POST':
-        # Check if property has zero quantity
-        if property_obj.quantity > 0:
-            messages.error(request, f"Cannot archive property '{property_obj.property_name}' because it still has {property_obj.quantity} units.")
+        # Check if property condition is Obsolete or Unserviceable
+        if property_obj.condition not in ['Obsolete', 'Unserviceable']:
+            messages.error(request, f"Cannot archive property '{property_obj.property_name}'. Property must be marked as 'Obsolete' or 'Unserviceable' to archive.")
             return redirect('property_list')
         
         property_obj.is_archived = True
@@ -6817,6 +6833,7 @@ class ResourceAllocationDashboardView(PermissionRequiredMixin, TemplateView):
                     Q(batch_request__user__last_name__icontains=search_query) |
                     Q(batch_request__user__username__icontains=search_query) |
                     Q(property__property_name__icontains=search_query) |
+                    Q(property__property_number__icontains=search_query) |
                     Q(batch_request__purpose__icontains=search_query)
                 ).distinct()
             
@@ -6870,6 +6887,7 @@ class ResourceAllocationDashboardView(PermissionRequiredMixin, TemplateView):
                     Q(batch_request__user__last_name__icontains=search_query) |
                     Q(batch_request__user__username__icontains=search_query) |
                     Q(property__property_name__icontains=search_query) |
+                    Q(property__property_number__icontains=search_query) |
                     Q(batch_request__purpose__icontains=search_query)
                 ).distinct()
             
@@ -6925,6 +6943,7 @@ class ResourceAllocationDashboardView(PermissionRequiredMixin, TemplateView):
                     Q(batch_request__user__last_name__icontains=search_query) |
                     Q(batch_request__user__username__icontains=search_query) |
                     Q(supply__supply_name__icontains=search_query) |
+                    Q(supply__barcode__icontains=search_query) |
                     Q(batch_request__purpose__icontains=search_query)
                 ).distinct()
             
@@ -7968,6 +7987,15 @@ def generate_completed_supply_requests_pdf(request):
     story.append(Paragraph(f"<b>Total Requests:</b> {total_count}", normal_style))
     story.append(Spacer(1, 15))
     
+    # Define text wrapping style for table cells
+    wrap_style = ParagraphStyle(
+        'WrapText',
+        parent=styles['Normal'],
+        fontSize=7,
+        alignment=TA_LEFT,
+        spaceAfter=0
+    )
+    
     # Check if there are no requests
     if total_count == 0:
         story.append(Paragraph("<b>No completed supply requests found with the selected filters.</b>", normal_style))
@@ -8002,7 +8030,7 @@ def generate_completed_supply_requests_pdf(request):
                 # If no items, still show the request
                 table_data.append([
                     f"#{batch_request.id:03d}",
-                    user_name,
+                    Paragraph(user_name, wrap_style),  # Wrap in Paragraph for text wrapping
                     dept_name,
                     purpose_display,
                     "No items",
@@ -8010,7 +8038,7 @@ def generate_completed_supply_requests_pdf(request):
                     "-",
                     request_date_str,
                     completed_date_str,
-                    claimed_by_name,
+                    Paragraph(claimed_by_name, wrap_style),  # Wrap in Paragraph for text wrapping
                     "-"
                 ])
             else:
@@ -8023,7 +8051,7 @@ def generate_completed_supply_requests_pdf(request):
                     if idx == 0:
                         table_data.append([
                             f"#{batch_request.id:03d}",
-                            user_name,
+                            Paragraph(user_name, wrap_style),  # Wrap in Paragraph for text wrapping
                             dept_name,
                             purpose_display,
                             item.supply.supply_name,
@@ -8031,7 +8059,7 @@ def generate_completed_supply_requests_pdf(request):
                             str(item.approved_quantity) if item.approved_quantity else "-",
                             request_date_str,
                             completed_date_str,
-                            claimed_by_name,
+                            Paragraph(claimed_by_name, wrap_style),  # Wrap in Paragraph for text wrapping
                             remarks_display
                         ])
                     else:
@@ -8053,7 +8081,7 @@ def generate_completed_supply_requests_pdf(request):
         # Create table with appropriate column widths for landscape
         main_table = Table(table_data, colWidths=[
             0.45*inch,  # Req#
-            1.1*inch,   # Requester
+            1.5*inch,   # Requester (increased width for long names)
             0.85*inch,  # Department
             1.1*inch,   # Purpose
             1.9*inch,   # Item Name
@@ -8062,7 +8090,7 @@ def generate_completed_supply_requests_pdf(request):
             0.7*inch,   # Request Date
             0.75*inch,  # Completed Date
             1.0*inch,   # Released By
-            1.3*inch    # Remarks
+            1.2*inch    # Remarks (slightly reduced to compensate)
         ])
         
         main_table.setStyle(TableStyle([
@@ -8092,6 +8120,268 @@ def generate_completed_supply_requests_pdf(request):
             ('TOPPADDING', (0, 0), (-1, -1), 5),
             ('LEFTPADDING', (0, 0), (-1, -1), 3),
             ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+            
+            # Grid
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('LINEBELOW', (0, 0), (-1, 0), 2, colors.HexColor('#152d64')),
+            
+            # Alternating row colors
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8f9fa')]),
+        ]))
+        
+        story.append(main_table)
+    
+    # Build PDF
+    try:
+        doc.build(story)
+        
+        # Get the value of the BytesIO buffer and write it to the response
+        pdf = buffer.getvalue()
+        buffer.close()
+        response.write(pdf)
+        
+        return response
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        return HttpResponse(f"Error generating PDF: {str(e)}\n\nDetails:\n{error_details}", status=500, content_type='text/plain')
+
+
+def generate_items_tally_report_pdf(request):
+    """Generate PDF report for items tallied by supply name (aggregated across all requests)"""
+    try:
+        from reportlab.lib.pagesizes import letter, A4
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+        from reportlab.lib import colors
+        from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+        from django.db.models import Q, Sum, Count
+        from io import BytesIO
+        from datetime import datetime
+    except ImportError as e:
+        return HttpResponse(f"Error importing required libraries: {str(e)}", status=500)
+    
+    # Get filter parameters
+    user_filter = request.GET.get('user', '')
+    department_filter = request.GET.get('department', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    status_filter = request.GET.get('status', '')
+    
+    # Build queryset for completed requests to aggregate items
+    completed_requests = SupplyRequestBatch.objects.filter(
+        status='completed'
+    ).select_related(
+        'user', 
+        'user__userprofile', 
+        'user__userprofile__department'
+    ).prefetch_related(
+        'items__supply'
+    )
+    
+    # Apply filters
+    if user_filter:
+        completed_requests = completed_requests.filter(user__id=user_filter)
+    
+    if department_filter:
+        completed_requests = completed_requests.filter(user__userprofile__department__id=department_filter)
+    
+    if date_from:
+        try:
+            date_from_obj = datetime.strptime(date_from, '%Y-%m-%d')
+            completed_requests = completed_requests.filter(completed_date__date__gte=date_from_obj.date())
+        except ValueError:
+            pass
+    
+    if date_to:
+        try:
+            date_to_obj = datetime.strptime(date_to, '%Y-%m-%d')
+            completed_requests = completed_requests.filter(completed_date__date__lte=date_to_obj.date())
+        except ValueError:
+            pass
+    
+    if status_filter:
+        completed_requests = completed_requests.filter(items__status=status_filter)
+    
+    # Create the HttpResponse object with PDF headers
+    response = HttpResponse(content_type='application/pdf')
+    filename = f'Items_Tally_Report_{timezone.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
+    # Create the PDF object with LANDSCAPE orientation
+    from reportlab.lib.pagesizes import landscape
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, 
+        pagesize=landscape(A4),
+        rightMargin=0.5*inch, 
+        leftMargin=0.5*inch,
+        topMargin=0.5*inch, 
+        bottomMargin=0.5*inch
+    )
+    
+    # Container for the 'Flowable' objects
+    story = []
+    
+    # Define styles
+    styles = getSampleStyleSheet()
+    
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        textColor=colors.HexColor('#152d64'),
+        spaceAfter=20,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold'
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=12,
+        textColor=colors.HexColor('#152d64'),
+        spaceAfter=10,
+        fontName='Helvetica-Bold'
+    )
+    
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=9,
+        alignment=TA_LEFT
+    )
+    
+    wrap_style = ParagraphStyle(
+        'WrapText',
+        parent=styles['Normal'],
+        fontSize=8,
+        alignment=TA_LEFT,
+        spaceAfter=0
+    )
+    
+    # Title
+    story.append(Paragraph("ITEMS TALLY REPORT", title_style))
+    story.append(Paragraph(f"Generated on: {timezone.now().strftime('%B %d, %Y at %I:%M %p')}", normal_style))
+    story.append(Spacer(1, 20))
+    
+    # Filter information
+    filter_info = []
+    if user_filter:
+        try:
+            from django.contrib.auth.models import User
+            user = User.objects.get(id=user_filter)
+            user_name = f"{user.first_name} {user.last_name}".strip() or user.username
+            filter_info.append(f"User: {user_name}")
+        except:
+            pass
+    
+    if department_filter:
+        try:
+            from .models import Department
+            dept = Department.objects.get(id=department_filter)
+            filter_info.append(f"Department: {dept.name}")
+        except:
+            pass
+    
+    if date_from:
+        filter_info.append(f"From: {date_from}")
+    
+    if date_to:
+        filter_info.append(f"To: {date_to}")
+    
+    if status_filter:
+        status_display = dict(SupplyRequestItem.STATUS_CHOICES).get(status_filter, status_filter)
+        filter_info.append(f"Status: {status_display}")
+    
+    if filter_info:
+        story.append(Paragraph("<b>Filters Applied:</b> " + " | ".join(filter_info), normal_style))
+        story.append(Spacer(1, 15))
+    
+    # Aggregate items by supply name
+    items_tally = {}
+    total_items_requested = 0
+    total_items_approved = 0
+    
+    for batch_request in completed_requests:
+        for item in batch_request.items.all():
+            supply_name = item.supply.supply_name
+            
+            if supply_name not in items_tally:
+                items_tally[supply_name] = {
+                    'total_requested': 0,
+                    'total_approved': 0,
+                    'request_count': 0,
+                    'unit': item.supply.unit if hasattr(item.supply, 'unit') and item.supply.unit else 'pcs'
+                }
+            
+            items_tally[supply_name]['total_requested'] += item.quantity
+            items_tally[supply_name]['total_approved'] += (item.approved_quantity or 0)
+            items_tally[supply_name]['request_count'] += 1
+            
+            total_items_requested += item.quantity
+            total_items_approved += (item.approved_quantity or 0)
+    
+    total_item_types = len(items_tally)
+    story.append(Paragraph(f"<b>Total Item Types:</b> {total_item_types} | <b>Total Quantity Requested:</b> {total_items_requested} | <b>Total Quantity Approved:</b> {total_items_approved}", normal_style))
+    story.append(Spacer(1, 15))
+    
+    if total_item_types == 0:
+        story.append(Paragraph("<b>No items found with the selected filters.</b>", normal_style))
+        story.append(Spacer(1, 20))
+        story.append(Paragraph("Try adjusting your filter criteria or check back later.", normal_style))
+    else:
+        # Create a table with items tally
+        story.append(Paragraph("<b>Items Summary</b>", heading_style))
+        story.append(Spacer(1, 10))
+        
+        # Prepare table data
+        table_data = [
+            ["Item Name", "Unit", "Total\nRequested", "Total\nApproved", "Times\nRequested"]
+        ]
+        
+        # Sort items by name
+        for supply_name in sorted(items_tally.keys()):
+            item_data = items_tally[supply_name]
+            table_data.append([
+                Paragraph(supply_name, wrap_style),
+                item_data['unit'],
+                str(item_data['total_requested']),
+                str(item_data['total_approved']),
+                str(item_data['request_count'])
+            ])
+        
+        # Create table with appropriate column widths for landscape
+        main_table = Table(table_data, colWidths=[
+            3.0*inch,   # Item Name (slightly reduced for new unit column)
+            0.8*inch,   # Unit
+            1.1*inch,   # Total Requested
+            1.1*inch,   # Total Approved
+            1.1*inch    # Times Requested
+        ])
+        
+        main_table.setStyle(TableStyle([
+            # Header styling
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#152d64')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 8),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+            
+            # Data rows styling
+            ('FONTSIZE', (0, 1), (-1, -1), 7.5),
+            ('ALIGN', (0, 1), (0, -1), 'LEFT'),     # Item name left
+            ('ALIGN', (1, 1), (1, -1), 'CENTER'),   # Unit center
+            ('ALIGN', (2, 1), (-1, -1), 'CENTER'),  # Quantities and count center
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            
+            # Padding
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 4),
             
             # Grid
             ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),

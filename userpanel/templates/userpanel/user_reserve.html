@@ -349,6 +349,45 @@
     body.modal-open {
         overflow: hidden;
     }
+
+    /* ===== AUTO-SAVE FEEDBACK STYLES ===== */
+    .quantity-edit {
+        position: relative;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .quantity-edit.saving {
+        border-color: #ffc107;
+        box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
+    }
+
+    .quantity-edit.saved {
+        border-color: #28a745;
+        box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+    }
+
+    .quantity-edit.error {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+    }
+
+    @keyframes fadeOut {
+        0%, 80% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
+    }
 </style>
 <div class="request-page-layout">
     <main class="request-form-container">
@@ -968,6 +1007,7 @@ $(document).ready(function() {
                     // Re-attach event handlers for new buttons
                     attachUpdateHandler();
                     attachRemoveHandler();
+                    attachQuantityAutoSave();
                     
                     // Clear form
                     $('#add-item-form')[0].reset();
@@ -1016,6 +1056,76 @@ $(document).ready(function() {
                 },
                 error: function() {
                     showMessage('An error occurred while updating the item', 'error');
+                }
+            });
+        });
+    }
+    
+    // Auto-save quantity on change
+    function attachQuantityAutoSave() {
+        $(document).off('change', '.list-table .quantity-edit').on('change', '.list-table .quantity-edit', function() {
+            const supplyId = $(this).data('supply-id');
+            const newQuantity = $(this).val();
+            const $input = $(this);
+            
+            // Validate quantity
+            if (!newQuantity || parseInt(newQuantity) < 1) {
+                $input.val($input.data('original-quantity') || 1);
+                showMessage('Quantity must be at least 1', 'error');
+                return;
+            }
+            
+            // Store original quantity in case we need to revert
+            if (!$input.data('original-quantity')) {
+                $input.data('original-quantity', newQuantity);
+            }
+            
+            // Get batch dates
+            const batchNeededDate = $('#batch-needed-date').val();
+            const batchReturnDate = $('#batch-return-date').val();
+            
+            // Show saving state
+            $input.addClass('saving').removeClass('saved error');
+            
+            $.ajax({
+                url: '{% url "update_reservation_list_item" %}',
+                type: 'POST',
+                data: {
+                    'property_id': supplyId,
+                    'quantity': newQuantity,
+                    'needed_date': batchNeededDate,
+                    'return_date': batchReturnDate,
+                    'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.status !== 'success') {
+                        // Show error state and revert
+                        $input.addClass('error').removeClass('saving saved');
+                        showMessage(response.message, 'error');
+                        // Revert to previous value
+                        const previousQty = $input.data('original-quantity');
+                        if (previousQty) {
+                            $input.val(previousQty);
+                        }
+                    } else {
+                        // Update original quantity and show success state
+                        $input.data('original-quantity', newQuantity);
+                        $input.addClass('saved').removeClass('saving error');
+                        // Remove saved class after animation
+                        setTimeout(function() {
+                            $input.removeClass('saved');
+                        }, 2500);
+                    }
+                },
+                error: function() {
+                    // Show error state and revert
+                    $input.addClass('error').removeClass('saving saved');
+                    showMessage('Error updating reservation quantity', 'error');
+                    // Revert to previous value
+                    const previousQty = $input.data('original-quantity');
+                    if (previousQty) {
+                        $input.val(previousQty);
+                    }
                 }
             });
         });
@@ -1096,6 +1206,7 @@ $(document).ready(function() {
     attachUpdateHandler();
     attachRemoveHandler();
     attachClearListHandler();
+    attachQuantityAutoSave();
     
     // Handle form submission - populate batch dates (using event delegation for dynamic forms)
     $(document).on('submit', '#submit-request-form', function(e) {

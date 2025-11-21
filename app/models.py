@@ -827,6 +827,9 @@ class ReservationBatch(models.Model):
                     message=f"Your reservation batch #{batch.id} has expired.",
                     remarks=f"All items in the batch have expired before approval."
                 )
+                # Send email notification
+                from .utils import send_reservation_expired_email
+                send_reservation_expired_email(batch)
         
         # 1. Update pending batches to expired when latest return_date has passed
         for batch in cls.objects.filter(status='pending'):
@@ -845,6 +848,9 @@ class ReservationBatch(models.Model):
                         message=f"Your reservation batch #{batch.id} has expired.",
                         remarks=f"The reservation period ended on {batch.latest_return_date} before approval."
                     )
+                    # Send email notification
+                    from .utils import send_reservation_expired_email
+                    send_reservation_expired_email(batch)
         
         # 2a. Update approved batches to expired when ALL their items are expired
         approved_batches = cls.objects.filter(status='approved')
@@ -864,6 +870,9 @@ class ReservationBatch(models.Model):
                         message=f"Your reservation batch #{batch.id} has expired.",
                         remarks=f"All items in the batch have expired."
                     )
+                    # Send email notification
+                    from .utils import send_reservation_expired_email
+                    send_reservation_expired_email(batch)
         
         # 2b. Update approved batches to expired when latest return_date has passed without becoming active
         for batch in cls.objects.filter(status='approved'):
@@ -882,6 +891,9 @@ class ReservationBatch(models.Model):
                         message=f"Your reservation batch #{batch.id} has expired.",
                         remarks=f"The reservation period ended on {batch.latest_return_date} without activation."
                     )
+                    # Send email notification
+                    from .utils import send_reservation_expired_email
+                    send_reservation_expired_email(batch)
         
         # 3. AUTO-GENERATE BORROW REQUESTS: Update approved batches to active when earliest needed_date is reached
         approved_batches = cls.objects.filter(
@@ -1983,6 +1995,10 @@ class BorrowRequestBatch(models.Model):
                 batch.status = 'expired'
                 batch.save()
                 logger.info(f"Marked batch #{batch.id} as expired and unreserved all quantities")
+                
+                # Send email notification
+                from .utils import send_borrow_request_expired_email
+                send_borrow_request_expired_email(batch)
         
         # 3. Mark for_claiming/active batches as expired when latest return_date has passed
         # and mark their items as expired accordingly
@@ -2006,6 +2022,10 @@ class BorrowRequestBatch(models.Model):
                 batch.status = 'expired'
                 batch.save()
                 logger.info(f"Marked active/for_claiming batch #{batch.id} as expired and unreserved all quantities")
+                
+                # Send email notification
+                from .utils import send_borrow_request_expired_email
+                send_borrow_request_expired_email(batch)
 
 class BorrowRequestItem(models.Model):
     """
@@ -2046,12 +2066,14 @@ class BorrowRequestItem(models.Model):
         is_new = self.pk is None
         old_status = None
         old_quantity = None
+        old_approved_quantity = None
         
         if not is_new:
             try:
                 old_instance = BorrowRequestItem.objects.get(pk=self.pk)
                 old_status = old_instance.status
                 old_quantity = old_instance.quantity
+                old_approved_quantity = old_instance.approved_quantity
             except BorrowRequestItem.DoesNotExist:
                 pass
         
@@ -2065,22 +2087,27 @@ class BorrowRequestItem(models.Model):
         # when transitioning to 'active'. So we need to skip the new creation reservation.
         # However, we still need to manage transitions (active -> returned, etc.)
         
+        # Determine the effective quantity to reserve/release
+        # Use approved_quantity if set and status is approved, otherwise use quantity
+        effective_quantity = self.approved_quantity if (self.status == 'approved' and self.approved_quantity) else self.quantity
+        old_effective_quantity = old_approved_quantity if (old_status == 'approved' and old_approved_quantity) else old_quantity
+        
         # Only reserve if this is a NEW borrow request (not from reservation)
         if is_new and self.status == 'approved' and not self.from_reservation:
-            # New approved borrow request - reserve the quantity
-            self.property.reserved_quantity += self.quantity
+            # New approved borrow request - reserve the approved quantity
+            self.property.reserved_quantity += effective_quantity
             self.property.save(update_fields=['reserved_quantity'])
         
         elif old_status and old_status != self.status:
             # Status changed
             if self.status == 'approved' and old_status == 'pending':
-                # Pending -> Approved: NOW reserve the quantity
-                self.property.reserved_quantity += self.quantity
+                # Pending -> Approved: NOW reserve the approved quantity
+                self.property.reserved_quantity += effective_quantity
                 self.property.save(update_fields=['reserved_quantity'])
             
             elif self.status == 'rejected' and old_status == 'approved':
-                # Rejected after approval: Release reserved quantity
-                self.property.reserved_quantity = max(0, self.property.reserved_quantity - self.quantity)
+                # Rejected after approval: Release the previously approved quantity
+                self.property.reserved_quantity = max(0, self.property.reserved_quantity - old_effective_quantity)
                 self.property.save(update_fields=['reserved_quantity'])
             
             elif self.status == 'rejected' and old_status == 'pending':
@@ -2092,7 +2119,7 @@ class BorrowRequestItem(models.Model):
                 # NOTE: Actual quantity deduction is handled in the claim view to prevent double deduction
                 # For items from reservations: reservation kept it reserved, now we release during claim
                 # For regular borrow requests: they reserved it themselves, now we release during claim
-                self.property.reserved_quantity = max(0, self.property.reserved_quantity - self.quantity)
+                self.property.reserved_quantity = max(0, self.property.reserved_quantity - old_effective_quantity)
                 self.property.save(update_fields=['reserved_quantity'])
                 self.property.update_availability()
             
@@ -2105,9 +2132,9 @@ class BorrowRequestItem(models.Model):
                 # Returned -> Completed: No quantity change needed
                 pass
         
-        elif old_quantity and old_quantity != self.quantity and self.status == 'approved':
-            # Quantity changed while approved - update reserved amount
-            quantity_diff = self.quantity - old_quantity
+        elif old_approved_quantity and old_approved_quantity != self.approved_quantity and self.status == 'approved':
+            # Approved quantity changed while approved - update reserved amount
+            quantity_diff = (self.approved_quantity or self.quantity) - old_approved_quantity
             self.property.reserved_quantity = max(0, self.property.reserved_quantity + quantity_diff)
             self.property.save(update_fields=['reserved_quantity'])
     

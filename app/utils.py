@@ -476,3 +476,117 @@ def send_near_overdue_borrow_email(borrow_request_item):
     except Exception as e:
         logger.error(f"Failed to send near-overdue reminder email: {str(e)}")
         return False
+
+
+def send_reservation_expired_email(reservation_batch):
+    """
+    Send an email notification when a reservation batch expires.
+    
+    Args:
+        reservation_batch: The ReservationBatch instance that has expired
+    """
+    try:
+        user = reservation_batch.user
+        
+        # Skip if user doesn't have an email
+        if not user.email:
+            logger.warning(f"User {user.username} doesn't have an email address. Skipping reservation expiration email notification.")
+            return False
+            
+        # Prepare context for email template
+        site_url = os.getenv('SITE_URL', 'http://localhost:8000')
+        dashboard_url = f"{site_url}/userpanel/dashboard/"
+        
+        # Get items in the batch
+        items = reservation_batch.items.all()
+        
+        context = {
+            'user': user,
+            'batch_id': reservation_batch.id,
+            'batch': reservation_batch,
+            'items': items,
+            'total_items': items.count(),
+            'latest_return_date': reservation_batch.latest_return_date,
+            'dashboard_url': dashboard_url,
+            'current_year': timezone.now().year,
+        }
+        
+        # Render email template
+        html_message = render_to_string('app/email/reservation_expired.html', context)
+        plain_message = strip_tags(html_message)
+        
+        subject = f"Reservation Batch #{reservation_batch.id} - Request Expired"
+        
+        # Send email
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        
+        logger.info(f"Reservation expiration email sent to {user.email} for batch #{reservation_batch.id}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to send reservation expiration email to {user.email}: {str(e)}")
+        return False
+
+
+def send_borrow_request_expired_email(borrow_batch):
+    """
+    Send an email notification when a borrow request batch expires.
+    
+    Args:
+        borrow_batch: The BorrowRequestBatch instance that has expired
+    """
+    try:
+        user = borrow_batch.user
+        
+        # Skip if user doesn't have an email
+        if not user.email:
+            logger.warning(f"User {user.username} doesn't have an email address. Skipping borrow request expiration email notification.")
+            return False
+            
+        # Prepare context for email template
+        site_url = os.getenv('SITE_URL', 'http://localhost:8000')
+        dashboard_url = f"{site_url}/userpanel/dashboard/"
+        
+        # Get items in the batch
+        items = borrow_batch.items.all()
+        
+        context = {
+            'user': user,
+            'batch_id': borrow_batch.id,
+            'batch': borrow_batch,
+            'items': items,
+            'total_items': items.count(),
+            'latest_return_date': borrow_batch.latest_return_date,
+            'dashboard_url': dashboard_url,
+            'current_year': timezone.now().year,
+        }
+        
+        # Render email template
+        html_message = render_to_string('app/email/borrow_request_expired.html', context)
+        plain_message = strip_tags(html_message)
+        
+        subject = f"Borrow Request #{borrow_batch.id} - Request Expired"
+        
+        # Send email
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        
+        logger.info(f"Borrow request expiration email sent to {user.email} for batch #{borrow_batch.id}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to send borrow request expiration email to {user.email}: {str(e)}")
+        return False

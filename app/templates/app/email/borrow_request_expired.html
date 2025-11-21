@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Borrow Request Expired - ResourceHive</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #152d64;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .content {
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .info-box {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+        }
+        .alert-expired {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .button {
+            display: inline-block;
+            background-color: #152d64;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .details-table th,
+        .details-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .details-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .batch-info {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #dc3545;
+        }
+        .section-title {
+            color: #152d64;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i style="font-size: 1.5em;">⏰</i> Borrow Request Expired</h1>
+    </div>
+
+    <div class="content">
+        <p>Dear {{ user.first_name|default:user.username }},</p>
+
+        <div class="alert-expired">
+            <strong>Your borrow request batch #{{ batch_id }} has expired.</strong>
+            <p>The borrow period has ended. All items in this batch have been marked as expired and released from your borrow request.</p>
+        </div>
+
+        <p>We wanted to inform you that the following borrow request batch has reached its expiration date:</p>
+
+        <div class="batch-info">
+            <p><strong>Borrow Request ID:</strong> #{{ batch_id }}</p>
+            <p><strong>Requested Date:</strong> {{ batch.request_date|date:"M d, Y H:i" }}</p>
+            <p><strong>Latest Return Date:</strong> {{ latest_return_date|date:"M d, Y"|default:"N/A" }}</p>
+            <p><strong>Status:</strong> <span style="color: #dc3545; font-weight: bold;">Expired</span></p>
+            <p><strong>Purpose:</strong> {{ batch.purpose }}</p>
+        </div>
+
+        <div class="section-title">Borrowed Items ({{ total_items }})</div>
+        <table class="details-table">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Return Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.property.property_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.return_date|date:"M d, Y"|default:"N/A" }}</td>
+                    <td><span style="color: #dc3545;">{{ item.get_status_display }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="section-title">What Happens Now?</div>
+        <p>Since your borrow request has expired:</p>
+        <ul>
+            <li><strong>The borrow batch has been automatically closed</strong></li>
+            <li><strong>All borrowed items have been marked as expired</strong></li>
+            <li><strong>The items are now released back to inventory for other users</strong></li>
+            <li><strong>If items were not returned, you may be subject to additional follow-up</strong></li>
+        </ul>
+
+        <p style="margin-top: 20px; color: #666;">If you have any unreturned items or questions about this request, please contact your administrator immediately.</p>
+
+        <a href="{{ dashboard_url }}" class="button">Go to Dashboard</a>
+    </div>
+
+    <div class="footer">
+        <p>&copy; {{ current_year }} ResourceHive. All rights reserved.</p>
+        <p>This is an automated email notification. Please do not reply directly.</p>
+    </div>
+</body>
+</html>
