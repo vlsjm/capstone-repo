@@ -913,8 +913,10 @@ $(document).ready(function() {
                                     <form id="submit-request-form" method="post" action="{% url 'submit_reservation_list_request' %}">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="submit_request">
+                                        <input type="hidden" id="batch-needed-date-hidden" name="batch_needed_date">
+                                        <input type="hidden" id="batch-return-date-hidden" name="batch_return_date">
                                         <div class="form-group">
-                                            <label for="general-purpose">Purpose/Description:</label>
+                                            <label for="general-purpose">Purpose/Description:<span class="required-asterisk">*</span></label>
                                             <textarea id="general-purpose" name="general_purpose" class="form-control" 
                                                       rows="3" placeholder="Please describe the purpose of this request..." required></textarea>
                                         </div>
@@ -1095,13 +1097,15 @@ $(document).ready(function() {
     attachRemoveHandler();
     attachClearListHandler();
     
-    // Handle form submission - populate batch dates
-    $('#submit-request-form').on('submit', function(e) {
+    // Handle form submission - populate batch dates (using event delegation for dynamic forms)
+    $(document).on('submit', '#submit-request-form', function(e) {
         // Get minimum date from the input's min attribute (server-provided, more reliable)
         const minDate = $('#batch-needed-date').attr('min');
         
         const batchNeededDate = $('#batch-needed-date').val();
         const batchReturnDate = $('#batch-return-date').val();
+        
+        console.log('[FORM SUBMIT] Validating dates - needed:', batchNeededDate, 'return:', batchReturnDate, 'min:', minDate);
         
         if (!batchNeededDate || !batchReturnDate) {
             e.preventDefault();
@@ -1136,6 +1140,8 @@ $(document).ready(function() {
         // Populate hidden fields
         $('#batch-needed-date-hidden').val(batchNeededDate);
         $('#batch-return-date-hidden').val(batchReturnDate);
+        
+        console.log('[FORM SUBMIT] Validation passed - submitting form');
     });
     
     // Searchable dropdown functionality

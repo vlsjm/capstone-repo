@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm, UserProfileUpdateForm
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordChangeDoneView
-from app.models import UserProfile, Notification, Property, ActivityLog, Supply, SupplyRequestBatch, SupplyRequestItem, SupplyRequest, BorrowRequest, BorrowRequestBatch, BorrowRequestItem, Reservation, ReservationBatch, ReservationItem, DamageReport, PropertyCategory
+from app.models import UserProfile, Notification, Property, ActivityLog, Supply, SupplyRequestBatch, SupplyRequestItem, SupplyRequest, BorrowRequest, BorrowRequestBatch, BorrowRequestItem, Reservation, ReservationBatch, ReservationItem, DamageReport, PropertyCategory, SupplyQuantity
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import JsonResponse
 from django.utils import timezone
@@ -298,7 +298,7 @@ class UserUnifiedRequestView(PermissionRequiredMixin, TemplateView):
             except Exception as e:
                 continue
         
-        # Get available supplies
+        # Get available supplies - includes both current_quantity and available_quantity (after reserved items)
         available_supplies = Supply.objects.filter(
             available_for_request=True,
             quantity_info__current_quantity__gt=0
@@ -1349,11 +1349,8 @@ class UserPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
             if profile.must_change_password:
                 profile.must_change_password = False
                 profile.save()
-                messages.success(self.request, 'Your password was successfully updated! You can now access the dashboard.')
-            else:
-                messages.success(self.request, 'Your password was successfully updated!')
         except UserProfile.DoesNotExist:
-            messages.success(self.request, 'Your password was successfully updated!')
+            pass
         
         return response
 
@@ -1364,8 +1361,19 @@ class UserPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
         return ['userpanel/password_change_done.html']
     
     def get(self, request, *args, **kwargs):
-        # Redirect to dashboard instead of showing done page
-        return redirect('user_dashboard')
+        # Add success message if it was a forced password change
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+            # Check if this was a first-time password change
+            if request.GET.get('first_time'):
+                messages.success(request, 'Your password was successfully updated! You can now access the dashboard.')
+            else:
+                messages.success(request, 'Your password was successfully updated!')
+        except UserProfile.DoesNotExist:
+            messages.success(request, 'Your password was successfully updated!')
+        
+        # Display success message on the done page, then redirect
+        return render(request, self.get_template_names()[0])
 
 @login_required
 @require_POST
@@ -1956,9 +1964,13 @@ def update_reservation_list_item(request):
         
         cart = request.session.get('reservation_cart', [])
         
+        # Convert property_id to string for comparison (since session data stores strings)
+        property_id_str = str(property_id)
+        
         # Find and update the item
         for i, item in enumerate(cart):
-            if item['property_id'] == property_id:
+            # Compare as strings since session data is stored as strings
+            if str(item.get('property_id')) == property_id_str:
                 try:
                     property_obj = Property.objects.get(id=property_id)
                     
@@ -2047,7 +2059,35 @@ def submit_reservation_list_request(request):
         
         general_purpose = request.POST.get('general_purpose', '')
         
+        # Get dates from POST (from hidden fields - user-entered dates)
+        batch_needed_date_str = request.POST.get('batch_needed_date')
+        batch_return_date_str = request.POST.get('batch_return_date')
+        
+        # Validate that dates were provided
+        if not batch_needed_date_str or not batch_return_date_str:
+            messages.error(request, 'Please set reservation dates before submitting')
+            return redirect('user_reserve')
+        
         try:
+            # Parse and validate the dates
+            batch_needed_date = datetime.strptime(batch_needed_date_str, '%Y-%m-%d').date()
+            batch_return_date = datetime.strptime(batch_return_date_str, '%Y-%m-%d').date()
+            
+            # Validate dates are not in the past
+            today = datetime.now().date()
+            if batch_needed_date < today:
+                messages.error(request, 'Needed date cannot be in the past')
+                return redirect('user_reserve')
+            
+            if batch_return_date < today:
+                messages.error(request, 'Return date cannot be in the past')
+                return redirect('user_reserve')
+            
+            # Validate return date is not before needed date
+            if batch_return_date < batch_needed_date:
+                messages.error(request, 'Return date cannot be before needed date')
+                return redirect('user_reserve')
+            
             # Validate all items before creating batch
             for item in cart:
                 property_obj = Property.objects.get(id=item['property_id'])
@@ -2069,7 +2109,7 @@ def submit_reservation_list_request(request):
                 status='pending'
             )
             
-            # Create ReservationItem for each cart item
+            # Create ReservationItem for each cart item using the batch-level dates
             created_items = []
             for item in cart:
                 property_obj = Property.objects.get(id=item['property_id'])
@@ -2078,8 +2118,8 @@ def submit_reservation_list_request(request):
                     batch_request=reservation_batch,
                     property=property_obj,
                     quantity=item['quantity'],
-                    needed_date=datetime.strptime(item['needed_date'], '%Y-%m-%d').date(),
-                    return_date=datetime.strptime(item['return_date'], '%Y-%m-%d').date(),
+                    needed_date=batch_needed_date,
+                    return_date=batch_return_date,
                     status='pending',
                     remarks=item.get('purpose', '')
                 )
@@ -2452,7 +2492,9 @@ def request_detail(request, type, request_id):
                 'request_obj': request_obj,
                 'request_type': 'Reservation',
                 'items': [{'item': item.property, 'quantity': item.quantity} for item in items],
-                'is_batch': True
+                'is_batch': True,
+                'needed_date': request_obj.earliest_needed_date,
+                'return_date': request_obj.latest_return_date,
             }
         else:
             messages.error(request, 'Invalid request type.')
@@ -2549,20 +2591,22 @@ def request_again(request):
                     'property_id': item.property.id,
                     'property_name': item.property.property_name,
                     'quantity': item.quantity,
-                    'needed_date': item.needed_date.strftime('%Y-%m-%d') if item.needed_date else None,
-                    'return_date': item.return_date.strftime('%Y-%m-%d') if item.return_date else None,
+                    # Do NOT include old dates - user must set new dates
+                    'needed_date': None,
+                    'return_date': None,
                     'purpose': item.remarks if item.remarks else ''
                 })
             request.session['reservation_cart'] = reservation_items
-            # Store batch-level dates and purpose for display
-            earliest_date = original_request.earliest_needed_date
-            latest_date = original_request.latest_return_date
-            request.session['reservation_needed_date'] = earliest_date.strftime('%Y-%m-%d') if earliest_date else None
-            request.session['reservation_return_date'] = latest_date.strftime('%Y-%m-%d') if latest_date else None
+            # Do NOT store old batch-level dates - user must enter new dates
+            # Clear any existing reservation dates from session
+            if 'reservation_needed_date' in request.session:
+                del request.session['reservation_needed_date']
+            if 'reservation_return_date' in request.session:
+                del request.session['reservation_return_date']
             request.session['reservation_purpose'] = original_request.purpose if hasattr(original_request, 'purpose') else ''
             request.session.modified = True
             request.session.save()  # Explicitly save the session
-            messages.success(request, f'Added {original_request.items.count()} items to your reservation list.')
+            messages.success(request, f'Added {original_request.items.count()} items to your reservation list. Please set new reservation dates.')
             return redirect('user_reserve')
             
         else:
@@ -2729,6 +2773,31 @@ def submit_list_request(request):
             })
         
         try:
+            # Validate quantities against available_quantity (accounting for reserved items)
+            validation_errors = []
+            for cart_item in cart:
+                try:
+                    supply = Supply.objects.get(id=cart_item['supply_id'])
+                    requested_qty = cart_item['quantity']
+                    available_qty = supply.quantity_info.available_quantity
+                    
+                    if requested_qty > available_qty:
+                        validation_errors.append(
+                            f"{supply.supply_name}: Only {available_qty} unit(s) available "
+                            f"(accounting for reserved items). Please reduce your request to {available_qty} or less."
+                        )
+                except Supply.DoesNotExist:
+                    validation_errors.append(f"Supply item #{cart_item['supply_id']} not found.")
+                except SupplyQuantity.DoesNotExist:
+                    validation_errors.append(f"{supply.supply_name} has no quantity information.")
+            
+            # If there are validation errors, return them all
+            if validation_errors:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Cannot submit request due to insufficient available stock:\n' + '\n'.join(validation_errors)
+                })
+            
             # Create the batch request
             batch_request = SupplyRequestBatch.objects.create(
                 user=request.user,

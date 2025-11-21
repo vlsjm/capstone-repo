@@ -203,8 +203,8 @@ def create_user(request):
                     messages.warning(request, f'Group {role} does not exist. User created without group assignment.')
 
                 # Create user profile
-                # Set must_change_password to True for USER role (new users must change password on first login)
-                must_change_pwd = (role == 'USER')
+                # Set must_change_password to True for USER and ADMIN roles (new users must change password on first login)
+                must_change_pwd = (role == 'USER' or role == 'ADMIN')
                 
                 profile = UserProfile.objects.create(
                     user=user,
@@ -1624,10 +1624,11 @@ class ActivityPageView(PermissionRequiredMixin, ListView):
     permission_required = 'app.view_admin_module'
     permission_denied_message = "You do not have permission to view the activity log."
     context_object_name = 'activitylog_list'
-    paginate_by = 10
+    paginate_by = 20  # Increased from 10 to 20 for better performance (fewer page loads)
 
     def get_queryset(self):
-        queryset = ActivityLog.objects.all().order_by('-timestamp')
+        # Use select_related to prevent N+1 queries on user lookups
+        queryset = ActivityLog.objects.select_related('user').order_by('-timestamp')
         
         # Apply filters
         user_filter = self.request.GET.get('user')
@@ -1644,7 +1645,7 @@ class ActivityPageView(PermissionRequiredMixin, ListView):
         if end_date:
             queryset = queryset.filter(timestamp__date__lte=end_date)
 
-        # Filter by category if specified
+        # Filter by category if specified (duplicate of model_filter, kept for compatibility)
         category = self.request.GET.get('category')
         if category:
             queryset = queryset.filter(model_name=category)
@@ -1653,11 +1654,16 @@ class ActivityPageView(PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['users'] = User.objects.all()
         
-        # Get all unique models and sort them
-        models = ActivityLog.objects.values_list('model_name', flat=True).distinct()
-        context['models'] = sorted(set(models))  # Convert to set to ensure uniqueness and sort
+        # Load all users who have activity logs (including inactive users)
+        # This is important for audit trails - we need to show past activities of deactivated users
+        context['users'] = User.objects.filter(
+            activitylog__isnull=False
+        ).distinct().order_by('username')
+        
+        # Get all unique models efficiently using database-level distinct
+        models = ActivityLog.objects.values_list('model_name', flat=True).distinct().order_by('model_name')
+        context['models'] = list(models)
         
         # Get current category for highlighting in template
         context['current_category'] = self.request.GET.get('category', '')
@@ -2252,13 +2258,10 @@ class SupplyListView(PermissionRequiredMixin, ListView):
         context['categories'] = SupplyCategory.objects.prefetch_related('supply_set').all()
         context['subcategories'] = SupplySubcategory.objects.prefetch_related('supply_set').all()
         
-        # Keep grouped_supplies for backward compatibility with modals (get all supplies, not just current page)
-        all_supplies = Supply.objects.filter(is_archived=False).select_related('quantity_info', 'category', 'subcategory').order_by('supply_name')
-        context['all_supplies'] = all_supplies
-        
-        # Group supplies by category for modals
+        # Only include paginated supplies for grouped view (not all supplies)
+        # This improves page load performance by not loading entire database
         grouped = defaultdict(list)
-        for supply in all_supplies:
+        for supply in supplies:
             category_name = supply.category.name if supply.category else 'Uncategorized'
             grouped[category_name].append(supply)
         context['grouped_supplies'] = dict(sorted(grouped.items()))
@@ -2566,40 +2569,13 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         context['categories'] = PropertyCategory.objects.all()
         context['form'] = PropertyForm()
         
-        # Keep properties_by_category for backward compatibility with modals
-        # Get all properties (not just current page) for modals
-        all_properties = Property.objects.filter(is_archived=False).select_related('category').order_by('property_name')
-        
-        # Ensure barcodes are generated for all properties (needed for barcode selection modal)
-        for prop in all_properties:
-            if not prop.barcode or not prop.barcode_image:
-                barcode_text = prop.property_number if prop.property_number else f"PROP-{prop.id}"
-                prop.barcode = barcode_text
-                filename, content = generate_barcode_image(barcode_text)
-                prop.barcode_image.save(filename, content, save=False)
-                prop.save(update_fields=['barcode', 'barcode_image'])
-        
+        # Only include the paginated properties for context (not all properties)
+        # This improves page load performance by not loading entire database
         properties_by_category = defaultdict(list)
-        for prop in all_properties:
+        for prop in properties:
             properties_by_category[prop.category].append(prop)
         context['properties_by_category'] = dict(properties_by_category)
         
-        return context
-
-        # Create paginated groups
-        paginated_groups = {}
-        for category, category_properties in grouped.items():
-            page_number = self.request.GET.get(f'page_{category}', 1)
-            paginator = Paginator(category_properties, 10)  # 10 items per category per page
-            
-            try:
-                paginated_groups[category] = paginator.page(page_number)
-            except PageNotAnInteger:
-                paginated_groups[category] = paginator.page(1)
-            except EmptyPage:
-                paginated_groups[category] = paginator.page(paginator.num_pages)
-
-        context['grouped_properties'] = paginated_groups
         return context
     
 @require_POST
@@ -4028,7 +4004,7 @@ def modify_supply_quantity_generic(request):
             })
         return redirect('supply_list')
 
-class AdminPasswordChangeView(PasswordChangeView):
+class AdminPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     template_name = 'app/password_change.html'
     success_url = reverse_lazy('password_change_done')
 
@@ -4037,14 +4013,29 @@ class AdminPasswordChangeView(PasswordChangeView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(self.request, 'Your password was successfully updated!')
+        
+        # Clear the must_change_password flag after successful password change
+        try:
+            profile = UserProfile.objects.get(user=self.request.user)
+            if profile.must_change_password:
+                profile.must_change_password = False
+                profile.save()
+        except UserProfile.DoesNotExist:
+            pass
+        
         return response
 
-class AdminPasswordChangeDoneView(PasswordChangeDoneView):
+class AdminPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
     template_name = 'app/password_change_done.html'
 
     def get_template_names(self):
         return [self.template_name]
+    
+    def get(self, request, *args, **kwargs):
+        # Add success message on the done page
+        messages.success(request, 'Your password was successfully updated!')
+        # Display success message on the done page, then redirect
+        return render(request, self.get_template_names()[0])
 
 @permission_required('app.view_admin_module')
 @login_required
@@ -5366,6 +5357,7 @@ def modify_property_quantity_generic(request):
     try:
         property_id = request.POST.get("property_id")
         amount = int(request.POST.get("amount", 0))
+        reason = request.POST.get("reason", "").strip()  # Get optional reason for deduction
 
         prop = get_object_or_404(Property, pk=property_id)
         old_quantity = prop.quantity
@@ -5375,6 +5367,20 @@ def modify_property_quantity_generic(request):
         prop.overall_quantity += amount
         prop.save()
 
+        # Build remarks with reason if provided
+        if amount < 0:
+            # Deduction - include reason if provided
+            if reason:
+                remarks = f"Deducted {abs(amount)} units. Reason: {reason}. Modified by: {request.user.get_full_name() or request.user.username}"
+            else:
+                remarks = f"Deducted {abs(amount)} units. Modified by: {request.user.get_full_name() or request.user.username}"
+        else:
+            # Addition
+            if reason:
+                remarks = f"Added {amount} units. Reason: {reason}. Modified by: {request.user.get_full_name() or request.user.username}"
+            else:
+                remarks = f"Added {amount} units. Modified by: {request.user.get_full_name() or request.user.username}"
+
         PropertyHistory.objects.create(
             property=prop,
             user=request.user,
@@ -5382,7 +5388,7 @@ def modify_property_quantity_generic(request):
             field_name='quantity',
             old_value=str(old_quantity),
             new_value=str(prop.quantity),
-            remarks=f"add {amount}"
+            remarks=remarks
         )
 
         # Add activity log
@@ -5391,10 +5397,10 @@ def modify_property_quantity_generic(request):
             action='quantity_update',
             model_name='Property',
             object_repr=str(prop),
-            description=f"Added {amount} units to property '{prop.property_name}'. Changed quantity from {old_quantity} to {prop.quantity}"
+            description=f"{'Added' if amount > 0 else 'Deducted'} {abs(amount)} units to property '{prop.property_name}'. Changed quantity from {old_quantity} to {prop.quantity}" + (f". Reason: {reason}" if reason else "")
         )
 
-        messages.success(request, f"Quantity successfully added.")
+        messages.success(request, f"Quantity successfully {'added' if amount > 0 else 'deducted'}.")
         
         # Return JSON response for AJAX request
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -5507,7 +5513,7 @@ def modify_property_quantity_batch(request):
                     field_name='quantity',
                     old_value=str(old_quantity),
                     new_value=str(prop.quantity),
-                    remarks=f"Batch add: {quantity_to_add} units"
+                    remarks=f"Batch added {quantity_to_add} units. Modified by: {request.user.get_full_name() or request.user.username}"
                 )
                 
                 # Add activity log
@@ -6565,10 +6571,22 @@ def claim_borrow_batch_items(request, batch_id):
     
     for item in approved_items:
         approved_qty = item.approved_quantity or item.quantity or 0
+        old_quantity = item.property.quantity
         
         # Deduct from property quantity
         item.property.quantity -= approved_qty
         item.property.save()
+        
+        # Create PropertyHistory entry for deduction with responsible person and reason
+        PropertyHistory.objects.create(
+            property=item.property,
+            user=request.user,
+            action='quantity_update',
+            field_name='quantity',
+            old_value=str(old_quantity),
+            new_value=str(item.property.quantity),
+            remarks=f"Deducted {approved_qty} units for borrow request. Borrower: {batch_request.user.get_full_name() or batch_request.user.username}. Return date: {batch_request.latest_return_date}. Purpose: {batch_request.purpose[:100]}"
+        )
         
         # Update the approved_quantity if it was None
         if item.approved_quantity is None:
@@ -6658,10 +6676,22 @@ def return_borrow_batch_items(request, batch_id):
     
     for item in active_items:
         approved_qty = item.approved_quantity or item.quantity or 0
+        old_quantity = item.property.quantity
         
         # Add back to property quantity
         item.property.quantity += approved_qty
         item.property.save()
+        
+        # Create PropertyHistory entry for return with responsible person
+        PropertyHistory.objects.create(
+            property=item.property,
+            user=request.user,
+            action='quantity_update',
+            field_name='quantity',
+            old_value=str(old_quantity),
+            new_value=str(item.property.quantity),
+            remarks=f"Returned {approved_qty} units from borrow. Borrower: {batch_request.user.get_full_name() or batch_request.user.username}. Processed by: {request.user.get_full_name() or request.user.username}"
+        )
         
         # Mark item as returned
         item.status = 'returned'
@@ -6720,6 +6750,251 @@ def return_borrow_batch_items(request, batch_id):
     
     messages.success(request, success_msg)
     return redirect_with_tab(request, 'user_borrow_requests')
+
+
+# Resource Allocation Dashboard View (Unified for all request types)
+class ResourceAllocationDashboardView(PermissionRequiredMixin, TemplateView):
+    """
+    Unified dashboard for viewing all resource allocations across:
+    - Borrow Requests
+    - Reservations  
+    - Supply Requests
+    
+    Accessible only to admin users.
+    """
+    permission_required = 'app.view_admin_module'
+    template_name = 'app/resource_allocation_dashboard.html'
+    
+    def get_context_data(self, **kwargs):
+        from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+        from app.models import BorrowRequestItem, ReservationItem, SupplyRequestItem, SupplyRequestBatch
+        
+        context = super().get_context_data(**kwargs)
+        
+        # Get the current tab from request - default to borrow
+        current_tab = self.request.GET.get('tab', 'borrow')
+        
+        # Get search and filter parameters
+        search_query = self.request.GET.get('search', '').strip()
+        department_filter = self.request.GET.get('department', '')
+        date_from = self.request.GET.get('date_from', '')
+        date_to = self.request.GET.get('date_to', '')
+        status_filter = self.request.GET.get('status', '')
+        
+        # Parse dates if provided
+        date_from_obj = None
+        date_to_obj = None
+        if date_from:
+            try:
+                date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+            except ValueError:
+                pass
+        if date_to:
+            try:
+                date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+            except ValueError:
+                pass
+        
+        paginate_by = 15
+        
+        # Initialize empty allocations - only fetch data for active tab
+        borrow_page_obj = None
+        reservation_page_obj = None
+        supply_page_obj = None
+        
+        # =========================
+        # LAZY LOAD: Only fetch current tab's data
+        # =========================
+        if current_tab == 'borrow':
+            borrow_items = BorrowRequestItem.objects.filter(
+                Q(status='approved') | Q(status='active')
+            ).select_related('batch_request__user', 'batch_request__user__userprofile', 'property').order_by('-batch_request__request_date')
+            
+            # Apply filters for borrow
+            if search_query:
+                borrow_items = borrow_items.filter(
+                    Q(batch_request__user__first_name__icontains=search_query) |
+                    Q(batch_request__user__last_name__icontains=search_query) |
+                    Q(batch_request__user__username__icontains=search_query) |
+                    Q(property__property_name__icontains=search_query) |
+                    Q(batch_request__purpose__icontains=search_query)
+                ).distinct()
+            
+            if department_filter:
+                borrow_items = borrow_items.filter(batch_request__user__userprofile__department__name=department_filter)
+            
+            if date_from_obj:
+                borrow_items = borrow_items.filter(batch_request__request_date__date__gte=date_from_obj)
+            
+            if date_to_obj:
+                borrow_items = borrow_items.filter(batch_request__request_date__date__lte=date_to_obj)
+            
+            if status_filter:
+                borrow_items = borrow_items.filter(status=status_filter)
+            
+            # Format borrow allocations
+            borrow_allocations = []
+            for item in borrow_items:
+                borrow_allocations.append({
+                    'type': 'Borrow Request',
+                    'type_class': 'borrow',
+                    'request_id': item.batch_request.id,
+                    'user': item.batch_request.user,
+                    'property': item.property,
+                    'quantity': item.approved_quantity or item.quantity,
+                    'status': item.get_status_display(),
+                    'status_value': item.status,
+                    'request_date': item.batch_request.request_date,
+                    'return_date': item.return_date,
+                    'purpose': item.batch_request.purpose,
+                    'remarks': item.remarks or '',
+                    'detail_url': 'borrow_batch_request_detail',
+                })
+            
+            paginator_borrow = Paginator(borrow_allocations, paginate_by)
+            page_borrow = self.request.GET.get('borrow_page', 1)
+            try:
+                borrow_page_obj = paginator_borrow.page(page_borrow)
+            except (PageNotAnInteger, EmptyPage):
+                borrow_page_obj = paginator_borrow.page(1)
+        
+        elif current_tab == 'reservation':
+            reservation_items = ReservationItem.objects.filter(
+                Q(status='approved') | Q(status='active')
+            ).select_related('batch_request__user', 'batch_request__user__userprofile', 'property').order_by('-batch_request__request_date')
+            
+            # Apply filters for reservations
+            if search_query:
+                reservation_items = reservation_items.filter(
+                    Q(batch_request__user__first_name__icontains=search_query) |
+                    Q(batch_request__user__last_name__icontains=search_query) |
+                    Q(batch_request__user__username__icontains=search_query) |
+                    Q(property__property_name__icontains=search_query) |
+                    Q(batch_request__purpose__icontains=search_query)
+                ).distinct()
+            
+            if department_filter:
+                reservation_items = reservation_items.filter(batch_request__user__userprofile__department__name=department_filter)
+            
+            if date_from_obj:
+                reservation_items = reservation_items.filter(batch_request__request_date__date__gte=date_from_obj)
+            
+            if date_to_obj:
+                reservation_items = reservation_items.filter(batch_request__request_date__date__lte=date_to_obj)
+            
+            if status_filter:
+                reservation_items = reservation_items.filter(status=status_filter)
+            
+            # Format reservation allocations
+            reservation_allocations = []
+            for item in reservation_items:
+                reservation_allocations.append({
+                    'type': 'Reservation',
+                    'type_class': 'reservation',
+                    'request_id': item.batch_request.id,
+                    'user': item.batch_request.user,
+                    'property': item.property,
+                    'quantity': item.quantity,
+                    'status': item.get_status_display(),
+                    'status_value': item.status,
+                    'request_date': item.batch_request.request_date,
+                    'needed_date': item.needed_date,
+                    'return_date': item.return_date,
+                    'purpose': item.batch_request.purpose,
+                    'remarks': item.remarks or '',
+                    'detail_url': 'reservation_batch_detail',
+                })
+            
+            paginator_reservation = Paginator(reservation_allocations, paginate_by)
+            page_reservation = self.request.GET.get('reservation_page', 1)
+            try:
+                reservation_page_obj = paginator_reservation.page(page_reservation)
+            except (PageNotAnInteger, EmptyPage):
+                reservation_page_obj = paginator_reservation.page(1)
+        
+        elif current_tab == 'supply':
+            # Only show approved supply items (once approved, they're allocated)
+            supply_items = SupplyRequestItem.objects.filter(
+                status='approved'
+            ).select_related('batch_request__user', 'batch_request__user__userprofile', 'supply').order_by('-batch_request__request_date')
+            
+            # Apply filters for supply
+            if search_query:
+                supply_items = supply_items.filter(
+                    Q(batch_request__user__first_name__icontains=search_query) |
+                    Q(batch_request__user__last_name__icontains=search_query) |
+                    Q(batch_request__user__username__icontains=search_query) |
+                    Q(supply__supply_name__icontains=search_query) |
+                    Q(batch_request__purpose__icontains=search_query)
+                ).distinct()
+            
+            if department_filter:
+                supply_items = supply_items.filter(batch_request__user__userprofile__department__name=department_filter)
+            
+            if date_from_obj:
+                supply_items = supply_items.filter(batch_request__request_date__date__gte=date_from_obj)
+            
+            if date_to_obj:
+                supply_items = supply_items.filter(batch_request__request_date__date__lte=date_to_obj)
+            
+            if status_filter and status_filter == 'approved':
+                supply_items = supply_items.filter(status='approved')
+            
+            # Format supply allocations
+            supply_allocations = []
+            for item in supply_items:
+                supply_allocations.append({
+                    'type': 'Supply Request',
+                    'type_class': 'supply',
+                    'request_id': item.batch_request.id,
+                    'user': item.batch_request.user,
+                    'supply': item.supply,
+                    'quantity': item.approved_quantity or item.quantity,
+                    'status': item.get_status_display(),
+                    'status_value': item.status,
+                    'request_date': item.batch_request.request_date,
+                    'purpose': item.batch_request.purpose,
+                    'remarks': item.remarks or '',
+                    'detail_url': 'batch_request_detail',
+                })
+            
+            paginator_supply = Paginator(supply_allocations, paginate_by)
+            page_supply = self.request.GET.get('supply_page', 1)
+            try:
+                supply_page_obj = paginator_supply.page(page_supply)
+            except (PageNotAnInteger, EmptyPage):
+                supply_page_obj = paginator_supply.page(1)
+        
+        # Build URL parameters string for pagination
+        url_params = ''
+        if search_query:
+            url_params += f'&search={search_query}'
+        if department_filter:
+            url_params += f'&department={department_filter}'
+        if date_from:
+            url_params += f'&date_from={date_from}'
+        if date_to:
+            url_params += f'&date_to={date_to}'
+        if status_filter:
+            url_params += f'&status={status_filter}'
+        
+        context.update({
+            'current_tab': current_tab,
+            'borrow_allocations': borrow_page_obj,
+            'reservation_allocations': reservation_page_obj,
+            'supply_allocations': supply_page_obj,
+            'search_query': search_query,
+            'department_filter': department_filter,
+            'date_from': date_from,
+            'date_to': date_to,
+            'status_filter': status_filter,
+            'departments': Department.objects.all(),
+            'url_params': url_params,
+            'allocation_statuses': ['approved', 'active'],
+        })
+        
+        return context
+
 
 class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
     """View for displaying batch borrow requests - shows all for admin, user's own for regular users"""
@@ -6810,60 +7085,6 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
         rejected_requests = base_queryset.filter(status='rejected')
         expired_requests = base_queryset.filter(status='expired')
         
-        # Get resource allocations (only for admin users)
-        resource_allocations = []
-        if self.request.user.has_perm('app.view_admin_module'):
-            # Get all approved/active borrow request items
-            from app.models import BorrowRequestItem, ReservationItem
-            
-            borrow_items = BorrowRequestItem.objects.filter(
-                Q(status='approved') | Q(status='active')
-            ).select_related('batch_request__user', 'batch_request__user__userprofile', 'property').order_by('-batch_request__request_date')
-            
-            # Get all approved/active reservation items
-            reservation_items = ReservationItem.objects.filter(
-                Q(status='approved') | Q(status='active')
-            ).select_related('batch_request__user', 'batch_request__user__userprofile', 'property').order_by('-batch_request__request_date')
-            
-            # Combine both into a unified list
-            for item in borrow_items:
-                resource_allocations.append({
-                    'type': 'Borrow Request',
-                    'type_class': 'borrow',
-                    'request_id': item.batch_request.id,
-                    'user': item.batch_request.user,
-                    'property': item.property,
-                    'quantity': item.approved_quantity or item.quantity,
-                    'status': item.get_status_display(),
-                    'status_value': item.status,
-                    'request_date': item.batch_request.request_date,
-                    'return_date': item.return_date,
-                    'purpose': item.batch_request.purpose,
-                    'remarks': item.remarks or '',
-                    'detail_url': 'borrow_batch_request_detail',
-                })
-            
-            for item in reservation_items:
-                resource_allocations.append({
-                    'type': 'Reservation',
-                    'type_class': 'reservation',
-                    'request_id': item.batch_request.id,
-                    'user': item.batch_request.user,
-                    'property': item.property,
-                    'quantity': item.quantity,
-                    'status': item.get_status_display(),
-                    'status_value': item.status,
-                    'request_date': item.batch_request.request_date,
-                    'needed_date': item.needed_date,
-                    'return_date': item.return_date,
-                    'purpose': item.batch_request.purpose,
-                    'remarks': item.remarks or '',
-                    'detail_url': 'reservation_batch_detail',
-                })
-            
-            # Sort by request date (newest first)
-            resource_allocations.sort(key=lambda x: x['request_date'], reverse=True)
-        
         # Pagination for each tab
         paginator_pending = Paginator(pending_requests, self.paginate_by)
         paginator_for_claiming = Paginator(for_claiming_requests, self.paginate_by)
@@ -6872,7 +7093,6 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
         paginator_overdue = Paginator(overdue_requests, self.paginate_by)
         paginator_rejected = Paginator(rejected_requests, self.paginate_by)
         paginator_expired = Paginator(expired_requests, self.paginate_by)
-        paginator_allocations = Paginator(resource_allocations, self.paginate_by)
         
         # Get page numbers for each tab
         page_pending = self.request.GET.get('pending_page', 1)
@@ -6882,7 +7102,6 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
         page_overdue = self.request.GET.get('overdue_page', 1)
         page_rejected = self.request.GET.get('rejected_page', 1)
         page_expired = self.request.GET.get('expired_page', 1)
-        page_allocations = self.request.GET.get('allocations_page', 1)
         
         # Build URL parameters string for pagination
         url_params = ''
@@ -6904,7 +7123,6 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
             'overdue_requests': paginator_overdue.get_page(page_overdue),
             'rejected_requests': paginator_rejected.get_page(page_rejected),
             'expired_requests': paginator_expired.get_page(page_expired),
-            'resource_allocations': paginator_allocations.get_page(page_allocations),
             'search_query': search_query,
             'department_filter': department_filter,
             'date_from': date_from,
@@ -7083,9 +7301,23 @@ def claim_individual_borrow_item(request, batch_id, item_id):
         messages.error(request, f"Insufficient stock for {item.property.property_name}. Available: {available_quantity}, needed: {approved_qty}")
         return redirect('borrow_batch_request_detail', batch_id=batch_id)
     
+    # Store old quantity for history
+    old_quantity = item.property.quantity
+    
     # Deduct from property stock
     item.property.quantity -= approved_qty
     item.property.save()
+    
+    # Create PropertyHistory entry for deduction with responsible person and reason
+    PropertyHistory.objects.create(
+        property=item.property,
+        user=request.user,
+        action='quantity_update',
+        field_name='quantity',
+        old_value=str(old_quantity),
+        new_value=str(item.property.quantity),
+        remarks=f"Deducted {approved_qty} units for borrow request. Borrower: {batch_request.user.get_full_name() or batch_request.user.username}. Return date: {item.return_date}. Claimed by: {request.user.get_full_name() or request.user.username}"
+    )
     
     # Update the approved_quantity if it was None
     if item.approved_quantity is None:
@@ -7144,8 +7376,20 @@ def return_individual_borrow_item(request, batch_id, item_id):
     
     # Add back to property stock
     approved_qty = item.approved_quantity or item.quantity or 0
+    old_quantity = item.property.quantity
     item.property.quantity += approved_qty
     item.property.save()
+    
+    # Create PropertyHistory entry for return with responsible person
+    PropertyHistory.objects.create(
+        property=item.property,
+        user=request.user,
+        action='quantity_update',
+        field_name='quantity',
+        old_value=str(old_quantity),
+        new_value=str(item.property.quantity),
+        remarks=f"Returned {approved_qty} units from borrow. Borrower: {batch_request.user.get_full_name() or batch_request.user.username}. Processed by: {request.user.get_full_name() or request.user.username}"
+    )
     
     # Mark item as returned
     item.status = 'returned'

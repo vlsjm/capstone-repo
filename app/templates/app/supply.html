@@ -2115,16 +2115,44 @@ tr.hidden {
       
       <!-- Pagination -->
       <div class="actlog-pagination" style="margin-top: 20px;">
-        <!-- Page Numbers (1-5) -->
-        {% for num in page_obj.paginator.page_range %}
-          {% if num <= 5 %}
-            {% if page_obj.number == num %}
-              <span class="pagination-link active">{{ num }}</span>
-            {% else %}
-              <a href="#" data-page="{{ num }}" class="pagination-link">{{ num }}</a>
+        <!-- Previous Button -->
+        {% if page_obj.has_previous %}
+          <a href="#" data-page="{{ page_obj.previous_page_number }}" class="pagination-link prev-btn">Previous</a>
+        {% else %}
+          <span class="pagination-link prev-btn disabled">Previous</span>
+        {% endif %}
+
+        <!-- Page Numbers with smart range -->
+        {% with total_pages=page_obj.paginator.num_pages current_page=page_obj.number %}
+          {% if total_pages > 1 %}
+            <!-- Show first page -->
+            {% if current_page > 3 %}
+              <a href="#" data-page="1" class="pagination-link">1</a>
+              {% if current_page > 4 %}
+                <span class="pagination-ellipsis">...</span>
+              {% endif %}
+            {% endif %}
+
+            <!-- Show pages around current page -->
+            {% for num in page_obj.paginator.page_range %}
+              {% if num >= current_page|add:"-2" and num <= current_page|add:"2" %}
+                {% if num == current_page %}
+                  <span class="pagination-link active">{{ num }}</span>
+                {% else %}
+                  <a href="#" data-page="{{ num }}" class="pagination-link">{{ num }}</a>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+
+            <!-- Show last page -->
+            {% if current_page < total_pages|add:"-2" %}
+              {% if current_page < total_pages|add:"-3" %}
+                <span class="pagination-ellipsis">...</span>
+              {% endif %}
+              <a href="#" data-page="{{ total_pages }}" class="pagination-link">{{ total_pages }}</a>
             {% endif %}
           {% endif %}
-        {% endfor %}
+        {% endwith %}
 
         <!-- Next Button -->
         {% if page_obj.has_next %}

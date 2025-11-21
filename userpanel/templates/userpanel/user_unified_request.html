@@ -854,7 +854,8 @@ body.modal-open {
                 "category_name": "{{ supply.category.name|escapejs }}",
                 "code": "{{ supply.supply_number|default:""|escapejs }}",
                 "description": "{{ supply.description|default:""|escapejs }}",
-                "available": {{ supply.quantity_info.current_quantity }}
+                "available": {{ supply.quantity_info.current_quantity }},
+                "available_qty": {{ supply.quantity_info.available_quantity }}
             }{% if not forloop.last %},{% endif %}
             {% endfor %}
         ]'></div>
@@ -970,11 +971,12 @@ body.modal-open {
                                          data-category="{{ supply.category.id }}"
                                          data-category-name="{{ supply.category.name }}"
                                          data-available="{{ supply.quantity_info.current_quantity }}"
+                                         data-available-qty="{{ supply.quantity_info.available_quantity }}"
                                          data-unit="{{ supply.unit|default:'' }}">
                                         <div class="option-main">
                                             <span class="option-name">{{ supply.supply_name }}</span>
-                                            <span class="option-stock {% if supply.quantity_info.current_quantity < 10 %}low-stock{% endif %}">
-                                                {{ supply.quantity_info.current_quantity }}{% if supply.unit %} {{ supply.unit }}{% endif %} available
+                                            <span class="option-stock {% if supply.quantity_info.available_quantity < 10 %}low-stock{% endif %}">
+                                                {{ supply.quantity_info.available_quantity }}{% if supply.unit %} {{ supply.unit }}{% endif %} available
                                             </span>
                                         </div>
                                         <div class="option-details">
@@ -1149,8 +1151,8 @@ body.modal-open {
                                          data-unit="{{ property.unit_of_measure|default:'' }}">
                                         <div class="option-main">
                                             <span class="option-name">{{ property.property_name }}</span>
-                                            <span class="option-stock {% if property.quantity < 5 %}low-stock{% endif %}">
-                                                {{ property.quantity }}{% if property.unit_of_measure %} {{ property.unit_of_measure }}{% endif %} available
+                                            <span class="option-stock {% if property.available_quantity < 5 %}low-stock{% endif %}">
+                                                {{ property.available_quantity }}{% if property.unit_of_measure %} {{ property.unit_of_measure }}{% endif %} available
                                             </span>
                                         </div>
                                         <div class="option-details">
@@ -1392,8 +1394,8 @@ $(document).ready(function() {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
     
-    // Initialize recent requests with supply type
-    updateRecentRequests('supply');
+    // Initialize recent requests with the active tab type
+    updateRecentRequests(activeTab);
     
     // Set minimum return date to tomorrow for both supply and borrow
     const tomorrow = new Date();
@@ -1423,10 +1425,10 @@ $(document).ready(function() {
             return;
         }
         
-        // Check if quantity exceeds available stock
+        // Check if quantity exceeds available stock (accounting for reserved items)
         const supply = allSupplies.find(s => s.id === parseInt(supplyId));
-        if (supply && quantity > supply.available) {
-            showMessage(`Only ${supply.available} unit${supply.available !== 1 ? 's' : ''} available. Please request a smaller quantity.`, 'error');
+        if (supply && quantity > supply.available_qty) {
+            showMessage(`Only ${supply.available_qty} unit${supply.available_qty !== 1 ? 's' : ''} available (after accounting for reserved items). Please request a smaller quantity.`, 'error');
             return;
         }
         
@@ -2307,8 +2309,11 @@ function populateModalItems(type) {
             return;
         }
         
-        listContainer.innerHTML = filtered.map(item => `
-            <div class="modal-item-option" onclick="selectItemFromModal('${type}', ${item.id}, '${item.name.replace(/'/g, "\\'")}', ${item.available})">
+        listContainer.innerHTML = filtered.map(item => {
+            // For supply items, use available_qty (accounting for reserved). For borrow, use available_qty.
+            const displayQty = type === 'supply' ? item.available_qty : item.available_qty;
+            return `
+            <div class="modal-item-option" onclick="selectItemFromModal('${type}', ${item.id}, '${item.name.replace(/'/g, "\\'")}', ${displayQty})">
                 <div class="modal-item-info">
                     <div class="modal-item-name">${item.name}</div>
                     <div class="modal-item-details">
@@ -2316,11 +2321,11 @@ function populateModalItems(type) {
                         ${item.code ? `<span class="modal-item-code">Code: ${item.code}</span>` : ''}
                     </div>
                 </div>
-                <div class="modal-item-stock ${item.available < 10 ? 'low-stock' : 'available'}">
-                    ${item.available} available
+                <div class="modal-item-stock ${displayQty < 10 ? 'low-stock' : 'available'}">
+                    ${displayQty} available
                 </div>
             </div>
-        `).join('');
+        `}).join('');
     }
     
     // Initial render
@@ -2655,13 +2660,13 @@ function initializeDropdown(config) {
         
         const value = option.dataset.value;
         const text = option.dataset.name || option.textContent;
-        const available = option.dataset.available;
+        const availableQty = option.dataset.availableQty || option.dataset.available;
         
         hiddenInput.value = value;
         
-        if (available && quantityInput) {
+        if (availableQty && quantityInput) {
             // No max limit - users can request any quantity
-            quantityInput.setAttribute('placeholder', `Enter quantity (${available} available)`);
+            quantityInput.setAttribute('placeholder', `Enter quantity (${availableQty} available)`);
         }
         
         // Close dropdown

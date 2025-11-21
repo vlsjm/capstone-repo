@@ -546,6 +546,14 @@
           <span>{{ batch.request_date|date:"M d, Y h:i A" }}</span>
         </div>
         <div class="info-item">
+          <strong>Needed Date</strong>
+          <span>{% if batch.earliest_needed_date %}{{ batch.earliest_needed_date|date:"M d, Y" }}{% else %}N/A{% endif %}</span>
+        </div>
+        <div class="info-item">
+          <strong>Return Date</strong>
+          <span>{% if batch.latest_return_date %}{{ batch.latest_return_date|date:"M d, Y" }}{% else %}N/A{% endif %}</span>
+        </div>
+        <div class="info-item">
           <strong>Total Items</strong>
           <span>{{ total_items }} item{{ total_items|pluralize }}</span>
         </div>

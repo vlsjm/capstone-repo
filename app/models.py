@@ -916,6 +916,7 @@ class ReservationBatch(models.Model):
                             return_date=item.return_date,
                             status='approved',
                             approved=True,
+                            from_reservation=True,  # Mark as coming from a reservation
                             remarks=f"Auto-generated from reservation batch #{batch.id}"
                         )
                         
@@ -1023,11 +1024,10 @@ class ReservationItem(models.Model):
                 pass
             
             elif self.status == 'active' and old_status == 'approved':
-                # Approved -> Active (claimed): Deduct from both reserved and actual quantity
-                self.property.reserved_quantity = max(0, self.property.reserved_quantity - self.quantity)
-                self.property.quantity = max(0, self.property.quantity - self.quantity)
-                self.property.save(update_fields=['reserved_quantity', 'quantity'])
-                self.property.update_availability()
+                # Approved -> Active: The borrow request has been created and is ready to be claimed
+                # Do NOT release reserved quantity - it will be released when borrow items are claimed
+                # The reserved quantity stays in effect during the "for_claiming" phase
+                pass
             
             elif self.status == 'completed' and old_status == 'active':
                 # Active -> Completed (returned): Restore quantity
@@ -1311,6 +1311,7 @@ class Reservation(models.Model):
                         return_date=reservation.return_date,
                         status='approved',
                         approved=True,
+                        from_reservation=True,  # Mark as coming from a reservation
                         remarks=f"Auto-generated from reservation #{reservation.id}"
                     )
                     
@@ -2032,6 +2033,7 @@ class BorrowRequestItem(models.Model):
     remarks = models.TextField(blank=True, null=True)
     near_overdue_notified = models.BooleanField(default=False)  # Track if near-overdue reminder was sent
     overdue_notified = models.BooleanField(default=False)  # Track if overdue SMS was sent
+    from_reservation = models.BooleanField(default=False)  # True if auto-generated from an approved reservation
 
     class Meta:
         unique_together = ['batch_request', 'property']  # Prevent duplicate items in same batch
@@ -2059,9 +2061,12 @@ class BorrowRequestItem(models.Model):
         super().save(*args, **kwargs)
         
         # Handle reserved_quantity updates
-        # NOTE: Borrow requests only reserve when APPROVED (not when pending)
-        # This differs from reservations which reserve immediately when pending
-        if is_new and self.status == 'approved':
+        # NOTE: For items from reservations, the reservation already handled the reservation
+        # when transitioning to 'active'. So we need to skip the new creation reservation.
+        # However, we still need to manage transitions (active -> returned, etc.)
+        
+        # Only reserve if this is a NEW borrow request (not from reservation)
+        if is_new and self.status == 'approved' and not self.from_reservation:
             # New approved borrow request - reserve the quantity
             self.property.reserved_quantity += self.quantity
             self.property.save(update_fields=['reserved_quantity'])
@@ -2083,8 +2088,10 @@ class BorrowRequestItem(models.Model):
                 pass
             
             elif self.status == 'active' and old_status == 'approved':
-                # Approved -> Active (claimed): Only release reserved quantity
+                # Approved -> Active (claimed): Release reserved quantity
                 # NOTE: Actual quantity deduction is handled in the claim view to prevent double deduction
+                # For items from reservations: reservation kept it reserved, now we release during claim
+                # For regular borrow requests: they reserved it themselves, now we release during claim
                 self.property.reserved_quantity = max(0, self.property.reserved_quantity - self.quantity)
                 self.property.save(update_fields=['reserved_quantity'])
                 self.property.update_availability()
