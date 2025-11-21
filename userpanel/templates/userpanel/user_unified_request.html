@@ -789,6 +789,72 @@ body.modal-open {
     }
 }
 
+/* ===== AUTO-SAVE FEEDBACK STYLES ===== */
+.quantity-edit {
+    position: relative;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.quantity-edit.saving {
+    border-color: #ffc107;
+    box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
+}
+
+.quantity-edit.saved {
+    border-color: #28a745;
+    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+}
+
+.quantity-edit.error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+}
+
+.save-indicator {
+    display: inline-block;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 4px;
+    font-weight: 500;
+    vertical-align: middle;
+}
+
+.save-indicator.saving {
+    color: #ff9800;
+    background-color: #fff3e0;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.save-indicator.saved {
+    color: #28a745;
+    background-color: #e8f5e9;
+    animation: fadeOut 2s ease-in-out forwards;
+}
+
+.save-indicator.error {
+    color: #dc3545;
+    background-color: #ffebee;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes fadeOut {
+    0%, 80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
 </style>
 {% endblock %}
 
@@ -854,7 +920,8 @@ body.modal-open {
                 "category_name": "{{ supply.category.name|escapejs }}",
                 "code": "{{ supply.supply_number|default:""|escapejs }}",
                 "description": "{{ supply.description|default:""|escapejs }}",
-                "available": {{ supply.quantity_info.current_quantity }}
+                "available": {{ supply.quantity_info.current_quantity }},
+                "available_qty": {{ supply.quantity_info.available_quantity }}
             }{% if not forloop.last %},{% endif %}
             {% endfor %}
         ]'></div>
@@ -970,11 +1037,12 @@ body.modal-open {
                                          data-category="{{ supply.category.id }}"
                                          data-category-name="{{ supply.category.name }}"
                                          data-available="{{ supply.quantity_info.current_quantity }}"
+                                         data-available-qty="{{ supply.quantity_info.available_quantity }}"
                                          data-unit="{{ supply.unit|default:'' }}">
                                         <div class="option-main">
                                             <span class="option-name">{{ supply.supply_name }}</span>
-                                            <span class="option-stock {% if supply.quantity_info.current_quantity < 10 %}low-stock{% endif %}">
-                                                {{ supply.quantity_info.current_quantity }}{% if supply.unit %} {{ supply.unit }}{% endif %} available
+                                            <span class="option-stock {% if supply.quantity_info.available_quantity < 10 %}low-stock{% endif %}">
+                                                {{ supply.quantity_info.available_quantity }}{% if supply.unit %} {{ supply.unit }}{% endif %} available
                                             </span>
                                         </div>
                                         <div class="option-details">
@@ -1149,8 +1217,8 @@ body.modal-open {
                                          data-unit="{{ property.unit_of_measure|default:'' }}">
                                         <div class="option-main">
                                             <span class="option-name">{{ property.property_name }}</span>
-                                            <span class="option-stock {% if property.quantity < 5 %}low-stock{% endif %}">
-                                                {{ property.quantity }}{% if property.unit_of_measure %} {{ property.unit_of_measure }}{% endif %} available
+                                            <span class="option-stock {% if property.available_quantity < 5 %}low-stock{% endif %}">
+                                                {{ property.available_quantity }}{% if property.unit_of_measure %} {{ property.unit_of_measure }}{% endif %} available
                                             </span>
                                         </div>
                                         <div class="option-details">
@@ -1392,13 +1460,12 @@ $(document).ready(function() {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
     
-    // Initialize recent requests with supply type
-    updateRecentRequests('supply');
+    // Initialize recent requests with the active tab type
+    updateRecentRequests(activeTab);
     
-    // Set minimum return date to tomorrow for both supply and borrow
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const minDate = tomorrow.toISOString().split('T')[0];
+    // Set minimum return date to today for both supply and borrow
+    const today = new Date();
+    const minDate = today.toISOString().split('T')[0];
     $('#return-date-input').attr('min', minDate);
     $('#borrow-batch-return-date').attr('min', minDate);
     
@@ -1423,10 +1490,10 @@ $(document).ready(function() {
             return;
         }
         
-        // Check if quantity exceeds available stock
+        // Check if quantity exceeds available stock (accounting for reserved items)
         const supply = allSupplies.find(s => s.id === parseInt(supplyId));
-        if (supply && quantity > supply.available) {
-            showMessage(`Only ${supply.available} unit${supply.available !== 1 ? 's' : ''} available. Please request a smaller quantity.`, 'error');
+        if (supply && quantity > supply.available_qty) {
+            showMessage(`Only ${supply.available_qty} unit${supply.available_qty !== 1 ? 's' : ''} available (after accounting for reserved items). Please request a smaller quantity.`, 'error');
             return;
         }
         
@@ -1721,7 +1788,7 @@ $(document).ready(function() {
     // Update borrow list item quantity only (no return date)
     $(document).on('click', '.btn-update-borrow', function() {
         const supplyId = $(this).data('supply-id');
-        const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
+        const newQuantity = $(this).closest('tr').find('.quantity-edit').val();
         
         $.ajax({
             url: '{% url "update_borrow_list_item" %}',
@@ -1802,6 +1869,22 @@ $(document).ready(function() {
     $(document).on('change', '#supply-list-body .quantity-edit', function() {
         const supplyId = $(this).data('supply-id');
         const newQuantity = $(this).val();
+        const $input = $(this);
+        
+        // Validate quantity
+        if (!newQuantity || parseInt(newQuantity) < 1) {
+            $input.val($input.data('original-quantity') || 1);
+            showMessage('Quantity must be at least 1', 'error');
+            return;
+        }
+        
+        // Store original quantity in case we need to revert
+        if (!$input.data('original-quantity')) {
+            $input.data('original-quantity', newQuantity);
+        }
+        
+        // Show saving state
+        $input.addClass('saving').removeClass('saved error');
         
         $.ajax({
             url: '{% url "update_list_item" %}',
@@ -1813,19 +1896,57 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (!response.success) {
+                    // Show error state and revert
+                    $input.addClass('error').removeClass('saving saved');
                     showMessage(response.message, 'error');
+                    // Revert to previous value
+                    const previousQty = $input.data('original-quantity');
+                    if (previousQty) {
+                        $input.val(previousQty);
+                    }
+                } else {
+                    // Update original quantity and show success state
+                    $input.data('original-quantity', newQuantity);
+                    $input.addClass('saved').removeClass('saving error');
+                    // Remove saved class after animation
+                    setTimeout(function() {
+                        $input.removeClass('saved');
+                    }, 2500);
                 }
             },
             error: function() {
+                // Show error state and revert
+                $input.addClass('error').removeClass('saving saved');
                 showMessage('Error updating quantity', 'error');
+                // Revert to previous value
+                const previousQty = $input.data('original-quantity');
+                if (previousQty) {
+                    $input.val(previousQty);
+                }
             }
         });
     });
     
     // Auto-save borrow quantity on change
     $(document).on('change', '#borrow-list-body .quantity-edit', function() {
-        const supplyId = $(this).closest('tr').data('supply-id');
-        const newQuantity = $(`.quantity-edit[data-supply-id="${supplyId}"]`).val();
+        const supplyId = $(this).data('supply-id');
+        const newQuantity = $(this).val();
+        const $input = $(this);
+        
+        // Validate quantity
+        if (!newQuantity || parseInt(newQuantity) < 1) {
+            $input.val($input.data('original-quantity') || 1);
+            showMessage('Quantity must be at least 1', 'error');
+            return;
+        }
+        
+        // Store original quantity in case we need to revert
+        if (!$input.data('original-quantity')) {
+            $input.data('original-quantity', newQuantity);
+        }
+        
+        // Show saving state
+        $input.addClass('saving').removeClass('saved error');
         
         $.ajax({
             url: '{% url "update_borrow_list_item" %}',
@@ -1837,11 +1958,33 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.status !== 'success') {
+                    // Show error state and revert
+                    $input.addClass('error').removeClass('saving saved');
                     showMessage(response.message, 'error');
+                    // Revert to previous value
+                    const previousQty = $input.data('original-quantity');
+                    if (previousQty) {
+                        $input.val(previousQty);
+                    }
+                } else {
+                    // Update original quantity and show success state
+                    $input.data('original-quantity', newQuantity);
+                    $input.addClass('saved').removeClass('saving error');
+                    // Remove saved class after animation
+                    setTimeout(function() {
+                        $input.removeClass('saved');
+                    }, 2500);
                 }
             },
             error: function() {
+                // Show error state and revert
+                $input.addClass('error').removeClass('saving saved');
                 showMessage('Error updating borrow quantity', 'error');
+                // Revert to previous value
+                const previousQty = $input.data('original-quantity');
+                if (previousQty) {
+                    $input.val(previousQty);
+                }
             }
         });
     });
@@ -2307,8 +2450,11 @@ function populateModalItems(type) {
             return;
         }
         
-        listContainer.innerHTML = filtered.map(item => `
-            <div class="modal-item-option" onclick="selectItemFromModal('${type}', ${item.id}, '${item.name.replace(/'/g, "\\'")}', ${item.available})">
+        listContainer.innerHTML = filtered.map(item => {
+            // For supply items, use available_qty (accounting for reserved). For borrow, use available_qty.
+            const displayQty = type === 'supply' ? item.available_qty : item.available_qty;
+            return `
+            <div class="modal-item-option" onclick="selectItemFromModal('${type}', ${item.id}, '${item.name.replace(/'/g, "\\'")}', ${displayQty})">
                 <div class="modal-item-info">
                     <div class="modal-item-name">${item.name}</div>
                     <div class="modal-item-details">
@@ -2316,11 +2462,11 @@ function populateModalItems(type) {
                         ${item.code ? `<span class="modal-item-code">Code: ${item.code}</span>` : ''}
                     </div>
                 </div>
-                <div class="modal-item-stock ${item.available < 10 ? 'low-stock' : 'available'}">
-                    ${item.available} available
+                <div class="modal-item-stock ${displayQty < 10 ? 'low-stock' : 'available'}">
+                    ${displayQty} available
                 </div>
             </div>
-        `).join('');
+        `}).join('');
     }
     
     // Initial render
@@ -2655,13 +2801,13 @@ function initializeDropdown(config) {
         
         const value = option.dataset.value;
         const text = option.dataset.name || option.textContent;
-        const available = option.dataset.available;
+        const availableQty = option.dataset.availableQty || option.dataset.available;
         
         hiddenInput.value = value;
         
-        if (available && quantityInput) {
+        if (availableQty && quantityInput) {
             // No max limit - users can request any quantity
-            quantityInput.setAttribute('placeholder', `Enter quantity (${available} available)`);
+            quantityInput.setAttribute('placeholder', `Enter quantity (${availableQty} available)`);
         }
         
         // Close dropdown

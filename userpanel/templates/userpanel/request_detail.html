@@ -595,19 +595,34 @@
                     </div>
                 </div>
                 
-                {% if request_obj.return_date or request_obj.needed_date %}
+                {% if request_obj.return_date or request_obj.needed_date or needed_date or return_date %}
                 <div style="padding: 16px; background: #f8f9fa; border-radius: 6px;">
                     <div style="font-size: 12px; color: #6c757d; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
-                        {% if request_obj.return_date %}Return Date{% else %}Needed Date{% endif %}
+                        {% if needed_date %}Needed Date{% elif request_obj.return_date %}Return Date{% else %}Needed Date{% endif %}
                     </div>
                     <div style="font-size: 16px; font-weight: 600; color: #152d64;">
-                        {% if request_obj.return_date %}
+                        {% if needed_date %}
+                            {{ needed_date|date:"M d, Y" }}
+                        {% elif request_obj.return_date %}
                             {{ request_obj.return_date|date:"M d, Y" }}
                         {% elif request_obj.needed_date %}
                             {{ request_obj.needed_date|date:"M d, Y" }}
                         {% endif %}
                     </div>
                 </div>
+                
+                {% if return_date or request_obj.return_date %}
+                <div style="padding: 16px; background: #f8f9fa; border-radius: 6px;">
+                    <div style="font-size: 12px; color: #6c757d; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Return Date</div>
+                    <div style="font-size: 16px; font-weight: 600; color: #152d64;">
+                        {% if return_date %}
+                            {{ return_date|date:"M d, Y" }}
+                        {% elif request_obj.return_date %}
+                            {{ request_obj.return_date|date:"M d, Y" }}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
                 {% endif %}
                 
                 {% if request_obj.approved_date %}

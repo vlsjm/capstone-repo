@@ -97,6 +97,7 @@ from .views import (
     delete_supply_subcategory,
     get_top_requested_supplies,
     get_department_requests_filtered,
+    ResourceAllocationDashboardView,
 )
 
 urlpatterns = [
@@ -158,6 +159,10 @@ urlpatterns = [
     path('my-damage-reports/', UserDamageReportListView.as_view(), name='user_damage_reports'),
     path('my-reservations/', UserReservationListView.as_view(), name='user_reservations'),
     path('generate-completed-supply-requests-pdf/', views.generate_completed_supply_requests_pdf, name='generate_completed_supply_requests_pdf'),
+    path('generate-items-tally-report-pdf/', views.generate_items_tally_report_pdf, name='generate_items_tally_report_pdf'),
+    
+    # Resource Allocation Dashboard (Admin Only)
+    path('resource-allocation/', ResourceAllocationDashboardView.as_view(), name='resource_allocation_dashboard'),
 
     # Batch borrow request management URLs
     path('borrow-batch-detail/<int:batch_id>/', borrow_batch_request_detail, name='borrow_batch_request_detail'),

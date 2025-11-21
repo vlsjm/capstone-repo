@@ -532,6 +532,10 @@
         transform: translateX(4px) !important;
     }
 
+    .sidebar ul li a.active {
+        color: #fbff00 !important;
+    }
+
     .sidebar ul li a i {
         width: 20px !important;
         text-align: center !important;

@@ -7,43 +7,43 @@
   <h1>Resource Hive</h1>
   <ul role="menubar">
     <li role="none">
-      <a href="{% url 'user_dashboard' %}" role="menuitem" tabindex="0">
+      <a href="{% url 'user_dashboard' %}" role="menuitem" tabindex="0" {% if request.resolver_match.url_name == 'user_dashboard' %}class="active" style="color: #fbff00 !important;"{% endif %}>
         <i class="fas fa-home" aria-hidden="true"></i> 
         <span>Dashboard</span>
       </a>
     </li>
     <li role="none">
-      <a href="{% url 'user_unified_request' %}" role="menuitem" tabindex="0">
+      <a href="{% url 'user_unified_request' %}" role="menuitem" tabindex="0" {% if request.resolver_match.url_name == 'user_unified_request' %}class="active" style="color: #fbff00 !important;"{% endif %}>
         <i class="fas fa-clipboard-list" aria-hidden="true"></i> 
         <span>Request</span>
       </a>
     </li>
     <li role="none">
-      <a href="{% url 'user_reserve' %}" role="menuitem" tabindex="0">
+      <a href="{% url 'user_reserve' %}" role="menuitem" tabindex="0" {% if request.resolver_match.url_name == 'user_reserve' %}class="active" style="color: #fbff00 !important;"{% endif %}>
         <i class="fas fa-calendar-alt" aria-hidden="true"></i> 
         <span>Reserve</span>
       </a>
     </li>
     <li role="none">
-      <a href="{% url 'user_all_requests' %}" role="menuitem" tabindex="0">
+      <a href="{% url 'user_all_requests' %}" role="menuitem" tabindex="0" {% if request.resolver_match.url_name == 'user_all_requests' %}class="active" style="color: #fbff00 !important;"{% endif %}>
         <i class="fas fa-history" aria-hidden="true"></i> 
         <span>All My Requests</span>
       </a>
     </li>
     <li role="none">
-      <a href="{% url 'user_requests_summary' %}" role="menuitem" tabindex="0">
+      <a href="{% url 'user_requests_summary' %}" role="menuitem" tabindex="0" {% if request.resolver_match.url_name == 'user_requests_summary' %}class="active" style="color: #fbff00 !important;"{% endif %}>
         <i class="fas fa-chart-line" aria-hidden="true"></i> 
         <span>Requests Summary</span>
       </a>
     </li>
     <li role="none">
-      <a href="{% url 'user_report' %}" role="menuitem" tabindex="0">
+      <a href="{% url 'user_report' %}" role="menuitem" tabindex="0" {% if request.resolver_match.url_name == 'user_report' %}class="active" style="color: #fbff00 !important;"{% endif %}>
         <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> 
         <span>Report</span>
       </a>
     </li>
     <li role="none">
-      <a href="{% url 'user_profile' %}" role="menuitem" tabindex="0">
+      <a href="{% url 'user_profile' %}" role="menuitem" tabindex="0" {% if request.resolver_match.url_name == 'user_profile' %}class="active" style="color: #fbff00 !important;"{% endif %}>
         <i class="fas fa-user" aria-hidden="true"></i> 
         <span>Profile</span>
       </a>

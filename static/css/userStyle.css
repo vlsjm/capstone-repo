@@ -325,6 +325,10 @@ h1 {
   color: #fbff00;
 }
 
+.sidebar ul li a.active {
+  color: #fbff00;
+}
+
 .sidebar ul li a:active {
   background-color: transparent;
 }

@@ -1,0 +1,746 @@
+{% load static %}
+{% load user_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resource Allocation Dashboard</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <style>
+    /* Main container styles matching system theme */
+    .requests-container {
+      padding: 20px;
+      margin-left: 270px;
+      background-color: #f5f6fa;
+      min-height: 100vh;
+    }
+    
+    .requests-title {
+      color: #152d64;
+      margin-bottom: 30px;
+      font-size: 32px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .page-subtitle {
+      text-align: center;
+      color: #6c757d;
+      font-size: 14px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    /* Search and filter section */
+    .search-filter-section {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-input,
+    .filter-select,
+    .date-input {
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .filter-select,
+    .date-input {
+      min-width: 150px;
+    }
+
+    .filter-btn,
+    .clear-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn {
+      background: #152d64;
+      color: white;
+    }
+
+    .filter-btn:hover {
+      background: #0f1f45;
+      color: white;
+    }
+
+    .clear-btn {
+      background: #e9ecef;
+      color: #152d64;
+    }
+
+    .clear-btn:hover {
+      background: #dee2e6;
+      color: #0f1f45;
+    }
+    
+    /* Tab Navigation */
+    .tab-navigation {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      background: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .tab-button {
+      padding: 10px 20px;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      background: #f8f9fa;
+      color: #6c757d;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-button:hover {
+      background: #e9ecef;
+      color: #152d64;
+    }
+
+    .tab-button.active {
+      background: #152d64;
+      color: white;
+      border-color: #152d64;
+    }
+
+    .tab-button i {
+      font-size: 16px;
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Table Styles */
+    .requests-table {
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+      margin: 20px 0;
+    }
+
+    .requests-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .requests-table th {
+      background: #152d64;
+      color: white;
+      padding: 16px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #0d1f4a;
+    }
+
+    .requests-table th:first-child {
+      padding-left: 20px;
+    }
+
+    .requests-table th:last-child {
+      padding-right: 20px;
+      text-align: center;
+    }
+
+    .requests-table td {
+      padding: 16px 12px;
+      border-bottom: 1px solid #e9ecef;
+      vertical-align: middle;
+    }
+
+    .requests-table td:first-child {
+      padding-left: 20px;
+    }
+
+    .requests-table td:last-child {
+      padding-right: 20px;
+      text-align: center;
+    }
+
+    .requests-table tr {
+      transition: background-color 0.2s ease;
+    }
+
+    .requests-table tbody tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .requests-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Status badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-approved {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-active {
+      background: #cce5ff;
+      color: #004085;
+    }
+
+    /* Request info styles */
+    .requester-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .requester-info strong {
+      font-weight: 600;
+      color: #152d64;
+    }
+
+    .requester-info small {
+      font-size: 12px;
+      color: #6c757d;
+    }
+
+    /* Button styles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      white-space: nowrap;
+      user-select: none;
+      line-height: 1.4;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      gap: 4px;
+    }
+
+    .btn-primary {
+      background: #152d64;
+      color: white;
+      border: 1px solid #152d64;
+    }
+
+    .btn-primary:hover {
+      background: #0f1f45;
+      border-color: #0f1f45;
+      color: white;
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(21, 45, 100, 0.2);
+    }
+
+    /* No data message */
+    .no-requests {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6c757d;
+    }
+
+    .no-requests i {
+      font-size: 48px;
+      margin-bottom: 20px;
+      color: #dee2e6;
+    }
+
+    .no-requests p {
+      font-size: 16px;
+      margin: 0;
+    }
+
+    /* Pagination */
+    .pagination-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      margin-top: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+    }
+
+    .pagination-info {
+      color: #6c757d;
+      font-size: 14px;
+    }
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pagination-btn {
+      background: #152d64;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 12px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pagination-btn:hover {
+      background: #0f1f45;
+      color: white;
+      text-decoration: none;
+    }
+
+    .pagination-current {
+      color: #152d64;
+      font-weight: 600;
+      font-size: 14px;
+      margin: 0 10px;
+    }
+
+    /* Fulfillment percentage status badges */
+    .fulfill-excellent { background: #d4edda; color: #155724; }
+    .fulfill-good { background: #fff3cd; color: #856404; }
+    .fulfill-poor { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+  {% include 'app/navbar.html' %}
+  <div class="requests-container">
+    <!-- Page Title -->
+    <h1 class="requests-title"><i class="fas fa-dolly"></i> Resource Allocation Dashboard</h1>
+    <p class="page-subtitle">
+      <i class="fas fa-info-circle"></i>
+      View all allocated resources across borrow requests, reservations, and supply requests
+    </p>
+    
+    <!-- Search and Filter Section -->
+    <div class="search-filter-section">
+      <form method="get" class="search-form">
+        <input type="hidden" name="tab" value="{{ current_tab }}">
+        <input type="text" name="search" placeholder="Search by name, item, or purpose..." value="{{ search_query }}" class="search-input">
+        <select name="department" class="filter-select">
+          <option value="">All Departments</option>
+          {% for department in departments %}
+            <option value="{{ department.name }}" {% if department_filter == department.name %}selected{% endif %}>{{ department.name }}</option>
+          {% endfor %}
+        </select>
+        <input type="date" name="date_from" placeholder="From Date" value="{{ date_from }}" class="date-input">
+        <input type="date" name="date_to" placeholder="To Date" value="{{ date_to }}" class="date-input">
+        <button type="submit" class="filter-btn">
+          <i class="fas fa-filter"></i> Filter
+        </button>
+        <a href="?tab={{ current_tab }}" class="clear-btn">
+          <i class="fas fa-times"></i> Clear
+        </a>
+      </form>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button class="tab-button {% if current_tab == 'borrow' %}active{% endif %}" onclick="switchTab(event, 'borrow')">
+        <i class="fas fa-hand-holding"></i> Borrow Allocations
+      </button>
+      <button class="tab-button {% if current_tab == 'reservation' %}active{% endif %}" onclick="switchTab(event, 'reservation')">
+        <i class="fas fa-calendar-check"></i> Reservations
+      </button>
+      <button class="tab-button {% if current_tab == 'supply' %}active{% endif %}" onclick="switchTab(event, 'supply')">
+        <i class="fas fa-box"></i> Supply Allocations
+      </button>
+    </div>
+
+    <!-- Borrow Allocations Tab -->
+    <div id="borrow" class="tab-content {% if current_tab == 'borrow' %}active{% endif %}">
+      <h3 style="color: #152d64; margin: 20px 0 15px 0;"><i class="fas fa-hand-holding"></i> Borrow Request Allocations</h3>
+      {% if borrow_allocations and borrow_allocations.object_list %}
+        <div class="requests-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Allocated To</th>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Request Date</th>
+                <th>Return Date</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for allocation in borrow_allocations %}
+              <tr>
+                <td>
+                  <span style="color: #152d64; font-weight: 600;">BRW-{{ allocation.request_id|stringformat:"03d" }}</span>
+                </td>
+                <td>
+                  <div class="requester-info">
+                    <strong>
+                      {% if allocation.user.first_name or allocation.user.last_name %}
+                        {{ allocation.user.first_name }} {{ allocation.user.last_name }}
+                      {% else %}
+                        {{ allocation.user.username }}
+                      {% endif %}
+                    </strong>
+                    <small>{{ allocation.user.userprofile.department }}</small>
+                  </div>
+                </td>
+                <td>
+                  <strong>{{ allocation.property.property_name }}</strong>
+                  {% if allocation.property.property_number %}
+                    <br><small class="text-muted">{{ allocation.property.property_number }}</small>
+                  {% endif %}
+                </td>
+                <td><strong>{{ allocation.quantity }}</strong></td>
+                <td>
+                  <span class="status-badge status-{{ allocation.status_value|lower }}">
+                    {% if allocation.status_value == 'approved' %}
+                      <i class="fas fa-check-circle"></i>
+                    {% elif allocation.status_value == 'active' %}
+                      <i class="fas fa-play-circle"></i>
+                    {% endif %}
+                    {{ allocation.status }}
+                  </span>
+                </td>
+                <td>{{ allocation.request_date|date:"M d, Y" }}</td>
+                <td><strong>{{ allocation.return_date|date:"M d, Y" }}</strong></td>
+                <td>{{ allocation.purpose|truncatechars:40 }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination for Borrow -->
+        {% if borrow_allocations.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination-info">
+            Showing {{ borrow_allocations.start_index }}-{{ borrow_allocations.end_index }} of {{ borrow_allocations.paginator.count }} borrow allocations
+          </div>
+          <div class="pagination-controls">
+            {% if borrow_allocations.has_previous %}
+              <a href="?tab=borrow&borrow_page={{ borrow_allocations.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            {% endif %}
+            
+            <span class="pagination-current">
+              Page {{ borrow_allocations.number }} of {{ borrow_allocations.paginator.num_pages }}
+            </span>
+            
+            {% if borrow_allocations.has_next %}
+              <a href="?tab=borrow&borrow_page={{ borrow_allocations.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      {% else %}
+        <div class="no-requests">
+          <i class="fas fa-inbox"></i>
+          <p>No active borrow allocations found.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Reservation Allocations Tab -->
+    <div id="reservation" class="tab-content {% if current_tab == 'reservation' %}active{% endif %}">
+      <h3 style="color: #152d64; margin: 20px 0 15px 0;"><i class="fas fa-calendar-check"></i> Reservation Allocations</h3>
+      {% if reservation_allocations and reservation_allocations.object_list %}
+        <div class="requests-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Allocated To</th>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Request Date</th>
+                <th>Needed Date</th>
+                <th>Return Date</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for allocation in reservation_allocations %}
+              <tr>
+                <td>
+                  <span style="color: #152d64; font-weight: 600;">RSV-{{ allocation.request_id|stringformat:"03d" }}</span>
+                </td>
+                <td>
+                  <div class="requester-info">
+                    <strong>
+                      {% if allocation.user.first_name or allocation.user.last_name %}
+                        {{ allocation.user.first_name }} {{ allocation.user.last_name }}
+                      {% else %}
+                        {{ allocation.user.username }}
+                      {% endif %}
+                    </strong>
+                    <small>{{ allocation.user.userprofile.department }}</small>
+                  </div>
+                </td>
+                <td>
+                  <strong>{{ allocation.property.property_name }}</strong>
+                  {% if allocation.property.property_number %}
+                    <br><small class="text-muted">{{ allocation.property.property_number }}</small>
+                  {% endif %}
+                </td>
+                <td><strong>{{ allocation.quantity }}</strong></td>
+                <td>
+                  <span class="status-badge status-{{ allocation.status_value|lower }}">
+                    {% if allocation.status_value == 'approved' %}
+                      <i class="fas fa-check-circle"></i>
+                    {% elif allocation.status_value == 'active' %}
+                      <i class="fas fa-play-circle"></i>
+                    {% endif %}
+                    {{ allocation.status }}
+                  </span>
+                </td>
+                <td>{{ allocation.request_date|date:"M d, Y" }}</td>
+                <td>
+                  {% if allocation.needed_date %}
+                    <strong>{{ allocation.needed_date|date:"M d, Y" }}</strong>
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+                <td><strong>{{ allocation.return_date|date:"M d, Y" }}</strong></td>
+                <td>{{ allocation.purpose|truncatechars:40 }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination for Reservations -->
+        {% if reservation_allocations.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination-info">
+            Showing {{ reservation_allocations.start_index }}-{{ reservation_allocations.end_index }} of {{ reservation_allocations.paginator.count }} reservations
+          </div>
+          <div class="pagination-controls">
+            {% if reservation_allocations.has_previous %}
+              <a href="?tab=reservation&reservation_page={{ reservation_allocations.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            {% endif %}
+            
+            <span class="pagination-current">
+              Page {{ reservation_allocations.number }} of {{ reservation_allocations.paginator.num_pages }}
+            </span>
+            
+            {% if reservation_allocations.has_next %}
+              <a href="?tab=reservation&reservation_page={{ reservation_allocations.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      {% else %}
+        <div class="no-requests">
+          <i class="fas fa-inbox"></i>
+          <p>No active reservation allocations found.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Supply Allocations Tab -->
+    <div id="supply" class="tab-content {% if current_tab == 'supply' %}active{% endif %}">
+      <h3 style="color: #152d64; margin: 20px 0 15px 0;"><i class="fas fa-box"></i> Supply Request Allocations</h3>
+      {% if supply_allocations and supply_allocations.object_list %}
+        <div class="requests-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Allocated To</th>
+                <th>Supply Name</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Request Date</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for allocation in supply_allocations %}
+              <tr>
+                <td>
+                  <span style="color: #152d64; font-weight: 600;">SUP-{{ allocation.request_id|stringformat:"03d" }}</span>
+                </td>
+                <td>
+                  <div class="requester-info">
+                    <strong>
+                      {% if allocation.user.first_name or allocation.user.last_name %}
+                        {{ allocation.user.first_name }} {{ allocation.user.last_name }}
+                      {% else %}
+                        {{ allocation.user.username }}
+                      {% endif %}
+                    </strong>
+                    <small>{{ allocation.user.userprofile.department }}</small>
+                  </div>
+                </td>
+                <td>
+                  <strong>{{ allocation.supply.supply_name }}</strong>
+                  {% if allocation.supply.barcode %}
+                    <br><small class="text-muted">{{ allocation.supply.barcode }}</small>
+                  {% endif %}
+                </td>
+                <td><strong>{{ allocation.quantity }}</strong></td>
+                <td>
+                  <span class="status-badge status-{{ allocation.status_value|lower }}">
+                    <i class="fas fa-check-circle"></i>
+                    {{ allocation.status }}
+                  </span>
+                </td>
+                <td>{{ allocation.request_date|date:"M d, Y" }}</td>
+                <td>{{ allocation.purpose|truncatechars:40 }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination for Supply -->
+        {% if supply_allocations.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination-info">
+            Showing {{ supply_allocations.start_index }}-{{ supply_allocations.end_index }} of {{ supply_allocations.paginator.count }} supply allocations
+          </div>
+          <div class="pagination-controls">
+            {% if supply_allocations.has_previous %}
+              <a href="?tab=supply&supply_page={{ supply_allocations.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            {% endif %}
+            
+            <span class="pagination-current">
+              Page {{ supply_allocations.number }} of {{ supply_allocations.paginator.num_pages }}
+            </span>
+            
+            {% if supply_allocations.has_next %}
+              <a href="?tab=supply&supply_page={{ supply_allocations.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      {% else %}
+        <div class="no-requests">
+          <i class="fas fa-inbox"></i>
+          <p>No approved supply allocations found.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    function switchTab(event, tabName) {
+      event.preventDefault();
+      
+      // Hide all tab contents
+      const tabs = document.querySelectorAll('.tab-content');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      
+      // Remove active class from all buttons
+      const buttons = document.querySelectorAll('.tab-button');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      
+      // Show selected tab and activate button
+      document.getElementById(tabName).classList.add('active');
+      event.target.closest('.tab-button').classList.add('active');
+      
+      // Update URL parameter
+      const url = new URL(window.location);
+      url.searchParams.set('tab', tabName);
+      window.history.replaceState({}, '', url);
+    }
+    
+    // Lazy load tabs - reload page with tab parameter to fetch only that tab's data
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const tabName = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+        
+        // Redirect to same page with tab parameter - backend will only fetch that tab's data
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tabName);
+        window.location.href = url.toString();
+      });
+    });
+  </script>
+</body>
+</html>
