@@ -8410,6 +8410,151 @@ def generate_items_tally_report_pdf(request):
 
 
 @login_required
+@permission_required('app.view_admin_module', raise_exception=True)
+def supply_approved_tally(request):
+    """
+    Admin page to view the approved supplies tally.
+    Shows all given supplies per item with their approved quantities.
+    Includes search, department, user, and date filters with pagination.
+    """
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    from django.db.models import Sum, Count, Q
+    
+    # Get filter parameters
+    search_query = request.GET.get('search', '').strip()
+    department_filter = request.GET.get('department', '')
+    user_filter = request.GET.get('user', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    
+    # Build base queryset for approved items
+    approved_items_query = SupplyRequestItem.objects.filter(
+        status='approved',
+        batch_request__status__in=['approved', 'for_claiming', 'completed']
+    ).select_related('supply', 'batch_request', 'batch_request__user', 'batch_request__user__userprofile', 'batch_request__user__userprofile__department')
+    
+    # Apply filters
+    if department_filter:
+        approved_items_query = approved_items_query.filter(batch_request__user__userprofile__department_id=department_filter)
+    
+    if user_filter:
+        approved_items_query = approved_items_query.filter(batch_request__user_id=user_filter)
+    
+    if date_from:
+        try:
+            date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+            approved_items_query = approved_items_query.filter(batch_request__request_date__date__gte=date_from_obj)
+        except ValueError:
+            pass
+    
+    if date_to:
+        try:
+            date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+            approved_items_query = approved_items_query.filter(batch_request__request_date__date__lte=date_to_obj)
+        except ValueError:
+            pass
+    
+    # Aggregate supplies from approved/completed batches
+    approved_items_tally = {}
+    approved_items = approved_items_query
+    
+    # Aggregate by supply
+    for item in approved_items:
+        supply_name = item.supply.supply_name
+        supply_id = item.supply.id
+        
+        if supply_name not in approved_items_tally:
+            approved_items_tally[supply_name] = {
+                'supply_id': supply_id,
+                'supply_name': supply_name,
+                'unit': item.supply.unit or 'pcs',
+                'total_approved_quantity': 0,
+                'num_requests': 0,
+                'batch_requests': []
+            }
+        
+        approved_quantity = item.approved_quantity or item.quantity
+        approved_items_tally[supply_name]['total_approved_quantity'] += approved_quantity
+        approved_items_tally[supply_name]['num_requests'] += 1
+        
+        # Track which batches this item is from
+        if item.batch_request.id not in [br['batch_id'] for br in approved_items_tally[supply_name]['batch_requests']]:
+            approved_items_tally[supply_name]['batch_requests'].append({
+                'batch_id': item.batch_request.id,
+                'batch_status': item.batch_request.status,
+                'requestor': item.batch_request.user.get_full_name() or item.batch_request.user.username
+            })
+    
+    # Apply search filter to tally data
+    if search_query:
+        approved_items_tally = {
+            k: v for k, v in approved_items_tally.items() 
+            if search_query.lower() in k.lower() or search_query.lower() in str(v['supply_id']).lower()
+        }
+    
+    # Sort by supply name
+    sorted_tally = sorted(approved_items_tally.items(), key=lambda x: x[0])
+    tally_data = [tally_info for _, tally_info in sorted_tally]
+    
+    # Pagination
+    paginator = Paginator(tally_data, 10)  # 10 items per page
+    page = request.GET.get('page', 1)
+    
+    try:
+        tally_page = paginator.page(page)
+    except PageNotAnInteger:
+        tally_page = paginator.page(1)
+    except EmptyPage:
+        tally_page = paginator.page(paginator.num_pages)
+    
+    # Build URL parameters for pagination
+    url_params = []
+    if search_query:
+        url_params.append(f'search={search_query}')
+    if department_filter:
+        url_params.append(f'department={department_filter}')
+    if user_filter:
+        url_params.append(f'user={user_filter}')
+    if date_from:
+        url_params.append(f'date_from={date_from}')
+    if date_to:
+        url_params.append(f'date_to={date_to}')
+    
+    base_url_params = '&'.join(url_params)
+    
+    # Calculate summary
+    total_items = len(tally_data)
+    total_quantity = sum(item['total_approved_quantity'] for item in tally_data)
+    total_requests = sum(item['num_requests'] for item in tally_data)
+    
+    # Get departments for filter dropdown
+    departments = Department.objects.all().order_by('name')
+    
+    # Get users who have made approved requests for filter dropdown
+    users_with_approved = User.objects.filter(
+        supplyrequestbatch__status__in=['approved', 'for_claiming', 'completed']
+    ).distinct().order_by('first_name', 'last_name')
+    
+    context = {
+        'page_obj': tally_page,
+        'paginator': paginator,
+        'total_items': total_items,
+        'total_quantity': total_quantity,
+        'total_requests': total_requests,
+        'search_query': search_query,
+        'department_filter': department_filter,
+        'user_filter': user_filter,
+        'date_from': date_from,
+        'date_to': date_to,
+        'departments': departments,
+        'users_with_approved': users_with_approved,
+        'url_params': '&' + base_url_params if base_url_params else '',
+    }
+    
+    return render(request, 'app/supply_approved_tally.html', context)
+
+
+@login_required
 def sample_admin(request):
     """Sample page demonstrating modern sidebar implementation"""
     return render(request, 'app/sample_admin.html')
