@@ -7,7 +7,8 @@ from .models import (
     UserProfile, ActivityLog, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
     Department, PropertyCategory, SupplyCategory, SupplySubcategory, 
-    SupplyRequestBatch, SupplyRequestItem, BorrowRequestBatch, BorrowRequestItem, BadStockReport
+    SupplyRequestBatch, SupplyRequestItem, BorrowRequestBatch, BorrowRequestItem, BadStockReport,
+    UserSession
 )
 
 @admin.register(Property)
@@ -191,3 +192,25 @@ class BadStockReportAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         """Prevent adding bad stock reports through admin - should use the modal"""
         return False
+
+
+@admin.register(UserSession)
+class UserSessionAdmin(admin.ModelAdmin):
+    list_display = ['user', 'session_key_short', 'ip_address', 'created_at', 'last_activity']
+    list_filter = ['created_at', 'last_activity']
+    search_fields = ['user__username', 'session_key', 'ip_address']
+    readonly_fields = ['session_key', 'created_at', 'last_activity', 'user_agent']
+    fields = ['user', 'session_key', 'ip_address', 'user_agent', 'created_at', 'last_activity']
+    
+    def session_key_short(self, obj):
+        """Display shortened session key"""
+        return obj.session_key[:20] + '...'
+    session_key_short.short_description = 'Session Key'
+    
+    def has_add_permission(self, request):
+        """Prevent manual addition of session records"""
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        """Only allow deletion if user is superuser"""
+        return request.user.is_superuser

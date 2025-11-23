@@ -135,7 +135,7 @@ from .models import(
     ActivityLog, UserProfile, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
     Department, PropertyCategory, SupplyCategory, SupplySubcategory,
-    SupplyRequestBatch, SupplyRequestItem, BadStockReport
+    SupplyRequestBatch, SupplyRequestItem, BadStockReport, UserSession
 )
 from .forms import PropertyForm, PropertyNumberChangeForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm, SupplyRequestBatchForm, SupplyRequestItemForm, SupplyRequestBatchForm, SupplyRequestItemForm, BadStockReportForm
 from django.contrib.auth.forms import AuthenticationForm
@@ -2167,7 +2167,8 @@ class SupplyListView(PermissionRequiredMixin, ListView):
                 Q(supply_name__icontains=search_query) |
                 Q(description__icontains=search_query) |
                 Q(category__name__icontains=search_query) |
-                Q(subcategory__name__icontains=search_query)
+                Q(subcategory__name__icontains=search_query) |
+                Q(barcode__icontains=search_query)
             )
         
         # Apply category filter
@@ -2585,10 +2586,11 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         context['categories'] = PropertyCategory.objects.all()
         context['form'] = PropertyForm()
         
-        # Only include the paginated properties for context (not all properties)
-        # This improves page load performance by not loading entire database
+        # Build properties_by_category from ALL non-archived properties (not just paginated ones)
+        # This ensures the Property Inventory modal dropdown shows all available properties
+        all_properties = Property.objects.filter(is_archived=False).select_related('category').order_by('property_name')
         properties_by_category = defaultdict(list)
-        for prop in properties:
+        for prop in all_properties:
             properties_by_category[prop.category].append(prop)
         context['properties_by_category'] = dict(properties_by_category)
         
@@ -3074,6 +3076,66 @@ class CustomLoginView(LoginView):
                     form.errors['__all__'][i] = 'This account is inactive. Please contact the administrator for assistance.'
         return super().form_invalid(form)
     
+    def form_valid(self, form):
+        """
+        Handle successful login - enforce single session per user.
+        If user has an existing active session, invalidate it.
+        """
+        user = form.get_user()
+        
+        # Invalidate previous session if it exists
+        previous_session = UserSession.objects.filter(user=user).first()
+        if previous_session:
+            # Delete the old session from the sessions table to force logout
+            try:
+                from django.contrib.sessions.models import Session
+                Session.objects.filter(session_key=previous_session.session_key).delete()
+            except Exception as e:
+                pass
+            previous_session.delete()
+        
+        # Call parent's form_valid to create new session
+        response = super().form_valid(form)
+        
+        # Create new UserSession record after session is created
+        session_key = self.request.session.session_key
+        if session_key:
+            try:
+                UserSession.objects.update_or_create(
+                    user=user,
+                    defaults={
+                        'session_key': session_key,
+                        'ip_address': self.get_client_ip(self.request),
+                        'user_agent': self.request.META.get('HTTP_USER_AGENT', '')[:500]
+                    }
+                )
+                
+                # Log login activity
+                ActivityLog.log_activity(
+                    user=user,
+                    action='login',
+                    model_name='User',
+                    object_repr=user.username,
+                    description=f"User {user.username} logged in"
+                )
+            except Exception as e:
+                # Log any errors but don't fail the login
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error creating UserSession: {str(e)}")
+        
+        return response
+    
+    @staticmethod
+    def get_client_ip(request):
+        """Get the client's IP address"""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+    
     def get_success_url(self):
         user = self.request.user
 
@@ -3098,6 +3160,13 @@ class CustomLoginView(LoginView):
 def logout_view(request):
     if request.user.is_authenticated:
         username = request.user.username
+        
+        # Delete UserSession record on logout
+        try:
+            UserSession.objects.filter(user=request.user).delete()
+        except:
+            pass
+        
         ActivityLog.log_activity(
             user=request.user,
             action='logout',
@@ -8415,7 +8484,8 @@ def supply_approved_tally(request):
     """
     Admin page to view the approved supplies tally.
     Shows all given supplies per item with their approved quantities.
-    Includes search, department, user, and date filters with pagination.
+    Includes search, department, user, category, and date filters with pagination.
+    Includes analytics dashboard for supply allocation by department and category.
     """
     from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
     from django.db.models import Sum, Count, Q
@@ -8424,14 +8494,16 @@ def supply_approved_tally(request):
     search_query = request.GET.get('search', '').strip()
     department_filter = request.GET.get('department', '')
     user_filter = request.GET.get('user', '')
+    category_filter = request.GET.get('category', '')
     date_from = request.GET.get('date_from', '')
     date_to = request.GET.get('date_to', '')
+    date_range_filter = request.GET.get('date_range', '')  # For analytics filters: 30days, 90days, 1year
     
-    # Build base queryset for approved items
+    # Build base queryset for approved items (only completed/distributed items)
     approved_items_query = SupplyRequestItem.objects.filter(
-        status='approved',
+        status='completed',
         batch_request__status__in=['approved', 'for_claiming', 'completed']
-    ).select_related('supply', 'batch_request', 'batch_request__user', 'batch_request__user__userprofile', 'batch_request__user__userprofile__department')
+    ).select_related('supply', 'supply__category', 'batch_request', 'batch_request__user', 'batch_request__user__userprofile', 'batch_request__user__userprofile__department')
     
     # Apply filters
     if department_filter:
@@ -8439,6 +8511,9 @@ def supply_approved_tally(request):
     
     if user_filter:
         approved_items_query = approved_items_query.filter(batch_request__user_id=user_filter)
+    
+    if category_filter:
+        approved_items_query = approved_items_query.filter(supply__category_id=category_filter)
     
     if date_from:
         try:
@@ -8515,6 +8590,8 @@ def supply_approved_tally(request):
         url_params.append(f'department={department_filter}')
     if user_filter:
         url_params.append(f'user={user_filter}')
+    if category_filter:
+        url_params.append(f'category={category_filter}')
     if date_from:
         url_params.append(f'date_from={date_from}')
     if date_to:
@@ -8530,10 +8607,188 @@ def supply_approved_tally(request):
     # Get departments for filter dropdown
     departments = Department.objects.all().order_by('name')
     
+    # Get categories for filter dropdown
+    categories = SupplyCategory.objects.all().order_by('name')
+    
     # Get users who have made approved requests for filter dropdown
     users_with_approved = User.objects.filter(
         supplyrequestbatch__status__in=['approved', 'for_claiming', 'completed']
     ).distinct().order_by('first_name', 'last_name')
+    
+    # If department filter is selected, get only users from that department
+    users_in_department = User.objects.none()
+    if department_filter:
+        users_in_department = User.objects.filter(
+            userprofile__department_id=department_filter,
+            supplyrequestbatch__status__in=['approved', 'for_claiming', 'completed']
+        ).distinct().order_by('first_name', 'last_name')
+    
+    # Build a dictionary of users by department for JS filtering
+    users_by_department = {}
+    for dept in departments:
+        dept_users = User.objects.filter(
+            userprofile__department=dept,
+            supplyrequestbatch__status__in=['approved', 'for_claiming', 'completed']
+        ).distinct().order_by('first_name', 'last_name')
+        users_by_department[dept.id] = [
+            {'id': u.id, 'name': u.get_full_name() or u.username}
+            for u in dept_users
+        ]
+    
+    # ===== ANALYTICS DATA AGGREGATION =====
+    # Re-fetch items for analytics (need fresh queryset)
+    approved_items_for_analytics = approved_items_query
+    
+    # Aggregate supply allocations by department
+    analytics_by_department = {}
+    analytics_by_category = {}
+    analytics_by_item_and_dept = {}  # Track per-item department breakdown
+    analytics_by_category_and_dept = {}  # Track category-department breakdown
+    
+    for item in approved_items_for_analytics:
+        approved_qty = item.approved_quantity or item.quantity
+        dept = item.batch_request.user.userprofile.department if item.batch_request.user.userprofile else None
+        category = item.supply.category
+        supply_name = item.supply.supply_name
+        supply_id = item.supply.id
+        category_name = category.name if category else 'Uncategorized'
+        
+        # Aggregate by department
+        dept_name = dept.name if dept else 'Others'
+        if dept_name not in analytics_by_department:
+            analytics_by_department[dept_name] = {'quantity': 0, 'id': dept.id if dept else None}
+        analytics_by_department[dept_name]['quantity'] += approved_qty
+        
+        # Aggregate by category
+        if category:
+            if category_name not in analytics_by_category:
+                analytics_by_category[category_name] = {'quantity': 0, 'id': category.id}
+            analytics_by_category[category_name]['quantity'] += approved_qty
+        
+        # Aggregate by item and department (for item selector)
+        item_key = f"{supply_id}_{supply_name}"
+        if item_key not in analytics_by_item_and_dept:
+            analytics_by_item_and_dept[item_key] = {
+                'supply_id': supply_id,
+                'supply_name': supply_name,
+                'departments': {}
+            }
+        
+        if dept_name not in analytics_by_item_and_dept[item_key]['departments']:
+            analytics_by_item_and_dept[item_key]['departments'][dept_name] = {
+                'quantity': 0,
+                'dept_id': dept.id if dept else None
+            }
+        analytics_by_item_and_dept[item_key]['departments'][dept_name]['quantity'] += approved_qty
+        
+        # Aggregate by category and department (for category filter)
+        if category_name not in analytics_by_category_and_dept:
+            analytics_by_category_and_dept[category_name] = {}
+        
+        if dept_name not in analytics_by_category_and_dept[category_name]:
+            analytics_by_category_and_dept[category_name][dept_name] = {
+                'quantity': 0,
+                'dept_id': dept.id if dept else None
+            }
+        analytics_by_category_and_dept[category_name][dept_name]['quantity'] += approved_qty
+    
+    # ===== ITEM ANALYTICS (UNFILTERED BY DEPARTMENT) =====
+    # Build separate analytics for item selector that ignores department filter
+    # Show only COMPLETED items (released and distributed to departments)
+    all_approved_items = SupplyRequestItem.objects.filter(
+        status='completed',
+        batch_request__status__in=['approved', 'for_claiming', 'completed']
+    ).select_related('supply', 'supply__category', 'batch_request', 'batch_request__user', 'batch_request__user__userprofile', 'batch_request__user__userprofile__department')
+    
+    # Apply only user, category, and date filters (NOT department filter)
+    if user_filter:
+        all_approved_items = all_approved_items.filter(batch_request__user_id=user_filter)
+    
+    if category_filter:
+        all_approved_items = all_approved_items.filter(supply__category_id=category_filter)
+    
+    if date_from:
+        try:
+            date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+            all_approved_items = all_approved_items.filter(batch_request__request_date__date__gte=date_from_obj)
+        except ValueError:
+            pass
+    
+    if date_to:
+        try:
+            date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+            all_approved_items = all_approved_items.filter(batch_request__request_date__date__lte=date_to_obj)
+        except ValueError:
+            pass
+    
+    # Aggregate items by department (without department filter)
+    analytics_by_item_and_dept_unfiltered = {}
+    
+    for item in all_approved_items:
+        approved_qty = item.approved_quantity or item.quantity
+        dept = item.batch_request.user.userprofile.department if item.batch_request.user.userprofile else None
+        supply_name = item.supply.supply_name
+        supply_id = item.supply.id
+        
+        # Aggregate by item and department
+        item_key = f"{supply_id}_{supply_name}"
+        if item_key not in analytics_by_item_and_dept_unfiltered:
+            analytics_by_item_and_dept_unfiltered[item_key] = {
+                'supply_id': supply_id,
+                'supply_name': supply_name,
+                'departments': {}
+            }
+        
+        dept_name = dept.name if dept else 'Others'
+        if dept_name not in analytics_by_item_and_dept_unfiltered[item_key]['departments']:
+            analytics_by_item_and_dept_unfiltered[item_key]['departments'][dept_name] = {
+                'quantity': 0,
+                'dept_id': dept.id if dept else None
+            }
+        analytics_by_item_and_dept_unfiltered[item_key]['departments'][dept_name]['quantity'] += approved_qty
+    
+    # Prepare chart data
+    dept_labels = list(analytics_by_department.keys())
+    dept_data = [analytics_by_department[d]['quantity'] for d in dept_labels]
+    
+    cat_labels = list(analytics_by_category.keys())
+    cat_data = [analytics_by_category[c]['quantity'] for c in cat_labels]
+    
+    # Prepare item-department data structure for dynamic chart (FILTERED - uses department filter)
+    item_dept_data = {}
+    for item_key, item_data in analytics_by_item_and_dept.items():
+        item_name = item_data['supply_name']
+        dept_breakdown = {}
+        for dept_name, dept_info in item_data['departments'].items():
+            dept_breakdown[dept_name] = dept_info['quantity']
+        item_dept_data[item_name] = dept_breakdown
+    
+    # Prepare item-department data for item selector (UNFILTERED - ignores department filter)
+    item_dept_data_unfiltered = {}
+    for item_key, item_data in analytics_by_item_and_dept_unfiltered.items():
+        item_name = item_data['supply_name']
+        dept_breakdown = {}
+        for dept_name, dept_info in item_data['departments'].items():
+            dept_breakdown[dept_name] = dept_info['quantity']
+        item_dept_data_unfiltered[item_name] = dept_breakdown
+    
+    # Prepare category-department data structure for category filter
+    category_dept_data = {}
+    for category_name, dept_breakdown in analytics_by_category_and_dept.items():
+        dept_labels_for_cat = list(dept_breakdown.keys())
+        dept_values_for_cat = [dept_breakdown[d]['quantity'] for d in dept_labels_for_cat]
+        category_dept_data[category_name] = {
+            'labels': dept_labels_for_cat,
+            'data': dept_values_for_cat
+        }
+    
+    import json
+    users_by_department_json = json.dumps(users_by_department)
+    dept_chart_data = json.dumps({'labels': dept_labels, 'data': dept_data})
+    cat_chart_data = json.dumps({'labels': cat_labels, 'data': cat_data})
+    item_dept_analytics_json = json.dumps(item_dept_data)
+    item_dept_analytics_unfiltered_json = json.dumps(item_dept_data_unfiltered)
+    category_dept_analytics_json = json.dumps(category_dept_data)
     
     context = {
         'page_obj': tally_page,
@@ -8544,11 +8799,20 @@ def supply_approved_tally(request):
         'search_query': search_query,
         'department_filter': department_filter,
         'user_filter': user_filter,
+        'category_filter': category_filter,
         'date_from': date_from,
         'date_to': date_to,
+        'date_range_filter': date_range_filter,
         'departments': departments,
-        'users_with_approved': users_with_approved,
+        'categories': categories,
+        'users_with_approved': users_in_department if department_filter else users_with_approved,
+        'users_by_department_json': users_by_department_json,
         'url_params': '&' + base_url_params if base_url_params else '',
+        'dept_chart_data': dept_chart_data,
+        'cat_chart_data': cat_chart_data,
+        'item_dept_analytics_json': item_dept_analytics_json,
+        'item_dept_analytics_unfiltered_json': item_dept_analytics_unfiltered_json,
+        'category_dept_analytics_json': category_dept_analytics_json,
     }
     
     return render(request, 'app/supply_approved_tally.html', context)

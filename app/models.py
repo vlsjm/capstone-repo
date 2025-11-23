@@ -2263,3 +2263,22 @@ class BadStockReport(models.Model):
             
         except SupplyQuantity.DoesNotExist:
             raise ValueError("Supply quantity information not found.")
+
+
+class UserSession(models.Model):
+    """
+    Model to track active user sessions for enforcing 1 account = 1 active session policy
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='active_session')
+    session_key = models.CharField(max_length=40, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_activity = models.DateTimeField(auto_now=True)
+    ip_address = models.CharField(max_length=100, blank=True, null=True)
+    user_agent = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.session_key}"
+
+    class Meta:
+        verbose_name = "User Session"
+        verbose_name_plural = "User Sessions"
