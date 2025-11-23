@@ -72,6 +72,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'app.middleware.DisableClientSideCachingMiddleware',
+    'app.middleware.PreventBackToLoginMiddleware',  # Prevent back button to login
+    'app.middleware.SingleSessionPerUserMiddleware',  # Enforce 1 active session per user
     'userpanel.middleware.ForcePasswordChangeMiddleware',  # Force password change for new users
 
 ]

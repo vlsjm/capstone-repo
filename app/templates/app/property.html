@@ -1793,6 +1793,18 @@ input:focus {
   box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.1);
 }
 
+/* Scanned item name truncation */
+.scanned-item-name {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
 /* Input Focus Styles */
 #barcode_input:focus {
   border-color: #152d64 !important;
@@ -6527,7 +6539,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         div.innerHTML = `
             <div style="flex: 1; min-width: 0; margin-right: 15px;">
-                <div style="font-weight: 500; font-size: 14px; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</div>
+                <div class="scanned-item-name">${item.name}</div>
                 <div style="font-size: 12px; color: #666; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                     <span style="background: #f8f9fa; padding: 2px 6px; border-radius: 3px; font-family: monospace;">#${item.propertyNumber}</span>
                     <span>Stock: <strong>${item.currentQuantity}</strong></span>

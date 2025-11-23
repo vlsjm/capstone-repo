@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/userStyle.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <style>
         :root {
@@ -497,6 +498,172 @@
         .text-right {
             text-align: right;
         }
+
+        /* Analytics Section */
+        .analytics-section {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .analytics-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .analytics-title i {
+            font-size: 24px;
+            color: var(--secondary-color);
+        }
+
+        .analytics-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 40px;
+            padding: 20px;
+            background-color: var(--light-bg);
+            border-radius: 8px;
+        }
+
+        .chart-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+        }
+
+        /* Per-Item Analytics */
+        .per-item-container {
+            display: grid;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .item-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .item-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .item-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .item-total {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--secondary-color);
+            background-color: var(--light-bg);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .dept-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .dept-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .dept-item:last-child {
+            border-bottom: none;
+        }
+
+        .dept-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .dept-qty-bar {
+            flex: 1;
+            margin: 0 15px;
+            height: 24px;
+            background-color: var(--light-bg);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .dept-qty-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #152d64, #2d5a8a);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .dept-qty {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary-color);
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .no-per-item-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #95a5a6;
+        }
+
+        .per-item-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .per-item-title i {
+            font-size: 20px;
+            color: var(--secondary-color);
+        }
     </style>
 </head>
 <body>
@@ -535,6 +702,105 @@
         </div>
         {% endif %}
 
+        <!-- Analytics Section -->
+        <div class="analytics-section">
+            <div class="analytics-title">
+                <i class="fas fa-chart-bar"></i> Supply Allocation Analytics
+            </div>
+            <p style="color: #7f8c8d; margin-bottom: 20px; font-size: 14px;">Visualize how supplies are distributed across departments and categories</p>
+            
+            <!-- Analytics Filters -->
+            <div class="analytics-filters">
+                <div class="filter-group">
+                    <label for="analytics-dept-filter">Department Filter</label>
+                    <select id="analytics-dept-filter" data-current="{{ department_filter }}">
+                        <option value="">All Departments</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}">{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="analytics-cat-filter">Category Filter (for Department Chart)</label>
+                    <select id="analytics-cat-filter" data-current="{{ category_filter }}">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" data-name="{{ cat.name }}">{{ cat.name }}</option>
+                        {% endfor %}
+                        <option value="uncategorized" data-name="Uncategorized">Uncategorized</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="analytics-date-range">Date Range</label>
+                    <select id="analytics-date-range" data-current="{{ date_range_filter }}">
+                        <option value="">All Time</option>
+                        <option value="30days">Last 30 Days</option>
+                        <option value="90days">Last 90 Days</option>
+                        <option value="1year">Last Year</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <!-- Department Allocation Chart -->
+                <div>
+                    <span class="chart-label"><i class="fas fa-sitemap"></i> <span id="deptChartTitle">Supply Allocation by Department</span></span>
+                    <div class="chart-container">
+                        <canvas id="deptChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Category Distribution Chart -->
+                <div>
+                    <span class="chart-label"><i class="fas fa-sitemap"></i> <span id="catChartTitle">Department Allocation for Selected Category</span></span>
+                    <div class="chart-container">
+                        <canvas id="catChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item-Specific Department Allocation -->
+            <div style="margin-top: 40px; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                <div class="per-item-title">
+                    <i class="fas fa-box-open"></i> Department Allocation for Specific Item
+                </div>
+                <p style="color: #7f8c8d; margin-bottom: 20px; font-size: 14px;">Select a supply item to see how each department is utilizing it</p>
+                
+                <div class="analytics-filters">
+                    <div class="filter-group">
+                        <label for="item-selector">Select Item</label>
+                        <select id="item-selector">
+                            <option value="">Choose a supply item...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="item-date-filter">Date Range</label>
+                        <select id="item-date-filter">
+                            <option value="">All Time</option>
+                            <option value="30days">Last 30 Days</option>
+                            <option value="90days">Last 90 Days</option>
+                            <option value="1year">Last Year</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; position: relative; height: 400px; display: none;" id="itemChartContainer">
+                    <span class="chart-label"><i class="fas fa-sitemap"></i> Department Breakdown for <strong id="selectedItemName"></strong></span>
+                    <div class="chart-container" style="margin-top: 10px;">
+                        <canvas id="itemChart"></canvas>
+                    </div>
+                </div>
+
+                <div id="noItemSelected" style="text-align: center; padding: 40px 20px; color: #95a5a6;">
+                    <p>Select an item from the dropdown to view department allocation</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Filter Section -->
         <div class="filter-section">
             <div class="filter-title">
@@ -553,6 +819,16 @@
                             <option value="">All Departments</option>
                             {% for dept in departments %}
                             <option value="{{ dept.id }}" {% if dept.id|stringformat:"s" == department_filter %}selected{% endif %}>{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="category">Supply Category</label>
+                        <select id="category" name="category">
+                            <option value="">All Categories</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == category_filter %}selected{% endif %}>{{ cat.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -611,7 +887,7 @@
                     <tbody>
                         {% for item in page_obj.object_list %}
                         <tr>
-                            <td class="data-row-number">{{ forloop.counter }}</td>
+                            <td class="data-row-number">{{ forloop.counter|add:page_obj.start_index|add:"-1" }}</td>
                             <td class="supply-name-cell">{{ item.supply_name }}</td>
                             <td class="supply-id-cell">SUP-{{ item.supply_id }}</td>
                             <td class="text-center">{{ item.unit }}</td>
@@ -695,6 +971,310 @@
     </div>
 
     <script>
+        // Chart.js initialization
+        const deptChartData = {{ dept_chart_data|safe }};
+        const catChartData = {{ cat_chart_data|safe }};
+        const itemDeptAnalytics = {{ item_dept_analytics_json|safe }};
+        const itemDeptAnalyticsUnfiltered = {{ item_dept_analytics_unfiltered_json|safe }};
+        const categoryDeptAnalytics = {{ category_dept_analytics_json|safe }};
+        
+        // Color palettes for charts
+        const chartColors = [
+            '#152d64', '#1d4c92', '#2d5a8a', '#3d6fa5', '#4d85bb', 
+            '#5d9ad0', '#6db0e6', '#7dc6f0', '#8dd6fa', '#9de6ff'
+        ];
+
+        const chartBackgroundColors = chartColors.map(color => color + '40'); // Add transparency
+
+        let deptChartInstance = null;
+        let itemChartInstance = null;
+        let catChartInstance = null;
+
+        // Initialize Department Chart
+        function initDeptChart(labels, data, title = 'Supply Allocation by Department') {
+            if (deptChartInstance) {
+                deptChartInstance.destroy();
+            }
+
+            if (labels.length > 0) {
+                const deptCtx = document.getElementById('deptChart').getContext('2d');
+                document.getElementById('deptChartTitle').textContent = title;
+                
+                deptChartInstance = new Chart(deptCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Quantity Allocated',
+                            data: data,
+                            backgroundColor: chartBackgroundColors.slice(0, labels.length),
+                            borderColor: chartColors.slice(0, labels.length),
+                            borderWidth: 2,
+                            borderRadius: 4,
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                document.getElementById('deptChart').parentElement.innerHTML = '<p style="text-align: center; padding: 40px; color: #7f8c8d;">No data available</p>';
+            }
+        }
+
+        // Initialize Doughnut Chart (for category or department breakdown)
+        function initDoughnutChart(labels, data, title = 'Department Allocation') {
+            if (catChartInstance) {
+                catChartInstance.destroy();
+            }
+
+            if (labels.length > 0) {
+                const catCtx = document.getElementById('catChart').getContext('2d');
+                document.getElementById('catChartTitle').textContent = title;
+                
+                catChartInstance = new Chart(catCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Quantity',
+                            data: data,
+                            backgroundColor: chartBackgroundColors.slice(0, labels.length),
+                            borderColor: chartColors.slice(0, labels.length),
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                document.getElementById('catChart').parentElement.innerHTML = '<p style="text-align: center; padding: 40px; color: #7f8c8d;">No data available</p>';
+            }
+        }
+
+        // Restore scroll position if this is a page reload from filter selection
+        const savedScrollPos = sessionStorage.getItem('analyticsScrollPos');
+        if (savedScrollPos !== null) {
+            window.scrollTo(0, parseInt(savedScrollPos));
+            sessionStorage.removeItem('analyticsScrollPos');
+        }
+
+        // Initialize filter dropdowns with current values
+        const deptFilterValue = document.getElementById('analytics-dept-filter').getAttribute('data-current');
+        const catFilterValue = document.getElementById('analytics-cat-filter').getAttribute('data-current');
+        const dateRangeValue = document.getElementById('analytics-date-range').getAttribute('data-current');
+
+        if (deptFilterValue) {
+            document.getElementById('analytics-dept-filter').value = deptFilterValue;
+        }
+        if (catFilterValue) {
+            document.getElementById('analytics-cat-filter').value = catFilterValue;
+        }
+        if (dateRangeValue) {
+            document.getElementById('analytics-date-range').value = dateRangeValue;
+        }
+
+        // Initialize default department chart
+        initDeptChart(deptChartData.labels, deptChartData.data);
+
+        // Initialize default doughnut chart with category distribution
+        initDoughnutChart(catChartData.labels, catChartData.data, 'Category Distribution');
+
+        // Handle category filter change for both charts
+        document.getElementById('analytics-cat-filter').addEventListener('change', function() {
+            const selectedCategory = this.value;
+            
+            if (!selectedCategory) {
+                // Show all departments and all categories
+                initDeptChart(deptChartData.labels, deptChartData.data, 'Supply Allocation by Department (All Categories)');
+                initDoughnutChart(catChartData.labels, catChartData.data, 'Category Distribution');
+            } else if (selectedCategory === 'uncategorized') {
+                // Show data for uncategorized items
+                if (categoryDeptAnalytics['Uncategorized']) {
+                    const data = categoryDeptAnalytics['Uncategorized'];
+                    initDeptChart(data.labels, data.data, `Supply Allocation by Department (Uncategorized)`);
+                    initDoughnutChart(data.labels, data.data, `Department Allocation for Uncategorized`);
+                } else {
+                    document.getElementById('deptChart').parentElement.innerHTML = '<p style="text-align: center; padding: 40px; color: #7f8c8d;">No uncategorized items found</p>';
+                    document.getElementById('catChart').parentElement.innerHTML = '<p style="text-align: center; padding: 40px; color: #7f8c8d;">No uncategorized items found</p>';
+                }
+            } else {
+                // Find the category name from the options
+                const catName = Array.from(document.getElementById('analytics-cat-filter').options)
+                    .find(opt => opt.value === selectedCategory)?.getAttribute('data-name');
+                
+                if (catName && categoryDeptAnalytics[catName]) {
+                    const data = categoryDeptAnalytics[catName];
+                    initDeptChart(data.labels, data.data, `Supply Allocation by Department (${catName})`);
+                    initDoughnutChart(data.labels, data.data, `Department Allocation for ${catName}`);
+                } else {
+                    document.getElementById('deptChart').parentElement.innerHTML = '<p style="text-align: center; padding: 40px; color: #7f8c8d;">No data available for this category</p>';
+                    document.getElementById('catChart').parentElement.innerHTML = '<p style="text-align: center; padding: 40px; color: #7f8c8d;">No data available for this category</p>';
+                }
+            }
+        });
+
+        // Populate item selector dropdown
+        function populateItemSelector() {
+            const selector = document.getElementById('item-selector');
+            const items = Object.keys(itemDeptAnalyticsUnfiltered).sort();
+            
+            items.forEach(itemName => {
+                const option = document.createElement('option');
+                option.value = itemName;
+                option.textContent = itemName;
+                selector.appendChild(option);
+            });
+        }
+
+        // Initialize item selector
+        populateItemSelector();
+
+        // Handle item selection change
+        function updateItemChart() {
+            const selectedItem = document.getElementById('item-selector').value;
+            const dateFilter = document.getElementById('item-date-filter').value;
+            const chartContainer = document.getElementById('itemChartContainer');
+            const noItemSelected = document.getElementById('noItemSelected');
+            
+            if (!selectedItem) {
+                chartContainer.style.display = 'none';
+                noItemSelected.style.display = 'block';
+                return;
+            }
+
+            chartContainer.style.display = 'block';
+            noItemSelected.style.display = 'none';
+
+            // Update the chart title
+            document.getElementById('selectedItemName').textContent = selectedItem;
+
+            // Get data for selected item (using UNFILTERED data - ignores department filter)
+            const itemData = itemDeptAnalyticsUnfiltered[selectedItem];
+            const deptLabels = Object.keys(itemData).sort((a, b) => itemData[b] - itemData[a]);
+            const deptQuantities = deptLabels.map(dept => itemData[dept]);
+
+            // Destroy existing chart if it exists
+            if (itemChartInstance) {
+                itemChartInstance.destroy();
+            }
+
+            // Create new donut chart for the selected item
+            const itemCtx = document.getElementById('itemChart').getContext('2d');
+            itemChartInstance = new Chart(itemCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: deptLabels,
+                    datasets: [{
+                        label: 'Quantity Allocated',
+                        data: deptQuantities,
+                        backgroundColor: chartBackgroundColors.slice(0, deptLabels.length),
+                        borderColor: chartColors.slice(0, deptLabels.length),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('item-selector').addEventListener('change', updateItemChart);
+        document.getElementById('item-date-filter').addEventListener('change', updateItemChart);
+
+        // Handle analytics filter changes for page reload (Department and Date filters)
+        document.getElementById('analytics-dept-filter').addEventListener('change', function() {
+            // Save current scroll position
+            sessionStorage.setItem('analyticsScrollPos', window.scrollY);
+            
+            const dept = this.value;
+            const dateRange = document.getElementById('analytics-date-range').value;
+            
+            let url = '?';
+            if (dept) {
+                url += `department=${dept}&`;
+            }
+            
+            // Handle date range
+            if (dateRange === '30days') {
+                const date = new Date();
+                date.setDate(date.getDate() - 30);
+                url += `date_from=${date.toISOString().split('T')[0]}&`;
+            } else if (dateRange === '90days') {
+                const date = new Date();
+                date.setDate(date.getDate() - 90);
+                url += `date_from=${date.toISOString().split('T')[0]}&`;
+            } else if (dateRange === '1year') {
+                const date = new Date();
+                date.setFullYear(date.getFullYear() - 1);
+                url += `date_from=${date.toISOString().split('T')[0]}&`;
+            }
+            
+            // Remove trailing & if present
+            url = url.replace(/&$/, '');
+            
+            window.location.href = url;
+        });
+
+        document.getElementById('analytics-date-range').addEventListener('change', function() {
+            // Save current scroll position
+            sessionStorage.setItem('analyticsScrollPos', window.scrollY);
+            document.getElementById('analytics-dept-filter').dispatchEvent(new Event('change'));
+        });
+
         function exportToCSV() {
             let csv = 'Supply ID,Supply Name,Unit,Total Approved Quantity,Number of Requests\n';
             
@@ -713,6 +1293,64 @@
             link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
             link.download = `supply_approved_tally_${new Date().toISOString().split('T')[0]}.csv`;
             link.click();
+        }
+        
+        // Update user dropdown based on department selection
+        const usersByDepartment = {{ users_by_department_json|safe }};
+        const departmentSelect = document.getElementById('department');
+        const userSelect = document.getElementById('user');
+        
+        function updateUserOptions() {
+            const selectedDepartment = departmentSelect.value;
+            const currentUserValue = userSelect.value;
+            
+            // Clear existing options except the first one
+            while (userSelect.options.length > 1) {
+                userSelect.remove(1);
+            }
+            
+            if (selectedDepartment && usersByDepartment[selectedDepartment]) {
+                // Add users from the selected department
+                usersByDepartment[selectedDepartment].forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.name;
+                    userSelect.appendChild(option);
+                });
+            } else {
+                // Department is cleared or empty, populate with all users with approved requests
+                // In this case, we'll just show the "All Users" option
+            }
+            
+            // If the previously selected user is no longer in the list, reset to "All Users"
+            if (currentUserValue && !Array.from(userSelect.options).some(opt => opt.value === currentUserValue)) {
+                userSelect.value = '';
+            }
+        }
+        
+        // Add event listener to department dropdown
+        if (departmentSelect) {
+            departmentSelect.addEventListener('change', updateUserOptions);
+            
+            // Call on page load to show users for pre-selected department
+            if (departmentSelect.value) {
+                updateUserOptions();
+            }
+        }
+
+        // Handle pagination scroll retention
+        document.querySelectorAll('.pagination a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Save current scroll position before navigating
+                sessionStorage.setItem('tallyScrollPos', window.scrollY);
+            });
+        });
+
+        // Restore scroll position after page load if pagination was used
+        const savedTallyScrollPos = sessionStorage.getItem('tallyScrollPos');
+        if (savedTallyScrollPos !== null) {
+            window.scrollTo(0, parseInt(savedTallyScrollPos));
+            sessionStorage.removeItem('tallyScrollPos');
         }
     </script>
 </body>
