@@ -150,6 +150,127 @@
         background-color: #1e3d8a;
       }
 
+      /* Form Grid Layout - 3 Columns Equal Width */
+      .form-grid-3col {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+        width: 100%;
+      }
+
+      .modal-content form {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        color: #2c3e50;
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .form-group label i {
+        color: #152d64;
+        width: 16px;
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        padding: 10px 12px;
+        border: 1px solid #e1e8ed;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: border-color 0.2s ease;
+        background: white;
+        font-family: inherit;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: #152d64;
+        box-shadow: 0 0 0 2px rgba(21, 45, 100, 0.1);
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .form-full-width {
+        grid-column: 1 / -1;
+      }
+
+      .form-button-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 20px;
+        padding-top: 20px;
+        padding-bottom: 0;
+        border-top: 2px solid #e1e8ed;
+      }
+
+      .submit-btn {
+        background-color: #152d64;
+        color: white;
+        border: none;
+        padding: 12px 32px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 120px;
+      }
+
+      .submit-btn:hover {
+        background-color: #1e3d8a;
+      }
+
+      .clear-btn {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        padding: 12px 32px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 120px;
+      }
+
+      .clear-btn:hover {
+        background-color: #5a6268;
+      }
+
+      .required-asterisk {
+        color: #e74c3c;
+        font-weight: bold;
+      }
+
  /* History Modal Styles */
 .history-modal {
   display: none;
@@ -915,6 +1036,8 @@ tr.hidden {
   border-radius: 8px;
   position: relative;
   z-index: 1001;
+  display: flex;
+  flex-direction: column;
 }
 
 .close {
@@ -2943,11 +3066,11 @@ input:focus {
       <div class="modal-content">
         <span class="close" id="closeModalBtn">&times;</span>
         <h3>Add New Property</h3>
-        <form method="POST" action="{% url 'add_property' %}">
+        <form method="POST" action="{% url 'add_property' %}" id="addPropertyForm">
         {% csrf_token %}
         
-        <!-- Custom form fields with required asterisks -->
-        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <!-- Custom form fields with required asterisks - 3 column layout -->
+        <div class="form-grid-3col">
           <div class="form-group">
             <label for="{{ form.property_number.id_for_label }}">
               <i class="fas fa-hashtag"></i> Property Number
@@ -2961,99 +3084,99 @@ input:focus {
             </label>
             {{ form.serial_number }}
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="{{ form.property_name.id_for_label }}">
-            <i class="fas fa-tag"></i> Property Name
-            <span class="required-asterisk">*</span>
-          </label>
-          {{ form.property_name }}
-        </div>
+          <div class="form-group">
+            <label for="{{ form.property_name.id_for_label }}">
+              <i class="fas fa-tag"></i> Property Name
+              <span class="required-asterisk">*</span>
+            </label>
+            {{ form.property_name }}
+          </div>
 
-        <div class="form-group">
-          <label for="{{ form.category.id_for_label }}">
-            <i class="fas fa-folder"></i> Category
-            <span class="required-asterisk">*</span>
-          </label>
-          {{ form.category }}
-        </div>
+          <div class="form-group">
+            <label for="{{ form.category.id_for_label }}">
+              <i class="fas fa-folder"></i> Category
+              <span class="required-asterisk">*</span>
+            </label>
+            {{ form.category }}
+          </div>
 
-        <div class="form-group">
-          <label for="{{ form.description.id_for_label }}">
-            <i class="fas fa-align-left"></i> Description
-            <span class="required-asterisk">*</span>
-          </label>
-          {{ form.description }}
-        </div>
+          <div class="form-group">
+            <label for="{{ form.unit_of_measure.id_for_label }}">
+              <i class="fas fa-ruler"></i> Unit of Measure
+              <span class="required-asterisk">*</span>
+            </label>
+            {{ form.unit_of_measure }}
+          </div>
 
-        <div class="form-group">
-          <label for="{{ form.unit_of_measure.id_for_label }}">
-            <i class="fas fa-ruler"></i> Unit of Measure
-            <span class="required-asterisk">*</span>
-          </label>
-          {{ form.unit_of_measure }}
-        </div>
+          <div class="form-group">
+            <label for="{{ form.unit_value.id_for_label }}">
+              ₱ Unit Value
+              <span class="required-asterisk">*</span>
+            </label>
+            {{ form.unit_value }}
+          </div>
 
-        <div class="form-group">
-          <label for="{{ form.unit_value.id_for_label }}">
-            ₱ Unit Value
-            <span class="required-asterisk">*</span>
-          </label>
-          {{ form.unit_value }}
-        </div>
+          <div class="form-group">
+            <label for="{{ form.overall_quantity.id_for_label }}">
+              <i class="fas fa-boxes"></i> Overall Quantity
+              <span class="required-asterisk">*</span>
+            </label>
+            {{ form.overall_quantity }}
+          </div>
 
-        <div class="form-group">
-          <label for="{{ form.overall_quantity.id_for_label }}">
-            <i class="fas fa-boxes"></i> Overall Quantity
-            <span class="required-asterisk">*</span>
-          </label>
-          {{ form.overall_quantity }}
-        </div>
+          <div class="form-group">
+            <label for="{{ form.quantity_per_physical_count.id_for_label }}">
+              <i class="fas fa-clipboard-check"></i> Quantity Per Physical Count
+            </label>
+            {{ form.quantity_per_physical_count }}
+          </div>
 
-        <div class="form-group">
-          <label for="{{ form.quantity_per_physical_count.id_for_label }}">
-            <i class="fas fa-clipboard-check"></i> Quantity Per Physical Count
-          </label>
-          {{ form.quantity_per_physical_count }}
-        </div>
+          <div class="form-group">
+            <label for="{{ form.location.id_for_label }}">
+              <i class="fas fa-map-marker-alt"></i> Location
+              <span class="required-asterisk">*</span>
+            </label>
+            {{ form.location }}
+          </div>
 
-        <div class="form-group">
-          <label for="{{ form.location.id_for_label }}">
-            <i class="fas fa-map-marker-alt"></i> Location
-            <span class="required-asterisk">*</span>
-          </label>
-          {{ form.location }}
-        </div>
+          <div class="form-group">
+            <label for="{{ form.condition.id_for_label }}">
+              <i class="fas fa-info-circle"></i> Condition
+              <span class="required-asterisk">*</span>
+            </label>
+            {{ form.condition }}
+          </div>
 
-        <div class="form-group">
-          <label for="{{ form.accountable_person.id_for_label }}">
-            <i class="fas fa-user"></i> Accountable Person
-          </label>
-          {{ form.accountable_person }}
-        </div>
+          <div class="form-group">
+            <label for="{{ form.availability.id_for_label }}">
+              <i class="fas fa-check-circle"></i> Available for Request
+              <span class="required-asterisk">*</span>
+            </label>
+            {{ form.availability }}
+          </div>
 
-        <div class="form-group">
-          <label for="{{ form.year_acquired.id_for_label }}">
-            <i class="fas fa-calendar"></i> Year Acquired
-          </label>
-          {{ form.year_acquired }}
-        </div>
+          <div class="form-group">
+            <label for="{{ form.accountable_person.id_for_label }}">
+              <i class="fas fa-user"></i> Accountable Person
+            </label>
+            {{ form.accountable_person }}
+          </div>
 
-        <div class="form-group">
-          <label for="{{ form.condition.id_for_label }}">
-            <i class="fas fa-info-circle"></i> Condition
-            <span class="required-asterisk">*</span>
-          </label>
-          {{ form.condition }}
-        </div>
+          <div class="form-group">
+            <label for="{{ form.year_acquired.id_for_label }}">
+              <i class="fas fa-calendar"></i> Year Acquired
+            </label>
+            {{ form.year_acquired }}
+          </div>
 
-        <div class="form-group">
-          <label for="{{ form.availability.id_for_label }}">
-            <i class="fas fa-check-circle"></i> Available for Request
-            <span class="required-asterisk">*</span>
-          </label>
-          {{ form.availability }}
+          <div class="form-group form-full-width">
+            <label for="{{ form.description.id_for_label }}">
+              <i class="fas fa-align-left"></i> Description
+              <span class="required-asterisk">*</span>
+            </label>
+            {{ form.description }}
+          </div>
         </div>
 
         {% if form.errors %}
@@ -3065,7 +3188,12 @@ input:focus {
             {% endfor %}
           </ul>
         {% endif %}
-        <button type="submit" class="submit-btn">Submit</button>
+
+        <div class="form-button-group">
+          <button type="submit" class="submit-btn">
+            <i class="fas fa-save"></i> Submit
+          </button>
+        </div>
         </form>
       </div>
     </div>
@@ -6666,6 +6794,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Reset Add Property Form Function
+function resetAddPropertyForm() {
+    const form = document.getElementById('addPropertyForm');
+    if (form) {
+        form.reset();
+    }
+}
 </script>
 
 </body>
