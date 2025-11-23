@@ -16,6 +16,11 @@
         <i class="fas fa-boxes"></i> Supply
       </a>
     </li>
+    <li>
+      <a href="{% url 'supply_approved_tally' %}" {% if request.resolver_match.url_name == 'supply_approved_tally' %}style="color: #fbff00 !important;"{% endif %}>
+        <i class="fas fa-list-check"></i> Supply Tally
+      </a>
+    </li>
     <!-- <li>
       <a href="{% url 'checkout' %}">
         <i class="fas fa-door-open"></i> Check-Out

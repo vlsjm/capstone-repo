@@ -101,6 +101,9 @@ from .views import (
 )
 
 urlpatterns = [
+    # Supply Approved Tally
+    path('supply-approved-tally/', views.supply_approved_tally, name='supply_approved_tally'),
+    
     # Sample page for sidebar preview
     path('sample-admin/', views.sample_admin, name='sample_admin'),
     
