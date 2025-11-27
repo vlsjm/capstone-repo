@@ -41,6 +41,40 @@ def update_damage_status(request, pk):
     return HttpResponseRedirect(reverse('damaged_items_management'))
 
 @require_POST
+def mark_lost_item_found(request, pk):
+    """Mark a lost item as found and restore property availability"""
+    from .models import LostItem
+    lost_item = get_object_or_404(LostItem, pk=pk)
+    
+    # Mark property as available again
+    lost_item.item.availability = 'available'
+    lost_item.item.save(update_fields=['availability'])
+    
+    # Update lost item status to 'found'
+    lost_item.status = 'found'
+    lost_item.remarks = f"Item marked as found by {request.user.username}"
+    lost_item.save()
+    
+    messages.success(request, f"{lost_item.item.property_name} has been marked as found and is now available.")
+    return HttpResponseRedirect(reverse('damaged_items_management') + '?tab=lost-items')
+
+@require_POST
+def delete_lost_item(request, pk):
+    """Delete a lost item report"""
+    from .models import LostItem
+    lost_item = get_object_or_404(LostItem, pk=pk)
+    item_name = lost_item.item.property_name
+    
+    # Optionally restore property availability
+    lost_item.item.availability = 'available'
+    lost_item.item.save(update_fields=['availability'])
+    
+    lost_item.delete()
+    
+    messages.success(request, f"Lost item report for {item_name} has been deleted.")
+    return HttpResponseRedirect(reverse('damaged_items_management') + '?tab=lost-items')
+
+@require_POST
 def update_property_condition(request, pk):
     property_obj = get_object_or_404(Property, pk=pk)
     new_condition = request.POST.get('condition')
@@ -71,6 +105,10 @@ class DamagedItemsManagementView(PermissionRequiredMixin, TemplateView):
         # Get properties needing repair
         needs_repair_properties = Property.objects.filter(condition__iexact='Needing repair').order_by('-id')
         
+        # Get lost items (only show items with 'lost' status, exclude 'found' items)
+        from .models import LostItem
+        lost_items = LostItem.objects.filter(status='lost').select_related('item', 'user').order_by('-report_date')
+        
         # Get URL parameters for building pagination links
         url_params = ""
         
@@ -80,6 +118,7 @@ class DamagedItemsManagementView(PermissionRequiredMixin, TemplateView):
         # Get page numbers for each tab
         unserviceable_page = self.request.GET.get('unserviceable_page', 1)
         needs_repair_page = self.request.GET.get('needs_repair_page', 1)
+        lost_items_page = self.request.GET.get('lost_items_page', 1)
         
         # Paginate unserviceable items
         unserviceable_paginator = Paginator(unserviceable_properties, paginate_by)
@@ -99,6 +138,15 @@ class DamagedItemsManagementView(PermissionRequiredMixin, TemplateView):
         except EmptyPage:
             needs_repair_page_obj = needs_repair_paginator.page(needs_repair_paginator.num_pages)
         
+        # Paginate lost items
+        lost_items_paginator = Paginator(lost_items, paginate_by)
+        try:
+            lost_items_page_obj = lost_items_paginator.page(lost_items_page)
+        except PageNotAnInteger:
+            lost_items_page_obj = lost_items_paginator.page(1)
+        except EmptyPage:
+            lost_items_page_obj = lost_items_paginator.page(lost_items_paginator.num_pages)
+        
         # Also include damage reports that have been classified (for backward compatibility)
         unserviceable_reports = DamageReport.objects.filter(status='resolved', remarks__icontains='Unserviceable')
         needs_repair_reports = DamageReport.objects.filter(status='resolved', remarks__icontains='Needs Repair')
@@ -106,10 +154,12 @@ class DamagedItemsManagementView(PermissionRequiredMixin, TemplateView):
         # Add paginated objects to context
         context['unserviceable_items'] = unserviceable_page_obj
         context['needs_repair_items'] = needs_repair_page_obj
+        context['lost_items'] = lost_items_page_obj
         
         # Add total counts for badges
         context['unserviceable_count'] = unserviceable_properties.count()
         context['needs_repair_count'] = needs_repair_properties.count()
+        context['lost_items_count'] = lost_items.count()
         
         # Add legacy reports for backward compatibility
         context['unserviceable_reports'] = unserviceable_reports
@@ -131,7 +181,7 @@ from django.views import View
 from django.contrib.auth import login, authenticate, logout
 from .models import(
     Supply, Property, BorrowRequest, BorrowRequestBatch, BorrowRequestItem,
-    SupplyRequest, DamageReport, Reservation, ReservationBatch, ReservationItem,
+    SupplyRequest, DamageReport, LostItem, Reservation, ReservationBatch, ReservationItem,
     ActivityLog, UserProfile, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
     Department, PropertyCategory, SupplyCategory, SupplySubcategory,
@@ -1641,9 +1691,21 @@ class ActivityPageView(PermissionRequiredMixin, ListView):
         if model_filter:
             queryset = queryset.filter(model_name=model_filter)
         if start_date:
-            queryset = queryset.filter(timestamp__date__gte=start_date)
+            try:
+                from datetime import datetime
+                start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
+                start_date_aware = timezone.make_aware(start_date_obj.replace(hour=0, minute=0, second=0))
+                queryset = queryset.filter(timestamp__gte=start_date_aware)
+            except (ValueError, TypeError):
+                pass
         if end_date:
-            queryset = queryset.filter(timestamp__date__lte=end_date)
+            try:
+                from datetime import datetime
+                end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
+                end_date_aware = timezone.make_aware(end_date_obj.replace(hour=23, minute=59, second=59))
+                queryset = queryset.filter(timestamp__lte=end_date_aware)
+            except (ValueError, TypeError):
+                pass
 
         # Filter by category if specified (duplicate of model_filter, kept for compatibility)
         category = self.request.GET.get('category')
@@ -1856,9 +1918,23 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
         date_from = self.request.GET.get('date_from')
         date_to = self.request.GET.get('date_to')
         if date_from:
-            queryset = queryset.filter(report_date__date__gte=date_from)
+            try:
+                from datetime import datetime
+                # Parse the date string and make it timezone-aware
+                date_from_obj = datetime.strptime(date_from, '%Y-%m-%d')
+                date_from_aware = timezone.make_aware(date_from_obj.replace(hour=0, minute=0, second=0))
+                queryset = queryset.filter(report_date__gte=date_from_aware)
+            except (ValueError, TypeError):
+                pass  # Invalid date format, skip filter
         if date_to:
-            queryset = queryset.filter(report_date__date__lte=date_to)
+            try:
+                from datetime import datetime
+                # Parse the date string and make it timezone-aware (end of day)
+                date_to_obj = datetime.strptime(date_to, '%Y-%m-%d')
+                date_to_aware = timezone.make_aware(date_to_obj.replace(hour=23, minute=59, second=59))
+                queryset = queryset.filter(report_date__lte=date_to_aware)
+            except (ValueError, TypeError):
+                pass  # Invalid date format, skip filter
         
         return queryset
     
@@ -2956,6 +3032,67 @@ def admin_mark_property_damaged(request, property_id):
             'success': False,
             'errors': form.errors
         }, status=400)
+
+@require_POST
+@permission_required('app.view_admin_module')
+def report_lost_item(request, property_id):
+    """
+    View for admins to report a property as lost.
+    Creates a lost item report and marks the property as not available.
+    """
+    from .forms import LostItemForm
+    
+    property_obj = get_object_or_404(Property, id=property_id)
+    
+    form = LostItemForm(request.POST, request.FILES)
+    
+    if form.is_valid():
+        lost_item = form.save(commit=False)
+        lost_item.user = request.user  # Admin is the reporter
+        lost_item.item = property_obj  # Set the property
+        
+        lost_item.save()
+        
+        # Property availability is automatically set to 'not_available' in the model's save method
+        
+        # Log the activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='report',
+            model_name='LostItem',
+            object_repr=str(property_obj.property_name),
+            description=f"Admin reported property '{property_obj.property_name}' as lost and marked as not available. Description: {lost_item.description[:100]}..."
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Item successfully reported as lost and marked as not available in inventory.',
+            'lost_item_id': lost_item.id
+        })
+    else:
+        return JsonResponse({
+            'success': False,
+            'errors': form.errors
+        }, status=400)
+
+@login_required
+@permission_required('app.view_admin_module')
+def get_all_properties(request):
+    """
+    API endpoint to get all properties for the lost item dropdown.
+    Returns all non-archived, available properties with distinct IDs.
+    """
+    properties = Property.objects.filter(
+        is_archived=False
+    ).values('id', 'property_name', 'property_number').distinct().order_by('property_name')
+    
+    properties_data = [{
+        'id': prop['id'],
+        'property_name': prop['property_name'],
+        'property_number': prop['property_number'] or 'N/A'
+    } for prop in properties]
+    
+    return JsonResponse({'properties': properties_data})
 
 @permission_required('app.view_admin_module')
 def add_property_category(request):
@@ -7788,6 +7925,24 @@ def damage_report_image(request, report_id):
     if report.image_data and not report.deleted_at:
         response = HttpResponse(report.image_data, content_type=report.image_type)
         response['Content-Disposition'] = f'inline; filename="{report.image_name or f"damage_report_{report_id}.jpg"}"'
+        return response
+    else:
+        # Return 404 if no image or image was deleted
+        from django.http import Http404
+        raise Http404("Image not found or has been deleted")
+
+
+def lost_item_image(request, report_id):
+    """
+    Serve lost item report image stored as binary data in PostgreSQL.
+    Returns the image as HTTP response with proper MIME type.
+    """
+    report = get_object_or_404(LostItem, pk=report_id)
+    
+    # Check if report has image and it hasn't been deleted
+    if report.image_data and not report.deleted_at:
+        response = HttpResponse(report.image_data, content_type=report.image_type)
+        response['Content-Disposition'] = f'inline; filename="{report.image_name or f"lost_item_{report_id}.jpg"}"'
         return response
     else:
         # Return 404 if no image or image was deleted

@@ -28,6 +28,7 @@ urlpatterns = [
     
     path('user_reserve/', UserReserveView.as_view(), name='user_reserve'),
     path('user_report/', UserReportView.as_view(), name='user_report'),
+    path('report-lost-item/', views.report_lost_item_user, name='report_lost_item_user'),
     path('login/user/', UserLoginView.as_view(), name='login_user'),  
     path('user_profile/', UserProfileView.as_view(), name='user_profile'),
     path('all_requests/', UserAllRequestsView.as_view(), name='user_all_requests'),

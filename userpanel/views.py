@@ -5,8 +5,9 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from .forms import SupplyRequestForm, ReservationForm, DamageReportForm, BorrowForm, UserProfileUpdateForm
+from app.forms import LostItemForm
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordChangeDoneView
-from app.models import UserProfile, Notification, Property, ActivityLog, Supply, SupplyRequestBatch, SupplyRequestItem, SupplyRequest, BorrowRequest, BorrowRequestBatch, BorrowRequestItem, Reservation, ReservationBatch, ReservationItem, DamageReport, PropertyCategory, SupplyQuantity
+from app.models import UserProfile, Notification, Property, ActivityLog, Supply, SupplyRequestBatch, SupplyRequestItem, SupplyRequest, BorrowRequest, BorrowRequestBatch, BorrowRequestItem, Reservation, ReservationBatch, ReservationItem, DamageReport, PropertyCategory, SupplyQuantity, LostItem
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import JsonResponse
 from django.utils import timezone
@@ -195,11 +196,22 @@ class UserReportView(PermissionRequiredMixin, TemplateView):
             'description': req.description
         } for req in recent_requests]
         
+        # Get recent lost item reports by the user
+        recent_lost_items = LostItem.objects.filter(user=request.user).order_by('-report_date')[:5]
+        recent_lost_items_data = [{
+            'id': item.id,
+            'item': item.item.property_name,
+            'status': item.status,
+            'date': item.report_date,
+            'description': item.description
+        } for item in recent_lost_items]
+        
         return render(request, self.template_name, {
             'form': form,
             'available_supplies': available_supplies,
             'supply_categories': supply_categories,
-            'recent_requests': recent_requests_data
+            'recent_requests': recent_requests_data,
+            'recent_lost_items': recent_lost_items_data
         })
 
     def post(self, request):
@@ -1551,6 +1563,58 @@ def cancel_damage_report(request, request_id):
         'status': 'error',
         'message': 'Report cannot be cancelled'
     }, status=400)
+
+
+@login_required
+def report_lost_item_user(request):
+    """Handle user lost item report submissions"""
+    if request.method == 'POST':
+        # Get the item_id from the POST data
+        item_id = request.POST.get('item')
+        
+        if not item_id:
+            messages.error(request, 'Please select an item to report as lost.')
+            return redirect('user_report')
+        
+        # Create the form with POST data
+        form = LostItemForm(request.POST, request.FILES)
+        
+        if form.is_valid():
+            # Get the property object
+            try:
+                property_item = Property.objects.get(id=item_id)
+            except Property.DoesNotExist:
+                messages.error(request, 'Selected item does not exist.')
+                return redirect('user_report')
+            
+            # Create the lost item report
+            lost_item = form.save(commit=False)
+            lost_item.user = request.user
+            lost_item.item = property_item
+            
+            # Handle image upload and compression if present
+            if 'image' in request.FILES:
+                lost_item.set_image_from_file(request.FILES['image'])
+            
+            lost_item.save()
+            
+            # Log the activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='report',
+                model_name='LostItem',
+                object_repr=str(property_item.property_name),
+                description=f"Reported lost item: {property_item.property_name} - {lost_item.description[:100]}..."
+            )
+            
+            messages.success(request, 'Lost item report submitted successfully.')
+            return redirect('user_report')
+        else:
+            messages.error(request, 'Please correct the errors in the form.')
+            return redirect('user_report')
+    
+    # GET request - redirect to report page
+    return redirect('user_report')
 
 
 # Borrow Cart Functionality

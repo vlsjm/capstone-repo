@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from django.utils import timezone
 from .models import (
     Supply, Property, SupplyRequest,
-    Reservation, ReservationBatch, ReservationItem, DamageReport, BorrowRequest,
+    Reservation, ReservationBatch, ReservationItem, DamageReport, LostItem, BorrowRequest,
     UserProfile, ActivityLog, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
     Department, PropertyCategory, SupplyCategory, SupplySubcategory, 
@@ -147,6 +147,43 @@ class DamageReportAdmin(admin.ModelAdmin):
         )
     
     delete_images_bulk.short_description = "Delete images from resolved/reviewed reports"
+
+@admin.register(LostItem)
+class LostItemAdmin(admin.ModelAdmin):
+    list_display = ['id', 'item', 'user', 'status', 'report_date', 'last_seen_location', 'last_seen_date']
+    list_filter = ['status', 'report_date', 'last_seen_date']
+    search_fields = ['item__property_name', 'user__username', 'description', 'remarks', 'last_seen_location']
+    readonly_fields = ['report_date']
+    actions = ['mark_as_acknowledged', 'mark_as_resolved']
+    
+    fieldsets = (
+        ('Report Information', {
+            'fields': ('user', 'item', 'description', 'status', 'remarks', 'report_date')
+        }),
+        ('Location & Date Information', {
+            'fields': ('last_seen_location', 'last_seen_date')
+        }),
+    )
+    
+    def mark_as_acknowledged(self, request, queryset):
+        """Bulk action to mark reports as acknowledged"""
+        updated = queryset.filter(status='pending').update(status='acknowledged')
+        self.message_user(
+            request,
+            f"Successfully marked {updated} report(s) as acknowledged.",
+            level='success'
+        )
+    mark_as_acknowledged.short_description = "Mark as acknowledged"
+    
+    def mark_as_resolved(self, request, queryset):
+        """Bulk action to mark reports as resolved"""
+        updated = queryset.update(status='resolved')
+        self.message_user(
+            request,
+            f"Successfully marked {updated} report(s) as resolved.",
+            level='success'
+        )
+    mark_as_resolved.short_description = "Mark as resolved"
 
 admin.site.register(BorrowRequest)
 admin.site.register(BorrowRequestBatch)

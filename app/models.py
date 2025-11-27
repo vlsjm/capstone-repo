@@ -1446,6 +1446,46 @@ class DamageReport(models.Model):
                     remarks=f"Description: {self.description}"
                 )
 
+class LostItem(models.Model):
+    STATUS_CHOICES = [
+        ('lost', 'Lost'),
+        ('found', 'Found'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    item = models.ForeignKey(Property, on_delete=models.CASCADE)
+    description = models.TextField(help_text="Description of circumstances surrounding the loss")
+    last_seen_location = models.CharField(max_length=255, blank=True, null=True, help_text="Last known location of the item")
+    last_seen_date = models.DateField(blank=True, null=True, help_text="Date when item was last seen")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='lost')
+    remarks = models.TextField(blank=True, null=True, help_text="Admin remarks or notes")
+    report_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Lost Item Report for {self.item.property_name}"
+
+    def save(self, *args, **kwargs):
+        # Check if this is a new lost item report
+        is_new = self.pk is None
+        
+        # Save the lost item report
+        super().save(*args, **kwargs)
+        
+        # If this is a new lost item report, mark property as not available and notify admin users
+        if is_new:
+            # Mark the property as not available
+            self.item.availability = 'not_available'
+            self.item.save(update_fields=['availability'])
+            
+            # Notify admin users (exclude the admin who created the report)
+            admin_users = User.objects.filter(userprofile__role='ADMIN').exclude(id=self.user.id)
+            for admin_user in admin_users:
+                Notification.objects.create(
+                    user=admin_user,
+                    message=f"Lost item report #{self.id} submitted for {self.item.property_name} by {self.user.username}",
+                    remarks=f"Description: {self.description}"
+                )
+
 class BorrowRequest(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
