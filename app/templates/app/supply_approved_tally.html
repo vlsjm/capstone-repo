@@ -978,13 +978,30 @@
         const itemDeptAnalyticsUnfiltered = {{ item_dept_analytics_unfiltered_json|safe }};
         const categoryDeptAnalytics = {{ category_dept_analytics_json|safe }};
         
-        // Color palettes for charts
+        // Color palettes for charts - Using vibrant dashboard colors
         const chartColors = [
-            '#152d64', '#1d4c92', '#2d5a8a', '#3d6fa5', '#4d85bb', 
-            '#5d9ad0', '#6db0e6', '#7dc6f0', '#8dd6fa', '#9de6ff'
+            '#4CAF50', '#2196F3', '#FF9800', '#F44336', '#9C27B0', 
+            '#FFC107', '#00BCD4', '#E91E63', '#795548', '#607D8B',
+            '#3F51B5', '#8BC34A', '#FFEB3B', '#FF5722', '#673AB7'
         ];
 
-        const chartBackgroundColors = chartColors.map(color => color + '40'); // Add transparency
+        const chartBackgroundColors = [
+            'rgba(76, 175, 80, 0.25)',   // Green
+            'rgba(33, 150, 243, 0.25)',   // Blue
+            'rgba(255, 152, 0, 0.25)',    // Orange
+            'rgba(244, 67, 54, 0.25)',    // Red
+            'rgba(156, 39, 176, 0.25)',   // Purple
+            'rgba(255, 193, 7, 0.25)',    // Yellow
+            'rgba(0, 188, 212, 0.25)',    // Cyan
+            'rgba(233, 30, 99, 0.25)',    // Pink
+            'rgba(121, 85, 72, 0.25)',    // Brown
+            'rgba(96, 125, 139, 0.25)',   // Grey
+            'rgba(63, 81, 181, 0.25)',    // Indigo
+            'rgba(139, 195, 74, 0.25)',   // Light Green
+            'rgba(255, 235, 59, 0.25)',   // Light Yellow
+            'rgba(255, 87, 34, 0.25)',    // Deep Orange
+            'rgba(103, 58, 183, 0.25)'    // Deep Purple
+        ];
 
         let deptChartInstance = null;
         let itemChartInstance = null;

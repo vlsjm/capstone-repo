@@ -352,9 +352,75 @@
     body.modal-open {
         overflow: hidden;
     }
+
+    /* Tab Styles */
+    .report-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #e1e5e9;
+    }
+
+    .tab-button {
+        padding: 12px 24px;
+        background: transparent;
+        border: none;
+        border-bottom: 3px solid transparent;
+        color: #6c757d;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        bottom: -2px;
+    }
+
+    .tab-button:hover {
+        color: #152d64;
+        background: #f8f9fa;
+    }
+
+    .tab-button.active {
+        color: #152d64;
+        border-bottom-color: #152d64;
+        background: #f8f9fa;
+    }
+
+    .tab-button i {
+        margin-right: 8px;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .report-tabs {
+            gap: 5px;
+        }
+
+        .tab-button {
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+    }
 </style>
 <div class="request-page-layout">
     <main class="request-form-container">
+        <!-- Tabs -->
+        <div class="report-tabs">
+            <button class="tab-button active" data-tab="damage-report">
+                <i class="fas fa-exclamation-triangle"></i> Damage Report
+            </button>
+            <button class="tab-button" data-tab="lost-item-report">
+                <i class="fas fa-search"></i> Lost Item Report
+            </button>
+        </div>
+
         <!-- Mobile Modal Backdrop -->
         <div id="modal-backdrop" class="modal-backdrop"></div>
 
@@ -373,11 +439,11 @@
             {% endfor %}
         ]'></div>
 
-        <!-- Item Selection Modal (Mobile) -->
+        <!-- Item Selection Modal (Mobile) - For Damage Report -->
         <div id="item-selection-modal" class="item-selection-modal">
             <div class="modal-header" id="item-modal-handle">
                 <div class="modal-handle"></div>
-                <h2><i class="fas fa-exclamation-triangle"></i> Select Equipment to Report</h2>
+                <h2 id="modal-title"><i class="fas fa-exclamation-triangle"></i> Select Equipment to Report</h2>
             </div>
             <div class="modal-search-wrapper">
                 <input type="text" id="item-modal-search" class="modal-search-input" 
@@ -396,96 +462,214 @@
             </div>
         </div>
 
-        <h1><i class="fas fa-exclamation-triangle"></i> Damage Report</h1>
-        <p class="form-description">Please fill out the form below to report damaged items. Make sure to provide accurate information for faster processing.</p>
+        <!-- Damage Report Tab Content -->
+        <div id="damage-report-content" class="tab-content active">
+            <h1><i class="fas fa-exclamation-triangle"></i> Damage Report</h1>
+            <p class="form-description">Please fill out the form below to report damaged items. Make sure to provide accurate information for faster processing.</p>
 
-        {% if form.errors %}
-        <ul class="errorlist form-top-errors">
-            {% for field in form %}
-                {% for error in field.errors %}
-                    <li>{{ error }}</li>
+            {% if form.errors %}
+            <ul class="errorlist form-top-errors">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
-        </ul>
-        {% endif %}
+            </ul>
+            {% endif %}
 
-        <form method="post" action="{% url 'user_report' %}" class="request-form" enctype="multipart/form-data">
-            {% csrf_token %}
-            
-            <!-- Item Search for Damage Report -->
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label for="supply-search" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Equipment/Item Damaged:<span class="required-asterisk">*</span></label>
-                <div class="searchable-select-container">
-                    <input type="text" id="supply-search" class="form-control supply-search-input" 
-                           placeholder="Search for the damaged item..." autocomplete="off">
-                    <input type="hidden" id="supply-select" name="item">
-                    <div id="supply-dropdown" class="select-dropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e1e5e9; max-height: 300px; overflow-y: auto; z-index: 9999; display: none;">
-                        <div class="select-option" data-value="">Select an item...</div>
-                        {% for supply in available_supplies %}
-                        <div class="select-option" data-value="{{ supply.id }}" data-available="{{ supply.quantity }}">
-                            {{ supply.property_name }} ({{ supply.category.name }})
+            <form method="post" action="{% url 'user_report' %}" class="request-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Item Search for Damage Report -->
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="supply-search" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Equipment/Item Damaged:<span class="required-asterisk">*</span></label>
+                    <div class="searchable-select-container">
+                        <input type="text" id="supply-search" class="form-control supply-search-input" 
+                               placeholder="Search for the damaged item..." autocomplete="off">
+                        <input type="hidden" id="supply-select" name="item">
+                        <div id="supply-dropdown" class="select-dropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e1e5e9; max-height: 300px; overflow-y: auto; z-index: 9999; display: none;">
+                            <div class="select-option" data-value="">Select an item...</div>
+                            {% for supply in available_supplies %}
+                            <div class="select-option" data-value="{{ supply.id }}" data-available="{{ supply.quantity }}">
+                                {{ supply.property_name }} ({{ supply.category.name }})
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                     </div>
                 </div>
-            </div>
-            
-            <!-- Form fields excluding 'item' since we handle it above -->
-            <div class="form-group">
-                <label for="{{ form.description.id_for_label }}">{{ form.description.label|safe }}</label>
-                {{ form.description }}
-                {% if form.description.errors %}<span class="field-error">{{ form.description.errors }}</span>{% endif %}
-            </div>
-            <div class="form-group">
-                {{ form.image.label_tag }}
-                {{ form.image }}
-                {% if form.image.help_text %}<small class="form-text">{{ form.image.help_text }}</small>{% endif %}
-                {% if form.image.errors %}<span class="field-error">{{ form.image.errors }}</span>{% endif %}
-            </div>
-            <div class="form-actions">
-                <button type="submit" class="btn-submit">
-                    <i class="fas fa-paper-plane"></i> Submit Report
-                </button>
-                <button type="reset" class="btn-reset">
-                    <i class="fas fa-undo"></i> Clear Form
-                </button>
-            </div>
-        </form>
+                
+                <!-- Form fields excluding 'item' since we handle it above -->
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">{{ form.description.label|safe }}</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}<span class="field-error">{{ form.description.errors }}</span>{% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.image.label_tag }}
+                    {{ form.image }}
+                    {% if form.image.help_text %}<small class="form-text">{{ form.image.help_text }}</small>{% endif %}
+                    {% if form.image.errors %}<span class="field-error">{{ form.image.errors }}</span>{% endif %}
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-paper-plane"></i> Submit Report
+                    </button>
+                    <button type="reset" class="btn-reset">
+                        <i class="fas fa-undo"></i> Clear Form
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Lost Item Report Tab Content -->
+        <div id="lost-item-report-content" class="tab-content">
+            <h1><i class="fas fa-search"></i> Lost Item Report</h1>
+            <p class="form-description">Report a lost or missing item. Provide as much detail as possible to help locate the item.</p>
+
+            <form method="post" action="{% url 'report_lost_item_user' %}" class="request-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Item Search for Lost Item Report -->
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="lost-item-search" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Lost Equipment/Item:<span class="required-asterisk">*</span></label>
+                    <div class="searchable-select-container">
+                        <input type="text" id="lost-item-search" class="form-control supply-search-input" 
+                               placeholder="Search for the lost item..." autocomplete="off">
+                        <input type="hidden" id="lost-item-select" name="item">
+                        <div id="lost-item-dropdown" class="select-dropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e1e5e9; max-height: 300px; overflow-y: auto; z-index: 9999; display: none;">
+                            <div class="select-option" data-value="">Select an item...</div>
+                            {% for supply in available_supplies %}
+                            <div class="select-option" data-value="{{ supply.id }}" data-available="{{ supply.quantity }}">
+                                {{ supply.property_name }} ({{ supply.category.name }})
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="lost-item-description">Description of Loss:<span class="required-asterisk">*</span></label>
+                    <textarea id="lost-item-description" name="description" class="form-control" rows="4" 
+                              placeholder="Describe the circumstances of the loss..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="last-seen-location">Last Seen Location:</label>
+                    <input type="text" id="last-seen-location" name="last_seen_location" class="form-control" 
+                           placeholder="Where was the item last seen?">
+                </div>
+
+                <div class="form-group">
+                    <label for="last-seen-date">Last Seen Date:</label>
+                    <input type="date" id="last-seen-date" name="last_seen_date" class="form-control">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-paper-plane"></i> Submit Report
+                    </button>
+                    <button type="reset" class="btn-reset">
+                        <i class="fas fa-undo"></i> Clear Form
+                    </button>
+                </div>
+            </form>
+        </div>
     </main>
 
     <aside class="recent-requests">
         <h2><i class="fas fa-history"></i> Recent Reports</h2>
-        {% if recent_requests %}
-            <div class="requests-list">
-                {% for request in recent_requests %}
-                <div class="request-card" data-request-id="{{ request.id }}">
-                    <div class="request-header">
-                        <span class="request-date">{{ request.date|date:"M d, Y" }}</span>
-                        <span class="status-badge status-{{ request.status|lower }}">{{ request.status|title }}</span>
+        
+        <!-- Recent Damage Reports -->
+        <div id="recent-damage-reports" class="recent-section" style="display: block;">
+            <h3 style="font-size: 14px; color: #6c757d; margin-bottom: 10px;">Damage Reports</h3>
+            {% if recent_requests %}
+                <div class="requests-list">
+                    {% for request in recent_requests %}
+                    <div class="request-card" data-request-id="{{ request.id }}">
+                        <div class="request-header">
+                            <span class="request-date">{{ request.date|date:"M d, Y" }}</span>
+                            <span class="status-badge status-{{ request.status|lower }}">{{ request.status|title }}</span>
+                        </div>
+                        <div class="request-details">
+                            <p class="supply-name">{{ request.item }}</p>
+                            <p class="description">Description: {{ request.description|truncatechars:100 }}</p>
+                            {% if request.status == 'pending' %}
+                            <button class="btn-cancel-request" data-request-id="{{ request.id }}" data-request-type="damage-report">
+                                <i class="fas fa-times"></i> Cancel Report
+                            </button>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="request-details">
-                        <p class="supply-name">{{ request.item }}</p>
-                        <p class="description">Description: {{ request.description|truncatechars:100 }}</p>
-                        {% if request.status == 'pending' %}
-                        <button class="btn-cancel-request" data-request-id="{{ request.id }}" data-request-type="damage-report">
-                            <i class="fas fa-times"></i> Cancel Report
-                        </button>
-                        {% endif %}
-                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="no-requests">
-                <i class="fas fa-inbox"></i>
-                <p>No recent damage reports found</p>
-            </div>
-        {% endif %}
+            {% else %}
+                <div class="no-requests">
+                    <i class="fas fa-inbox"></i>
+                    <p>No recent damage reports</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Recent Lost Item Reports -->
+        <div id="recent-lost-reports" class="recent-section" style="display: none;">
+            <h3 style="font-size: 14px; color: #6c757d; margin-bottom: 10px;">Lost Item Reports</h3>
+            {% if recent_lost_items %}
+                <div class="requests-list">
+                    {% for item in recent_lost_items %}
+                    <div class="request-card" data-request-id="{{ item.id }}">
+                        <div class="request-header">
+                            <span class="request-date">{{ item.date|date:"M d, Y" }}</span>
+                            <span class="status-badge status-{{ item.status|lower }}">{{ item.status|title }}</span>
+                        </div>
+                        <div class="request-details">
+                            <p class="supply-name">{{ item.item }}</p>
+                            <p class="description">{{ item.description|truncatechars:100 }}</p>
+                            {% if item.last_seen_location %}
+                            <p class="description"><small>Last seen: {{ item.last_seen_location }}</small></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-requests">
+                    <i class="fas fa-inbox"></i>
+                    <p>No recent lost item reports</p>
+                </div>
+            {% endif %}
+        </div>
     </aside>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching functionality
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            
+            // Remove active class from all tabs and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding content
+            this.classList.add('active');
+            document.getElementById(tabName + '-content').classList.add('active');
+            
+            // Switch recent reports section
+            if (tabName === 'damage-report') {
+                document.getElementById('recent-damage-reports').style.display = 'block';
+                document.getElementById('recent-lost-reports').style.display = 'none';
+            } else if (tabName === 'lost-item-report') {
+                document.getElementById('recent-damage-reports').style.display = 'none';
+                document.getElementById('recent-lost-reports').style.display = 'block';
+            }
+        });
+    });
+
     // Event delegation for cancel buttons
     const requestsList = document.querySelector('.requests-list');
     if (requestsList) {
@@ -667,18 +851,26 @@ function closeModal(animate = true) {
     }
 }
 
-function openModal() {
+function openModal(modalType = 'damage') {
     const isMobile = window.innerWidth <= 768;
     if (!isMobile) return;
     
     const modal = document.getElementById('item-selection-modal');
     const backdrop = document.getElementById('modal-backdrop');
+    const modalTitle = document.getElementById('modal-title');
+    
+    // Update modal title based on type
+    if (modalType === 'lost') {
+        modalTitle.innerHTML = '<i class="fas fa-search"></i> Select Lost Item';
+    } else {
+        modalTitle.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Select Equipment to Report';
+    }
     
     modal.classList.add('active');
     backdrop.classList.add('active');
     document.body.classList.add('modal-open');
     
-    populateModalItems();
+    populateModalItems(modalType);
     setupDragToDismiss();
 }
 
@@ -735,10 +927,12 @@ function setupDragToDismiss() {
     document.addEventListener('touchend', onTouchEnd, { passive: true });
 }
 
-function populateModalItems() {
+function populateModalItems(modalType = 'damage') {
     const listContainer = document.getElementById('item-modal-items-list');
     const searchInput = document.getElementById('item-modal-search');
     const categoryFilter = document.getElementById('item-modal-category');
+    
+    window.currentModalType = modalType;
     
     function filterAndRender() {
         const searchTerm = searchInput.value.toLowerCase().trim();
@@ -784,6 +978,8 @@ function populateModalItems() {
     
     filterAndRender();
     
+    searchInput.removeEventListener('input', filterAndRender);
+    categoryFilter.removeEventListener('change', filterAndRender);
     searchInput.addEventListener('input', filterAndRender);
     categoryFilter.addEventListener('change', filterAndRender);
 }
@@ -791,8 +987,15 @@ function populateModalItems() {
 function selectItemFromModal(itemId, itemName, available) {
     closeModal(false);
     
-    document.getElementById('supply-search').value = itemName;
-    document.getElementById('supply-select').value = itemId;
+    const modalType = window.currentModalType || 'damage';
+    
+    if (modalType === 'lost') {
+        document.getElementById('lost-item-search').value = itemName;
+        document.getElementById('lost-item-select').value = itemId;
+    } else {
+        document.getElementById('supply-search').value = itemName;
+        document.getElementById('supply-select').value = itemId;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -859,7 +1062,67 @@ document.addEventListener('DOMContentLoaded', function() {
         
         supplySearch.addEventListener('click', function(e) {
             e.preventDefault();
-            openModal();
+            openModal('damage');
+        });
+    }
+
+    // ===== LOST ITEM SEARCH SETUP =====
+    const lostItemSearch = document.getElementById('lost-item-search');
+    const lostItemDropdown = document.getElementById('lost-item-dropdown');
+    const lostItemSelect = document.getElementById('lost-item-select');
+    
+    if (window.innerWidth > 768) {
+        // Desktop: Show dropdown on input focus
+        lostItemSearch.addEventListener('focus', function() {
+            lostItemDropdown.style.display = 'block';
+        });
+        
+        // Filter and search functionality
+        lostItemSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const options = lostItemDropdown.querySelectorAll('.select-option');
+            
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(searchTerm) || searchTerm === '') {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        });
+        
+        // Handle option selection
+        lostItemDropdown.addEventListener('click', function(e) {
+            const option = e.target.closest('.select-option');
+            if (option) {
+                const value = option.dataset.value;
+                const text = option.textContent.trim();
+                
+                lostItemSearch.value = text === 'Select an item...' ? '' : text;
+                lostItemSelect.value = value;
+                lostItemDropdown.style.display = 'none';
+            }
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target !== lostItemSearch && e.target !== lostItemDropdown) {
+                lostItemDropdown.style.display = 'none';
+            }
+        });
+    } else {
+        // Mobile: Use modal
+        lostItemSearch.setAttribute('readonly', 'readonly');
+        
+        lostItemSearch.addEventListener('focus', function(e) {
+            e.preventDefault();
+            this.blur();
+        });
+        
+        lostItemSearch.addEventListener('click', function(e) {
+            e.preventDefault();
+            openModal('lost');
         });
     }
 });

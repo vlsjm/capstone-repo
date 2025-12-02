@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
 from .models import Property, Supply, SupplyQuantity, SupplyCategory, SupplySubcategory, BadStockReport
 from django.contrib.auth.models import User
-from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, Reservation, Department,PropertyCategory, SupplyRequestBatch, SupplyRequestItem, Supply, SupplyQuantity
+from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, LostItem, Reservation, Department,PropertyCategory, SupplyRequestBatch, SupplyRequestItem, Supply, SupplyQuantity
 from datetime import date
 import os
 
@@ -659,6 +659,37 @@ class AdminDamageReportForm(forms.ModelForm):
                 raise ValidationError("Please upload a valid image file (JPG, PNG, GIF, BMP, WebP).")
         
         return image
+
+
+class LostItemForm(forms.ModelForm):
+    """
+    Form for reporting a lost item.
+    """
+    class Meta:
+        model = LostItem
+        fields = ['description', 'last_seen_location', 'last_seen_date']
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Describe the circumstances of the lost item...',
+                'required': True
+            }),
+            'last_seen_location': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Last known location (optional)'
+            }),
+            'last_seen_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+                'placeholder': 'Date last seen (optional)'
+            })
+        }
+        labels = {
+            'description': 'Description of Loss',
+            'last_seen_location': 'Last Seen Location',
+            'last_seen_date': 'Date Last Seen'
+        }
 
 
 class ReservationForm(forms.ModelForm):

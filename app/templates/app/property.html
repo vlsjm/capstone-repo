@@ -2621,6 +2621,9 @@ input:focus {
             <button id="openModalBtn" class="action-btn primary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-plus"></i> Add Property
             </button>
+            <button id="openLostItemModalBtn" class="action-btn warning-btn" style="display: flex; align-items: center; gap: 6px; background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+              <i class="fas fa-search"></i> Report Lost Item
+            </button>
             <button id="openModifyQuantityModalBtn" class="action-btn secondary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #4a5568; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-edit"></i> Property Inventory
             </button>
@@ -3781,6 +3784,314 @@ input:focus {
   </div>
 </div>
 
+<!-- Report Lost Item Modal Styles -->
+<style>
+.lost-item-modal-overlay {
+  position: fixed !important;
+  z-index: 9999 !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: auto !important;
+  background-color: rgba(0,0,0,0.5) !important;
+  padding: 50px 20px !important;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.lost-item-modal-overlay[style*="display: flex"],
+.lost-item-modal-overlay[style*="display:flex"] {
+  display: flex !important;
+}
+
+.lost-item-modal-box {
+  background-color: #fefefe !important;
+  margin: 0 auto !important;
+  border-radius: 8px !important;
+  width: 100% !important;
+  max-width: 550px !important;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+  position: relative !important;
+}
+
+.lost-item-modal-header {
+  background: #152d64 !important;
+  color: white !important;
+  padding: 16px 20px !important;
+  border-radius: 8px 8px 0 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.lost-item-header-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.lost-item-header-icon {
+  font-size: 24px !important;
+  color: white !important;
+}
+
+.lost-item-modal-title {
+  color: white !important;
+  margin: 0 !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+}
+
+.lost-item-modal-subtitle {
+  color: rgba(255,255,255,0.9) !important;
+  margin: 2px 0 0 0 !important;
+  font-size: 13px !important;
+  opacity: 0.9 !important;
+}
+
+.lost-item-close-btn {
+  color: white !important;
+  background: none !important;
+  border: none !important;
+  font-size: 28px !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+.lost-item-form-body {
+  padding: 20px !important;
+}
+
+.lost-item-form-fields {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+}
+
+.lost-item-form-group {
+  margin: 0 !important;
+}
+
+.lost-item-form-label {
+  margin-bottom: 6px !important;
+  display: block !important;
+  font-weight: 500 !important;
+  color: #333 !important;
+}
+
+.lost-item-form-input,
+.lost-item-form-textarea,
+#lost-property-select,
+#lost-last-seen-location,
+#lost-last-seen-date,
+#lost-description {
+  width: 100% !important;
+  padding: 8px 12px !important;
+  border: 1px solid #ddd !important;
+  border-radius: 4px !important;
+  font-size: 14px !important;
+  box-sizing: border-box !important;
+}
+
+.lost-item-form-textarea,
+#lost-description {
+  resize: vertical !important;
+  font-family: inherit !important;
+  min-height: 100px !important;
+}
+
+/* Select2 dropdown specific styles */
+.select2-container {
+  width: 100% !important;
+}
+
+.select2-container .select2-selection--single {
+  height: 38px !important;
+  padding: 6px 12px !important;
+  border: 1px solid #ddd !important;
+  border-radius: 4px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 24px !important;
+  color: #333 !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 36px !important;
+}
+
+.lost-item-help-text {
+  margin-top: 4px !important;
+  display: block !important;
+  font-size: 12px !important;
+  color: #666 !important;
+}
+
+.lost-item-form-actions {
+  margin-top: 18px !important;
+  display: flex !important;
+  gap: 10px !important;
+  justify-content: flex-end !important;
+}
+
+.lost-item-btn {
+  padding: 10px 20px !important;
+  border: none !important;
+  border-radius: 4px !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.2s !important;
+}
+
+.lost-item-btn-cancel {
+  background-color: #6c757d !important;
+  color: white !important;
+}
+
+.lost-item-btn-cancel:hover {
+  background-color: #5a6268 !important;
+}
+
+.lost-item-btn-submit {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+.lost-item-btn-submit:hover {
+  background-color: #c82333 !important;
+}
+
+.lost-item-alert-error {
+  margin-top: 12px !important;
+  padding: 10px 12px !important;
+  background-color: #f8d7da !important;
+  border: 1px solid #f5c6cb !important;
+  border-radius: 4px !important;
+  color: #721c24 !important;
+  font-size: 14px !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.lost-item-alert-error[style*="display: none"] {
+  display: none !important;
+}
+
+.lost-item-alert-error:not([style*="display: none"]) {
+  display: flex !important;
+}
+
+.required-asterisk {
+  color: #dc3545 !important;
+}
+
+.optional-text {
+  font-size: 12px !important;
+  color: #999 !important;
+  font-weight: normal !important;
+}
+</style>
+
+<!-- Report Lost Item Modal -->
+<div id="lostItemModal" class="lost-item-modal-overlay">
+  <div class="lost-item-modal-box">
+    <div class="lost-item-modal-header">
+      <div class="lost-item-header-left">
+        <i class="fas fa-exclamation-circle lost-item-header-icon"></i>
+        <div>
+          <h2 class="lost-item-modal-title">Report Lost Item</h2>
+          <p class="lost-item-modal-subtitle">Report property as lost and mark as not available</p>
+        </div>
+      </div>
+      <button type="button" class="lost-item-close-btn" id="closeLostItemModalBtn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="lost-item-form-body">
+      <form id="lostItemForm" class="lost-item-form">
+        {% csrf_token %}
+        
+        <div class="lost-item-form-fields">
+          <div class="lost-item-form-group">
+            <label for="lost-property-select" class="lost-item-form-label">
+              <i class="fas fa-cube"></i> Property <span class="required-asterisk">*</span>
+            </label>
+            <select 
+              id="lost-property-select" 
+              name="property_id" 
+              class="lost-item-form-input" 
+              required>
+              <option value="">Loading properties...</option>
+            </select>
+          </div>
+          
+          <div class="lost-item-form-group">
+            <label for="lost-last-seen-location" class="lost-item-form-label">
+              <i class="fas fa-map-marker-alt"></i> Last Seen Location <span class="optional-text">(Optional)</span>
+            </label>
+            <input 
+              type="text" 
+              id="lost-last-seen-location" 
+              name="last_seen_location" 
+              class="lost-item-form-input" 
+              placeholder="Enter last known location">
+          </div>
+          
+          <div class="lost-item-form-group">
+            <label for="lost-last-seen-date" class="lost-item-form-label">
+              <i class="fas fa-calendar-alt"></i> Date Last Seen <span class="optional-text">(Optional)</span>
+            </label>
+            <input 
+              type="date" 
+              id="lost-last-seen-date" 
+              name="last_seen_date" 
+              class="lost-item-form-input"
+              max="{{ today|date:'Y-m-d' }}">
+          </div>
+          
+          <div class="lost-item-form-group">
+            <label for="lost-description" class="lost-item-form-label">
+              <i class="fas fa-comment-alt"></i> Description of Circumstances <span class="required-asterisk">*</span>
+            </label>
+            <textarea 
+              id="lost-description" 
+              name="description" 
+              class="lost-item-form-textarea" 
+              rows="4" 
+              placeholder="Provide detailed explanation of how the item was lost, when it was noticed missing, and any relevant information..."
+              required></textarea>
+            <small class="lost-item-help-text">
+              <i class="fas fa-info-circle"></i> Provide as much detail as possible to help with the investigation
+            </small>
+          </div>
+        </div>
+        
+        <div class="lost-item-form-actions">
+          <button type="button" class="lost-item-btn lost-item-btn-cancel" id="cancelLostItemBtn">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button type="submit" class="lost-item-btn lost-item-btn-submit">
+            <i class="fas fa-check"></i> Report as Lost
+          </button>
+        </div>
+        
+        <div id="lost-form-error" class="lost-item-alert-error" style="display: none;">
+          <i class="fas fa-exclamation-circle"></i>
+          <span class="error-message"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 {% block extra_scripts %}
 
 <!-- jQuery (required by Select2 and your scripts) -->
@@ -4779,6 +5090,176 @@ input:focus {
                         errorDiv.style.display = 'flex';
                         if (errorMessage) {
                             errorMessage.textContent = 'An error occurred while submitting the report.';
+                        }
+                    })
+                    .finally(() => {
+                        // Restore button state
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    });
+                });
+            }
+        }
+
+        // Lost Item Modal functionality
+        const lostItemModal = document.getElementById('lostItemModal');
+        const openLostItemModalBtn = document.getElementById('openLostItemModalBtn');
+        const closeLostItemModalBtn = document.getElementById('closeLostItemModalBtn');
+        const cancelLostItemBtn = document.getElementById('cancelLostItemBtn');
+        const lostItemForm = document.getElementById('lostItemForm');
+
+        if (!lostItemModal || !openLostItemModalBtn || !closeLostItemModalBtn) {
+            console.error('Lost item modal elements not found');
+        } else {
+            // Open modal button handler
+            openLostItemModalBtn.addEventListener('click', function() {
+                const selectElement = document.getElementById('lost-property-select');
+                
+                // Always fetch all properties via API to ensure we get everything
+                fetch('/api/all-properties/')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.properties) {
+                            // Clear and rebuild select options
+                            selectElement.innerHTML = '<option value="">Select a property...</option>';
+                            data.properties.forEach(prop => {
+                                const option = document.createElement('option');
+                                option.value = prop.id;
+                                option.textContent = `${prop.property_name} (${prop.property_number || 'N/A'})`;
+                                selectElement.appendChild(option);
+                            });
+                            
+                            // Destroy existing Select2 if it exists
+                            if (typeof $ !== 'undefined' && $.fn.select2) {
+                                const $select = $('#lost-property-select');
+                                if ($select.data('select2')) {
+                                    $select.select2('destroy');
+                                }
+                                
+                                // Initialize Select2
+                                $select.select2({
+                                    placeholder: 'Search for a property...',
+                                    allowClear: true,
+                                    dropdownParent: $(lostItemModal),
+                                    width: '100%'
+                                });
+                            }
+                            
+                            // Show the modal after properties are loaded
+                            lostItemModal.style.display = 'flex';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading properties:', error);
+                        alert('Error loading properties. Please try again.');
+                    });
+            });
+
+            // Close modal handlers
+            closeLostItemModalBtn.addEventListener('click', function() {
+                lostItemModal.style.display = 'none';
+                if (lostItemForm) {
+                    lostItemForm.reset();
+                    // Reset Select2 if initialized
+                    if (typeof $ !== 'undefined' && $.fn.select2) {
+                        $('#lost-property-select').val('').trigger('change');
+                    }
+                }
+                const errorDiv = document.getElementById('lost-form-error');
+                if (errorDiv) errorDiv.style.display = 'none';
+            });
+
+            if (cancelLostItemBtn) {
+                cancelLostItemBtn.addEventListener('click', function() {
+                    lostItemModal.style.display = 'none';
+                    if (lostItemForm) {
+                        lostItemForm.reset();
+                        // Reset Select2 if initialized
+                        if (typeof $ !== 'undefined' && $.fn.select2) {
+                            $('#lost-property-select').val('').trigger('change');
+                        }
+                    }
+                    const errorDiv = document.getElementById('lost-form-error');
+                    if (errorDiv) errorDiv.style.display = 'none';
+                });
+            }
+
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === lostItemModal) {
+                    lostItemModal.style.display = 'none';
+                }
+            });
+
+            // Handle form submission
+            if (lostItemForm) {
+                lostItemForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const propertyId = document.getElementById('lost-property-select').value;
+                    if (!propertyId) {
+                        alert('Please select a property');
+                        return;
+                    }
+                    const formData = new FormData(lostItemForm);
+                    const errorDiv = document.getElementById('lost-form-error');
+                    const errorMessage = errorDiv.querySelector('.error-message');
+                    
+                    // Show loading state
+                    const submitBtn = lostItemForm.querySelector('.lost-item-btn-submit');
+                    const originalBtnText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reporting...';
+                    
+                    // Send AJAX request
+                    fetch(`/property/${propertyId}/report-lost/`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Reset form
+                            lostItemForm.reset();
+                            
+                            // Hide error if visible
+                            errorDiv.style.display = 'none';
+                            
+                            // Close modal
+                            lostItemModal.style.display = 'none';
+                            
+                            // Show success message
+                            const successMsg = document.createElement('div');
+                            successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 15px 25px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px;';
+                            successMsg.innerHTML = '<i class="fas fa-check-circle"></i><span>Item reported as lost and marked as not available!</span>';
+                            document.body.appendChild(successMsg);
+                            
+                            setTimeout(() => {
+                                successMsg.style.transition = 'opacity 0.3s';
+                                successMsg.style.opacity = '0';
+                                setTimeout(() => {
+                                    successMsg.remove();
+                                    location.reload();
+                                }, 300);
+                            }, 2500);
+                        } else {
+                            // Show error message
+                            errorDiv.style.display = 'flex';
+                            if (errorMessage) {
+                                errorMessage.textContent = data.errors ? 
+                                    Object.values(data.errors).flat().join(', ') : 
+                                    'An error occurred while submitting the report.';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        errorDiv.style.display = 'block';
+                        if (errorMessage) {
+                            errorMessage.textContent = 'Network error. Please check your connection and try again.';
                         }
                     })
                     .finally(() => {

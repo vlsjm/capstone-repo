@@ -60,6 +60,36 @@ def check_and_notify_overdue_items():
         logger.error(f"SCHEDULER ERROR in check_and_notify_overdue_items: {str(e)}", exc_info=True)
 
 
+def check_and_update_reservations():
+    """
+    AUTOMATED RESERVATION CHECK - Runs via scheduler every hour
+    
+    This function handles:
+    1. Expires reservations when needed_date or return_date has passed
+    2. Auto-generates borrow requests for approved reservations when needed_date is reached
+    3. Updates reservation statuses (pending -> expired, approved -> active, active -> completed)
+    4. Sends notifications to users about expired reservations
+    
+    This ensures reservation status updates happen automatically.
+    """
+    try:
+        from app.models import ReservationBatch
+        
+        logger.info("=" * 70)
+        logger.info("SCHEDULER: Starting automated reservation status check...")
+        logger.info("=" * 70)
+        
+        # Call the model method that handles all reservation status updates
+        ReservationBatch.check_and_update_batches()
+        
+        logger.info("=" * 70)
+        logger.info("SCHEDULER: Automated reservation status check complete")
+        logger.info("=" * 70)
+
+    except Exception as e:
+        logger.error(f"SCHEDULER ERROR in check_and_update_reservations: {str(e)}", exc_info=True)
+
+
 def start_scheduler():
     """Initialize and start the background scheduler."""
     scheduler = BackgroundScheduler(timezone=settings.TIME_ZONE)
@@ -98,6 +128,19 @@ def start_scheduler():
         else:
             logger.info("Task check_and_notify_overdue_items already exists, skipping")
 
+        if "check_and_update_reservations" not in job_ids:
+            scheduler.add_job(
+                check_and_update_reservations,
+                "interval",
+                hours=1,
+                id="check_and_update_reservations",
+                name="Check and Update Reservation Statuses (Every Hour)",
+                replace_existing=True,
+            )
+            logger.info("Scheduled task: check_and_update_reservations (every hour)")
+        else:
+            logger.info("Task check_and_update_reservations already exists, skipping")
+
     except Exception as e:
         logger.warning(f"Could not check existing jobs, adding with replace_existing=True: {e}")
         # Fallback: just add jobs with replace_existing=True
@@ -115,6 +158,14 @@ def start_scheduler():
             hours=2,
             id="check_and_notify_overdue_items",
             name="Check and Notify Overdue Items (Every 2 Hours)",
+            replace_existing=True,
+        )
+        scheduler.add_job(
+            check_and_update_reservations,
+            "interval",
+            hours=1,
+            id="check_and_update_reservations",
+            name="Check and Update Reservation Statuses (Every Hour)",
             replace_existing=True,
         )
 

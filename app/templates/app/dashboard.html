@@ -717,6 +717,16 @@
         color: #721c24;
       }
 
+      .status-forclaiming {
+        background-color: #e7f3ff;
+        color: #0066cc;
+      }
+
+      .status-completed {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
       .request-type {
         font-weight: 500;
         color: #495057;
@@ -1322,7 +1332,7 @@
     </script>
 
     <script id="propertyCategoriesData" type="application/json">
-      {% autoescape off %} {{ property_categories_counts|default:"[]"|safe }} {% endautoescape %}
+      {% autoescape off %} {{ property_categories_data|default:"[]"|safe }} {% endautoescape %}
     </script>
 
     <script id="userActivityData" type="application/json">
@@ -1468,6 +1478,10 @@
               } else {
                 redirectUrl = '/my-supply-requests/';
               }
+            } else if (message.toLowerCase().includes('lost item')) {
+              // Handle lost item reports - redirect to damaged items management with lost items tab active
+              console.log('Lost item notification detected, redirecting to lost items tab');
+              redirectUrl = '/damaged-items/?tab=lost-items';
             } else if (message.includes('damage report')) {
               // Handle damage reports
               const idMatch = message.match(/#(\d+)/i);

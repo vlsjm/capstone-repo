@@ -98,6 +98,7 @@ from .views import (
     get_top_requested_supplies,
     get_department_requests_filtered,
     ResourceAllocationDashboardView,
+    mark_property_as_lost,
 )
 
 urlpatterns = [
@@ -110,6 +111,12 @@ urlpatterns = [
     path('damaged-items/', views.DamagedItemsManagementView.as_view(), name='damaged_items_management'),
     path('update-damage-status/<int:pk>/', views.update_damage_status, name='update_damage_status'),
     path('update-property-condition/<int:pk>/', views.update_property_condition, name='update_property_condition'),
+    path('lost-item/found/<int:pk>/', views.mark_lost_item_found, name='mark_lost_item_found'),
+    path('lost-item/delete/<int:pk>/', views.delete_lost_item, name='delete_lost_item'),
+    path('property/<int:property_id>/mark-as-lost/', mark_property_as_lost, name='mark_property_as_lost'),
+    path('export-unserviceable-items/', views.export_unserviceable_items, name='export_unserviceable_items'),
+    path('export-needs-repair-items/', views.export_needs_repair_items, name='export_needs_repair_items'),
+    path('export-lost-items/', views.export_lost_items, name='export_lost_items'),
     path('accounts/login/', CustomLoginView.as_view(), name='login'),
 
     path('logout/', logout_view, name='logout'),
@@ -132,6 +139,8 @@ urlpatterns = [
     path('change-property-number/<int:pk>/', change_property_number, name='change_property_number'),
     path('delete-property/<int:pk>/', delete_property, name='delete_property'),
     path('property/<int:property_id>/mark-damaged/', views.admin_mark_property_damaged, name='admin_mark_property_damaged'),
+    path('property/<int:property_id>/report-lost/', views.report_lost_item, name='report_lost_item'),
+    path('api/all-properties/', views.get_all_properties, name='get_all_properties'),
     path('property/modify_quantity/', views.modify_property_quantity_generic, name='modify_property_quantity_generic'),
     path('property/modify_quantity_batch/', views.modify_property_quantity_batch, name='modify_property_quantity_batch'),
     path('add-property-category/', add_property_category, name='add_property_category'),
@@ -191,6 +200,7 @@ urlpatterns = [
     path('request/<int:pk>/', request_detail, name='request_detail'),
     path('borrow-request/<int:pk>/', borrow_request_details, name='borrow_request_details'),
     path('damage-report/<int:pk>/', damage_report_detail, name='damage_report_detail'),
+    path('report-lost-item/<int:property_id>/', views.report_lost_item, name='report_lost_item'),
     path('reservation/<int:pk>/', reservation_detail, name='reservation_detail'),
     path('reservation-batch/<int:batch_id>/', reservation_batch_detail, name='reservation_batch_detail'),
     path('reservation-batch/<int:batch_id>/approve/', approve_reservation_batch, name='approve_reservation_batch'),
@@ -254,6 +264,9 @@ urlpatterns = [
     path('damage-report/<int:report_id>/image/', views.damage_report_image, name='damage_report_image'),
     path('damage-report/<int:report_id>/delete-image/', views.delete_damage_report_image, name='delete_damage_report_image'),
     path('damage-reports/bulk-delete-images/', views.bulk_delete_damage_report_images, name='bulk_delete_damage_report_images'),
+    
+    # Lost item report image serving (from PostgreSQL database)
+    path('lost-item/<int:report_id>/image/', views.lost_item_image, name='lost_item_image'),
     
     # Admin Profile
     path('profile/', views.AdminProfileView.as_view(), name='admin_profile'),

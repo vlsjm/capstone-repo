@@ -314,6 +314,7 @@ class Property(models.Model):
         ('Obsolete', 'Obsolete'),
         ('No longer needed', 'No longer needed'),
         ('Not used since purchased', 'Not used since purchased'),
+        ('Lost', 'Lost'),
     ]
 
     AVAILABILITY_CHOICES = [
@@ -362,7 +363,7 @@ class Property(models.Model):
 
     def update_availability(self):
         """Update availability based on condition and quantity"""
-        unavailable_conditions = ['Needing repair', 'Unserviceable', 'Obsolete', 'No longer needed']
+        unavailable_conditions = ['Needing repair', 'Unserviceable', 'Obsolete', 'No longer needed', 'Lost']
         
         # First check condition
         if self.condition in unavailable_conditions:
@@ -1443,6 +1444,50 @@ class DamageReport(models.Model):
                 Notification.objects.create(
                     user=admin_user,
                     message=f"New damage report #{self.id} submitted for {self.item.property_name} by {self.user.username}",
+                    remarks=f"Description: {self.description}"
+                )
+
+class LostItem(models.Model):
+    STATUS_CHOICES = [
+        ('lost', 'Lost'),
+        ('found', 'Found'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    item = models.ForeignKey(Property, on_delete=models.CASCADE)
+    description = models.TextField(help_text="Description of circumstances surrounding the loss")
+    last_seen_location = models.CharField(max_length=255, blank=True, null=True, help_text="Last known location of the item")
+    last_seen_date = models.DateField(blank=True, null=True, help_text="Date when item was last seen")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='lost')
+    remarks = models.TextField(blank=True, null=True, help_text="Admin remarks or notes")
+    report_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Lost Item Report for {self.item.property_name}"
+
+    def save(self, *args, **kwargs):
+        # Check if this is a new lost item report
+        is_new = self.pk is None
+        
+        # Check if this should skip automatic status changes (for admin direct reporting)
+        skip_auto_status = kwargs.pop('skip_auto_status', False)
+        
+        # Save the lost item report
+        super().save(*args, **kwargs)
+        
+        # If this is a new lost item report and not skipping auto status
+        if is_new and not skip_auto_status:
+            # For regular reports (needs verification), just mark as not available
+            # Admin will need to verify and mark as Lost using mark_property_as_lost
+            self.item.availability = 'not_available'
+            self.item.save(update_fields=['availability'])
+            
+            # Notify admin users (exclude the admin who created the report)
+            admin_users = User.objects.filter(userprofile__role='ADMIN').exclude(id=self.user.id)
+            for admin_user in admin_users:
+                Notification.objects.create(
+                    user=admin_user,
+                    message=f"Lost item report #{self.id} submitted for {self.item.property_name} by {self.user.username} - Requires verification",
                     remarks=f"Description: {self.description}"
                 )
 

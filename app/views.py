@@ -41,6 +41,100 @@ def update_damage_status(request, pk):
     return HttpResponseRedirect(reverse('damaged_items_management'))
 
 @require_POST
+def mark_lost_item_found(request, pk):
+    """Mark a lost item as found and restore property availability"""
+    from .models import LostItem
+    lost_item = get_object_or_404(LostItem, pk=pk)
+    
+    # Restore property condition to 'In good condition' and mark as available
+    lost_item.item.condition = 'In good condition'
+    lost_item.item.availability = 'available'
+    lost_item.item.save(update_fields=['condition', 'availability'])
+    
+    # Update lost item status to 'found'
+    lost_item.status = 'found'
+    lost_item.remarks = f"Item marked as found by {request.user.username}"
+    lost_item.save()
+    
+    # Log the activity
+    ActivityLog.log_activity(
+        user=request.user,
+        action='update',
+        model_name='LostItem',
+        object_repr=str(lost_item.item.property_name),
+        description=f"Marked lost property '{lost_item.item.property_name}' as found and restored to available status"
+    )
+    
+    messages.success(request, f"{lost_item.item.property_name} has been marked as found and is now available.")
+    return HttpResponseRedirect(reverse('damaged_items_management') + '?tab=lost-items')
+
+def mark_property_as_lost(request, property_id):
+    """
+    View for admins to verify and mark a property as lost.
+    This is typically used after reviewing a lost item report to confirm the item is indeed lost.
+    Updates the property condition to 'Lost' and availability to 'not_available'.
+    """
+    # Check if user is authenticated and has admin permissions
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Authentication required'}, status=401)
+    
+    try:
+        if not request.user.userprofile.role == 'ADMIN':
+            return JsonResponse({'success': False, 'message': 'Admin access required'}, status=403)
+    except:
+        return JsonResponse({'success': False, 'message': 'Access denied'}, status=403)
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'POST method required'}, status=405)
+    
+    property_obj = get_object_or_404(Property, id=property_id)
+    
+    # Store old condition for logging
+    old_condition = property_obj.condition
+    
+    # Update property condition to Lost
+    property_obj.condition = 'Lost'
+    property_obj.availability = 'not_available'
+    property_obj.save(update_fields=['condition', 'availability'])
+    
+    # Log the activity
+    ActivityLog.log_activity(
+        user=request.user,
+        action='update',
+        model_name='Property',
+        object_repr=str(property_obj.property_name),
+        description=f"Admin verified and marked property '{property_obj.property_name}' as Lost (previous condition: {old_condition})"
+    )
+    
+    messages.success(request, f"{property_obj.property_name} has been marked as Lost.")
+    
+    # Return JSON response for AJAX calls, or redirect to damaged items page
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': True,
+            'message': f'{property_obj.property_name} has been marked as Lost.'
+        })
+    
+    # Redirect to damaged items management page with lost-items tab
+    return HttpResponseRedirect(reverse('damaged_items_management') + '?tab=lost-items')
+
+@require_POST
+def delete_lost_item(request, pk):
+    """Delete a lost item report"""
+    from .models import LostItem
+    lost_item = get_object_or_404(LostItem, pk=pk)
+    item_name = lost_item.item.property_name
+    
+    # Optionally restore property availability
+    lost_item.item.availability = 'available'
+    lost_item.item.save(update_fields=['availability'])
+    
+    lost_item.delete()
+    
+    messages.success(request, f"Lost item report for {item_name} has been deleted.")
+    return HttpResponseRedirect(reverse('damaged_items_management') + '?tab=lost-items')
+
+@require_POST
 def update_property_condition(request, pk):
     property_obj = get_object_or_404(Property, pk=pk)
     new_condition = request.POST.get('condition')
@@ -61,8 +155,28 @@ class DamagedItemsManagementView(PermissionRequiredMixin, TemplateView):
     permission_required = 'app.view_admin_module'
     template_name = 'app/damaged_items_management.html'
 
+    def _get_reported_date_for_property(self, prop, condition):
+        """Get the date when a property was set to a specific condition"""
+        from .models import PropertyHistory
+        from django.utils import timezone
+        from datetime import datetime
+        
+        # Try to find the most recent history entry where condition was changed to the specified condition
+        history = PropertyHistory.objects.filter(
+            property=prop,
+            field_name='condition',
+            new_value=condition
+        ).order_by('-timestamp').first()
+        
+        if history:
+            return history.timestamp
+        
+        # Fallback to minimum aware datetime if no history found (will sort to end)
+        return timezone.make_aware(datetime.min.replace(year=1900))
+
     def get_context_data(self, **kwargs):
         from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+        from django.utils import timezone
         context = super().get_context_data(**kwargs)
         
         # Get properties with unserviceable condition
@@ -70,6 +184,23 @@ class DamagedItemsManagementView(PermissionRequiredMixin, TemplateView):
         
         # Get properties needing repair
         needs_repair_properties = Property.objects.filter(condition__iexact='Needing repair').order_by('-id')
+        
+        # Add reported_date to each property by fetching from PropertyHistory
+        for prop in unserviceable_properties:
+            prop.reported_date = self._get_reported_date_for_property(prop, 'Unserviceable')
+        
+        for prop in needs_repair_properties:
+            prop.reported_date = self._get_reported_date_for_property(prop, 'Needing repair')
+        
+        # Sort by reported_date (most recent first)
+        from datetime import datetime
+        min_aware_datetime = timezone.make_aware(datetime.min.replace(year=1900))
+        unserviceable_properties = sorted(unserviceable_properties, key=lambda x: x.reported_date if x.reported_date else min_aware_datetime, reverse=True)
+        needs_repair_properties = sorted(needs_repair_properties, key=lambda x: x.reported_date if x.reported_date else min_aware_datetime, reverse=True)
+        
+        # Get lost items (only show items with 'lost' status, exclude 'found' items)
+        from .models import LostItem
+        lost_items = LostItem.objects.filter(status='lost').select_related('item', 'user').order_by('-report_date')
         
         # Get URL parameters for building pagination links
         url_params = ""
@@ -80,6 +211,7 @@ class DamagedItemsManagementView(PermissionRequiredMixin, TemplateView):
         # Get page numbers for each tab
         unserviceable_page = self.request.GET.get('unserviceable_page', 1)
         needs_repair_page = self.request.GET.get('needs_repair_page', 1)
+        lost_items_page = self.request.GET.get('lost_items_page', 1)
         
         # Paginate unserviceable items
         unserviceable_paginator = Paginator(unserviceable_properties, paginate_by)
@@ -99,6 +231,15 @@ class DamagedItemsManagementView(PermissionRequiredMixin, TemplateView):
         except EmptyPage:
             needs_repair_page_obj = needs_repair_paginator.page(needs_repair_paginator.num_pages)
         
+        # Paginate lost items
+        lost_items_paginator = Paginator(lost_items, paginate_by)
+        try:
+            lost_items_page_obj = lost_items_paginator.page(lost_items_page)
+        except PageNotAnInteger:
+            lost_items_page_obj = lost_items_paginator.page(1)
+        except EmptyPage:
+            lost_items_page_obj = lost_items_paginator.page(lost_items_paginator.num_pages)
+        
         # Also include damage reports that have been classified (for backward compatibility)
         unserviceable_reports = DamageReport.objects.filter(status='resolved', remarks__icontains='Unserviceable')
         needs_repair_reports = DamageReport.objects.filter(status='resolved', remarks__icontains='Needs Repair')
@@ -106,10 +247,12 @@ class DamagedItemsManagementView(PermissionRequiredMixin, TemplateView):
         # Add paginated objects to context
         context['unserviceable_items'] = unserviceable_page_obj
         context['needs_repair_items'] = needs_repair_page_obj
+        context['lost_items'] = lost_items_page_obj
         
         # Add total counts for badges
-        context['unserviceable_count'] = unserviceable_properties.count()
-        context['needs_repair_count'] = needs_repair_properties.count()
+        context['unserviceable_count'] = len(unserviceable_properties)
+        context['needs_repair_count'] = len(needs_repair_properties)
+        context['lost_items_count'] = lost_items.count()
         
         # Add legacy reports for backward compatibility
         context['unserviceable_reports'] = unserviceable_reports
@@ -117,6 +260,270 @@ class DamagedItemsManagementView(PermissionRequiredMixin, TemplateView):
         context['url_params'] = url_params
         
         return context
+
+def export_unserviceable_items(request):
+    """Export unserviceable items to Excel"""
+    # Check permissions
+    if not request.user.is_authenticated or not request.user.userprofile.role == 'ADMIN':
+        return HttpResponse('Unauthorized', status=403)
+    
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from django.utils import timezone
+    
+    # Get unserviceable properties
+    properties = Property.objects.filter(condition__iexact='Unserviceable').select_related('category').order_by('-id')
+    
+    # Create workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Unserviceable Items"
+    
+    # Header styling
+    header_fill = PatternFill(start_color="152d64", end_color="152d64", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+    
+    # Add title
+    ws.merge_cells('A1:I1')
+    ws['A1'] = 'Unserviceable Items Report'
+    ws['A1'].font = Font(bold=True, size=14)
+    ws['A1'].alignment = Alignment(horizontal='center')
+    
+    ws.merge_cells('A2:I2')
+    ws['A2'] = f'Generated on: {timezone.now().strftime("%B %d, %Y %I:%M %p")}'
+    ws['A2'].alignment = Alignment(horizontal='center')
+    
+    # Headers
+    headers = ['Property No.', 'Item Name', 'Category', 'Description', 'Location', 
+               'Accountable Person', 'Year Acquired', 'Unit Value', 'Quantity']
+    ws.append([])  # Empty row
+    ws.append(headers)
+    
+    # Style headers
+    for cell in ws[4]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+        cell.border = border
+    
+    # Add data
+    for prop in properties:
+        ws.append([
+            prop.property_number or 'N/A',
+            prop.property_name,
+            prop.category.name if prop.category else 'N/A',
+            prop.description or 'N/A',
+            prop.location or 'N/A',
+            prop.accountable_person or 'N/A',
+            prop.year_acquired.strftime('%Y-%m-%d') if prop.year_acquired else 'N/A',
+            float(prop.unit_value) if prop.unit_value else 0,
+            prop.quantity or 0
+        ])
+    
+    # Style data rows
+    for row in ws.iter_rows(min_row=5, max_row=ws.max_row, min_col=1, max_col=9):
+        for cell in row:
+            cell.border = border
+            cell.alignment = Alignment(vertical='center')
+    
+    # Adjust column widths
+    column_widths = [15, 25, 20, 30, 20, 25, 15, 12, 10]
+    for i, width in enumerate(column_widths, 1):
+        ws.column_dimensions[chr(64 + i)].width = width
+    
+    # Create response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename=Unserviceable_Items_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    wb.save(response)
+    
+    return response
+
+def export_needs_repair_items(request):
+    """Export items needing repair to Excel"""
+    # Check permissions
+    if not request.user.is_authenticated or not request.user.userprofile.role == 'ADMIN':
+        return HttpResponse('Unauthorized', status=403)
+    
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from django.utils import timezone
+    
+    # Get properties needing repair
+    properties = Property.objects.filter(condition__iexact='Needing repair').select_related('category').order_by('-id')
+    
+    # Create workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Items Needing Repair"
+    
+    # Header styling
+    header_fill = PatternFill(start_color="152d64", end_color="152d64", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+    
+    # Add title
+    ws.merge_cells('A1:I1')
+    ws['A1'] = 'Items Needing Repair Report'
+    ws['A1'].font = Font(bold=True, size=14)
+    ws['A1'].alignment = Alignment(horizontal='center')
+    
+    ws.merge_cells('A2:I2')
+    ws['A2'] = f'Generated on: {timezone.now().strftime("%B %d, %Y %I:%M %p")}'
+    ws['A2'].alignment = Alignment(horizontal='center')
+    
+    # Headers
+    headers = ['Property No.', 'Item Name', 'Category', 'Description', 'Location', 
+               'Accountable Person', 'Year Acquired', 'Unit Value', 'Quantity']
+    ws.append([])  # Empty row
+    ws.append(headers)
+    
+    # Style headers
+    for cell in ws[4]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+        cell.border = border
+    
+    # Add data
+    for prop in properties:
+        ws.append([
+            prop.property_number or 'N/A',
+            prop.property_name,
+            prop.category.name if prop.category else 'N/A',
+            prop.description or 'N/A',
+            prop.location or 'N/A',
+            prop.accountable_person or 'N/A',
+            prop.year_acquired.strftime('%Y-%m-%d') if prop.year_acquired else 'N/A',
+            float(prop.unit_value) if prop.unit_value else 0,
+            prop.quantity or 0
+        ])
+    
+    # Style data rows
+    for row in ws.iter_rows(min_row=5, max_row=ws.max_row, min_col=1, max_col=9):
+        for cell in row:
+            cell.border = border
+            cell.alignment = Alignment(vertical='center')
+    
+    # Adjust column widths
+    column_widths = [15, 25, 20, 30, 20, 25, 15, 12, 10]
+    for i, width in enumerate(column_widths, 1):
+        ws.column_dimensions[chr(64 + i)].width = width
+    
+    # Create response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename=Items_Needing_Repair_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    wb.save(response)
+    
+    return response
+
+def export_lost_items(request):
+    """Export lost items to Excel"""
+    # Check permissions
+    if not request.user.is_authenticated or not request.user.userprofile.role == 'ADMIN':
+        return HttpResponse('Unauthorized', status=403)
+    
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from django.utils import timezone
+    from .models import LostItem
+    
+    # Get lost items
+    lost_items = LostItem.objects.filter(status='lost').select_related('item', 'item__category', 'user').order_by('-report_date')
+    
+    # Create workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Lost Items"
+    
+    # Header styling
+    header_fill = PatternFill(start_color="152d64", end_color="152d64", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+    
+    # Add title
+    ws.merge_cells('A1:L1')
+    ws['A1'] = 'Lost Items Report'
+    ws['A1'].font = Font(bold=True, size=14)
+    ws['A1'].alignment = Alignment(horizontal='center')
+    
+    ws.merge_cells('A2:L2')
+    ws['A2'] = f'Generated on: {timezone.now().strftime("%B %d, %Y %I:%M %p")}'
+    ws['A2'].alignment = Alignment(horizontal='center')
+    
+    # Headers
+    headers = ['Property No.', 'Item Name', 'Category', 'Reported By', 'Report Date',
+               'Last Seen Location', 'Last Seen Date', 'Description', 'Condition Status',
+               'Unit Value', 'Quantity', 'Remarks']
+    ws.append([])  # Empty row
+    ws.append(headers)
+    
+    # Style headers
+    for cell in ws[4]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+        cell.border = border
+    
+    # Add data
+    for lost_item in lost_items:
+        prop = lost_item.item
+        condition_status = 'Verified Lost' if prop.condition == 'Lost' else 'Pending Verification'
+        
+        ws.append([
+            prop.property_number or 'N/A',
+            prop.property_name,
+            prop.category.name if prop.category else 'N/A',
+            lost_item.user.username,
+            lost_item.report_date.strftime('%Y-%m-%d %I:%M %p'),
+            lost_item.last_seen_location or 'N/A',
+            lost_item.last_seen_date.strftime('%Y-%m-%d') if lost_item.last_seen_date else 'N/A',
+            lost_item.description[:100] if lost_item.description else 'N/A',
+            condition_status,
+            float(prop.unit_value) if prop.unit_value else 0,
+            prop.quantity or 0,
+            lost_item.remarks or 'N/A'
+        ])
+    
+    # Style data rows
+    for row in ws.iter_rows(min_row=5, max_row=ws.max_row, min_col=1, max_col=12):
+        for cell in row:
+            cell.border = border
+            cell.alignment = Alignment(vertical='center')
+    
+    # Adjust column widths
+    column_widths = [15, 25, 20, 15, 20, 20, 15, 35, 18, 12, 10, 25]
+    for i, width in enumerate(column_widths, 1):
+        ws.column_dimensions[chr(64 + i)].width = width
+    
+    # Create response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename=Lost_Items_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    wb.save(response)
+    
+    return response
+
 from collections import defaultdict
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
@@ -131,7 +538,7 @@ from django.views import View
 from django.contrib.auth import login, authenticate, logout
 from .models import(
     Supply, Property, BorrowRequest, BorrowRequestBatch, BorrowRequestItem,
-    SupplyRequest, DamageReport, Reservation, ReservationBatch, ReservationItem,
+    SupplyRequest, DamageReport, LostItem, Reservation, ReservationBatch, ReservationItem,
     ActivityLog, UserProfile, Notification,
     SupplyQuantity, SupplyHistory, PropertyHistory,
     Department, PropertyCategory, SupplyCategory, SupplySubcategory,
@@ -1641,9 +2048,21 @@ class ActivityPageView(PermissionRequiredMixin, ListView):
         if model_filter:
             queryset = queryset.filter(model_name=model_filter)
         if start_date:
-            queryset = queryset.filter(timestamp__date__gte=start_date)
+            try:
+                from datetime import datetime
+                start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
+                start_date_aware = timezone.make_aware(start_date_obj.replace(hour=0, minute=0, second=0))
+                queryset = queryset.filter(timestamp__gte=start_date_aware)
+            except (ValueError, TypeError):
+                pass
         if end_date:
-            queryset = queryset.filter(timestamp__date__lte=end_date)
+            try:
+                from datetime import datetime
+                end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
+                end_date_aware = timezone.make_aware(end_date_obj.replace(hour=23, minute=59, second=59))
+                queryset = queryset.filter(timestamp__lte=end_date_aware)
+            except (ValueError, TypeError):
+                pass
 
         # Filter by category if specified (duplicate of model_filter, kept for compatibility)
         category = self.request.GET.get('category')
@@ -1856,9 +2275,23 @@ class UserDamageReportListView(PermissionRequiredMixin, ListView):
         date_from = self.request.GET.get('date_from')
         date_to = self.request.GET.get('date_to')
         if date_from:
-            queryset = queryset.filter(report_date__date__gte=date_from)
+            try:
+                from datetime import datetime
+                # Parse the date string and make it timezone-aware
+                date_from_obj = datetime.strptime(date_from, '%Y-%m-%d')
+                date_from_aware = timezone.make_aware(date_from_obj.replace(hour=0, minute=0, second=0))
+                queryset = queryset.filter(report_date__gte=date_from_aware)
+            except (ValueError, TypeError):
+                pass  # Invalid date format, skip filter
         if date_to:
-            queryset = queryset.filter(report_date__date__lte=date_to)
+            try:
+                from datetime import datetime
+                # Parse the date string and make it timezone-aware (end of day)
+                date_to_obj = datetime.strptime(date_to, '%Y-%m-%d')
+                date_to_aware = timezone.make_aware(date_to_obj.replace(hour=23, minute=59, second=59))
+                queryset = queryset.filter(report_date__lte=date_to_aware)
+            except (ValueError, TypeError):
+                pass  # Invalid date format, skip filter
         
         return queryset
     
@@ -2956,6 +3389,72 @@ def admin_mark_property_damaged(request, property_id):
             'success': False,
             'errors': form.errors
         }, status=400)
+
+@require_POST
+@permission_required('app.view_admin_module')
+def report_lost_item(request, property_id):
+    """
+    View for admins to report a property as lost.
+    When admin directly reports via this endpoint, it immediately marks as Lost without verification.
+    Creates a lost item report and marks the property condition as Lost.
+    """
+    from .forms import LostItemForm
+    
+    property_obj = get_object_or_404(Property, id=property_id)
+    
+    form = LostItemForm(request.POST, request.FILES)
+    
+    if form.is_valid():
+        lost_item = form.save(commit=False)
+        lost_item.user = request.user  # Admin is the reporter
+        lost_item.item = property_obj  # Set the property
+        
+        # Skip automatic status changes since admin is directly marking it
+        lost_item.save(skip_auto_status=True)
+        
+        # Admin directly reporting - immediately mark as Lost without verification needed
+        property_obj.condition = 'Lost'
+        property_obj.availability = 'not_available'
+        property_obj.save(update_fields=['condition', 'availability'])
+        
+        # Log the activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='report',
+            model_name='LostItem',
+            object_repr=str(property_obj.property_name),
+            description=f"Admin directly reported and marked property '{property_obj.property_name}' as Lost (no verification needed). Description: {lost_item.description[:100]}..."
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Item successfully reported and marked as Lost by admin.',
+            'lost_item_id': lost_item.id
+        })
+    else:
+        return JsonResponse({
+            'success': False,
+            'errors': form.errors
+        }, status=400)
+
+@login_required
+@permission_required('app.view_admin_module')
+def get_all_properties(request):
+    """
+    API endpoint to get all properties for the lost item dropdown.
+    Returns all non-archived, available properties with distinct IDs.
+    """
+    properties = Property.objects.filter(
+        is_archived=False
+    ).values('id', 'property_name', 'property_number').distinct().order_by('property_name')
+    
+    properties_data = [{
+        'id': prop['id'],
+        'property_name': prop['property_name'],
+        'property_number': prop['property_number'] or 'N/A'
+    } for prop in properties]
+    
+    return JsonResponse({'properties': properties_data})
 
 @permission_required('app.view_admin_module')
 def add_property_category(request):
@@ -7788,6 +8287,24 @@ def damage_report_image(request, report_id):
     if report.image_data and not report.deleted_at:
         response = HttpResponse(report.image_data, content_type=report.image_type)
         response['Content-Disposition'] = f'inline; filename="{report.image_name or f"damage_report_{report_id}.jpg"}"'
+        return response
+    else:
+        # Return 404 if no image or image was deleted
+        from django.http import Http404
+        raise Http404("Image not found or has been deleted")
+
+
+def lost_item_image(request, report_id):
+    """
+    Serve lost item report image stored as binary data in PostgreSQL.
+    Returns the image as HTTP response with proper MIME type.
+    """
+    report = get_object_or_404(LostItem, pk=report_id)
+    
+    # Check if report has image and it hasn't been deleted
+    if report.image_data and not report.deleted_at:
+        response = HttpResponse(report.image_data, content_type=report.image_type)
+        response['Content-Disposition'] = f'inline; filename="{report.image_name or f"lost_item_{report_id}.jpg"}"'
         return response
     else:
         # Return 404 if no image or image was deleted

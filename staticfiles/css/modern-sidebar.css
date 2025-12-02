@@ -165,7 +165,7 @@
 }
 
 .sidebar-menu-link.active {
-    color: var(--primary-color);
+    color: #fbff00 !important;
     background-color: rgba(21, 45, 100, 0.08);
     border-left: 3px solid var(--primary-color);
     padding-left: 17px;
@@ -277,7 +277,7 @@
 
 .sidebar-group-submenu .sidebar-menu-link.active {
     background-color: rgba(21, 45, 100, 0.08);
-    color: var(--primary-color);
+    color: #fbff00 !important;
     border-left: 3px solid var(--primary-color);
     padding-left: 45px;
 }

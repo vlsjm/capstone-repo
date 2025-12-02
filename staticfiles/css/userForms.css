@@ -327,15 +327,47 @@
     gap: 0.5rem;
 }
 
-/* Scrollable list containers with max-height */
+/* List wrapper for collapsible functionality */
+.list-items-wrapper {
+    position: relative;
+}
+
+/* Scrollable list containers */
 #supply-list-container,
 #borrow-list-container {
-    max-height: 400px;
-    overflow-y: auto;
-    overflow-x: hidden;
     border: 1px solid #e1e5e9;
     border-radius: 8px;
     background: white;
+    overflow: hidden;
+}
+
+.list-items-container {
+    position: relative;
+    transition: max-height 0.4s ease-in-out;
+    max-height: none;
+    overflow-y: visible;
+}
+
+.list-items-container.collapsed {
+    max-height: 350px;
+    overflow-y: hidden;
+}
+
+.list-items-container.expanded {
+    max-height: none;
+    overflow-y: visible;
+}
+
+.list-items-container.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(transparent, white);
+    pointer-events: none;
+    z-index: 5;
 }
 
 .list-table {

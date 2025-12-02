@@ -10,41 +10,6 @@
         <p class="subtitle">A comprehensive overview of all items you've requested</p>
     </div>
 
-    <!-- Filter and Export Section -->
-    <div class="controls-section">
-        <form method="get" class="filter-form">
-            <div class="filter-group">
-                <label for="year-filter"><i class="fas fa-calendar-alt"></i> Year:</label>
-                <select name="year" id="year-filter" class="year-select" onchange="this.form.submit()">
-                    <option value="">All Years</option>
-                    {% for year in available_years %}
-                        <option value="{{ year }}" {% if year_filter == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label for="month-filter"><i class="fas fa-calendar"></i> Month:</label>
-                <select name="month" id="month-filter" class="month-select" onchange="this.form.submit()">
-                    <option value="">All Months</option>
-                    {% for month_num, month_name in month_names %}
-                        <option value="{{ month_num }}" {% if month_filter == month_num|stringformat:"s" %}selected{% endif %}>{{ month_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            {% if year_filter or month_filter %}
-            <a href="{% url 'user_requests_summary' %}" class="btn-clear-filter">
-                <i class="fas fa-times"></i> Clear Filters
-            </a>
-            {% endif %}
-        </form>
-        
-        <a href="{% url 'export_requests_summary_pdf' %}?year={{ year_filter }}&month={{ month_filter }}" class="btn-export">
-            <i class="fas fa-file-pdf"></i> Export to PDF
-        </a>
-    </div>
-
     <!-- Statistics Cards -->
     <div class="stats-grid">
         <div class="stat-card stat-blue">
@@ -88,9 +53,186 @@
         </div>
     </div>
 
+    <!-- Items Tally Section -->
+    <div class="table-section">
+        <div class="section-header">
+            <h2><i class="fas fa-list-check"></i> Claimed Supplies Tally</h2>
+            <p class="section-description">A summary of all supplies you've claimed, grouped by item name, with total quantities claimed.</p>
+        </div>
+        
+        <!-- Tally Filter -->
+        <div class="section-filter">
+            <form method="get" class="filter-form-section" id="tally-filter-form">
+                <input type="hidden" name="tally_view" value="1">
+                <div class="filter-group">
+                    <label for="tally-year-filter"><i class="fas fa-calendar-alt"></i> Year:</label>
+                    <select name="tally_year" id="tally-year-filter" class="year-select" onchange="document.getElementById('tally-filter-form').submit()">
+                        <option value="">All Years</option>
+                        {% for year in available_years %}
+                            <option value="{{ year }}" {% if tally_year_filter == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="tally-month-filter"><i class="fas fa-calendar"></i> Month:</label>
+                    <select name="tally_month" id="tally-month-filter" class="month-select" onchange="document.getElementById('tally-filter-form').submit()">
+                        <option value="">All Months</option>
+                        {% for month_num, month_name in month_names %}
+                            <option value="{{ month_num }}" {% if tally_month_filter == month_num|stringformat:"s" %}selected{% endif %}>{{ month_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                {% if tally_year_filter or tally_month_filter %}
+                <a href="?items_view=1" class="btn-clear-filter btn-small">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+                {% endif %}
+            </form>
+        </div>
+        
+        {% if tally_data %}
+            <div class="table-container">
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Item Name</th>
+                            <th>Category</th>
+                            <th>Total Requested</th>
+                            <th>Total Approved</th>
+                            <th>Number of Requests</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in tally_data %}
+                        <tr>
+                            <td>
+                                <span class="type-badge type-{{ item.type|lower }}">
+                                    {% if item.type == 'Supply' %}
+                                        <i class="fas fa-box"></i>
+                                    {% elif item.type == 'Borrow' %}
+                                        <i class="fas fa-hand-holding"></i>
+                                    {% else %}
+                                        <i class="fas fa-calendar-check"></i>
+                                    {% endif %}
+                                    {{ item.type }}
+                                </span>
+                            </td>
+                            <td class="item-name">{{ item.item_name }}</td>
+                            <td>{{ item.category }}</td>
+                            <td class="qty-cell">
+                                <strong>{{ item.total_quantity }}</strong>
+                            </td>
+                            <td class="qty-cell">
+                                <strong style="color: #28a745;">{{ item.total_approved }}</strong>
+                            </td>
+                            <td class="qty-cell">
+                                <span class="request-count-badge">{{ item.request_count }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Tally Pagination -->
+            {% if tally_data.has_other_pages %}
+            <div class="pagination-container">
+                <div class="pagination">
+                    {% if tally_data.has_previous %}
+                        <a href="?tally_page=1{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}" class="page-link">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                        <a href="?tally_page={{ tally_data.previous_page_number }}{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}" class="page-link">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    {% else %}
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-double-left"></i>
+                        </span>
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-left"></i>
+                        </span>
+                    {% endif %}
+
+                    <span class="page-info">
+                        Page {{ tally_data.number }} of {{ tally_data.paginator.num_pages }}
+                    </span>
+
+                    {% if tally_data.has_next %}
+                        <a href="?tally_page={{ tally_data.next_page_number }}{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}" class="page-link">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                        <a href="?tally_page={{ tally_data.paginator.num_pages }}{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}" class="page-link">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    {% else %}
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-right"></i>
+                        </span>
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-double-right"></i>
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="page-summary">
+                    Showing {{ tally_data.start_index }} to {{ tally_data.end_index }} of {{ tally_data.paginator.count }} items
+                </div>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox empty-icon"></i>
+                <h3>No Items to Display</h3>
+                <p>You haven't claimed any supplies{% if tally_year_filter or tally_month_filter %} for the selected period{% endif %}.</p>
+            </div>
+        {% endif %}
+    </div>
+
     <!-- Items Table -->
     <div class="table-section">
-        <h2><i class="fas fa-table"></i> All Requested Items</h2>
+        <div class="section-header">
+            <h2><i class="fas fa-table"></i> All Requested Items</h2>
+            <p class="section-description">Detailed view of all items you've requested with their individual status and information.</p>
+        </div>
+        
+        <!-- Items Table Filter -->
+        <div class="section-filter">
+            <form method="get" class="filter-form-section" id="items-filter-form">
+                <input type="hidden" name="items_view" value="1">
+                <div class="filter-group">
+                    <label for="items-year-filter"><i class="fas fa-calendar-alt"></i> Year:</label>
+                    <select name="items_year" id="items-year-filter" class="year-select" onchange="document.getElementById('items-filter-form').submit()">
+                        <option value="">All Years</option>
+                        {% for year in available_years %}
+                            <option value="{{ year }}" {% if items_year_filter == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="items-month-filter"><i class="fas fa-calendar"></i> Month:</label>
+                    <select name="items_month" id="items-month-filter" class="month-select" onchange="document.getElementById('items-filter-form').submit()">
+                        <option value="">All Months</option>
+                        {% for month_num, month_name in month_names %}
+                            <option value="{{ month_num }}" {% if items_month_filter == month_num|stringformat:"s" %}selected{% endif %}>{{ month_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                {% if items_year_filter or items_month_filter %}
+                <a href="?tally_view=1" class="btn-clear-filter btn-small">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+                {% endif %}
+            </form>
+            
+            <a href="{% url 'export_requests_summary_pdf' %}?year={{ items_year_filter }}&month={{ items_month_filter }}" class="btn-export btn-small">
+                <i class="fas fa-file-pdf"></i> Export to PDF
+            </a>
+        </div>
         
         {% if items_summary %}
             <div class="table-container">
@@ -146,10 +288,10 @@
             <div class="pagination-container">
                 <div class="pagination">
                     {% if items_summary.has_previous %}
-                        <a href="?page=1{% if year_filter %}&year={{ year_filter }}{% endif %}{% if month_filter %}&month={{ month_filter }}{% endif %}" class="page-link">
+                        <a href="?page=1&items_view=1{% if items_year_filter %}&items_year={{ items_year_filter }}{% endif %}{% if items_month_filter %}&items_month={{ items_month_filter }}{% endif %}" class="page-link">
                             <i class="fas fa-angle-double-left"></i>
                         </a>
-                        <a href="?page={{ items_summary.previous_page_number }}{% if year_filter %}&year={{ year_filter }}{% endif %}{% if month_filter %}&month={{ month_filter }}{% endif %}" class="page-link">
+                        <a href="?page={{ items_summary.previous_page_number }}&items_view=1{% if items_year_filter %}&items_year={{ items_year_filter }}{% endif %}{% if items_month_filter %}&items_month={{ items_month_filter }}{% endif %}" class="page-link">
                             <i class="fas fa-angle-left"></i>
                         </a>
                     {% else %}
@@ -166,10 +308,10 @@
                     </span>
 
                     {% if items_summary.has_next %}
-                        <a href="?page={{ items_summary.next_page_number }}{% if year_filter %}&year={{ year_filter }}{% endif %}{% if month_filter %}&month={{ month_filter }}{% endif %}" class="page-link">
+                        <a href="?page={{ items_summary.next_page_number }}&items_view=1{% if items_year_filter %}&items_year={{ items_year_filter }}{% endif %}{% if items_month_filter %}&items_month={{ items_month_filter }}{% endif %}" class="page-link">
                             <i class="fas fa-angle-right"></i>
                         </a>
-                        <a href="?page={{ items_summary.paginator.num_pages }}{% if year_filter %}&year={{ year_filter }}{% endif %}{% if month_filter %}&month={{ month_filter }}{% endif %}" class="page-link">
+                        <a href="?page={{ items_summary.paginator.num_pages }}&items_view=1{% if items_year_filter %}&items_year={{ items_year_filter }}{% endif %}{% if items_month_filter %}&items_month={{ items_month_filter }}{% endif %}" class="page-link">
                             <i class="fas fa-angle-double-right"></i>
                         </a>
                     {% else %}
@@ -190,8 +332,8 @@
             <div class="empty-state">
                 <i class="fas fa-inbox empty-icon"></i>
                 <h3>No Requests Found</h3>
-                <p>You haven't made any requests{% if year_filter or month_filter %} for the selected period{% endif %}.</p>
-                {% if year_filter or month_filter %}
+                <p>You haven't made any requests{% if items_year_filter or items_month_filter %} for the selected period{% endif %}.</p>
+                {% if items_year_filter or items_month_filter %}
                     <a href="{% url 'user_requests_summary' %}" class="btn-primary" style="background: #6c757d;">
                         <i class="fas fa-times"></i> Clear Filters
                     </a>
@@ -226,6 +368,68 @@
 .subtitle {
     color: #6c757d;
     font-size: 16px;
+}
+
+.tally-description {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.section-header {
+    margin-bottom: 20px;
+}
+
+.section-header h2 {
+    color: #152d64;
+    font-size: 20px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-description {
+    color: #6c757d;
+    font-size: 13px;
+    margin: 0;
+}
+
+.section-filter {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.filter-form-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-small {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+}
+
+.request-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #e8f4f8;
+    color: #0c5460;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 13px;
+    min-width: 40px;
 }
 
 .controls-section {
@@ -355,19 +559,19 @@
 }
 
 .stat-blue .stat-icon {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #152d64 0%, #1a3575 100%);
 }
 
 .stat-orange .stat-icon {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #152d64 0%, #1a3575 100%);
 }
 
 .stat-green .stat-icon {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, #152d64 0%, #1a3575 100%);
 }
 
 .stat-purple .stat-icon {
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    background: linear-gradient(135deg, #152d64 0%, #1a3575 100%);
 }
 
 .stat-content h3 {
