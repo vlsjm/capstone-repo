@@ -314,6 +314,7 @@ class Property(models.Model):
         ('Obsolete', 'Obsolete'),
         ('No longer needed', 'No longer needed'),
         ('Not used since purchased', 'Not used since purchased'),
+        ('Lost', 'Lost'),
     ]
 
     AVAILABILITY_CHOICES = [
@@ -362,7 +363,7 @@ class Property(models.Model):
 
     def update_availability(self):
         """Update availability based on condition and quantity"""
-        unavailable_conditions = ['Needing repair', 'Unserviceable', 'Obsolete', 'No longer needed']
+        unavailable_conditions = ['Needing repair', 'Unserviceable', 'Obsolete', 'No longer needed', 'Lost']
         
         # First check condition
         if self.condition in unavailable_conditions:
@@ -1468,12 +1469,16 @@ class LostItem(models.Model):
         # Check if this is a new lost item report
         is_new = self.pk is None
         
+        # Check if this should skip automatic status changes (for admin direct reporting)
+        skip_auto_status = kwargs.pop('skip_auto_status', False)
+        
         # Save the lost item report
         super().save(*args, **kwargs)
         
-        # If this is a new lost item report, mark property as not available and notify admin users
-        if is_new:
-            # Mark the property as not available
+        # If this is a new lost item report and not skipping auto status
+        if is_new and not skip_auto_status:
+            # For regular reports (needs verification), just mark as not available
+            # Admin will need to verify and mark as Lost using mark_property_as_lost
             self.item.availability = 'not_available'
             self.item.save(update_fields=['availability'])
             
@@ -1482,7 +1487,7 @@ class LostItem(models.Model):
             for admin_user in admin_users:
                 Notification.objects.create(
                     user=admin_user,
-                    message=f"Lost item report #{self.id} submitted for {self.item.property_name} by {self.user.username}",
+                    message=f"Lost item report #{self.id} submitted for {self.item.property_name} by {self.user.username} - Requires verification",
                     remarks=f"Description: {self.description}"
                 )
 

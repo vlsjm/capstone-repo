@@ -614,18 +614,19 @@
 
         <!-- Action Buttons -->
         {% if borrow_obj.status == 'pending' %}
-          <form method="post" class="stat-button">
+          <form method="post" class="stat-button" id="borrowActionForm">
             {% csrf_token %}
-            <textarea name="remarks" placeholder="Enter remarks or comments here..." required></textarea>
+            <input type="hidden" name="remarks" id="hiddenRemarks" value="">
+            <input type="hidden" name="action" id="hiddenAction" value="">
             
             <div class="button-group">
               <a href="{% url 'user_borrow_requests' %}" class="btn-back">
                 <i class="fas fa-arrow-left"></i> Back to Borrow Requests
               </a>
-              <button type="submit" name="action" value="approve" class="btn-approve">
+              <button type="button" class="btn-approve" onclick="approveRequest()">
                 <i class="fas fa-check"></i> Approve Request
               </button>
-              <button type="submit" name="action" value="decline" class="btn-reject">
+              <button type="button" class="btn-reject" onclick="showDeclineModal()">
                 <i class="fas fa-times"></i> Decline Request
               </button>
             </div>
@@ -675,5 +676,199 @@
       </div>
     </div>
   </div>
+
+  <!-- Decline Remarks Modal -->
+  <div id="declineModal" class="decline-modal" style="display: none;">
+    <div class="decline-modal-content">
+      <div class="decline-modal-header">
+        <i class="fas fa-times-circle" style="font-size: 48px; color: #dc3545;"></i>
+        <h2>Decline Request - Remarks Required</h2>
+      </div>
+      <div class="decline-modal-body">
+        <p>Please provide a reason for declining this borrow request:</p>
+        <textarea id="declineRemarksInput" class="decline-remarks-textarea" placeholder="Enter remarks (required)..." rows="5" required></textarea>
+      </div>
+      <div class="decline-modal-footer">
+        <button type="button" class="btn-modal-cancel" onclick="closeDeclineModal()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button type="button" class="btn-modal-decline" onclick="submitDecline()">
+          <i class="fas fa-times"></i> Decline Request
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .decline-modal {
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .decline-modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      animation: slideInScale 0.3s ease;
+    }
+
+    @keyframes slideInScale {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .decline-modal-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .decline-modal-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #152d64;
+      margin: 0;
+    }
+
+    .decline-modal-body {
+      margin-bottom: 25px;
+    }
+
+    .decline-modal-body p {
+      margin: 10px 0;
+      color: #495057;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    .decline-remarks-textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      margin-top: 10px;
+      transition: border-color 0.3s ease;
+    }
+
+    .decline-remarks-textarea:focus {
+      outline: none;
+      border-color: #152d64;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+    }
+
+    .decline-remarks-textarea::placeholder {
+      color: #adb5bd;
+    }
+
+    .decline-modal-footer {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn-modal-cancel {
+      background: #6c757d;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      font-size: 14px;
+    }
+
+    .btn-modal-cancel:hover {
+      background: #5a6268;
+      transform: translateY(-1px);
+    }
+
+    .btn-modal-decline {
+      background: #dc3545;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      font-size: 14px;
+    }
+
+    .btn-modal-decline:hover {
+      background: #c82333;
+      transform: translateY(-1px);
+    }
+  </style>
+
+  <script>
+    function approveRequest() {
+      document.getElementById('hiddenAction').value = 'approve';
+      document.getElementById('hiddenRemarks').value = '';
+      document.getElementById('borrowActionForm').submit();
+    }
+
+    function showDeclineModal() {
+      document.getElementById('declineModal').style.display = 'flex';
+      setTimeout(() => {
+        document.getElementById('declineRemarksInput').focus();
+      }, 100);
+    }
+
+    function closeDeclineModal() {
+      document.getElementById('declineModal').style.display = 'none';
+      document.getElementById('declineRemarksInput').value = '';
+    }
+
+    function submitDecline() {
+      const remarks = document.getElementById('declineRemarksInput').value.trim();
+      if (!remarks) {
+        alert('Please provide remarks for declining this request.');
+        document.getElementById('declineRemarksInput').focus();
+        return;
+      }
+      
+      document.getElementById('hiddenAction').value = 'decline';
+      document.getElementById('hiddenRemarks').value = remarks;
+      document.getElementById('borrowActionForm').submit();
+    }
+
+    // Close modal on outside click
+    document.getElementById('declineModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeDeclineModal();
+      }
+    });
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && document.getElementById('declineModal').style.display === 'flex') {
+        closeDeclineModal();
+      }
+    });
+  </script>
 </body>
 </html>

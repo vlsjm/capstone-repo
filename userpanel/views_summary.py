@@ -15,19 +15,21 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Get year and month filters
-        year_filter = self.request.GET.get('year', '')
-        month_filter = self.request.GET.get('month', '')
+        # Get separate filters for tally and items
+        tally_year_filter = self.request.GET.get('tally_year', '')
+        tally_month_filter = self.request.GET.get('tally_month', '')
+        items_year_filter = self.request.GET.get('items_year', '')
+        items_month_filter = self.request.GET.get('items_month', '')
         
         # Initialize items summary
         items_summary = []
         
-        # Get all supply requests
+        # Get all supply requests - for items table use items_year_filter and items_month_filter
         supply_batches = SupplyRequestBatch.objects.filter(user=self.request.user)
-        if year_filter:
-            supply_batches = supply_batches.filter(request_date__year=year_filter)
-        if month_filter:
-            supply_batches = supply_batches.filter(request_date__month=month_filter)
+        if items_year_filter:
+            supply_batches = supply_batches.filter(request_date__year=items_year_filter)
+        if items_month_filter:
+            supply_batches = supply_batches.filter(request_date__month=items_month_filter)
         
         for batch in supply_batches:
             for item in batch.items.all():
@@ -45,10 +47,10 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
         
         # Get all borrow requests
         borrow_batches = BorrowRequestBatch.objects.filter(user=self.request.user)
-        if year_filter:
-            borrow_batches = borrow_batches.filter(request_date__year=year_filter)
-        if month_filter:
-            borrow_batches = borrow_batches.filter(request_date__month=month_filter)
+        if items_year_filter:
+            borrow_batches = borrow_batches.filter(request_date__year=items_year_filter)
+        if items_month_filter:
+            borrow_batches = borrow_batches.filter(request_date__month=items_month_filter)
         
         for batch in borrow_batches:
             for item in batch.items.all():
@@ -67,10 +69,10 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
         
         # Get all reservations
         reservation_batches = ReservationBatch.objects.filter(user=self.request.user)
-        if year_filter:
-            reservation_batches = reservation_batches.filter(request_date__year=year_filter)
-        if month_filter:
-            reservation_batches = reservation_batches.filter(request_date__month=month_filter)
+        if items_year_filter:
+            reservation_batches = reservation_batches.filter(request_date__year=items_year_filter)
+        if items_month_filter:
+            reservation_batches = reservation_batches.filter(request_date__month=items_month_filter)
         
         for batch in reservation_batches:
             for item in batch.items.all():
@@ -99,7 +101,7 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
         
         available_years = sorted(list(all_years), reverse=True)
         
-        # Calculate statistics (before pagination)
+        # Calculate statistics (before pagination) - based on items_year/month filters
         total_items = len(items_summary)
         total_requested = sum(item['quantity'] for item in items_summary)
         total_approved = sum(item['approved_quantity'] for item in items_summary)
@@ -109,7 +111,93 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
         borrow_count = len([i for i in items_summary if i['type'] == 'Borrow'])
         reservation_count = len([i for i in items_summary if i['type'] == 'Reservation'])
         
-        # Pagination
+        # Build separate tally data using tally_year_filter and tally_month_filter
+        tally_items = []
+        
+        # Get all supply requests for tally - ONLY COMPLETED/CLAIMED SUPPLIES
+        tally_supply_batches = SupplyRequestBatch.objects.filter(user=self.request.user)
+        if tally_year_filter:
+            tally_supply_batches = tally_supply_batches.filter(request_date__year=tally_year_filter)
+        if tally_month_filter:
+            tally_supply_batches = tally_supply_batches.filter(request_date__month=tally_month_filter)
+        
+        for batch in tally_supply_batches:
+            # Only include completed supply items (those that have been claimed)
+            for item in batch.items.filter(status='completed'):
+                tally_items.append({
+                    'type': 'Supply',
+                    'item_name': item.supply.supply_name,
+                    'category': item.supply.category.name if item.supply.category else 'Uncategorized',
+                    'quantity': item.quantity,
+                    'approved_quantity': item.approved_quantity or 0,
+                })
+        
+        # Get all borrow requests for tally
+        tally_borrow_batches = BorrowRequestBatch.objects.filter(user=self.request.user)
+        if tally_year_filter:
+            tally_borrow_batches = tally_borrow_batches.filter(request_date__year=tally_year_filter)
+        if tally_month_filter:
+            tally_borrow_batches = tally_borrow_batches.filter(request_date__month=tally_month_filter)
+        
+        for batch in tally_borrow_batches:
+            for item in batch.items.all():
+                tally_items.append({
+                    'type': 'Borrow',
+                    'item_name': item.property.property_name,
+                    'category': item.property.category.name if item.property.category else 'Uncategorized',
+                    'quantity': item.quantity,
+                    'approved_quantity': item.approved_quantity or 0,
+                })
+        
+        # Get all reservations for tally
+        tally_reservation_batches = ReservationBatch.objects.filter(user=self.request.user)
+        if tally_year_filter:
+            tally_reservation_batches = tally_reservation_batches.filter(request_date__year=tally_year_filter)
+        if tally_month_filter:
+            tally_reservation_batches = tally_reservation_batches.filter(request_date__month=tally_month_filter)
+        
+        for batch in tally_reservation_batches:
+            for item in batch.items.all():
+                tally_items.append({
+                    'type': 'Reservation',
+                    'item_name': item.property.property_name,
+                    'category': item.property.category.name if item.property.category else 'Uncategorized',
+                    'quantity': item.quantity,
+                    'approved_quantity': item.quantity if item.status == 'approved' else 0,
+                })
+        
+        # Build item tally (group by item name and type)
+        tally_dict = {}
+        for item in tally_items:
+            key = f"{item['type']}_{item['item_name']}"
+            if key not in tally_dict:
+                tally_dict[key] = {
+                    'type': item['type'],
+                    'item_name': item['item_name'],
+                    'category': item['category'],
+                    'total_quantity': 0,
+                    'total_approved': 0,
+                    'request_count': 0,
+                }
+            tally_dict[key]['total_quantity'] += item['quantity']
+            tally_dict[key]['total_approved'] += item['approved_quantity']
+            tally_dict[key]['request_count'] += 1
+        
+        tally_data = sorted(tally_dict.values(), key=lambda x: x['total_quantity'], reverse=True)
+        
+        # Pagination for both tally and items
+        # Tally pagination
+        tally_paginator = Paginator(tally_data, 10)  # 10 items per page
+        tally_page = self.request.GET.get('tally_page', 1)
+        
+        try:
+            tally_page_obj = tally_paginator.page(tally_page)
+        except PageNotAnInteger:
+            tally_page_obj = tally_paginator.page(1)
+        except EmptyPage:
+            tally_page_obj = tally_paginator.page(tally_paginator.num_pages)
+        
+        # Items pagination
         paginator = Paginator(items_summary, 10)  # 10 items per page
         page = self.request.GET.get('page', 1)
         
@@ -129,8 +217,11 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
         
         context.update({
             'items_summary': items_page,
-            'year_filter': year_filter,
-            'month_filter': month_filter,
+            'items_year_filter': items_year_filter,
+            'items_month_filter': items_month_filter,
+            'tally_year_filter': tally_year_filter,
+            'tally_month_filter': tally_month_filter,
+            'tally_data': tally_page_obj,
             'available_years': available_years,
             'month_names': month_names,
             'total_items': total_items,

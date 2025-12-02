@@ -1464,6 +1464,28 @@
       font-size: 16px;
     }
 
+    .remarks-textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      margin-top: 10px;
+      transition: border-color 0.3s ease;
+    }
+
+    .remarks-textarea:focus {
+      outline: none;
+      border-color: #152d64;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+    }
+
+    .remarks-textarea::placeholder {
+      color: #adb5bd;
+    }
+
     .confirm-item-name {
       font-weight: 700;
       color: #152d64;
@@ -2619,14 +2641,25 @@
           actionBtn.className = 'btn-confirm-action approve';
           actionBtn.innerHTML = '<i class="fas fa-check"></i> Approve';
         } else {
-          title.textContent = 'Confirm Rejection';
-          message.innerHTML = `Are you sure you want to <strong>reject</strong> "<span class="confirm-item-name">${itemName}</span>"?`;
+          title.textContent = 'Rejection Remarks';
+          message.innerHTML = `
+            <p>Please provide a reason for rejecting "<span class="confirm-item-name">${itemName}</span>":</p>
+            <textarea id="rejectRemarksInput" class="remarks-textarea" placeholder="Enter remarks (required)..." rows="4" required></textarea>
+          `;
           icon.className = 'fas fa-times-circle confirm-modal-icon reject';
           actionBtn.className = 'btn-confirm-action reject';
           actionBtn.innerHTML = '<i class="fas fa-times"></i> Reject';
         }
         
         modal.classList.add('show');
+        
+        // Focus on textarea if it's a rejection
+        if (action === 'reject') {
+          setTimeout(() => {
+            const textarea = document.getElementById('rejectRemarksInput');
+            if (textarea) textarea.focus();
+          }, 100);
+        }
       }
       
       window.closeConfirmModal = function() {
@@ -2650,7 +2683,6 @@
           
           if (pendingAction === 'approve') {
             const quantityInput = document.getElementById(`approved-quantity-${pendingItemId}`);
-            const remarksInput = document.getElementById(`remarks-${pendingItemId}`);
             const hiddenQuantity = document.getElementById(`hidden-quantity-${pendingItemId}`);
             const hiddenRemarks = document.getElementById(`hidden-remarks-${pendingItemId}`);
             
@@ -2658,14 +2690,22 @@
               hiddenQuantity.value = quantityInput.value;
             }
             if (hiddenRemarks) {
-              hiddenRemarks.value = remarksInput ? remarksInput.value : '';
+              hiddenRemarks.value = ''; // Clear remarks for approval
             }
           } else {
-            const remarksInput = document.getElementById(`remarks-${pendingItemId}`);
+            // Get remarks from the modal textarea
+            const remarksFromModal = document.getElementById('rejectRemarksInput');
             const hiddenRemarks = document.getElementById(`hidden-reject-remarks-${pendingItemId}`);
             
+            // Validate remarks are provided
+            if (!remarksFromModal || !remarksFromModal.value.trim()) {
+              alert('Please provide remarks for rejection.');
+              if (remarksFromModal) remarksFromModal.focus();
+              return;
+            }
+            
             if (hiddenRemarks) {
-              hiddenRemarks.value = remarksInput ? remarksInput.value : '';
+              hiddenRemarks.value = remarksFromModal.value.trim();
             }
           }
           
@@ -2688,7 +2728,7 @@
         }
       });
 
-      // Add event listeners for approve buttons to transfer values
+      // Add event listeners for approve buttons - submit directly without modal
       const approveButtons = document.querySelectorAll('.btn-approve-table');
       approveButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -2698,13 +2738,22 @@
           const form = this.closest('form');
           const itemRow = this.closest('tr');
           
-          // Get item name from data attribute or from the first column
-          const itemName = itemRow.getAttribute('data-item-name') || 
-                          itemRow.querySelector('td:first-child .item-name div div')?.textContent.trim() || 
-                          'this item';
+          // Transfer quantity value
+          const quantityInput = document.getElementById(`approved-quantity-${itemId}`);
+          const hiddenQuantity = document.getElementById(`hidden-quantity-${itemId}`);
           
-          // Show custom confirmation modal
-          showConfirmModal('approve', itemName, itemId, form);
+          if (hiddenQuantity && quantityInput) {
+            hiddenQuantity.value = quantityInput.value;
+          }
+          
+          // Clear remarks for approval
+          const hiddenRemarks = document.getElementById(`hidden-remarks-${itemId}`);
+          if (hiddenRemarks) {
+            hiddenRemarks.value = '';
+          }
+          
+          // Submit the form directly
+          form.submit();
         });
       });
       

@@ -98,6 +98,7 @@ from .views import (
     get_top_requested_supplies,
     get_department_requests_filtered,
     ResourceAllocationDashboardView,
+    mark_property_as_lost,
 )
 
 urlpatterns = [
@@ -112,6 +113,10 @@ urlpatterns = [
     path('update-property-condition/<int:pk>/', views.update_property_condition, name='update_property_condition'),
     path('lost-item/found/<int:pk>/', views.mark_lost_item_found, name='mark_lost_item_found'),
     path('lost-item/delete/<int:pk>/', views.delete_lost_item, name='delete_lost_item'),
+    path('property/<int:property_id>/mark-as-lost/', mark_property_as_lost, name='mark_property_as_lost'),
+    path('export-unserviceable-items/', views.export_unserviceable_items, name='export_unserviceable_items'),
+    path('export-needs-repair-items/', views.export_needs_repair_items, name='export_needs_repair_items'),
+    path('export-lost-items/', views.export_lost_items, name='export_lost_items'),
     path('accounts/login/', CustomLoginView.as_view(), name='login'),
 
     path('logout/', logout_view, name='logout'),

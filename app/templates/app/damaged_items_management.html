@@ -158,6 +158,19 @@
             align-items: center;
             gap: 4px;
             transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        /* Button container for action cells */
+        td:last-child {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+        
+        td:last-child form {
+            display: inline;
         }
         
         .btn-move {
@@ -234,6 +247,22 @@
                 flex: 1;
                 text-align: center;
             }
+            
+            /* Responsive buttons */
+            .action-btn {
+                padding: 5px 10px;
+                font-size: 11px;
+                flex: 1;
+                min-width: 80px;
+                justify-content: center;
+            }
+            
+            td:last-child {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+                justify-content: center;
+            }
         }
         
         @media (max-width: 480px) {
@@ -246,6 +275,37 @@
                 padding: 12px 16px;
                 width: 100%;
                 text-align: center;
+            }
+            
+            /* Stack buttons vertically on very small screens */
+            .action-btn {
+                padding: 6px 8px;
+                font-size: 10px;
+                width: 100%;
+                min-width: auto;
+            }
+            
+            td:last-child {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                align-items: stretch;
+            }
+            
+            td:last-child form {
+                width: 100%;
+            }
+            
+            td:last-child .action-btn {
+                width: 100%;
+            }
+            
+            .damaged-table table {
+                font-size: 12px;
+            }
+            
+            .damaged-table td {
+                padding: 12px 8px;
             }
         }
 
@@ -303,6 +363,31 @@
             background: rgba(255, 255, 255, 0.2);
             color: white;
         }
+
+        /* Alert message styles */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .alert.alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert.alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
     </style>
 </head>
 <body>
@@ -312,6 +397,18 @@
         <h1 class="damaged-title">
             <i class="fas fa-tools"></i> Damaged Items Management
         </h1>
+
+        <!-- Success/Error Messages -->
+        {% if messages %}
+        <div style="margin-bottom: 20px;">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% endif %}"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
         <!-- Filter Tabs -->
         <div class="filter-tabs">
@@ -331,8 +428,11 @@
 
         <!-- Unserviceable Items Tab -->
         <div id="unserviceable" class="tab-content active">
-            <div style="margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
+            <div style="margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Unserviceable Items</h3>
+                <a href="{% url 'export_unserviceable_items' %}" class="action-btn btn-repaired" style="text-decoration: none; padding: 8px 16px;">
+                    <i class="fas fa-file-excel"></i> Export to Excel
+                </a>
             </div>
             
             {% if unserviceable_items %}
@@ -342,7 +442,7 @@
                         <tr>
                             <th><i class="fas fa-hashtag"></i> Property No.</th>
                             <th><i class="fas fa-cube"></i> Item</th>
-                            <th><i class="fas fa-user"></i> Updated By</th>
+                            <th><i class="fas fa-calendar-alt"></i> Reported Date</th>
                             <th><i class="fas fa-file-alt"></i> Description</th>
                             <th><i class="fas fa-tag"></i> Status</th>
                             <th><i class="fas fa-cogs"></i> Actions</th>
@@ -364,7 +464,14 @@
                                 <strong>{{ item.property_name }}</strong><br>
                                 <small class="text-muted">{{ item.category }}</small>
                             </td>
-                            <td>System</td>
+                            <td>
+                                {% if item.reported_date %}
+                                    {{ item.reported_date|date:"M d, Y" }}<br>
+                                    <small class="text-muted">{{ item.reported_date|time:"H:i" }}</small>
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
                             <td>{{ item.description|truncatechars:50 }}</td>
                             <td>
                                 <span class="status-badge status-unserviceable">
@@ -417,8 +524,11 @@
 
         <!-- Items Needing Repair Tab -->
         <div id="needs-repair" class="tab-content">
-            <div style="margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
+            <div style="margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Items Needing Repair</h3>
+                <a href="{% url 'export_needs_repair_items' %}" class="action-btn btn-repaired" style="text-decoration: none; padding: 8px 16px;">
+                    <i class="fas fa-file-excel"></i> Export to Excel
+                </a>
             </div>
             
             {% if needs_repair_items %}
@@ -428,7 +538,7 @@
                         <tr>
                             <th><i class="fas fa-hashtag"></i> Property No.</th>
                             <th><i class="fas fa-cube"></i> Item</th>
-                            <th><i class="fas fa-user"></i> Updated By</th>
+                            <th><i class="fas fa-calendar-alt"></i> Reported Date</th>
                             <th><i class="fas fa-file-alt"></i> Description</th>
                             <th><i class="fas fa-tag"></i> Status</th>
                             <th><i class="fas fa-cogs"></i> Actions</th>
@@ -450,7 +560,14 @@
                                 <strong>{{ item.property_name }}</strong><br>
                                 <small class="text-muted">{{ item.category }}</small>
                             </td>
-                            <td>System</td>
+                            <td>
+                                {% if item.reported_date %}
+                                    {{ item.reported_date|date:"M d, Y" }}<br>
+                                    <small class="text-muted">{{ item.reported_date|time:"H:i" }}</small>
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
                             <td>{{ item.description|truncatechars:50 }}</td>
                             <td>
                                 <span class="status-badge status-needs-repair">
@@ -510,8 +627,11 @@
 
         <!-- Lost Items Tab -->
         <div id="lost-items" class="tab-content">
-            <div style="margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
+            <div style="margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Lost Items</h3>
+                <a href="{% url 'export_lost_items' %}" class="action-btn btn-repaired" style="text-decoration: none; padding: 8px 16px;">
+                    <i class="fas fa-file-excel"></i> Export to Excel
+                </a>
             </div>
             
             {% if lost_items %}
@@ -521,6 +641,7 @@
                         <tr>
                             <th><i class="fas fa-hashtag"></i> Property No.</th>
                             <th><i class="fas fa-cube"></i> Item</th>
+                            <th><i class="fas fa-calendar-alt"></i> Reported Date</th>
                             <th><i class="fas fa-user"></i> Reported By</th>
                             <th><i class="fas fa-map-marker-alt"></i> Last Seen Location</th>
                             <th><i class="fas fa-calendar"></i> Last Seen Date</th>
@@ -545,22 +666,35 @@
                                 <strong>{{ lost_item.item.property_name }}</strong><br>
                                 <small class="text-muted">{{ lost_item.item.category }}</small>
                             </td>
+                            <td>{{ lost_item.report_date|date:"M d, Y" }}<br><small class="text-muted">{{ lost_item.report_date|time:"H:i" }}</small></td>
                             <td>{{ lost_item.user.username }}</td>
                             <td>{{ lost_item.last_seen_location|default:"N/A" }}</td>
                             <td>{{ lost_item.last_seen_date|date:"M d, Y"|default:"N/A" }}</td>
                             <td>{{ lost_item.description|truncatechars:50 }}</td>
                             <td>
-                                {% if lost_item.status == 'lost' %}
-                                <span class="status-badge" style="background: #ffe6e6; color: #cc0000;">
-                                    <i class="fas fa-exclamation-circle"></i> Lost
+                                {% if lost_item.item.condition == 'Lost' %}
+                                <span class="status-badge" style="background: #dc3545; color: white; font-weight: 600;">
+                                    <i class="fas fa-times-circle"></i> Verified Lost
                                 </span>
                                 {% else %}
-                                <span class="status-badge" style="background: #d1e7dd; color: #0f5132;">
-                                    <i class="fas fa-check-circle"></i> Found
+                                <span class="status-badge" style="background: #ffc107; color: #000; font-weight: 600;">
+                                    <i class="fas fa-clock"></i> Pending Verification
                                 </span>
                                 {% endif %}
                             </td>
                             <td>
+                                {% if lost_item.item.condition != 'Lost' %}
+                                <form method="post" action="{% url 'mark_property_as_lost' lost_item.item.id %}" style="display: inline; margin-right: 5px;" onsubmit="return confirm('Are you sure you want to mark this property as Lost? This will update its condition.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="action-btn btn-move" title="Verify and Mark as Lost">
+                                        <i class="fas fa-exclamation-triangle"></i> Mark as Lost
+                                    </button>
+                                </form>
+                                {% else %}
+                                <span class="status-badge" style="background: #6c757d; color: white; margin-right: 5px; padding: 6px 12px;">
+                                    <i class="fas fa-check"></i> Verified
+                                </span>
+                                {% endif %}
                                 <form method="post" action="{% url 'mark_lost_item_found' lost_item.id %}" style="display: inline; margin-right: 5px;" onsubmit="return confirm('Are you sure this item has been found? It will be marked as available in inventory.');">
                                     {% csrf_token %}
                                     <button type="submit" class="action-btn btn-repaired" title="Mark as Found">
