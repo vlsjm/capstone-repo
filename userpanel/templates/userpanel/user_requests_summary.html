@@ -97,7 +97,6 @@
                 <table class="summary-table">
                     <thead>
                         <tr>
-                            <th>Type</th>
                             <th>Item Name</th>
                             <th>Category</th>
                             <th>Total Requested</th>
@@ -108,18 +107,6 @@
                     <tbody>
                         {% for item in tally_data %}
                         <tr>
-                            <td>
-                                <span class="type-badge type-{{ item.type|lower }}">
-                                    {% if item.type == 'Supply' %}
-                                        <i class="fas fa-box"></i>
-                                    {% elif item.type == 'Borrow' %}
-                                        <i class="fas fa-hand-holding"></i>
-                                    {% else %}
-                                        <i class="fas fa-calendar-check"></i>
-                                    {% endif %}
-                                    {{ item.type }}
-                                </span>
-                            </td>
                             <td class="item-name">{{ item.item_name }}</td>
                             <td>{{ item.category }}</td>
                             <td class="qty-cell">

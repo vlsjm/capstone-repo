@@ -57,6 +57,86 @@ class Department(models.Model):
     def __str__(self):
         return self.name
 
+class AdminPermission(models.Model):
+    """Defines granular permissions for admin users"""
+    name = models.CharField(max_length=100, unique=True)
+    codename = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    
+    class Meta:
+        verbose_name = "Admin Permission"
+        verbose_name_plural = "Admin Permissions"
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def initialize_permissions(cls):
+        """Create default permissions if they don't exist"""
+        default_permissions = [
+            {
+                'name': 'Approve/Reject Supply Requests',
+                'codename': 'approve_supply_request',
+                'description': 'Can approve or reject supply requests from users'
+            },
+            {
+                'name': 'Approve/Reject Borrow Requests',
+                'codename': 'approve_borrow_request',
+                'description': 'Can approve or reject borrow requests from users'
+            },
+            {
+                'name': 'Approve/Reject Reservations',
+                'codename': 'approve_reservation',
+                'description': 'Can approve or reject reservation requests from users'
+            },
+            {
+                'name': 'Report Bad Stock',
+                'codename': 'report_bad_stock',
+                'description': 'Can report and manage bad stock in supplies'
+            },
+            {
+                'name': 'Edit Supply',
+                'codename': 'edit_supply',
+                'description': 'Can edit supply items and their details'
+            },
+            {
+                'name': 'Edit Property',
+                'codename': 'edit_property',
+                'description': 'Can edit property items and their details'
+            },
+            {
+                'name': 'Manage Users',
+                'codename': 'manage_users',
+                'description': 'Can access manage users page and create accounts'
+            },
+            {
+                'name': 'Delete Archived Items',
+                'codename': 'delete_archived_items',
+                'description': 'Can permanently delete archived supply and property items'
+            },
+            {
+                'name': 'Report Lost Items',
+                'codename': 'report_lost_items',
+                'description': 'Can report items as lost'
+            },
+            {
+                'name': 'Manage Lost Items',
+                'codename': 'manage_lost_items',
+                'description': 'Can mark items as lost/found and delete lost item reports'
+            },
+        ]
+        
+        for perm_data in default_permissions:
+            cls.objects.get_or_create(
+                codename=perm_data['codename'],
+                defaults={
+                    'name': perm_data['name'],
+                    'description': perm_data['description']
+                }
+            )
+
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     ROLE_CHOICES = [
@@ -69,9 +149,46 @@ class UserProfile(models.Model):
     designation = models.CharField(max_length=100, blank=True, null=True)
     auto_enable_at = models.DateTimeField(null=True, blank=True, help_text="If set, account will be automatically reactivated at this date/time")
     must_change_password = models.BooleanField(default=False, help_text="If True, user must change password on next login")
+    
+    # Custom admin permissions
+    admin_permissions = models.ManyToManyField(
+        AdminPermission, 
+        blank=True, 
+        related_name='users',
+        help_text="Specific permissions for admin users. Leave empty for full access (superuser-like) or select specific permissions for limited access."
+    )
+    has_limited_access = models.BooleanField(
+        default=False, 
+        help_text="If True, this admin has limited access based on selected permissions. If False, admin has full access to all admin features."
+    )
 
     def __str__(self):
         return self.user.username
+    
+    def has_admin_permission(self, codename):
+        """Check if user has a specific admin permission"""
+        # Superusers have all permissions
+        if self.user.is_superuser:
+            return True
+        
+        # Non-admin users have no admin permissions
+        if self.role != 'ADMIN':
+            return False
+        
+        # Admins with limited access check their specific permissions
+        if self.has_limited_access:
+            return self.admin_permissions.filter(codename=codename).exists()
+        
+        # Admins without limited access (full access) have all permissions
+        return True
+    
+    def get_permission_list(self):
+        """Get list of permission codenames this user has"""
+        if self.user.is_superuser or (self.role == 'ADMIN' and not self.has_limited_access):
+            return AdminPermission.objects.values_list('codename', flat=True)
+        elif self.role == 'ADMIN' and self.has_limited_access:
+            return self.admin_permissions.values_list('codename', flat=True)
+        return []
     
 
 class SupplyQuantity(models.Model):

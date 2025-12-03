@@ -2,6 +2,7 @@ from django.views.decorators.http import require_POST, require_http_methods
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 import re
+from .permissions import has_admin_permission, admin_permission_required, AdminPermissionMixin
 
 def redirect_with_tab(request, view_name):
     """
@@ -41,6 +42,7 @@ def update_damage_status(request, pk):
     return HttpResponseRedirect(reverse('damaged_items_management'))
 
 @require_POST
+@admin_permission_required('manage_lost_items')
 def mark_lost_item_found(request, pk):
     """Mark a lost item as found and restore property availability"""
     from .models import LostItem
@@ -68,6 +70,7 @@ def mark_lost_item_found(request, pk):
     messages.success(request, f"{lost_item.item.property_name} has been marked as found and is now available.")
     return HttpResponseRedirect(reverse('damaged_items_management') + '?tab=lost-items')
 
+@admin_permission_required('manage_lost_items')
 def mark_property_as_lost(request, property_id):
     """
     View for admins to verify and mark a property as lost.
@@ -119,6 +122,7 @@ def mark_property_as_lost(request, property_id):
     return HttpResponseRedirect(reverse('damaged_items_management') + '?tab=lost-items')
 
 @require_POST
+@admin_permission_required('manage_lost_items')
 def delete_lost_item(request, pk):
     """Delete a lost item report"""
     from .models import LostItem
@@ -539,7 +543,7 @@ from django.contrib.auth import login, authenticate, logout
 from .models import(
     Supply, Property, BorrowRequest, BorrowRequestBatch, BorrowRequestItem,
     SupplyRequest, DamageReport, LostItem, Reservation, ReservationBatch, ReservationItem,
-    ActivityLog, UserProfile, Notification,
+    ActivityLog, UserProfile, Notification, AdminPermission,
     SupplyQuantity, SupplyHistory, PropertyHistory,
     Department, PropertyCategory, SupplyCategory, SupplySubcategory,
     SupplyRequestBatch, SupplyRequestItem, BadStockReport, UserSession
@@ -582,7 +586,8 @@ from io import BytesIO
 # Create a logger
 logger = logging.getLogger(__name__)
 
-#user create user 
+#user create user
+@admin_permission_required('manage_users')
 def create_user(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
@@ -652,15 +657,50 @@ def create_user(request):
                     description=f"Created new user account for {user.username} with role {role}"
                 )
 
-                return redirect('manage_users')
+                # Check if custom permissions configuration was requested
+                configure_permissions = request.POST.get('configure_permissions') == 'true'
+                
+                # If AJAX request (for permissions flow), return JSON
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'user_id': profile.id,
+                        'username': user.username,
+                        'configure_permissions': configure_permissions
+                    })
+                
+                # Store flag for opening permissions modal after redirect
+                if configure_permissions and role == 'ADMIN':
+                    request.session['open_permissions_for'] = profile.id
+                    request.session['permissions_user_created'] = user.username
+                
+                return redirect('user_profile_list')
                 
             except Exception as e:
+                # If AJAX request, return JSON error
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': str(e)
+                    })
+                
                 messages.error(request, f'Error creating account: {str(e)}')
                 # Store form data in session to preserve it
                 request.session['form_data'] = request.POST.dict()
                 request.session['show_modal'] = True
                 return redirect('manage_users')
         else:
+            # If AJAX request, return JSON with errors
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                form_errors_dict = {}
+                for field, errors in form.errors.items():
+                    form_errors_dict[field] = list(errors)
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Please correct the errors below.',
+                    'errors': form_errors_dict
+                })
+            
             # Store form data and errors in session as simple dict
             request.session['form_data'] = request.POST.dict()
             # Convert errors to simple list of strings per field
@@ -914,6 +954,7 @@ def reservation_batch_detail(request, batch_id):
 
 @login_required
 @permission_required('app.view_admin_module', raise_exception=True)
+@admin_permission_required('approve_reservation')
 def approve_reservation_item(request, batch_id, item_id):
     """Approve a single item in a reservation batch"""
     if request.method == 'POST':
@@ -1013,6 +1054,7 @@ def approve_reservation_item(request, batch_id, item_id):
 
 @login_required
 @permission_required('app.view_admin_module', raise_exception=True)
+@admin_permission_required('approve_reservation')
 def reject_reservation_item(request, batch_id, item_id):
     """Reject a single item in a reservation batch"""
     if request.method == 'POST':
@@ -1063,6 +1105,7 @@ def reject_reservation_item(request, batch_id, item_id):
 
 @login_required
 @permission_required('app.view_admin_module', raise_exception=True)
+@admin_permission_required('approve_reservation')
 def approve_reservation_batch(request, batch_id):
     """Approve all pending items in a reservation batch"""
     if request.method == 'POST':
@@ -1128,6 +1171,7 @@ def approve_reservation_batch(request, batch_id):
 
 @login_required
 @permission_required('app.view_admin_module', raise_exception=True)
+@admin_permission_required('approve_reservation')
 def reject_reservation_batch(request, batch_id):
     """Reject all pending items in a reservation batch"""
     if request.method == 'POST':
@@ -1339,10 +1383,11 @@ def request_detail(request, pk):
     return render(request, 'app/request_details.html', {'request_obj': request_obj})
 
 
-class UserProfileListView(PermissionRequiredMixin, ListView):
+class UserProfileListView(AdminPermissionMixin, PermissionRequiredMixin, ListView):
     model = UserProfile
     template_name = 'app/manage_users.html'
     permission_required = 'app.view_admin_module'
+    required_permission = 'manage_users'
     context_object_name = 'users'
     paginate_by = 10
 
@@ -1410,8 +1455,255 @@ class UserProfileListView(PermissionRequiredMixin, ListView):
         context['selected_status'] = self.request.GET.get('status', '')
         return context
 
-@permission_required('app.view_admin_module')
+
 @login_required
+@permission_required('app.view_admin_module')
+def manage_admin_permissions(request, user_id):
+    """
+    View to manage admin permissions for a specific user
+    Allows assigning/removing granular permissions for admin users
+    """
+    # Check if user has permission to manage permissions
+    # Superusers and full-access admins can manage permissions
+    can_manage = False
+    if request.user.is_superuser:
+        can_manage = True
+    else:
+        try:
+            user_profile_check = request.user.userprofile
+            if user_profile_check.role == 'ADMIN':
+                # Full access admins (not limited) can manage permissions
+                if not user_profile_check.has_limited_access:
+                    can_manage = True
+                # Limited access admins need the manage_users permission
+                elif user_profile_check.admin_permissions.filter(codename='manage_users').exists():
+                    can_manage = True
+        except:
+            pass
+    
+    if not can_manage:
+        messages.error(request, "You don't have permission to manage user permissions.")
+        return redirect('user_profile_list')
+    
+    user_profile = get_object_or_404(UserProfile, id=user_id)
+    
+    # Ensure target user is an admin
+    if user_profile.role != 'ADMIN':
+        messages.error(request, "Permissions can only be managed for admin users.")
+        return redirect('user_profile_list')
+    
+    # Prevent modifying superuser permissions
+    if user_profile.user.is_superuser:
+        messages.error(request, "Cannot modify permissions for superuser accounts.")
+        return redirect('user_profile_list')
+    
+    if request.method == 'POST':
+        # Get the has_limited_access checkbox
+        has_limited_access = request.POST.get('has_limited_access') == 'on'
+        user_profile.has_limited_access = has_limited_access
+        
+        if has_limited_access:
+            # Get selected permissions
+            selected_permissions = request.POST.getlist('permissions')
+            # Clear existing permissions
+            user_profile.admin_permissions.clear()
+            # Add selected permissions
+            for perm_id in selected_permissions:
+                try:
+                    permission = AdminPermission.objects.get(id=perm_id)
+                    user_profile.admin_permissions.add(permission)
+                except AdminPermission.DoesNotExist:
+                    pass
+        else:
+            # Full access - clear all specific permissions
+            user_profile.admin_permissions.clear()
+        
+        user_profile.save()
+        
+        # Log the activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='update',
+            model_name='UserProfile',
+            object_repr=user_profile.user.username,
+            description=f"Updated admin permissions for {user_profile.user.username}"
+        )
+        
+        messages.success(request, f"Permissions updated successfully for {user_profile.user.get_full_name() or user_profile.user.username}.")
+        return redirect('user_profile_list')
+    
+    # GET request - display form
+    all_permissions = AdminPermission.objects.all().order_by('name')
+    user_permission_ids = user_profile.admin_permissions.values_list('id', flat=True)
+    
+    context = {
+        'user_profile': user_profile,
+        'all_permissions': all_permissions,
+        'user_permission_ids': list(user_permission_ids),
+    }
+    
+    return render(request, 'app/manage_admin_permissions.html', context)
+
+
+@login_required
+@permission_required('app.view_admin_module')
+def initialize_admin_permissions(request):
+    """
+    Initialize default admin permissions
+    This should be run once after adding the permission system
+    """
+    if not request.user.is_superuser:
+        messages.error(request, "Only superusers can initialize permissions.")
+        return redirect('dashboard')
+    
+    AdminPermission.initialize_permissions()
+    
+    messages.success(request, "Admin permissions have been initialized successfully.")
+    return redirect('user_profile_list')
+
+
+@login_required
+@permission_required('app.view_admin_module')
+def get_user_permissions(request, user_id):
+    """
+    AJAX endpoint to get user permissions data for the modal
+    """
+    # Check if user has permission to manage permissions
+    can_manage = False
+    if request.user.is_superuser:
+        can_manage = True
+    else:
+        try:
+            user_profile_check = request.user.userprofile
+            if user_profile_check.role == 'ADMIN':
+                if not user_profile_check.has_limited_access:
+                    can_manage = True
+                elif user_profile_check.admin_permissions.filter(codename='manage_users').exists():
+                    can_manage = True
+        except:
+            pass
+    
+    if not can_manage:
+        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+    
+    try:
+        user_profile = UserProfile.objects.get(id=user_id)
+        
+        # Ensure target user is an admin
+        if user_profile.role != 'ADMIN':
+            return JsonResponse({'success': False, 'error': 'Permissions can only be managed for admin users'})
+        
+        # Prevent modifying superuser permissions
+        if user_profile.user.is_superuser:
+            return JsonResponse({'success': False, 'error': 'Cannot modify permissions for superuser accounts'})
+        
+        all_permissions = AdminPermission.objects.all().order_by('name')
+        user_permission_ids = list(user_profile.admin_permissions.values_list('id', flat=True))
+        
+        data = {
+            'success': True,
+            'user_profile': {
+                'username': user_profile.user.username,
+                'full_name': user_profile.user.get_full_name(),
+                'role': user_profile.get_role_display(),
+                'department': user_profile.department.name if user_profile.department else None,
+                'has_limited_access': user_profile.has_limited_access,
+            },
+            'all_permissions': [
+                {
+                    'id': perm.id,
+                    'name': perm.name,
+                    'codename': perm.codename,
+                    'description': perm.description
+                }
+                for perm in all_permissions
+            ],
+            'user_permission_ids': user_permission_ids,
+        }
+        
+        return JsonResponse(data)
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'User not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+@permission_required('app.view_admin_module')
+@require_POST
+def save_user_permissions(request, user_id):
+    """
+    AJAX endpoint to save user permissions from the modal
+    """
+    # Check if user has permission to manage permissions
+    can_manage = False
+    if request.user.is_superuser:
+        can_manage = True
+    else:
+        try:
+            user_profile_check = request.user.userprofile
+            if user_profile_check.role == 'ADMIN':
+                if not user_profile_check.has_limited_access:
+                    can_manage = True
+                elif user_profile_check.admin_permissions.filter(codename='manage_users').exists():
+                    can_manage = True
+        except:
+            pass
+    
+    if not can_manage:
+        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+    
+    try:
+        user_profile = UserProfile.objects.get(id=user_id)
+        
+        # Ensure target user is an admin
+        if user_profile.role != 'ADMIN':
+            return JsonResponse({'success': False, 'error': 'Permissions can only be managed for admin users'})
+        
+        # Prevent modifying superuser permissions
+        if user_profile.user.is_superuser:
+            return JsonResponse({'success': False, 'error': 'Cannot modify permissions for superuser accounts'})
+        
+        # Get the has_limited_access value
+        has_limited_access = request.POST.get('has_limited_access') == 'on'
+        user_profile.has_limited_access = has_limited_access
+        
+        if has_limited_access:
+            # Get selected permissions
+            selected_permissions = request.POST.getlist('permissions')
+            # Clear existing permissions
+            user_profile.admin_permissions.clear()
+            # Add selected permissions
+            for perm_id in selected_permissions:
+                try:
+                    permission = AdminPermission.objects.get(id=perm_id)
+                    user_profile.admin_permissions.add(permission)
+                except AdminPermission.DoesNotExist:
+                    pass
+        else:
+            # Full access - clear all specific permissions
+            user_profile.admin_permissions.clear()
+        
+        user_profile.save()
+        
+        # Log the activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='update',
+            model_name='UserProfile',
+            object_repr=user_profile.user.username,
+            description=f"Updated admin permissions for {user_profile.user.username}"
+        )
+        
+        messages.success(request, f"Permissions updated successfully for {user_profile.user.get_full_name() or user_profile.user.username}.")
+        
+        return JsonResponse({'success': True})
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'User not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
 @permission_required('app.view_admin_module')
 @login_required
 def get_top_requested_supplies(request):
@@ -2716,6 +3008,10 @@ class SupplyListView(PermissionRequiredMixin, ListView):
             grouped[category_name].append(supply)
         context['grouped_supplies'] = dict(sorted(grouped.items()))
         
+        # Add user permissions to context
+        context['can_report_bad_stock'] = has_admin_permission(self.request.user, 'report_bad_stock')
+        context['can_edit_supply'] = has_admin_permission(self.request.user, 'edit_supply')
+        
         return context
 
 @permission_required('app.view_admin_module')
@@ -2774,6 +3070,7 @@ def add_supply(request):
 
 @permission_required('app.view_admin_module')
 @login_required
+@admin_permission_required('edit_supply')
 def edit_supply(request):
     if request.method == 'POST':
         supply_id = request.POST.get('id')
@@ -2886,6 +3183,7 @@ def delete_supply(request, pk):
 
 @permission_required('app.view_admin_module')
 @require_POST
+@admin_permission_required('report_bad_stock')
 def report_bad_stock(request):
     """Handle bad stock report submission via AJAX"""
     try:
@@ -3027,6 +3325,11 @@ class PropertyListView(PermissionRequiredMixin, ListView):
             properties_by_category[prop.category].append(prop)
         context['properties_by_category'] = dict(properties_by_category)
         
+        # Add user permissions to context
+        context['can_report_lost_items'] = has_admin_permission(self.request.user, 'report_lost_items')
+        context['can_manage_lost_items'] = has_admin_permission(self.request.user, 'manage_lost_items')
+        context['can_edit_property'] = has_admin_permission(self.request.user, 'edit_property')
+        
         return context
     
 @require_POST
@@ -3155,6 +3458,7 @@ def add_property(request):
 
 @permission_required('app.view_admin_module')
 @login_required
+@admin_permission_required('edit_property')
 def edit_property(request):
     if request.method == 'POST':
         property_id = request.POST.get('id')
@@ -3392,6 +3696,7 @@ def admin_mark_property_damaged(request, property_id):
 
 @require_POST
 @permission_required('app.view_admin_module')
+@admin_permission_required('report_lost_items')
 def report_lost_item(request, property_id):
     """
     View for admins to report a property as lost.
@@ -4775,19 +5080,23 @@ def export_supply_to_excel(request):
 
     # Get selected fields from request
     selected_fields = request.POST.getlist('fields', [
-        'supply_name', 'description', 'category', 'subcategory',
-        'current_quantity', 'date_received', 'expiration_date'
+        'barcode', 'supply_name', 'description', 'unit', 'category', 'subcategory',
+        'current_quantity', 'status', 'date_received', 'expiration_date', 'available_for_request'
     ])
 
     # Define all possible fields and their display names
     field_mapping = {
+        'barcode': 'Supply ID',
         'supply_name': 'Supply Name',
         'description': 'Description',
+        'unit': 'Unit of Measure',
         'category': 'Category',
         'subcategory': 'Sub Category',
         'current_quantity': 'Current Quantity',
+        'status': 'Stock Status',
         'date_received': 'Date Received',
-        'expiration_date': 'Expiration Date'
+        'expiration_date': 'Expiration Date',
+        'available_for_request': 'Available for Request'
     }
 
     # Create header row with title and metadata
@@ -4849,20 +5158,28 @@ def export_supply_to_excel(request):
         for supply in category_supplies:
             row_data = []
             for field in selected_fields:
-                if field == 'supply_name':
+                if field == 'barcode':
+                    row_data.append(supply.barcode or 'N/A')
+                elif field == 'supply_name':
                     row_data.append(supply.supply_name)
                 elif field == 'description':
                     row_data.append(supply.description or 'N/A')
+                elif field == 'unit':
+                    row_data.append(supply.unit or 'N/A')
                 elif field == 'category':
                     row_data.append(supply.category.name if supply.category else 'N/A')
                 elif field == 'subcategory':
                     row_data.append(supply.subcategory.name if supply.subcategory else 'N/A')
                 elif field == 'current_quantity':
                     row_data.append(supply.quantity_info.current_quantity if supply.quantity_info else 0)
+                elif field == 'status':
+                    row_data.append(supply.get_status_display)
                 elif field == 'date_received':
                     row_data.append(supply.date_received.strftime('%Y-%m-%d') if supply.date_received else 'N/A')
                 elif field == 'expiration_date':
                     row_data.append(supply.expiration_date.strftime('%Y-%m-%d') if supply.expiration_date else 'N/A')
+                elif field == 'available_for_request':
+                    row_data.append('Yes' if supply.available_for_request else 'No')
 
             for col, value in enumerate(row_data, 1):
                 cell = ws.cell(row=current_row, column=col)
@@ -5205,7 +5522,10 @@ def _generate_pdf_quantity_report(supply, activity_data, total_additions, total_
 
 @login_required
 def export_property_to_pdf_ics(request):
-    """Export properties with unit value below 50,000 as PDF Inventory Custodian Slip (ICS)"""
+    """Export properties with unit value below 50,000 as Excel Inventory Custodian Slip (ICS)"""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from django.utils import timezone
     
     # Get form data
     college_campus = request.POST.get('college_campus', 'BACOOR')
@@ -5239,139 +5559,107 @@ def export_property_to_pdf_ics(request):
                     'year_acquired': prop.year_acquired.strftime('%m/%d/%Y') if prop.year_acquired else 'N/A'
                 })
     
-    # Create PDF with A4 landscape for more width
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), 
-                           topMargin=0.4*inch, bottomMargin=0.4*inch,
-                           leftMargin=0.3*inch, rightMargin=0.3*inch)
+    # Create workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "ICS Below 50000"
     
-    # Container for PDF elements
-    elements = []
-    
-    # Styles
-    styles = getSampleStyleSheet()
-    
-    # Style for table content - smaller for data cells
-    normal_style = ParagraphStyle(
-        'Normal',
-        fontName='Helvetica',
-        fontSize=8,
-        leading=10
+    # Header styling
+    header_fill = PatternFill(start_color="152d64", end_color="152d64", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
     )
     
-    # Style for header cells - black text to be visible
-    header_style = ParagraphStyle(
-        'Header',
-        fontName='Helvetica-Bold',
-        fontSize=9,
-        textColor=colors.black,  # Changed from white to black
-        alignment=1  # Center
-    )
+    # Add title
+    ws.merge_cells('A1:K1')
+    ws['A1'] = 'List of Inventories / Inventory Custodian Slip (ICS)'
+    ws['A1'].font = Font(bold=True, size=14)
+    ws['A1'].alignment = Alignment(horizontal='center')
     
-    # Header information with title - using simple Paragraphs aligned to left
-    title_para = Paragraph("<b>List of Inventories / Inventory Custodian Slip (ICS)</b>", normal_style)
-    elements.append(title_para)
-    elements.append(Spacer(1, 0.1*inch))
+    # Add info rows
+    ws.merge_cells('A2:K2')
+    ws['A2'] = f'College / Campus: {college_campus}'
+    ws['A2'].alignment = Alignment(horizontal='left')
     
-    campus_para = Paragraph(f"<b>College / Campus:</b> {college_campus}", normal_style)
-    elements.append(campus_para)
-    elements.append(Spacer(1, 0.05*inch))
+    ws.merge_cells('A3:K3')
+    ws['A3'] = f'Accountable Person: {accountable_person_filter}'
+    ws['A3'].alignment = Alignment(horizontal='left')
     
-    person_para = Paragraph(f"<b>Accountable Person:</b> {accountable_person_filter}", normal_style)
-    elements.append(person_para)
-    elements.append(Spacer(1, 0.2*inch))
+    ws.merge_cells('A4:K4')
+    ws['A4'] = f'Generated on: {timezone.now().strftime("%B %d, %Y %I:%M %p")}'
+    ws['A4'].alignment = Alignment(horizontal='center')
     
-    # Table data
-    table_data = [
-        [Paragraph('Article', header_style), 
-         Paragraph('Description', header_style), 
-         Paragraph('Property Number', header_style), 
-         Paragraph('Unit Of Measure', header_style), 
-         Paragraph('Unit Cost', header_style), 
-         Paragraph('Total Value', header_style), 
-         Paragraph('QTY Per card', header_style), 
-         Paragraph('Qty Per Physical Count', header_style), 
-         Paragraph('Remarks', header_style), 
-         Paragraph('Accountable Person', header_style), 
-         Paragraph('Year Acquired', header_style)]
-    ]
+    # Headers
+    headers = ['Article', 'Description', 'Property Number', 'Unit Of Measure', 
+               'Unit Cost', 'Total Value', 'QTY Per card', 'Qty Per Physical Count', 
+               'Remarks', 'Accountable Person', 'Year Acquired']
+    ws.append([])  # Empty row
+    ws.append(headers)
     
-    # Add property data
-    for prop in filtered_properties:
-        table_data.append([
-            Paragraph(str(prop['article']), normal_style),
-            Paragraph(str(prop['description'])[:80], normal_style),  # Increased description length
-            Paragraph(str(prop['property_number']), normal_style),
-            Paragraph(str(prop['unit_of_measure']), normal_style),
-            Paragraph(f"{prop['unit_cost']:.2f}", normal_style),
-            Paragraph(f"{prop['total_value']:.2f}", normal_style),
-            Paragraph(str(prop['qty_per_card']), normal_style),
-            Paragraph(str(prop['qty_per_physical_count']), normal_style),
-            Paragraph(str(prop['remarks']), normal_style),
-            Paragraph(str(prop['accountable_person']), normal_style),
-            Paragraph(str(prop['year_acquired']), normal_style)
-        ])
+    # Style headers (row 6)
+    for cell in ws[6]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        cell.border = border
     
-    # If no properties found
-    if len(table_data) == 1:
-        table_data.append([
-            Paragraph('No properties found with unit cost below ₱50,000.00', normal_style),
-            '', '', '', '', '', '', '', '', '', ''
-        ])
+    # Add data
+    if filtered_properties:
+        for prop in filtered_properties:
+            ws.append([
+                prop['article'],
+                prop['description'],
+                prop['property_number'],
+                prop['unit_of_measure'],
+                prop['unit_cost'],
+                prop['total_value'],
+                prop['qty_per_card'],
+                prop['qty_per_physical_count'],
+                prop['remarks'],
+                prop['accountable_person'],
+                prop['year_acquired']
+            ])
+    else:
+        ws.append(['No properties found with unit cost below ₱50,000.00', '', '', '', '', '', '', '', '', '', ''])
     
-    # Create table with adjusted column widths for A4 landscape (11.69 x 8.27 inches)
-    # A4 landscape provides approximately 11 inches of usable width
-    # Increased Remarks column from 0.6 to 1.0 inch
-    col_widths = [1.5*inch, 2.0*inch, 1.0*inch, 0.7*inch, 0.7*inch, 
-                  0.8*inch, 0.7*inch, 0.8*inch, 1.0*inch, 1.0*inch, 0.8*inch]
+    # Style data rows
+    for row in ws.iter_rows(min_row=7, max_row=ws.max_row, min_col=1, max_col=11):
+        for cell in row:
+            cell.border = border
+            cell.alignment = Alignment(vertical='center', wrap_text=True)
     
-    property_table = Table(table_data, colWidths=col_widths, repeatRows=1)
+    # Format number columns
+    for row in ws.iter_rows(min_row=7, max_row=ws.max_row, min_col=5, max_col=6):
+        for cell in row:
+            if isinstance(cell.value, (int, float)):
+                cell.number_format = '#,##0.00'
+                cell.alignment = Alignment(horizontal='right', vertical='center')
     
-    # Table style - matching the simple format from the image
-    property_table.setStyle(TableStyle([
-        # Header styling - simple black text on white background
-        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 9),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
-        ('TOPPADDING', (0, 0), (-1, 0), 6),
-        
-        # Data cells
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 8),
-        ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 1), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
-        
-        # Align numbers to center/right
-        ('ALIGN', (4, 1), (5, -1), 'RIGHT'),  # Unit Cost, Total Value
-        ('ALIGN', (6, 1), (7, -1), 'CENTER'),  # QTY columns
-        ('ALIGN', (2, 1), (2, -1), 'CENTER'),  # Property Number
-        ('ALIGN', (3, 1), (3, -1), 'CENTER'),  # Unit of Measure
-        
-        # Grid - simple black lines
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('LINEBELOW', (0, 0), (-1, 0), 2, colors.black),  # Thicker line below header
-    ]))
+    # Center align specific columns
+    for row in ws.iter_rows(min_row=7, max_row=ws.max_row):
+        # Property Number
+        row[2].alignment = Alignment(horizontal='center', vertical='center')
+        # Unit of Measure
+        row[3].alignment = Alignment(horizontal='center', vertical='center')
+        # QTY columns
+        row[6].alignment = Alignment(horizontal='center', vertical='center')
+        row[7].alignment = Alignment(horizontal='center', vertical='center')
     
-    elements.append(property_table)
-    
-    # Build PDF
-    doc.build(elements)
-    
-    # Get PDF from buffer
-    pdf = buffer.getvalue()
-    buffer.close()
+    # Adjust column widths
+    column_widths = [20, 30, 18, 15, 12, 12, 12, 18, 15, 20, 15]
+    for i, width in enumerate(column_widths, 1):
+        ws.column_dimensions[chr(64 + i)].width = width
     
     # Create response
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=ICS_Below_50000_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
-    response.write(pdf)
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename=ICS_Below_50000_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    wb.save(response)
     
     return response
 
@@ -6250,6 +6538,7 @@ def unarchive_property(request, pk):
 
 @permission_required('app.view_admin_module')
 @login_required
+@admin_permission_required('delete_archived_items')
 def delete_archived_supply(request, pk):
     supply = get_object_or_404(Supply, pk=pk)
     if request.method == 'POST':
@@ -6278,6 +6567,7 @@ def delete_archived_supply(request, pk):
 
 @permission_required('app.view_admin_module')
 @login_required
+@admin_permission_required('delete_archived_items')
 def delete_archived_property(request, pk):
     property_obj = get_object_or_404(Property, pk=pk)
     if request.method == 'POST':
@@ -6494,6 +6784,7 @@ def supply_list(request):
 @permission_required('app.view_admin_module')
 @login_required
 @require_POST
+@admin_permission_required('approve_supply_request')
 def approve_batch_item(request, batch_id, item_id):
     """Approve an individual item in a batch request"""
     batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
@@ -6600,6 +6891,7 @@ def approve_batch_item(request, batch_id, item_id):
 @permission_required('app.view_admin_module')
 @login_required
 @require_POST
+@admin_permission_required('approve_supply_request')
 def reject_batch_item(request, batch_id, item_id):
     """Reject an individual item in a batch request"""
     batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
@@ -7725,6 +8017,7 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
 @permission_required('app.view_admin_module')
 @login_required
 @require_POST
+@admin_permission_required('approve_borrow_request')
 def approve_borrow_item(request, batch_id, item_id):
     """Approve an individual item in a batch borrow request"""
     batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
@@ -7805,6 +8098,7 @@ def approve_borrow_item(request, batch_id, item_id):
 @permission_required('app.view_admin_module')
 @login_required
 @require_POST
+@admin_permission_required('approve_borrow_request')
 def reject_borrow_item(request, batch_id, item_id):
     """Reject an individual item in a batch borrow request"""
     batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)

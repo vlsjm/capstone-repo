@@ -132,40 +132,6 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
                     'approved_quantity': item.approved_quantity or 0,
                 })
         
-        # Get all borrow requests for tally
-        tally_borrow_batches = BorrowRequestBatch.objects.filter(user=self.request.user)
-        if tally_year_filter:
-            tally_borrow_batches = tally_borrow_batches.filter(request_date__year=tally_year_filter)
-        if tally_month_filter:
-            tally_borrow_batches = tally_borrow_batches.filter(request_date__month=tally_month_filter)
-        
-        for batch in tally_borrow_batches:
-            for item in batch.items.all():
-                tally_items.append({
-                    'type': 'Borrow',
-                    'item_name': item.property.property_name,
-                    'category': item.property.category.name if item.property.category else 'Uncategorized',
-                    'quantity': item.quantity,
-                    'approved_quantity': item.approved_quantity or 0,
-                })
-        
-        # Get all reservations for tally
-        tally_reservation_batches = ReservationBatch.objects.filter(user=self.request.user)
-        if tally_year_filter:
-            tally_reservation_batches = tally_reservation_batches.filter(request_date__year=tally_year_filter)
-        if tally_month_filter:
-            tally_reservation_batches = tally_reservation_batches.filter(request_date__month=tally_month_filter)
-        
-        for batch in tally_reservation_batches:
-            for item in batch.items.all():
-                tally_items.append({
-                    'type': 'Reservation',
-                    'item_name': item.property.property_name,
-                    'category': item.property.category.name if item.property.category else 'Uncategorized',
-                    'quantity': item.quantity,
-                    'approved_quantity': item.quantity if item.status == 'approved' else 0,
-                })
-        
         # Build item tally (group by item name and type)
         tally_dict = {}
         for item in tally_items:

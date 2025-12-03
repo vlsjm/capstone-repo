@@ -2036,9 +2036,11 @@ tr.hidden {
             <button id="openModifyQuantityModalBtn" class="action-btn secondary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #4a5568; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-edit"></i> Manage Stocks
             </button>
+            {% if can_report_bad_stock %}
             <button id="openBadStockModalBtn" class="action-btn warning-btn" style="display: flex; align-items: center; gap: 6px; background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-exclamation-triangle"></i> Report Bad Stock
             </button>
+            {% endif %}
             
             <div class="actions-dropdown">
               <button class="actions-dropdown-toggle" type="button" id="actionsDropdownToggle">
@@ -2146,6 +2148,7 @@ tr.hidden {
                     <i class="fas fa-info-circle"></i> Information
                   </button>
 
+                  {% if can_edit_supply %}
                   <button class="table-actions-dropdown-item edit edit-btn" 
                     data-id="{{ supply.id }}"
                     data-name="{{ supply.supply_name }}"
@@ -2160,6 +2163,7 @@ tr.hidden {
                     data-expiration-date="{{ supply.expiration_date|date:'Y-m-d'|default:'' }}">
                     <i class="fas fa-edit"></i> Edit
                   </button>
+                  {% endif %}
                   
                   <button class="table-actions-dropdown-item history history-btn" 
                     data-id="{{ supply.id }}">
@@ -2854,12 +2858,18 @@ tr.hidden {
         {% csrf_token %}
         <div class="form-group">
           <p style="margin: 0 0 10px 0; font-size: 14px;">Select fields to include in the report:</p>
-          <div class="checkbox-group" style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+          <div class="checkbox-group" style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 15px; max-height: 400px; overflow-y: auto;">
+            <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" name="fields" value="barcode" checked style="margin: 0; width: 16px; height: 16px;"> Supply ID
+            </label>
             <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
               <input type="checkbox" name="fields" value="supply_name" checked style="margin: 0; width: 16px; height: 16px;"> Supply Name
             </label>
             <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
               <input type="checkbox" name="fields" value="description" checked style="margin: 0; width: 16px; height: 16px;"> Description
+            </label>
+            <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" name="fields" value="unit" checked style="margin: 0; width: 16px; height: 16px;"> Unit of Measure
             </label>
             <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
               <input type="checkbox" name="fields" value="category" checked style="margin: 0; width: 16px; height: 16px;"> Category
@@ -2871,10 +2881,16 @@ tr.hidden {
               <input type="checkbox" name="fields" value="current_quantity" checked style="margin: 0; width: 16px; height: 16px;"> Current Quantity
             </label>
             <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" name="fields" value="status" checked style="margin: 0; width: 16px; height: 16px;"> Stock Status
+            </label>
+            <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
               <input type="checkbox" name="fields" value="date_received" checked style="margin: 0; width: 16px; height: 16px;"> Date Received
             </label>
-            <label style="font-size: 13px; margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
+            <label style="font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
               <input type="checkbox" name="fields" value="expiration_date" checked style="margin: 0; width: 16px; height: 16px;"> Expiration Date
+            </label>
+            <label style="font-size: 13px; margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" name="fields" value="available_for_request" checked style="margin: 0; width: 16px; height: 16px;"> Available for Request
             </label>
           </div>
           <div style="text-align: left;">
