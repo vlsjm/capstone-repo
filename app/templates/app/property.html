@@ -2621,9 +2621,11 @@ input:focus {
             <button id="openModalBtn" class="action-btn primary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #152d64; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-plus"></i> Add Property
             </button>
+            {% if can_report_lost_items %}
             <button id="openLostItemModalBtn" class="action-btn warning-btn" style="display: flex; align-items: center; gap: 6px; background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-search"></i> Report Lost Item
             </button>
+            {% endif %}
             <button id="openModifyQuantityModalBtn" class="action-btn secondary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #4a5568; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-edit"></i> Property Inventory
             </button>
@@ -2730,6 +2732,7 @@ input:focus {
                           <i class="fas fa-info-circle"></i> View Information
                         </button>
                         
+                        {% if can_edit_property %}
                         <button class="table-actions-dropdown-item edit edit-btn" 
                           data-id="{{ property.id }}"
                           data-property-number="{{ property.property_number }}"
@@ -2748,6 +2751,7 @@ input:focus {
                           data-availability="{{ property.availability }}">
                           <i class="fas fa-edit"></i> Edit
                         </button>
+                        {% endif %}
                         
                         <button class="table-actions-dropdown-item change-number change-number-btn" 
                           data-id="{{ property.id }}"
@@ -3481,7 +3485,7 @@ input:focus {
                 </label>
                 <label style="font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
                     <input type="radio" name="exportFormat" value="pdf" style="margin: 0; width: 18px; height: 18px; cursor: pointer;"> 
-                    <span style="font-weight: 500;">PDF ICS (Unit Cost Below ₱50,000.00)</span>
+                    <span style="font-weight: 500;">Excel ICS (Unit Cost Below ₱50,000.00)</span>
                 </label>
             </div>
             <p style="margin: 8px 0 0 0; font-size: 12px; color: #6c757d; font-style: italic;">
@@ -5497,7 +5501,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (this.value === 'pdf') {
                 pdfFieldsSection.style.display = 'block';
                 additionalColumnsSection.style.display = 'none';
-                generateReportBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Generate PDF ICS';
+                generateReportBtn.innerHTML = '<i class="fas fa-file-excel"></i> Generate Excel ICS';
                 exportForm.action = "{% url 'export_property_pdf_ics' %}";
             }
         });

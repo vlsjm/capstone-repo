@@ -4,7 +4,7 @@ from django.utils import timezone
 from .models import (
     Supply, Property, SupplyRequest,
     Reservation, ReservationBatch, ReservationItem, DamageReport, LostItem, BorrowRequest,
-    UserProfile, ActivityLog, Notification,
+    UserProfile, ActivityLog, Notification, AdminPermission,
     SupplyQuantity, SupplyHistory, PropertyHistory,
     Department, PropertyCategory, SupplyCategory, SupplySubcategory, 
     SupplyRequestBatch, SupplyRequestItem, BorrowRequestBatch, BorrowRequestItem, BadStockReport,
@@ -188,7 +188,66 @@ class LostItemAdmin(admin.ModelAdmin):
 admin.site.register(BorrowRequest)
 admin.site.register(BorrowRequestBatch)
 admin.site.register(BorrowRequestItem)
-admin.site.register(UserProfile)
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'role', 'department', 'has_limited_access', 'permission_count']
+    list_filter = ['role', 'has_limited_access', 'department']
+    search_fields = ['user__username', 'user__first_name', 'user__last_name', 'user__email']
+    filter_horizontal = ['admin_permissions']
+    
+    fieldsets = (
+        ('User Information', {
+            'fields': ('user', 'role', 'department')
+        }),
+        ('Contact Details', {
+            'fields': ('phone', 'designation')
+        }),
+        ('Account Settings', {
+            'fields': ('must_change_password', 'auto_enable_at')
+        }),
+        ('Admin Permissions', {
+            'fields': ('has_limited_access', 'admin_permissions'),
+            'classes': ('collapse',),
+            'description': 'Configure custom permissions for admin users. Enable "Has limited access" and select specific permissions, or leave disabled for full admin access.'
+        }),
+    )
+    
+    def permission_count(self, obj):
+        if obj.role != 'ADMIN':
+            return 'N/A (User)'
+        if obj.user.is_superuser:
+            return 'All (Superuser)'
+        if not obj.has_limited_access:
+            return 'All (Full Access)'
+        return obj.admin_permissions.count()
+    permission_count.short_description = 'Permissions'
+
+
+@admin.register(AdminPermission)
+class AdminPermissionAdmin(admin.ModelAdmin):
+    list_display = ['name', 'codename', 'user_count']
+    search_fields = ['name', 'codename', 'description']
+    readonly_fields = ['codename']
+    
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'codename', 'description')
+        }),
+    )
+    
+    def user_count(self, obj):
+        return obj.users.filter(has_limited_access=True).count()
+    user_count.short_description = 'Users with this permission'
+    
+    def has_add_permission(self, request):
+        # Only superusers can add new permission types
+        return request.user.is_superuser
+    
+    def has_delete_permission(self, request, obj=None):
+        # Only superusers can delete permission types
+        return request.user.is_superuser
+
 admin.site.register(ActivityLog)
 admin.site.register(Notification)
 admin.site.register(SupplyQuantity)

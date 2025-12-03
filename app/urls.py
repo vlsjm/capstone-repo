@@ -160,6 +160,11 @@ urlpatterns = [
     path('check-out/', CheckOutPageView.as_view(), name='checkout'),
 
     path('manage-users/', UserProfileListView.as_view(), name='manage_users'),
+    path('user-profile-list/', UserProfileListView.as_view(), name='user_profile_list'),
+    path('manage-admin-permissions/<int:user_id>/', views.manage_admin_permissions, name='manage_admin_permissions'),
+    path('get-user-permissions/<int:user_id>/', views.get_user_permissions, name='get_user_permissions'),
+    path('save-user-permissions/<int:user_id>/', views.save_user_permissions, name='save_user_permissions'),
+    path('initialize-admin-permissions/', views.initialize_admin_permissions, name='initialize_admin_permissions'),
     path('create-user/', create_user, name='create_user'),
     path('toggle-user-status/<int:user_id>/', views.toggle_user_status, name='toggle_user_status'),
     path('create-department/', views.create_department, name='create_department'),

@@ -157,7 +157,16 @@
       .messages div i {
         margin-right: 10px;
         font-size: 16px;
-        display: none;
+      }
+      
+      /* Override global CSS ::before pseudo-elements */
+      .messages div::before,
+      .messages .success::before,
+      .messages .error::before,
+      .messages .warning::before,
+      .messages .info::before {
+        content: none !important;
+        display: none !important;
       }
       
       .message-close {
@@ -684,6 +693,31 @@
       .slider:hover {
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
       }
+
+      /* Permission card hover effects */
+      .permission-card {
+        transition: all 0.2s ease;
+      }
+
+      .permission-card:hover {
+        border-color: #152d64 !important;
+        box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+        transform: translateY(-2px);
+      }
+
+      /* Button hover effects */
+      .btn-save:hover {
+        background: #0d1f47 !important;
+        box-shadow: 0 4px 12px rgba(21, 45, 100, 0.3);
+      }
+
+      .btn-cancel:hover {
+        background: #5a6268 !important;
+      }
+
+      .btn-cancel:hover {
+        background: #5a6268 !important;
+      }
     </style>
   </head>
   <body>
@@ -778,14 +812,24 @@
               {% endif %}
             </td>
             <td>
-              <label class="switch">
-                <input type="checkbox" 
-                       class="user-status-toggle"
-                       data-user-id="{{ profile.user.id }}"
-                       data-username="{{ profile.user.username }}"
-                       {% if profile.user.is_active %}checked{% endif %}>
-                <span class="slider"></span>
-              </label>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <label class="switch">
+                  <input type="checkbox" 
+                         class="user-status-toggle"
+                         data-user-id="{{ profile.user.id }}"
+                         data-username="{{ profile.user.username }}"
+                         {% if profile.user.is_active %}checked{% endif %}>
+                  <span class="slider"></span>
+                </label>
+                {% if profile.role == 'ADMIN' and not profile.user.is_superuser %}
+                  <button data-user-id="{{ profile.id }}" 
+                     class="btn-permissions" 
+                     title="Manage Permissions"
+                     style="padding: 6px 12px; font-size: 13px; border: none; cursor: pointer; background: #152d64; color: white; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-user-shield"></i> Permissions
+                  </button>
+                {% endif %}
+              </div>
             </td>
           </tr>
           {% empty %}
@@ -821,7 +865,7 @@
       <div class="modal-content">
         <span class="close" id="closeModalBtn">&times;</span>
         <h3>Create New Account</h3>
-        <form method="POST" action="{% url 'create_user' %}">
+        <form method="POST" action="{% url 'create_user' %}" id="createAccountForm">
           {% csrf_token %}
          
 
@@ -856,7 +900,16 @@
               </div>
             {% endif %}
           {% endfor %}
-          <button type="submit" class="submit-btn">Submit</button>
+          
+          <!-- Custom Permissions Option (only shows for admin) -->
+          <div id="customPermissionsOption" style="display: none; background: #fffbea; padding: 12px; border-radius: 4px; border: 1px solid #f0b429; margin-bottom: 15px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="configureCustomPermissions" style="width: 18px; height: 18px; cursor: pointer;">
+              <span><strong>Configure custom permissions</strong> after creating this admin account</span>
+            </label>
+          </div>
+
+          <button type="submit" class="submit-btn" style="width: 100%; padding: 12px; background: #152d64; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer;">Create Account</button>
         </form>
       </div>
     </div>
@@ -1029,6 +1082,122 @@
           });
         }
 
+        // Show/hide custom permissions option based on role selection
+        const roleSelect = document.querySelector('select[name="role"]');
+        const customPermissionsOption = document.getElementById('customPermissionsOption');
+        
+        if (roleSelect && customPermissionsOption) {
+          roleSelect.addEventListener('change', function() {
+            if (this.value === 'ADMIN') {
+              customPermissionsOption.style.display = 'block';
+            } else {
+              customPermissionsOption.style.display = 'none';
+              document.getElementById('configureCustomPermissions').checked = false;
+            }
+          });
+          
+          // Check initial state
+          if (roleSelect.value === 'ADMIN') {
+            customPermissionsOption.style.display = 'block';
+          }
+        }
+
+        // Handle create account form submission
+        const createAccountForm = document.getElementById('createAccountForm');
+        if (createAccountForm) {
+          createAccountForm.addEventListener('submit', function(e) {
+            const configurePermissions = document.getElementById('configureCustomPermissions');
+            const roleSelect = document.querySelector('select[name="role"]');
+            
+            // Only intercept if admin role and configure permissions is checked
+            if (roleSelect && roleSelect.value === 'ADMIN' && configurePermissions && configurePermissions.checked) {
+              e.preventDefault();
+              
+              const formData = new FormData(this);
+              formData.append('configure_permissions', 'true');
+              
+              // Show loading state
+              const submitBtn = this.querySelector('.submit-btn') || this.querySelector('button[type="submit"]');
+              let originalText = '';
+              if (submitBtn) {
+                originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+              }
+              
+              fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest',
+                }
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  // Close create account modal
+                  document.getElementById('createAccountModal').style.display = 'none';
+                  createAccountForm.reset();
+                  customPermissionsOption.style.display = 'none';
+                  
+                  // Show success message
+                  const messagesDiv = document.querySelector('.messages') || createMessagesContainer();
+                  const successMsg = document.createElement('div');
+                  successMsg.className = 'alert alert-success';
+                  successMsg.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    Account created successfully for ${data.username}! Now configure permissions.
+                    <button class="message-close">&times;</button>
+                  `;
+                  messagesDiv.appendChild(successMsg);
+                  
+                  // Auto-dismiss after 5 seconds
+                  setTimeout(() => {
+                    successMsg.classList.add('slide-out');
+                    setTimeout(() => successMsg.remove(), 300);
+                  }, 5000);
+                  
+                  // Open permissions modal
+                  setTimeout(() => {
+                    openPermissionsModal(data.user_id);
+                  }, 500);
+                } else {
+                  // Display errors
+                  let errorMessage = data.error || 'Unknown error';
+                  if (data.errors) {
+                    errorMessage += '\\n\\n';
+                    for (const [field, errors] of Object.entries(data.errors)) {
+                      errorMessage += `${field}: ${errors.join(', ')}\\n`;
+                    }
+                  }
+                  alert('Error creating account:\\n\\n' + errorMessage);
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('Error creating account. Please try again.');
+              })
+              .finally(() => {
+                if (submitBtn) {
+                  submitBtn.disabled = false;
+                  submitBtn.textContent = originalText;
+                }
+              });
+            }
+            // If not admin or configure permissions not checked, submit normally
+          });
+        }
+
+        function createMessagesContainer() {
+          let container = document.querySelector('.messages');
+          if (!container) {
+            container = document.createElement('div');
+            container.className = 'messages';
+            document.body.insertBefore(container, document.body.firstChild);
+          }
+          return container;
+        }
+
         // Auto-dismiss messages after 5 seconds
         const messages = document.querySelectorAll('.messages > div');
         messages.forEach(function(message) {
@@ -1046,6 +1215,17 @@
             const userId = e.target.getAttribute('data-user-id');
             const username = e.target.getAttribute('data-username');
             toggleUserStatus(userId, username, e.target);
+          }
+        });
+
+        // Event delegation for permissions button
+        document.addEventListener('click', function(e) {
+          if (e.target.closest('.btn-permissions')) {
+            const button = e.target.closest('.btn-permissions');
+            const userId = button.getAttribute('data-user-id');
+            if (userId) {
+              openPermissionsModal(userId);
+            }
           }
         });
       });
@@ -1126,7 +1306,238 @@
       });
     </script>
     {% endif %}
+
+    <!-- Permissions Modal -->
+    <div id="permissionsModal" class="modal" style="display: none; z-index: 2000;">
+      <div class="modal-content" style="max-width: 1200px; max-height: 90vh; overflow-y: auto;">
+        <span class="close" onclick="closePermissionsModal()" style="position: absolute; right: 20px; top: 15px; font-size: 28px; cursor: pointer;">&times;</span>
+        <h2 style="margin-top: 0; padding-bottom: 15px; border-bottom: 2px solid #152d64; color: #152d64;">
+          <i class="fas fa-user-shield"></i> Manage Admin Permissions
+        </h2>
+        
+        <div id="permissionsContent">
+          <div style="text-align: center; padding: 40px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #666;"></i>
+            <p>Loading permissions...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentPermissionsUserId = null;
+
+      function openPermissionsModal(userId) {
+        currentPermissionsUserId = userId;
+        const modal = document.getElementById('permissionsModal');
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent body scroll
+        
+        // Load permissions data via AJAX
+        fetch(`/get-user-permissions/${userId}/`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              renderPermissionsForm(data);
+            } else {
+              document.getElementById('permissionsContent').innerHTML = `
+                <div style="color: #dc3545; padding: 20px; text-align: center;">
+                  <i class="fas fa-exclamation-triangle"></i> ${data.error || 'Failed to load permissions'}
+                </div>`;
+            }
+          })
+          .catch(error => {
+            console.error('Error loading permissions:', error);
+            document.getElementById('permissionsContent').innerHTML = `
+              <div style="color: #dc3545; padding: 20px; text-align: center;">
+                <i class="fas fa-exclamation-triangle"></i> Error loading permissions
+              </div>`;
+          });
+      }
+
+      function closePermissionsModal() {
+        const modal = document.getElementById('permissionsModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; // Restore body scroll
+        currentPermissionsUserId = null;
+        
+        // Reset content to loading state
+        document.getElementById('permissionsContent').innerHTML = `
+          <div style="text-align: center; padding: 40px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #666;"></i>
+            <p>Loading permissions...</p>
+          </div>
+        `;
+      }
+
+      function renderPermissionsForm(data) {
+        const userInfo = `
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+            <strong style="color: #152d64;">User:</strong> ${data.user_profile.username} 
+            ${data.user_profile.full_name ? '<span style="color: #666;">(' + data.user_profile.full_name + ')</span>' : ''}
+            <br>
+            <strong style="color: #152d64;">Role:</strong> ${data.user_profile.role}
+            ${data.user_profile.department ? '<br><strong style="color: #152d64;">Department:</strong> ' + data.user_profile.department : ''}
+          </div>
+        `;
+
+        const accessControl = `
+          <div style="background: #fff8e1; border: 2px solid #f0b429; padding: 16px; border-radius: 6px; margin-bottom: 20px;">
+            <h4 style="margin: 0 0 10px 0; color: #152d64; display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-key" style="color: #f0b429;"></i> Access Control Level
+            </h4>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #333;">
+              <input type="checkbox" id="hasLimitedAccess" 
+                     ${data.user_profile.has_limited_access ? 'checked' : ''}
+                     onchange="togglePermissionsSection()"
+                     style="width: 18px; height: 18px; accent-color: #152d64; cursor: pointer;">
+              <span><strong>Enable Limited Access</strong> - When checked, admin can only perform selected actions below</span>
+            </label>
+          </div>
+        `;
+
+        const permissionsGrid = data.all_permissions.map(perm => `
+          <div class="permission-card" style="background: white; border: 1px solid #dee2e6; border-radius: 6px; padding: 14px; transition: all 0.2s;">
+            <label style="display: flex; align-items: flex-start; cursor: pointer; user-select: none;">
+              <input type="checkbox" 
+                     name="permissions" 
+                     value="${perm.id}"
+                     class="permission-check"
+                     ${data.user_permission_ids.includes(perm.id) ? 'checked' : ''}
+                     style="width: 16px; height: 16px; margin-right: 10px; margin-top: 2px; cursor: pointer; accent-color: #152d64;">
+              <div>
+                <div style="font-weight: 600; color: #152d64; margin-bottom: 4px;">${perm.name}</div>
+                <div style="font-size: 13px; color: #6c757d;">${perm.description}</div>
+              </div>
+            </label>
+          </div>
+        `).join('');
+
+        const selectAll = `
+          <div style="background: #e7f0ff; padding: 12px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #b3d4ff;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #152d64;">
+              <input type="checkbox" id="selectAllPerms" onchange="toggleAllPermissions(this)" style="width: 18px; height: 18px; cursor: pointer; accent-color: #152d64;">
+              <i class="fas fa-check-double" style="font-size: 14px;"></i> Select / Deselect All Permissions
+            </label>
+          </div>
+        `;
+
+        const permissionsSection = `
+          <div id="permissionsSection" style="${data.user_profile.has_limited_access ? '' : 'opacity: 0.5; pointer-events: none;'}">
+            <div style="background: #e7f0ff; padding: 12px; border-radius: 6px; margin-bottom: 15px; color: #152d64; border: 1px solid #b3d4ff;">
+              <i class="fas fa-info-circle"></i> Select specific permissions to grant this admin user
+            </div>
+            ${selectAll}
+            <h4 style="margin-bottom: 15px; color: #152d64; display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-tasks"></i> Available Permissions
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+              ${permissionsGrid}
+            </div>
+          </div>
+        `;
+
+        const buttons = `
+          <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 25px; padding-top: 20px; border-top: 2px solid #e9ecef;">
+            <button onclick="closePermissionsModal()" class="btn-cancel" style="padding: 10px 24px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: background 0.2s;">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+            <button onclick="savePermissions()" class="btn-save" style="padding: 10px 24px; background: #152d64; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: background 0.2s;">
+              <i class="fas fa-save"></i> Save Permissions
+            </button>
+          </div>
+        `;
+
+        document.getElementById('permissionsContent').innerHTML = 
+          userInfo + accessControl + permissionsSection + buttons;
+        
+        // Update select-all state
+        updateSelectAllState();
+      }
+
+      function togglePermissionsSection() {
+        const isLimited = document.getElementById('hasLimitedAccess').checked;
+        const section = document.getElementById('permissionsSection');
+        if (isLimited) {
+          section.style.opacity = '1';
+          section.style.pointerEvents = 'auto';
+        } else {
+          section.style.opacity = '0.5';
+          section.style.pointerEvents = 'none';
+        }
+      }
+
+      function toggleAllPermissions(checkbox) {
+        const isLimited = document.getElementById('hasLimitedAccess').checked;
+        if (!isLimited) return;
+        
+        const checkboxes = document.querySelectorAll('.permission-check');
+        checkboxes.forEach(cb => cb.checked = checkbox.checked);
+      }
+
+      function updateSelectAllState() {
+        const selectAll = document.getElementById('selectAllPerms');
+        const permissionChecks = document.querySelectorAll('.permission-check');
+        
+        if (!selectAll || permissionChecks.length === 0) return;
+        
+        const allChecked = Array.from(permissionChecks).every(cb => cb.checked);
+        const noneChecked = Array.from(permissionChecks).every(cb => !cb.checked);
+        
+        if (allChecked) {
+          selectAll.checked = true;
+          selectAll.indeterminate = false;
+        } else if (noneChecked) {
+          selectAll.checked = false;
+          selectAll.indeterminate = false;
+        } else {
+          selectAll.indeterminate = true;
+        }
+
+        // Add change listeners to update select-all state
+        permissionChecks.forEach(checkbox => {
+          checkbox.addEventListener('change', updateSelectAllState);
+        });
+      }
+
+      function savePermissions() {
+        const hasLimitedAccess = document.getElementById('hasLimitedAccess').checked;
+        const selectedPermissions = Array.from(document.querySelectorAll('.permission-check:checked'))
+          .map(cb => cb.value);
+        
+        const formData = new FormData();
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+        formData.append('has_limited_access', hasLimitedAccess ? 'on' : '');
+        selectedPermissions.forEach(permId => {
+          formData.append('permissions', permId);
+        });
+
+        fetch(`/save-user-permissions/${currentPermissionsUserId}/`, {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            closePermissionsModal();
+            location.reload(); // Reload to show success message
+          } else {
+            alert('Error: ' + (data.error || 'Failed to save permissions'));
+          }
+        })
+        .catch(error => {
+          console.error('Error saving permissions:', error);
+          alert('Error saving permissions');
+        });
+      }
+
+      // Close permissions modal when clicking outside (but not other modals)
+      document.getElementById('permissionsModal').addEventListener('click', function(event) {
+        if (event.target === this) {
+          closePermissionsModal();
+        }
+      });
+    </script>
   </body>
 </html>
-
 
