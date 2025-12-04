@@ -62,34 +62,53 @@
         
         <!-- Tally Filter -->
         <div class="section-filter">
-            <form method="get" class="filter-form-section" id="tally-filter-form">
-                <input type="hidden" name="tally_view" value="1">
-                <div class="filter-group">
-                    <label for="tally-year-filter"><i class="fas fa-calendar-alt"></i> Year:</label>
-                    <select name="tally_year" id="tally-year-filter" class="year-select" onchange="document.getElementById('tally-filter-form').submit()">
-                        <option value="">All Years</option>
-                        {% for year in available_years %}
-                            <option value="{{ year }}" {% if tally_year_filter == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
-                        {% endfor %}
-                    </select>
+            <div class="simple-filter-container">
+                <button id="tallyFilterToggleBtn" class="simple-filter-toggle" type="button">
+                    <i class="fas fa-filter"></i> Filters 
+                    <span id="tallyActiveFilterCount" class="filter-count">0</span>
+                    <i class="fas fa-chevron-down filter-chevron"></i>
+                </button>
+                <div id="tallyFilterDropdown" class="simple-filter-dropdown">
+                    <!-- Year Filter -->
+                    <div class="simple-filter-group">
+                        <div class="simple-filter-header">
+                            <i class="fas fa-calendar-alt"></i> Year
+                        </div>
+                        <div class="simple-filter-options">
+                            <label class="simple-filter-option">
+                                <input type="radio" name="tally_year" value="" {% if not tally_year_filter %}checked{% endif %}>
+                                <span class="filter-text">All Years</span>
+                            </label>
+                            {% for year in available_years %}
+                            <label class="simple-filter-option">
+                                <input type="radio" name="tally_year" value="{{ year }}" {% if tally_year_filter == year|stringformat:"s" %}checked{% endif %}>
+                                <span class="filter-text">{{ year }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Month Filter -->
+                    <div class="simple-filter-group">
+                        <div class="simple-filter-header">
+                            <i class="fas fa-calendar"></i> Month
+                        </div>
+                        <div class="simple-filter-options">
+                            <label class="simple-filter-option">
+                                <input type="radio" name="tally_month" value="" {% if not tally_month_filter %}checked{% endif %}>
+                                <span class="filter-text">All Months</span>
+                            </label>
+                            {% for month_num, month_name in month_names %}
+                            <label class="simple-filter-option">
+                                <input type="radio" name="tally_month" value="{{ month_num }}" {% if tally_month_filter == month_num|stringformat:"s" %}checked{% endif %}>
+                                <span class="filter-text">{{ month_name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="filter-group">
-                    <label for="tally-month-filter"><i class="fas fa-calendar"></i> Month:</label>
-                    <select name="tally_month" id="tally-month-filter" class="month-select" onchange="document.getElementById('tally-filter-form').submit()">
-                        <option value="">All Months</option>
-                        {% for month_num, month_name in month_names %}
-                            <option value="{{ month_num }}" {% if tally_month_filter == month_num|stringformat:"s" %}selected{% endif %}>{{ month_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                {% if tally_year_filter or tally_month_filter %}
-                <a href="?items_view=1" class="btn-clear-filter btn-small">
-                    <i class="fas fa-times"></i> Clear
-                </a>
-                {% endif %}
-            </form>
+                <div id="tallyFilterBackdrop" class="filter-backdrop"></div>
+            </div>
         </div>
         
         {% if tally_data %}
@@ -97,26 +116,22 @@
                 <table class="summary-table">
                     <thead>
                         <tr>
+                            <th>Supply ID</th>
                             <th>Item Name</th>
-                            <th>Category</th>
-                            <th>Total Requested</th>
+                            <th class="hide-mobile">Category</th>
+                            <th class="hide-mobile">Total Requested</th>
                             <th>Total Approved</th>
-                            <th>Number of Requests</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in tally_data %}
                         <tr>
+                            <td class="request-id">{{ item.supply_id }}</td>
                             <td class="item-name">{{ item.item_name }}</td>
-                            <td>{{ item.category }}</td>
-                            <td class="qty-cell">
-                                <strong>{{ item.total_quantity }}</strong>
-                            </td>
+                            <td class="hide-mobile">{{ item.category }}</td>
+                            <td class="qty-cell hide-mobile">{{ item.total_quantity }}</td>
                             <td class="qty-cell">
                                 <strong style="color: #28a745;">{{ item.total_approved }}</strong>
-                            </td>
-                            <td class="qty-cell">
-                                <span class="request-count-badge">{{ item.request_count }}</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -187,38 +202,59 @@
         
         <!-- Items Table Filter -->
         <div class="section-filter">
-            <form method="get" class="filter-form-section" id="items-filter-form">
-                <input type="hidden" name="items_view" value="1">
-                <div class="filter-group">
-                    <label for="items-year-filter"><i class="fas fa-calendar-alt"></i> Year:</label>
-                    <select name="items_year" id="items-year-filter" class="year-select" onchange="document.getElementById('items-filter-form').submit()">
-                        <option value="">All Years</option>
-                        {% for year in available_years %}
-                            <option value="{{ year }}" {% if items_year_filter == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label for="items-month-filter"><i class="fas fa-calendar"></i> Month:</label>
-                    <select name="items_month" id="items-month-filter" class="month-select" onchange="document.getElementById('items-filter-form').submit()">
-                        <option value="">All Months</option>
-                        {% for month_num, month_name in month_names %}
-                            <option value="{{ month_num }}" {% if items_month_filter == month_num|stringformat:"s" %}selected{% endif %}>{{ month_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                {% if items_year_filter or items_month_filter %}
-                <a href="?tally_view=1" class="btn-clear-filter btn-small">
-                    <i class="fas fa-times"></i> Clear
+            <div class="filter-controls-wrapper">
+                <a href="{% url 'export_requests_summary_pdf' %}?year={{ items_year_filter }}&month={{ items_month_filter }}" class="btn-export btn-small">
+                    <i class="fas fa-file-pdf"></i> Export to PDF
                 </a>
-                {% endif %}
-            </form>
-            
-            <a href="{% url 'export_requests_summary_pdf' %}?year={{ items_year_filter }}&month={{ items_month_filter }}" class="btn-export btn-small">
-                <i class="fas fa-file-pdf"></i> Export to PDF
-            </a>
+                
+                <div class="simple-filter-container">
+                    <button id="itemsFilterToggleBtn" class="simple-filter-toggle" type="button">
+                        <i class="fas fa-filter"></i> Filters 
+                        <span id="itemsActiveFilterCount" class="filter-count">0</span>
+                        <i class="fas fa-chevron-down filter-chevron"></i>
+                    </button>
+                    <div id="itemsFilterDropdown" class="simple-filter-dropdown">
+                        <!-- Year Filter -->
+                        <div class="simple-filter-group">
+                            <div class="simple-filter-header">
+                                <i class="fas fa-calendar-alt"></i> Year
+                            </div>
+                            <div class="simple-filter-options">
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="items_year" value="" {% if not items_year_filter %}checked{% endif %}>
+                                    <span class="filter-text">All Years</span>
+                                </label>
+                                {% for year in available_years %}
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="items_year" value="{{ year }}" {% if items_year_filter == year|stringformat:"s" %}checked{% endif %}>
+                                    <span class="filter-text">{{ year }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Month Filter -->
+                        <div class="simple-filter-group">
+                            <div class="simple-filter-header">
+                                <i class="fas fa-calendar"></i> Month
+                            </div>
+                            <div class="simple-filter-options">
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="items_month" value="" {% if not items_month_filter %}checked{% endif %}>
+                                    <span class="filter-text">All Months</span>
+                                </label>
+                                {% for month_num, month_name in month_names %}
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="items_month" value="{{ month_num }}" {% if items_month_filter == month_num|stringformat:"s" %}checked{% endif %}>
+                                    <span class="filter-text">{{ month_name }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="itemsFilterBackdrop" class="filter-backdrop"></div>
+                </div>
+            </div>
         </div>
         
         {% if items_summary %}
@@ -394,6 +430,166 @@
     flex-wrap: wrap;
 }
 
+.filter-controls-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.simple-filter-container {
+    position: relative;
+    display: inline-block;
+    z-index: 10001;
+}
+
+.simple-filter-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #495057;
+    transition: all 0.2s ease;
+    min-width: auto;
+    width: auto;
+    justify-content: space-between;
+}
+
+.simple-filter-toggle:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.simple-filter-toggle.active {
+    background-color: #152d64;
+    color: white;
+    border-color: #152d64;
+}
+
+.filter-count {
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 11px;
+    min-width: 18px;
+    text-align: center;
+    display: none;
+}
+
+.filter-count.show {
+    display: inline-block;
+}
+
+.filter-chevron {
+    transition: transform 0.2s ease;
+    font-size: 12px;
+}
+
+.simple-filter-toggle.active .filter-chevron {
+    transform: rotate(180deg);
+}
+
+.simple-filter-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: auto;
+    background-color: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    display: none;
+    padding: 12px;
+    min-width: 200px;
+    max-width: 280px;
+    margin-top: 4px;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+}
+
+.simple-filter-dropdown.show {
+    display: block;
+}
+
+.simple-filter-group {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.simple-filter-group:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.simple-filter-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.simple-filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.simple-filter-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 6px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    font-size: 12px;
+    margin: 0;
+}
+
+.simple-filter-option:hover {
+    background-color: #f8f9fa;
+}
+
+.simple-filter-option input[type="radio"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #152d64;
+}
+
+.filter-text {
+    color: #495057;
+    flex: 1;
+}
+
+.filter-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.filter-backdrop.show {
+    display: block;
+}
+
 .filter-form-section {
     display: flex;
     align-items: center;
@@ -562,7 +758,7 @@
 }
 
 .stat-content h3 {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 700;
     color: #152d64;
     margin: 0 0 5px 0;
@@ -579,6 +775,8 @@
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
+    position: relative;
+    z-index: 1;
 }
 
 .table-section h2 {
@@ -746,35 +944,126 @@
         align-items: stretch;
     }
     
-    .filter-form {
+    .section-filter {
         flex-direction: column;
-        gap: 12px;
-        width: 100%;
+        padding: 12px;
+        gap: 10px;
     }
     
-    .filter-group {
-        flex-direction: column;
-        align-items: flex-start;
-        width: 100%;
-        gap: 6px;
+    .filter-controls-wrapper {
+        flex-direction: row;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
     }
     
-    .year-select, .month-select {
-        width: 100%;
+    .simple-filter-container {
+        width: auto;
+        flex: 0 0 auto;
     }
     
-    .btn-clear-filter {
-        width: 100%;
-        justify-content: center;
+    .simple-filter-toggle {
+        width: auto;
+        min-height: 44px;
+        padding: 12px 16px;
+        font-size: 14px;
     }
     
     .btn-export {
-        width: 100%;
+        flex: 1;
         justify-content: center;
+        padding: 12px 18px;
+        min-height: 44px;
+    }
+    
+    .simple-filter-dropdown {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translate(-50%, -50%) !important;
+        width: 90% !important;
+        max-width: 90vw !important;
+        min-width: auto !important;
+        max-height: 80vh !important;
+        overflow-y: auto !important;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+        border: 2px solid #152d64;
+        background: white;
+        z-index: 9999 !important;
+        padding: 20px;
+        margin-top: 0;
+    }
+    
+    .simple-filter-group {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+    }
+    
+    .simple-filter-header {
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    
+    .simple-filter-option {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+    
+    .filter-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(0, 0, 0, 0.5) !important;
+        z-index: 9998 !important;
+    }
+    
+    .filter-backdrop.show {
+        display: block;
+    }
+    
+    .btn-export {
+        flex: 1;
+        justify-content: center;
+        padding: 12px 18px;
+        min-height: 44px;
     }
     
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stat-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px 15px;
+        gap: 10px;
+    }
+    
+    .stat-icon {
+        width: auto;
+        height: auto;
+        font-size: 32px;
+        background: none !important;
+        border-radius: 0;
+        color: #152d64;
+    }
+    
+    .stat-icon i {
+        display: block;
+        line-height: 1;
+        color: #152d64;
+    }
+    
+    .stat-content h3 {
+        font-size: 24px;
+    }
+    
+    .stat-content p {
+        font-size: 12px;
     }
     
     .summary-table {
@@ -784,6 +1073,10 @@
     .summary-table thead th,
     .summary-table tbody td {
         padding: 8px;
+    }
+    
+    .hide-mobile {
+        display: none !important;
     }
     
     .empty-state .btn-primary {
@@ -858,4 +1151,186 @@
     font-size: 14px;
 }
 </style>
+
+<script>
+// Tally Filter Toggle
+const tallyFilterToggleBtn = document.getElementById('tallyFilterToggleBtn');
+const tallyFilterDropdown = document.getElementById('tallyFilterDropdown');
+const tallyFilterBackdrop = document.getElementById('tallyFilterBackdrop');
+const tallyActiveFilterCount = document.getElementById('tallyActiveFilterCount');
+
+if (tallyFilterToggleBtn && tallyFilterDropdown) {
+    tallyFilterToggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        tallyFilterDropdown.classList.toggle('show');
+        tallyFilterToggleBtn.classList.toggle('active');
+        if (tallyFilterBackdrop) {
+            tallyFilterBackdrop.classList.toggle('show');
+        }
+        if (tallyFilterDropdown.classList.contains('show')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!tallyFilterToggleBtn.contains(e.target) && !tallyFilterDropdown.contains(e.target)) {
+            tallyFilterDropdown.classList.remove('show');
+            tallyFilterToggleBtn.classList.remove('active');
+            if (tallyFilterBackdrop) {
+                tallyFilterBackdrop.classList.remove('show');
+            }
+            document.body.style.overflow = '';
+        }
+    });
+    
+    // Close dropdown when clicking backdrop
+    if (tallyFilterBackdrop) {
+        tallyFilterBackdrop.addEventListener('click', function(e) {
+            tallyFilterDropdown.classList.remove('show');
+            tallyFilterToggleBtn.classList.remove('active');
+            tallyFilterBackdrop.classList.remove('show');
+            document.body.style.overflow = '';
+        });
+    }
+}
+
+// Items Filter Toggle
+const itemsFilterToggleBtn = document.getElementById('itemsFilterToggleBtn');
+const itemsFilterDropdown = document.getElementById('itemsFilterDropdown');
+const itemsFilterBackdrop = document.getElementById('itemsFilterBackdrop');
+const itemsActiveFilterCount = document.getElementById('itemsActiveFilterCount');
+
+if (itemsFilterToggleBtn && itemsFilterDropdown) {
+    itemsFilterToggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        itemsFilterDropdown.classList.toggle('show');
+        itemsFilterToggleBtn.classList.toggle('active');
+        if (itemsFilterBackdrop) {
+            itemsFilterBackdrop.classList.toggle('show');
+        }
+        if (itemsFilterDropdown.classList.contains('show')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!itemsFilterToggleBtn.contains(e.target) && !itemsFilterDropdown.contains(e.target)) {
+            itemsFilterDropdown.classList.remove('show');
+            itemsFilterToggleBtn.classList.remove('active');
+            if (itemsFilterBackdrop) {
+                itemsFilterBackdrop.classList.remove('show');
+            }
+            document.body.style.overflow = '';
+        }
+    });
+    
+    // Close dropdown when clicking backdrop
+    if (itemsFilterBackdrop) {
+        itemsFilterBackdrop.addEventListener('click', function(e) {
+            itemsFilterDropdown.classList.remove('show');
+            itemsFilterToggleBtn.classList.remove('active');
+            itemsFilterBackdrop.classList.remove('show');
+            document.body.style.overflow = '';
+        });
+    }
+}
+
+// Handle tally filter changes
+const tallyFilterInputs = document.querySelectorAll('#tallyFilterDropdown input[type="radio"]');
+tallyFilterInputs.forEach(input => {
+    input.addEventListener('change', function() {
+        setTimeout(() => {
+            applyTallyFilter();
+        }, 150);
+    });
+});
+
+// Handle items filter changes
+const itemsFilterInputs = document.querySelectorAll('#itemsFilterDropdown input[type="radio"]');
+itemsFilterInputs.forEach(input => {
+    input.addEventListener('change', function() {
+        setTimeout(() => {
+            applyItemsFilter();
+        }, 150);
+    });
+});
+
+// Update filter count badges
+function updateTallyFilterCount() {
+    const selectedYear = document.querySelector('input[name="tally_year"]:checked')?.value;
+    const selectedMonth = document.querySelector('input[name="tally_month"]:checked')?.value;
+    let count = 0;
+    if (selectedYear) count++;
+    if (selectedMonth) count++;
+    
+    if (count > 0) {
+        tallyActiveFilterCount.textContent = count;
+        tallyActiveFilterCount.classList.add('show');
+    } else {
+        tallyActiveFilterCount.classList.remove('show');
+    }
+}
+
+function updateItemsFilterCount() {
+    const selectedYear = document.querySelector('input[name="items_year"]:checked')?.value;
+    const selectedMonth = document.querySelector('input[name="items_month"]:checked')?.value;
+    let count = 0;
+    if (selectedYear) count++;
+    if (selectedMonth) count++;
+    
+    if (count > 0) {
+        itemsActiveFilterCount.textContent = count;
+        itemsActiveFilterCount.classList.add('show');
+    } else {
+        itemsActiveFilterCount.classList.remove('show');
+    }
+}
+
+function applyTallyFilter() {
+    const year = document.querySelector('input[name="tally_year"]:checked')?.value;
+    const month = document.querySelector('input[name="tally_month"]:checked')?.value;
+    let url = '?tally_view=1';
+    if (year) url += '&tally_year=' + year;
+    if (month) url += '&tally_month=' + month;
+    window.location.href = url;
+}
+
+function applyItemsFilter() {
+    const year = document.querySelector('input[name="items_year"]:checked')?.value;
+    const month = document.querySelector('input[name="items_month"]:checked')?.value;
+    let url = '?items_view=1';
+    if (year) url += '&items_year=' + year;
+    if (month) url += '&items_month=' + month;
+    window.location.href = url;
+}
+
+// Initialize filter counts on page load
+updateTallyFilterCount();
+updateItemsFilterCount();
+
+// Save scroll position before pagination click
+document.addEventListener('DOMContentLoaded', function() {
+    // Restore scroll position on page load
+    const savedScrollPos = sessionStorage.getItem('summaryScrollPos');
+    if (savedScrollPos) {
+        window.scrollTo(0, parseInt(savedScrollPos));
+        sessionStorage.removeItem('summaryScrollPos');
+    }
+    
+    // Save scroll position when pagination links are clicked
+    const paginationLinks = document.querySelectorAll('.pagination .page-link:not(.disabled)');
+    paginationLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            sessionStorage.setItem('summaryScrollPos', window.scrollY || window.pageYOffset);
+        });
+    });
+});
+</script>
+
 {% endblock %}
