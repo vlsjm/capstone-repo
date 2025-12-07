@@ -2077,7 +2077,7 @@
                 </td>
                 <td>{{ batch_request.request_date|date:"M d, Y" }}</td>
                 <td>
-                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link">
+                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link save-scroll-position">
                     <i class="fas fa-external-link-alt"></i> View
                   </a>
                 </td>
@@ -2218,7 +2218,7 @@
                 <td>{{ batch_request.approved_date|date:"M d, Y"|default:"N/A" }}</td>
                 <td>
                   <div style="display: flex; gap: 8px; justify-content: center;">
-                    <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link">
+                    <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link save-scroll-position">
                       <i class="fas fa-external-link-alt"></i> View
                     </a>
                     <button type="button" 
@@ -2393,7 +2393,7 @@
                   {% endif %}
                 </td>
                 <td>
-                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link">
+                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link save-scroll-position">
                     <i class="fas fa-external-link-alt"></i> View
                   </a>
                 </td>
@@ -2544,7 +2544,7 @@
                 </td>
                 <td>{{ batch_request.request_date|date:"M d, Y" }}</td>
                 <td>
-                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link">
+                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link save-scroll-position">
                     <i class="fas fa-external-link-alt"></i> View
                   </a>
                 </td>
@@ -4174,6 +4174,77 @@
       </div>
     </div>
   </div>
+
+  <script>
+    // Scroll position, tab, and page number retention
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if we need to restore scroll position and page
+      const savedScroll = sessionStorage.getItem('requestsScrollPosition');
+      const savedTab = sessionStorage.getItem('requestsActiveTab');
+      const savedPage = sessionStorage.getItem('requestsActivePage');
+      
+      if (savedTab) {
+        // Restore active tab
+        const tabButton = document.querySelector(`[data-tab="${savedTab}"]`);
+        if (tabButton) {
+          tabButton.click();
+        }
+      }
+      
+      // Restore page number and scroll position after a short delay to allow DOM to settle
+      if (savedPage || savedScroll) {
+        setTimeout(() => {
+          // If there's a saved page, navigate to it
+          if (savedPage) {
+            const pageParam = savedPage; // This already includes the tab name, e.g., "pending_page=2"
+            const pageLink = document.querySelector(`a[href*="${pageParam}"]`);
+            if (pageLink) {
+              pageLink.click();
+              // Wait a bit more for pagination to update
+              setTimeout(() => {
+                if (savedScroll) {
+                  window.scrollTo(0, parseInt(savedScroll));
+                }
+              }, 200);
+            } else if (savedScroll) {
+              window.scrollTo(0, parseInt(savedScroll));
+            }
+          } else if (savedScroll) {
+            window.scrollTo(0, parseInt(savedScroll));
+          }
+          
+          // Clear the saved position and page
+          sessionStorage.removeItem('requestsScrollPosition');
+          sessionStorage.removeItem('requestsActiveTab');
+          sessionStorage.removeItem('requestsActivePage');
+        }, 100);
+      }
+    });
+    
+    // Save scroll position, page, and tab when clicking a detail link
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('.save-scroll-position')) {
+        // Get current scroll position
+        const scrollPosition = window.scrollY || window.pageYOffset;
+        sessionStorage.setItem('requestsScrollPosition', scrollPosition);
+        
+        // Get current active tab
+        const activeTab = document.querySelector('[data-tab].active');
+        if (activeTab) {
+          sessionStorage.setItem('requestsActiveTab', activeTab.getAttribute('data-tab'));
+        }
+        
+        // Get current page parameter from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTabName = activeTab ? activeTab.getAttribute('data-tab') : 'pending';
+        const pageParam = activeTabName + '_page';
+        const pageNumber = urlParams.get(pageParam) || '1';
+        
+        // Store as "tab_page=number" format for easy URL matching
+        sessionStorage.setItem('requestsActivePage', pageParam + '=' + pageNumber);
+      }
+    });
+  </script>
 
 </body>
 </html>

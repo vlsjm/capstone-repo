@@ -712,6 +712,7 @@ class SupplyRequestBatch(models.Model):
     purpose = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     approved_date = models.DateTimeField(null=True, blank=True)
+    approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_supply_requests')
     claimed_date = models.DateTimeField(null=True, blank=True)
     completed_date = models.DateTimeField(null=True, blank=True)
     claimed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='claimed_requests')

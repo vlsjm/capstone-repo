@@ -1569,7 +1569,7 @@
 
   <div class="batch-details">
     <div class="back-button-container">
-      <a href="{% url 'user_supply_requests' %}" class="btn btn-back">
+      <a href="{% url 'user_supply_requests' %}" class="btn btn-back restore-scroll-position">
         <i class="fas fa-arrow-left"></i> Back to Requests
       </a>
     </div>
@@ -1601,6 +1601,23 @@
           <strong>Request Date</strong>
           <span>{{ batch_request.request_date|date:"M d, Y H:i" }}</span>
         </div>
+        
+        {% if batch_request.status == 'for_claiming' %}
+        <div class="info-item">
+          <strong>Approved By</strong>
+          <span>
+            {% if batch_request.approved_by %}
+              {% if batch_request.approved_by.first_name or batch_request.approved_by.last_name %}
+                {{ batch_request.approved_by.first_name }} {{ batch_request.approved_by.last_name }}
+              {% else %}
+                {{ batch_request.approved_by.username }}
+              {% endif %}
+            {% else %}
+              Admin
+            {% endif %}
+          </span>
+        </div>
+        {% endif %}
         
         <div class="info-item">
           <strong>Purpose</strong>

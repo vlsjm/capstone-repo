@@ -6849,6 +6849,7 @@ def approve_batch_item(request, batch_id, item_id):
             # Set approved_date if not already set
             if not batch_request.approved_date:
                 batch_request.approved_date = timezone.now()
+                batch_request.approved_by = request.user
         else:
             batch_request.status = 'rejected'
     elif approved_items > 0:
@@ -6856,6 +6857,7 @@ def approve_batch_item(request, batch_id, item_id):
         # Set approved_date when first item is approved
         if not batch_request.approved_date:
             batch_request.approved_date = timezone.now()
+            batch_request.approved_by = request.user
     
     batch_request.save()
     
