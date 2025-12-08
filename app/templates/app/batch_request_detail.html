@@ -176,6 +176,18 @@
       border: 2px solid #bee5eb;
     }
     
+    .batch-status.status-cancelled {
+      background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+      color: white;
+      border: 2px solid #6c757d;
+    }
+    
+    .batch-status.status-voided {
+      background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+      color: white;
+      border: 2px solid #6c757d;
+    }
+    
     /* Table-based layout for better scalability */
     .items-container {
       background: white;
@@ -477,6 +489,12 @@
       background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
       color: #856404;
       border: 1px solid #ffeaa7;
+    }
+    
+    .status-voided {
+      background: linear-gradient(135deg, #e2e3e5 0%, #d6d8db 100%);
+      color: #383d41;
+      border: 1px solid #d6d8db;
     }
     
     /* Approved quantity styling */
@@ -1407,6 +1425,8 @@
       height: 100%;
       background-color: rgba(0, 0, 0, 0.6);
       animation: fadeIn 0.2s ease;
+      align-items: center;
+      justify-content: center;
     }
 
     .confirm-modal.show {
@@ -1658,18 +1678,27 @@
           <i class="fas fa-hand-paper"></i>
         {% elif batch_request.status == 'completed' %}
           <i class="fas fa-check-circle"></i>
+        {% elif batch_request.status == 'cancelled' %}
+          <i class="fas fa-times-circle"></i>
+        {% elif batch_request.status == 'voided' %}
+          <i class="fas fa-ban"></i>
         {% endif %}
         {{ batch_request.get_status_display }}
       </div>
       
       {% if batch_request.status == 'for_claiming' %}
-      <div style="margin-top: 20px;">
+      <div style="margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap;">
         <form method="post" action="{% url 'claim_batch_items' batch_request.id %}" style="display: none;" id="claimAllForm">
           {% csrf_token %}
         </form>
         <button type="button" class="btn btn-claim" onclick="openClaimModalForBatch()" style="font-size: 16px; padding: 12px 24px;">
           <i class="fas fa-barcode"></i> Claim All Items
         </button>
+        {% if can_void_request %}
+        <button type="button" class="btn btn-void-request" onclick="showVoidRequestModal()" style="font-size: 16px; padding: 12px 24px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;">
+          <i class="fas fa-ban"></i> Void Request
+        </button>
+        {% endif %}
       </div>
       {% endif %}
       
@@ -1775,6 +1804,10 @@
               {% elif item.status == 'completed' %}
                 <span class="status-badge status-approved" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);">
                   <i class="fas fa-check-circle"></i> Completed
+                </span>
+              {% elif item.status == 'voided' %}
+                <span class="status-badge status-voided">
+                  <i class="fas fa-ban"></i> Voided
                 </span>
               {% else %}
                 <span class="status-badge status-pending">
@@ -2963,6 +2996,94 @@
       </div>
     </div>
   </div>
+
+  <!-- Void Request Modal -->
+  <div id="voidRequestModal" class="confirm-modal" style="display: none;">
+    <div class="confirm-modal-content">
+      <div class="confirm-modal-header">
+        <i class="fas fa-exclamation-triangle confirm-modal-icon" style="color: #dc3545;"></i>
+        <h2 class="confirm-modal-title">Void Request</h2>
+      </div>
+      <div class="confirm-modal-body">
+        <p style="margin-bottom: 15px;">Are you sure you want to void this request? This action will:</p>
+        <ul style="text-align: left; margin: 10px auto 15px auto; padding-left: 20px; color: #495057; display: inline-block;">
+          <li>Mark the request status as voided</li>
+          <li>Release all reserved quantities back to available stock</li>
+          <li>Keep item approval statuses for record-keeping</li>
+        </ul>
+        <p style="font-weight: 600; color: #721c24; margin-top: 15px;">
+          <i class="fas fa-exclamation-circle"></i> Required: Provide a reason for voiding
+        </p>
+        <textarea id="voidRemarks" placeholder="Enter reason for voiding (required)..." 
+                  style="width: 100%; min-height: 80px; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; margin-top: 10px; font-family: inherit; resize: vertical;" required></textarea>
+      </div>
+      <div class="confirm-modal-footer">
+        <button type="button" class="btn-confirm-cancel" onclick="closeVoidRequestModal()">
+          <i class="fas fa-times"></i> Go Back
+        </button>
+        <button type="button" class="btn-confirm-action" onclick="submitVoidRequest()" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+          <i class="fas fa-ban"></i> Yes, Void Request
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showVoidRequestModal() {
+      document.getElementById('voidRequestModal').style.display = 'flex';
+    }
+
+    function closeVoidRequestModal() {
+      document.getElementById('voidRequestModal').style.display = 'none';
+      document.getElementById('voidRemarks').value = '';
+    }
+
+    function submitVoidRequest() {
+      const remarks = document.getElementById('voidRemarks').value.trim();
+      
+      // Validate that remarks is not empty
+      if (!remarks) {
+        alert('Please enter a reason for voiding this request.');
+        document.getElementById('voidRemarks').focus();
+        return;
+      }
+      
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '';
+      
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      const csrfInput = document.createElement('input');
+      csrfInput.type = 'hidden';
+      csrfInput.name = 'csrfmiddlewaretoken';
+      csrfInput.value = csrfToken;
+      form.appendChild(csrfInput);
+      
+      const actionInput = document.createElement('input');
+      actionInput.type = 'hidden';
+      actionInput.name = 'action';
+      actionInput.value = 'void_request';
+      form.appendChild(actionInput);
+      
+      // Add remarks (now required)
+      const remarksInput = document.createElement('input');
+      remarksInput.type = 'hidden';
+      remarksInput.name = 'remarks';
+      remarksInput.value = remarks;
+      form.appendChild(remarksInput);
+      document.body.appendChild(form);
+      form.submit();
+    }
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if (document.getElementById('voidRequestModal').style.display !== 'none') {
+          closeVoidRequestModal();
+        }
+      }
+    });
+  </script>
 
 </body>
 </html>

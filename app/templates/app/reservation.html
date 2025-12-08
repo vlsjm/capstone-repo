@@ -843,15 +843,18 @@
     }
     
     .reservation-indicator.approved {
-      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
     }
     
     .reservation-indicator.active {
-      background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+      background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+      color: #0c5460;
     }
     
     .reservation-indicator.completed {
-      background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+      color: #2d3748;
     }
     
     .reservation-indicator.rejected {
@@ -1433,6 +1436,11 @@
         <i class="fas fa-calendar-times"></i>
         Expired
         <span class="badge">{{ expired_count }}</span>
+      </button>
+      <button class="tab-button" onclick="showTab('voided', this)" id="voidedTab">
+        <i class="fas fa-ban"></i>
+        Voided
+        <span class="badge">{{ voided_count }}</span>
       </button>
       <button class="tab-button" onclick="showTab('calendar', this)" id="calendarTab">
         <i class="fas fa-calendar-alt"></i>
@@ -2341,6 +2349,135 @@
         {% endif %}
       </div>
 
+      <!-- Voided Reservations Tab -->
+      <div id="voided" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
+          <h3 style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Voided Reservations</h3>
+        </div>
+        {% if voided_reservations.object_list %}
+        <div class="reservations-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Reservation ID</th>
+                <th>Reserver</th>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Return Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for batch in voided_reservations.object_list %}
+              {% with first_item=batch.items.first %}
+              <tr class="expandable-row" data-reservation-id="{{ batch.id }}">
+                <td>
+                  <i class="fas fa-chevron-right expand-icon" id="icon-{{ batch.id }}"></i>
+                  <i class="fas fa-layer-group" title="Batch Reservation" style="color: #152d64; margin-right: 5px;"></i>
+                  RES-{{ batch.id|stringformat:"03d" }}
+                </td>
+                <td>
+                  <strong>
+                    {% with batch.user.first_name as first_name %}
+                    {% with batch.user.last_name as last_name %}
+                      {% if first_name or last_name %}
+                        {{ first_name }} {{ last_name }}
+                      {% else %}
+                        {{ batch.user.username }}
+                      {% endif %}
+                    {% endwith %}
+                    {% endwith %}
+                  </strong>
+                  <br>
+                  <small class="text-muted">{{ batch.user.userprofile.department }}</small>
+                </td>
+                <td>
+                  {% if first_item %}
+                    {{ first_item.property.property_name }}
+                    {% if batch.total_items > 1 %}
+                      <br><small style="color: #6c757d;"><i class="fas fa-layer-group"></i> Batch ({{ batch.total_items }} items)</small>
+                    {% endif %}
+                  {% else %}
+                    <em>No items</em>
+                  {% endif %}
+                </td>
+                <td>{{ batch.total_quantity }}</td>
+                <td>
+                  <span class="status-badge status-{{ batch.status|lower|cut:' ' }}">
+                    <i class="fas fa-ban"></i> {{ batch.get_status_display }}
+                  </span>
+                </td>
+                <td>{{ batch.latest_return_date|date:"M d, Y"|default:"N/A" }}</td>
+                <td>
+                  <a href="{% url 'reservation_batch_detail' batch.id %}" class="detail-link">
+                    <i class="fas fa-external-link-alt"></i> View
+                  </a>
+                </td>
+              {% endwith %}
+              </tr>
+              <tr class="details-row" id="details-{{ batch.id }}">
+                <td colspan="7">
+                  <div class="details-content">
+                    <div class="details-section">
+                      <h5>Batch Reservation Information</h5>
+                      <p><strong>Purpose:</strong> {{ batch.purpose }}</p>
+                      <p><strong>Request Date:</strong> {{ batch.request_date|date:"M d, Y H:i" }}</p>
+                      <p><strong>Total Items:</strong> {{ batch.total_items }}</p>
+                      <p><strong>Total Quantity:</strong> {{ batch.total_quantity }}</p>
+                      {% if batch.earliest_needed_date %}
+                        <p><strong>Earliest Needed Date:</strong> {{ batch.earliest_needed_date|date:"M d, Y" }}</p>
+                      {% endif %}
+                      {% if batch.latest_return_date %}
+                        <p><strong>Latest Return Date:</strong> {{ batch.latest_return_date|date:"M d, Y" }}</p>
+                      {% endif %}
+                    </div>
+                    <div class="details-section">
+                      <h5>Status Information</h5>
+                      <p><strong>Current Status:</strong> {{ batch.get_status_display }}</p>
+                      {% if batch.approved_date %}
+                        <p><strong>Approved Date:</strong> {{ batch.approved_date|date:"M d, Y H:i" }}</p>
+                      {% endif %}
+                      <p><strong>Department:</strong> {{ batch.user.userprofile.department }}</p>
+                      {% if batch.remarks %}
+                        <p><strong>Remarks:</strong> {{ batch.remarks }}</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <!-- Pagination for Voided -->
+        {% if voided_reservations.has_other_pages %}
+        <div class="pagination-container">
+          <div class="pagination">
+            {% if voided_reservations.has_previous %}
+              <a href="?voided_page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">&laquo; First</a>
+              <a href="?voided_page={{ voided_reservations.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+              Page {{ voided_reservations.number }} of {{ voided_reservations.paginator.num_pages }}
+            </span>
+
+            {% if voided_reservations.has_next %}
+              <a href="?voided_page={{ voided_reservations.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Next</a>
+              <a href="?voided_page={{ voided_reservations.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Last &raquo;</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+          <i class="fas fa-ban"></i>
+          <p>No voided reservations found.</p>
+        </div>
+        {% endif %}
+      </div>
+
       <!-- Calendar View Tab -->
       <div id="calendar" class="tab-content">
         <h3>Reservations Calendar</h3>
@@ -2365,10 +2502,6 @@
         <!-- Calendar Legend -->
         <div class="calendar-legend">
           <div class="legend-item">
-            <div class="legend-color status-pending"></div>
-            <span>Pending</span>
-          </div>
-          <div class="legend-item">
             <div class="legend-color status-approved"></div>
             <span>Approved</span>
           </div>
@@ -2379,14 +2512,6 @@
           <div class="legend-item">
             <div class="legend-color status-completed"></div>
             <span>Completed</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color status-rejected"></div>
-            <span>Rejected</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color status-expired"></div>
-            <span>Expired</span>
           </div>
         </div>
 
@@ -2696,7 +2821,8 @@
       return reservationData.filter(reservation => {
         const neededDate = reservation.neededDate;
         const returnDate = reservation.returnDate;
-        return dateString >= neededDate && dateString <= returnDate;
+        const allowedStatuses = ['approved', 'active', 'completed'];
+        return dateString >= neededDate && dateString <= returnDate && allowedStatuses.includes(reservation.status);
       });
     }
 

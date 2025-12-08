@@ -927,6 +927,91 @@ def reservation_batch_detail(request, batch_id):
     # Get the reservation batch
     batch = get_object_or_404(ReservationBatch.objects.select_related('user').prefetch_related('items__property'), id=batch_id)
     
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        remarks = request.POST.get('remarks', '').strip()
+        
+        # Handle void action for approved reservations
+        if action == 'void_request' and batch.status == 'approved':
+            # Check permission
+            from .permissions import has_admin_permission
+            if not has_admin_permission(request.user, 'void_request'):
+                messages.error(request, 'You do not have permission to void requests.')
+                return redirect('reservation_batch_detail', batch_id=batch_id)
+            
+            # Validate that remarks is provided
+            if not remarks:
+                messages.error(request, 'Please provide a reason for voiding this reservation.')
+                return redirect('reservation_batch_detail', batch_id=batch_id)
+            
+            # Release reserved quantities from approved items
+            approved_items = batch.items.filter(status='approved')
+            for item in approved_items:
+                # Release the reserved quantity
+                item.property.reserved_quantity = max(0, item.property.reserved_quantity - item.quantity)
+                item.property.save()
+            
+            # Update ALL items to voided status (not just approved ones)
+            batch.items.all().update(status='voided')
+            
+            # Change batch status to voided
+            batch.status = 'voided'
+            batch.remarks = remarks
+            batch.save()
+            
+            # Create notification for user
+            Notification.objects.create(
+                user=batch.user,
+                message=f"Your reservation batch #{batch.id} has been voided by admin.",
+                remarks=remarks
+            )
+            
+            # Send email notification to the requester
+            if batch.user.email:
+                from django.core.mail import send_mail
+                from django.conf import settings
+                
+                subject = f'Reservation Request #{batch.id} - Voided'
+                message = f"""Dear {batch.user.get_full_name() or batch.user.username},
+
+Your reservation request (Batch #{batch.id}) has been voided by the administrator.
+
+Reason for voiding:
+{remarks}
+
+All reserved quantities have been released back to the inventory.
+
+If you have any questions, please contact the administrator.
+
+Best regards,
+Resource Hive Management System
+"""
+                try:
+                    send_mail(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [batch.user.email],
+                        fail_silently=False,
+                    )
+                except Exception as e:
+                    # Log the error but don't fail the request
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Failed to send void notification email: {str(e)}")
+            
+            # Log activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='update',
+                model_name='ReservationBatch',
+                object_repr=f"Reservation Batch #{batch.id}",
+                description=f"Voided approved reservation, released reserved quantities. Reason: {remarks[:100]}"
+            )
+            
+            messages.success(request, 'Reservation voided successfully. Reserved quantities have been released and the requester has been notified.')
+            return redirect('reservation_batch_detail', batch_id=batch_id)
+    
     # Refresh the batch object to get updated item statuses
     batch = ReservationBatch.objects.select_related('user').prefetch_related('items__property').get(id=batch_id)
     
@@ -938,6 +1023,7 @@ def reservation_batch_detail(request, batch_id):
     for item in items:
         status_counts[item.status] = status_counts.get(item.status, 0) + 1
     
+    from .permissions import has_admin_permission
     context = {
         'batch': batch,
         'items': items,
@@ -947,6 +1033,7 @@ def reservation_batch_detail(request, batch_id):
         'total_items': batch.total_items,
         'total_quantity': batch.total_quantity,
         'status_counts': status_counts,
+        'can_void_request': has_admin_permission(request.user, 'void_request'),
     }
     
     return render(request, 'app/reservation_batch_detail.html', context)
@@ -2463,6 +2550,7 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         for_claiming_requests = base_queryset.filter(status='for_claiming')
         # Completed requests ordered by completion date (most recent first)
         completed_requests = base_queryset.filter(status='completed').order_by('-completed_date')
+        voided_requests = base_queryset.filter(status='voided').order_by('-request_date')
         
         # Paginate each category
         pending_paginator = Paginator(pending_requests, self.paginate_by)
@@ -2470,6 +2558,7 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         rejected_paginator = Paginator(rejected_requests, self.paginate_by)
         for_claiming_paginator = Paginator(for_claiming_requests, self.paginate_by)
         completed_paginator = Paginator(completed_requests, self.paginate_by)
+        voided_paginator = Paginator(voided_requests, self.paginate_by)
         
         # Get current page number for each tab
         pending_page = self.request.GET.get('pending_page', 1)
@@ -2477,6 +2566,7 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         rejected_page = self.request.GET.get('rejected_page', 1)
         for_claiming_page = self.request.GET.get('for_claiming_page', 1)
         completed_page = self.request.GET.get('completed_page', 1)
+        voided_page = self.request.GET.get('voided_page', 1)
         
         # Get the page objects
         context['pending_batch_requests'] = pending_paginator.get_page(pending_page)
@@ -2484,6 +2574,7 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         context['rejected_batch_requests'] = rejected_paginator.get_page(rejected_page)
         context['for_claiming_batch_requests'] = for_claiming_paginator.get_page(for_claiming_page)
         context['completed_batch_requests'] = completed_paginator.get_page(completed_page)
+        context['voided_batch_requests'] = voided_paginator.get_page(voided_page)
         
         # Add current tab to context
         context['current_tab'] = current_tab
@@ -2747,6 +2838,7 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         completed_batches = all_batches.filter(status='completed')
         rejected_batches = all_batches.filter(status='rejected')
         expired_batches = all_batches.filter(status='expired')
+        voided_batches = all_batches.filter(status='voided').order_by('-request_date')
         
         # Paginate each status group with 10 items per page
         paginate_by = 10
@@ -2759,6 +2851,7 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         completed_page = self.request.GET.get('completed_page', 1)
         rejected_page = self.request.GET.get('rejected_page', 1)
         expired_page = self.request.GET.get('expired_page', 1)
+        voided_page = self.request.GET.get('voided_page', 1)
         
         # Paginate all batches
         all_paginator = Paginator(all_batches, paginate_by)
@@ -2823,6 +2916,15 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         except EmptyPage:
             context['expired_reservations'] = expired_paginator.page(expired_paginator.num_pages)
         
+        # Paginate voided batches
+        voided_paginator = Paginator(voided_batches, paginate_by)
+        try:
+            context['voided_reservations'] = voided_paginator.page(voided_page)
+        except PageNotAnInteger:
+            context['voided_reservations'] = voided_paginator.page(1)
+        except EmptyPage:
+            context['voided_reservations'] = voided_paginator.page(voided_paginator.num_pages)
+        
         # Add total counts for badges
         context['all_count'] = all_paginator.count
         context['pending_count'] = pending_paginator.count
@@ -2831,6 +2933,7 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         context['completed_count'] = completed_paginator.count
         context['rejected_count'] = rejected_paginator.count
         context['expired_count'] = expired_paginator.count
+        context['voided_count'] = voided_paginator.count
         
         # Add departments for the filter dropdown
         context['departments'] = Department.objects.all()
@@ -6976,7 +7079,89 @@ def batch_request_detail(request, batch_id):
     if request.method == 'POST':
         action = request.POST.get('action')
         item_id = request.POST.get('item_id')
-        remarks = request.POST.get('remarks', '')
+        remarks = request.POST.get('remarks', '').strip()
+        
+        # Handle void action for for_claiming requests
+        if action == 'void_request' and batch_request.status == 'for_claiming':
+            # Check permission
+            from .permissions import has_admin_permission
+            if not has_admin_permission(request.user, 'void_request'):
+                messages.error(request, 'You do not have permission to void requests.')
+                return redirect('batch_request_detail', batch_id=batch_id)
+            
+            # Validate that remarks is provided
+            if not remarks:
+                messages.error(request, 'Please provide a reason for voiding this request.')
+                return redirect('batch_request_detail', batch_id=batch_id)
+            
+            # Release all reserved quantities from approved items
+            approved_items = batch_request.items.filter(status='approved')
+            for item in approved_items:
+                if item.approved_quantity:
+                    quantity_info = item.supply.quantity_info
+                    quantity_info.reserved_quantity = max(0, quantity_info.reserved_quantity - item.approved_quantity)
+                    quantity_info.save(user=request.user)
+            
+            # Update ALL items to voided status (not just approved ones)
+            batch_request.items.all().update(status='voided')
+            
+            # Change batch status to voided
+            batch_request.status = 'voided'
+            batch_request.remarks = remarks
+            batch_request.save()
+            
+            # Create notification for user
+            Notification.objects.create(
+                user=batch_request.user,
+                message=f"Your batch supply request #{batch_request.id} has been voided by admin.",
+                remarks=remarks
+            )
+            
+            # Send email notification to the requester
+            if batch_request.user.email:
+                from django.core.mail import send_mail
+                from django.conf import settings
+                
+                subject = f'Supply Request #{batch_request.id} - Voided'
+                message = f"""Dear {batch_request.user.get_full_name() or batch_request.user.username},
+
+Your supply request (Batch #{batch_request.id}) has been voided by the administrator.
+
+Reason for voiding:
+{remarks}
+
+All reserved quantities have been released back to the inventory.
+
+If you have any questions, please contact the administrator.
+
+Best regards,
+Resource Hive Management System
+"""
+                try:
+                    send_mail(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [batch_request.user.email],
+                        fail_silently=False,
+                    )
+                except Exception as e:
+                    # Log the error but don't fail the request
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Failed to send void notification email: {str(e)}")
+            
+            # Log activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='update',
+                model_name='SupplyRequestBatch',
+                object_repr=f"Batch Request #{batch_request.id}",
+                description=f"Voided for_claiming request, released reserved quantities. Reason: {remarks[:100]}"
+            )
+            
+            messages.success(request, 'Request voided successfully. Reserved quantities have been released and the requester has been notified.')
+            return redirect('batch_request_detail', batch_id=batch_id)
         
         if item_id:
             item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
@@ -7079,9 +7264,11 @@ def batch_request_detail(request, batch_id):
         
         return redirect('batch_request_detail', batch_id=batch_id)
     
+    from .permissions import has_admin_permission
     context = {
         'batch_request': batch_request,
-        'items': batch_request.items.all().order_by('supply__supply_name')
+        'items': batch_request.items.all().order_by('supply__supply_name'),
+        'can_void_request': has_admin_permission(request.user, 'void_request'),
     }
     
     return render(request, 'app/batch_request_detail.html', context)
@@ -7304,7 +7491,89 @@ def borrow_batch_request_detail(request, batch_id):
     if request.method == 'POST':
         action = request.POST.get('action')
         item_id = request.POST.get('item_id')
-        remarks = request.POST.get('remarks', '')
+        remarks = request.POST.get('remarks', '').strip()
+        
+        # Handle void action for for_claiming requests
+        if action == 'void_request' and batch_request.status == 'for_claiming':
+            # Check permission
+            from .permissions import has_admin_permission
+            if not has_admin_permission(request.user, 'void_request'):
+                messages.error(request, 'You do not have permission to void requests.')
+                return redirect('borrow_batch_request_detail', batch_id=batch_id)
+            
+            # Validate that remarks is provided
+            if not remarks:
+                messages.error(request, 'Please provide a reason for voiding this borrow request.')
+                return redirect('borrow_batch_request_detail', batch_id=batch_id)
+            
+            # Release reserved quantities from approved items
+            approved_items = batch_request.items.filter(status='approved')
+            for item in approved_items:
+                if item.approved_quantity:
+                    # Release the reserved quantity
+                    item.property.reserved_quantity = max(0, item.property.reserved_quantity - item.approved_quantity)
+                    item.property.save()
+            
+            # Update ALL items to voided status (not just approved ones)
+            batch_request.items.all().update(status='voided')
+            
+            # Change batch status to voided
+            batch_request.status = 'voided'
+            batch_request.remarks = remarks
+            batch_request.save()
+            
+            # Create notification for user
+            Notification.objects.create(
+                user=batch_request.user,
+                message=f"Your batch borrow request #{batch_request.id} has been voided by admin.",
+                remarks=remarks
+            )
+            
+            # Send email notification to the requester
+            if batch_request.user.email:
+                from django.core.mail import send_mail
+                from django.conf import settings
+                
+                subject = f'Borrow Request #{batch_request.id} - Voided'
+                message = f"""Dear {batch_request.user.get_full_name() or batch_request.user.username},
+
+Your borrow request (Batch #{batch_request.id}) has been voided by the administrator.
+
+Reason for voiding:
+{remarks}
+
+All reserved quantities have been released back to the inventory.
+
+If you have any questions, please contact the administrator.
+
+Best regards,
+Resource Hive Management System
+"""
+                try:
+                    send_mail(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [batch_request.user.email],
+                        fail_silently=False,
+                    )
+                except Exception as e:
+                    # Log the error but don't fail the request
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Failed to send void notification email: {str(e)}")
+            
+            # Log activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='update',
+                model_name='BorrowRequestBatch',
+                object_repr=f"Batch Borrow Request #{batch_request.id}",
+                description=f"Voided for_claiming request, released reserved quantities. Reason: {remarks[:100]}"
+            )
+            
+            messages.success(request, 'Borrow request voided successfully. Reserved quantities have been released and the requester has been notified.')
+            return redirect('borrow_batch_request_detail', batch_id=batch_id)
         
         if item_id:
             item = get_object_or_404(BorrowRequestItem, id=item_id, batch_request=batch_request)
@@ -7324,6 +7593,10 @@ def borrow_batch_request_detail(request, batch_id):
                     item.remarks = remarks
                 item.save()
                 
+                # Reserve the approved quantity
+                item.property.reserved_quantity += approved_quantity
+                item.property.save()
+                
                 # Create notification
                 Notification.objects.create(
                     user=batch_request.user,
@@ -7334,6 +7607,11 @@ def borrow_batch_request_detail(request, batch_id):
                 messages.success(request, f'Item "{item.property.property_name}" approved successfully.')
                 
             elif action == 'reject':
+                # If item was previously approved, release the reserved quantity
+                if item.status == 'approved' and item.approved_quantity:
+                    item.property.reserved_quantity = max(0, item.property.reserved_quantity - item.approved_quantity)
+                    item.property.save()
+                
                 item.status = 'rejected'
                 if remarks:
                     item.remarks = remarks
@@ -7389,9 +7667,11 @@ def borrow_batch_request_detail(request, batch_id):
         
         return redirect('borrow_batch_request_detail', batch_id=batch_id)
     
+    from .permissions import has_admin_permission
     context = {
         'batch': batch_request,
-        'items': batch_request.items.all().order_by('property__property_name')
+        'items': batch_request.items.all().order_by('property__property_name'),
+        'can_void_request': has_admin_permission(request.user, 'void_request'),
     }
     
     return render(request, 'app/borrow_batch_request_detail.html', context)
@@ -7684,8 +7964,11 @@ class ResourceAllocationDashboardView(PermissionRequiredMixin, TemplateView):
         # LAZY LOAD: Only fetch current tab's data
         # =========================
         if current_tab == 'borrow':
+            # Exclude items from voided or cancelled batch requests
             borrow_items = BorrowRequestItem.objects.filter(
                 Q(status='approved') | Q(status='active')
+            ).exclude(
+                Q(batch_request__status='voided') | Q(batch_request__status='cancelled')
             ).select_related('batch_request__user', 'batch_request__user__userprofile', 'property').order_by('-batch_request__request_date')
             
             # Apply filters for borrow
@@ -7794,8 +8077,11 @@ class ResourceAllocationDashboardView(PermissionRequiredMixin, TemplateView):
         
         elif current_tab == 'supply':
             # Only show approved supply items (once approved, they're allocated)
+            # Exclude items from voided or cancelled batch requests
             supply_items = SupplyRequestItem.objects.filter(
                 status='approved'
+            ).exclude(
+                Q(batch_request__status='voided') | Q(batch_request__status='cancelled')
             ).select_related('batch_request__user', 'batch_request__user__userprofile', 'supply').order_by('-batch_request__request_date')
             
             # Apply filters for supply
@@ -7965,6 +8251,7 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
         overdue_requests = base_queryset.filter(status='overdue')
         rejected_requests = base_queryset.filter(status='rejected')
         expired_requests = base_queryset.filter(status='expired')
+        voided_requests = base_queryset.filter(status='voided').order_by('-request_date')
         
         # Pagination for each tab
         paginator_pending = Paginator(pending_requests, self.paginate_by)
@@ -7974,6 +8261,7 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
         paginator_overdue = Paginator(overdue_requests, self.paginate_by)
         paginator_rejected = Paginator(rejected_requests, self.paginate_by)
         paginator_expired = Paginator(expired_requests, self.paginate_by)
+        paginator_voided = Paginator(voided_requests, self.paginate_by)
         
         # Get page numbers for each tab
         page_pending = self.request.GET.get('pending_page', 1)
@@ -7983,6 +8271,7 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
         page_overdue = self.request.GET.get('overdue_page', 1)
         page_rejected = self.request.GET.get('rejected_page', 1)
         page_expired = self.request.GET.get('expired_page', 1)
+        page_voided = self.request.GET.get('voided_page', 1)
         
         # Build URL parameters string for pagination
         url_params = ''
@@ -8004,6 +8293,7 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
             'overdue_requests': paginator_overdue.get_page(page_overdue),
             'rejected_requests': paginator_rejected.get_page(page_rejected),
             'expired_requests': paginator_expired.get_page(page_expired),
+            'voided_requests': paginator_voided.get_page(page_voided),
             'search_query': search_query,
             'department_filter': department_filter,
             'date_from': date_from,
@@ -8289,14 +8579,15 @@ def return_individual_borrow_item(request, batch_id, item_id):
         batch_request.save()
         
         # If this borrow batch was created from a reservation, update the reservation status
-        if batch_request.source_reservation_batch:
-            source_reservation = batch_request.source_reservation_batch
-            # Mark the reservation items as completed
-            source_reservation.items.filter(status='active').update(status='completed')
-            # Update the reservation batch status to completed if all items are done
-            if not source_reservation.items.filter(status__in=['pending', 'approved']).exists():
-                source_reservation.status = 'completed'
-                source_reservation.save()
+        source_reservations = batch_request.source_reservation_batch.all()
+        if source_reservations.exists():
+            for source_reservation in source_reservations:
+                # Mark the reservation items as completed
+                source_reservation.items.filter(status='active').update(status='completed')
+                # Update the reservation batch status to completed if all items are done
+                if not source_reservation.items.filter(status__in=['pending', 'approved']).exists():
+                    source_reservation.status = 'completed'
+                    source_reservation.save()
         
         # Notify user
         Notification.objects.create(

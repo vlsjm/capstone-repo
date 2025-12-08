@@ -125,6 +125,11 @@ class AdminPermission(models.Model):
                 'codename': 'manage_lost_items',
                 'description': 'Can mark items as lost/found and delete lost item reports'
             },
+            {
+                'name': 'Void Requests',
+                'codename': 'void_request',
+                'description': 'Can void supply, borrow, and reservation requests'
+            },
         ]
         
         for perm_data in default_permissions:
@@ -705,6 +710,8 @@ class SupplyRequestBatch(models.Model):
         ('partially_approved', 'Partially Approved'),
         ('for_claiming', 'For Claiming'),
         ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+        ('voided', 'Voided'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -774,6 +781,7 @@ class SupplyRequestItem(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
         ('completed', 'Completed'),
+        ('voided', 'Voided'),
     ]
     
     batch_request = models.ForeignKey(SupplyRequestBatch, on_delete=models.CASCADE, related_name='items')
@@ -825,6 +833,7 @@ class ReservationBatch(models.Model):
         ('active', 'Active'),
         ('completed', 'Completed'),
         ('expired', 'Expired'),
+        ('voided', 'Voided'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -1094,6 +1103,7 @@ class ReservationItem(models.Model):
         ('active', 'Active'),
         ('completed', 'Completed'),
         ('expired', 'Expired'),
+        ('voided', 'Voided'),
     ]
     
     batch_request = models.ForeignKey(ReservationBatch, on_delete=models.CASCADE, related_name='items')
@@ -1778,6 +1788,8 @@ class BorrowRequestBatch(models.Model):
         ('overdue', 'Overdue'),
         ('expired', 'Expired'),
         ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+        ('voided', 'Voided'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -2202,6 +2214,7 @@ class BorrowRequestItem(models.Model):
         ('returned', 'Returned'),
         ('overdue', 'Overdue'),
         ('completed', 'Completed'),
+        ('voided', 'Voided'),
     ]
     
     batch_request = models.ForeignKey(BorrowRequestBatch, on_delete=models.CASCADE, related_name='items')

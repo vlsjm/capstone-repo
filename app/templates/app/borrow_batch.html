@@ -972,6 +972,9 @@
       <button class="tab-button {% if current_tab == 'expired' %}active{% endif %}" data-tab="expired">
         <i class="fas fa-calendar-times"></i> Expired
       </button>
+      <button class="tab-button {% if current_tab == 'voided' %}active{% endif %}" data-tab="voided">
+        <i class="fas fa-ban"></i> Voided
+      </button>
     </div>
 
     <!-- Request Container -->
@@ -2052,6 +2055,152 @@
           
           {% if expired_requests.has_next %}
             <a href="?tab=expired&expired_page={{ expired_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Voided Requests Tab -->
+    <div id="voided" class="tab-content {% if current_tab == 'voided' %}active{% endif %}">
+      <h3>Voided Borrow Requests</h3>
+      {% if voided_requests %}
+        <div class="table-container">
+          <table class="requests-table">
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Requester</th>
+                <th>Purpose</th>
+                <th>Total Items</th>
+                <th>Status</th>
+                <th>Request Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for batch_request in voided_requests %}
+              <tr class="expandable-row" data-request-id="{{ batch_request.id }}">
+                <td>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-chevron-right expand-icon" id="icon-{{ batch_request.id }}"></i>
+                    <span class="request-id">{{ batch_request.id|stringformat:"03d" }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="requester-info">
+                    <strong>
+                      {% if batch_request.user.first_name or batch_request.user.last_name %}
+                        {{ batch_request.user.first_name }} {{ batch_request.user.last_name }}
+                      {% else %}
+                        {{ batch_request.user.username }}
+                      {% endif %}
+                    </strong>
+                    <small>{{ batch_request.user.userprofile.department }}</small>
+                  </div>
+                </td>
+                <td>{{ batch_request.purpose|truncatechars:50 }}</td>
+                <td>{{ batch_request.total_items }}</td>
+                <td>
+                  <span class="status-badge" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white; border: 2px solid #6c757d;">
+                    <i class="fas fa-ban"></i>
+                    {{ batch_request.get_status_display }}
+                  </span>
+                </td>
+                <td>{{ batch_request.request_date|date:"M d, Y" }}</td>
+                <td>
+                  <div style="display: flex; gap: 5px; align-items: center;">
+                    <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="btn btn-sm btn-primary">
+                      <i class="fas fa-eye"></i> View Details
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              <tr class="details-row" id="details-{{ batch_request.id }}">
+                <td colspan="7">
+                  <div class="details-content">
+                    <div class="details-grid">
+                      <div class="detail-item">
+                        <span class="detail-label">Request Date:</span>
+                        <span class="detail-value">{{ batch_request.request_date|date:"M d, Y H:i" }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Department:</span>
+                        <span class="detail-value">{{ batch_request.user.userprofile.department }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Full Purpose:</span>
+                        <span class="detail-value">{{ batch_request.purpose }}</span>
+                      </div>
+                      {% if batch_request.remarks %}
+                      <div class="detail-item">
+                        <span class="detail-label">Voiding Reason:</span>
+                        <span class="detail-value">{{ batch_request.remarks }}</span>
+                      </div>
+                      {% endif %}
+                    </div>
+                    <div class="items-section">
+                      <h4>Request Items</h4>
+                      <table class="items-table">
+                        <thead>
+                          <tr>
+                            <th>ITEM NAME</th>
+                            <th>QUANTITY</th>
+                            <th>RETURN DATE</th>
+                            <th>STATUS</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for item in batch_request.items.all %}
+                          <tr>
+                            <td>{{ item.property.property_name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.return_date|date:"M d, Y" }}</td>
+                            <td>
+                              <span class="status-badge status-{{ item.status|lower }}">
+                                {{ item.get_status_display }}
+                              </span>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="no-requests">
+          <i class="fas fa-ban"></i>
+          <p>No voided borrow requests found.</p>
+        </div>
+      {% endif %}
+
+      <!-- Pagination for Voided -->
+      {% if voided_requests.has_other_pages %}
+      <div class="pagination-container">
+        <div class="pagination-info">
+          Showing {{ voided_requests.start_index }}-{{ voided_requests.end_index }} of {{ voided_requests.paginator.count }} voided requests
+        </div>
+        <div class="pagination-controls">
+          {% if voided_requests.has_previous %}
+            <a href="?tab=voided&voided_page={{ voided_requests.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          {% endif %}
+          
+          <span class="pagination-current">
+            Page {{ voided_requests.number }} of {{ voided_requests.paginator.num_pages }}
+          </span>
+          
+          {% if voided_requests.has_next %}
+            <a href="?tab=voided&voided_page={{ voided_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
               <i class="fas fa-chevron-right"></i>
             </a>
           {% endif %}
