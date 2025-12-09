@@ -126,6 +126,7 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
             for item in batch.items.filter(status='completed'):
                 tally_items.append({
                     'type': 'Supply',
+                    'supply_id': item.supply.barcode or f"SUP-{item.supply.id}",
                     'item_name': item.supply.supply_name,
                     'category': item.supply.category.name if item.supply.category else 'Uncategorized',
                     'quantity': item.quantity,
@@ -139,6 +140,7 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
             if key not in tally_dict:
                 tally_dict[key] = {
                     'type': item['type'],
+                    'supply_id': item['supply_id'],
                     'item_name': item['item_name'],
                     'category': item['category'],
                     'total_quantity': 0,

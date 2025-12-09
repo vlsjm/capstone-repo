@@ -30,7 +30,7 @@
     height: 100vh;
     background-color: var(--sidebar-bg);
     border-right: 1px solid var(--sidebar-border);
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     z-index: 1000;
     display: flex;
@@ -38,28 +38,28 @@
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     transition: transform var(--transition), width var(--transition);
     border-radius: 0 20px 20px 0;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    padding-bottom: 20px;
 }
 
 .modern-sidebar::-webkit-scrollbar {
-    width: 0 !important;
-    display: none !important;
+    width: 8px;
 }
 
 .modern-sidebar::-webkit-scrollbar-track {
-    background: transparent !important;
-    display: none !important;
+    background: transparent;
+    margin: 10px 0;
 }
 
 .modern-sidebar::-webkit-scrollbar-thumb {
-    background-color: transparent !important;
-    display: none !important;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
 }
 
 .modern-sidebar::-webkit-scrollbar-thumb:hover {
-    background-color: transparent !important;
-    display: none !important;
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 /* ============================================
@@ -98,8 +98,8 @@
    ============================================ */
 
 .sidebar-content {
-    flex: 1;
-    overflow-y: auto;
+    flex: 1 1 auto;
+    overflow-y: visible;
     overflow-x: hidden;
     padding: 16px 0;
     display: flex;
@@ -287,10 +287,12 @@
    ============================================ */
 
 .sidebar-footer {
-    padding: 16px 20px;
-    background-color: transparent;
+    padding: 16px 20px 24px 20px;
+    background-color: rgba(15, 31, 66, 0.5);
+    backdrop-filter: blur(10px);
     flex-shrink: 0;
     margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar-footer-section {
@@ -436,6 +438,58 @@
    RESPONSIVE DESIGN
    ============================================ */
 
+/* Laptop Screens - Optimize for smaller heights */
+@media (max-width: 1440px) {
+    .sidebar-header {
+        padding: 16px 20px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 19px;
+    }
+
+    .sidebar-menu-link {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .sidebar-menu-link i {
+        font-size: 15px;
+    }
+
+    .sidebar-section-title {
+        padding: 10px 20px 6px 20px;
+        font-size: 11px;
+        margin-top: 2px;
+    }
+
+    .sidebar-group-toggle {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .sidebar-group-submenu .sidebar-menu-link {
+        padding: 8px 20px 8px 48px;
+        font-size: 13px;
+    }
+
+    .sidebar-footer {
+        padding: 10px 20px 16px 20px;
+    }
+
+    .sidebar-user-profile {
+        padding: 8px;
+    }
+
+    .sidebar-section {
+        margin-bottom: 4px;
+    }
+
+    .sidebar-content {
+        padding: 12px 0;
+    }
+}
+
 /* Tablet and Below - Collapse to Icons */
 @media (max-width: 1024px) {
     .modern-sidebar {
@@ -478,6 +532,68 @@
 
     .sidebar-close-btn:hover {
         transform: scale(1.1);
+    }
+}
+
+/* Compact Laptop Height - Further reduce spacing */
+@media (max-height: 850px) {
+    .sidebar-header {
+        padding: 14px 20px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 18px;
+    }
+
+    .sidebar-content {
+        padding: 10px 0;
+    }
+
+    .sidebar-menu-link {
+        padding: 9px 20px;
+        font-size: 13px;
+    }
+
+    .sidebar-menu-link i {
+        font-size: 14px;
+    }
+
+    .sidebar-section-title {
+        padding: 8px 20px 5px 20px;
+        font-size: 10px;
+        margin-top: 0;
+    }
+
+    .sidebar-group-toggle {
+        padding: 9px 20px;
+        font-size: 13px;
+    }
+
+    .sidebar-group-submenu .sidebar-menu-link {
+        padding: 7px 20px 7px 48px;
+        font-size: 12px;
+    }
+
+    .sidebar-footer {
+        padding: 8px 20px 12px 20px;
+    }
+
+    .sidebar-user-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 15px;
+    }
+
+    .sidebar-user-name {
+        font-size: 12px;
+    }
+
+    .sidebar-user-email {
+        font-size: 10px;
+    }
+
+    .sidebar-section {
+        margin-bottom: 3px;
     }
 }
 

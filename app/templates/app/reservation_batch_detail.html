@@ -113,6 +113,12 @@
       border: 2px solid #d3d4d6;
     }
     
+    .batch-status.status-voided {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+    }
+    
     .items-container {
       background: white;
       border-radius: 12px;
@@ -211,6 +217,12 @@
       background: linear-gradient(135deg, #e2e3e5 0%, #d3d4d6 100%);
       color: #383d41;
       border: 1px solid #d3d4d6;
+    }
+    
+    .status-badge.status-voided {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      color: #721c24;
+      border: 1px solid #f5c6cb;
     }
     
     .action-buttons {
@@ -380,10 +392,12 @@
       height: 100%;
       background-color: rgba(0, 0, 0, 0.6);
       animation: fadeIn 0.2s ease;
+      align-items: center;
+      justify-content: center;
     }
 
     .confirm-modal.show {
-      display: flex;
+      display: flex !important;
       align-items: center;
       justify-content: center;
     }
@@ -494,6 +508,27 @@
       transform: translateY(-1px);
     }
 
+    .remarks-textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      transition: border-color 0.3s ease;
+    }
+
+    .remarks-textarea:focus {
+      outline: none;
+      border-color: #152d64;
+      box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+    }
+
+    .remarks-textarea::placeholder {
+      color: #adb5bd;
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
@@ -513,6 +548,11 @@
 </head>
 <body>
   {% include 'app/navbar.html' %}
+  
+  <!-- Hidden form for CSRF token -->
+  <form id="hiddenCsrfForm" style="display: none;">
+    {% csrf_token %}
+  </form>
   
   <div class="batch-details">
     {% if messages %}
@@ -564,7 +604,7 @@
         <div class="info-item">
           <strong>Batch Status</strong>
           <span class="batch-status status-{{ batch_status }}">
-            <i class="fas fa-{% if batch_status == 'pending' %}clock{% elif batch_status == 'approved' %}check{% elif batch_status == 'rejected' %}times{% elif batch_status == 'active' %}play{% elif batch_status == 'expired' %}ban{% else %}info{% endif %}"></i>
+            <i class="fas fa-{% if batch_status == 'pending' %}clock{% elif batch_status == 'approved' %}check{% elif batch_status == 'rejected' %}times{% elif batch_status == 'active' %}play{% elif batch_status == 'expired' %}calendar-times{% elif batch_status == 'voided' %}ban{% else %}info{% endif %}"></i>
             {{ batch_status|capfirst }}
           </span>
         </div>
@@ -590,6 +630,14 @@
             <i class="fas fa-times"></i> Reject All Pending
           </button>
         </form>
+      </div>
+      {% endif %}
+      
+      {% if batch_status == 'approved' and can_void_request %}
+      <div style="margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap;">
+        <button type="button" class="btn btn-void-request" onclick="showVoidReservationModal()" style="font-size: 16px; padding: 12px 24px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;">
+          <i class="fas fa-ban"></i> Void Reservation
+        </button>
       </div>
       {% endif %}
     </div>
@@ -859,6 +907,120 @@
         });
       }
     }
+  </script>
+
+  <!-- Void Reservation Modal -->
+  <div id="voidReservationModal" class="confirm-modal">
+    <div class="confirm-modal-content">
+      <div class="confirm-modal-header">
+        <i class="fas fa-ban confirm-modal-icon" style="color: #dc3545;"></i>
+        <h2 class="confirm-modal-title" style="color: #dc3545;">Void Reservation</h2>
+      </div>
+      <div class="confirm-modal-body">
+        <p style="margin-bottom: 15px;">Are you sure you want to void this reservation? This action will:</p>
+        <ul style="list-style: none; padding-left: 20px; margin-bottom: 20px;">
+          <li style="margin-bottom: 8px;"><i class="fas fa-check-circle" style="color: #28a745; margin-right: 8px;"></i> Release all reserved quantities</li>
+          <li style="margin-bottom: 8px;"><i class="fas fa-times-circle" style="color: #dc3545; margin-right: 8px;"></i> Cancel the reservation</li>
+          <li style="margin-bottom: 8px;"><i class="fas fa-bell" style="color: #ffc107; margin-right: 8px;"></i> Notify the requester</li>
+        </ul>
+        <label for="voidReservationRemarks" style="display: block; font-weight: 600; margin-bottom: 5px; color: #152d64;">
+          Reason for voiding <span style="color: #dc3545;">*</span>
+        </label>
+        <textarea id="voidReservationRemarks" class="remarks-textarea" placeholder="Enter reason for voiding (required)" style="min-height: 80px;" required></textarea>
+      </div>
+      <div class="confirm-modal-footer">
+        <button type="button" class="btn-confirm-cancel" onclick="closeVoidReservationModal()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button type="button" class="btn-confirm-action" onclick="submitVoidReservation()" style="background: #dc3545;">
+          <i class="fas fa-ban"></i> Yes, Void Reservation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showVoidReservationModal() {
+      const modal = document.getElementById('voidReservationModal');
+      modal.classList.add('show');
+    }
+
+    function closeVoidReservationModal() {
+      const modal = document.getElementById('voidReservationModal');
+      modal.classList.remove('show');
+      document.getElementById('voidReservationRemarks').value = '';
+    }
+
+    function submitVoidReservation() {
+      const remarks = document.getElementById('voidReservationRemarks').value.trim();
+      
+      // Validate that remarks is not empty
+      if (!remarks) {
+        alert('Please enter a reason for voiding this reservation.');
+        document.getElementById('voidReservationRemarks').focus();
+        return;
+      }
+      
+      // Create form to submit
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = window.location.href;
+      
+      // Add CSRF token - get it from the hidden form
+      const csrfToken = document.querySelector('#hiddenCsrfForm [name=csrfmiddlewaretoken]');
+      if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken.value;
+        form.appendChild(csrfInput);
+      } else {
+        console.error('CSRF token not found');
+        alert('Security token not found. Please refresh the page and try again.');
+        return;
+      }
+      
+      // Add action
+      const actionInput = document.createElement('input');
+      actionInput.type = 'hidden';
+      actionInput.name = 'action';
+      actionInput.value = 'void_request';
+      form.appendChild(actionInput);
+      
+      // Add remarks (now required)
+      const remarksInput = document.createElement('input');
+      remarksInput.type = 'hidden';
+      remarksInput.name = 'remarks';
+      remarksInput.value = remarks;
+      form.appendChild(remarksInput);
+      if (remarks) {
+        const remarksInput = document.createElement('input');
+        remarksInput.type = 'hidden';
+        remarksInput.name = 'remarks';
+        remarksInput.value = remarks;
+        form.appendChild(remarksInput);
+      }
+      
+      document.body.appendChild(form);
+      form.submit();
+    }
+
+    // Close modal on ESC key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        const voidModal = document.getElementById('voidReservationModal');
+        if (voidModal && voidModal.classList.contains('show')) {
+          closeVoidReservationModal();
+        }
+      }
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('voidReservationModal').addEventListener('click', function(event) {
+      if (event.target === this) {
+        closeVoidReservationModal();
+      }
+    });
   </script>
 
   <!-- Confirmation Modal -->

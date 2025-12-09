@@ -751,6 +751,8 @@
             e.preventDefault();
             const type = this.getAttribute('data-type');
             
+            console.log('Pending filter clicked:', type);
+            
             // Remove selected attribute from all items
             pendingMenuItems.forEach(m => m.removeAttribute('selected'));
             
@@ -758,16 +760,36 @@
             this.setAttribute('selected', '');
             
             // Fetch new count for the selected type
-            fetch(`/userpanel/api/pending-count/?type=${type}`, {
+            const url = `/userpanel/api/pending-count/?type=${type}`;
+            console.log('Fetching from URL:', url);
+            
+            fetch(url, {
+              method: 'GET',
+              credentials: 'same-origin',
               headers: {
                 'X-CSRFToken': getCookie('csrftoken')
               }
             })
-            .then(response => response.json())
-            .then(data => {
-              document.getElementById('pendingCount').textContent = data.count;
+            .then(response => {
+              console.log('Response received:', response.status, response.statusText);
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
             })
-            .catch(error => console.error('Error fetching pending count:', error));
+            .then(data => {
+              console.log('Pending count response:', data);
+              const countElement = document.getElementById('pendingCount');
+              if (countElement) {
+                console.log('Updating count from', countElement.textContent, 'to', data.count);
+                countElement.textContent = data.count;
+              } else {
+                console.error('pendingCount element not found!');
+              }
+            })
+            .catch(error => {
+              console.error('Error fetching pending count:', error);
+            });
             
             pendingMenuDropdown.classList.remove('active');
           });

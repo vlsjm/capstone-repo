@@ -3073,7 +3073,7 @@ def user_view_requisition_slip(request, batch_id):
 
 @login_required
 def get_pending_count(request):
-    """API endpoint to get pending count filtered by type - counts items grouped by batch ID, excludes return_date < tomorrow"""
+    """API endpoint to get pending count filtered by type - counts items grouped by batch ID"""
     from django.utils import timezone
     from datetime import timedelta
     user = request.user
@@ -3090,68 +3090,75 @@ def get_pending_count(request):
     batch_reservations = ReservationBatch.objects.filter(user=user)
     
     count = 0
-    seen_batch_requests = set()  # Track batch requests to avoid counting duplicates (group by batch ID)
+    seen_supply_batches = set()
+    seen_borrow_batches = set()
+    seen_reservation_batches = set()
     
     if request_type == 'all':
         # Count all pending items (legacy items counted directly, batch items grouped by batch ID)
-        # For supply - exclude if return_date < tomorrow
-        for item in legacy_supply_requests.filter(status__in=['pending', 'pending_approval']):
-            if not item.return_date or item.return_date >= tomorrow:
-                count += 1
-        # Batch supply requests - count unique batches and exclude if return_date < tomorrow
+        # For supply - count all pending (no return date filtering for supplies)
+        count += legacy_supply_requests.filter(status__in=['pending', 'pending_approval']).count()
+        
+        # Batch supply requests - count unique batches
         for item in batch_supply_requests.filter(status__in=['pending', 'pending_approval']):
-            if (not item.earliest_return_date or item.earliest_return_date >= tomorrow) and item.id not in seen_batch_requests:
-                seen_batch_requests.add(item.id)
+            if item.id not in seen_supply_batches:
+                seen_supply_batches.add(item.id)
                 count += 1
+        
         # For borrow - exclude if return_date < tomorrow
         for item in old_borrow_requests.filter(status__in=['pending', 'pending_approval']):
             if not item.return_date or item.return_date >= tomorrow:
                 count += 1
+        
         # Batch borrow items - count unique batches (group by batch_request.id) and exclude if return_date < tomorrow
         for item in batch_borrow_items.filter(status__in=['pending', 'pending_approval']):
             if (not item.return_date or item.return_date >= tomorrow):
                 batch_id = item.batch_request.id
-                if batch_id not in seen_batch_requests:
-                    seen_batch_requests.add(batch_id)
+                if batch_id not in seen_borrow_batches:
+                    seen_borrow_batches.add(batch_id)
                     count += 1
+        
         # For reservation - no return_date filter for pending reservations
-        for item in legacy_reservations.filter(status__in=['pending', 'pending_approval']):
-            count += 1
+        count += legacy_reservations.filter(status__in=['pending', 'pending_approval']).count()
+        
         # Batch reservations - count unique batches
         for item in batch_reservations.filter(status__in=['pending', 'pending_approval']):
-            if item.id not in seen_batch_requests:
-                seen_batch_requests.add(item.id)
+            if item.id not in seen_reservation_batches:
+                seen_reservation_batches.add(item.id)
                 count += 1
+                
     elif request_type == 'supply':
-        # Count only supply requests
-        for item in legacy_supply_requests.filter(status__in=['pending', 'pending_approval']):
-            if not item.return_date or item.return_date >= tomorrow:
-                count += 1
-        # Batch supply requests - count unique batches and exclude if return_date < tomorrow
+        # Count only supply requests (no return date filtering)
+        count += legacy_supply_requests.filter(status__in=['pending', 'pending_approval']).count()
+        
+        # Batch supply requests - count unique batches
         for item in batch_supply_requests.filter(status__in=['pending', 'pending_approval']):
-            if (not item.earliest_return_date or item.earliest_return_date >= tomorrow) and item.id not in seen_batch_requests:
-                seen_batch_requests.add(item.id)
+            if item.id not in seen_supply_batches:
+                seen_supply_batches.add(item.id)
                 count += 1
+                
     elif request_type == 'borrow':
-        # Count only borrow requests
+        # Count only borrow requests - exclude if return_date < tomorrow
         for item in old_borrow_requests.filter(status__in=['pending', 'pending_approval']):
             if not item.return_date or item.return_date >= tomorrow:
                 count += 1
+        
         # Batch borrow items - count unique batches (group by batch_request.id) and exclude if return_date < tomorrow
         for item in batch_borrow_items.filter(status__in=['pending', 'pending_approval']):
             if (not item.return_date or item.return_date >= tomorrow):
                 batch_id = item.batch_request.id
-                if batch_id not in seen_batch_requests:
-                    seen_batch_requests.add(batch_id)
+                if batch_id not in seen_borrow_batches:
+                    seen_borrow_batches.add(batch_id)
                     count += 1
+                    
     elif request_type == 'reservation':
         # Count only reservations
-        for item in legacy_reservations.filter(status__in=['pending', 'pending_approval']):
-            count += 1
+        count += legacy_reservations.filter(status__in=['pending', 'pending_approval']).count()
+        
         # Batch reservations - count unique batches
         for item in batch_reservations.filter(status__in=['pending', 'pending_approval']):
-            if item.id not in seen_batch_requests:
-                seen_batch_requests.add(item.id)
+            if item.id not in seen_reservation_batches:
+                seen_reservation_batches.add(item.id)
                 count += 1
     
     return JsonResponse({'count': count})

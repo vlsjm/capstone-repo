@@ -55,24 +55,41 @@ def generate_requisition_slip_pdf(batch_request):
     story.append(Paragraph("REQUISITION AND ISSUE SLIP", title_style))
     story.append(Spacer(1, 15))
     
-    # Entity Name
+    # Request Number, Entity Name, and Department in aligned table
+    request_num = f"REQ-{batch_request.id:03d}"
     entity_text = f"Entity Name: CvSU - Bacoor City Campus"
-    story.append(Paragraph(entity_text, normal_style))
-    story.append(Spacer(1, 10))
-    
-    # Department/Office field
     department_name = batch_request.user.userprofile.department.name if batch_request.user.userprofile.department else "N/A"
-    dept_data = [
-        [f"Department/Office: {department_name}"]
+    dept_text = f"Department/Office: {department_name}"
+    
+    # Create aligned table for request number, entity name, and department
+    info_data = [
+        [request_num],
+        [entity_text],
+        [dept_text]
     ]
-    dept_table = Table(dept_data, colWidths=[7.5*inch])
-    dept_table.setStyle(TableStyle([
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-        ('TOPPADDING', (0, 0), (-1, -1), 8),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    info_table = Table(info_data, colWidths=[7.5*inch])
+    info_table.setStyle(TableStyle([
+        # Request number row
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica'),
+        ('ALIGN', (0, 0), (-1, 0), 'LEFT'),
+        ('TOPPADDING', (0, 0), (-1, 0), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 0),
+        
+        # Entity name row
+        ('FONTSIZE', (0, 1), (-1, 1), 10),
+        ('ALIGN', (0, 1), (-1, 1), 'LEFT'),
+        ('TOPPADDING', (0, 1), (-1, 1), 8),
+        ('BOTTOMPADDING', (0, 1), (-1, 1), 8),
+        
+        # Department row with grid
+        ('FONTSIZE', (0, 2), (-1, 2), 10),
+        ('ALIGN', (0, 2), (-1, 2), 'LEFT'),
+        ('TOPPADDING', (0, 2), (-1, 2), 8),
+        ('BOTTOMPADDING', (0, 2), (-1, 2), 8),
+        ('GRID', (0, 2), (-1, 2), 1, colors.black),
     ]))
-    story.append(dept_table)
+    story.append(info_table)
     story.append(Spacer(1, 5))
     
     # Main table headers
@@ -154,29 +171,74 @@ def generate_requisition_slip_pdf(batch_request):
     
     # Get names for signatures
     requester_name = f"{batch_request.user.first_name} {batch_request.user.last_name}" if batch_request.user.first_name else batch_request.user.username
+    requester_designation = batch_request.user.userprofile.designation if batch_request.user.userprofile and batch_request.user.userprofile.designation else batch_request.user.userprofile.department.name if batch_request.user.userprofile.department else ""
     
-    # Fixed names that do NOT change regardless of who processes the request
-    approved_by_name = "Zannie L. Gamayao"
-    issued_by_name = "Gilbert E. Magano"
+    # Get approved by name and designation from tracked user
+    approved_by_name = ""
+    approved_by_designation = ""
+    if batch_request.approved_by:
+        approved_by_name = f"{batch_request.approved_by.first_name} {batch_request.approved_by.last_name}" if batch_request.approved_by.first_name else batch_request.approved_by.username
+        if batch_request.approved_by.userprofile:
+            approved_by_designation = batch_request.approved_by.userprofile.designation if batch_request.approved_by.userprofile.designation else ""
+    
+    # Get issued by name and designation from tracked user (claimed_by)
+    issued_by_name = ""
+    issued_by_designation = ""
+    if batch_request.claimed_by:
+        issued_by_name = f"{batch_request.claimed_by.first_name} {batch_request.claimed_by.last_name}" if batch_request.claimed_by.first_name else batch_request.claimed_by.username
+        if batch_request.claimed_by.userprofile:
+            issued_by_designation = batch_request.claimed_by.userprofile.designation if batch_request.claimed_by.userprofile.designation else ""
+    
+    # Received by - the requester receives the items (only if claimed/completed)
+    received_by_name = ""
+    received_by_designation = ""
+    received_by_date = ""
+    
+    # Only populate received by if the request is completed/claimed
+    if batch_request.status == 'completed' and batch_request.claimed_by:
+        received_by_name = requester_name
+        received_by_designation = requester_designation
+        received_by_date = batch_request.completed_date.strftime("%m/%d/%Y") if batch_request.completed_date else ""
+    
+    # Create paragraph style for wrapping text
+    wrap_style = ParagraphStyle(
+        'WrapText',
+        parent=styles['Normal'],
+        fontSize=9,
+        alignment=TA_LEFT,
+        leading=11
+    )
+    
+    wrap_style_small = ParagraphStyle(
+        'WrapTextSmall',
+        parent=styles['Normal'],
+        fontSize=8,
+        alignment=TA_LEFT,
+        leading=10
+    )
     
     signature_data = [
         signature_headers,
         ["Signature:", "", "", "", ""],
-        ["Name:", requester_name, approved_by_name, issued_by_name, ""],
+        ["Name:", 
+         Paragraph(requester_name, wrap_style), 
+         Paragraph(approved_by_name, wrap_style), 
+         Paragraph(issued_by_name, wrap_style), 
+         Paragraph(received_by_name, wrap_style)],
         ["Designation:", 
-         batch_request.user.userprofile.department.name if batch_request.user.userprofile.department else "",
-         "Head, Administration\nand Support Services",
-         "Head, Supply Office",
-         ""],
+         Paragraph(requester_designation, wrap_style_small),
+         Paragraph(approved_by_designation, wrap_style_small),
+         Paragraph(issued_by_designation, wrap_style_small),
+         Paragraph(received_by_designation, wrap_style_small)],
         ["Date:", 
          batch_request.request_date.strftime("%m/%d/%Y") if batch_request.request_date else "",
          batch_request.approved_date.strftime("%m/%d/%Y") if batch_request.approved_date else "",
          batch_request.completed_date.strftime("%m/%d/%Y") if batch_request.completed_date else "",
-         ""]
+         received_by_date]
     ]
     
     signature_table = Table(signature_data, colWidths=[1.0*inch, 1.625*inch, 1.625*inch, 1.625*inch, 1.625*inch], 
-                           rowHeights=[None, 30, 20, 30, 20])
+                           rowHeights=[None, 30, None, None, 20])
     signature_table.setStyle(TableStyle([
         # All cells
         ('FONTSIZE', (0, 0), (-1, -1), 9),
@@ -186,18 +248,19 @@ def generate_requisition_slip_pdf(batch_request):
         ('TOPPADDING', (0, 0), (-1, -1), 4),
         ('LEFTPADDING', (0, 0), (-1, -1), 3),
         ('RIGHTPADDING', (0, 0), (-1, -1), 3),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         
         # Header row bold
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),  # First column bold
+        ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),  # Header row middle aligned
         
         # Align text
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('ALIGN', (1, 2), (-1, -1), 'LEFT'),  # Names left aligned
+        ('ALIGN', (0, 1), (0, -1), 'CENTER'),  # First column center aligned
+        ('ALIGN', (1, 2), (-1, -1), 'LEFT'),  # Names and designations left aligned
         
-        # Allow text wrapping for designation row
-        ('VALIGN', (0, 3), (-1, 3), 'TOP'),  # Designation row top aligned
+        # Allow text wrapping for name and designation rows
         ('FONTSIZE', (0, 3), (-1, 3), 8),  # Smaller font for designation to fit
     ]))
     
