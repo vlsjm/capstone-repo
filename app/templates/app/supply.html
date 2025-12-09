@@ -538,7 +538,7 @@
 
 /* Bad Stock Modal Specific Styles */
 .bad-stock-modal-content {
-  max-width: 800px !important;
+  max-width: 1000px !important;
   padding: 0 !important;
 }
 
@@ -6218,6 +6218,17 @@ openBadStockModalBtn.onclick = function() {
     allowClear: true,
     width: '100%',
     dropdownParent: $('#badStockModal'),
+    templateSelection: function(data) {
+      if (!data.id) {
+        return data.text;
+      }
+      // Limit selected text to 80 characters
+      var text = data.text;
+      if (text.length > 80) {
+        text = text.substring(0, 80) + '...';
+      }
+      return text;
+    },
     matcher: function(params, data) {
       // If there are no search terms, return all data
       if ($.trim(params.term) === '') {
