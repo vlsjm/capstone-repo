@@ -3571,6 +3571,7 @@ def edit_property(request):
             # Store old values for activity log
             old_values = {
                 'property_number': property_obj.property_number,
+                'serial_number': property_obj.serial_number,
                 'property_name': property_obj.property_name,
                 'description': property_obj.description,
                 'barcode': property_obj.barcode,
@@ -3588,7 +3589,19 @@ def edit_property(request):
 
             # Update property fields from POST data
             property_number = request.POST.get('property_number')
-            property_obj.property_number = property_number.upper() if property_number else property_number
+            # Convert empty string to None to avoid unique constraint issues
+            if property_number and property_number.strip():
+                property_obj.property_number = property_number.upper()
+            else:
+                property_obj.property_number = None
+            
+            # Update serial number
+            serial_number = request.POST.get('serial_number')
+            if serial_number and serial_number.strip():
+                property_obj.serial_number = serial_number.strip()
+            else:
+                property_obj.serial_number = None
+            
             property_obj.property_name = request.POST.get('property_name')
             property_obj.description = request.POST.get('description')
             property_obj.barcode = request.POST.get('barcode')

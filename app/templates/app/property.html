@@ -2725,6 +2725,7 @@ input:focus {
                           data-id="{{ property.id }}"
                           data-property-number="{{ property.property_number|default:'Not assigned' }}"
                           data-old-property-number="{{ property.old_property_number|default:'N/A' }}"
+                          data-serial-number="{{ property.serial_number|default:'N/A' }}"
                           data-property-name="{{ property.property_name }}"
                           data-category="{{ property.category.name|default:'N/A' }}"
                           data-description="{{ property.description|default:'N/A' }}"
@@ -2745,7 +2746,8 @@ input:focus {
                         {% if can_edit_property %}
                         <button class="table-actions-dropdown-item edit edit-btn" 
                           data-id="{{ property.id }}"
-                          data-property-number="{{ property.property_number }}"
+                          data-property-number="{{ property.property_number|default:'' }}"
+                          data-serial-number="{{ property.serial_number|default:'' }}"
                           data-property-name="{{ property.property_name }}"
                           data-description="{{ property.description|default:'' }}"
                           data-unit-measure="{{ property.unit_of_measure|default:'' }}"
@@ -3237,6 +3239,13 @@ input:focus {
 
       <div class="form-group">
         <label>
+          <i class="fas fa-hashtag"></i> Serial Number
+        </label>
+        <input type="text" name="serial_number" id="edit_serial_number" placeholder="Enter serial number (optional)" />
+      </div>
+
+      <div class="form-group">
+        <label>
           <i class="fas fa-align-left"></i> Description
           <span class="required-asterisk">*</span>
         </label>
@@ -3628,6 +3637,10 @@ input:focus {
           <tr>
             <td>Old Property Number</td>
             <td id="info-old-property-number">-</td>
+          </tr>
+          <tr>
+            <td>Serial Number</td>
+            <td id="info-serial-number">-</td>
           </tr>
           <tr>
             <td>Article/Item</td>
@@ -4808,6 +4821,7 @@ input:focus {
                 
                 // Set visible fields
                 document.getElementById('edit_name').value = this.dataset.propertyName;
+                document.getElementById('edit_serial_number').value = this.dataset.serialNumber || '';
                 document.getElementById('edit_description').value = this.dataset.description;
                 document.getElementById('edit_unit_of_measure').value = this.dataset.unitMeasure;
                 document.getElementById('edit_unit_value').value = this.dataset.unitValue;
@@ -4910,6 +4924,7 @@ input:focus {
                     // Get data from the button's data attributes
                     const propertyNumber = this.getAttribute('data-property-number') || 'Not assigned';
                     const oldPropertyNumber = this.getAttribute('data-old-property-number') || 'N/A';
+                    const serialNumber = this.getAttribute('data-serial-number') || 'N/A';
                     const propertyName = this.getAttribute('data-property-name') || 'N/A';
                     const category = this.getAttribute('data-category') || 'N/A';
                     const description = this.getAttribute('data-description') || 'N/A';
@@ -4928,6 +4943,7 @@ input:focus {
                     // Populate the modal with the data
                     document.getElementById('info-property-number').textContent = propertyNumber;
                     document.getElementById('info-old-property-number').textContent = oldPropertyNumber;
+                    document.getElementById('info-serial-number').textContent = serialNumber;
                     document.getElementById('info-article').textContent = propertyName;
                     document.getElementById('info-category').textContent = category;
                     document.getElementById('info-description').textContent = description || 'No description available';
