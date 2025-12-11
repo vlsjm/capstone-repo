@@ -6,51 +6,8 @@
 {% block content %}
 <div class="summary-container">
     <div class="summary-header">
-        <h1><i class="fas fa-chart-line"></i> My Requests Summary</h1>
-        <p class="subtitle">A comprehensive overview of all items you've requested</p>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div class="stats-grid">
-        <div class="stat-card stat-blue">
-            <div class="stat-icon">
-                <i class="fas fa-boxes"></i>
-            </div>
-            <div class="stat-content">
-                <h3>{{ total_items }}</h3>
-                <p>Total Items</p>
-            </div>
-        </div>
-        
-        <div class="stat-card stat-orange">
-            <div class="stat-icon">
-                <i class="fas fa-hand-point-up"></i>
-            </div>
-            <div class="stat-content">
-                <h3>{{ total_requested }}</h3>
-                <p>Total Requested</p>
-            </div>
-        </div>
-        
-        <div class="stat-card stat-green">
-            <div class="stat-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="stat-content">
-                <h3>{{ total_approved }}</h3>
-                <p>Total Approved</p>
-            </div>
-        </div>
-        
-        <div class="stat-card stat-purple">
-            <div class="stat-icon">
-                <i class="fas fa-list"></i>
-            </div>
-            <div class="stat-content">
-                <h3>{{ supply_count }} / {{ borrow_count }} / {{ reservation_count }}</h3>
-                <p>Supply / Borrow / Reserve</p>
-            </div>
-        </div>
+        <h1><i class="fas fa-chart-line"></i> Claimed Supplies Summary</h1>
+        <p class="subtitle">Track all supplies you've claimed with detailed quantity information</p>
     </div>
 
     <!-- Items Tally Section -->
@@ -62,52 +19,85 @@
         
         <!-- Tally Filter -->
         <div class="section-filter">
-            <div class="simple-filter-container">
-                <button id="tallyFilterToggleBtn" class="simple-filter-toggle" type="button">
-                    <i class="fas fa-filter"></i> Filters 
-                    <span id="tallyActiveFilterCount" class="filter-count">0</span>
-                    <i class="fas fa-chevron-down filter-chevron"></i>
+            <div class="filter-controls-wrapper">
+                <form method="get" action="" class="search-container" id="tallySearchForm">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" name="tally_search" id="tallySearchInput" class="search-input" placeholder="Search by Supply ID or Item Name (press Enter)..." value="{{ tally_search }}">
+                    {% if tally_year_filter %}<input type="hidden" name="tally_year" value="{{ tally_year_filter }}">{% endif %}
+                    {% if tally_month_filter %}<input type="hidden" name="tally_month" value="{{ tally_month_filter }}">{% endif %}
+                    {% if tally_category_filter %}<input type="hidden" name="tally_category" value="{{ tally_category_filter }}">{% endif %}
+                </form>
+                
+                <button id="openExportModalBtn" class="btn-export btn-small" type="button">
+                    <i class="fas fa-file-excel"></i> Export to Excel
                 </button>
-                <div id="tallyFilterDropdown" class="simple-filter-dropdown">
-                    <!-- Year Filter -->
-                    <div class="simple-filter-group">
-                        <div class="simple-filter-header">
-                            <i class="fas fa-calendar-alt"></i> Year
+                
+                <div class="simple-filter-container">
+                    <button id="tallyFilterToggleBtn" class="simple-filter-toggle" type="button">
+                        <i class="fas fa-filter"></i> Filters 
+                        <span id="tallyActiveFilterCount" class="filter-count">0</span>
+                        <i class="fas fa-chevron-down filter-chevron"></i>
+                    </button>
+                    <div id="tallyFilterDropdown" class="simple-filter-dropdown">
+                        <!-- Year Filter -->
+                        <div class="simple-filter-group">
+                            <div class="simple-filter-header">
+                                <i class="fas fa-calendar-alt"></i> Year
+                            </div>
+                            <div class="simple-filter-options">
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="tally_year" value="" {% if not tally_year_filter %}checked{% endif %}>
+                                    <span class="filter-text">All Years</span>
+                                </label>
+                                {% for year in available_years %}
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="tally_year" value="{{ year }}" {% if tally_year_filter == year|stringformat:"s" %}checked{% endif %}>
+                                    <span class="filter-text">{{ year }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
                         </div>
-                        <div class="simple-filter-options">
-                            <label class="simple-filter-option">
-                                <input type="radio" name="tally_year" value="" {% if not tally_year_filter %}checked{% endif %}>
-                                <span class="filter-text">All Years</span>
-                            </label>
-                            {% for year in available_years %}
-                            <label class="simple-filter-option">
-                                <input type="radio" name="tally_year" value="{{ year }}" {% if tally_year_filter == year|stringformat:"s" %}checked{% endif %}>
-                                <span class="filter-text">{{ year }}</span>
-                            </label>
-                            {% endfor %}
+                        
+                        <!-- Month Filter -->
+                        <div class="simple-filter-group">
+                            <div class="simple-filter-header">
+                                <i class="fas fa-calendar"></i> Month
+                            </div>
+                            <div class="simple-filter-options">
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="tally_month" value="" {% if not tally_month_filter %}checked{% endif %}>
+                                    <span class="filter-text">All Months</span>
+                                </label>
+                                {% for month_num, month_name in month_names %}
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="tally_month" value="{{ month_num }}" {% if tally_month_filter == month_num|stringformat:"s" %}checked{% endif %}>
+                                    <span class="filter-text">{{ month_name }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Category Filter -->
+                        <div class="simple-filter-group">
+                            <div class="simple-filter-header">
+                                <i class="fas fa-tags"></i> Category
+                            </div>
+                            <div class="simple-filter-options">
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="tally_category" value="" {% if not tally_category_filter %}checked{% endif %}>
+                                    <span class="filter-text">All Categories</span>
+                                </label>
+                                {% for category in available_categories %}
+                                <label class="simple-filter-option">
+                                    <input type="radio" name="tally_category" value="{{ category.name }}" {% if tally_category_filter == category.name %}checked{% endif %}>
+                                    <span class="filter-text">{{ category.name }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
-                    
-                    <!-- Month Filter -->
-                    <div class="simple-filter-group">
-                        <div class="simple-filter-header">
-                            <i class="fas fa-calendar"></i> Month
-                        </div>
-                        <div class="simple-filter-options">
-                            <label class="simple-filter-option">
-                                <input type="radio" name="tally_month" value="" {% if not tally_month_filter %}checked{% endif %}>
-                                <span class="filter-text">All Months</span>
-                            </label>
-                            {% for month_num, month_name in month_names %}
-                            <label class="simple-filter-option">
-                                <input type="radio" name="tally_month" value="{{ month_num }}" {% if tally_month_filter == month_num|stringformat:"s" %}checked{% endif %}>
-                                <span class="filter-text">{{ month_name }}</span>
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
+                    <div id="tallyFilterBackdrop" class="filter-backdrop"></div>
                 </div>
-                <div id="tallyFilterBackdrop" class="filter-backdrop"></div>
             </div>
         </div>
         
@@ -144,10 +134,10 @@
             <div class="pagination-container">
                 <div class="pagination">
                     {% if tally_data.has_previous %}
-                        <a href="?tally_page=1{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}" class="page-link">
+                        <a href="?tally_page=1{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}{% if tally_category_filter %}&tally_category={{ tally_category_filter }}{% endif %}{% if tally_search %}&tally_search={{ tally_search }}{% endif %}" class="page-link">
                             <i class="fas fa-angle-double-left"></i>
                         </a>
-                        <a href="?tally_page={{ tally_data.previous_page_number }}{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}" class="page-link">
+                        <a href="?tally_page={{ tally_data.previous_page_number }}{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}{% if tally_category_filter %}&tally_category={{ tally_category_filter }}{% endif %}{% if tally_search %}&tally_search={{ tally_search }}{% endif %}" class="page-link">
                             <i class="fas fa-angle-left"></i>
                         </a>
                     {% else %}
@@ -164,10 +154,10 @@
                     </span>
 
                     {% if tally_data.has_next %}
-                        <a href="?tally_page={{ tally_data.next_page_number }}{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}" class="page-link">
+                        <a href="?tally_page={{ tally_data.next_page_number }}{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}{% if tally_category_filter %}&tally_category={{ tally_category_filter }}{% endif %}{% if tally_search %}&tally_search={{ tally_search }}{% endif %}" class="page-link">
                             <i class="fas fa-angle-right"></i>
                         </a>
-                        <a href="?tally_page={{ tally_data.paginator.num_pages }}{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}" class="page-link">
+                        <a href="?tally_page={{ tally_data.paginator.num_pages }}{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}{% if tally_category_filter %}&tally_category={{ tally_category_filter }}{% endif %}{% if tally_search %}&tally_search={{ tally_search }}{% endif %}" class="page-link">
                             <i class="fas fa-angle-double-right"></i>
                         </a>
                     {% else %}
@@ -192,180 +182,56 @@
             </div>
         {% endif %}
     </div>
+</div>
 
-    <!-- Items Table -->
-    <div class="table-section">
-        <div class="section-header">
-            <h2><i class="fas fa-table"></i> All Requested Items</h2>
-            <p class="section-description">Detailed view of all items you've requested with their individual status and information.</p>
+<!-- Export Modal -->
+<div id="exportModal" class="export-modal">
+    <div class="export-modal-content">
+        <div class="export-modal-header">
+            <h3><i class="fas fa-file-excel"></i> Export Claimed Supplies Tally</h3>
+            <button class="export-modal-close" id="closeExportModalBtn">&times;</button>
         </div>
-        
-        <!-- Items Table Filter -->
-        <div class="section-filter">
-            <div class="filter-controls-wrapper">
-                <a href="{% url 'export_requests_summary_pdf' %}?year={{ items_year_filter }}&month={{ items_month_filter }}" class="btn-export btn-small">
-                    <i class="fas fa-file-pdf"></i> Export to PDF
-                </a>
-                
-                <div class="simple-filter-container">
-                    <button id="itemsFilterToggleBtn" class="simple-filter-toggle" type="button">
-                        <i class="fas fa-filter"></i> Filters 
-                        <span id="itemsActiveFilterCount" class="filter-count">0</span>
-                        <i class="fas fa-chevron-down filter-chevron"></i>
-                    </button>
-                    <div id="itemsFilterDropdown" class="simple-filter-dropdown">
-                        <!-- Year Filter -->
-                        <div class="simple-filter-group">
-                            <div class="simple-filter-header">
-                                <i class="fas fa-calendar-alt"></i> Year
-                            </div>
-                            <div class="simple-filter-options">
-                                <label class="simple-filter-option">
-                                    <input type="radio" name="items_year" value="" {% if not items_year_filter %}checked{% endif %}>
-                                    <span class="filter-text">All Years</span>
-                                </label>
-                                {% for year in available_years %}
-                                <label class="simple-filter-option">
-                                    <input type="radio" name="items_year" value="{{ year }}" {% if items_year_filter == year|stringformat:"s" %}checked{% endif %}>
-                                    <span class="filter-text">{{ year }}</span>
-                                </label>
-                                {% endfor %}
-                            </div>
+        <div class="export-modal-body">
+            <p class="export-modal-description">Select the filters and date range for your export.</p>
+            
+            <form id="exportForm" method="get" action="{% url 'export_claimed_supplies_tally_excel' %}">
+                <div class="export-form-group">
+                    <label for="exportDateRange">
+                        <i class="fas fa-calendar-range"></i> Date Range
+                    </label>
+                    <div class="date-range-inputs">
+                        <div class="date-input-wrapper">
+                            <label class="date-label">From:</label>
+                            <input type="date" id="exportStartDate" name="start_date" class="date-input">
                         </div>
-                        
-                        <!-- Month Filter -->
-                        <div class="simple-filter-group">
-                            <div class="simple-filter-header">
-                                <i class="fas fa-calendar"></i> Month
-                            </div>
-                            <div class="simple-filter-options">
-                                <label class="simple-filter-option">
-                                    <input type="radio" name="items_month" value="" {% if not items_month_filter %}checked{% endif %}>
-                                    <span class="filter-text">All Months</span>
-                                </label>
-                                {% for month_num, month_name in month_names %}
-                                <label class="simple-filter-option">
-                                    <input type="radio" name="items_month" value="{{ month_num }}" {% if items_month_filter == month_num|stringformat:"s" %}checked{% endif %}>
-                                    <span class="filter-text">{{ month_name }}</span>
-                                </label>
-                                {% endfor %}
-                            </div>
+                        <div class="date-input-wrapper">
+                            <label class="date-label">To:</label>
+                            <input type="date" id="exportEndDate" name="end_date" class="date-input">
                         </div>
                     </div>
-                    <div id="itemsFilterBackdrop" class="filter-backdrop"></div>
+                    <small class="form-help-text">Leave blank to export all dates</small>
                 </div>
-            </div>
-        </div>
-        
-        {% if items_summary %}
-            <div class="table-container">
-                <table class="summary-table">
-                    <thead>
-                        <tr>
-                            <th>Request ID</th>
-                            <th>Type</th>
-                            <th>Item Name</th>
-                            <th>Category</th>
-                            <th>Quantity</th>
-                            <th>Approved</th>
-                            <th>Status</th>
-                            <th>Request Date</th>
-                            <th>Purpose</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in items_summary %}
-                        <tr>
-                            <td class="request-id">{{ item.request_id }}</td>
-                            <td>
-                                <span class="type-badge type-{{ item.type|lower }}">
-                                    {% if item.type == 'Supply' %}
-                                        <i class="fas fa-box"></i>
-                                    {% elif item.type == 'Borrow' %}
-                                        <i class="fas fa-hand-holding"></i>
-                                    {% else %}
-                                        <i class="fas fa-calendar-check"></i>
-                                    {% endif %}
-                                    {{ item.type }}
-                                </span>
-                            </td>
-                            <td class="item-name">{{ item.item_name }}</td>
-                            <td>{{ item.category }}</td>
-                            <td class="qty-cell">{{ item.quantity }}</td>
-                            <td class="qty-cell">{{ item.approved_quantity }}</td>
-                            <td>
-                                <span class="status-badge status-{{ item.status|lower|cut:' ' }}">
-                                    {{ item.status }}
-                                </span>
-                            </td>
-                            <td>{{ item.request_date|date:"M d, Y" }}</td>
-                            <td class="purpose-cell">{{ item.purpose|truncatechars:50 }}</td>
-                        </tr>
+                
+                <div class="export-form-group">
+                    <label for="exportCategory">
+                        <i class="fas fa-tags"></i> Category
+                    </label>
+                    <select id="exportCategory" name="category" class="export-select">
+                        <option value="">All Categories</option>
+                        {% for category in available_categories %}
+                        <option value="{{ category.name }}">{{ category.name }}</option>
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Pagination -->
-            {% if items_summary.has_other_pages %}
-            <div class="pagination-container">
-                <div class="pagination">
-                    {% if items_summary.has_previous %}
-                        <a href="?page=1&items_view=1{% if items_year_filter %}&items_year={{ items_year_filter }}{% endif %}{% if items_month_filter %}&items_month={{ items_month_filter }}{% endif %}" class="page-link">
-                            <i class="fas fa-angle-double-left"></i>
-                        </a>
-                        <a href="?page={{ items_summary.previous_page_number }}&items_view=1{% if items_year_filter %}&items_year={{ items_year_filter }}{% endif %}{% if items_month_filter %}&items_month={{ items_month_filter }}{% endif %}" class="page-link">
-                            <i class="fas fa-angle-left"></i>
-                        </a>
-                    {% else %}
-                        <span class="page-link disabled">
-                            <i class="fas fa-angle-double-left"></i>
-                        </span>
-                        <span class="page-link disabled">
-                            <i class="fas fa-angle-left"></i>
-                        </span>
-                    {% endif %}
-
-                    <span class="page-info">
-                        Page {{ items_summary.number }} of {{ items_summary.paginator.num_pages }}
-                    </span>
-
-                    {% if items_summary.has_next %}
-                        <a href="?page={{ items_summary.next_page_number }}&items_view=1{% if items_year_filter %}&items_year={{ items_year_filter }}{% endif %}{% if items_month_filter %}&items_month={{ items_month_filter }}{% endif %}" class="page-link">
-                            <i class="fas fa-angle-right"></i>
-                        </a>
-                        <a href="?page={{ items_summary.paginator.num_pages }}&items_view=1{% if items_year_filter %}&items_year={{ items_year_filter }}{% endif %}{% if items_month_filter %}&items_month={{ items_month_filter }}{% endif %}" class="page-link">
-                            <i class="fas fa-angle-double-right"></i>
-                        </a>
-                    {% else %}
-                        <span class="page-link disabled">
-                            <i class="fas fa-angle-right"></i>
-                        </span>
-                        <span class="page-link disabled">
-                            <i class="fas fa-angle-double-right"></i>
-                        </span>
-                    {% endif %}
+                    </select>
                 </div>
-                <div class="page-summary">
-                    Showing {{ items_summary.start_index }} to {{ items_summary.end_index }} of {{ items_summary.paginator.count }} items
+                
+                <div class="export-modal-actions">
+                    <button type="button" class="btn-cancel" id="cancelExportBtn">Cancel</button>
+                    <button type="submit" class="btn-export-confirm">
+                        <i class="fas fa-download"></i> Export
+                    </button>
                 </div>
-            </div>
-            {% endif %}
-        {% else %}
-            <div class="empty-state">
-                <i class="fas fa-inbox empty-icon"></i>
-                <h3>No Requests Found</h3>
-                <p>You haven't made any requests{% if items_year_filter or items_month_filter %} for the selected period{% endif %}.</p>
-                {% if items_year_filter or items_month_filter %}
-                    <a href="{% url 'user_requests_summary' %}" class="btn-primary" style="background: #6c757d;">
-                        <i class="fas fa-times"></i> Clear Filters
-                    </a>
-                {% endif %}
-                <a href="{% url 'user_unified_request' %}" class="btn-primary">
-                    <i class="fas fa-plus"></i> Make a Request
-                </a>
-            </div>
-        {% endif %}
+            </form>
+        </div>
     </div>
 </div>
 
@@ -600,6 +466,44 @@
 .btn-small {
     padding: 8px 16px !important;
     font-size: 13px !important;
+}
+
+.search-container {
+    position: relative;
+    flex: 1;
+    max-width: 400px;
+    min-width: 250px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 15px 10px 45px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #152d64;
+    box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+}
+
+.search-input::placeholder {
+    color: #adb5bd;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+    font-size: 14px;
+    width: 14px;
 }
 
 .request-count-badge {
@@ -950,6 +854,22 @@
         gap: 10px;
     }
     
+    .search-container {
+        max-width: 100%;
+        width: 100%;
+        order: -1;
+    }
+    
+    .search-input {
+        font-size: 16px; /* Prevents auto-zoom on iOS */
+        padding: 12px 15px 12px 60px !important; /* Extra left padding for icon */
+    }
+    
+    .search-icon {
+        left: 20px !important; /* More space from edge */
+        font-size: 16px; /* Larger icon for mobile */
+    }
+    
     .filter-controls-wrapper {
         flex-direction: row;
         gap: 10px;
@@ -1150,9 +1070,275 @@
     color: #6c757d;
     font-size: 14px;
 }
+
+/* Export Modal Styles */
+.export-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease;
+}
+
+.export-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.export-modal-content {
+    background-color: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.export-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.export-modal-header h3 {
+    color: #152d64;
+    font-size: 20px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.export-modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.export-modal-close:hover {
+    background: #f8f9fa;
+    color: #152d64;
+}
+
+.export-modal-body {
+    padding: 25px;
+}
+
+.export-modal-description {
+    color: #6c757d;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.export-form-group {
+    margin-bottom: 20px;
+}
+
+.export-form-group label {
+    display: block;
+    color: #152d64;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.export-form-group label i {
+    margin-right: 6px;
+    color: #152d64;
+}
+
+.date-range-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.date-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.date-label {
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.date-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    transition: all 0.3s ease;
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: #152d64;
+    box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+}
+
+.export-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.export-select:focus {
+    outline: none;
+    border-color: #152d64;
+    box-shadow: 0 0 0 3px rgba(21, 45, 100, 0.1);
+}
+
+.form-help-text {
+    display: block;
+    color: #6c757d;
+    font-size: 12px;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+.export-modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.btn-cancel {
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+.btn-export-confirm {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #152d64 0%, #1a3575 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-export-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(21, 45, 100, 0.3);
+}
+
+@media (max-width: 768px) {
+    .export-modal-content {
+        width: 95%;
+        max-width: none;
+        margin: 10px;
+    }
+    
+    .date-range-inputs {
+        grid-template-columns: 1fr;
+    }
+    
+    .export-modal-header {
+        padding: 15px 20px;
+    }
+    
+    .export-modal-body {
+        padding: 20px;
+    }
+}
 </style>
 
 <script>
+// Export Modal Functionality
+const exportModal = document.getElementById('exportModal');
+const openExportModalBtn = document.getElementById('openExportModalBtn');
+const closeExportModalBtn = document.getElementById('closeExportModalBtn');
+const cancelExportBtn = document.getElementById('cancelExportBtn');
+
+if (openExportModalBtn && exportModal) {
+    openExportModalBtn.addEventListener('click', function() {
+        exportModal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    });
+}
+
+if (closeExportModalBtn) {
+    closeExportModalBtn.addEventListener('click', function() {
+        exportModal.classList.remove('show');
+        document.body.style.overflow = '';
+    });
+}
+
+if (cancelExportBtn) {
+    cancelExportBtn.addEventListener('click', function() {
+        exportModal.classList.remove('show');
+        document.body.style.overflow = '';
+    });
+}
+
+// Close modal when clicking outside
+if (exportModal) {
+    exportModal.addEventListener('click', function(e) {
+        if (e.target === exportModal) {
+            exportModal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    });
+}
+
 // Tally Filter Toggle
 const tallyFilterToggleBtn = document.getElementById('tallyFilterToggleBtn');
 const tallyFilterDropdown = document.getElementById('tallyFilterDropdown');
@@ -1197,48 +1383,21 @@ if (tallyFilterToggleBtn && tallyFilterDropdown) {
     }
 }
 
-// Items Filter Toggle
-const itemsFilterToggleBtn = document.getElementById('itemsFilterToggleBtn');
-const itemsFilterDropdown = document.getElementById('itemsFilterDropdown');
-const itemsFilterBackdrop = document.getElementById('itemsFilterBackdrop');
-const itemsActiveFilterCount = document.getElementById('itemsActiveFilterCount');
-
-if (itemsFilterToggleBtn && itemsFilterDropdown) {
-    itemsFilterToggleBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        itemsFilterDropdown.classList.toggle('show');
-        itemsFilterToggleBtn.classList.toggle('active');
-        if (itemsFilterBackdrop) {
-            itemsFilterBackdrop.classList.toggle('show');
-        }
-        if (itemsFilterDropdown.classList.contains('show')) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
+// Tally Search Functionality - Submit on Enter key
+const tallySearchInput = document.getElementById('tallySearchInput');
+const tallySearchForm = document.getElementById('tallySearchForm');
+if (tallySearchInput && tallySearchForm) {
+    // Form will handle submission on Enter key automatically
+    // Clear search when input is empty and user presses Enter
+    tallySearchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !this.value.trim()) {
+            e.preventDefault();
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.delete('tally_search');
+            urlParams.delete('tally_page');
+            window.location.search = urlParams.toString();
         }
     });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!itemsFilterToggleBtn.contains(e.target) && !itemsFilterDropdown.contains(e.target)) {
-            itemsFilterDropdown.classList.remove('show');
-            itemsFilterToggleBtn.classList.remove('active');
-            if (itemsFilterBackdrop) {
-                itemsFilterBackdrop.classList.remove('show');
-            }
-            document.body.style.overflow = '';
-        }
-    });
-    
-    // Close dropdown when clicking backdrop
-    if (itemsFilterBackdrop) {
-        itemsFilterBackdrop.addEventListener('click', function(e) {
-            itemsFilterDropdown.classList.remove('show');
-            itemsFilterToggleBtn.classList.remove('active');
-            itemsFilterBackdrop.classList.remove('show');
-            document.body.style.overflow = '';
-        });
-    }
 }
 
 // Handle tally filter changes
@@ -1251,23 +1410,15 @@ tallyFilterInputs.forEach(input => {
     });
 });
 
-// Handle items filter changes
-const itemsFilterInputs = document.querySelectorAll('#itemsFilterDropdown input[type="radio"]');
-itemsFilterInputs.forEach(input => {
-    input.addEventListener('change', function() {
-        setTimeout(() => {
-            applyItemsFilter();
-        }, 150);
-    });
-});
-
 // Update filter count badges
 function updateTallyFilterCount() {
     const selectedYear = document.querySelector('input[name="tally_year"]:checked')?.value;
     const selectedMonth = document.querySelector('input[name="tally_month"]:checked')?.value;
+    const selectedCategory = document.querySelector('input[name="tally_category"]:checked')?.value;
     let count = 0;
     if (selectedYear) count++;
     if (selectedMonth) count++;
+    if (selectedCategory) count++;
     
     if (count > 0) {
         tallyActiveFilterCount.textContent = count;
@@ -1277,42 +1428,19 @@ function updateTallyFilterCount() {
     }
 }
 
-function updateItemsFilterCount() {
-    const selectedYear = document.querySelector('input[name="items_year"]:checked')?.value;
-    const selectedMonth = document.querySelector('input[name="items_month"]:checked')?.value;
-    let count = 0;
-    if (selectedYear) count++;
-    if (selectedMonth) count++;
-    
-    if (count > 0) {
-        itemsActiveFilterCount.textContent = count;
-        itemsActiveFilterCount.classList.add('show');
-    } else {
-        itemsActiveFilterCount.classList.remove('show');
-    }
-}
-
 function applyTallyFilter() {
     const year = document.querySelector('input[name="tally_year"]:checked')?.value;
     const month = document.querySelector('input[name="tally_month"]:checked')?.value;
+    const category = document.querySelector('input[name="tally_category"]:checked')?.value;
     let url = '?tally_view=1';
     if (year) url += '&tally_year=' + year;
     if (month) url += '&tally_month=' + month;
-    window.location.href = url;
-}
-
-function applyItemsFilter() {
-    const year = document.querySelector('input[name="items_year"]:checked')?.value;
-    const month = document.querySelector('input[name="items_month"]:checked')?.value;
-    let url = '?items_view=1';
-    if (year) url += '&items_year=' + year;
-    if (month) url += '&items_month=' + month;
+    if (category) url += '&tally_category=' + encodeURIComponent(category);
     window.location.href = url;
 }
 
 // Initialize filter counts on page load
 updateTallyFilterCount();
-updateItemsFilterCount();
 
 // Save scroll position before pagination click
 document.addEventListener('DOMContentLoaded', function() {

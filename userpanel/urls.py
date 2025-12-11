@@ -15,6 +15,7 @@ from .views import (
     UserUnifiedRequestView,
     UserRequestsSummaryView,
     export_requests_summary_pdf,
+    export_claimed_supplies_tally_excel,
 )
 from . import views
 
@@ -55,6 +56,7 @@ urlpatterns = [
     # Requests Summary
     path('requests-summary/', UserRequestsSummaryView.as_view(), name='user_requests_summary'),
     path('export-requests-summary-pdf/', export_requests_summary_pdf, name='export_requests_summary_pdf'),
+    path('export-claimed-supplies-tally-excel/', export_claimed_supplies_tally_excel, name='export_claimed_supplies_tally_excel'),
     path('cancel-damage-report/<int:request_id>/', views.cancel_damage_report, name='cancel_damage_report'),
     
     # Request detail and request again URLs

@@ -921,7 +921,8 @@ body.modal-open {
                 "code": "{{ supply.supply_number|default:""|escapejs }}",
                 "description": "{{ supply.description|default:""|escapejs }}",
                 "available": {{ supply.quantity_info.current_quantity }},
-                "available_qty": {{ supply.quantity_info.available_quantity }}
+                "available_qty": {{ supply.quantity_info.available_quantity }},
+                "unit": "{{ supply.unit|default:""|escapejs }}"
             }{% if not forloop.last %},{% endif %}
             {% endfor %}
         ]'></div>
@@ -1521,6 +1522,13 @@ $(document).ready(function() {
                     } else {
                         // Add new row to table
                         const table = $(`#supply-list-body`);
+                        // Get unit from response or from supply data as fallback
+                        let unit = response.unit || '';
+                        if (!unit) {
+                            const supply = allSupplies.find(s => s.id === parseInt(supplyId));
+                            unit = supply && supply.unit ? supply.unit : '';
+                        }
+                        const unitDisplay = unit ? unit : '<span style="color: #6c757d;">(not specified)</span>';
                         const newRow = $(`
                             <tr data-supply-id="${supplyId}">
                                 <td>${supplyName}</td>
@@ -1528,6 +1536,7 @@ $(document).ready(function() {
                                     <input type="number" class="quantity-edit" data-supply-id="${supplyId}" 
                                            value="${quantity}" min="1">
                                 </td>
+                                <td>${unitDisplay}</td>
                                 <td>
                                     <button class="btn-remove" data-supply-id="${supplyId}">
                                         <i class="fas fa-trash"></i> Remove
@@ -1544,6 +1553,7 @@ $(document).ready(function() {
                                         <tr>
                                             <th>Item</th>
                                             <th>Quantity</th>
+                                            <th>Unit</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -1563,6 +1573,7 @@ $(document).ready(function() {
                                             <tr>
                                                 <th>Item</th>
                                                 <th>Quantity</th>
+                                                <th>Unit</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
