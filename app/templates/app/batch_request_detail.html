@@ -1644,6 +1644,32 @@
           <span>{{ batch_request.purpose }}</span>
         </div>
         
+        {% if batch_request.status == 'voided' and batch_request.voided_by %}
+        <div class="info-item">
+          <strong>Voided By</strong>
+          <span>
+            {% if batch_request.voided_by.first_name or batch_request.voided_by.last_name %}
+              {{ batch_request.voided_by.first_name }} {{ batch_request.voided_by.last_name }}
+            {% else %}
+              {{ batch_request.voided_by.username }}
+            {% endif %}
+          </span>
+        </div>
+        {% endif %}
+        
+        {% if batch_request.status == 'completed' and batch_request.approved_by %}
+        <div class="info-item">
+          <strong>Approved By</strong>
+          <span>
+            {% if batch_request.approved_by.first_name or batch_request.approved_by.last_name %}
+              {{ batch_request.approved_by.first_name }} {{ batch_request.approved_by.last_name }}
+            {% else %}
+              {{ batch_request.approved_by.username }}
+            {% endif %}
+          </span>
+        </div>
+        {% endif %}
+        
         {% if batch_request.claimed_by %}
         <div class="info-item">
           <strong>Released By</strong>
