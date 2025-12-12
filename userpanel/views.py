@@ -25,7 +25,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
 # Import summary views
-from .views_summary import UserRequestsSummaryView, export_requests_summary_pdf
+from .views_summary import UserRequestsSummaryView, export_requests_summary_pdf, export_claimed_supplies_tally_excel
 
 
 class UserRequestView(PermissionRequiredMixin, TemplateView):
@@ -1713,6 +1713,15 @@ def remove_from_borrow_list(request):
     if request.method == 'POST':
         property_id = request.POST.get('supply_id')
         
+        # Convert property_id to integer to handle type mismatch (session stores as int, POST sends as string)
+        try:
+            property_id = int(property_id)
+        except (ValueError, TypeError):
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid property ID'
+            })
+        
         cart = request.session.get('borrow_cart', [])
         cart = [item for item in cart if item['property_id'] != property_id]
         
@@ -2766,7 +2775,8 @@ def add_to_list(request):
         return JsonResponse({
             'success': True,
             'message': f'Added {supply.supply_name} to list.',
-            'list_count': len(cart)
+            'list_count': len(cart),
+            'unit': supply.unit if supply.unit else ''
         })
         
     except Supply.DoesNotExist:
@@ -2786,6 +2796,15 @@ def add_to_list(request):
 def remove_from_list(request):
     """Remove an item from the supply request list"""
     supply_id = request.POST.get('supply_id')
+    
+    # Convert supply_id to integer to handle type mismatch (session stores as int, POST sends as string)
+    try:
+        supply_id = int(supply_id)
+    except (ValueError, TypeError):
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid supply ID'
+        })
     
     cart = request.session.get('supply_cart', [])
     cart = [item for item in cart if item['supply_id'] != supply_id]

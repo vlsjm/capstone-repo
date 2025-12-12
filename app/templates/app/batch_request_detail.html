@@ -1644,6 +1644,32 @@
           <span>{{ batch_request.purpose }}</span>
         </div>
         
+        {% if batch_request.status == 'voided' and batch_request.voided_by %}
+        <div class="info-item">
+          <strong>Voided By</strong>
+          <span>
+            {% if batch_request.voided_by.first_name or batch_request.voided_by.last_name %}
+              {{ batch_request.voided_by.first_name }} {{ batch_request.voided_by.last_name }}
+            {% else %}
+              {{ batch_request.voided_by.username }}
+            {% endif %}
+          </span>
+        </div>
+        {% endif %}
+        
+        {% if batch_request.status == 'completed' and batch_request.approved_by %}
+        <div class="info-item">
+          <strong>Approved By</strong>
+          <span>
+            {% if batch_request.approved_by.first_name or batch_request.approved_by.last_name %}
+              {{ batch_request.approved_by.first_name }} {{ batch_request.approved_by.last_name }}
+            {% else %}
+              {{ batch_request.approved_by.username }}
+            {% endif %}
+          </span>
+        </div>
+        {% endif %}
+        
         {% if batch_request.claimed_by %}
         <div class="info-item">
           <strong>Released By</strong>
@@ -1738,7 +1764,9 @@
           <tr>
             <th style="width: 25%;"><i class="fas fa-box"></i> Item & Category</th>
             <th style="width: 10%;" class="quantity-cell"><i class="fas fa-hashtag"></i> Requested</th>
-            <th style="width: 12%;" class="quantity-cell"><i class="fas fa-warehouse"></i> Stock</th>
+            {% if batch_request.status not in 'for_claiming,completed,voided' %}
+            <th style="width: 12%;" class="quantity-cell"><i class="fas fa-warehouse"></i> Stock Available</th>
+            {% endif %}
             <th style="width: 12%;" class="quantity-cell"><i class="fas fa-edit"></i> Approve</th>
             <th style="width: 15%;" class="status-cell"><i class="fas fa-flag"></i> Status</th>
             <th style="width: 16%;" class="actions-cell"><i class="fas fa-cogs"></i> Actions</th>
@@ -1767,11 +1795,13 @@
               <strong>{{ item.quantity }}</strong>
             </td>
             
+            {% if batch_request.status not in 'for_claiming,completed,voided' %}
             <td class="quantity-cell">
               <div class="stock-info">
-                <span class="stock-available">{{ item.supply.quantity_info.current_quantity|default:"N/A" }}</span>
+                <span class="stock-available">{{ item.supply.quantity_info.available_quantity|default:"N/A" }}</span>
               </div>
             </td>
+            {% endif %}
             
             <td class="quantity-cell">
               {% if item.status == 'pending' and batch_request.status in 'pending,partially_approved' %}
@@ -2800,6 +2830,12 @@
           const hiddenRemarks = document.getElementById(`hidden-remarks-${itemId}`);
           if (hiddenRemarks) {
             hiddenRemarks.value = '';
+          }
+          
+          // Show loading overlay
+          const loadingOverlay = document.getElementById('loadingOverlay');
+          if (loadingOverlay) {
+            loadingOverlay.classList.add('active');
           }
           
           // Submit the form directly

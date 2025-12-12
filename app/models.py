@@ -723,6 +723,8 @@ class SupplyRequestBatch(models.Model):
     claimed_date = models.DateTimeField(null=True, blank=True)
     completed_date = models.DateTimeField(null=True, blank=True)
     claimed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='claimed_requests')
+    voided_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='voided_supply_requests')
+    voided_date = models.DateTimeField(null=True, blank=True)
     remarks = models.TextField(blank=True, null=True)
 
     class Meta:
@@ -841,6 +843,8 @@ class ReservationBatch(models.Model):
     purpose = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     approved_date = models.DateTimeField(null=True, blank=True)
+    voided_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='voided_reservations')
+    voided_date = models.DateTimeField(null=True, blank=True)
     remarks = models.TextField(blank=True, null=True)
     
     # Link to the auto-generated borrow request batch
@@ -1801,6 +1805,8 @@ class BorrowRequestBatch(models.Model):
     returned_date = models.DateTimeField(null=True, blank=True)
     completed_date = models.DateTimeField(null=True, blank=True)
     claimed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='claimed_borrow_requests')
+    voided_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='voided_borrow_requests')
+    voided_date = models.DateTimeField(null=True, blank=True)
     remarks = models.TextField(blank=True, null=True)
 
     class Meta:

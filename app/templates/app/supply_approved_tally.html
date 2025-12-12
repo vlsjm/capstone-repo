@@ -381,6 +381,7 @@
             gap: 5px;
             margin-top: 20px;
             flex-wrap: wrap;
+            list-style: none;
         }
 
         .pagination a,
@@ -858,7 +859,7 @@
                     <button type="submit" class="btn-filter">
                         <i class="fas fa-search"></i> Apply Filters
                     </button>
-                    <a href="{% url 'supply_approved_tally' %}" class="btn-clear">
+                    <a href="{% url 'supply_approved_tally' %}" class="btn-clear" id="clearFiltersBtn">
                         <i class="fas fa-times"></i> Clear
                     </a>
                 </div>
@@ -970,13 +971,24 @@
 
     </div>
 
+    <script id="chart-data" type="application/json">
+        {
+            "deptChartData": {{ dept_chart_data|safe }},
+            "catChartData": {{ cat_chart_data|safe }},
+            "itemDeptAnalytics": {{ item_dept_analytics_json|safe }},
+            "itemDeptAnalyticsUnfiltered": {{ item_dept_analytics_unfiltered_json|safe }},
+            "categoryDeptAnalytics": {{ category_dept_analytics_json|safe }}
+        }
+    </script>
     <script>
-        // Chart.js initialization
-        const deptChartData = {{ dept_chart_data|safe }};
-        const catChartData = {{ cat_chart_data|safe }};
-        const itemDeptAnalytics = {{ item_dept_analytics_json|safe }};
-        const itemDeptAnalyticsUnfiltered = {{ item_dept_analytics_unfiltered_json|safe }};
-        const categoryDeptAnalytics = {{ category_dept_analytics_json|safe }};
+        // Chart.js initialization - Parse data from JSON script tag
+        const chartDataElement = document.getElementById('chart-data');
+        const chartDataJson = JSON.parse(chartDataElement.textContent);
+        const deptChartData = chartDataJson.deptChartData;
+        const catChartData = chartDataJson.catChartData;
+        const itemDeptAnalytics = chartDataJson.itemDeptAnalytics;
+        const itemDeptAnalyticsUnfiltered = chartDataJson.itemDeptAnalyticsUnfiltered;
+        const categoryDeptAnalytics = chartDataJson.categoryDeptAnalytics;
         
         // Color palettes for charts - Using vibrant dashboard colors
         const chartColors = [
@@ -1313,7 +1325,12 @@
         }
         
         // Update user dropdown based on department selection
-        const usersByDepartment = {{ users_by_department_json|safe }};
+    </script>
+    <script id="users-data" type="application/json">
+        {{ users_by_department_json|safe }}
+    </script>
+    <script>
+        const usersByDepartment = JSON.parse(document.getElementById('users-data').textContent);
         const departmentSelect = document.getElementById('department');
         const userSelect = document.getElementById('user');
         
@@ -1355,6 +1372,16 @@
             }
         }
 
+        // Handle filter form submission scroll retention
+        document.getElementById('filterForm').addEventListener('submit', function(e) {
+            sessionStorage.setItem('tallyScrollPos', window.scrollY);
+        });
+
+        // Handle clear filters button scroll retention
+        document.getElementById('clearFiltersBtn').addEventListener('click', function(e) {
+            sessionStorage.setItem('tallyScrollPos', window.scrollY);
+        });
+
         // Handle pagination scroll retention
         document.querySelectorAll('.pagination a').forEach(link => {
             link.addEventListener('click', function(e) {
@@ -1363,7 +1390,7 @@
             });
         });
 
-        // Restore scroll position after page load if pagination was used
+        // Restore scroll position after page load if pagination was used or filter was applied
         const savedTallyScrollPos = sessionStorage.getItem('tallyScrollPos');
         if (savedTallyScrollPos !== null) {
             window.scrollTo(0, parseInt(savedTallyScrollPos));

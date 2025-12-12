@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.views.generic import TemplateView
 from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from app.models import SupplyRequestBatch, BorrowRequestBatch, ReservationBatch
+from app.models import SupplyRequestBatch, BorrowRequestBatch, ReservationBatch, SupplyCategory
 
 
 class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
@@ -18,33 +18,15 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
         # Get separate filters for tally and items
         tally_year_filter = self.request.GET.get('tally_year', '')
         tally_month_filter = self.request.GET.get('tally_month', '')
+        tally_category_filter = self.request.GET.get('tally_category', '')
+        tally_search = self.request.GET.get('tally_search', '').strip()
         items_year_filter = self.request.GET.get('items_year', '')
         items_month_filter = self.request.GET.get('items_month', '')
         
         # Initialize items summary
         items_summary = []
         
-        # Get all supply requests - for items table use items_year_filter and items_month_filter
-        supply_batches = SupplyRequestBatch.objects.filter(user=self.request.user)
-        if items_year_filter:
-            supply_batches = supply_batches.filter(request_date__year=items_year_filter)
-        if items_month_filter:
-            supply_batches = supply_batches.filter(request_date__month=items_month_filter)
-        
-        for batch in supply_batches:
-            for item in batch.items.all():
-                items_summary.append({
-                    'type': 'Supply',
-                    'item_name': item.supply.supply_name,
-                    'category': item.supply.category.name if item.supply.category else 'Uncategorized',
-                    'quantity': item.quantity,
-                    'approved_quantity': item.approved_quantity or 0,
-                    'status': item.get_status_display(),
-                    'request_date': batch.request_date,
-                    'purpose': batch.purpose,
-                    'request_id': f"SB-{batch.id}"
-                })
-        
+        # Don't include supply requests in items table - they're shown in tally above
         # Get all borrow requests
         borrow_batches = BorrowRequestBatch.objects.filter(user=self.request.user)
         if items_year_filter:
@@ -102,12 +84,13 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
         available_years = sorted(list(all_years), reverse=True)
         
         # Calculate statistics (before pagination) - based on items_year/month filters
+        # Note: items_summary now only includes borrow and reservation requests
         total_items = len(items_summary)
         total_requested = sum(item['quantity'] for item in items_summary)
         total_approved = sum(item['approved_quantity'] for item in items_summary)
         
-        # Group by type
-        supply_count = len([i for i in items_summary if i['type'] == 'Supply'])
+        # Group by type (supply count will be 0 since we excluded supplies)
+        supply_count = 0  # Supplies are shown in the tally section above
         borrow_count = len([i for i in items_summary if i['type'] == 'Borrow'])
         reservation_count = len([i for i in items_summary if i['type'] == 'Reservation'])
         
@@ -124,11 +107,16 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
         for batch in tally_supply_batches:
             # Only include completed supply items (those that have been claimed)
             for item in batch.items.filter(status='completed'):
+                category_name = item.supply.category.name if item.supply.category else 'Uncategorized'
+                # Apply category filter if specified
+                if tally_category_filter and category_name != tally_category_filter:
+                    continue
+                    
                 tally_items.append({
                     'type': 'Supply',
                     'supply_id': item.supply.barcode or f"SUP-{item.supply.id}",
                     'item_name': item.supply.supply_name,
-                    'category': item.supply.category.name if item.supply.category else 'Uncategorized',
+                    'category': category_name,
                     'quantity': item.quantity,
                     'approved_quantity': item.approved_quantity or 0,
                 })
@@ -136,6 +124,13 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
         # Build item tally (group by item name and type)
         tally_dict = {}
         for item in tally_items:
+            # Apply search filter if specified
+            if tally_search:
+                supply_id_match = tally_search.lower() in item['supply_id'].lower()
+                item_name_match = tally_search.lower() in item['item_name'].lower()
+                if not (supply_id_match or item_name_match):
+                    continue
+                    
             key = f"{item['type']}_{item['item_name']}"
             if key not in tally_dict:
                 tally_dict[key] = {
@@ -183,14 +178,20 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
             (9, 'September'), (10, 'October'), (11, 'November'), (12, 'December')
         ]
         
+        # Get available categories for filter dropdown
+        available_categories = SupplyCategory.objects.all().order_by('name')
+        
         context.update({
             'items_summary': items_page,
             'items_year_filter': items_year_filter,
             'items_month_filter': items_month_filter,
             'tally_year_filter': tally_year_filter,
             'tally_month_filter': tally_month_filter,
+            'tally_category_filter': tally_category_filter,
+            'tally_search': tally_search,
             'tally_data': tally_page_obj,
             'available_years': available_years,
+            'available_categories': available_categories,
             'month_names': month_names,
             'total_items': total_items,
             'total_requested': total_requested,
@@ -233,7 +234,7 @@ def export_requests_summary_pdf(request):
             month_names = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
             filter_text.append(f"Month_{month_names[int(month_filter)]}")
         
-        filename = f'My_Requests_Summary_{"_".join(filter_text) if filter_text else "All_Time"}_{timezone.now().strftime("%Y%m%d")}.pdf'
+        filename = f'Borrow_Reservation_Summary_{"_".join(filter_text) if filter_text else "All_Time"}_{timezone.now().strftime("%Y%m%d")}.pdf'
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         
         # Create the PDF object using BytesIO buffer
@@ -256,7 +257,7 @@ def export_requests_summary_pdf(request):
         )
         
         # Title
-        title_text = f"My Requests Summary"
+        title_text = f"Borrow & Reservation Requests Summary"
         if year_filter or month_filter:
             title_text += " -"
             if year_filter:
@@ -281,26 +282,7 @@ def export_requests_summary_pdf(request):
         # Get items summary
         items_summary = []
         
-        # Get all supply requests
-        supply_batches = SupplyRequestBatch.objects.filter(user=request.user)
-        if year_filter:
-            supply_batches = supply_batches.filter(request_date__year=year_filter)
-        if month_filter:
-            supply_batches = supply_batches.filter(request_date__month=month_filter)
-        
-        for batch in supply_batches:
-            for item in batch.items.all():
-                items_summary.append({
-                    'type': 'Supply',
-                    'item_name': item.supply.supply_name,
-                    'category': item.supply.category.name if item.supply.category else 'Uncategorized',
-                    'quantity': item.quantity,
-                    'approved_quantity': item.approved_quantity or 0,
-                    'status': item.get_status_display(),
-                    'request_date': batch.request_date,
-                    'request_id': f"SB-{batch.id}"
-                })
-        
+        # Don't include supply requests - they're shown in the tally section
         # Get all borrow requests
         borrow_batches = BorrowRequestBatch.objects.filter(user=request.user)
         if year_filter:
@@ -425,3 +407,245 @@ def export_requests_summary_pdf(request):
         print(f"Error generating PDF: {str(e)}")
         print(traceback.format_exc())
         return HttpResponse(f"Error generating PDF: {str(e)}", status=500)
+
+
+@login_required
+@permission_required('app.view_user_module')
+def export_claimed_supplies_tally_excel(request):
+    """Export claimed supplies tally as Excel with filters"""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from django.utils import timezone
+    from datetime import datetime
+    import traceback
+    
+    try:
+        # Get filters
+        year_filter = request.GET.get('year', '')
+        month_filter = request.GET.get('month', '')
+        category_filter = request.GET.get('category', '')
+        start_date_filter = request.GET.get('start_date', '')
+        end_date_filter = request.GET.get('end_date', '')
+        
+        # Create workbook
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Claimed Supplies Tally"
+        
+        # Styles
+        header_fill = PatternFill(start_color="152d64", end_color="152d64", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF", size=12)
+        title_font = Font(bold=True, size=14, color="152d64")
+        border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
+        center_aligned = Alignment(horizontal='center', vertical='center')
+        
+        # Title
+        ws.merge_cells('A1:E1')
+        title_cell = ws['A1']
+        title_text = "Claimed Supplies Tally"
+        if year_filter or month_filter or category_filter:
+            title_text += " - Filtered"
+        title_cell.value = title_text
+        title_cell.font = title_font
+        title_cell.alignment = center_aligned
+        
+        # User info
+        user = request.user
+        user_name = f"{user.first_name} {user.last_name}" if user.first_name or user.last_name else user.username
+        department = user.userprofile.department.name if hasattr(user, 'userprofile') and user.userprofile.department else "N/A"
+        
+        ws.merge_cells('A2:E2')
+        info_cell = ws['A2']
+        info_cell.value = f"Requester: {user_name} | Department: {department} | Generated: {timezone.now().strftime('%B %d, %Y %I:%M %p')}"
+        info_cell.alignment = Alignment(horizontal='left', vertical='center')
+        
+        # Filter info
+        filter_parts = []
+        if start_date_filter and end_date_filter:
+            try:
+                start_date_obj = datetime.strptime(start_date_filter, '%Y-%m-%d')
+                end_date_obj = datetime.strptime(end_date_filter, '%Y-%m-%d')
+                filter_parts.append(f"Date Range: {start_date_obj.strftime('%B %d, %Y')} - {end_date_obj.strftime('%B %d, %Y')}")
+            except:
+                pass
+        elif start_date_filter:
+            try:
+                start_date_obj = datetime.strptime(start_date_filter, '%Y-%m-%d')
+                filter_parts.append(f"From: {start_date_obj.strftime('%B %d, %Y')}")
+            except:
+                pass
+        elif end_date_filter:
+            try:
+                end_date_obj = datetime.strptime(end_date_filter, '%Y-%m-%d')
+                filter_parts.append(f"Until: {end_date_obj.strftime('%B %d, %Y')}")
+            except:
+                pass
+        elif year_filter:
+            filter_parts.append(f"Year: {year_filter}")
+            if month_filter:
+                month_names = ['', 'January', 'February', 'March', 'April', 'May', 'June', 
+                              'July', 'August', 'September', 'October', 'November', 'December']
+                filter_parts.append(f"Month: {month_names[int(month_filter)]}")
+        if category_filter:
+            filter_parts.append(f"Category: {category_filter}")
+        
+        if filter_parts:
+            ws.merge_cells('A3:E3')
+            filter_cell = ws['A3']
+            filter_cell.value = f"Filters Applied: {' | '.join(filter_parts)}"
+            filter_cell.alignment = Alignment(horizontal='left', vertical='center')
+            filter_cell.font = Font(italic=True)
+            header_row = 5
+        else:
+            header_row = 4
+        
+        # Headers
+        headers = ["Supply ID", "Item Name", "Category", "Total Requested", "Total Approved"]
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=header_row, column=col_num)
+            cell.value = header
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = center_aligned
+            cell.border = border
+        
+        # Get tally data
+        tally_items = []
+        tally_supply_batches = SupplyRequestBatch.objects.filter(user=request.user)
+        
+        # Apply date filters - prioritize date range over year/month
+        if start_date_filter or end_date_filter:
+            if start_date_filter:
+                try:
+                    start_date = datetime.strptime(start_date_filter, '%Y-%m-%d').date()
+                    tally_supply_batches = tally_supply_batches.filter(request_date__gte=start_date)
+                except:
+                    pass
+            if end_date_filter:
+                try:
+                    end_date = datetime.strptime(end_date_filter, '%Y-%m-%d').date()
+                    tally_supply_batches = tally_supply_batches.filter(request_date__lte=end_date)
+                except:
+                    pass
+        else:
+            # Use year/month filters if no date range specified
+            if year_filter:
+                tally_supply_batches = tally_supply_batches.filter(request_date__year=year_filter)
+            if month_filter:
+                tally_supply_batches = tally_supply_batches.filter(request_date__month=month_filter)
+        
+        for batch in tally_supply_batches:
+            for item in batch.items.filter(status='completed'):
+                category_name = item.supply.category.name if item.supply.category else 'Uncategorized'
+                if category_filter and category_name != category_filter:
+                    continue
+                    
+                tally_items.append({
+                    'supply_id': item.supply.barcode or f"SUP-{item.supply.id}",
+                    'item_name': item.supply.supply_name,
+                    'category': category_name,
+                    'quantity': item.quantity,
+                    'approved_quantity': item.approved_quantity or 0,
+                })
+        
+        # Build item tally (group by item name)
+        tally_dict = {}
+        for item in tally_items:
+            key = item['item_name']
+            if key not in tally_dict:
+                tally_dict[key] = {
+                    'supply_id': item['supply_id'],
+                    'item_name': item['item_name'],
+                    'category': item['category'],
+                    'total_quantity': 0,
+                    'total_approved': 0,
+                }
+            tally_dict[key]['total_quantity'] += item['quantity']
+            tally_dict[key]['total_approved'] += item['approved_quantity']
+        
+        tally_data = sorted(tally_dict.values(), key=lambda x: x['total_quantity'], reverse=True)
+        
+        # Add data rows
+        row_num = header_row + 1
+        for item in tally_data:
+            ws.cell(row=row_num, column=1, value=item['supply_id']).border = border
+            ws.cell(row=row_num, column=2, value=item['item_name']).border = border
+            ws.cell(row=row_num, column=3, value=item['category']).border = border
+            ws.cell(row=row_num, column=4, value=item['total_quantity']).border = border
+            ws.cell(row=row_num, column=4).alignment = center_aligned
+            ws.cell(row=row_num, column=5, value=item['total_approved']).border = border
+            ws.cell(row=row_num, column=5).alignment = center_aligned
+            row_num += 1
+        
+        # Add totals row
+        if tally_data:
+            row_num += 1
+            total_cell = ws.cell(row=row_num, column=1)
+            total_cell.value = "TOTAL"
+            total_cell.font = Font(bold=True)
+            ws.merge_cells(f'A{row_num}:C{row_num}')
+            
+            total_requested = sum(item['total_quantity'] for item in tally_data)
+            total_approved = sum(item['total_approved'] for item in tally_data)
+            
+            ws.cell(row=row_num, column=4, value=total_requested).font = Font(bold=True)
+            ws.cell(row=row_num, column=4).alignment = center_aligned
+            ws.cell(row=row_num, column=5, value=total_approved).font = Font(bold=True)
+            ws.cell(row=row_num, column=5).alignment = center_aligned
+        
+        # Adjust column widths
+        ws.column_dimensions['A'].width = 15
+        ws.column_dimensions['B'].width = 40
+        ws.column_dimensions['C'].width = 20
+        ws.column_dimensions['D'].width = 18
+        ws.column_dimensions['E'].width = 18
+        
+        # Create response
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        
+        # Build filename
+        filter_text = []
+        if start_date_filter and end_date_filter:
+            try:
+                start_date_obj = datetime.strptime(start_date_filter, '%Y-%m-%d')
+                end_date_obj = datetime.strptime(end_date_filter, '%Y-%m-%d')
+                filter_text.append(f"{start_date_obj.strftime('%Y%m%d')}_to_{end_date_obj.strftime('%Y%m%d')}")
+            except:
+                pass
+        elif start_date_filter:
+            try:
+                start_date_obj = datetime.strptime(start_date_filter, '%Y-%m-%d')
+                filter_text.append(f"From_{start_date_obj.strftime('%Y%m%d')}")
+            except:
+                pass
+        elif end_date_filter:
+            try:
+                end_date_obj = datetime.strptime(end_date_filter, '%Y-%m-%d')
+                filter_text.append(f"Until_{end_date_obj.strftime('%Y%m%d')}")
+            except:
+                pass
+        elif year_filter:
+            filter_text.append(f"Year_{year_filter}")
+            if month_filter:
+                month_names = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                filter_text.append(f"Month_{month_names[int(month_filter)]}")
+        if category_filter:
+            filter_text.append(f"Cat_{category_filter.replace(' ', '_')}")
+        
+        filename = f'Claimed_Supplies_Tally_{"_".join(filter_text) if filter_text else "All"}_{timezone.now().strftime("%Y%m%d")}.xlsx'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        wb.save(response)
+        return response
+        
+    except Exception as e:
+        print(f"Error generating Excel: {str(e)}")
+        print(traceback.format_exc())
+        return HttpResponse(f"Error generating Excel: {str(e)}", status=500)

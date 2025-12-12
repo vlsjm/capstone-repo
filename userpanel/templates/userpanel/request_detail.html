@@ -668,17 +668,6 @@
                         </div>
                         
                         <div class="item-card-body">
-                            {% if not 'Supply' in request_type %}
-                            <div class="item-detail-row">
-                                <span class="detail-label">Status</span>
-                                {% if item_data.item.availability == 'available' %}
-                                    <span class="availability-badge available">Available</span>
-                                {% else %}
-                                    <span class="availability-badge unavailable">Unavailable</span>
-                                {% endif %}
-                            </div>
-                            {% endif %}
-                            
                             <div class="item-description">
                                 <span class="detail-label">Description</span>
                                 <p class="description-text">
@@ -701,9 +690,6 @@
                             <tr>
                                 <th>Item Name</th>
                                 <th>Quantity</th>
-                                {% if not 'Supply' in request_type %}
-                                <th>Available</th>
-                                {% endif %}
                                 <th>Description</th>
                             </tr>
                         </thead>
@@ -726,15 +712,6 @@
                                     </div>
                                 </td>
                                 <td class="quantity" data-label="Quantity">{{ item_data.quantity }}</td>
-                                {% if not 'Supply' in request_type %}
-                                <td data-label="Available">
-                                    {% if item_data.item.availability == 'available' %}
-                                        <span class="availability-badge available">Available</span>
-                                    {% else %}
-                                        <span class="availability-badge unavailable">Unavailable</span>
-                                    {% endif %}
-                                </td>
-                                {% endif %}
                                 <td class="description" data-label="Description">
                                     {% if 'Supply' in request_type %}
                                         {{ item_data.item.description|default:"No description available" }}

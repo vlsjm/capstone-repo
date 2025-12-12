@@ -955,8 +955,11 @@ def reservation_batch_detail(request, batch_id):
             batch.items.all().update(status='voided')
             
             # Change batch status to voided
+            from django.utils import timezone
             batch.status = 'voided'
             batch.remarks = remarks
+            batch.voided_by = request.user
+            batch.voided_date = timezone.now()
             batch.save()
             
             # Create notification for user
@@ -2550,7 +2553,8 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         for_claiming_requests = base_queryset.filter(status='for_claiming')
         # Completed requests ordered by completion date (most recent first)
         completed_requests = base_queryset.filter(status='completed').order_by('-completed_date')
-        voided_requests = base_queryset.filter(status='voided').order_by('-request_date')
+        from django.db.models import F
+        voided_requests = base_queryset.filter(status='voided').order_by(F('voided_date').desc(nulls_last=True), '-request_date')
         
         # Paginate each category
         pending_paginator = Paginator(pending_requests, self.paginate_by)
@@ -2838,7 +2842,8 @@ class UserReservationListView(PermissionRequiredMixin, ListView):
         completed_batches = all_batches.filter(status='completed')
         rejected_batches = all_batches.filter(status='rejected')
         expired_batches = all_batches.filter(status='expired')
-        voided_batches = all_batches.filter(status='voided').order_by('-request_date')
+        from django.db.models import F
+        voided_batches = all_batches.filter(status='voided').order_by(F('voided_date').desc(nulls_last=True), '-request_date')
         
         # Paginate each status group with 10 items per page
         paginate_by = 10
@@ -4094,6 +4099,11 @@ def logout_view(request):
             object_repr=username,
             description=f"User {username} logged out"
         )
+    
+    # Clear any pending messages before logout to prevent them from showing on login page
+    storage = messages.get_messages(request)
+    storage.used = True
+    
     return LogoutView.as_view()(request)
 
 @login_required
@@ -7119,8 +7129,11 @@ def batch_request_detail(request, batch_id):
             batch_request.items.all().update(status='voided')
             
             # Change batch status to voided
+            from django.utils import timezone
             batch_request.status = 'voided'
             batch_request.remarks = remarks
+            batch_request.voided_by = request.user
+            batch_request.voided_date = timezone.now()
             batch_request.save()
             
             # Create notification for user
@@ -8264,7 +8277,8 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
         overdue_requests = base_queryset.filter(status='overdue')
         rejected_requests = base_queryset.filter(status='rejected')
         expired_requests = base_queryset.filter(status='expired')
-        voided_requests = base_queryset.filter(status='voided').order_by('-request_date')
+        from django.db.models import F
+        voided_requests = base_queryset.filter(status='voided').order_by(F('voided_date').desc(nulls_last=True), '-request_date')
         
         # Pagination for each tab
         paginator_pending = Paginator(pending_requests, self.paginate_by)
