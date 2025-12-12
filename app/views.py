@@ -8635,6 +8635,100 @@ def return_individual_borrow_item(request, batch_id, item_id):
     return redirect('borrow_batch_request_detail', batch_id=batch_id)
 
 
+@permission_required('app.view_admin_module')
+@login_required
+@require_POST
+def mark_individual_borrow_item_lost(request, batch_id, item_id):
+    """
+    Handle marking an individual active borrow item as lost.
+    This will NOT increase stock (item is lost) and mark the specific item as lost.
+    Also creates a LostItem entry for tracking in the lost items list.
+    """
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    item = get_object_or_404(BorrowRequestItem, id=item_id, batch_request=batch_request)
+    
+    # Only allow marking as lost if item is active or overdue
+    if item.status not in ['active', 'overdue']:
+        messages.error(request, 'This item is not available for marking as lost.')
+        return redirect('borrow_batch_request_detail', batch_id=batch_id)
+    
+    # Get remarks from the request
+    remarks = request.POST.get('remarks', '').strip()
+    
+    # Return quantity to inventory (even though item is marked as lost)
+    approved_qty = item.approved_quantity or item.quantity or 0
+    old_quantity = item.property.quantity
+    item.property.quantity += approved_qty
+    item.property.save()
+    
+    # Build description for lost item
+    lost_description = f"Item lost by {batch_request.user.get_full_name() or batch_request.user.username}. {remarks}" if remarks else f"Item lost by {batch_request.user.get_full_name() or batch_request.user.username}."
+    
+    # Create LostItem entry for tracking in the lost items management page
+    lost_item = LostItem(
+        user=batch_request.user,  # The person who lost the item
+        item=item.property,
+        description=f"Lost during borrow request #{batch_request.id}. {lost_description}",
+        last_seen_location=remarks if remarks else "Unknown",
+        last_seen_date=timezone.now().date(),
+        status='lost',
+        remarks=f"Auto-reported by admin {request.user.get_full_name() or request.user.username} when marking borrow item as lost. Quantity: {approved_qty}"
+    )
+    lost_item.save(skip_auto_status=True)  # Skip the automatic status change since we handle it here
+    
+    # Update property condition to Lost
+    item.property.condition = 'Lost'
+    item.property.availability = 'not_available'
+    item.property.save(update_fields=['condition', 'availability'])
+    
+    # Create PropertyHistory entry for lost item with quantity return
+    PropertyHistory.objects.create(
+        property=item.property,
+        user=request.user,
+        action='quantity_update',
+        field_name='quantity',
+        old_value=str(old_quantity),
+        new_value=str(item.property.quantity),
+        remarks=f"Returned {approved_qty} units from borrow (marked as LOST). Borrower: {batch_request.user.get_full_name() or batch_request.user.username}. Processed by: {request.user.get_full_name() or request.user.username}. {remarks}"
+    )
+    
+    # Mark item as lost
+    item.status = 'lost'
+    item.actual_return_date = timezone.now().date()  # Record when it was marked as lost
+    item.remarks = lost_description
+    item.save()
+    
+    # Check if all active items in the batch are now returned or lost
+    remaining_active_items = batch_request.items.filter(status__in=['active', 'overdue'])
+    if not remaining_active_items.exists():
+        # All items have been resolved (returned or lost)
+        # Mark batch as 'returned' regardless of whether items were returned or lost
+        # This ensures the batch appears in the 'returned' tab for tracking
+        batch_request.status = 'returned'
+        batch_request.returned_date = timezone.now()
+        batch_request.completed_date = timezone.now()
+        batch_request.save()
+        
+        # Notify user
+        Notification.objects.create(
+            user=batch_request.user,
+            message=f"Your borrow request #{batch_request.id} has been marked as lost.",
+            remarks=f"{item.property.property_name} was marked as lost. Please contact the admin for further action."
+        )
+    
+    # Log activity
+    ActivityLog.log_activity(
+        user=request.user,
+        action='update',
+        model_name='BorrowRequestItem',
+        object_repr=f"Batch #{batch_id} - {item.property.property_name}",
+        description=f"Marked {approved_qty} units of {item.property.property_name} as LOST from batch borrow request #{batch_id}. Lost by: {batch_request.user.get_full_name() or batch_request.user.username}"
+    )
+    
+    messages.warning(request, f'{item.property.property_name} has been marked as lost and added to the Lost Items list.')
+    return redirect('borrow_batch_request_detail', batch_id=batch_id)
+
+
 class AdminProfileView(PermissionRequiredMixin, View):
     permission_required = 'auth.view_user'
     template_name = 'app/admin_profile.html'
