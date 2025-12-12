@@ -2221,6 +2221,7 @@ class BorrowRequestItem(models.Model):
         ('overdue', 'Overdue'),
         ('completed', 'Completed'),
         ('voided', 'Voided'),
+        ('lost', 'Lost'),
     ]
     
     batch_request = models.ForeignKey(BorrowRequestBatch, on_delete=models.CASCADE, related_name='items')

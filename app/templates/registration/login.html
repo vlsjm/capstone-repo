@@ -647,10 +647,10 @@
             </div>
 
             <div class="form-options">
-              <label class="remember-me">
+              <!-- <label class="remember-me">
                 <input type="checkbox" name="remember_me" />
                 <span class="or-text">Remember me</span>
-              </label>
+              </label> -->
               <a href="{% url 'password_reset' %}" class="forgot-password">Forgot password?</a>
             </div>
 
@@ -673,7 +673,7 @@
       
       if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
-        eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-2.29m5.159-2.674A9.01 9.01 0 0112 5c4.478 0 8.268 2.943 9.543 7a9.97 9.97 0 01-1.563 2.29m-5.159 2.674A9.01 9.01 0 0112 5m0 0a6.975 6.975 0 016.93 5m-6.93 5a6.975 6.975 0 01-6.93-5m13.849-1.175a10.05 10.05 0 01-1.567 2.29m-2.654 2.29a10.05 10.05 0 01-5.037 1.31"></path>';
+        eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"></path>';
       } else {
         passwordInput.type = 'password';
         eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>';

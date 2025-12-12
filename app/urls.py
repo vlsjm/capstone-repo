@@ -28,6 +28,7 @@ from .views import (
     reject_borrow_item,
     claim_individual_borrow_item,
     return_individual_borrow_item,
+    mark_individual_borrow_item_lost,
     create_user,
     request_detail,
     borrow_request_details,
@@ -191,6 +192,7 @@ urlpatterns = [
     path('reject-borrow-item/<int:batch_id>/<int:item_id>/', reject_borrow_item, name='reject_borrow_item'),
     path('claim-borrow-item/<int:batch_id>/<int:item_id>/', claim_individual_borrow_item, name='claim_individual_borrow_item'),
     path('return-borrow-item/<int:batch_id>/<int:item_id>/', return_individual_borrow_item, name='return_individual_borrow_item'),
+    path('lost-borrow-item/<int:batch_id>/<int:item_id>/', mark_individual_borrow_item_lost, name='mark_individual_borrow_item_lost'),
 
     path('create-supply-request/', create_supply_request, name='create_supply_request'),
     path('add-to-list/', add_to_list, name='add_to_list'),

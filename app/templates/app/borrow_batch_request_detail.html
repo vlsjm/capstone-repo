@@ -374,6 +374,12 @@
       border: 1px solid #cbd5e0;
     }
     
+    .status-badge.status-lost {
+      background: linear-gradient(135deg, #ffe5e5 0%, #ffcccc 100%);
+      color: #c92a2a;
+      border: 1px solid #ff6b6b;
+    }
+    
     /* Enhanced action buttons */
     .action-buttons {
       display: flex;
@@ -953,6 +959,8 @@
                     <i class="fas fa-hand-paper"></i>
                   {% elif item.status == 'returned' %}
                     <i class="fas fa-undo"></i>
+                  {% elif item.status == 'lost' %}
+                    <i class="fas fa-exclamation-triangle"></i>
                   {% endif %}
                   {{ item.status|title }}
                 </span>
@@ -991,13 +999,22 @@
                     </button>
                   </form>
                 {% elif user.is_staff and item.status == 'active' %}
-                  <form method="post" action="{% url 'return_individual_borrow_item' batch.id item.id %}" style="display: inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="remarks" id="remarks-return-{{ item.id }}">
-                    <button type="submit" class="btn-table btn-return-table" onclick="document.getElementById('remarks-return-{{ item.id }}').value = document.getElementById('remarks-{{ item.id }}') ? document.getElementById('remarks-{{ item.id }}').value : ''; return confirm('Mark as returned?')">
-                      <i class="fas fa-undo"></i> Return
-                    </button>
-                  </form>
+                  <div class="action-buttons-inline" style="display: flex; gap: 5px;">
+                    <form method="post" action="{% url 'return_individual_borrow_item' batch.id item.id %}" style="display: inline;">
+                      {% csrf_token %}
+                      <input type="hidden" name="remarks" id="remarks-return-{{ item.id }}">
+                      <button type="submit" class="btn-table btn-return-table" onclick="document.getElementById('remarks-return-{{ item.id }}').value = document.getElementById('remarks-{{ item.id }}') ? document.getElementById('remarks-{{ item.id }}').value : ''; return confirm('Mark as returned?')" style="margin-right: 5px;">
+                        <i class="fas fa-undo"></i> Return
+                      </button>
+                    </form>
+                    <form method="post" action="{% url 'mark_individual_borrow_item_lost' batch.id item.id %}" style="display: inline;">
+                      {% csrf_token %}
+                      <input type="hidden" name="remarks" id="remarks-lost-{{ item.id }}">
+                      <button type="submit" class="btn-table" onclick="document.getElementById('remarks-lost-{{ item.id }}').value = document.getElementById('remarks-{{ item.id }}') ? document.getElementById('remarks-{{ item.id }}').value : ''; return confirm('Mark as LOST? This item will NOT be returned to inventory.');" style="background: #ff6b6b; color: white;">
+                        <i class="fas fa-exclamation-triangle"></i> Lost
+                      </button>
+                    </form>
+                  </div>
                 {% else %}
                   <span style="color: #6c757d; font-size: 12px;">No actions</span>
                 {% endif %}
