@@ -4099,6 +4099,11 @@ def logout_view(request):
             object_repr=username,
             description=f"User {username} logged out"
         )
+    
+    # Clear any pending messages before logout to prevent them from showing on login page
+    storage = messages.get_messages(request)
+    storage.used = True
+    
     return LogoutView.as_view()(request)
 
 @login_required
