@@ -3807,6 +3807,13 @@ def admin_mark_property_damaged(request, property_id):
     
     property_obj = get_object_or_404(Property, id=property_id)
     
+    # Check if item is already damaged or lost
+    if property_obj.condition in ['Needing repair', 'Unserviceable', 'Lost']:
+        return JsonResponse({
+            'success': False,
+            'message': f'This item is already marked as "{property_obj.get_condition_display()}". Cannot submit duplicate damage report.'
+        }, status=400)
+    
     form = AdminDamageReportForm(request.POST, request.FILES)
     
     if form.is_valid():
@@ -3853,6 +3860,13 @@ def report_lost_item(request, property_id):
     from .forms import LostItemForm
     
     property_obj = get_object_or_404(Property, id=property_id)
+    
+    # Check if item is already lost
+    if property_obj.condition == 'Lost':
+        return JsonResponse({
+            'success': False,
+            'message': 'This item is already marked as "Lost". Cannot submit duplicate lost item report.'
+        }, status=400)
     
     form = LostItemForm(request.POST, request.FILES)
     

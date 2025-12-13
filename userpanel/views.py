@@ -179,9 +179,11 @@ class UserReportView(PermissionRequiredMixin, TemplateView):
         form = DamageReportForm()
         recent_requests = DamageReport.objects.filter(user=request.user).order_by('-report_date')[:5]
         
-        # Get all properties that can be reported as damaged (not archived)
+        # Get all properties that can be reported (exclude archived, damaged, and lost items)
         available_supplies = Property.objects.filter(
             is_archived=False
+        ).exclude(
+            condition__in=['Needing repair', 'Unserviceable', 'Lost']
         )
         
         # Get property categories for filter
@@ -220,6 +222,11 @@ class UserReportView(PermissionRequiredMixin, TemplateView):
             report = form.save(commit=False)
             report.user = request.user
             
+            # Check if item is already damaged or lost
+            if report.item.condition in ['Needing repair', 'Unserviceable', 'Lost']:
+                messages.error(request, f'This item is already marked as "{report.item.get_condition_display()}". Cannot submit duplicate damage report.')
+                return redirect('user_report')
+            
             # Handle image upload and compression
             if 'image' in request.FILES:
                 report.set_image_from_file(request.FILES['image'])
@@ -248,9 +255,11 @@ class UserReportView(PermissionRequiredMixin, TemplateView):
             'description': req.description
         } for req in recent_requests]
         
-        # Get all properties for the dropdown (not archived)
+        # Get all properties for the dropdown (exclude archived, damaged, and lost items)
         available_supplies = Property.objects.filter(
             is_archived=False
+        ).exclude(
+            condition__in=['Needing repair', 'Unserviceable', 'Lost']
         )
         
         # Get property categories for filter
@@ -1585,6 +1594,11 @@ def report_lost_item_user(request):
                 property_item = Property.objects.get(id=item_id)
             except Property.DoesNotExist:
                 messages.error(request, 'Selected item does not exist.')
+                return redirect('user_report')
+            
+            # Check if item is already lost
+            if property_item.condition == 'Lost':
+                messages.error(request, 'This item is already marked as \"Lost\". Cannot submit duplicate lost item report.')
                 return redirect('user_report')
             
             # Create the lost item report
