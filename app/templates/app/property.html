@@ -2695,9 +2695,9 @@ input:focus {
                   <td style="padding: 8px; border: 1px solid #ddd; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ property.property_number|default:'Not assigned' }}">{{ property.property_number|default:"Not assigned" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ property.description|default:'N/A' }}">{{ property.description|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.unit_value|peso }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.overall_quantity|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.quantity|default:"N/A" }}</td>
-                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.overall_quantity|default:"N/A" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.overall_quantity|default:"0" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.quantity|default:"0" }}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd;">{{ property.overall_quantity|default:"0" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">{{ property.quantity_per_physical_count|default:"N/A" }}</td>
                   <td style="padding: 8px; border: 1px solid #ddd;">
                     <span class="status-badge {% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' or property.availability == 'not_available' %}status-rejected{% else %}status-approved{% endif %}">
@@ -2732,9 +2732,9 @@ input:focus {
                           data-barcode="{% if property.barcode_image %}{{ property.barcode_image.url }}{% else %}{{ property.barcode }}{% endif %}"
                           data-unit-measure="{{ property.unit_of_measure|default:'N/A' }}"
                           data-unit-value="{{ property.unit_value|peso }}"
-                          data-overall-quantity="{{ property.overall_quantity|default:'N/A' }}"
-                          data-current-quantity="{{ property.quantity|default:'N/A' }}"
-                          data-quantity-physical-count="{{ property.quantity_per_physical_count|default:'N/A' }}"
+                          data-overall-quantity="{{ property.overall_quantity|default:'0' }}"
+                          data-current-quantity="{{ property.quantity|default:'0' }}"
+                          data-quantity-physical-count="{{ property.quantity_per_physical_count|default:'0' }}"
                           data-location="{{ property.location|default:'N/A' }}"
                           data-accountable-person="{{ property.accountable_person|default:'N/A' }}"
                           data-year-acquired="{{ property.year_acquired|date:'M d, Y'|default:'N/A' }}"
