@@ -353,6 +353,53 @@
         overflow: hidden;
     }
 
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 10001;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .loading-overlay.active {
+        display: flex;
+    }
+
+    .loading-content {
+        background: white;
+        padding: 30px 40px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #152d64;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+        color: #152d64;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
     /* Tab Styles */
     .report-tabs {
         display: flex;
@@ -411,6 +458,14 @@
 </style>
 <div class="request-page-layout">
     <main class="request-form-container">
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Submitting report...</div>
+            </div>
+        </div>
+
         <!-- Tabs -->
         <div class="report-tabs">
             <button class="tab-button active" data-tab="damage-report">
@@ -477,7 +532,7 @@
             </ul>
             {% endif %}
 
-            <form method="post" action="{% url 'user_report' %}" class="request-form" enctype="multipart/form-data">
+            <form id="damage-report-form" method="post" action="{% url 'user_report' %}" class="request-form" enctype="multipart/form-data">
                 {% csrf_token %}
                 
                 <!-- Item Search for Damage Report -->
@@ -526,7 +581,7 @@
             <h1><i class="fas fa-search"></i> Lost Item Report</h1>
             <p class="form-description">Report a lost or missing item. Provide as much detail as possible to help locate the item.</p>
 
-            <form method="post" action="{% url 'report_lost_item_user' %}" class="request-form" enctype="multipart/form-data">
+            <form id="lost-item-report-form" method="post" action="{% url 'report_lost_item_user' %}" class="request-form" enctype="multipart/form-data">
                 {% csrf_token %}
                 
                 <!-- Item Search for Lost Item Report -->
@@ -707,6 +762,61 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show success message
                 showToast(`Image "${file.name}" selected successfully.`, 'success');
             }
+        });
+    }
+
+    // Form submission loading handlers
+    const damageReportForm = document.getElementById('damage-report-form');
+    const lostItemReportForm = document.getElementById('lost-item-report-form');
+    const loadingOverlay = document.getElementById('loading-overlay');
+
+    function showLoading() {
+        loadingOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hideLoading() {
+        loadingOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    if (damageReportForm) {
+        damageReportForm.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+            }
+            showLoading();
+            
+            // If form validation fails, re-enable button and hide loading
+            setTimeout(() => {
+                if (!this.checkValidity()) {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+                    hideLoading();
+                }
+            }, 100);
+        });
+    }
+
+    if (lostItemReportForm) {
+        lostItemReportForm.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+            }
+            showLoading();
+            
+            // If form validation fails, re-enable button and hide loading
+            setTimeout(() => {
+                if (!this.checkValidity()) {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+                    hideLoading();
+                }
+            }, 100);
         });
     }
 });

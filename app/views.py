@@ -139,6 +139,31 @@ def delete_lost_item(request, pk):
     return HttpResponseRedirect(reverse('damaged_items_management') + '?tab=lost-items')
 
 @require_POST
+@admin_permission_required('manage_lost_items')
+def archive_lost_item(request, pk):
+    """Archive a lost item and its associated property"""
+    from .models import LostItem, ActivityLog
+    lost_item = get_object_or_404(LostItem, pk=pk)
+    property_obj = lost_item.item
+    item_name = property_obj.property_name
+    
+    # Archive the property
+    property_obj.is_archived = True
+    property_obj.save(user=request.user)
+    
+    # Log the activity
+    ActivityLog.log_activity(
+        user=request.user,
+        action='archive',
+        model_name='Property',
+        object_repr=str(property_obj),
+        description=f"Archived lost property '{item_name}' via lost item report"
+    )
+    
+    messages.success(request, f"Property '{item_name}' has been archived successfully.")
+    return HttpResponseRedirect(reverse('damaged_items_management') + '?tab=lost-items')
+
+@require_POST
 def update_property_condition(request, pk):
     property_obj = get_object_or_404(Property, pk=pk)
     new_condition = request.POST.get('condition')
@@ -3376,7 +3401,8 @@ class PropertyListView(PermissionRequiredMixin, ListView):
                 Q(property_name__icontains=search_query) |
                 Q(description__icontains=search_query) |
                 Q(category__name__icontains=search_query) |
-                Q(property_number__icontains=search_query)
+                Q(property_number__icontains=search_query) |
+                Q(barcode__icontains=search_query)
             )
         
         # Apply category filter (support multiple categories)
@@ -6626,9 +6652,9 @@ def unarchive_supply(request, pk):
 def archive_property(request, pk):
     property_obj = get_object_or_404(Property, pk=pk)
     if request.method == 'POST':
-        # Check if property condition is Obsolete or Unserviceable
-        if property_obj.condition not in ['Obsolete', 'Unserviceable']:
-            messages.error(request, f"Cannot archive property '{property_obj.property_name}'. Property must be marked as 'Obsolete' or 'Unserviceable' to archive.")
+        # Check if property condition is Obsolete, Unserviceable, or Lost
+        if property_obj.condition not in ['Obsolete', 'Unserviceable', 'Lost']:
+            messages.error(request, f"Cannot archive property '{property_obj.property_name}'. Property must be marked as 'Obsolete', 'Unserviceable', or 'Lost' to archive.")
             return redirect('property_list')
         
         property_obj.is_archived = True
