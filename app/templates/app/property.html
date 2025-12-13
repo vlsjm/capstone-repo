@@ -5109,9 +5109,9 @@ input:focus {
                             // Show error message
                             errorDiv.style.display = 'flex';
                             if (errorMessage) {
-                                errorMessage.textContent = data.errors ? 
+                                errorMessage.textContent = data.message || (data.errors ? 
                                     Object.values(data.errors).flat().join(', ') : 
-                                    'An error occurred while submitting the report.';
+                                    'An error occurred while submitting the report.');
                             }
                         }
                     })
@@ -5279,9 +5279,9 @@ input:focus {
                             // Show error message
                             errorDiv.style.display = 'flex';
                             if (errorMessage) {
-                                errorMessage.textContent = data.errors ? 
+                                errorMessage.textContent = data.message || (data.errors ? 
                                     Object.values(data.errors).flat().join(', ') : 
-                                    'An error occurred while submitting the report.';
+                                    'An error occurred while submitting the report.');
                             }
                         }
                     })

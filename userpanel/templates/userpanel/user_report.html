@@ -487,9 +487,10 @@
                 "name": "{{ supply.property_name|escapejs }}",
                 "category_id": {{ supply.category.id|default:"0" }},
                 "category_name": "{{ supply.category.name|default:"Equipment"|escapejs }}",
-                "code": "{{ supply.property_number|default:""|escapejs }}",
+                "code": "{% if supply.property_number %}{{ supply.property_number|escapejs }}{% elif supply.barcode %}{{ supply.barcode|escapejs }}{% else %}ID-{{ supply.id }}{% endif %}",
                 "description": "{{ supply.property_name|escapejs }}",
-                "available": {{ supply.quantity }}
+                "available": {{ supply.quantity }},
+                "condition": "{{ supply.condition|escapejs }}"
             }{% if not forloop.last %},{% endif %}
             {% endfor %}
         ]'></div>
@@ -546,7 +547,7 @@
                             <div class="select-option" data-value="">Select an item...</div>
                             {% for supply in available_supplies %}
                             <div class="select-option" data-value="{{ supply.id }}" data-available="{{ supply.quantity }}">
-                                {{ supply.property_name }} ({{ supply.category.name }})
+                                {{ supply.property_name }} - {% if supply.property_number %}{{ supply.property_number }}{% elif supply.barcode %}{{ supply.barcode }}{% else %}ID-{{ supply.id }}{% endif %} ({{ supply.category.name }})
                             </div>
                             {% endfor %}
                         </div>
@@ -595,7 +596,7 @@
                             <div class="select-option" data-value="">Select an item...</div>
                             {% for supply in available_supplies %}
                             <div class="select-option" data-value="{{ supply.id }}" data-available="{{ supply.quantity }}">
-                                {{ supply.property_name }} ({{ supply.category.name }})
+                                {{ supply.property_name }} - {% if supply.property_number %}{{ supply.property_number }}{% elif supply.barcode %}{{ supply.barcode }}{% else %}ID-{{ supply.id }}{% endif %} ({{ supply.category.name }})
                             </div>
                             {% endfor %}
                         </div>
@@ -1071,12 +1072,11 @@ function populateModalItems(modalType = 'damage') {
         }
         
         listContainer.innerHTML = filtered.map(item => `
-            <div class="modal-item-option" onclick="selectItemFromModal(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${item.available})">
+            <div class="modal-item-option" onclick="selectItemFromModal(${item.id}, '${(item.name + ' - ' + item.code).replace(/'/g, "\\'")}', ${item.available})">
                 <div class="modal-item-info">
-                    <div class="modal-item-name">${item.name}</div>
+                    <div class="modal-item-name">${item.name} - ${item.code}</div>
                     <div class="modal-item-details">
                         <span class="modal-item-category">${item.category_name}</span>
-                        ${item.code ? `<span class="modal-item-code">Code: ${item.code}</span>` : ''}
                     </div>
                 </div>
                 <div class="modal-item-stock ${item.available < 10 ? 'low-stock' : 'available'}">
