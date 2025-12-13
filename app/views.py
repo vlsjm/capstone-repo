@@ -8032,7 +8032,7 @@ class ResourceAllocationDashboardView(PermissionRequiredMixin, TemplateView):
         if current_tab == 'borrow':
             # Exclude items from voided or cancelled batch requests
             borrow_items = BorrowRequestItem.objects.filter(
-                Q(status='approved') | Q(status='active')
+                Q(status='approved') | Q(status='active') | Q(status='overdue')
             ).exclude(
                 Q(batch_request__status='voided') | Q(batch_request__status='cancelled')
             ).select_related('batch_request__user', 'batch_request__user__userprofile', 'property').order_by('-batch_request__request_date')
