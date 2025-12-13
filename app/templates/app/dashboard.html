@@ -1451,8 +1451,18 @@
             let redirectUrl = '/';
             
             // Handle different notification types
-            if (message.includes('borrow request')) {
-              // Handle borrow requests
+            // Check for auto-generated borrow from reservation FIRST (before general borrow or reservation handlers)
+            if (message.toLowerCase().includes('auto-generated from reservation') && message.toLowerCase().includes('borrow request')) {
+              console.log('Auto-generated borrow from reservation detected');
+              // Extract the borrow request ID (not the reservation batch ID)
+              const borrowMatch = message.match(/borrow request #(\d+)/i);
+              if (borrowMatch) {
+                redirectUrl = `/borrow-batch-detail/${borrowMatch[1]}/`;
+                console.log('Redirecting to borrow batch:', redirectUrl);
+              }
+            } else if (message.toLowerCase().includes('borrow request')) {
+              // Handle regular borrow requests
+              console.log('Regular borrow request detected');
               const batchMatch = message.match(/#(\d+)/i);
               if (batchMatch) {
                 redirectUrl = `/borrow-batch-detail/${batchMatch[1]}/`;
