@@ -92,6 +92,7 @@ from .views import (
     view_requisition_slip,
     archive_property,
     unarchive_property,
+    condemn_property,
     ArchivedItemsView,
     update_supply_category,
     update_supply_subcategory,
@@ -253,6 +254,7 @@ urlpatterns = [
     path('supply/<int:pk>/delete-archived/', delete_archived_supply, name='delete_archived_supply'),
     path('property/<int:pk>/archive/', archive_property, name='archive_property'),
     path('property/<int:pk>/unarchive/', unarchive_property, name='unarchive_property'),
+    path('property/<int:pk>/condemn/', condemn_property, name='condemn_property'),
     path('property/<int:pk>/delete-archived/', delete_archived_property, name='delete_archived_property'),
     path('archived-items/', ArchivedItemsView.as_view(), name='archived_items'),
     

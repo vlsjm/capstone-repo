@@ -6663,6 +6663,25 @@ def unarchive_supply(request, pk):
 
 @permission_required('app.view_admin_module')
 @login_required
+def condemn_property(request, pk):
+    property_obj = get_object_or_404(Property, pk=pk)
+    if request.method == 'POST':
+        property_obj.condition = 'For condemn'
+        property_obj.is_archived = True
+        property_obj.save(user=request.user)
+        
+        ActivityLog.log_activity(
+            user=request.user,
+            action='update',
+            model_name='Property',
+            object_repr=str(property_obj),
+            description=f"Condemned property '{property_obj.property_name}' - set condition to 'For condemn' and archived"
+        )
+        messages.success(request, f'Property "{property_obj.property_name}" has been condemned and archived.')
+    return redirect('property_list')
+
+@permission_required('app.view_admin_module')
+@login_required
 def archive_property(request, pk):
     property_obj = get_object_or_404(Property, pk=pk)
     if request.method == 'POST':

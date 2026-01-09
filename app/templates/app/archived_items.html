@@ -383,6 +383,34 @@
             font-size: 16px;
         }
 
+        /* Alert messages */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .archived-container {
@@ -425,7 +453,7 @@
     {% if messages %}
     <div style="margin-bottom: 20px;">
         {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}" style="padding: 15px; border-radius: 8px; margin-bottom: 10px; {% if message.tags == 'success' %}background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;{% elif message.tags == 'error' %}background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;{% elif message.tags == 'warning' %}background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;{% endif %}">
+        <div class="alert alert-{{ message.tags }}">
             <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% endif %}"></i>
             {{ message }}
         </div>
@@ -536,6 +564,11 @@
                     <option value="In good condition">In Good Condition</option>
                     <option value="Needing repair">Needing Repair</option>
                     <option value="Unserviceable">Unserviceable</option>
+                    <option value="Obsolete">Obsolete</option>
+                    <option value="No longer needed">No Longer Needed</option>
+                    <option value="Not used since purchased">Not Used Since Purchased</option>
+                    <option value="Lost">Lost</option>
+                    <option value="For condemn">For Condemn</option>
                 </select>
                 <button class="clear-filters-btn" onclick="clearPropertyFilters()">
                     <i class="fas fa-times"></i> Clear Filters

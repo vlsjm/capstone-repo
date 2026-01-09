@@ -437,6 +437,7 @@ class Property(models.Model):
         ('No longer needed', 'No longer needed'),
         ('Not used since purchased', 'Not used since purchased'),
         ('Lost', 'Lost'),
+        ('For condemn', 'For condemn'),
     ]
 
     AVAILABILITY_CHOICES = [
