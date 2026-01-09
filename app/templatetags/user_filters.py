@@ -65,3 +65,32 @@ def divide(value, arg):
     except (ValueError, TypeError, ZeroDivisionError):
         return 0
 
+
+@register.filter
+def get_item(dictionary, key):
+    """
+    Get an item from a dictionary, supporting both dict and object attribute access.
+    Usage: {{ ppmp_matches|get_item:item.id|get_item:'message' }}
+    """
+    try:
+        # Try dictionary access first
+        if isinstance(dictionary, dict):
+            result = dictionary.get(key)
+            if result is not None:
+                return result
+            # Try converting key to int if it's a string number
+            try:
+                int_key = int(key)
+                result = dictionary.get(int_key)
+                if result is not None:
+                    return result
+            except (ValueError, TypeError):
+                pass
+        
+        # Try attribute access
+        if hasattr(dictionary, key):
+            return getattr(dictionary, key)
+        
+        return None
+    except:
+        return None

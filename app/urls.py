@@ -68,6 +68,7 @@ from .views import (
     add_category,
     add_subcategory,
     batch_request_detail,
+    check_ppmp_before_approval,
     approve_batch_item,
     reject_batch_item,
     claim_batch_items,
@@ -257,6 +258,7 @@ urlpatterns = [
     
     # Batch request management URLs
     path('batch-request/<int:batch_id>/', batch_request_detail, name='batch_request_detail'),
+    path('batch-request/<int:batch_id>/item/<int:item_id>/check-ppmp/', check_ppmp_before_approval, name='check_ppmp_before_approval'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/approve/', approve_batch_item, name='approve_batch_item'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/reject/', reject_batch_item, name='reject_batch_item'),
     
@@ -282,4 +284,10 @@ urlpatterns = [
     # Dashboard chart data API endpoints
     path('get-top-requested-supplies/', views.get_top_requested_supplies, name='get_top_requested_supplies'),
     path('get-department-requests-filtered/', views.get_department_requests_filtered, name='get_department_requests_filtered'),
+    
+    # PPMP Management URLs
+    path('ppmp/upload/', views.ppmp_upload, name='ppmp_upload'),
+    path('ppmp/list/', views.ppmp_list, name='ppmp_list'),
+    path('ppmp/<int:pk>/', views.ppmp_detail, name='ppmp_detail'),
+    path('ppmp/<int:pk>/delete/', views.ppmp_delete, name='ppmp_delete'),
 ]

@@ -11,6 +11,7 @@ from django.core.files.base import ContentFile
 import logging
 import requests
 import os
+from openpyxl import load_workbook
 
 logger = logging.getLogger(__name__)
 
@@ -534,6 +535,226 @@ def send_reservation_expired_email(reservation_batch):
         logger.error(f"Failed to send reservation expiration email to {user.email}: {str(e)}")
         return False
 
+def parse_ppmp_excel(ppmp_instance):
+    """
+    Parse PPMP Excel file and create PPMPItem instances.
+    Looks for the sheet named '3- 2025 PPMP FORM' and extracts all data.
+    
+    Args:
+        ppmp_instance: PPMP model instance with uploaded file
+    
+    Returns:
+        tuple: (success: bool, message: str, items_count: int)
+    """
+    from .models import PPMPItem
+    
+    try:
+        # Load the workbook
+        wb = load_workbook(ppmp_instance.file.path, data_only=True)
+        
+        # Find the correct sheet - looking for "3- 2025 PPMP FORM" or similar
+        target_sheet = None
+        for sheet_name in wb.sheetnames:
+            if 'PPMP FORM' in sheet_name.upper() or '3-' in sheet_name:
+                target_sheet = wb[sheet_name]
+                break
+        
+        if not target_sheet:
+            return False, "Could not find '3- 2025 PPMP FORM' sheet in the Excel file", 0
+        
+        items_created = 0
+        max_rows = 2000  # Safety limit to prevent parsing too many rows
+        
+        # Start reading from a reasonable row (skip headers)
+        # Based on the image, data starts around row 23
+        start_row = 23
+        
+        for row_num, row in enumerate(target_sheet.iter_rows(min_row=start_row), start=start_row):
+            # Safety check: stop if we've reached max rows
+            if row_num > start_row + max_rows:
+                logger.warning(f"Reached maximum row limit ({max_rows}). Stopping parse.")
+                break
+                
+            # Get cell values with safety checks
+            def get_cell_value(cell):
+                return cell.value if cell and cell.value is not None else ''
+            
+            # Extract data from each column (based on the Excel structure)
+            # A=0(Index), B=1(PS-DBM/NON-PS), C=2(MOOE), D=3(Sub Cat A), E=4(Sub Cat B), 
+            # F=5(Sub Cat C), G=6(Code), H=7(UACS), I=8(Description), J=9(U/M), K=10(Unit Price),
+            # L=11(Q1), M=12(Q2), N=13(Q3), O=14(Q4), P=15(TOTAL QUANTITY), Q=16(TOTAL AMOUNT)
+            unit = get_cell_value(row[9]) if len(row) > 9 else ''  # Column J - U/M (Book, Pad, Box, etc.)
+            mode = get_cell_value(row[2]) if len(row) > 2 else ''  # Column C - MOOE
+            supplies_materials = get_cell_value(row[3]) if len(row) > 3 else ''  # Column D - Sub Category A
+            office_supplies = get_cell_value(row[4]) if len(row) > 4 else ''  # Column E - Sub Category B
+            common_supplies = get_cell_value(row[5]) if len(row) > 5 else ''  # Column F - Sub Category C
+            
+            # UACS code is in column H (index 7)
+            description = get_cell_value(row[7]) if len(row) > 7 else ''  # Column H - UACS CODE (5020301000)
+            
+            # Item name/description is in column I (index 8)
+            unit_measure = get_cell_value(row[8]) if len(row) > 8 else ''  # Column I - Item description
+            
+            # Skip rows without item name or with very short names (likely headers/footers)
+            if not unit_measure or str(unit_measure).strip() == '' or len(str(unit_measure).strip()) < 3:
+                continue
+            
+            # Skip rows that look like headers or section breaks (contains common header keywords)
+            item_name_lower = str(unit_measure).lower()
+            skip_keywords = ['total', 'sub-total', 'subtotal', 'grand total', 'page', 'continued', 
+                           'item description', 'description', 'ppmp', 'end of', 'section']
+            if any(keyword in item_name_lower for keyword in skip_keywords):
+                continue
+            
+            # Unit price, quantity, and total amount columns
+            # Column K (index 10) - Unit Price
+            # Column P (index 15) - TOTAL QUANTITY (sum of Q1+Q2+Q3+Q4)
+            unit_price_val = get_cell_value(row[10]) if len(row) > 10 else 0  # Column K
+            quantity_val = get_cell_value(row[15]) if len(row) > 15 else 0  # Column P - TOTAL QUANTITY
+            
+            # Convert to proper types
+            try:
+                unit_price = float(unit_price_val) if unit_price_val else 0
+            except (ValueError, TypeError):
+                unit_price = 0
+            
+            try:
+                quantity = int(quantity_val) if quantity_val else 0
+            except (ValueError, TypeError):
+                quantity = 0
+            
+            # Calculate total_amount as unit_price * quantity
+            total_amount = unit_price * quantity
+            
+            # Skip items with zero or negative quantity (likely hidden or placeholder rows)
+            if quantity <= 0:
+                continue
+            
+            # Create PPMPItem
+            # Note: description = UACS code, unit_measure = actual item name
+            PPMPItem.objects.create(
+                ppmp=ppmp_instance,
+                unit=str(unit),
+                mode=str(mode),
+                supplies_materials_expense=str(supplies_materials),
+                office_supplies_expense=str(office_supplies),
+                common_office_supplies=str(common_supplies),
+                description=str(description),  # UACS code (e.g., 5020301000)
+                unit_measure=str(unit_measure),  # Item name (e.g., "CLIP, backfold, 19mm")
+                unit_price=unit_price,
+                quantity=quantity,
+                total_amount=total_amount,
+                row_number=row_num
+            )
+            
+            items_created += 1
+        
+        wb.close()
+        
+        if items_created == 0:
+            return False, "No valid items found in the Excel file", 0
+        
+        return True, f"Successfully imported {items_created} items from PPMP", items_created
+        
+    except FileNotFoundError:
+        return False, "Excel file not found", 0
+    except Exception as e:
+        logger.error(f"Error parsing PPMP Excel: {str(e)}")
+        return False, f"Error parsing Excel file: {str(e)}", 0
+
+
+def check_ppmp_match(supply_name, department, year=None):
+    """
+    Check if a supply request matches any items in the department's PPMP.
+    
+    Args:
+        supply_name: Name of the supply being requested
+        department: Department instance
+        year: Year to check (defaults to current year)
+    
+    Returns:
+        dict: {
+            'match_found': bool,
+            'ppmp': PPMP instance or None,
+            'matched_items': list of PPMPItem instances,
+            'message': str
+        }
+    """
+    from .models import PPMP, PPMPItem
+    import re
+    
+    if year is None:
+        year = timezone.now().year
+    
+    try:
+        # Get PPMP for this department and year
+        ppmp = PPMP.objects.get(department=department, year=year)
+        
+        # Normalize the supply name for better matching
+        # Remove extra spaces, convert to lowercase for comparison
+        normalized_supply_name = re.sub(r'\s+', ' ', supply_name.strip().lower())
+        
+        # Search for matching items in unit_measure field (which contains the actual item name)
+        # First try exact partial match
+        matched_items = PPMPItem.objects.filter(
+            ppmp=ppmp,
+            unit_measure__icontains=supply_name
+        )
+        
+        # If no match, try normalized matching (more flexible)
+        if not matched_items.exists():
+            all_items = PPMPItem.objects.filter(ppmp=ppmp)
+            matched_list = []
+            for item in all_items:
+                # Search in unit_measure (the actual item name) not description (UACS code)
+                normalized_item_name = re.sub(r'\s+', ' ', str(item.unit_measure).strip().lower())
+                # Check if either contains the other or significant overlap
+                if normalized_supply_name in normalized_item_name or normalized_item_name in normalized_supply_name:
+                    matched_list.append(item)
+                # Also try word-by-word matching for better accuracy
+                elif len(normalized_supply_name) > 10:  # Only for longer names
+                    supply_words = set(normalized_supply_name.split())
+                    item_words = set(normalized_item_name.split())
+                    # If 70% of words match, consider it a match
+                    common_words = supply_words.intersection(item_words)
+                    if len(common_words) / len(supply_words) >= 0.7:
+                        matched_list.append(item)
+            
+            if matched_list:
+                matched_items = matched_list
+        else:
+            matched_items = list(matched_items)
+        
+        if matched_items and len(matched_items) > 0:
+            return {
+                'match_found': True,
+                'ppmp': ppmp,
+                'matched_items': matched_items,
+                'message': f"✓ Found {len(matched_items)} matching item(s) in {department.name}'s PPMP {year}"
+            }
+        else:
+            return {
+                'match_found': False,
+                'ppmp': ppmp,
+                'matched_items': [],
+                'message': f"⚠ No matching items found in {department.name}'s PPMP {year}"
+            }
+    
+    except PPMP.DoesNotExist:
+        return {
+            'match_found': False,
+            'ppmp': None,
+            'matched_items': [],
+            'message': f"⚠ No PPMP found for {department.name} for year {year}"
+        }
+    except Exception as e:
+        logger.error(f"Error checking PPMP match: {str(e)}")
+        return {
+            'match_found': False,
+            'ppmp': None,
+            'matched_items': [],
+            'message': f"Error checking PPMP: {str(e)}"
+        }
 
 def send_borrow_request_expired_email(borrow_batch):
     """

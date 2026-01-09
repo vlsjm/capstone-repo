@@ -1,4 +1,5 @@
 {% load static %}
+{% load user_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1564,7 +1565,7 @@
     }
   </style>
 </head>
-<body>
+<body data-batch-id="{{ batch_request.id }}">
   <!-- Loading Overlay -->
   <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-content">
@@ -1787,6 +1788,21 @@
                 <div>
                   <div style="font-weight: 600; color: #152d64; margin-bottom: 4px; font-size: 16px;">{{ item.supply.supply_name }}</div>
                   <span class="category-badge">{{ item.supply.category.name }}</span>
+                  
+                  <!-- PPMP Match Indicator -->
+                  {% if ppmp_matches and item.id in ppmp_matches %}
+                    <div style="margin-top: 8px;">
+                      {% if ppmp_matches|get_item:item.id|get_item:'match_found' %}
+                        <div style="display: inline-block; padding: 4px 10px; background: #d4edda; color: #155724; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                          {{ ppmp_matches|get_item:item.id|get_item:'message' }}
+                        </div>
+                      {% else %}
+                        <div style="display: inline-block; padding: 4px 10px; background: #fff3cd; color: #856404; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                          {{ ppmp_matches|get_item:item.id|get_item:'message' }}
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
             </td>
@@ -2750,6 +2766,49 @@
         pendingAction = null;
       };
       
+      // PPMP Warning Modal functions
+      let pendingApprovalForm = null;
+      
+      window.showPPMPWarningModal = function(message, itemName, form) {
+        const modal = document.getElementById('ppmpWarningModal');
+        const messageElement = document.getElementById('ppmpWarningMessage');
+        
+        messageElement.innerHTML = message;
+        pendingApprovalForm = form;
+        modal.classList.add('show');
+      };
+      
+      window.closePPMPWarningModal = function() {
+        const modal = document.getElementById('ppmpWarningModal');
+        modal.classList.remove('show');
+        pendingApprovalForm = null;
+      };
+      
+      // Handle PPMP confirmation
+      document.getElementById('ppmpConfirmBtn').addEventListener('click', function() {
+        if (pendingApprovalForm) {
+          // Disable the button to prevent double-clicks
+          this.disabled = true;
+          this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+          
+          // Show loading overlay FIRST
+          const loadingOverlay = document.getElementById('loadingOverlay');
+          if (loadingOverlay) {
+            loadingOverlay.classList.add('active');
+          }
+          
+          // Submit the form (don't close modal - let the redirect handle it)
+          pendingApprovalForm.submit();
+        }
+      });
+      
+      // Close PPMP modal when clicking outside
+      document.getElementById('ppmpWarningModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closePPMPWarningModal();
+        }
+      });
+      
       document.getElementById('confirmActionBtn').addEventListener('click', function() {
         if (pendingFormId && pendingItemId && pendingAction) {
           // Get the form by ID
@@ -2832,14 +2891,45 @@
             hiddenRemarks.value = '';
           }
           
-          // Show loading overlay
-          const loadingOverlay = document.getElementById('loadingOverlay');
-          if (loadingOverlay) {
-            loadingOverlay.classList.add('active');
-          }
+          // Check PPMP before submitting
+          const batchId = document.body.getAttribute('data-batch-id');
+          const approvedQty = quantityInput ? quantityInput.value : hiddenQuantity.value;
           
-          // Submit the form directly
-          form.submit();
+          // Get CSRF token
+          const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+          
+          // Call AJAX to check PPMP
+          fetch(`/batch-request/${batchId}/item/${itemId}/check-ppmp/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': csrftoken
+            },
+            body: `approved_quantity=${approvedQty}`
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.needs_confirmation) {
+              // Show PPMP warning modal
+              showPPMPWarningModal(data.warning_message, data.item_name, form);
+            } else {
+              // No PPMP issue, proceed with approval
+              const loadingOverlay = document.getElementById('loadingOverlay');
+              if (loadingOverlay) {
+                loadingOverlay.classList.add('active');
+              }
+              form.submit();
+            }
+          })
+          .catch(error => {
+            console.error('Error checking PPMP:', error);
+            // On error, proceed anyway
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+              loadingOverlay.classList.add('active');
+            }
+            form.submit();
+          });
         });
       });
       
@@ -3008,6 +3098,27 @@
             <i class="fas fa-check"></i> Claim Scanned Items
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PPMP Warning Modal -->
+  <div id="ppmpWarningModal" class="confirm-modal">
+    <div class="confirm-modal-content">
+      <div class="confirm-modal-header">
+        <i class="fas fa-exclamation-triangle confirm-modal-icon" style="color: #ff9800;"></i>
+        <h2 class="confirm-modal-title">PPMP Quantity Exceeded</h2>
+      </div>
+      <div class="confirm-modal-body">
+        <p id="ppmpWarningMessage"></p>
+      </div>
+      <div class="confirm-modal-footer">
+        <button type="button" class="btn-confirm-cancel" onclick="closePPMPWarningModal()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button type="button" id="ppmpConfirmBtn" class="btn-confirm-action approve">
+          <i class="fas fa-check"></i> Approve Anyway
+        </button>
       </div>
     </div>
   </div>

@@ -6951,8 +6951,89 @@ def supply_list(request):
 @login_required
 @require_POST
 @admin_permission_required('approve_supply_request')
+def check_ppmp_before_approval(request, batch_id, item_id):
+    """AJAX endpoint to check PPMP before approving an item"""
+    from django.http import JsonResponse
+    from django.core.exceptions import ObjectDoesNotExist
+    from django.db.models import Sum
+    from .models import PPMP, PPMPItem
+    
+    # Optimize queries with select_related
+    batch_request = SupplyRequestBatch.objects.select_related('user__userprofile__department').get(id=batch_id)
+    item = SupplyRequestItem.objects.select_related('supply').get(id=item_id, batch_request=batch_request)
+    
+    # Get approved quantity from request
+    approved_quantity = request.POST.get('approved_quantity', item.quantity)
+    try:
+        approved_quantity = int(approved_quantity)
+    except (ValueError, TypeError):
+        approved_quantity = item.quantity
+    
+    # Get department from user's profile
+    try:
+        user_department = batch_request.user.userprofile.department
+    except (AttributeError, ObjectDoesNotExist):
+        return JsonResponse({'needs_confirmation': False, 'proceed': True})
+    
+    # Quick check: Does PPMP exist for this department/year?
+    try:
+        ppmp = PPMP.objects.get(department=user_department, year=timezone.now().year)
+    except PPMP.DoesNotExist:
+        return JsonResponse({'needs_confirmation': False, 'proceed': True})
+    
+    # Quick fuzzy match on item name (case-insensitive contains)
+    supply_name_lower = item.supply.supply_name.lower()
+    matched_items = PPMPItem.objects.filter(
+        ppmp=ppmp,
+        unit_measure__icontains=item.supply.supply_name
+    ).only('quantity', 'released')
+    
+    if not matched_items.exists():
+        return JsonResponse({'needs_confirmation': False, 'proceed': True})
+    
+    # Use aggregate to calculate sums in database (faster than Python)
+    totals = matched_items.aggregate(
+        total_planned=Sum('quantity'),
+        total_released=Sum('released')
+    )
+    
+    total_ppmp_planned = totals['total_planned'] or 0
+    total_ppmp_released = totals['total_released'] or 0
+    total_ppmp_remaining = total_ppmp_planned - total_ppmp_released
+    
+    # Check if approved quantity exceeds PPMP remaining
+    if approved_quantity > total_ppmp_remaining:
+        total_after_approval = total_ppmp_released + approved_quantity
+        total_excess = total_after_approval - total_ppmp_planned
+        
+        return JsonResponse({
+            'needs_confirmation': True,
+            'warning_message': (
+                f'Approving {approved_quantity} units of {item.supply.supply_name} '
+                f'exceeds the PPMP remaining quantity.<br><br>'
+                f'<strong>PPMP Planned:</strong> {total_ppmp_planned} units<br>'
+                f'<strong>Already Released:</strong> {total_ppmp_released} units<br>'
+                f'<strong>PPMP Remaining:</strong> {total_ppmp_remaining} units<br>'
+                f'<strong>Approved Quantity:</strong> {approved_quantity} units<br>'
+                f'<strong>Total Excess:</strong> {total_excess} units<br><br>'
+                f'Do you want to proceed with this approval?'
+            ),
+            'item_name': item.supply.supply_name,
+            'ppmp_remaining': total_ppmp_remaining,
+            'approved_quantity': approved_quantity
+        })
+    
+    # No PPMP issue, proceed normally
+    return JsonResponse({'needs_confirmation': False, 'proceed': True})
+
+@permission_required('app.view_admin_module')
+@login_required
+@require_POST
+@admin_permission_required('approve_supply_request')
 def approve_batch_item(request, batch_id, item_id):
     """Approve an individual item in a batch request"""
+    from django.core.exceptions import ObjectDoesNotExist
+    
     batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
     item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
     scroll_position = request.POST.get('scroll_position', '0')
@@ -6987,6 +7068,8 @@ def approve_batch_item(request, batch_id, item_id):
             response = redirect('batch_request_detail', batch_id=batch_id)
             response['Location'] += f'#scroll-{scroll_position}'
             return response
+    
+    # CHECK PPMP REMAINING QUANTITY (removed - now done in AJAX before approval)
     
     # Mark item as approved
     item.approved = True
@@ -7035,11 +7118,20 @@ def approve_batch_item(request, batch_id, item_id):
     )
     
     # Send batch completion email ONLY if all items are now processed
+    # Do this asynchronously to avoid blocking the response
     if processed_items == total_items:
+        from threading import Thread
         from .utils import send_batch_request_completion_email
-        approved_items = batch_request.items.filter(status='approved')
-        rejected_items = batch_request.items.filter(status='rejected')
-        send_batch_request_completion_email(batch_request, approved_items, rejected_items)
+        
+        def send_email_async():
+            approved_items_list = batch_request.items.filter(status='approved')
+            rejected_items_list = batch_request.items.filter(status='rejected')
+            send_batch_request_completion_email(batch_request, approved_items_list, rejected_items_list)
+        
+        # Start email sending in background thread
+        email_thread = Thread(target=send_email_async)
+        email_thread.daemon = True
+        email_thread.start()
     
     # Log activity
     ActivityLog.log_activity(
@@ -7331,10 +7423,27 @@ Resource Hive Management System
         return redirect('batch_request_detail', batch_id=batch_id)
     
     from .permissions import has_admin_permission
+    
+    # Add PPMP matching check for each item (only for supply requests)
+    ppmp_matches = {}
+    user_department = batch_request.user.userprofile.department if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department else None
+    
+    if user_department:
+        from .utils import check_ppmp_match
+        for item in batch_request.items.all():
+            match_result = check_ppmp_match(
+                supply_name=item.supply.supply_name,
+                department=user_department,
+                year=batch_request.request_date.year
+            )
+            ppmp_matches[item.id] = match_result
+    
     context = {
         'batch_request': batch_request,
         'items': batch_request.items.all().order_by('supply__supply_name'),
         'can_void_request': has_admin_permission(request.user, 'void_request'),
+        'ppmp_matches': ppmp_matches,
+        'user_department': user_department,
     }
     
     return render(request, 'app/batch_request_detail.html', context)
@@ -7409,6 +7518,21 @@ def claim_batch_items(request, batch_id):
             
             # Save with skip_history to avoid duplicate entry
             item.supply.quantity_info.save(skip_history=True)
+        
+        # Update PPMP released quantity if user has department and PPMP exists
+        if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department:
+            from .utils import check_ppmp_match
+            from .models import PPMPItem
+            match_result = check_ppmp_match(
+                supply_name=item.supply.supply_name,
+                department=batch_request.user.userprofile.department,
+                year=batch_request.request_date.year
+            )
+            if match_result['match_found'] and match_result['matched_items']:
+                # Update the first matching PPMP item's released quantity
+                ppmp_item = match_result['matched_items'][0]
+                ppmp_item.released += approved_qty
+                ppmp_item.save()
         
         # Update the approved_quantity if it was None
         if item.approved_quantity is None:
@@ -7507,6 +7631,21 @@ def claim_individual_item(request, batch_id, item_id):
         
         # Save with skip_history to avoid duplicate entry
         item.supply.quantity_info.save(skip_history=True)
+    
+    # Update PPMP released quantity if user has department and PPMP exists
+    if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department:
+        from .utils import check_ppmp_match
+        from .models import PPMPItem
+        match_result = check_ppmp_match(
+            supply_name=item.supply.supply_name,
+            department=batch_request.user.userprofile.department,
+            year=batch_request.request_date.year
+        )
+        if match_result['match_found'] and match_result['matched_items']:
+            # Update the first matching PPMP item's released quantity
+            ppmp_item = match_result['matched_items'][0]
+            ppmp_item.released += approved_qty
+            ppmp_item.save()
     
     # Update the approved_quantity if it was None
     if item.approved_quantity is None:
@@ -10087,4 +10226,127 @@ def supply_approved_tally(request):
 def sample_admin(request):
     """Sample page demonstrating modern sidebar implementation"""
     return render(request, 'app/sample_admin.html')
+
+
+# ==================== PPMP VIEWS ====================
+
+@login_required
+@admin_permission_required('approve_supply_request')
+def ppmp_upload(request):
+    """Upload and parse PPMP Excel files"""
+    from .models import PPMP, Department
+    from .forms import PPMPUploadForm
+    from .utils import parse_ppmp_excel
+    from django.contrib import messages
+    
+    if request.method == 'POST':
+        form = PPMPUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            ppmp = form.save(commit=False)
+            ppmp.uploaded_by = request.user
+            ppmp.save()
+            
+            # Parse the Excel file
+            success, message, items_count = parse_ppmp_excel(ppmp)
+            
+            if success:
+                messages.success(request, message)
+                return redirect('ppmp_list')
+            else:
+                # Delete the PPMP if parsing failed
+                ppmp.delete()
+                messages.error(request, message)
+    else:
+        form = PPMPUploadForm()
+    
+    return render(request, 'app/ppmp_upload.html', {'form': form})
+
+
+@login_required
+@admin_permission_required('approve_supply_request')
+def ppmp_list(request):
+    """List all uploaded PPMPs"""
+    from .models import PPMP, Department
+    
+    # Filtering
+    department_filter = request.GET.get('department', '')
+    year_filter = request.GET.get('year', '')
+    
+    ppmps = PPMP.objects.select_related('department', 'uploaded_by').all()
+    
+    if department_filter:
+        ppmps = ppmps.filter(department_id=department_filter)
+    if year_filter:
+        ppmps = ppmps.filter(year=year_filter)
+    
+    # Get unique years for filter
+    years = PPMP.objects.values_list('year', flat=True).distinct().order_by('-year')
+    departments = Department.objects.all().order_by('name')
+    
+    context = {
+        'ppmps': ppmps,
+        'departments': departments,
+        'years': years,
+        'department_filter': department_filter,
+        'year_filter': year_filter,
+    }
+    
+    return render(request, 'app/ppmp_list.html', context)
+
+
+@login_required
+@admin_permission_required('approve_supply_request')
+def ppmp_detail(request, pk):
+    """View details of a specific PPMP and its items"""
+    from .models import PPMP, PPMPItem
+    
+    ppmp = get_object_or_404(PPMP.objects.select_related('department', 'uploaded_by'), pk=pk)
+    
+    # Get all items for this PPMP
+    all_items = ppmp.items.all()
+    total_items = all_items.count()
+    
+    # Search functionality
+    search_query = request.GET.get('search', '')
+    items = all_items
+    if search_query:
+        items = items.filter(unit_measure__icontains=search_query)
+    
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(items, 50)  # Show 50 items per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'ppmp': ppmp,
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'total_items': total_items,
+        'filtered_count': items.count(),
+    }
+    
+    return render(request, 'app/ppmp_detail.html', context)
+
+
+@login_required
+@admin_permission_required('approve_supply_request')
+def ppmp_delete(request, pk):
+    """Delete a PPMP and all its items"""
+    from .models import PPMP
+    from django.contrib import messages
+    
+    ppmp = get_object_or_404(PPMP, pk=pk)
+    
+    if request.method == 'POST':
+        department_name = ppmp.department.name
+        year = ppmp.year
+        
+        # Delete the PPMP (cascade will delete all PPMPItems)
+        ppmp.delete()
+        
+        messages.success(request, f'PPMP for {department_name} ({year}) has been deleted.')
+        return redirect('ppmp_list')
+    
+    return render(request, 'app/ppmp_delete_confirm.html', {'ppmp': ppmp})
 

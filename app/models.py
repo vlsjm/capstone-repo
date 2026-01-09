@@ -2465,3 +2465,61 @@ class UserSession(models.Model):
     class Meta:
         verbose_name = "User Session"
         verbose_name_plural = "User Sessions"
+
+
+class PPMP(models.Model):
+    """
+    Project Procurement Management Plan - Stores uploaded PPMP Excel files
+    """
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    year = models.PositiveIntegerField()
+    file = models.FileField(upload_to='ppmp_files/')
+    uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    upload_date = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = "PPMP"
+        verbose_name_plural = "PPMPs"
+        ordering = ['-year', '-upload_date']
+        unique_together = ['department', 'year']  # One PPMP per department per year
+    
+    def __str__(self):
+        return f"PPMP {self.year} - {self.department.name}"
+
+
+class PPMPItem(models.Model):
+    """
+    Individual items from PPMP Excel sheet
+    """
+    ppmp = models.ForeignKey(PPMP, on_delete=models.CASCADE, related_name='items')
+    
+    # Excel columns - storing all data from the PPMP form
+    unit = models.TextField(blank=True, null=True)  # e.g., "BACOOR CAMPUS"
+    mode = models.TextField(blank=True, null=True)  # e.g., "MOOE"
+    supplies_materials_expense = models.TextField(blank=True, null=True)
+    office_supplies_expense = models.TextField(blank=True, null=True)
+    common_office_supplies = models.TextField(blank=True, null=True)
+    description = models.TextField()  # Main item description
+    unit_measure = models.TextField(blank=True, null=True)  # PC, Box, Bundle, etc.
+    
+    # Quantity and pricing columns
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    quantity = models.PositiveIntegerField(default=0)
+    released = models.PositiveIntegerField(default=0)  # Track how much has been released/claimed
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    
+    # Additional metadata
+    row_number = models.PositiveIntegerField()  # Track original row in Excel
+    
+    class Meta:
+        verbose_name = "PPMP Item"
+        verbose_name_plural = "PPMP Items"
+        ordering = ['ppmp', 'row_number']
+    
+    def __str__(self):
+        return f"{self.description} - {self.ppmp}"
+    
+    @property
+    def remaining(self):
+        """Calculate remaining quantity (planned - released)"""
+        return max(0, self.quantity - self.released)

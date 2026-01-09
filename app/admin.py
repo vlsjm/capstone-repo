@@ -8,7 +8,7 @@ from .models import (
     SupplyQuantity, SupplyHistory, PropertyHistory,
     Department, PropertyCategory, SupplyCategory, SupplySubcategory, 
     SupplyRequestBatch, SupplyRequestItem, BorrowRequestBatch, BorrowRequestItem, BadStockReport,
-    UserSession
+    UserSession, PPMP, PPMPItem
 )
 
 @admin.register(Property)
@@ -310,3 +310,49 @@ class UserSessionAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         """Only allow deletion if user is superuser"""
         return request.user.is_superuser
+
+
+@admin.register(PPMP)
+class PPMPAdmin(admin.ModelAdmin):
+    list_display = ['department', 'year', 'uploaded_by', 'upload_date', 'items_count']
+    list_filter = ['year', 'department', 'upload_date']
+    search_fields = ['department__name', 'year']
+    readonly_fields = ['upload_date', 'uploaded_by']
+    
+    def items_count(self, obj):
+        """Display count of items in this PPMP"""
+        return obj.items.count()
+    items_count.short_description = 'Items Count'
+    
+    def save_model(self, request, obj, form, change):
+        """Auto-set uploaded_by to current user"""
+        if not obj.pk:
+            obj.uploaded_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(PPMPItem)
+class PPMPItemAdmin(admin.ModelAdmin):
+    list_display = ['description', 'ppmp', 'unit_measure', 'quantity', 'released', 'get_remaining', 'unit_price', 'total_amount', 'row_number']
+    list_filter = ['ppmp__year', 'ppmp__department', 'unit_measure']
+    search_fields = ['description', 'ppmp__department__name']
+    readonly_fields = ['row_number']
+    
+    def get_remaining(self, obj):
+        return obj.remaining
+    get_remaining.short_description = 'Remaining'
+    
+    fieldsets = (
+        ('PPMP Reference', {
+            'fields': ('ppmp', 'row_number')
+        }),
+        ('Item Details', {
+            'fields': ('description', 'unit_measure', 'unit', 'mode')
+        }),
+        ('Category Information', {
+            'fields': ('supplies_materials_expense', 'office_supplies_expense', 'common_office_supplies')
+        }),
+        ('Quantities & Pricing', {
+            'fields': ('unit_price', 'quantity', 'released', 'total_amount')
+        }),
+    )
