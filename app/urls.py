@@ -68,6 +68,7 @@ from .views import (
     add_category,
     add_subcategory,
     batch_request_detail,
+    check_ppmp_before_approval,
     approve_batch_item,
     reject_batch_item,
     claim_batch_items,
@@ -91,6 +92,7 @@ from .views import (
     view_requisition_slip,
     archive_property,
     unarchive_property,
+    condemn_property,
     ArchivedItemsView,
     update_supply_category,
     update_supply_subcategory,
@@ -252,11 +254,13 @@ urlpatterns = [
     path('supply/<int:pk>/delete-archived/', delete_archived_supply, name='delete_archived_supply'),
     path('property/<int:pk>/archive/', archive_property, name='archive_property'),
     path('property/<int:pk>/unarchive/', unarchive_property, name='unarchive_property'),
+    path('property/<int:pk>/condemn/', condemn_property, name='condemn_property'),
     path('property/<int:pk>/delete-archived/', delete_archived_property, name='delete_archived_property'),
     path('archived-items/', ArchivedItemsView.as_view(), name='archived_items'),
     
     # Batch request management URLs
     path('batch-request/<int:batch_id>/', batch_request_detail, name='batch_request_detail'),
+    path('batch-request/<int:batch_id>/item/<int:item_id>/check-ppmp/', check_ppmp_before_approval, name='check_ppmp_before_approval'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/approve/', approve_batch_item, name='approve_batch_item'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/reject/', reject_batch_item, name='reject_batch_item'),
     
@@ -282,4 +286,10 @@ urlpatterns = [
     # Dashboard chart data API endpoints
     path('get-top-requested-supplies/', views.get_top_requested_supplies, name='get_top_requested_supplies'),
     path('get-department-requests-filtered/', views.get_department_requests_filtered, name='get_department_requests_filtered'),
+    
+    # PPMP Management URLs
+    path('ppmp/upload/', views.ppmp_upload, name='ppmp_upload'),
+    path('ppmp/list/', views.ppmp_list, name='ppmp_list'),
+    path('ppmp/<int:pk>/', views.ppmp_detail, name='ppmp_detail'),
+    path('ppmp/<int:pk>/delete/', views.ppmp_delete, name='ppmp_delete'),
 ]

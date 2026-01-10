@@ -1,3 +1,4 @@
+{% load static %}
 <nav class="sidebar">
   <h1>Resource Hive</h1>
   <ul>
@@ -26,13 +27,10 @@
         <i class="fas fa-file-contract"></i> PPMP Management
       </a>
     </li>
-    <!-- <li>
-      <a href="{% url 'checkout' %}">
-        <i class="fas fa-door-open"></i> Check-Out
-      </a>
-    </li> -->
     <li>
-      <a href="{% url 'activity' %}" {% if request.resolver_match.url_name == 'activity' %}style="color: #fbff00 !important;"{% endif %}> <i class="fas fa-tasks"></i> Activity </a>
+      <a href="{% url 'activity' %}" {% if request.resolver_match.url_name == 'activity' %}style="color: #fbff00 !important;"{% endif %}>
+        <i class="fas fa-tasks"></i> Activity
+      </a>
     </li>
     <li>
       <a href="{% url 'user_supply_requests' %}" {% if request.resolver_match.url_name == 'user_supply_requests' %}style="color: #fbff00 !important;"{% endif %}>
@@ -81,29 +79,3 @@
     </li>
   </ul>
 </nav>
-
-<script>
-  // Save and restore sidebar scroll position
-  (function() {
-    const sidebar = document.querySelector('.sidebar');
-    if (!sidebar) return;
-    
-    // Restore scroll position on page load
-    const savedScrollPos = sessionStorage.getItem('sidebarScrollPos');
-    if (savedScrollPos) {
-      sidebar.scrollTop = parseInt(savedScrollPos, 10);
-    }
-    
-    // Save scroll position before page unload
-    window.addEventListener('beforeunload', function() {
-      sessionStorage.setItem('sidebarScrollPos', sidebar.scrollTop);
-    });
-    
-    // Save scroll position on sidebar links click
-    sidebar.querySelectorAll('a').forEach(function(link) {
-      link.addEventListener('click', function() {
-        sessionStorage.setItem('sidebarScrollPos', sidebar.scrollTop);
-      });
-    });
-  })();
-</script>

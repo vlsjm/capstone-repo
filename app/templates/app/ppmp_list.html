@@ -1,0 +1,273 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PPMP List</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <style>
+    .ppmp-container {
+      padding: 30px;
+      margin-left: 270px;
+      min-height: 100vh;
+      background: #f5f6fa;
+    }
+    
+    .ppmp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .ppmp-header h1 {
+      color: #152d64;
+      font-size: 28px;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary {
+      background: #152d64;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #0f1f45;
+    }
+    
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #c82333;
+    }
+    
+    .btn-info {
+      background: #17a2b8;
+      color: white;
+    }
+    
+    .btn-info:hover {
+      background: #138496;
+    }
+    
+    .filters {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    
+    .filter-group {
+      display: inline-block;
+      margin-right: 20px;
+    }
+    
+    .filter-group label {
+      display: inline-block;
+      margin-right: 10px;
+      font-weight: 600;
+    }
+    
+    .filter-group select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .ppmp-table {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th {
+      background: #152d64;
+      color: white;
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+    }
+    
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    tr:hover {
+      background: #f8f9fa;
+    }
+    
+    .no-data {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+      font-size: 16px;
+    }
+    
+    .alert {
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+    
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .badge {
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .badge-primary {
+      background: #007bff;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  {% include 'app/includes/sidebar.html' %}
+  
+  <section class="home-section">
+    <div class="home-content">
+      <i class="fas fa-bars"></i>
+      <span class="text">PPMP Management</span>
+    </div>
+
+    <div class="ppmp-container">
+      <div class="ppmp-header">
+        <h1><i class="fas fa-file-contract"></i> PPMP Files</h1>
+        <a href="{% url 'ppmp_upload' %}" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Upload New PPMP
+        </a>
+      </div>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <div class="filters">
+        <form method="get" id="filterForm">
+          <div class="filter-group">
+            <label for="department">Department:</label>
+            <select name="department" id="department" onchange="this.form.submit()">
+              <option value="">All Departments</option>
+              {% for dept in departments %}
+                <option value="{{ dept.id }}" {% if department_filter == dept.id|stringformat:"s" %}selected{% endif %}>
+                  {{ dept.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label for="year">Year:</label>
+            <select name="year" id="year" onchange="this.form.submit()">
+              <option value="">All Years</option>
+              {% for yr in years %}
+                <option value="{{ yr }}" {% if year_filter == yr|stringformat:"s" %}selected{% endif %}>
+                  {{ yr }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          
+          {% if department_filter or year_filter %}
+            <a href="{% url 'ppmp_list' %}" class="btn btn-secondary" style="background: #6c757d; color: white; padding: 8px 15px;">
+              <i class="fas fa-times"></i> Clear Filters
+            </a>
+          {% endif %}
+        </form>
+      </div>
+
+      <div class="ppmp-table">
+        {% if ppmps %}
+          <table>
+            <thead>
+              <tr>
+                <th>Department</th>
+                <th>Year</th>
+                <th>File Name</th>
+                <th>Items Count</th>
+                <th>Uploaded By</th>
+                <th>Upload Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ppmp in ppmps %}
+                <tr>
+                  <td><strong>{{ ppmp.department.name }}</strong></td>
+                  <td>{{ ppmp.year }}</td>
+                  <td>{{ ppmp.file.name|default:"N/A" }}</td>
+                  <td>
+                    <span class="badge badge-primary">{{ ppmp.items.count }} items</span>
+                  </td>
+                  <td>{{ ppmp.uploaded_by.username }}</td>
+                  <td>{{ ppmp.upload_date|date:"M d, Y h:i A" }}</td>
+                  <td>
+                    <a href="{% url 'ppmp_detail' ppmp.pk %}" class="btn btn-info" style="padding: 6px 12px; margin-right: 5px;">
+                      <i class="fas fa-eye"></i> View Details
+                    </a>
+                    <a href="{% url 'ppmp_delete' ppmp.pk %}" class="btn btn-danger" style="padding: 6px 12px;">
+                      <i class="fas fa-trash"></i> Delete
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="no-data">
+            <i class="fas fa-folder-open" style="font-size: 48px; margin-bottom: 15px; color: #ccc;"></i>
+            <p>No PPMP files uploaded yet.</p>
+            <a href="{% url 'ppmp_upload' %}" class="btn btn-primary" style="margin-top: 15px;">
+              <i class="fas fa-upload"></i> Upload Your First PPMP
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <script>
+    let sidebar = document.querySelector(".sidebar");
+    let closeBtn = document.querySelector("#btn");
+
+    closeBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+    });
+  </script>
+</body>
+</html>

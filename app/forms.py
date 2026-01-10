@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
 from .models import Property, Supply, SupplyQuantity, SupplyCategory, SupplySubcategory, BadStockReport
 from django.contrib.auth.models import User
-from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, LostItem, Reservation, Department,PropertyCategory, SupplyRequestBatch, SupplyRequestItem, Supply, SupplyQuantity
+from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, LostItem, Reservation, Department,PropertyCategory, SupplyRequestBatch, SupplyRequestItem, Supply, SupplyQuantity, PPMP, PPMPItem
 from datetime import date
 import os
 
@@ -855,5 +855,57 @@ class BadStockReportForm(forms.ModelForm):
                         f'Cannot remove {quantity_removed} units. Only {available_quantity} units available.')
             except SupplyQuantity.DoesNotExist:
                 self.add_error('supply', 'This supply has no quantity information.')
+        
+        return cleaned_data
+
+
+class PPMPUploadForm(forms.ModelForm):
+    """Form for uploading PPMP Excel files"""
+    
+    class Meta:
+        model = PPMP
+        fields = ['department', 'year', 'file']
+        widgets = {
+            'department': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'year': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., 2025',
+                'min': '2020',
+                'max': '2099'
+            }),
+            'file': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': '.xlsx,.xls'
+            })
+        }
+    
+    def clean_file(self):
+        file = self.cleaned_data.get('file')
+        if file:
+            # Check file extension
+            ext = os.path.splitext(file.name)[1].lower()
+            if ext not in ['.xlsx', '.xls']:
+                raise ValidationError('Only Excel files (.xlsx, .xls) are allowed.')
+            
+            # Check file size (limit to 10MB)
+            if file.size > 10 * 1024 * 1024:
+                raise ValidationError('File size must not exceed 10MB.')
+        
+        return file
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        department = cleaned_data.get('department')
+        year = cleaned_data.get('year')
+        
+        # Check if PPMP already exists for this department and year (only for new instances)
+        if department and year and not self.instance.pk:
+            if PPMP.objects.filter(department=department, year=year).exists():
+                raise ValidationError(
+                    f'A PPMP for {department.name} for year {year} already exists. '
+                    'Please delete the existing one first or choose a different year.'
+                )
         
         return cleaned_data
