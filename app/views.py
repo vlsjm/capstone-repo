@@ -7000,15 +7000,55 @@ def check_ppmp_before_approval(request, batch_id, item_id):
     except PPMP.DoesNotExist:
         return JsonResponse({'needs_confirmation': False, 'proceed': True})
     
-    # Quick fuzzy match on item name (case-insensitive contains)
-    supply_name_lower = item.supply.supply_name.lower()
-    matched_items = PPMPItem.objects.filter(
-        ppmp=ppmp,
-        unit_measure__icontains=item.supply.supply_name
-    ).only('quantity', 'released')
+    # Find matching PPMP items using improved matching logic
+    # The actual item name is in unit_measure field, not description
+    all_ppmp_items = PPMPItem.objects.filter(ppmp=ppmp).only('id', 'unit_measure', 'description', 'quantity', 'released')
     
-    if not matched_items.exists():
+    matched_item_ids = []
+    supply_key = item.supply.supply_name.strip().lower()
+    supply_desc_key = item.supply.description.strip().lower() if item.supply.description else ""
+    
+    print(f"[PPMP CHECK] Supply: '{item.supply.supply_name}'")
+    print(f"[PPMP CHECK] Supply key: '{supply_key}'")
+    print(f"[PPMP CHECK] Supply desc: '{supply_desc_key}'")
+    
+    for ppmp_item in all_ppmp_items:
+        # Use unit_measure as the primary item name
+        item_name = ppmp_item.unit_measure if ppmp_item.unit_measure else ppmp_item.description
+        if not item_name:
+            continue
+            
+        ppmp_key = item_name.strip().lower()
+        
+        # Try exact match
+        if ppmp_key == supply_key or (supply_desc_key and ppmp_key == supply_desc_key):
+            matched_item_ids.append(ppmp_item.id)
+            print(f"[PPMP CHECK] ✓ EXACT MATCH: '{item_name}'")
+            continue
+        
+        # Try substring matching
+        if ppmp_key in supply_key or supply_key in ppmp_key:
+            matched_item_ids.append(ppmp_item.id)
+            print(f"[PPMP CHECK] ✓ SUBSTRING MATCH: '{item_name}'")
+            continue
+        
+        # For longer names (>10 chars), use 70% word matching threshold
+        if len(supply_key) > 10:
+            supply_words = set(supply_key.replace(',', ' ').split())
+            ppmp_words = set(ppmp_key.replace(',', ' ').split())
+            common_words = supply_words & ppmp_words
+            
+            if len(common_words) / max(len(supply_words), 1) >= 0.7:
+                matched_item_ids.append(ppmp_item.id)
+                print(f"[PPMP CHECK] ✓ 70% WORD MATCH: '{item_name}' (common: {common_words})")
+    
+    print(f"[PPMP CHECK] Total matches: {len(matched_item_ids)}")
+    
+    if not matched_item_ids:
         return JsonResponse({'needs_confirmation': False, 'proceed': True})
+    
+    # Get matched items for aggregation
+    matched_items = PPMPItem.objects.filter(id__in=matched_item_ids)
     
     # Use aggregate to calculate sums in database (faster than Python)
     totals = matched_items.aggregate(
@@ -7018,7 +7058,7 @@ def check_ppmp_before_approval(request, batch_id, item_id):
     
     total_ppmp_planned = totals['total_planned'] or 0
     total_ppmp_released = totals['total_released'] or 0
-    total_ppmp_remaining = total_ppmp_planned - total_ppmp_released
+    total_ppmp_remaining = max(0, total_ppmp_planned - total_ppmp_released)
     
     # Check if approved quantity exceeds PPMP remaining
     if approved_quantity > total_ppmp_remaining:

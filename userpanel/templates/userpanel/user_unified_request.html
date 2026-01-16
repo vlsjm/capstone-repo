@@ -194,6 +194,22 @@
     background-color: #f8d7da;
 }
 
+.option-ppmp {
+    font-size: 11px;
+    color: #155724;
+    background-color: #d4edda;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.option-ppmp i {
+    font-size: 10px;
+}
+
 .option-details {
     display: flex;
     gap: 12px;
@@ -588,6 +604,22 @@
     background-color: #f8d7da;
 }
 
+.modal-item-ppmp {
+    color: #155724;
+    background-color: #d4edda;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.modal-item-ppmp i {
+    font-size: 10px;
+}
+
 .modal-no-results {
     padding: 40px 16px;
     text-align: center;
@@ -977,7 +1009,12 @@ body.modal-open {
                 "description": "{{ supply.description|default:""|escapejs }}",
                 "available": {{ supply.quantity_info.current_quantity }},
                 "available_qty": {{ supply.quantity_info.available_quantity }},
-                "unit": "{{ supply.unit|default:""|escapejs }}"
+                "unit": "{{ supply.unit|default:""|escapejs }}"{% if supply.ppmp_info %},
+                "in_ppmp": true,
+                "ppmp_budgeted": {{ supply.ppmp_info.budgeted_qty }},
+                "ppmp_released": {{ supply.ppmp_info.released }},
+                "ppmp_remaining": {{ supply.ppmp_info.remaining }}{% else %},
+                "in_ppmp": false{% endif %}
             }{% if not forloop.last %},{% endif %}
             {% endfor %}
         ]'></div>
@@ -1007,12 +1044,19 @@ body.modal-open {
             <div class="modal-search-wrapper">
                 <input type="text" id="supply-modal-search" class="modal-search-input" 
                        placeholder="Search by name or code..." autocomplete="off">
-                <select id="supply-modal-category" class="modal-category-filter">
-                    <option value="">All Categories</option>
-                    {% for category in supply_categories %}
-                        <option value="{{ category.id }}">{{ category.name }}</option>
-                    {% endfor %}
-                </select>
+                <div style="display: flex; gap: 8px;">
+                    <select id="supply-modal-category" class="modal-category-filter" style="flex: 1;">
+                        <option value="">All Categories</option>
+                        {% for category in supply_categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="supply-modal-ppmp" class="modal-category-filter" style="flex: 1;">
+                        <option value="">All Items</option>
+                        <option value="in_ppmp">📋 PPMP Only</option>
+                        <option value="not_in_ppmp">Not in PPMP</option>
+                    </select>
+                </div>
             </div>
             <div class="modal-content">
                 <div id="supply-modal-items-list" class="modal-items-list">
@@ -1058,13 +1102,23 @@ body.modal-open {
                         <div class="form-group">
                             <label for="supply-select">Supply Item:</label>
                             <div class="searchable-select-container">
-                                <!-- Category Filter -->
-                                <select id="category-filter" class="form-control">
-                                    <option value="">All Categories</option>
-                                    {% for category in supply_categories %}
-                                        <option value="{{ category.id }}">{{ category.name }}</option>
-                                    {% endfor %}
-                                </select>
+                                <!-- Filters Row -->
+                                <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                                    <!-- Category Filter -->
+                                    <select id="category-filter" class="form-control" style="flex: 1;">
+                                        <option value="">All Categories</option>
+                                        {% for category in supply_categories %}
+                                            <option value="{{ category.id }}">{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    
+                                    <!-- PPMP Filter -->
+                                    <select id="ppmp-filter" class="form-control" style="flex: 1;">
+                                        <option value="">All Items</option>
+                                        <option value="in_ppmp">In PPMP Only</option>
+                                        <option value="not_in_ppmp">Not in PPMP</option>
+                                    </select>
+                                </div>
                                 
                                 <!-- Search Input with Icon -->
                                 <div class="search-input-wrapper">
@@ -1094,16 +1148,29 @@ body.modal-open {
                                          data-category-name="{{ supply.category.name }}"
                                          data-available="{{ supply.quantity_info.current_quantity }}"
                                          data-available-qty="{{ supply.quantity_info.available_quantity }}"
-                                         data-unit="{{ supply.unit|default:'' }}">
+                                         data-unit="{{ supply.unit|default:'' }}"
+                                         data-in-ppmp="{% if supply.ppmp_info %}true{% else %}false{% endif %}"
+                                         data-ppmp-budgeted="{% if supply.ppmp_info %}{{ supply.ppmp_info.budgeted_qty }}{% else %}0{% endif %}"
+                                         data-ppmp-remaining="{% if supply.ppmp_info %}{{ supply.ppmp_info.remaining }}{% else %}0{% endif %}">
                                         <div class="option-main">
                                             <span class="option-name">{{ supply.supply_name }}</span>
-                                            <span class="option-stock {% if supply.quantity_info.available_quantity < 10 %}low-stock{% endif %}">
-                                                {{ supply.quantity_info.available_quantity }}{% if supply.unit %} {{ supply.unit }}{% endif %} available
-                                            </span>
+                                            <div style="display: flex; gap: 8px; align-items: center;">
+                                                {% if supply.ppmp_info %}
+                                                <span class="option-ppmp" title="Budgeted in PPMP 2026: {{ supply.ppmp_info.budgeted_qty }} units, {{ supply.ppmp_info.remaining }} remaining">
+                                                    <i class="fas fa-clipboard-check"></i> In PPMP
+                                                </span>
+                                                {% endif %}
+                                                <span class="option-stock {% if supply.quantity_info.available_quantity < 10 %}low-stock{% endif %}">
+                                                    {{ supply.quantity_info.available_quantity }}{% if supply.unit %} {{ supply.unit }}{% endif %} available
+                                                </span>
+                                            </div>
                                         </div>
                                         <div class="option-details">
                                             <span class="option-category">{{ supply.category.name }}</span>
                                             {% if supply.supply_number %}<span class="option-code">Code: {{ supply.supply_number }}</span>{% endif %}
+                                            {% if supply.ppmp_info %}
+                                            <span class="option-code" style="color: #155724;">PPMP: {{ supply.ppmp_info.remaining }}/{{ supply.ppmp_info.budgeted_qty }} left</span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                     {% endfor %}
@@ -2498,6 +2565,8 @@ function populateModalItems(type) {
     const categoryFilter = type === 'supply' ? 
         document.getElementById('supply-modal-category') : 
         document.getElementById('borrow-modal-category');
+    const ppmpFilter = type === 'supply' ? 
+        document.getElementById('supply-modal-ppmp') : null;
     
     // Use correct data source based on type
     const dataSource = type === 'supply' ? allSupplies : allProperties;
@@ -2505,6 +2574,7 @@ function populateModalItems(type) {
     function filterAndRender() {
         const searchTerm = searchInput.value.toLowerCase().trim();
         const selectedCategory = categoryFilter.value.trim();
+        const selectedPpmp = ppmpFilter ? ppmpFilter.value.trim() : '';
         
         const filtered = dataSource.filter(item => {
             const matchesSearch = !searchTerm || 
@@ -2515,7 +2585,17 @@ function populateModalItems(type) {
             const matchesCategory = !selectedCategory || 
                 String(item.category_id) === String(selectedCategory);
             
-            return matchesSearch && matchesCategory;
+            // PPMP filter (only for supply items)
+            let matchesPpmp = true;
+            if (type === 'supply' && selectedPpmp) {
+                if (selectedPpmp === 'in_ppmp') {
+                    matchesPpmp = item.in_ppmp === true;
+                } else if (selectedPpmp === 'not_in_ppmp') {
+                    matchesPpmp = item.in_ppmp !== true;
+                }
+            }
+            
+            return matchesSearch && matchesCategory && matchesPpmp;
         });
         
         if (filtered.length === 0) {
@@ -2531,6 +2611,13 @@ function populateModalItems(type) {
         listContainer.innerHTML = filtered.map(item => {
             // For supply items, use available_qty (accounting for reserved). For borrow, use available_qty.
             const displayQty = type === 'supply' ? item.available_qty : item.available_qty;
+            
+            // PPMP badge for supply items
+            const ppmpBadge = (type === 'supply' && item.in_ppmp) ? 
+                `<span class="modal-item-ppmp" title="PPMP: ${item.ppmp_remaining}/${item.ppmp_budgeted} remaining">
+                    <i class="fas fa-clipboard-check"></i> In PPMP
+                </span>` : '';
+            
             return `
             <div class="modal-item-option" onclick="selectItemFromModal('${type}', ${item.id}, '${item.name.replace(/'/g, "\\'")}', ${displayQty})">
                 <div class="modal-item-info">
@@ -2538,10 +2625,14 @@ function populateModalItems(type) {
                     <div class="modal-item-details">
                         <span class="modal-item-category">${item.category_name}</span>
                         ${item.code ? `<span class="modal-item-code">Code: ${item.code}</span>` : ''}
+                        ${type === 'supply' && item.in_ppmp ? `<span class="modal-item-code" style="color: #155724;">PPMP: ${item.ppmp_remaining}/${item.ppmp_budgeted}</span>` : ''}
                     </div>
                 </div>
-                <div class="modal-item-stock ${displayQty < 10 ? 'low-stock' : 'available'}">
-                    ${displayQty} available
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    ${ppmpBadge}
+                    <div class="modal-item-stock ${displayQty < 10 ? 'low-stock' : 'available'}">
+                        ${displayQty} available
+                    </div>
                 </div>
             </div>
         `}).join('');
@@ -2553,6 +2644,9 @@ function populateModalItems(type) {
     // Add event listeners for filtering
     searchInput.addEventListener('input', filterAndRender);
     categoryFilter.addEventListener('change', filterAndRender);
+    if (ppmpFilter) {
+        ppmpFilter.addEventListener('change', filterAndRender);
+    }
 }
 
 function selectItemFromModal(type, itemId, itemName, available) {
@@ -2758,13 +2852,18 @@ function initializeDropdown(config) {
     function filterOptions() {
         const searchTerm = searchInput.value.toLowerCase().trim();
         const selectedCategory = categoryFilter ? categoryFilter.value.trim() : '';
+        
+        // Get PPMP filter value (only exists for supply dropdown)
+        const ppmpFilter = document.getElementById('ppmp-filter');
+        const selectedPpmp = ppmpFilter ? ppmpFilter.value.trim() : '';
+        
         let hasVisibleOptions = false;
         let matchedCount = 0;
         let totalChecked = 0;
         highlightedIndex = -1;
         
         console.log(`[${name}] === FILTERING START ===`);
-        console.log(`[${name}] Search: "${searchTerm}", Category: "${selectedCategory}"`);
+        console.log(`[${name}] Search: "${searchTerm}", Category: "${selectedCategory}", PPMP: "${selectedPpmp}"`);
         
         // Show/hide clear button
         if (clearSearchBtn) {
@@ -2790,6 +2889,7 @@ function initializeDropdown(config) {
             const code = (option.dataset.code || '').toLowerCase();
             const categoryId = (option.dataset.category || '').trim();
             const categoryName = (option.dataset.categoryName || '').toLowerCase();
+            const inPpmp = option.dataset.inPpmp === 'true';
             
             // Debug first 3 actual options
             if (totalChecked <= 3) {
@@ -2797,9 +2897,8 @@ function initializeDropdown(config) {
                     itemName: option.dataset.name,
                     categoryId: categoryId,
                     selectedCategory: selectedCategory,
-                    categoryIdType: typeof categoryId,
-                    selectedCategoryType: typeof selectedCategory,
-                    stringMatch: String(categoryId) === String(selectedCategory)
+                    inPpmp: inPpmp,
+                    selectedPpmp: selectedPpmp
                 });
             }
             
@@ -2814,8 +2913,18 @@ function initializeDropdown(config) {
             // Check category match - convert both to strings for comparison
             const matchesCategory = !selectedCategory || (String(categoryId) === String(selectedCategory));
             
+            // Check PPMP match
+            let matchesPpmp = true;
+            if (selectedPpmp) {
+                if (selectedPpmp === 'in_ppmp') {
+                    matchesPpmp = inPpmp;
+                } else if (selectedPpmp === 'not_in_ppmp') {
+                    matchesPpmp = !inPpmp;
+                }
+            }
+            
             // Determine visibility
-            const isVisible = matchesSearch && matchesCategory;
+            const isVisible = matchesSearch && matchesCategory && matchesPpmp;
             
             // Apply visibility using classes to work with !important CSS
             if (isVisible) {
@@ -2950,6 +3059,36 @@ function initializeDropdown(config) {
             
             // Auto-open dropdown when category is selected
             if (!isDropdownOpen && categoryFilter.value) {
+                toggleDropdown();
+            }
+        });
+    }
+    
+    // Event: PPMP filter change (only for supply dropdown)
+    const ppmpFilter = document.getElementById('ppmp-filter');
+    if (ppmpFilter && name === 'supply') {
+        // Restore saved PPMP filter on page load
+        const savedPpmp = localStorage.getItem('supply_selectedPpmp');
+        if (savedPpmp) {
+            ppmpFilter.value = savedPpmp;
+            filterOptions();
+        }
+        
+        ppmpFilter.addEventListener('change', function() {
+            const selectedValue = ppmpFilter.value;
+            console.log(`[${name}] PPMP filter changed to: "${selectedValue}"`);
+            
+            // Save to localStorage
+            if (selectedValue) {
+                localStorage.setItem('supply_selectedPpmp', selectedValue);
+            } else {
+                localStorage.removeItem('supply_selectedPpmp');
+            }
+            
+            filterOptions();
+            
+            // Auto-open dropdown when PPMP filter is selected
+            if (!isDropdownOpen && ppmpFilter.value) {
                 toggleDropdown();
             }
         });

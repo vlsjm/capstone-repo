@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.views.generic import TemplateView
 from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from app.models import SupplyRequestBatch, BorrowRequestBatch, ReservationBatch, SupplyCategory
+from app.models import SupplyRequestBatch, BorrowRequestBatch, ReservationBatch, SupplyCategory, PPMP, PPMPItem
 
 
 class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
@@ -181,6 +181,60 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
         # Get available categories for filter dropdown
         available_categories = SupplyCategory.objects.all().order_by('name')
         
+        # Get PPMP data for user's department
+        ppmp_items = []
+        user_department = self.request.user.userprofile.department if hasattr(self.request.user, 'userprofile') else None
+        
+        if user_department:
+            # Get the most recent PPMP for user's department
+            ppmps = PPMP.objects.filter(department=user_department).order_by('-year', '-upload_date')
+            
+            # Get year filter for PPMP if provided
+            ppmp_year_filter = self.request.GET.get('ppmp_year', '')
+            ppmp_search = self.request.GET.get('ppmp_search', '').strip()
+            
+            if ppmp_year_filter:
+                ppmps = ppmps.filter(year=ppmp_year_filter)
+            
+            # Get all PPMP items from filtered PPMPs
+            for ppmp in ppmps:
+                for item in ppmp.items.all():
+                    # Apply search filter if specified
+                    if ppmp_search and ppmp_search.lower() not in item.description.lower():
+                        continue
+                    
+                    ppmp_items.append({
+                        'ppmp_year': ppmp.year,
+                        'unit': item.unit or 'N/A',
+                        'mode': item.mode or 'N/A',
+                        'category': item.common_office_supplies or item.office_supplies_expense or 'N/A',
+                        'description': item.description,
+                        'unit_measure': item.unit_measure or 'N/A',
+                        'unit_price': item.unit_price or 0,
+                        'planned_qty': item.quantity,
+                        'released': item.released,
+                        'remaining': item.remaining,
+                        'total_amount': item.total_amount or 0,
+                    })
+            
+            # Get available PPMP years for filter
+            ppmp_years = ppmps.values_list('year', flat=True).distinct().order_by('-year')
+        else:
+            ppmp_years = []
+            ppmp_year_filter = ''
+            ppmp_search = ''
+        
+        # Paginate PPMP items
+        ppmp_paginator = Paginator(ppmp_items, 10)  # 10 items per page
+        ppmp_page = self.request.GET.get('ppmp_page', 1)
+        
+        try:
+            ppmp_page_obj = ppmp_paginator.page(ppmp_page)
+        except PageNotAnInteger:
+            ppmp_page_obj = ppmp_paginator.page(1)
+        except EmptyPage:
+            ppmp_page_obj = ppmp_paginator.page(ppmp_paginator.num_pages)
+        
         context.update({
             'items_summary': items_page,
             'items_year_filter': items_year_filter,
@@ -199,6 +253,11 @@ class UserRequestsSummaryView(LoginRequiredMixin, PermissionRequiredMixin, Templ
             'supply_count': supply_count,
             'borrow_count': borrow_count,
             'reservation_count': reservation_count,
+            'ppmp_data': ppmp_page_obj,
+            'ppmp_years': ppmp_years,
+            'ppmp_year_filter': ppmp_year_filter,
+            'ppmp_search': ppmp_search,
+            'user_department': user_department,
         })
         
         return context

@@ -279,7 +279,8 @@ class UserUnifiedRequestView(PermissionRequiredMixin, TemplateView):
     permission_required = 'app.view_user_module'
 
     def get(self, request):
-        from app.models import SupplyCategory, PropertyCategory
+        from app.models import SupplyCategory, PropertyCategory, PPMP, PPMPItem
+        from datetime import datetime as dt
         
         # Get supply cart items from session
         supply_cart_items = request.session.get('supply_cart', [])
@@ -319,11 +320,101 @@ class UserUnifiedRequestView(PermissionRequiredMixin, TemplateView):
             except Exception as e:
                 continue
         
+        # Get user's department for PPMP filtering
+        user_department = None
+        try:
+            user_profile = request.user.userprofile
+            user_department = user_profile.department
+        except:
+            pass
+        
+        # Get PPMP items for current year and user's department
+        current_year = dt.now().year
+        ppmp_items_dict = {}
+        ppmp_items_list = []  # Keep list for partial matching
+        
+        if user_department:
+            try:
+                ppmp = PPMP.objects.get(department=user_department, year=current_year)
+                ppmp_items = PPMPItem.objects.filter(ppmp=ppmp)
+                
+                # Create a dictionary mapping supply descriptions to PPMP items
+                # The actual item name is in unit_measure field, not description
+                for ppmp_item in ppmp_items:
+                    # Use unit_measure as the primary item name
+                    item_name = ppmp_item.unit_measure if ppmp_item.unit_measure else ppmp_item.description
+                    
+                    if item_name:
+                        key = item_name.strip().lower()
+                        ppmp_info = {
+                            'budgeted_qty': ppmp_item.quantity,
+                            'released': ppmp_item.released,
+                            'remaining': ppmp_item.remaining,
+                            'unit_price': ppmp_item.unit_price,
+                            'unit_measure': ppmp_item.unit_measure,
+                            'item_name': item_name
+                        }
+                        ppmp_items_dict[key] = ppmp_info
+                        ppmp_items_list.append({
+                            'key': key,
+                            'info': ppmp_info
+                        })
+            except PPMP.DoesNotExist:
+                pass
+        
         # Get available supplies - includes both current_quantity and available_quantity (after reserved items)
         available_supplies = Supply.objects.filter(
             available_for_request=True,
             quantity_info__current_quantity__gt=0
         ).select_related('quantity_info', 'category')
+        
+        # Annotate supplies with PPMP information
+        ppmp_matched_count = 0
+        for supply in available_supplies:
+            supply.ppmp_info = None
+            
+            # Use the same 70% threshold matching logic as admin side
+            matched_ppmp_items = []
+            supply_key = supply.supply_name.strip().lower()
+            supply_desc_key = supply.description.strip().lower() if supply.description else ""
+            
+            for ppmp_item in ppmp_items_list:
+                ppmp_key = ppmp_item['key']
+                ppmp_info = ppmp_item['info']
+                
+                # Try exact match
+                if ppmp_key == supply_key or ppmp_key == supply_desc_key:
+                    matched_ppmp_items.append(ppmp_info)
+                    continue
+                
+                # Try substring matching
+                if ppmp_key in supply_key or supply_key in ppmp_key:
+                    matched_ppmp_items.append(ppmp_info)
+                    continue
+                
+                # For longer names (>10 chars), use 70% word matching threshold
+                if len(supply_key) > 10:
+                    supply_words = set(supply_key.replace(',', ' ').split())
+                    ppmp_words = set(ppmp_key.replace(',', ' ').split())
+                    common_words = supply_words & ppmp_words
+                    
+                    if len(common_words) / max(len(supply_words), 1) >= 0.7:
+                        matched_ppmp_items.append(ppmp_info)
+            
+            # If we found matches, aggregate them (same as admin-side)
+            if matched_ppmp_items:
+                total_budgeted = sum(item['budgeted_qty'] for item in matched_ppmp_items)
+                total_released = sum(item['released'] for item in matched_ppmp_items)
+                total_remaining = max(0, total_budgeted - total_released)
+                
+                supply.ppmp_info = {
+                    'budgeted_qty': total_budgeted,
+                    'released': total_released,
+                    'remaining': total_remaining,
+                    'unit_price': matched_ppmp_items[0]['unit_price'],  # Use first match
+                    'unit_measure': matched_ppmp_items[0]['unit_measure']  # Use first match
+                }
+                ppmp_matched_count += 1
         
         # Get available properties
         available_properties = Property.objects.filter(

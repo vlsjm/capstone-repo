@@ -691,7 +691,6 @@ def check_ppmp_match(supply_name, department, year=None):
         ppmp = PPMP.objects.get(department=department, year=year)
         
         # Normalize the supply name for better matching
-        # Remove extra spaces, convert to lowercase for comparison
         normalized_supply_name = re.sub(r'\s+', ' ', supply_name.strip().lower())
         
         # Search for matching items in unit_measure field (which contains the actual item name)
