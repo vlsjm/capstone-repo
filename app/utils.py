@@ -691,6 +691,7 @@ def check_ppmp_match(supply_name, department, year=None):
         ppmp = PPMP.objects.get(department=department, year=year)
         
         # Normalize the supply name for better matching
+        # Remove extra spaces, convert to lowercase for comparison
         normalized_supply_name = re.sub(r'\s+', ' ', supply_name.strip().lower())
         
         # Search for matching items in unit_measure field (which contains the actual item name)
@@ -754,6 +755,123 @@ def check_ppmp_match(supply_name, department, year=None):
             'matched_items': [],
             'message': f"Error checking PPMP: {str(e)}"
         }
+
+
+def check_ppmp_match_multi_year(supply_name, department, current_year=None):
+    """
+    Check if a supply request matches any items in the department's PPMP across multiple years.
+    Returns matches from all years, excluding fully fulfilled years (where quantity = released).
+    
+    Args:
+        supply_name: Name of the supply being requested
+        department: Department instance
+        current_year: Current request year (defaults to current year)
+    
+    Returns:
+        dict: {
+            'match_found': bool,
+            'years_with_matches': list of dicts containing year, ppmp, matched_items, and remaining quantities
+            'message': str,
+            'total_matches': int
+        }
+    """
+    from .models import PPMP, PPMPItem
+    import re
+    
+    if current_year is None:
+        current_year = timezone.now().year
+    
+    try:
+        # Get all PPMPs for this department
+        ppmps = PPMP.objects.filter(department=department).order_by('year')
+        
+        if not ppmps.exists():
+            return {
+                'match_found': False,
+                'years_with_matches': [],
+                'message': f"⚠ No PPMP found for {department.name}",
+                'total_matches': 0
+            }
+        
+        # Normalize the supply name for better matching
+        normalized_supply_name = re.sub(r'\s+', ' ', supply_name.strip().lower())
+        
+        years_with_matches = []
+        total_matches = 0
+        
+        for ppmp in ppmps:
+            # First try exact partial match
+            matched_items = PPMPItem.objects.filter(
+                ppmp=ppmp,
+                unit_measure__icontains=supply_name
+            )
+            
+            # If no match, try normalized matching (more flexible)
+            if not matched_items.exists():
+                all_items = PPMPItem.objects.filter(ppmp=ppmp)
+                matched_list = []
+                for item in all_items:
+                    # Search in unit_measure (the actual item name) not description (UACS code)
+                    normalized_item_name = re.sub(r'\s+', ' ', str(item.unit_measure).strip().lower())
+                    # Check if either contains the other or significant overlap
+                    if normalized_supply_name in normalized_item_name or normalized_item_name in normalized_supply_name:
+                        matched_list.append(item)
+                    # Also try word-by-word matching for better accuracy
+                    elif len(normalized_supply_name) > 10:  # Only for longer names
+                        supply_words = set(normalized_supply_name.split())
+                        item_words = set(normalized_item_name.split())
+                        # If 70% of words match, consider it a match
+                        common_words = supply_words.intersection(item_words)
+                        if len(common_words) / len(supply_words) >= 0.7:
+                            matched_list.append(item)
+                
+                if matched_list:
+                    matched_items = matched_list
+            else:
+                matched_items = list(matched_items)
+            
+            # Filter out items with no remaining quantity (fully fulfilled)
+            items_with_remaining = []
+            for item in matched_items:
+                if item.remaining > 0:  # item.remaining is a property: quantity - released
+                    items_with_remaining.append(item)
+            
+            # Only add this year if there are items with remaining quantity
+            if items_with_remaining:
+                years_with_matches.append({
+                    'year': ppmp.year,
+                    'ppmp': ppmp,
+                    'matched_items': items_with_remaining,
+                    'total_remaining': sum(item.remaining for item in items_with_remaining)
+                })
+                total_matches += len(items_with_remaining)
+        
+        if years_with_matches:
+            # Build a message showing all years with matches
+            year_list = ', '.join(str(y['year']) for y in years_with_matches)
+            return {
+                'match_found': True,
+                'years_with_matches': years_with_matches,
+                'message': f"✓ Found {total_matches} matching item(s) in {department.name}'s PPMP across years: {year_list}",
+                'total_matches': total_matches
+            }
+        else:
+            return {
+                'match_found': False,
+                'years_with_matches': [],
+                'message': f"⚠ No available items found in {department.name}'s PPMP (all matched items are fully fulfilled)",
+                'total_matches': 0
+            }
+    
+    except Exception as e:
+        logger.error(f"Error checking multi-year PPMP match: {str(e)}")
+        return {
+            'match_found': False,
+            'years_with_matches': [],
+            'message': f"Error checking PPMP: {str(e)}",
+            'total_matches': 0
+        }
+
 
 def send_borrow_request_expired_email(borrow_batch):
     """

@@ -1156,8 +1156,8 @@ body.modal-open {
                                             <span class="option-name">{{ supply.supply_name }}</span>
                                             <div style="display: flex; gap: 8px; align-items: center;">
                                                 {% if supply.ppmp_info %}
-                                                <span class="option-ppmp" title="Budgeted in PPMP 2026: {{ supply.ppmp_info.budgeted_qty }} units, {{ supply.ppmp_info.remaining }} remaining">
-                                                    <i class="fas fa-clipboard-check"></i> In PPMP
+                                                <span class="option-ppmp" title="Budgeted in PPMP {% for year_info in supply.ppmp_years %}{{ year_info.year }}{% if not forloop.last %}, {% endif %}{% endfor %}: Total {{ supply.ppmp_info.budgeted_qty }} units, {{ supply.ppmp_info.remaining }} remaining">
+                                                    <i class="fas fa-clipboard-check"></i> In PPMP{% if supply.ppmp_info.years_count > 1 %} ({{ supply.ppmp_info.years_count }} years){% endif %}
                                                 </span>
                                                 {% endif %}
                                                 <span class="option-stock {% if supply.quantity_info.available_quantity < 10 %}low-stock{% endif %}">
@@ -1169,7 +1169,14 @@ body.modal-open {
                                             <span class="option-category">{{ supply.category.name }}</span>
                                             {% if supply.supply_number %}<span class="option-code">Code: {{ supply.supply_number }}</span>{% endif %}
                                             {% if supply.ppmp_info %}
-                                            <span class="option-code" style="color: #155724;">PPMP: {{ supply.ppmp_info.remaining }}/{{ supply.ppmp_info.budgeted_qty }} left</span>
+                                            <span class="option-code" style="color: #155724;">PPMP Total: {{ supply.ppmp_info.remaining }}/{{ supply.ppmp_info.budgeted_qty }} left</span>
+                                            {% endif %}
+                                            {% if supply.ppmp_years %}
+                                                {% for year_info in supply.ppmp_years %}
+                                                <span class="option-code" style="color: #0056b3; font-size: 10px;">
+                                                    {{ year_info.year }}: {{ year_info.remaining }}/{{ year_info.budgeted_qty }}
+                                                </span>
+                                                {% endfor %}
                                             {% endif %}
                                         </div>
                                     </div>

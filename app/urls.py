@@ -69,6 +69,7 @@ from .views import (
     add_subcategory,
     batch_request_detail,
     check_ppmp_before_approval,
+    get_ppmp_year_options,
     approve_batch_item,
     reject_batch_item,
     claim_batch_items,
@@ -261,6 +262,7 @@ urlpatterns = [
     # Batch request management URLs
     path('batch-request/<int:batch_id>/', batch_request_detail, name='batch_request_detail'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/check-ppmp/', check_ppmp_before_approval, name='check_ppmp_before_approval'),
+    path('batch-request/<int:batch_id>/item/<int:item_id>/ppmp-years/', get_ppmp_year_options, name='get_ppmp_year_options'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/approve/', approve_batch_item, name='approve_batch_item'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/reject/', reject_batch_item, name='reject_batch_item'),
     

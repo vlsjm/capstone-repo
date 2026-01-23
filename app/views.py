@@ -6971,7 +6971,7 @@ def supply_list(request):
 @require_POST
 @admin_permission_required('approve_supply_request')
 def check_ppmp_before_approval(request, batch_id, item_id):
-    """AJAX endpoint to check PPMP before approving an item"""
+    """AJAX endpoint to check PPMP before approving an item - now supports multi-year PPMP"""
     from django.http import JsonResponse
     from django.core.exceptions import ObjectDoesNotExist
     from django.db.models import Sum
@@ -6994,96 +6994,211 @@ def check_ppmp_before_approval(request, batch_id, item_id):
     except (AttributeError, ObjectDoesNotExist):
         return JsonResponse({'needs_confirmation': False, 'proceed': True})
     
-    # Quick check: Does PPMP exist for this department/year?
-    try:
-        ppmp = PPMP.objects.get(department=user_department, year=timezone.now().year)
-    except PPMP.DoesNotExist:
+    # Get all PPMPs for this department
+    ppmp_list = PPMP.objects.filter(department=user_department).order_by('-year')
+    
+    if not ppmp_list.exists():
         return JsonResponse({'needs_confirmation': False, 'proceed': True})
     
-    # Find matching PPMP items using improved matching logic
-    # The actual item name is in unit_measure field, not description
-    all_ppmp_items = PPMPItem.objects.filter(ppmp=ppmp).only('id', 'unit_measure', 'description', 'quantity', 'released')
-    
-    matched_item_ids = []
+    # Find matching PPMP items across all years
+    available_years = []
     supply_key = item.supply.supply_name.strip().lower()
     supply_desc_key = item.supply.description.strip().lower() if item.supply.description else ""
     
-    print(f"[PPMP CHECK] Supply: '{item.supply.supply_name}'")
-    print(f"[PPMP CHECK] Supply key: '{supply_key}'")
-    print(f"[PPMP CHECK] Supply desc: '{supply_desc_key}'")
-    
-    for ppmp_item in all_ppmp_items:
-        # Use unit_measure as the primary item name
-        item_name = ppmp_item.unit_measure if ppmp_item.unit_measure else ppmp_item.description
-        if not item_name:
-            continue
+    for ppmp in ppmp_list:
+        all_ppmp_items = PPMPItem.objects.filter(ppmp=ppmp).only('id', 'unit_measure', 'description', 'quantity', 'released')
+        
+        matched_item_ids = []
+        
+        for ppmp_item in all_ppmp_items:
+            # Use unit_measure as the primary item name
+            item_name = ppmp_item.unit_measure if ppmp_item.unit_measure else ppmp_item.description
+            if not item_name:
+                continue
+                
+            ppmp_key = item_name.strip().lower()
             
-        ppmp_key = item_name.strip().lower()
-        
-        # Try exact match
-        if ppmp_key == supply_key or (supply_desc_key and ppmp_key == supply_desc_key):
-            matched_item_ids.append(ppmp_item.id)
-            print(f"[PPMP CHECK] ✓ EXACT MATCH: '{item_name}'")
-            continue
-        
-        # Try substring matching
-        if ppmp_key in supply_key or supply_key in ppmp_key:
-            matched_item_ids.append(ppmp_item.id)
-            print(f"[PPMP CHECK] ✓ SUBSTRING MATCH: '{item_name}'")
-            continue
-        
-        # For longer names (>10 chars), use 70% word matching threshold
-        if len(supply_key) > 10:
+            # Try exact match
+            if ppmp_key == supply_key or ppmp_key == supply_desc_key:
+                matched_item_ids.append(ppmp_item.id)
+                continue
+            
+            # Try word matching (at least 2 common words)
             supply_words = set(supply_key.replace(',', ' ').split())
             ppmp_words = set(ppmp_key.replace(',', ' ').split())
             common_words = supply_words & ppmp_words
             
-            if len(common_words) / max(len(supply_words), 1) >= 0.7:
+            if len(common_words) >= 2 or (len(common_words) >= 1 and len(common_words) / max(len(supply_words), 1) >= 0.5):
                 matched_item_ids.append(ppmp_item.id)
-                print(f"[PPMP CHECK] ✓ 70% WORD MATCH: '{item_name}' (common: {common_words})")
+                continue
+            
+            # Try substring matching
+            if ppmp_key in supply_key or supply_key in ppmp_key:
+                matched_item_ids.append(ppmp_item.id)
+        
+        if matched_item_ids:
+            # Get matched items for aggregation
+            matched_items = PPMPItem.objects.filter(id__in=matched_item_ids)
+            
+            # Use aggregate to calculate sums in database (faster than Python)
+            totals = matched_items.aggregate(
+                total_planned=Sum('quantity'),
+                total_released=Sum('released')
+            )
+            
+            total_ppmp_planned = totals['total_planned'] or 0
+            total_ppmp_released = totals['total_released'] or 0
+            total_ppmp_remaining = max(0, total_ppmp_planned - total_ppmp_released)
+            
+            # Only include this year if there's remaining quantity
+            if total_ppmp_remaining > 0:
+                available_years.append({
+                    'year': ppmp.year,
+                    'ppmp_id': ppmp.id,
+                    'planned': total_ppmp_planned,
+                    'released': total_ppmp_released,
+                    'remaining': total_ppmp_remaining,
+                    'matched_item_ids': matched_item_ids
+                })
     
-    print(f"[PPMP CHECK] Total matches: {len(matched_item_ids)}")
-    
-    if not matched_item_ids:
+    if not available_years:
+        # No matches or all are fully released
         return JsonResponse({'needs_confirmation': False, 'proceed': True})
     
-    # Get matched items for aggregation
-    matched_items = PPMPItem.objects.filter(id__in=matched_item_ids)
-    
-    # Use aggregate to calculate sums in database (faster than Python)
-    totals = matched_items.aggregate(
-        total_planned=Sum('quantity'),
-        total_released=Sum('released')
-    )
-    
-    total_ppmp_planned = totals['total_planned'] or 0
-    total_ppmp_released = totals['total_released'] or 0
-    total_ppmp_remaining = max(0, total_ppmp_planned - total_ppmp_released)
-    
-    # Check if approved quantity exceeds PPMP remaining
-    if approved_quantity > total_ppmp_remaining:
-        total_after_approval = total_ppmp_released + approved_quantity
-        total_excess = total_after_approval - total_ppmp_planned
-        
+    # If there are available years with PPMP matches, ask admin to select which year
+    if len(available_years) == 1:
+        # Only one year available, check if quantity exceeds
+        year_data = available_years[0]
+        if approved_quantity > year_data['remaining']:
+            total_after_approval = year_data['released'] + approved_quantity
+            total_excess = total_after_approval - year_data['planned']
+            
+            return JsonResponse({
+                'needs_confirmation': True,
+                'type': 'exceed_warning',
+                'warning_message': (
+                    f'Approving {approved_quantity} units of {item.supply.supply_name} '
+                    f'exceeds the PPMP {year_data["year"]} remaining quantity.<br><br>'
+                    f'<strong>PPMP {year_data["year"]} Planned:</strong> {year_data["planned"]} units<br>'
+                    f'<strong>Already Released:</strong> {year_data["released"]} units<br>'
+                    f'<strong>PPMP Remaining:</strong> {year_data["remaining"]} units<br>'
+                    f'<strong>Approved Quantity:</strong> {approved_quantity} units<br>'
+                    f'<strong>Total Excess:</strong> {total_excess} units<br><br>'
+                    f'Do you want to proceed with this approval?'
+                ),
+                'item_name': item.supply.supply_name,
+                'ppmp_year': year_data['year'],
+                'ppmp_remaining': year_data['remaining'],
+                'approved_quantity': approved_quantity
+            })
+        else:
+            # Auto-select this year since it's the only one and has enough quantity
+            return JsonResponse({
+                'needs_confirmation': False,
+                'proceed': True,
+                'auto_select_year': year_data['year']
+            })
+    else:
+        # Multiple years available - ask admin to select
         return JsonResponse({
             'needs_confirmation': True,
-            'warning_message': (
-                f'Approving {approved_quantity} units of {item.supply.supply_name} '
-                f'exceeds the PPMP remaining quantity.<br><br>'
-                f'<strong>PPMP Planned:</strong> {total_ppmp_planned} units<br>'
-                f'<strong>Already Released:</strong> {total_ppmp_released} units<br>'
-                f'<strong>PPMP Remaining:</strong> {total_ppmp_remaining} units<br>'
-                f'<strong>Approved Quantity:</strong> {approved_quantity} units<br>'
-                f'<strong>Total Excess:</strong> {total_excess} units<br><br>'
-                f'Do you want to proceed with this approval?'
-            ),
+            'type': 'year_selection',
+            'available_years': available_years,
             'item_name': item.supply.supply_name,
-            'ppmp_remaining': total_ppmp_remaining,
-            'approved_quantity': approved_quantity
+            'approved_quantity': approved_quantity,
+            'message': f'Multiple PPMP years found for {item.supply.supply_name}. Please select which year to release from.'
         })
+
+@permission_required('app.view_admin_module')
+@login_required
+@admin_permission_required('approve_supply_request')
+def get_ppmp_year_options(request, batch_id, item_id):
+    """
+    AJAX endpoint to get available PPMP years for a supply request item.
+    Returns years with remaining quantities for the modal selection.
+    """
+    from django.http import JsonResponse
+    from .utils import check_ppmp_match_multi_year
     
-    # No PPMP issue, proceed normally
-    return JsonResponse({'needs_confirmation': False, 'proceed': True})
+    try:
+        batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
+        item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
+        
+        user_department = batch_request.user.userprofile.department if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department else None
+        
+        if not user_department:
+            return JsonResponse({
+                'success': False,
+                'error': 'No department found for this user'
+            })
+        
+        # Get multi-year PPMP matches
+        match_result = check_ppmp_match_multi_year(
+            supply_name=item.supply.supply_name,
+            department=user_department,
+            current_year=batch_request.request_date.year
+        )
+        
+        if not match_result['match_found']:
+            return JsonResponse({
+                'success': False,
+                'error': 'No PPMP matches found for this item',
+                'message': match_result['message']
+            })
+        
+        # Format year options for the frontend
+        year_options = []
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        for year_data in match_result['years_with_matches']:
+            # Get the first matched item (we'll use this for tracking)
+            first_item = year_data['matched_items'][0] if year_data['matched_items'] else None
+            
+            if first_item:
+                # Verify the PPMP item actually belongs to this year
+                logger.info(f"Year {year_data['year']}: ppmp_item_id={first_item.id}, ppmp_item's actual year={first_item.ppmp.year}, item_name={first_item.unit_measure}")
+                logger.info(f"  -> PPMP Item #{first_item.id} details: ppmp_id={first_item.ppmp.id}, ppmp_year={first_item.ppmp.year}, qty={first_item.quantity}, released={first_item.released}, remaining={first_item.remaining}")
+                # Log ALL matched items for this year
+                for idx, matched_ppmp_item in enumerate(year_data['matched_items']):
+                    logger.info(f"  -> Matched item {idx+1}/{len(year_data['matched_items'])}: ID={matched_ppmp_item.id}, year={matched_ppmp_item.ppmp.year}, desc={matched_ppmp_item.unit_measure}, qty={matched_ppmp_item.quantity}, released={matched_ppmp_item.released}, remaining={matched_ppmp_item.remaining}")
+            
+            year_options.append({
+                'year': year_data['year'],
+                'ppmp_id': year_data['ppmp'].id,
+                'ppmp_item_id': first_item.id if first_item else None,
+                'total_remaining': year_data['total_remaining'],
+                'matched_items_count': len(year_data['matched_items']),
+                'items_details': [
+                    {
+                        'id': ppmp_item.id,
+                        'description': str(ppmp_item.unit_measure),
+                        'quantity': ppmp_item.quantity,
+                        'released': ppmp_item.released,
+                        'remaining': ppmp_item.remaining
+                    }
+                    for ppmp_item in year_data['matched_items']
+                ]
+            })
+        
+        logger.info(f"Returning year options: {year_options}")
+        
+        return JsonResponse({
+            'success': True,
+            'year_options': year_options,
+            'supply_name': item.supply.supply_name,
+            'requested_quantity': item.quantity,
+            'department_name': user_department.name
+        })
+        
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error getting PPMP year options: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
 
 @permission_required('app.view_admin_module')
 @login_required
@@ -7092,6 +7207,8 @@ def check_ppmp_before_approval(request, batch_id, item_id):
 def approve_batch_item(request, batch_id, item_id):
     """Approve an individual item in a batch request"""
     from django.core.exceptions import ObjectDoesNotExist
+    from .models import PPMP, PPMPItem
+    from django.db.models import F
     
     batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
     item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
@@ -7108,6 +7225,38 @@ def approve_batch_item(request, batch_id, item_id):
             return response
     except (ValueError, TypeError):
         approved_quantity = item.quantity
+    
+    # Get PPMP year and item from form (if provided)
+    # First check for multi-year allocations (new format)
+    ppmp_allocations_json = request.POST.get('ppmp_allocations')
+    ppmp_allocations = None
+    
+    if ppmp_allocations_json:
+        import json
+        import logging
+        logger = logging.getLogger(__name__)
+        try:
+            ppmp_allocations = json.loads(ppmp_allocations_json)
+            logger.info(f"PPMP Allocations received: {ppmp_allocations}")
+        except (ValueError, json.JSONDecodeError):
+            ppmp_allocations = None
+            logger.error(f"Failed to parse PPMP allocations JSON: {ppmp_allocations_json}")
+    
+    # Fallback to single year selection (legacy format)
+    ppmp_year = request.POST.get('ppmp_year')
+    ppmp_item_id = request.POST.get('ppmp_item_id')
+    
+    if ppmp_year:
+        try:
+            ppmp_year = int(ppmp_year)
+        except (ValueError, TypeError):
+            ppmp_year = None
+    
+    if ppmp_item_id:
+        try:
+            ppmp_item_id = int(ppmp_item_id)
+        except (ValueError, TypeError):
+            ppmp_item_id = None
     
     # CHECK AVAILABLE STOCK BEFORE APPROVING
     quantity_info = item.supply.quantity_info
@@ -7128,8 +7277,6 @@ def approve_batch_item(request, batch_id, item_id):
             response['Location'] += f'#scroll-{scroll_position}'
             return response
     
-    # CHECK PPMP REMAINING QUANTITY (removed - now done in AJAX before approval)
-    
     # Mark item as approved
     item.approved = True
     item.status = 'approved'  # Also update the status field
@@ -7137,6 +7284,65 @@ def approve_batch_item(request, batch_id, item_id):
     remarks = request.POST.get('remarks', '')
     if remarks:
         item.remarks = remarks
+    
+    # Save PPMP allocations or single year selection (but don't update released quantity yet)
+    # PPMP released quantities will be updated during the claiming phase, not during approval
+    if ppmp_allocations:
+        # Multi-year allocation - store allocation data for later use during claiming
+        item.ppmp_allocations = ppmp_allocations
+        
+        logger.info(f"========== STORING ALLOCATION DATA (NO RELEASE YET) ==========")
+        logger.info(f"Total allocations to store: {len(ppmp_allocations)}")
+        logger.info(f"Full allocations data: {ppmp_allocations}")
+        
+        # Validate allocations and store backward compatibility fields
+        for allocation in ppmp_allocations:
+            alloc_ppmp_item_id = allocation.get('ppmp_item_id')
+            alloc_quantity = allocation.get('quantity', 0)
+            alloc_year = allocation.get('year')
+            
+            logger.info(f"Allocation {ppmp_allocations.index(allocation) + 1}: year={alloc_year}, ppmp_item_id={alloc_ppmp_item_id}, quantity={alloc_quantity}")
+            
+            # Verify PPMP item exists and year matches
+            if alloc_ppmp_item_id and alloc_quantity > 0:
+                try:
+                    ppmp_item = PPMPItem.objects.get(id=alloc_ppmp_item_id)
+                    if ppmp_item.ppmp.year != alloc_year:
+                        logger.error(f"❌ YEAR MISMATCH! PPMP item {alloc_ppmp_item_id} is from year {ppmp_item.ppmp.year} but allocation specifies year {alloc_year}")
+                except PPMPItem.DoesNotExist:
+                    logger.warning(f"Could not find PPMP item with ID {alloc_ppmp_item_id}")
+        
+        # Store the primary PPMP year (first allocation year) for backwards compatibility
+        if ppmp_allocations and len(ppmp_allocations) > 0:
+            item.ppmp_year = ppmp_allocations[0].get('year')
+            # Also store the first ppmp_item for reference
+            if ppmp_allocations[0].get('ppmp_item_id'):
+                try:
+                    item.ppmp_item = PPMPItem.objects.get(id=ppmp_allocations[0]['ppmp_item_id'])
+                    logger.info(f"Set backward compatibility: ppmp_year={item.ppmp_year}, ppmp_item={item.ppmp_item.id}")
+                except PPMPItem.DoesNotExist:
+                    pass
+        
+        logger.info(f"Allocations stored. PPMP released quantities will be updated during claiming.")
+        logger.info(f"========== END ALLOCATION STORAGE ==========")
+    
+    # Only process legacy single-year selection if multi-year allocations were NOT used
+    # Store the reference but don't update released quantity yet (that happens during claiming)
+    if not ppmp_allocations and ppmp_year and ppmp_item_id:
+        logger.info(f"Storing legacy single-year selection: year={ppmp_year}, ppmp_item_id={ppmp_item_id}")
+        # Single year selection (legacy support)
+        item.ppmp_year = ppmp_year
+        
+        # Link the supply request item to this PPMP item (but don't update released yet)
+        try:
+            ppmp_item = PPMPItem.objects.get(id=ppmp_item_id)
+            item.ppmp_item = ppmp_item
+            logger.info(f"Linked item to PPMP item {ppmp_item_id}. Released quantity will be updated during claiming.")
+        except PPMPItem.DoesNotExist:
+            logger.warning(f"Could not find PPMP item with ID {ppmp_item_id}")
+        except Exception as e:
+            logger.warning(f"Could not link PPMP item: {str(e)}")
+    
     item.save()
     
     # Reserve the approved quantity to prevent overbooking
@@ -7482,26 +7688,46 @@ Resource Hive Management System
         return redirect('batch_request_detail', batch_id=batch_id)
     
     from .permissions import has_admin_permission
+    import json
     
     # Add PPMP matching check for each item (only for supply requests)
+    # Use multi-year matching to show all available years with unfulfilled items
     ppmp_matches = {}
     user_department = batch_request.user.userprofile.department if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department else None
     
     if user_department:
-        from .utils import check_ppmp_match
+        from .utils import check_ppmp_match_multi_year
         for item in batch_request.items.all():
-            match_result = check_ppmp_match(
+            match_result = check_ppmp_match_multi_year(
                 supply_name=item.supply.supply_name,
                 department=user_department,
-                year=batch_request.request_date.year
+                current_year=batch_request.request_date.year
             )
             ppmp_matches[item.id] = match_result
+    
+    # Convert ppmp_matches to JSON for JavaScript
+    # Need to serialize the data properly (remove non-serializable objects)
+    ppmp_matches_json = {}
+    for item_id, match_data in ppmp_matches.items():
+        ppmp_matches_json[str(item_id)] = {
+            'match_found': match_data.get('match_found', False),
+            'message': match_data.get('message', ''),
+            'total_matches': match_data.get('total_matches', 0),
+            'years_with_matches': [
+                {
+                    'year': year_data['year'],
+                    'total_remaining': year_data['total_remaining'],
+                }
+                for year_data in match_data.get('years_with_matches', [])
+            ] if match_data.get('years_with_matches') else []
+        }
     
     context = {
         'batch_request': batch_request,
         'items': batch_request.items.all().order_by('supply__supply_name'),
         'can_void_request': has_admin_permission(request.user, 'void_request'),
         'ppmp_matches': ppmp_matches,
+        'ppmp_matches_json': json.dumps(ppmp_matches_json),
         'user_department': user_department,
     }
     
@@ -7578,20 +7804,74 @@ def claim_batch_items(request, batch_id):
             # Save with skip_history to avoid duplicate entry
             item.supply.quantity_info.save(skip_history=True)
         
-        # Update PPMP released quantity if user has department and PPMP exists
-        if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department:
-            from .utils import check_ppmp_match
-            from .models import PPMPItem
-            match_result = check_ppmp_match(
-                supply_name=item.supply.supply_name,
-                department=batch_request.user.userprofile.department,
-                year=batch_request.request_date.year
-            )
-            if match_result['match_found'] and match_result['matched_items']:
-                # Update the first matching PPMP item's released quantity
-                ppmp_item = match_result['matched_items'][0]
-                ppmp_item.released += approved_qty
-                ppmp_item.save()
+        # Update PPMP released quantity NOW (during claiming, not approval)
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        # Handle multi-year allocations
+        if item.ppmp_allocations:
+            logger.info(f"Updating PPMP released quantities for multi-year allocations: {item.ppmp_allocations}")
+            for allocation in item.ppmp_allocations:
+                alloc_ppmp_item_id = allocation.get('ppmp_item_id')
+                alloc_quantity = allocation.get('quantity', 0)
+                alloc_year = allocation.get('year')
+                
+                if alloc_ppmp_item_id and alloc_quantity > 0:
+                    try:
+                        from .models import PPMPItem
+                        ppmp_item = PPMPItem.objects.get(id=alloc_ppmp_item_id)
+                        old_released = ppmp_item.released
+                        ppmp_item.released += alloc_quantity
+                        ppmp_item.save()
+                        logger.info(f"PPMP item {alloc_ppmp_item_id} (year {alloc_year}) released: {old_released} → {ppmp_item.released}")
+                        
+                        # Log activity
+                        ActivityLog.log_activity(
+                            user=request.user,
+                            action='release',
+                            model_name='PPMPItem',
+                            object_repr=f"PPMP {alloc_year} - {ppmp_item.unit_measure}",
+                            description=f"Released {alloc_quantity} units of {item.supply.supply_name} from PPMP {alloc_year}. New released count: {ppmp_item.released}/{ppmp_item.quantity}"
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to update PPMP item {alloc_ppmp_item_id}: {str(e)}")
+        
+        # Handle single-year selection
+        elif item.ppmp_item:
+            logger.info(f"Updating PPMP released quantity for single-year selection: PPMP item {item.ppmp_item.id}")
+            try:
+                old_released = item.ppmp_item.released
+                item.ppmp_item.released += approved_qty
+                item.ppmp_item.save()
+                logger.info(f"PPMP item {item.ppmp_item.id} (year {item.ppmp_item.ppmp.year}) released: {old_released} → {item.ppmp_item.released}")
+                
+                # Log activity
+                ActivityLog.log_activity(
+                    user=request.user,
+                    action='release',
+                    model_name='PPMPItem',
+                    object_repr=f"PPMP {item.ppmp_item.ppmp.year} - {item.ppmp_item.unit_measure}",
+                    description=f"Released {approved_qty} units of {item.supply.supply_name} from PPMP {item.ppmp_item.ppmp.year}. New released count: {item.ppmp_item.released}/{item.ppmp_item.quantity}"
+                )
+            except Exception as e:
+                logger.error(f"Failed to update PPMP item {item.ppmp_item.id}: {str(e)}")
+        
+        # Legacy path: No PPMP allocation was selected during approval
+        else:
+            if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department:
+                from .utils import check_ppmp_match
+                from .models import PPMPItem
+                match_result = check_ppmp_match(
+                    supply_name=item.supply.supply_name,
+                    department=batch_request.user.userprofile.department,
+                    year=batch_request.request_date.year
+                )
+                if match_result['match_found'] and match_result['matched_items']:
+                    # Update the first matching PPMP item's released quantity
+                    ppmp_item = match_result['matched_items'][0]
+                    ppmp_item.released += approved_qty
+                    ppmp_item.save()
+                    logger.info(f"Legacy PPMP update: PPMP item {ppmp_item.id} released quantity updated")
         
         # Update the approved_quantity if it was None
         if item.approved_quantity is None:
@@ -7691,20 +7971,74 @@ def claim_individual_item(request, batch_id, item_id):
         # Save with skip_history to avoid duplicate entry
         item.supply.quantity_info.save(skip_history=True)
     
-    # Update PPMP released quantity if user has department and PPMP exists
-    if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department:
-        from .utils import check_ppmp_match
-        from .models import PPMPItem
-        match_result = check_ppmp_match(
-            supply_name=item.supply.supply_name,
-            department=batch_request.user.userprofile.department,
-            year=batch_request.request_date.year
-        )
-        if match_result['match_found'] and match_result['matched_items']:
-            # Update the first matching PPMP item's released quantity
-            ppmp_item = match_result['matched_items'][0]
-            ppmp_item.released += approved_qty
-            ppmp_item.save()
+    # Update PPMP released quantity NOW (during claiming, not approval)
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # Handle multi-year allocations
+    if item.ppmp_allocations:
+        logger.info(f"Updating PPMP released quantities for multi-year allocations: {item.ppmp_allocations}")
+        for allocation in item.ppmp_allocations:
+            alloc_ppmp_item_id = allocation.get('ppmp_item_id')
+            alloc_quantity = allocation.get('quantity', 0)
+            alloc_year = allocation.get('year')
+            
+            if alloc_ppmp_item_id and alloc_quantity > 0:
+                try:
+                    from .models import PPMPItem
+                    ppmp_item = PPMPItem.objects.get(id=alloc_ppmp_item_id)
+                    old_released = ppmp_item.released
+                    ppmp_item.released += alloc_quantity
+                    ppmp_item.save()
+                    logger.info(f"PPMP item {alloc_ppmp_item_id} (year {alloc_year}) released: {old_released} → {ppmp_item.released}")
+                    
+                    # Log activity
+                    ActivityLog.log_activity(
+                        user=request.user,
+                        action='release',
+                        model_name='PPMPItem',
+                        object_repr=f"PPMP {alloc_year} - {ppmp_item.unit_measure}",
+                        description=f"Released {alloc_quantity} units of {item.supply.supply_name} from PPMP {alloc_year}. New released count: {ppmp_item.released}/{ppmp_item.quantity}"
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to update PPMP item {alloc_ppmp_item_id}: {str(e)}")
+    
+    # Handle single-year selection
+    elif item.ppmp_item:
+        logger.info(f"Updating PPMP released quantity for single-year selection: PPMP item {item.ppmp_item.id}")
+        try:
+            old_released = item.ppmp_item.released
+            item.ppmp_item.released += approved_qty
+            item.ppmp_item.save()
+            logger.info(f"PPMP item {item.ppmp_item.id} (year {item.ppmp_item.ppmp.year}) released: {old_released} → {item.ppmp_item.released}")
+            
+            # Log activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='release',
+                model_name='PPMPItem',
+                object_repr=f"PPMP {item.ppmp_item.ppmp.year} - {item.ppmp_item.unit_measure}",
+                description=f"Released {approved_qty} units of {item.supply.supply_name} from PPMP {item.ppmp_item.ppmp.year}. New released count: {item.ppmp_item.released}/{item.ppmp_item.quantity}"
+            )
+        except Exception as e:
+            logger.error(f"Failed to update PPMP item {item.ppmp_item.id}: {str(e)}")
+    
+    # Legacy path: No PPMP allocation was selected during approval
+    else:
+        if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department:
+            from .utils import check_ppmp_match
+            from .models import PPMPItem
+            match_result = check_ppmp_match(
+                supply_name=item.supply.supply_name,
+                department=batch_request.user.userprofile.department,
+                year=batch_request.request_date.year
+            )
+            if match_result['match_found'] and match_result['matched_items']:
+                # Update the first matching PPMP item's released quantity
+                ppmp_item = match_result['matched_items'][0]
+                ppmp_item.released += approved_qty
+                ppmp_item.save()
+                logger.info(f"Legacy PPMP update: PPMP item {ppmp_item.id} released quantity updated")
     
     # Update the approved_quantity if it was None
     if item.approved_quantity is None:
@@ -10394,12 +10728,32 @@ def ppmp_delete(request, pk):
     """Delete a PPMP and all its items"""
     from .models import PPMP
     from django.contrib import messages
+    from django.db import connection
     
     ppmp = get_object_or_404(PPMP, pk=pk)
     
     if request.method == 'POST':
         department_name = ppmp.department.name
         year = ppmp.year
+        
+        # Get all PPMP item IDs associated with this PPMP
+        ppmp_item_ids = list(ppmp.items.values_list('id', flat=True))
+        
+        # Delete related PPMPItemRelease records first (if table exists)
+        if ppmp_item_ids:
+            with connection.cursor() as cursor:
+                try:
+                    # Delete all PPMPItemRelease records that reference these PPMP items
+                    placeholders = ','.join(['%s'] * len(ppmp_item_ids))
+                    cursor.execute(
+                        f"DELETE FROM app_ppmpitemrelease WHERE ppmp_item_id IN ({placeholders})",
+                        ppmp_item_ids
+                    )
+                except Exception as e:
+                    # Table might not exist or other error - log but continue
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.warning(f"Could not delete PPMPItemRelease records: {e}")
         
         # Delete the PPMP (cascade will delete all PPMPItems)
         ppmp.delete()

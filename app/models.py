@@ -795,6 +795,11 @@ class SupplyRequestItem(models.Model):
     approved = models.BooleanField(default=False)  # Keep for backward compatibility
     claimed_date = models.DateTimeField(null=True, blank=True)  # When item was claimed
     remarks = models.TextField(blank=True, null=True)
+    
+    # PPMP tracking fields
+    ppmp_year = models.PositiveIntegerField(null=True, blank=True)  # Primary year's PPMP (for backward compatibility)
+    ppmp_item = models.ForeignKey('PPMPItem', on_delete=models.SET_NULL, null=True, blank=True, related_name='supply_requests')  # Primary PPMP item (for backward compatibility)
+    ppmp_allocations = models.JSONField(null=True, blank=True)  # For multi-year allocations: [{'ppmp_item_id': 1, 'year': 2024, 'quantity': 5}, ...]
 
     class Meta:
         unique_together = ['batch_request', 'supply']  # Prevent duplicate items in same batch

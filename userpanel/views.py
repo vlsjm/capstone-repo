@@ -328,39 +328,8 @@ class UserUnifiedRequestView(PermissionRequiredMixin, TemplateView):
         except:
             pass
         
-        # Get PPMP items for current year and user's department
-        current_year = dt.now().year
-        ppmp_items_dict = {}
-        ppmp_items_list = []  # Keep list for partial matching
-        
-        if user_department:
-            try:
-                ppmp = PPMP.objects.get(department=user_department, year=current_year)
-                ppmp_items = PPMPItem.objects.filter(ppmp=ppmp)
-                
-                # Create a dictionary mapping supply descriptions to PPMP items
-                # The actual item name is in unit_measure field, not description
-                for ppmp_item in ppmp_items:
-                    # Use unit_measure as the primary item name
-                    item_name = ppmp_item.unit_measure if ppmp_item.unit_measure else ppmp_item.description
-                    
-                    if item_name:
-                        key = item_name.strip().lower()
-                        ppmp_info = {
-                            'budgeted_qty': ppmp_item.quantity,
-                            'released': ppmp_item.released,
-                            'remaining': ppmp_item.remaining,
-                            'unit_price': ppmp_item.unit_price,
-                            'unit_measure': ppmp_item.unit_measure,
-                            'item_name': item_name
-                        }
-                        ppmp_items_dict[key] = ppmp_info
-                        ppmp_items_list.append({
-                            'key': key,
-                            'info': ppmp_info
-                        })
-            except PPMP.DoesNotExist:
-                pass
+        # Import the admin-side matching function for consistent results
+        from app.utils import check_ppmp_match_multi_year
         
         # Get available supplies - includes both current_quantity and available_quantity (after reserved items)
         available_supplies = Supply.objects.filter(
@@ -368,53 +337,49 @@ class UserUnifiedRequestView(PermissionRequiredMixin, TemplateView):
             quantity_info__current_quantity__gt=0
         ).select_related('quantity_info', 'category')
         
-        # Annotate supplies with PPMP information
+        # Annotate supplies with PPMP information using the same algorithm as admin side
         ppmp_matched_count = 0
-        for supply in available_supplies:
-            supply.ppmp_info = None
-            
-            # Use the same 70% threshold matching logic as admin side
-            matched_ppmp_items = []
-            supply_key = supply.supply_name.strip().lower()
-            supply_desc_key = supply.description.strip().lower() if supply.description else ""
-            
-            for ppmp_item in ppmp_items_list:
-                ppmp_key = ppmp_item['key']
-                ppmp_info = ppmp_item['info']
+        if user_department:
+            for supply in available_supplies:
+                # Use the admin-side matching function for accuracy
+                match_result = check_ppmp_match_multi_year(
+                    supply_name=supply.supply_name,
+                    department=user_department,
+                    current_year=dt.now().year
+                )
                 
-                # Try exact match
-                if ppmp_key == supply_key or ppmp_key == supply_desc_key:
-                    matched_ppmp_items.append(ppmp_info)
-                    continue
-                
-                # Try substring matching
-                if ppmp_key in supply_key or supply_key in ppmp_key:
-                    matched_ppmp_items.append(ppmp_info)
-                    continue
-                
-                # For longer names (>10 chars), use 70% word matching threshold
-                if len(supply_key) > 10:
-                    supply_words = set(supply_key.replace(',', ' ').split())
-                    ppmp_words = set(ppmp_key.replace(',', ' ').split())
-                    common_words = supply_words & ppmp_words
+                if match_result['match_found'] and match_result['years_with_matches']:
+                    # Convert matched items to the format expected by template
+                    supply.ppmp_years = []
+                    for year_data in match_result['years_with_matches']:
+                        for matched_item in year_data['matched_items']:
+                            supply.ppmp_years.append({
+                                'year': year_data['year'],
+                                'budgeted_qty': matched_item.quantity,
+                                'released': matched_item.released,
+                                'remaining': matched_item.remaining,
+                                'unit_price': matched_item.unit_price,
+                                'unit_measure': matched_item.unit_measure,
+                                'item_name': matched_item.unit_measure
+                            })
                     
-                    if len(common_words) / max(len(supply_words), 1) >= 0.7:
-                        matched_ppmp_items.append(ppmp_info)
-            
-            # If we found matches, aggregate them (same as admin-side)
-            if matched_ppmp_items:
-                total_budgeted = sum(item['budgeted_qty'] for item in matched_ppmp_items)
-                total_released = sum(item['released'] for item in matched_ppmp_items)
-                total_remaining = max(0, total_budgeted - total_released)
-                
-                supply.ppmp_info = {
-                    'budgeted_qty': total_budgeted,
-                    'released': total_released,
-                    'remaining': total_remaining,
-                    'unit_price': matched_ppmp_items[0]['unit_price'],  # Use first match
-                    'unit_measure': matched_ppmp_items[0]['unit_measure']  # Use first match
-                }
-                ppmp_matched_count += 1
+                    # Set aggregated info for backward compatibility
+                    supply.ppmp_info = {
+                        'budgeted_qty': sum(item['budgeted_qty'] for item in supply.ppmp_years),
+                        'released': sum(item['released'] for item in supply.ppmp_years),
+                        'remaining': sum(item['remaining'] for item in supply.ppmp_years),
+                        'years_count': len(set(item['year'] for item in supply.ppmp_years))
+                    }
+                    ppmp_matched_count += 1
+                else:
+                    # No match found
+                    supply.ppmp_info = None
+                    supply.ppmp_years = []
+        else:
+            # No department, so no PPMP matching
+            for supply in available_supplies:
+                supply.ppmp_info = None
+                supply.ppmp_years = []
         
         # Get available properties
         available_properties = Property.objects.filter(
