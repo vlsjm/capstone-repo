@@ -101,11 +101,21 @@ def generate_requisition_slip_pdf(batch_request):
     # Prepare table data with items
     table_data = [headers]
     
+    # Create paragraph style for description text wrapping
+    description_style = ParagraphStyle(
+        'DescriptionText',
+        parent=styles['Normal'],
+        fontSize=9,
+        alignment=TA_LEFT,
+        leading=11,
+        wordWrap='LTR'
+    )
+    
     # Add items
     for item in batch_request.items.all().order_by('supply__supply_name'):
         stock_no = f"SUP-{item.supply.id:03d}"
         unit = "pcs"  # Default unit
-        description = item.supply.supply_name
+        description = Paragraph(item.supply.supply_name, description_style)  # Wrap in Paragraph for text wrapping
         req_quantity = str(item.quantity)
         
         # Stock availability
@@ -115,8 +125,8 @@ def generate_requisition_slip_pdf(batch_request):
         # Issue quantity (approved quantity)
         issue_qty = str(item.approved_quantity) if item.approved_quantity else ""
         
-        # Remarks
-        remarks = item.remarks if item.remarks else ""
+        # Remarks - also wrap in Paragraph for text wrapping
+        remarks = Paragraph(item.remarks, description_style) if item.remarks else ""
         
         table_data.append([
             stock_no, unit, description, req_quantity, stock_available, issue_qty, remarks
