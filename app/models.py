@@ -469,6 +469,8 @@ class Property(models.Model):
     condition = models.CharField(max_length=100, choices=CONDITION_CHOICES, default='In good condition')
     availability = models.CharField(max_length=20, choices=AVAILABILITY_CHOICES, default='available')
     is_archived = models.BooleanField(default=False)
+    ppmp_references = models.JSONField(null=True, blank=True, help_text="JSON field storing PPMP item references")
+    remarks = models.TextField(blank=True, null=True, help_text="Additional notes or comments about the property")
 
     def __str__(self):
         # Only show property name and property number (if available), not barcode
@@ -518,9 +520,12 @@ class Property(models.Model):
         # If this is a new property or overall_quantity has changed
         if not self.pk:
             # For new properties, set current quantity equal to overall_quantity
-            self.quantity = self.overall_quantity
-        elif self.pk:
+            # UNLESS it has already been set (e.g., by PPMP allocation logic or batch update)
+            if not hasattr(self, '_quantity_already_set') and not hasattr(self, '_skip_quantity_sync'):
+                self.quantity = self.overall_quantity
+        elif self.pk and not hasattr(self, '_skip_quantity_sync'):
             # For existing properties, only update quantity if overall_quantity actually changed
+            # Skip this logic if _skip_quantity_sync flag is set (used for manual quantity updates)
             old_obj = Property.objects.get(pk=self.pk)
             if old_obj.overall_quantity != self.overall_quantity:
                 self.quantity = self.overall_quantity
@@ -2529,3 +2534,22 @@ class PPMPItem(models.Model):
     def remaining(self):
         """Calculate remaining quantity (planned - released)"""
         return max(0, self.quantity - self.released)
+
+
+class PropertyPPMPAllocation(models.Model):
+    """
+    Tracks allocations of PPMP items to properties
+    """
+    property = models.ForeignKey('Property', on_delete=models.CASCADE, related_name='ppmp_allocations')
+    ppmp_item = models.ForeignKey(PPMPItem, on_delete=models.CASCADE, related_name='property_allocations')
+    quantity_allocated = models.PositiveIntegerField(default=0)
+    allocated_date = models.DateTimeField(auto_now_add=True)
+    allocated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    class Meta:
+        verbose_name = "Property PPMP Allocation"
+        verbose_name_plural = "Property PPMP Allocations"
+        ordering = ['-allocated_date']
+    
+    def __str__(self):
+        return f"{self.property.property_name} - {self.ppmp_item.ppmp.department.name} {self.ppmp_item.ppmp.year} - {self.quantity_allocated} allocated"

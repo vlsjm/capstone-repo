@@ -294,4 +294,9 @@ urlpatterns = [
     path('ppmp/list/', views.ppmp_list, name='ppmp_list'),
     path('ppmp/<int:pk>/', views.ppmp_detail, name='ppmp_detail'),
     path('ppmp/<int:pk>/delete/', views.ppmp_delete, name='ppmp_delete'),
+    
+    # API endpoints
+    path('api/ppmp-matches/', views.get_ppmp_matches, name='get_ppmp_matches'),
+    path('property/<int:property_id>/ppmp-references/', views.get_property_ppmp_references, name='get_property_ppmp_references'),
+    path('property/release/', views.release_property, name='release_property'),
 ]

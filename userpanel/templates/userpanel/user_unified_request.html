@@ -210,6 +210,20 @@
     font-size: 10px;
 }
 
+/* PPMP Year Breakdown - Prominent Styling */
+.ppmp-year-text {
+    color: #0056b3 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    background-color: #e7f3ff !important;
+    padding: 4px 10px !important;
+    border-radius: 6px !important;
+    border: 1.5px solid #b8daff !important;
+    box-shadow: 0 2px 4px rgba(0, 86, 179, 0.15) !important;
+    display: inline-block !important;
+    margin: 2px !important;
+}
+
 .option-details {
     display: flex;
     gap: 12px;
@@ -1173,7 +1187,7 @@ body.modal-open {
                                             {% endif %}
                                             {% if supply.ppmp_years %}
                                                 {% for year_info in supply.ppmp_years %}
-                                                <span class="option-code" style="color: #0056b3; font-size: 10px;">
+                                                <span class="ppmp-year-text">
                                                     {{ year_info.year }}: {{ year_info.remaining }}/{{ year_info.budgeted_qty }}
                                                 </span>
                                                 {% endfor %}
@@ -2578,16 +2592,50 @@ function populateModalItems(type) {
     // Use correct data source based on type
     const dataSource = type === 'supply' ? allSupplies : allProperties;
     
+    // Helper: Calculate similarity for modal search
+    function calculateModalSimilarity(str1, str2) {
+        const longer = str1.length > str2.length ? str1 : str2;
+        const shorter = str1.length > str2.length ? str2 : str1;
+        
+        if (longer.length === 0) return 1.0;
+        if (longer.includes(shorter)) return (shorter.length / longer.length);
+        
+        const matrix = [];
+        for (let i = 0; i <= str2.length; i++) matrix[i] = [i];
+        for (let j = 0; j <= str1.length; j++) matrix[0][j] = j;
+        
+        for (let i = 1; i <= str2.length; i++) {
+            for (let j = 1; j <= str1.length; j++) {
+                if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j - 1] + 1,
+                        matrix[i][j - 1] + 1,
+                        matrix[i - 1][j] + 1
+                    );
+                }
+            }
+        }
+        return (longer.length - matrix[str2.length][str1.length]) / longer.length;
+    }
+    
     function filterAndRender() {
         const searchTerm = searchInput.value.toLowerCase().trim();
         const selectedCategory = categoryFilter.value.trim();
         const selectedPpmp = ppmpFilter ? ppmpFilter.value.trim() : '';
         
         const filtered = dataSource.filter(item => {
-            const matchesSearch = !searchTerm || 
-                item.name.toLowerCase().includes(searchTerm) ||
-                item.code.toLowerCase().includes(searchTerm) ||
-                item.description.toLowerCase().includes(searchTerm);
+            let matchesSearch = false;
+            if (!searchTerm) {
+                matchesSearch = true;
+            } else {
+                const nameSimilarity = calculateModalSimilarity(item.name.toLowerCase(), searchTerm);
+                const codeSimilarity = calculateModalSimilarity(item.code.toLowerCase(), searchTerm);
+                const descSimilarity = calculateModalSimilarity(item.description.toLowerCase(), searchTerm);
+                
+                matchesSearch = nameSimilarity >= 0.9 || codeSimilarity >= 0.9 || descSimilarity >= 0.9;
+            }
             
             const matchesCategory = !selectedCategory || 
                 String(item.category_id) === String(selectedCategory);
@@ -2784,6 +2832,48 @@ function initializeDropdown(config) {
         return text.replace(regex, '<span class="highlight-match">$1</span>');
     }
     
+    // Helper: Calculate similarity percentage
+    function calculateSimilarity(str1, str2) {
+        const longer = str1.length > str2.length ? str1 : str2;
+        const shorter = str1.length > str2.length ? str2 : str1;
+        
+        if (longer.length === 0) return 1.0;
+        
+        // Check if shorter is contained in longer (substring match)
+        if (longer.includes(shorter)) {
+            return (shorter.length / longer.length);
+        }
+        
+        // Levenshtein distance for non-substring matches
+        const editDistance = getEditDistance(longer, shorter);
+        return (longer.length - editDistance) / longer.length;
+    }
+    
+    // Helper: Calculate Levenshtein distance
+    function getEditDistance(str1, str2) {
+        const matrix = [];
+        for (let i = 0; i <= str2.length; i++) {
+            matrix[i] = [i];
+        }
+        for (let j = 0; j <= str1.length; j++) {
+            matrix[0][j] = j;
+        }
+        for (let i = 1; i <= str2.length; i++) {
+            for (let j = 1; j <= str1.length; j++) {
+                if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j - 1] + 1,
+                        matrix[i][j - 1] + 1,
+                        matrix[i - 1][j] + 1
+                    );
+                }
+            }
+        }
+        return matrix[str2.length][str1.length];
+    }
+    
     // Helper: Update results count
     function updateResultsCount() {
         const allOptions = getAllOptions();
@@ -2909,13 +2999,25 @@ function initializeDropdown(config) {
                 });
             }
             
-            // Check search match
-            const matchesSearch = !searchTerm || 
-                name.includes(searchTerm) || 
-                description.includes(searchTerm) ||
-                number.includes(searchTerm) ||
-                code.includes(searchTerm) ||
-                categoryName.includes(searchTerm);
+            // Check search match with 90% similarity threshold
+            let matchesSearch = false;
+            if (!searchTerm) {
+                matchesSearch = true;
+            } else {
+                // Check each field for similarity
+                const nameSimilarity = calculateSimilarity(name, searchTerm);
+                const descSimilarity = calculateSimilarity(description, searchTerm);
+                const numberSimilarity = calculateSimilarity(number, searchTerm);
+                const codeSimilarity = calculateSimilarity(code, searchTerm);
+                const categorySimilarity = calculateSimilarity(categoryName, searchTerm);
+                
+                // Match if any field has 90% or higher similarity
+                matchesSearch = nameSimilarity >= 0.9 || 
+                                descSimilarity >= 0.9 ||
+                                numberSimilarity >= 0.9 ||
+                                codeSimilarity >= 0.9 ||
+                                categorySimilarity >= 0.9;
+            }
             
             // Check category match - convert both to strings for comparison
             const matchesCategory = !selectedCategory || (String(categoryId) === String(selectedCategory));

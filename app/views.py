@@ -3550,9 +3550,23 @@ def add_property(request):
                 # First save the property
                 prop = form.save(commit=False)
                 
-                # Set initial quantity equal to overall_quantity for new properties
+                # Get PPMP selections from POST data
+                ppmp_selections = request.POST.get('ppmp_selections', '[]')
+                try:
+                    import json
+                    ppmp_data = json.loads(ppmp_selections)
+                    prop.ppmp_references = ppmp_data
+                    
+                    # Calculate total PPMP allocated quantity
+                    total_ppmp_qty = sum(item.get('selectedQty', 0) for item in ppmp_data)
+                except (json.JSONDecodeError, ValueError):
+                    prop.ppmp_references = []
+                    total_ppmp_qty = 0
+                
+                # Set initial quantity: overall_quantity minus PPMP allocations
                 if not prop.pk:
-                    prop.quantity = form.cleaned_data['overall_quantity']
+                    prop.quantity = form.cleaned_data['overall_quantity'] - total_ppmp_qty
+                    prop._quantity_already_set = True  # Flag to prevent model from overriding
                 
                 prop._logged_in_user = request.user
                 prop.save(user=request.user)  # Pass the user to save method
@@ -3565,6 +3579,119 @@ def add_property(request):
                     filename, content = generate_barcode_image(barcode_text)
                     prop.barcode_image.save(filename, content, save=False)
                     prop.save(update_fields=['barcode', 'barcode_image'], user=request.user)
+                
+                # Process PPMP allocations and update PPMPItem released quantities
+                if ppmp_data:
+                    from .models import PPMPItem, PropertyPPMPAllocation, Department, User
+                    from django.db.models import Q
+                    from django.core.mail import send_mail
+                    from django.template.loader import render_to_string
+                    from django.utils.html import strip_tags
+                    from django.conf import settings
+                    
+                    departments_notified = {}  # Track departments and their allocated items
+                    
+                    for selection in ppmp_data:
+                        try:
+                            # Use ppmp_item_id for direct lookup if available
+                            ppmp_item_id = selection.get('ppmp_item_id')
+                            ppmp_item = None
+                            
+                            if ppmp_item_id:
+                                ppmp_item = PPMPItem.objects.filter(id=ppmp_item_id).first()
+                            else:
+                                # Fallback: Find by department, year, and description
+                                department_name = selection.get('department', '')
+                                year = selection.get('year')
+                                item_name = selection.get('item_name', '')
+                                
+                                department = Department.objects.filter(name=department_name).first()
+                                if department:
+                                    ppmp_item = PPMPItem.objects.filter(
+                                        ppmp__department=department,
+                                        ppmp__year=year
+                                    ).filter(
+                                        Q(description__icontains=item_name) | 
+                                        Q(unit_measure__icontains=item_name)
+                                    ).first()
+                            
+                            if ppmp_item:
+                                # Create allocation record
+                                PropertyPPMPAllocation.objects.create(
+                                    property=prop,
+                                    ppmp_item=ppmp_item,
+                                    quantity_allocated=selection.get('selectedQty', 0),
+                                    allocated_by=request.user
+                                )
+                                
+                                # Update PPMP item released quantity
+                                ppmp_item.released = (ppmp_item.released or 0) + selection.get('selectedQty', 0)
+                                ppmp_item.save(update_fields=['released'])
+                                
+                                # Track departments for email notifications
+                                department = ppmp_item.ppmp.department
+                                dept_key = department.id
+                                if dept_key not in departments_notified:
+                                    departments_notified[dept_key] = {
+                                        'department': department,
+                                        'items': []
+                                    }
+                                departments_notified[dept_key]['items'].append({
+                                    'property_name': prop.property_name,
+                                    'property_number': prop.property_number or 'N/A',
+                                    'quantity': selection.get('selectedQty', 0),
+                                    'ppmp_year': ppmp_item.ppmp.year,
+                                    'ppmp_item': ppmp_item.description,
+                                    'remarks': prop.remarks or 'New property added to inventory'
+                                })
+                        except Exception as e:
+                            # Log error but don't fail the entire operation
+                            import logging
+                            logger = logging.getLogger(__name__)
+                            logger.warning(f"Error processing PPMP allocation: {e}")
+                    
+                    # Send email notifications to departments
+                    for dept_data in departments_notified.values():
+                        department = dept_data['department']
+                        items = dept_data['items']
+                        
+                        # Get all users from this department
+                        dept_users = User.objects.filter(
+                            userprofile__department=department,
+                            is_active=True
+                        ).exclude(email='')
+                        
+                        print(f"DEBUG: Found {dept_users.count()} users in department {department.name}")
+                        
+                        if dept_users.exists():
+                            # Prepare email context
+                            context = {
+                                'department_name': department.name,
+                                'items': items,
+                                'released_by': request.user.get_full_name() or request.user.username,
+                            }
+                            
+                            # Send email to each user in the department
+                            for user in dept_users:
+                                try:
+                                    print(f"DEBUG: Attempting to send email to {user.email}")
+                                    html_message = render_to_string('app/email/property_released_notification.html', {**context, 'user': user})
+                                    plain_message = strip_tags(html_message)
+                                    
+                                    send_mail(
+                                        subject=f'Property Ready for Claiming - {prop.property_name}',
+                                        message=plain_message,
+                                        from_email=settings.EMAIL_HOST_USER,
+                                        recipient_list=[user.email],
+                                        html_message=html_message,
+                                        fail_silently=False,
+                                    )
+                                    print(f"DEBUG: Email sent successfully to {user.email}")
+                                except Exception as e:
+                                    # Log the error for debugging
+                                    print(f"ERROR: Failed to send email to {user.email}: {str(e)}")
+                                    import traceback
+                                    traceback.print_exc()
                 
                 # Create activity log using log_activity method
                 ActivityLog.log_activity(
@@ -3594,6 +3721,9 @@ def add_property(request):
 @login_required
 @admin_permission_required('edit_property')
 def edit_property(request):
+    from .models import PPMPItem, PropertyPPMPAllocation, Department
+    from django.db.models import Q
+    
     if request.method == 'POST':
         property_id = request.POST.get('id')
         property_obj = get_object_or_404(Property, id=property_id)
@@ -3688,6 +3818,60 @@ def edit_property(request):
 
             # Save the updated property, assuming your model's save method accepts user param
             property_obj.save(user=request.user)
+            
+            # Handle PPMP selections if provided
+            ppmp_selections_json = request.POST.get('ppmp_selections', '[]')
+            if ppmp_selections_json and ppmp_selections_json != '[]':
+                try:
+                    ppmp_selections = json.loads(ppmp_selections_json)
+                    property_obj.ppmp_references = ppmp_selections
+                    property_obj.save(user=request.user)
+                    
+                    # Clear existing allocations for this property
+                    PropertyPPMPAllocation.objects.filter(property=property_obj).delete()
+                    
+                    # Create new allocations and update PPMPItem released quantities
+                    for selection in ppmp_selections:
+                        try:
+                            # Use ppmp_item_id for direct lookup if available
+                            ppmp_item_id = selection.get('ppmp_item_id')
+                            ppmp_item = None
+                            
+                            if ppmp_item_id:
+                                ppmp_item = PPMPItem.objects.filter(id=ppmp_item_id).first()
+                            else:
+                                # Fallback: Find by department, year, and description
+                                department_name = selection.get('department', '')
+                                year = selection.get('year')
+                                item_name = selection.get('item_name', '')
+                                
+                                department = Department.objects.filter(name=department_name).first()
+                                if department:
+                                    ppmp_item = PPMPItem.objects.filter(
+                                        ppmp__department=department,
+                                        ppmp__year=year
+                                    ).filter(
+                                        Q(description__icontains=item_name) | 
+                                        Q(unit_measure__icontains=item_name)
+                                    ).first()
+                            
+                            if ppmp_item:
+                                # Create allocation record
+                                PropertyPPMPAllocation.objects.create(
+                                    property=property_obj,
+                                    ppmp_item=ppmp_item,
+                                    quantity_allocated=selection.get('selectedQty', 0),
+                                    allocated_by=request.user
+                                )
+                                
+                                # Update PPMPItem released quantity
+                                ppmp_item.released = (ppmp_item.released or 0) + selection.get('selectedQty', 0)
+                                ppmp_item.save()
+                        except Exception as e:
+                            print(f"Error creating PPMP allocation: {e}")
+                            # Continue with other allocations even if one fails
+                except json.JSONDecodeError as e:
+                    print(f"Error parsing PPMP selections JSON: {e}")
             
             # Debug: Print the saved values
             print(f"DEBUG: After save - accountable_person: '{property_obj.accountable_person}'")
@@ -6403,6 +6587,9 @@ def modify_property_quantity_generic(request):
         # Always add the quantity since we removed the action type selection
         prop.quantity += amount
         prop.overall_quantity += amount
+        
+        # Set flag to skip automatic quantity synchronization in save()
+        prop._skip_quantity_sync = True
         prop.save()
 
         # Build remarks with reason if provided
@@ -6541,6 +6728,9 @@ def modify_property_quantity_batch(request):
                 # Add the quantity
                 prop.quantity += quantity_to_add
                 prop.overall_quantity += quantity_to_add
+                
+                # Set flag to skip automatic quantity synchronization in save()
+                prop._skip_quantity_sync = True
                 prop.save()
                 
                 # Create history record
@@ -10762,4 +10952,282 @@ def ppmp_delete(request, pk):
         return redirect('ppmp_list')
     
     return render(request, 'app/ppmp_delete_confirm.html', {'ppmp': ppmp})
+
+
+@login_required
+def get_ppmp_matches(request):
+    """
+    API endpoint to get PPMP matches based on property name.
+    Returns a list of matching PPMP items across all departments and years.
+    """
+    from django.http import JsonResponse
+    from .models import PPMPItem
+    from difflib import SequenceMatcher
+    
+    property_name = request.GET.get('property_name', '').strip()
+    
+    if not property_name:
+        return JsonResponse({'matches': []})
+    
+    # Get all PPMP items
+    ppmp_items = PPMPItem.objects.select_related('ppmp', 'ppmp__department').all()
+    
+    matches = []
+    property_name_lower = property_name.lower()
+    
+    for item in ppmp_items:
+        # Check both unit_measure and description fields
+        item_name = item.unit_measure if item.unit_measure else item.description
+        
+        if not item_name:
+            continue
+            
+        item_name_lower = item_name.strip().lower()
+        
+        # Calculate similarity ratio
+        similarity = SequenceMatcher(None, property_name_lower, item_name_lower).ratio()
+        
+        # Include if exact match or high similarity (>= 0.9) AND has remaining quantity
+        if (property_name_lower in item_name_lower or item_name_lower in property_name_lower or similarity >= 0.9) and item.remaining > 0:
+            matches.append({
+                'ppmp_item_id': item.id,  # Add unique ID for matching
+                'department': item.ppmp.department.name,
+                'year': item.ppmp.year,
+                'item_name': item_name,
+                'quantity': item.quantity,
+                'remaining': item.remaining,
+                'unit_measure': item.unit_measure or '',
+                'similarity': similarity
+            })
+    
+    # Sort by similarity (highest first), then by year (most recent first)
+    matches.sort(key=lambda x: (-x['similarity'], -x['year']))
+    
+    # Limit to top 20 matches to avoid overwhelming the dropdown
+    matches = matches[:20]
+    
+    return JsonResponse({'matches': matches})
+
+
+@login_required
+def get_property_ppmp_references(request, property_id):
+    """
+    API endpoint to get PPMP references for a specific property.
+    Returns the ppmp_references JSONField data.
+    """
+    from django.http import JsonResponse
+    from .models import Property
+    
+    try:
+        property_obj = Property.objects.get(id=property_id)
+        ppmp_references = property_obj.ppmp_references or []
+        
+        return JsonResponse({'ppmp_references': ppmp_references})
+    except Property.DoesNotExist:
+        return JsonResponse({'ppmp_references': []})
+
+
+@login_required
+@require_POST
+def release_property(request):
+    """
+    Release/assign property quantity to someone.
+    Deducts from property current quantity and PPMP allocated items.
+    """
+    from django.http import JsonResponse
+    from .models import Property, PPMPItem, PropertyPPMPAllocation, Department, ActivityLog, User
+    from django.db.models import Q
+    from django.core.mail import send_mail
+    from django.template.loader import render_to_string
+    from django.utils.html import strip_tags
+    from django.conf import settings
+    import json
+    
+    try:
+        property_id = request.POST.get('property_id')
+        release_quantity = int(request.POST.get('release_quantity', 0))
+        remarks = request.POST.get('remarks', '')
+        ppmp_deductions = request.POST.get('ppmp_deductions', '[]')
+        
+        if release_quantity <= 0:
+            return JsonResponse({'success': False, 'error': 'Invalid release quantity'})
+        
+        property_obj = Property.objects.get(id=property_id)
+        
+        # Check if enough quantity available
+        if property_obj.quantity < release_quantity:
+            return JsonResponse({'success': False, 'error': f'Not enough quantity available. Current: {property_obj.quantity}'})
+        
+        # Parse PPMP deductions
+        try:
+            ppmp_deductions_data = json.loads(ppmp_deductions)
+        except:
+            ppmp_deductions_data = []
+        
+        # Deduct from property current quantity
+        property_obj.quantity -= release_quantity
+        
+        # Get existing PPMP references or initialize empty list
+        existing_ppmp_refs = property_obj.ppmp_references or []
+        
+        # Process PPMP allocations and create records
+        ppmp_info_list = []
+        departments_notified = {}  # Track departments and their allocated items
+        
+        for deduction in ppmp_deductions_data:
+            ppmp_item_id = deduction.get('ppmp_item_id')
+            deduct_qty = deduction.get('quantity', 0)
+            
+            if ppmp_item_id and deduct_qty > 0:
+                try:
+                    ppmp_item = PPMPItem.objects.get(id=ppmp_item_id)
+                    department = ppmp_item.ppmp.department
+                    
+                    # Update PPMP item released quantity
+                    ppmp_item.released = (ppmp_item.released or 0) + deduct_qty
+                    ppmp_item.save()
+                    
+                    # Create PropertyPPMPAllocation record
+                    PropertyPPMPAllocation.objects.create(
+                        property=property_obj,
+                        ppmp_item=ppmp_item,
+                        quantity_allocated=deduct_qty,
+                        allocated_by=request.user
+                    )
+                    
+                    # Add to ppmp_references JSONField
+                    ppmp_ref_entry = {
+                        'ppmp_item_id': ppmp_item.id,
+                        'department': department.name,
+                        'year': ppmp_item.ppmp.year,
+                        'item_name': ppmp_item.description,
+                        'selectedQty': deduct_qty,
+                        'remaining': ppmp_item.quantity - ppmp_item.released,
+                        'unit_measure': ppmp_item.unit_measure or ''
+                    }
+                    
+                    # Check if this PPMP item already exists in references
+                    existing_index = None
+                    for idx, ref in enumerate(existing_ppmp_refs):
+                        if ref.get('ppmp_item_id') == ppmp_item.id:
+                            existing_index = idx
+                            break
+                    
+                    if existing_index is not None:
+                        # Update existing reference quantity
+                        existing_ppmp_refs[existing_index]['selectedQty'] += deduct_qty
+                    else:
+                        # Add new reference
+                        existing_ppmp_refs.append(ppmp_ref_entry)
+                    
+                    # Collect info for activity log
+                    ppmp_info_list.append(f"{department.name} {ppmp_item.ppmp.year} - {ppmp_item.description} ({deduct_qty} units)")
+                    
+                    # Track departments for email notifications
+                    dept_key = department.id
+                    if dept_key not in departments_notified:
+                        departments_notified[dept_key] = {
+                            'department': department,
+                            'items': []
+                        }
+                    departments_notified[dept_key]['items'].append({
+                        'property_name': property_obj.property_name,
+                        'property_number': property_obj.property_number,
+                        'quantity': deduct_qty,
+                        'ppmp_year': ppmp_item.ppmp.year,
+                        'ppmp_item': ppmp_item.description,
+                        'remarks': remarks
+                    })
+                    
+                except PPMPItem.DoesNotExist:
+                    pass
+        
+        # Update property's ppmp_references JSONField and remarks
+        property_obj.ppmp_references = existing_ppmp_refs
+        
+        # Update remarks if provided
+        if remarks:
+            # Append new remarks to existing ones with timestamp
+            from datetime import datetime
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
+            new_remark = f"[{timestamp}] {remarks}"
+            
+            if property_obj.remarks:
+                property_obj.remarks = f"{property_obj.remarks}\n{new_remark}"
+            else:
+                property_obj.remarks = new_remark
+        
+        property_obj.save(user=request.user)
+        
+        # Build activity log description
+        description = f"Released {release_quantity} unit(s) of '{property_obj.property_name}'. Remaining quantity: {property_obj.quantity}."
+        
+        if ppmp_info_list:
+            description += f" Assigned to PPMP: {'; '.join(ppmp_info_list)}."
+        
+        if remarks:
+            description += f" Remarks: {remarks}"
+        
+        # Log activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='update',
+            model_name='Property',
+            object_repr=str(property_obj),
+            description=description
+        )
+        
+        # Send email notifications to departments
+        for dept_data in departments_notified.values():
+            department = dept_data['department']
+            items = dept_data['items']
+            
+            # Get all users from this department
+            dept_users = User.objects.filter(
+                userprofile__department=department,
+                is_active=True
+            ).exclude(email='')
+            
+            print(f"DEBUG: Found {dept_users.count()} users in department {department.name}")
+            
+            if dept_users.exists():
+                # Prepare email context
+                context = {
+                    'department_name': department.name,
+                    'items': items,
+                    'released_by': request.user.get_full_name() or request.user.username,
+                }
+                
+                # Send email to each user in the department
+                for user in dept_users:
+                    try:
+                        print(f"DEBUG: Attempting to send email to {user.email}")
+                        html_message = render_to_string('app/email/property_released_notification.html', {**context, 'user': user})
+                        plain_message = strip_tags(html_message)
+                        
+                        send_mail(
+                            subject=f'Property Ready for Claiming - {property_obj.property_name}',
+                            message=plain_message,
+                            from_email=settings.EMAIL_HOST_USER,
+                            recipient_list=[user.email],
+                            html_message=html_message,
+                            fail_silently=False,
+                        )
+                        print(f"DEBUG: Email sent successfully to {user.email}")
+                    except Exception as e:
+                        # Log the error for debugging
+                        print(f"ERROR: Failed to send email to {user.email}: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+        
+        return JsonResponse({
+            'success': True,
+            'new_quantity': property_obj.quantity,
+            'message': f'Successfully released {release_quantity} unit(s)'
+        })
+        
+    except Property.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Property not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
