@@ -760,6 +760,26 @@
         </section>
         {% endif %}
 
+        <!-- Borrower's Slip Download Section (Only for Borrow Requests) -->
+        {% if 'Borrow' in request_type and is_batch and request_obj.status in 'approved,partially_approved,for_claiming,active,returned,completed' %}
+        <section class="content-section requisition-section">
+            <h2><i class="fas fa-file-pdf"></i> Borrower's Slip</h2>
+            <div class="requisition-info">
+                <p class="requisition-description">
+                    Download or view the official borrower's slip for this approved borrow request. This document serves as a receipt and record of the transaction.
+                </p>
+                <div class="requisition-actions">
+                    <a href="{% url 'user_download_borrowers_slip' request_obj.id %}" class="btn-requisition btn-download">
+                        <i class="fas fa-download"></i> Download PDF
+                    </a>
+                    <a href="{% url 'user_view_borrowers_slip' request_obj.id %}" target="_blank" class="btn-requisition btn-view">
+                        <i class="fas fa-eye"></i> View PDF
+                    </a>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
         <!-- Request Information Section -->
         <section class="content-section">
             <h2><i class="fas fa-info-circle"></i> Request Information</h2>

@@ -6969,6 +6969,263 @@ def delete_archived_property(request, pk):
             messages.error(request, f"Error deleting property: {str(e)}")
     return redirect('archived_items')
 
+@permission_required('app.view_admin_module')
+@login_required
+def export_archived_supplies_excel(request):
+    """Export archived supplies to Excel, respecting category/subcategory filters."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+    category_filter = request.GET.get('category', '')
+    subcategory_filter = request.GET.get('subcategory', '')
+
+    supplies = Supply.objects.filter(is_archived=True).select_related(
+        'category', 'subcategory', 'quantity_info'
+    ).order_by('category__name', 'supply_name')
+
+    if category_filter:
+        supplies = supplies.filter(category__name=category_filter)
+    if subcategory_filter:
+        supplies = supplies.filter(subcategory__name=subcategory_filter)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Archived Supplies"
+
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="152D64", end_color="152D64", fill_type="solid")
+    title_font = Font(bold=True, size=14)
+    category_font = Font(bold=True, size=11, color="152D64")
+    thin = Side(border_style="thin", color="000000")
+    thin_border = Border(top=thin, left=thin, right=thin, bottom=thin)
+    center = Alignment(horizontal='center', vertical='center')
+
+    # Title
+    ws.merge_cells('A1:G1')
+    ws['A1'] = 'ARCHIVED SUPPLIES REPORT'
+    ws['A1'].font = title_font
+    ws['A1'].alignment = center
+
+    # Metadata
+    ws['A3'] = 'Department:'
+    ws['B3'] = (request.user.userprofile.department.name
+                if hasattr(request.user, 'userprofile') and request.user.userprofile.department
+                else '_____________________')
+    ws['E3'] = 'Date:'
+    ws['F3'] = datetime.now().strftime("%B %d, %Y")
+
+    ws['A4'] = 'Prepared by:'
+    ws['B4'] = f'{request.user.first_name} {request.user.last_name}'
+
+    filter_desc = []
+    if category_filter:
+        filter_desc.append(f'Category: {category_filter}')
+    if subcategory_filter:
+        filter_desc.append(f'Subcategory: {subcategory_filter}')
+    if filter_desc:
+        ws['A5'] = 'Filters:'
+        ws['B5'] = ' | '.join(filter_desc)
+
+    col_headers = ['Supply Name', 'Description', 'Category', 'Subcategory',
+                   'Date Received', 'Expiration Date', 'Unit']
+    col_fields = ['supply_name', 'description', 'category', 'subcategory',
+                  'date_received', 'expiration_date', 'unit']
+
+    current_row = 7
+
+    # Group by category for display
+    from collections import defaultdict as _dd
+    grouped = _dd(list)
+    for s in supplies:
+        cat = s.category.name if s.category else 'Uncategorized'
+        grouped[cat].append(s)
+
+    for cat_name, cat_supplies in grouped.items():
+        # Category header row
+        ws.cell(row=current_row, column=1, value=cat_name).font = category_font
+        current_row += 1
+
+        # Column headers
+        for col_idx, header in enumerate(col_headers, 1):
+            cell = ws.cell(row=current_row, column=col_idx)
+            cell.value = header
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.border = thin_border
+            cell.alignment = center
+        current_row += 1
+
+        # Data rows
+        for supply in cat_supplies:
+            row_values = [
+                supply.supply_name,
+                supply.description or 'N/A',
+                supply.category.name if supply.category else 'N/A',
+                supply.subcategory.name if supply.subcategory else 'None',
+                supply.date_received.strftime("%B %d, %Y") if supply.date_received else 'N/A',
+                supply.expiration_date.strftime("%B %d, %Y") if supply.expiration_date else 'N/A',
+                supply.unit or 'N/A',
+            ]
+            for col_idx, value in enumerate(row_values, 1):
+                cell = ws.cell(row=current_row, column=col_idx)
+                cell.value = value
+                cell.border = thin_border
+            current_row += 1
+
+        current_row += 1  # Spacer between categories
+
+    # Auto-width columns (skip MergedCell objects)
+    from openpyxl.utils import get_column_letter
+    from openpyxl.cell.cell import MergedCell
+    for col_idx in range(1, ws.max_column + 1):
+        max_len = 0
+        col_letter = get_column_letter(col_idx)
+        for cell in ws[col_letter]:
+            if not isinstance(cell, MergedCell) and cell.value:
+                max_len = max(max_len, len(str(cell.value)))
+        ws.column_dimensions[col_letter].width = min(max_len + 4, 50)
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    filename_parts = ['archived_supplies']
+    if category_filter:
+        filename_parts.append(category_filter.replace(' ', '_'))
+    if subcategory_filter:
+        filename_parts.append(subcategory_filter.replace(' ', '_'))
+    filename = '_'.join(filename_parts) + '.xlsx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    return response
+
+
+@permission_required('app.view_admin_module')
+@login_required
+def export_archived_properties_excel(request):
+    """Export archived properties to Excel, respecting category/condition filters."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+    category_filter = request.GET.get('category', '')
+    condition_filter = request.GET.get('condition', '')
+
+    properties = Property.objects.filter(is_archived=True).select_related(
+        'category'
+    ).order_by('category__name', 'property_name')
+
+    if category_filter:
+        properties = properties.filter(category__name=category_filter)
+    if condition_filter:
+        properties = properties.filter(condition=condition_filter)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Archived Properties"
+
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="152D64", end_color="152D64", fill_type="solid")
+    title_font = Font(bold=True, size=14)
+    category_font = Font(bold=True, size=11, color="152D64")
+    thin = Side(border_style="thin", color="000000")
+    thin_border = Border(top=thin, left=thin, right=thin, bottom=thin)
+    center = Alignment(horizontal='center', vertical='center')
+
+    # Title
+    ws.merge_cells('A1:I1')
+    ws['A1'] = 'ARCHIVED PROPERTIES REPORT'
+    ws['A1'].font = title_font
+    ws['A1'].alignment = center
+
+    # Metadata
+    ws['A3'] = 'Department:'
+    ws['B3'] = (request.user.userprofile.department.name
+                if hasattr(request.user, 'userprofile') and request.user.userprofile.department
+                else '_____________________')
+    ws['F3'] = 'Date:'
+    ws['G3'] = datetime.now().strftime("%B %d, %Y")
+
+    ws['A4'] = 'Prepared by:'
+    ws['B4'] = f'{request.user.first_name} {request.user.last_name}'
+
+    filter_desc = []
+    if category_filter:
+        filter_desc.append(f'Category: {category_filter}')
+    if condition_filter:
+        filter_desc.append(f'Condition: {condition_filter}')
+    if filter_desc:
+        ws['A5'] = 'Filters:'
+        ws['B5'] = ' | '.join(filter_desc)
+
+    col_headers = ['Property No.', 'Property Name', 'Description', 'Category',
+                   'Location', 'Accountable Person', 'Year Acquired', 'Condition']
+
+    current_row = 7
+
+    from collections import defaultdict as _dd
+    grouped = _dd(list)
+    for p in properties:
+        cat = p.category.name if p.category else 'Uncategorized'
+        grouped[cat].append(p)
+
+    for cat_name, cat_properties in grouped.items():
+        ws.cell(row=current_row, column=1, value=cat_name).font = category_font
+        current_row += 1
+
+        for col_idx, header in enumerate(col_headers, 1):
+            cell = ws.cell(row=current_row, column=col_idx)
+            cell.value = header
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.border = thin_border
+            cell.alignment = center
+        current_row += 1
+
+        for prop in cat_properties:
+            prop_no = prop.property_number if prop.property_number else f'ID-{prop.id}'
+            year = prop.year_acquired.strftime("%B %d, %Y") if prop.year_acquired else 'N/A'
+            row_values = [
+                prop_no,
+                prop.property_name,
+                prop.description or 'N/A',
+                prop.category.name if prop.category else 'N/A',
+                prop.location or 'N/A',
+                prop.accountable_person or 'N/A',
+                year,
+                prop.get_condition_display() if hasattr(prop, 'get_condition_display') else (prop.condition or 'N/A'),
+            ]
+            for col_idx, value in enumerate(row_values, 1):
+                cell = ws.cell(row=current_row, column=col_idx)
+                cell.value = value
+                cell.border = thin_border
+            current_row += 1
+
+        current_row += 1
+
+    # Auto-width columns (skip MergedCell objects)
+    from openpyxl.utils import get_column_letter
+    from openpyxl.cell.cell import MergedCell
+    for col_idx in range(1, ws.max_column + 1):
+        max_len = 0
+        col_letter = get_column_letter(col_idx)
+        for cell in ws[col_letter]:
+            if not isinstance(cell, MergedCell) and cell.value:
+                max_len = max(max_len, len(str(cell.value)))
+        ws.column_dimensions[col_letter].width = min(max_len + 4, 50)
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    filename_parts = ['archived_properties']
+    if category_filter:
+        filename_parts.append(category_filter.replace(' ', '_'))
+    if condition_filter:
+        filename_parts.append(condition_filter.replace(' ', '_'))
+    filename = '_'.join(filename_parts) + '.xlsx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    return response
+
+
 class ArchivedItemsView(PermissionRequiredMixin, TemplateView):
     template_name = 'app/archived_items.html'
     permission_required = 'app.view_admin_module'
@@ -9142,10 +9399,14 @@ def approve_borrow_item(request, batch_id, item_id):
         if approved_items > 0:
             batch_request.status = 'for_claiming'
             batch_request.approved_date = timezone.now()
+            if not batch_request.approved_by:
+                batch_request.approved_by = request.user
         else:
             batch_request.status = 'rejected'
     elif approved_items > 0:
         batch_request.status = 'partially_approved'
+        if not batch_request.approved_by:
+            batch_request.approved_by = request.user
     
     batch_request.save()
     
@@ -9205,10 +9466,14 @@ def reject_borrow_item(request, batch_id, item_id):
         if approved_items > 0:
             batch_request.status = 'for_claiming'
             batch_request.approved_date = timezone.now()
+            if not batch_request.approved_by:
+                batch_request.approved_by = request.user
         else:
             batch_request.status = 'rejected'
     elif approved_items > 0:
         batch_request.status = 'partially_approved'
+        if not batch_request.approved_by:
+            batch_request.approved_by = request.user
     
     batch_request.save()
     
@@ -9720,6 +9985,81 @@ def view_requisition_slip(request, batch_id):
     except Exception as e:
         messages.error(request, f'Error generating requisition slip: {str(e)}')
         return redirect('batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_supply_requests', batch_id=batch_id)
+
+
+# Borrower's Slip PDF Generation Views
+@login_required
+def download_borrowers_slip(request, batch_id):
+    """
+    Download the borrower's slip PDF for a borrow request batch.
+    Available for both admin users and the borrower.
+    """
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    
+    # Check permissions: admin users can download any slip, regular users can only download their own
+    if not (request.user.userprofile.role == 'ADMIN' or batch_request.user == request.user):
+        messages.error(request, 'You do not have permission to access this borrower\'s slip.')
+        return redirect('user_all_requests')
+    
+    # Only generate slip for approved, partially approved, for_claiming, active, or completed requests
+    if batch_request.status not in ['approved', 'partially_approved', 'for_claiming', 'active', 'returned', 'completed']:
+        messages.error(request, 'Borrower\'s slip is only available for approved requests.')
+        return redirect('borrow_batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_all_requests', batch_id=batch_id)
+    
+    try:
+        from .pdf_utils import download_borrowers_slip
+        
+        # Log the download activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='view',
+            model_name='BorrowRequestBatch',
+            object_repr=f"Borrower's Slip #{batch_id}",
+            description=f"Downloaded borrower's slip for borrow batch request #{batch_id}"
+        )
+        
+        return download_borrowers_slip(batch_request)
+        
+    except Exception as e:
+        messages.error(request, f'Error generating borrower\'s slip: {str(e)}')
+        return redirect('borrow_batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_all_requests', batch_id=batch_id)
+
+
+@login_required
+def view_borrowers_slip(request, batch_id):
+    """
+    View the borrower's slip PDF in browser for a borrow request batch.
+    Available for both admin users and the borrower.
+    """
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    
+    # Check permissions: admin users can view any slip, regular users can only view their own
+    if not (request.user.userprofile.role == 'ADMIN' or batch_request.user == request.user):
+        messages.error(request, 'You do not have permission to access this borrower\'s slip.')
+        return redirect('user_all_requests')
+    
+    # Only generate slip for approved, partially approved, for_claiming, active, or completed requests
+    if batch_request.status not in ['approved', 'partially_approved', 'for_claiming', 'active', 'returned', 'completed']:
+        messages.error(request, 'Borrower\'s slip is only available for approved requests.')
+        return redirect('borrow_batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_all_requests', batch_id=batch_id)
+    
+    try:
+        from .pdf_utils import view_borrowers_slip
+        
+        # Log the view activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='view',
+            model_name='BorrowRequestBatch',
+            object_repr=f"Borrower's Slip #{batch_id}",
+            description=f"Viewed borrower's slip for borrow batch request #{batch_id}"
+        )
+        
+        return view_borrowers_slip(batch_request)
+        
+    except Exception as e:
+        messages.error(request, f'Error generating borrower\'s slip: {str(e)}')
+        return redirect('borrow_batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_all_requests', batch_id=batch_id)
 
 
 # Barcode Inventory Management Views

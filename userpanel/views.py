@@ -3160,6 +3160,87 @@ def user_view_requisition_slip(request, batch_id):
         return redirect('request_detail', type='batch_supply', request_id=batch_id)
 
 
+# Borrower's Slip PDF Generation Views (User Side)
+@login_required
+def user_download_borrowers_slip(request, batch_id):
+    """
+    Download the borrower's slip PDF for a borrow request batch (user side).
+    Users can only download their own borrower's slips.
+    """
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    
+    # Check permissions: users can only download their own slips
+    if batch_request.user != request.user:
+        messages.error(request, 'You do not have permission to access this borrower\'s slip.')
+        return redirect('user_all_requests')
+    
+    # Only generate slip for approved, partially approved, for_claiming, active, or completed requests
+    if batch_request.status not in ['approved', 'partially_approved', 'for_claiming', 'active', 'returned', 'completed']:
+        messages.error(request, 'Borrower\'s slip is only available for approved requests.')
+        return redirect('request_detail', type='batch_borrow', request_id=batch_id)
+    
+    try:
+        from app.pdf_utils import download_borrowers_slip
+        
+        # Log the download activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='view',
+            model_name='BorrowRequestBatch',
+            object_repr=f"Borrower's Slip #{batch_id}",
+            description=f"Downloaded borrower's slip for borrow batch request #{batch_id}"
+        )
+        
+        return download_borrowers_slip(batch_request)
+        
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error downloading borrower's slip: {error_details}")  # Log to console
+        messages.error(request, f'Error generating borrower\'s slip: {str(e)}')
+        return redirect('request_detail', type='batch_borrow', request_id=batch_id)
+
+
+@login_required
+def user_view_borrowers_slip(request, batch_id):
+    """
+    View the borrower's slip PDF in browser for a borrow request batch (user side).
+    Users can only view their own borrower's slips.
+    """
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    
+    # Check permissions: users can only view their own slips
+    if batch_request.user != request.user:
+        messages.error(request, 'You do not have permission to access this borrower\'s slip.')
+        return redirect('user_all_requests')
+    
+    # Only generate slip for approved, partially approved, for_claiming, active, or completed requests
+    if batch_request.status not in ['approved', 'partially_approved', 'for_claiming', 'active', 'returned', 'completed']:
+        messages.error(request, 'Borrower\'s slip is only available for approved requests.')
+        return redirect('request_detail', type='batch_borrow', request_id=batch_id)
+    
+    try:
+        from app.pdf_utils import view_borrowers_slip
+        
+        # Log the view activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='view',
+            model_name='BorrowRequestBatch',
+            object_repr=f"Borrower's Slip #{batch_id}",
+            description=f"Viewed borrower's slip for borrow batch request #{batch_id}"
+        )
+        
+        return view_borrowers_slip(batch_request)
+        
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error viewing borrower's slip: {error_details}")  # Log to console
+        messages.error(request, f'Error generating borrower\'s slip: {str(e)}')
+        return redirect('request_detail', type='batch_borrow', request_id=batch_id)
+
+
 @login_required
 def get_pending_count(request):
     """API endpoint to get pending count filtered by type - counts items grouped by batch ID"""

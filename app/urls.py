@@ -91,10 +91,14 @@ from .views import (
     delete_archived_property,
     download_requisition_slip,
     view_requisition_slip,
+    download_borrowers_slip,
+    view_borrowers_slip,
     archive_property,
     unarchive_property,
     condemn_property,
     ArchivedItemsView,
+    export_archived_supplies_excel,
+    export_archived_properties_excel,
     update_supply_category,
     update_supply_subcategory,
     delete_supply_category,
@@ -258,6 +262,8 @@ urlpatterns = [
     path('property/<int:pk>/condemn/', condemn_property, name='condemn_property'),
     path('property/<int:pk>/delete-archived/', delete_archived_property, name='delete_archived_property'),
     path('archived-items/', ArchivedItemsView.as_view(), name='archived_items'),
+    path('archived-items/export-supplies/', export_archived_supplies_excel, name='export_archived_supplies'),
+    path('archived-items/export-properties/', export_archived_properties_excel, name='export_archived_properties'),
     
     # Batch request management URLs
     path('batch-request/<int:batch_id>/', batch_request_detail, name='batch_request_detail'),
@@ -273,6 +279,10 @@ urlpatterns = [
     # Requisition slip PDF URLs
     path('batch-request/<int:batch_id>/requisition-slip/download/', download_requisition_slip, name='download_requisition_slip'),
     path('batch-request/<int:batch_id>/requisition-slip/view/', view_requisition_slip, name='view_requisition_slip'),
+    
+    # Borrower's slip PDF URLs
+    path('borrow-batch/<int:batch_id>/borrowers-slip/download/', download_borrowers_slip, name='download_borrowers_slip'),
+    path('borrow-batch/<int:batch_id>/borrowers-slip/view/', view_borrowers_slip, name='view_borrowers_slip'),
     
     # Damage report image serving (from PostgreSQL database)
     path('damage-report/<int:report_id>/image/', views.damage_report_image, name='damage_report_image'),
