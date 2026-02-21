@@ -2950,8 +2950,8 @@ function initializeDropdown(config) {
         const searchTerm = searchInput.value.toLowerCase().trim();
         const selectedCategory = categoryFilter ? categoryFilter.value.trim() : '';
         
-        // Get PPMP filter value (only exists for supply dropdown)
-        const ppmpFilter = document.getElementById('ppmp-filter');
+        // Get PPMP filter value (only applies to supply dropdown)
+        const ppmpFilter = (name === 'supply') ? document.getElementById('ppmp-filter') : null;
         const selectedPpmp = ppmpFilter ? ppmpFilter.value.trim() : '';
         
         let hasVisibleOptions = false;

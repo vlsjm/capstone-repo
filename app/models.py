@@ -1926,7 +1926,7 @@ class BorrowRequestBatch(models.Model):
         """
         from django.conf import settings
         from zoneinfo import ZoneInfo
-        from app.utils import send_sms_alert
+        from app.utils import send_sms_alert, send_overdue_borrow_email
         
         logger = logging.getLogger(__name__)
         local_tz = ZoneInfo(settings.TIME_ZONE)
@@ -1990,54 +1990,57 @@ class BorrowRequestBatch(models.Model):
                     phone_number = user_profile.phone
                 except Exception:
                     logger.warning(f"Batch #{batch.id}: User {user.username} has no UserProfile. Skipping SMS.")
-                    continue
-                
-                if not phone_number:
-                    logger.warning(f"Batch #{batch.id}: User {user.username} has no phone number. Skipping SMS.")
-                    continue
-                
-                # Create SMS message
-                user_name = user.first_name or user.username
-                
-                # Calculate days overdue for each item
+
+                # Calculate days overdue for each item (needed for both SMS and email)
                 days_overdue_list = [(today - item.return_date).days for item in overdue_items_list]
                 max_days_overdue = max(days_overdue_list) if days_overdue_list else 0
-                
-                # Create item summary - list all overdue items with details
-                item_summary = ", ".join([
-                    f"{item.property.property_name} - {item.property.property_number} (x{item.quantity})"
-                    for item in overdue_items_list
-                ])
-                
-                # Construct SMS message
-                message = (
-                    f"Hello {user_name},\n\n"
-                    f"Borrow Request #{batch.id}\n"
-                    f"You have {item_count} OVERDUE item(s):\n"
-                    f"{item_summary}\n\n"
-                    f"Most overdue: {max_days_overdue} days\n\n"
-                    f"Please return these items ASAP.\n\n"
-                    f"Thank you,\nResource Hive Team"
-                )
-                
-                # Log the SMS for debugging
-                logger.info(f"\n{'='*60}\nSMS TO {phone_number} (User: {user.username}):\n{'='*60}\n{message}\n{'='*60}")
-                
-                # Send SMS
-                success, response = send_sms_alert(phone_number, message)
-                
-                if success:
-                    # Mark all items in this batch as notified
-                    for item in overdue_items_list:
-                        item.overdue_notified = True
-                        item.save(update_fields=['overdue_notified'])
-                    
-                    sms_sent_count += 1
-                    logger.info(f"✅ Batch #{batch.id}: SMS sent successfully to {user.username} ({phone_number})")
+
+                if not phone_number:
+                    logger.warning(f"Batch #{batch.id}: User {user.username} has no phone number. Skipping SMS.")
                 else:
-                    sms_failed_count += 1
-                    logger.error(f"❌ Batch #{batch.id}: Failed to send SMS to {user.username}: {response}")
-                
+                    # Create SMS message
+                    user_name = user.first_name or user.username
+
+                    # Create item summary - list all overdue items with details
+                    item_summary = ", ".join([
+                        f"{item.property.property_name} - {item.property.property_number} (x{item.quantity})"
+                        for item in overdue_items_list
+                    ])
+
+                    # Construct SMS message
+                    message = (
+                        f"Hello {user_name},\n\n"
+                        f"Borrow Request #{batch.id}\n"
+                        f"You have {item_count} OVERDUE item(s):\n"
+                        f"{item_summary}\n\n"
+                        f"Most overdue: {max_days_overdue} days\n\n"
+                        f"Please return these items ASAP.\n\n"
+                        f"Thank you,\nResource Hive Team"
+                    )
+
+                    # Log the SMS for debugging
+                    logger.info(f"\n{'='*60}\nSMS TO {phone_number} (User: {user.username}):\n{'='*60}\n{message}\n{'='*60}")
+
+                    # Send SMS
+                    success, response = send_sms_alert(phone_number, message)
+
+                    if success:
+                        # Mark all items in this batch as notified
+                        for item in overdue_items_list:
+                            item.overdue_notified = True
+                            item.save(update_fields=['overdue_notified'])
+
+                        sms_sent_count += 1
+                        logger.info(f"✅ Batch #{batch.id}: SMS sent successfully to {user.username} ({phone_number})")
+                    else:
+                        sms_failed_count += 1
+                        logger.error(f"❌ Batch #{batch.id}: Failed to send SMS to {user.username}: {response}")
+
+                # Send email alert (mirrors same parameters as SMS)
+                email_success = send_overdue_borrow_email(batch, overdue_items_list, max_days_overdue)
+                if not email_success:
+                    logger.warning(f"Batch #{batch.id}: Overdue email alert could not be sent to {user.username}")
+
                 # Create in-app notification (regardless of SMS success)
                 Notification.objects.create(
                     user=user,

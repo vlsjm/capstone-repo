@@ -319,6 +319,82 @@ def send_overdue_borrow_sms(borrow_request):
         return False
 
 
+def send_overdue_borrow_email(batch, overdue_items_list, max_days_overdue):
+    """
+    Send an email alert for overdue borrow items in a batch.
+
+    Uses the same parameters as the SMS overdue notification sent by
+    BorrowRequestBatch.check_overdue_batches():
+
+    Args:
+        batch: The BorrowRequestBatch instance.
+        overdue_items_list: List of BorrowRequestItem instances (with .property,
+                            .return_date, .quantity) that are overdue.
+        max_days_overdue: The highest number of days overdue across all items.
+
+    Returns:
+        bool: True if email was sent successfully, False otherwise.
+    """
+    try:
+        from datetime import date
+
+        user = batch.user
+
+        if not user.email:
+            logger.warning(
+                f"Batch #{batch.id}: User {user.username} has no email address. "
+                "Skipping overdue email alert."
+            )
+            return False
+
+        today = date.today()
+
+        # Annotate each item with its individual days_overdue for the template
+        for item in overdue_items_list:
+            item.days_overdue = (today - item.return_date).days
+
+        site_url = os.getenv('SITE_URL', 'http://localhost:8000')
+        dashboard_url = f"{site_url}/userpanel/dashboard/"
+
+        context = {
+            'user': user,
+            'batch': batch,
+            'overdue_items': overdue_items_list,
+            'item_count': len(overdue_items_list),
+            'max_days_overdue': max_days_overdue,
+            'dashboard_url': dashboard_url,
+            'current_year': timezone.now().year,
+        }
+
+        html_message = render_to_string('app/email/borrow_overdue_alert.html', context)
+        plain_message = strip_tags(html_message)
+
+        subject = (
+            f"Action Required: {len(overdue_items_list)} Overdue Item"
+            f"{'s' if len(overdue_items_list) != 1 else ''} — "
+            f"Borrow Request #{batch.id:03d}"
+        )
+
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+
+        logger.info(
+            f"Overdue alert email sent to {user.email} for Batch #{batch.id} "
+            f"({len(overdue_items_list)} item(s), {max_days_overdue} day(s) overdue)"
+        )
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to send overdue borrow email for Batch #{batch.id}: {str(e)}")
+        return False
+
+
 def calculate_reminder_trigger_date(borrow_date, return_date):
     """
     Calculate when to send a near-overdue reminder based on borrow duration.
