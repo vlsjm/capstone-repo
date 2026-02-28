@@ -67,6 +67,10 @@ urlpatterns = [
     path('supply-request/<int:batch_id>/requisition-slip/download/', views.user_download_requisition_slip, name='user_download_requisition_slip'),
     path('supply-request/<int:batch_id>/requisition-slip/view/', views.user_view_requisition_slip, name='user_view_requisition_slip'),
     
+    # Borrower's slip PDF URLs (user side)
+    path('borrow-request/<int:batch_id>/borrowers-slip/download/', views.user_download_borrowers_slip, name='user_download_borrowers_slip'),
+    path('borrow-request/<int:batch_id>/borrowers-slip/view/', views.user_view_borrowers_slip, name='user_view_borrowers_slip'),
+    
     # Borrow cart URLs
     path('add-to-borrow-list/', views.add_to_borrow_list, name='add_to_borrow_list'),
     path('remove-from-borrow-list/', views.remove_from_borrow_list, name='remove_from_borrow_list'),

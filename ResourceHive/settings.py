@@ -267,6 +267,9 @@ if not DEBUG:
         'default-src': ("'self'",),
     }
 
+# Trust X-Forwarded-Proto from Nginx reverse proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # # Auto-run migrations on startup (for Railway)
 # if os.getenv('RAILWAY_ENVIRONMENT') == 'production':
 #     import django

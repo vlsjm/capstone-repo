@@ -252,9 +252,11 @@ class PropertyForm(forms.ModelForm):
             'year_acquired',
             'condition',
             'availability',
+            'remarks',
         ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
+            'remarks': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Optional notes or comments'}),
             'property_number': forms.TextInput(attrs={'placeholder': 'Enter unique property number'}),
             'serial_number': forms.TextInput(attrs={'placeholder': 'Enter serial number'}),
             'unit_value': forms.NumberInput(attrs={'min': 0, 'step': '0.01'}),

@@ -3550,9 +3550,23 @@ def add_property(request):
                 # First save the property
                 prop = form.save(commit=False)
                 
-                # Set initial quantity equal to overall_quantity for new properties
+                # Get PPMP selections from POST data
+                ppmp_selections = request.POST.get('ppmp_selections', '[]')
+                try:
+                    import json
+                    ppmp_data = json.loads(ppmp_selections)
+                    prop.ppmp_references = ppmp_data
+                    
+                    # Calculate total PPMP allocated quantity
+                    total_ppmp_qty = sum(item.get('selectedQty', 0) for item in ppmp_data)
+                except (json.JSONDecodeError, ValueError):
+                    prop.ppmp_references = []
+                    total_ppmp_qty = 0
+                
+                # Set initial quantity: overall_quantity minus PPMP allocations
                 if not prop.pk:
-                    prop.quantity = form.cleaned_data['overall_quantity']
+                    prop.quantity = form.cleaned_data['overall_quantity'] - total_ppmp_qty
+                    prop._quantity_already_set = True  # Flag to prevent model from overriding
                 
                 prop._logged_in_user = request.user
                 prop.save(user=request.user)  # Pass the user to save method
@@ -3565,6 +3579,119 @@ def add_property(request):
                     filename, content = generate_barcode_image(barcode_text)
                     prop.barcode_image.save(filename, content, save=False)
                     prop.save(update_fields=['barcode', 'barcode_image'], user=request.user)
+                
+                # Process PPMP allocations and update PPMPItem released quantities
+                if ppmp_data:
+                    from .models import PPMPItem, PropertyPPMPAllocation, Department, User
+                    from django.db.models import Q
+                    from django.core.mail import send_mail
+                    from django.template.loader import render_to_string
+                    from django.utils.html import strip_tags
+                    from django.conf import settings
+                    
+                    departments_notified = {}  # Track departments and their allocated items
+                    
+                    for selection in ppmp_data:
+                        try:
+                            # Use ppmp_item_id for direct lookup if available
+                            ppmp_item_id = selection.get('ppmp_item_id')
+                            ppmp_item = None
+                            
+                            if ppmp_item_id:
+                                ppmp_item = PPMPItem.objects.filter(id=ppmp_item_id).first()
+                            else:
+                                # Fallback: Find by department, year, and description
+                                department_name = selection.get('department', '')
+                                year = selection.get('year')
+                                item_name = selection.get('item_name', '')
+                                
+                                department = Department.objects.filter(name=department_name).first()
+                                if department:
+                                    ppmp_item = PPMPItem.objects.filter(
+                                        ppmp__department=department,
+                                        ppmp__year=year
+                                    ).filter(
+                                        Q(description__icontains=item_name) | 
+                                        Q(unit_measure__icontains=item_name)
+                                    ).first()
+                            
+                            if ppmp_item:
+                                # Create allocation record
+                                PropertyPPMPAllocation.objects.create(
+                                    property=prop,
+                                    ppmp_item=ppmp_item,
+                                    quantity_allocated=selection.get('selectedQty', 0),
+                                    allocated_by=request.user
+                                )
+                                
+                                # Update PPMP item released quantity
+                                ppmp_item.released = (ppmp_item.released or 0) + selection.get('selectedQty', 0)
+                                ppmp_item.save(update_fields=['released'])
+                                
+                                # Track departments for email notifications
+                                department = ppmp_item.ppmp.department
+                                dept_key = department.id
+                                if dept_key not in departments_notified:
+                                    departments_notified[dept_key] = {
+                                        'department': department,
+                                        'items': []
+                                    }
+                                departments_notified[dept_key]['items'].append({
+                                    'property_name': prop.property_name,
+                                    'property_number': prop.property_number or 'N/A',
+                                    'quantity': selection.get('selectedQty', 0),
+                                    'ppmp_year': ppmp_item.ppmp.year,
+                                    'ppmp_item': ppmp_item.description,
+                                    'remarks': prop.remarks or 'New property added to inventory'
+                                })
+                        except Exception as e:
+                            # Log error but don't fail the entire operation
+                            import logging
+                            logger = logging.getLogger(__name__)
+                            logger.warning(f"Error processing PPMP allocation: {e}")
+                    
+                    # Send email notifications to departments
+                    for dept_data in departments_notified.values():
+                        department = dept_data['department']
+                        items = dept_data['items']
+                        
+                        # Get all users from this department
+                        dept_users = User.objects.filter(
+                            userprofile__department=department,
+                            is_active=True
+                        ).exclude(email='')
+                        
+                        print(f"DEBUG: Found {dept_users.count()} users in department {department.name}")
+                        
+                        if dept_users.exists():
+                            # Prepare email context
+                            context = {
+                                'department_name': department.name,
+                                'items': items,
+                                'released_by': request.user.get_full_name() or request.user.username,
+                            }
+                            
+                            # Send email to each user in the department
+                            for user in dept_users:
+                                try:
+                                    print(f"DEBUG: Attempting to send email to {user.email}")
+                                    html_message = render_to_string('app/email/property_released_notification.html', {**context, 'user': user})
+                                    plain_message = strip_tags(html_message)
+                                    
+                                    send_mail(
+                                        subject=f'Property Ready for Claiming - {prop.property_name}',
+                                        message=plain_message,
+                                        from_email=settings.EMAIL_HOST_USER,
+                                        recipient_list=[user.email],
+                                        html_message=html_message,
+                                        fail_silently=False,
+                                    )
+                                    print(f"DEBUG: Email sent successfully to {user.email}")
+                                except Exception as e:
+                                    # Log the error for debugging
+                                    print(f"ERROR: Failed to send email to {user.email}: {str(e)}")
+                                    import traceback
+                                    traceback.print_exc()
                 
                 # Create activity log using log_activity method
                 ActivityLog.log_activity(
@@ -3594,6 +3721,9 @@ def add_property(request):
 @login_required
 @admin_permission_required('edit_property')
 def edit_property(request):
+    from .models import PPMPItem, PropertyPPMPAllocation, Department
+    from django.db.models import Q
+    
     if request.method == 'POST':
         property_id = request.POST.get('id')
         property_obj = get_object_or_404(Property, id=property_id)
@@ -3688,6 +3818,60 @@ def edit_property(request):
 
             # Save the updated property, assuming your model's save method accepts user param
             property_obj.save(user=request.user)
+            
+            # Handle PPMP selections if provided
+            ppmp_selections_json = request.POST.get('ppmp_selections', '[]')
+            if ppmp_selections_json and ppmp_selections_json != '[]':
+                try:
+                    ppmp_selections = json.loads(ppmp_selections_json)
+                    property_obj.ppmp_references = ppmp_selections
+                    property_obj.save(user=request.user)
+                    
+                    # Clear existing allocations for this property
+                    PropertyPPMPAllocation.objects.filter(property=property_obj).delete()
+                    
+                    # Create new allocations and update PPMPItem released quantities
+                    for selection in ppmp_selections:
+                        try:
+                            # Use ppmp_item_id for direct lookup if available
+                            ppmp_item_id = selection.get('ppmp_item_id')
+                            ppmp_item = None
+                            
+                            if ppmp_item_id:
+                                ppmp_item = PPMPItem.objects.filter(id=ppmp_item_id).first()
+                            else:
+                                # Fallback: Find by department, year, and description
+                                department_name = selection.get('department', '')
+                                year = selection.get('year')
+                                item_name = selection.get('item_name', '')
+                                
+                                department = Department.objects.filter(name=department_name).first()
+                                if department:
+                                    ppmp_item = PPMPItem.objects.filter(
+                                        ppmp__department=department,
+                                        ppmp__year=year
+                                    ).filter(
+                                        Q(description__icontains=item_name) | 
+                                        Q(unit_measure__icontains=item_name)
+                                    ).first()
+                            
+                            if ppmp_item:
+                                # Create allocation record
+                                PropertyPPMPAllocation.objects.create(
+                                    property=property_obj,
+                                    ppmp_item=ppmp_item,
+                                    quantity_allocated=selection.get('selectedQty', 0),
+                                    allocated_by=request.user
+                                )
+                                
+                                # Update PPMPItem released quantity
+                                ppmp_item.released = (ppmp_item.released or 0) + selection.get('selectedQty', 0)
+                                ppmp_item.save()
+                        except Exception as e:
+                            print(f"Error creating PPMP allocation: {e}")
+                            # Continue with other allocations even if one fails
+                except json.JSONDecodeError as e:
+                    print(f"Error parsing PPMP selections JSON: {e}")
             
             # Debug: Print the saved values
             print(f"DEBUG: After save - accountable_person: '{property_obj.accountable_person}'")
@@ -6403,6 +6587,9 @@ def modify_property_quantity_generic(request):
         # Always add the quantity since we removed the action type selection
         prop.quantity += amount
         prop.overall_quantity += amount
+        
+        # Set flag to skip automatic quantity synchronization in save()
+        prop._skip_quantity_sync = True
         prop.save()
 
         # Build remarks with reason if provided
@@ -6541,6 +6728,9 @@ def modify_property_quantity_batch(request):
                 # Add the quantity
                 prop.quantity += quantity_to_add
                 prop.overall_quantity += quantity_to_add
+                
+                # Set flag to skip automatic quantity synchronization in save()
+                prop._skip_quantity_sync = True
                 prop.save()
                 
                 # Create history record
@@ -6779,6 +6969,263 @@ def delete_archived_property(request, pk):
             messages.error(request, f"Error deleting property: {str(e)}")
     return redirect('archived_items')
 
+@permission_required('app.view_admin_module')
+@login_required
+def export_archived_supplies_excel(request):
+    """Export archived supplies to Excel, respecting category/subcategory filters."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+    category_filter = request.GET.get('category', '')
+    subcategory_filter = request.GET.get('subcategory', '')
+
+    supplies = Supply.objects.filter(is_archived=True).select_related(
+        'category', 'subcategory', 'quantity_info'
+    ).order_by('category__name', 'supply_name')
+
+    if category_filter:
+        supplies = supplies.filter(category__name=category_filter)
+    if subcategory_filter:
+        supplies = supplies.filter(subcategory__name=subcategory_filter)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Archived Supplies"
+
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="152D64", end_color="152D64", fill_type="solid")
+    title_font = Font(bold=True, size=14)
+    category_font = Font(bold=True, size=11, color="152D64")
+    thin = Side(border_style="thin", color="000000")
+    thin_border = Border(top=thin, left=thin, right=thin, bottom=thin)
+    center = Alignment(horizontal='center', vertical='center')
+
+    # Title
+    ws.merge_cells('A1:G1')
+    ws['A1'] = 'ARCHIVED SUPPLIES REPORT'
+    ws['A1'].font = title_font
+    ws['A1'].alignment = center
+
+    # Metadata
+    ws['A3'] = 'Department:'
+    ws['B3'] = (request.user.userprofile.department.name
+                if hasattr(request.user, 'userprofile') and request.user.userprofile.department
+                else '_____________________')
+    ws['E3'] = 'Date:'
+    ws['F3'] = datetime.now().strftime("%B %d, %Y")
+
+    ws['A4'] = 'Prepared by:'
+    ws['B4'] = f'{request.user.first_name} {request.user.last_name}'
+
+    filter_desc = []
+    if category_filter:
+        filter_desc.append(f'Category: {category_filter}')
+    if subcategory_filter:
+        filter_desc.append(f'Subcategory: {subcategory_filter}')
+    if filter_desc:
+        ws['A5'] = 'Filters:'
+        ws['B5'] = ' | '.join(filter_desc)
+
+    col_headers = ['Supply Name', 'Description', 'Category', 'Subcategory',
+                   'Date Received', 'Expiration Date', 'Unit']
+    col_fields = ['supply_name', 'description', 'category', 'subcategory',
+                  'date_received', 'expiration_date', 'unit']
+
+    current_row = 7
+
+    # Group by category for display
+    from collections import defaultdict as _dd
+    grouped = _dd(list)
+    for s in supplies:
+        cat = s.category.name if s.category else 'Uncategorized'
+        grouped[cat].append(s)
+
+    for cat_name, cat_supplies in grouped.items():
+        # Category header row
+        ws.cell(row=current_row, column=1, value=cat_name).font = category_font
+        current_row += 1
+
+        # Column headers
+        for col_idx, header in enumerate(col_headers, 1):
+            cell = ws.cell(row=current_row, column=col_idx)
+            cell.value = header
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.border = thin_border
+            cell.alignment = center
+        current_row += 1
+
+        # Data rows
+        for supply in cat_supplies:
+            row_values = [
+                supply.supply_name,
+                supply.description or 'N/A',
+                supply.category.name if supply.category else 'N/A',
+                supply.subcategory.name if supply.subcategory else 'None',
+                supply.date_received.strftime("%B %d, %Y") if supply.date_received else 'N/A',
+                supply.expiration_date.strftime("%B %d, %Y") if supply.expiration_date else 'N/A',
+                supply.unit or 'N/A',
+            ]
+            for col_idx, value in enumerate(row_values, 1):
+                cell = ws.cell(row=current_row, column=col_idx)
+                cell.value = value
+                cell.border = thin_border
+            current_row += 1
+
+        current_row += 1  # Spacer between categories
+
+    # Auto-width columns (skip MergedCell objects)
+    from openpyxl.utils import get_column_letter
+    from openpyxl.cell.cell import MergedCell
+    for col_idx in range(1, ws.max_column + 1):
+        max_len = 0
+        col_letter = get_column_letter(col_idx)
+        for cell in ws[col_letter]:
+            if not isinstance(cell, MergedCell) and cell.value:
+                max_len = max(max_len, len(str(cell.value)))
+        ws.column_dimensions[col_letter].width = min(max_len + 4, 50)
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    filename_parts = ['archived_supplies']
+    if category_filter:
+        filename_parts.append(category_filter.replace(' ', '_'))
+    if subcategory_filter:
+        filename_parts.append(subcategory_filter.replace(' ', '_'))
+    filename = '_'.join(filename_parts) + '.xlsx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    return response
+
+
+@permission_required('app.view_admin_module')
+@login_required
+def export_archived_properties_excel(request):
+    """Export archived properties to Excel, respecting category/condition filters."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+    category_filter = request.GET.get('category', '')
+    condition_filter = request.GET.get('condition', '')
+
+    properties = Property.objects.filter(is_archived=True).select_related(
+        'category'
+    ).order_by('category__name', 'property_name')
+
+    if category_filter:
+        properties = properties.filter(category__name=category_filter)
+    if condition_filter:
+        properties = properties.filter(condition=condition_filter)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Archived Properties"
+
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="152D64", end_color="152D64", fill_type="solid")
+    title_font = Font(bold=True, size=14)
+    category_font = Font(bold=True, size=11, color="152D64")
+    thin = Side(border_style="thin", color="000000")
+    thin_border = Border(top=thin, left=thin, right=thin, bottom=thin)
+    center = Alignment(horizontal='center', vertical='center')
+
+    # Title
+    ws.merge_cells('A1:I1')
+    ws['A1'] = 'ARCHIVED PROPERTIES REPORT'
+    ws['A1'].font = title_font
+    ws['A1'].alignment = center
+
+    # Metadata
+    ws['A3'] = 'Department:'
+    ws['B3'] = (request.user.userprofile.department.name
+                if hasattr(request.user, 'userprofile') and request.user.userprofile.department
+                else '_____________________')
+    ws['F3'] = 'Date:'
+    ws['G3'] = datetime.now().strftime("%B %d, %Y")
+
+    ws['A4'] = 'Prepared by:'
+    ws['B4'] = f'{request.user.first_name} {request.user.last_name}'
+
+    filter_desc = []
+    if category_filter:
+        filter_desc.append(f'Category: {category_filter}')
+    if condition_filter:
+        filter_desc.append(f'Condition: {condition_filter}')
+    if filter_desc:
+        ws['A5'] = 'Filters:'
+        ws['B5'] = ' | '.join(filter_desc)
+
+    col_headers = ['Property No.', 'Property Name', 'Description', 'Category',
+                   'Location', 'Accountable Person', 'Year Acquired', 'Condition']
+
+    current_row = 7
+
+    from collections import defaultdict as _dd
+    grouped = _dd(list)
+    for p in properties:
+        cat = p.category.name if p.category else 'Uncategorized'
+        grouped[cat].append(p)
+
+    for cat_name, cat_properties in grouped.items():
+        ws.cell(row=current_row, column=1, value=cat_name).font = category_font
+        current_row += 1
+
+        for col_idx, header in enumerate(col_headers, 1):
+            cell = ws.cell(row=current_row, column=col_idx)
+            cell.value = header
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.border = thin_border
+            cell.alignment = center
+        current_row += 1
+
+        for prop in cat_properties:
+            prop_no = prop.property_number if prop.property_number else f'ID-{prop.id}'
+            year = prop.year_acquired.strftime("%B %d, %Y") if prop.year_acquired else 'N/A'
+            row_values = [
+                prop_no,
+                prop.property_name,
+                prop.description or 'N/A',
+                prop.category.name if prop.category else 'N/A',
+                prop.location or 'N/A',
+                prop.accountable_person or 'N/A',
+                year,
+                prop.get_condition_display() if hasattr(prop, 'get_condition_display') else (prop.condition or 'N/A'),
+            ]
+            for col_idx, value in enumerate(row_values, 1):
+                cell = ws.cell(row=current_row, column=col_idx)
+                cell.value = value
+                cell.border = thin_border
+            current_row += 1
+
+        current_row += 1
+
+    # Auto-width columns (skip MergedCell objects)
+    from openpyxl.utils import get_column_letter
+    from openpyxl.cell.cell import MergedCell
+    for col_idx in range(1, ws.max_column + 1):
+        max_len = 0
+        col_letter = get_column_letter(col_idx)
+        for cell in ws[col_letter]:
+            if not isinstance(cell, MergedCell) and cell.value:
+                max_len = max(max_len, len(str(cell.value)))
+        ws.column_dimensions[col_letter].width = min(max_len + 4, 50)
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    filename_parts = ['archived_properties']
+    if category_filter:
+        filename_parts.append(category_filter.replace(' ', '_'))
+    if condition_filter:
+        filename_parts.append(condition_filter.replace(' ', '_'))
+    filename = '_'.join(filename_parts) + '.xlsx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    return response
+
+
 class ArchivedItemsView(PermissionRequiredMixin, TemplateView):
     template_name = 'app/archived_items.html'
     permission_required = 'app.view_admin_module'
@@ -6971,7 +7418,7 @@ def supply_list(request):
 @require_POST
 @admin_permission_required('approve_supply_request')
 def check_ppmp_before_approval(request, batch_id, item_id):
-    """AJAX endpoint to check PPMP before approving an item"""
+    """AJAX endpoint to check PPMP before approving an item - now supports multi-year PPMP"""
     from django.http import JsonResponse
     from django.core.exceptions import ObjectDoesNotExist
     from django.db.models import Sum
@@ -6994,56 +7441,211 @@ def check_ppmp_before_approval(request, batch_id, item_id):
     except (AttributeError, ObjectDoesNotExist):
         return JsonResponse({'needs_confirmation': False, 'proceed': True})
     
-    # Quick check: Does PPMP exist for this department/year?
-    try:
-        ppmp = PPMP.objects.get(department=user_department, year=timezone.now().year)
-    except PPMP.DoesNotExist:
+    # Get all PPMPs for this department
+    ppmp_list = PPMP.objects.filter(department=user_department).order_by('-year')
+    
+    if not ppmp_list.exists():
         return JsonResponse({'needs_confirmation': False, 'proceed': True})
     
-    # Quick fuzzy match on item name (case-insensitive contains)
-    supply_name_lower = item.supply.supply_name.lower()
-    matched_items = PPMPItem.objects.filter(
-        ppmp=ppmp,
-        unit_measure__icontains=item.supply.supply_name
-    ).only('quantity', 'released')
+    # Find matching PPMP items across all years
+    available_years = []
+    supply_key = item.supply.supply_name.strip().lower()
+    supply_desc_key = item.supply.description.strip().lower() if item.supply.description else ""
     
-    if not matched_items.exists():
-        return JsonResponse({'needs_confirmation': False, 'proceed': True})
-    
-    # Use aggregate to calculate sums in database (faster than Python)
-    totals = matched_items.aggregate(
-        total_planned=Sum('quantity'),
-        total_released=Sum('released')
-    )
-    
-    total_ppmp_planned = totals['total_planned'] or 0
-    total_ppmp_released = totals['total_released'] or 0
-    total_ppmp_remaining = total_ppmp_planned - total_ppmp_released
-    
-    # Check if approved quantity exceeds PPMP remaining
-    if approved_quantity > total_ppmp_remaining:
-        total_after_approval = total_ppmp_released + approved_quantity
-        total_excess = total_after_approval - total_ppmp_planned
+    for ppmp in ppmp_list:
+        all_ppmp_items = PPMPItem.objects.filter(ppmp=ppmp).only('id', 'unit_measure', 'description', 'quantity', 'released')
         
+        matched_item_ids = []
+        
+        for ppmp_item in all_ppmp_items:
+            # Use unit_measure as the primary item name
+            item_name = ppmp_item.unit_measure if ppmp_item.unit_measure else ppmp_item.description
+            if not item_name:
+                continue
+                
+            ppmp_key = item_name.strip().lower()
+            
+            # Try exact match
+            if ppmp_key == supply_key or ppmp_key == supply_desc_key:
+                matched_item_ids.append(ppmp_item.id)
+                continue
+            
+            # Try word matching (at least 2 common words)
+            supply_words = set(supply_key.replace(',', ' ').split())
+            ppmp_words = set(ppmp_key.replace(',', ' ').split())
+            common_words = supply_words & ppmp_words
+            
+            if len(common_words) >= 2 or (len(common_words) >= 1 and len(common_words) / max(len(supply_words), 1) >= 0.5):
+                matched_item_ids.append(ppmp_item.id)
+                continue
+            
+            # Try substring matching
+            if ppmp_key in supply_key or supply_key in ppmp_key:
+                matched_item_ids.append(ppmp_item.id)
+        
+        if matched_item_ids:
+            # Get matched items for aggregation
+            matched_items = PPMPItem.objects.filter(id__in=matched_item_ids)
+            
+            # Use aggregate to calculate sums in database (faster than Python)
+            totals = matched_items.aggregate(
+                total_planned=Sum('quantity'),
+                total_released=Sum('released')
+            )
+            
+            total_ppmp_planned = totals['total_planned'] or 0
+            total_ppmp_released = totals['total_released'] or 0
+            total_ppmp_remaining = max(0, total_ppmp_planned - total_ppmp_released)
+            
+            # Only include this year if there's remaining quantity
+            if total_ppmp_remaining > 0:
+                available_years.append({
+                    'year': ppmp.year,
+                    'ppmp_id': ppmp.id,
+                    'planned': total_ppmp_planned,
+                    'released': total_ppmp_released,
+                    'remaining': total_ppmp_remaining,
+                    'matched_item_ids': matched_item_ids
+                })
+    
+    if not available_years:
+        # No matches or all are fully released
+        return JsonResponse({'needs_confirmation': False, 'proceed': True})
+    
+    # If there are available years with PPMP matches, ask admin to select which year
+    if len(available_years) == 1:
+        # Only one year available, check if quantity exceeds
+        year_data = available_years[0]
+        if approved_quantity > year_data['remaining']:
+            total_after_approval = year_data['released'] + approved_quantity
+            total_excess = total_after_approval - year_data['planned']
+            
+            return JsonResponse({
+                'needs_confirmation': True,
+                'type': 'exceed_warning',
+                'warning_message': (
+                    f'Approving {approved_quantity} units of {item.supply.supply_name} '
+                    f'exceeds the PPMP {year_data["year"]} remaining quantity.<br><br>'
+                    f'<strong>PPMP {year_data["year"]} Planned:</strong> {year_data["planned"]} units<br>'
+                    f'<strong>Already Released:</strong> {year_data["released"]} units<br>'
+                    f'<strong>PPMP Remaining:</strong> {year_data["remaining"]} units<br>'
+                    f'<strong>Approved Quantity:</strong> {approved_quantity} units<br>'
+                    f'<strong>Total Excess:</strong> {total_excess} units<br><br>'
+                    f'Do you want to proceed with this approval?'
+                ),
+                'item_name': item.supply.supply_name,
+                'ppmp_year': year_data['year'],
+                'ppmp_remaining': year_data['remaining'],
+                'approved_quantity': approved_quantity
+            })
+        else:
+            # Auto-select this year since it's the only one and has enough quantity
+            return JsonResponse({
+                'needs_confirmation': False,
+                'proceed': True,
+                'auto_select_year': year_data['year']
+            })
+    else:
+        # Multiple years available - ask admin to select
         return JsonResponse({
             'needs_confirmation': True,
-            'warning_message': (
-                f'Approving {approved_quantity} units of {item.supply.supply_name} '
-                f'exceeds the PPMP remaining quantity.<br><br>'
-                f'<strong>PPMP Planned:</strong> {total_ppmp_planned} units<br>'
-                f'<strong>Already Released:</strong> {total_ppmp_released} units<br>'
-                f'<strong>PPMP Remaining:</strong> {total_ppmp_remaining} units<br>'
-                f'<strong>Approved Quantity:</strong> {approved_quantity} units<br>'
-                f'<strong>Total Excess:</strong> {total_excess} units<br><br>'
-                f'Do you want to proceed with this approval?'
-            ),
+            'type': 'year_selection',
+            'available_years': available_years,
             'item_name': item.supply.supply_name,
-            'ppmp_remaining': total_ppmp_remaining,
-            'approved_quantity': approved_quantity
+            'approved_quantity': approved_quantity,
+            'message': f'Multiple PPMP years found for {item.supply.supply_name}. Please select which year to release from.'
         })
+
+@permission_required('app.view_admin_module')
+@login_required
+@admin_permission_required('approve_supply_request')
+def get_ppmp_year_options(request, batch_id, item_id):
+    """
+    AJAX endpoint to get available PPMP years for a supply request item.
+    Returns years with remaining quantities for the modal selection.
+    """
+    from django.http import JsonResponse
+    from .utils import check_ppmp_match_multi_year
     
-    # No PPMP issue, proceed normally
-    return JsonResponse({'needs_confirmation': False, 'proceed': True})
+    try:
+        batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
+        item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
+        
+        user_department = batch_request.user.userprofile.department if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department else None
+        
+        if not user_department:
+            return JsonResponse({
+                'success': False,
+                'error': 'No department found for this user'
+            })
+        
+        # Get multi-year PPMP matches
+        match_result = check_ppmp_match_multi_year(
+            supply_name=item.supply.supply_name,
+            department=user_department,
+            current_year=batch_request.request_date.year
+        )
+        
+        if not match_result['match_found']:
+            return JsonResponse({
+                'success': False,
+                'error': 'No PPMP matches found for this item',
+                'message': match_result['message']
+            })
+        
+        # Format year options for the frontend
+        year_options = []
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        for year_data in match_result['years_with_matches']:
+            # Get the first matched item (we'll use this for tracking)
+            first_item = year_data['matched_items'][0] if year_data['matched_items'] else None
+            
+            if first_item:
+                # Verify the PPMP item actually belongs to this year
+                logger.info(f"Year {year_data['year']}: ppmp_item_id={first_item.id}, ppmp_item's actual year={first_item.ppmp.year}, item_name={first_item.unit_measure}")
+                logger.info(f"  -> PPMP Item #{first_item.id} details: ppmp_id={first_item.ppmp.id}, ppmp_year={first_item.ppmp.year}, qty={first_item.quantity}, released={first_item.released}, remaining={first_item.remaining}")
+                # Log ALL matched items for this year
+                for idx, matched_ppmp_item in enumerate(year_data['matched_items']):
+                    logger.info(f"  -> Matched item {idx+1}/{len(year_data['matched_items'])}: ID={matched_ppmp_item.id}, year={matched_ppmp_item.ppmp.year}, desc={matched_ppmp_item.unit_measure}, qty={matched_ppmp_item.quantity}, released={matched_ppmp_item.released}, remaining={matched_ppmp_item.remaining}")
+            
+            year_options.append({
+                'year': year_data['year'],
+                'ppmp_id': year_data['ppmp'].id,
+                'ppmp_item_id': first_item.id if first_item else None,
+                'total_remaining': year_data['total_remaining'],
+                'matched_items_count': len(year_data['matched_items']),
+                'items_details': [
+                    {
+                        'id': ppmp_item.id,
+                        'description': str(ppmp_item.unit_measure),
+                        'quantity': ppmp_item.quantity,
+                        'released': ppmp_item.released,
+                        'remaining': ppmp_item.remaining
+                    }
+                    for ppmp_item in year_data['matched_items']
+                ]
+            })
+        
+        logger.info(f"Returning year options: {year_options}")
+        
+        return JsonResponse({
+            'success': True,
+            'year_options': year_options,
+            'supply_name': item.supply.supply_name,
+            'requested_quantity': item.quantity,
+            'department_name': user_department.name
+        })
+        
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error getting PPMP year options: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
 
 @permission_required('app.view_admin_module')
 @login_required
@@ -7052,6 +7654,8 @@ def check_ppmp_before_approval(request, batch_id, item_id):
 def approve_batch_item(request, batch_id, item_id):
     """Approve an individual item in a batch request"""
     from django.core.exceptions import ObjectDoesNotExist
+    from .models import PPMP, PPMPItem
+    from django.db.models import F
     
     batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
     item = get_object_or_404(SupplyRequestItem, id=item_id, batch_request=batch_request)
@@ -7068,6 +7672,38 @@ def approve_batch_item(request, batch_id, item_id):
             return response
     except (ValueError, TypeError):
         approved_quantity = item.quantity
+    
+    # Get PPMP year and item from form (if provided)
+    # First check for multi-year allocations (new format)
+    ppmp_allocations_json = request.POST.get('ppmp_allocations')
+    ppmp_allocations = None
+    
+    if ppmp_allocations_json:
+        import json
+        import logging
+        logger = logging.getLogger(__name__)
+        try:
+            ppmp_allocations = json.loads(ppmp_allocations_json)
+            logger.info(f"PPMP Allocations received: {ppmp_allocations}")
+        except (ValueError, json.JSONDecodeError):
+            ppmp_allocations = None
+            logger.error(f"Failed to parse PPMP allocations JSON: {ppmp_allocations_json}")
+    
+    # Fallback to single year selection (legacy format)
+    ppmp_year = request.POST.get('ppmp_year')
+    ppmp_item_id = request.POST.get('ppmp_item_id')
+    
+    if ppmp_year:
+        try:
+            ppmp_year = int(ppmp_year)
+        except (ValueError, TypeError):
+            ppmp_year = None
+    
+    if ppmp_item_id:
+        try:
+            ppmp_item_id = int(ppmp_item_id)
+        except (ValueError, TypeError):
+            ppmp_item_id = None
     
     # CHECK AVAILABLE STOCK BEFORE APPROVING
     quantity_info = item.supply.quantity_info
@@ -7088,8 +7724,6 @@ def approve_batch_item(request, batch_id, item_id):
             response['Location'] += f'#scroll-{scroll_position}'
             return response
     
-    # CHECK PPMP REMAINING QUANTITY (removed - now done in AJAX before approval)
-    
     # Mark item as approved
     item.approved = True
     item.status = 'approved'  # Also update the status field
@@ -7097,6 +7731,65 @@ def approve_batch_item(request, batch_id, item_id):
     remarks = request.POST.get('remarks', '')
     if remarks:
         item.remarks = remarks
+    
+    # Save PPMP allocations or single year selection (but don't update released quantity yet)
+    # PPMP released quantities will be updated during the claiming phase, not during approval
+    if ppmp_allocations:
+        # Multi-year allocation - store allocation data for later use during claiming
+        item.ppmp_allocations = ppmp_allocations
+        
+        logger.info(f"========== STORING ALLOCATION DATA (NO RELEASE YET) ==========")
+        logger.info(f"Total allocations to store: {len(ppmp_allocations)}")
+        logger.info(f"Full allocations data: {ppmp_allocations}")
+        
+        # Validate allocations and store backward compatibility fields
+        for allocation in ppmp_allocations:
+            alloc_ppmp_item_id = allocation.get('ppmp_item_id')
+            alloc_quantity = allocation.get('quantity', 0)
+            alloc_year = allocation.get('year')
+            
+            logger.info(f"Allocation {ppmp_allocations.index(allocation) + 1}: year={alloc_year}, ppmp_item_id={alloc_ppmp_item_id}, quantity={alloc_quantity}")
+            
+            # Verify PPMP item exists and year matches
+            if alloc_ppmp_item_id and alloc_quantity > 0:
+                try:
+                    ppmp_item = PPMPItem.objects.get(id=alloc_ppmp_item_id)
+                    if ppmp_item.ppmp.year != alloc_year:
+                        logger.error(f"❌ YEAR MISMATCH! PPMP item {alloc_ppmp_item_id} is from year {ppmp_item.ppmp.year} but allocation specifies year {alloc_year}")
+                except PPMPItem.DoesNotExist:
+                    logger.warning(f"Could not find PPMP item with ID {alloc_ppmp_item_id}")
+        
+        # Store the primary PPMP year (first allocation year) for backwards compatibility
+        if ppmp_allocations and len(ppmp_allocations) > 0:
+            item.ppmp_year = ppmp_allocations[0].get('year')
+            # Also store the first ppmp_item for reference
+            if ppmp_allocations[0].get('ppmp_item_id'):
+                try:
+                    item.ppmp_item = PPMPItem.objects.get(id=ppmp_allocations[0]['ppmp_item_id'])
+                    logger.info(f"Set backward compatibility: ppmp_year={item.ppmp_year}, ppmp_item={item.ppmp_item.id}")
+                except PPMPItem.DoesNotExist:
+                    pass
+        
+        logger.info(f"Allocations stored. PPMP released quantities will be updated during claiming.")
+        logger.info(f"========== END ALLOCATION STORAGE ==========")
+    
+    # Only process legacy single-year selection if multi-year allocations were NOT used
+    # Store the reference but don't update released quantity yet (that happens during claiming)
+    if not ppmp_allocations and ppmp_year and ppmp_item_id:
+        logger.info(f"Storing legacy single-year selection: year={ppmp_year}, ppmp_item_id={ppmp_item_id}")
+        # Single year selection (legacy support)
+        item.ppmp_year = ppmp_year
+        
+        # Link the supply request item to this PPMP item (but don't update released yet)
+        try:
+            ppmp_item = PPMPItem.objects.get(id=ppmp_item_id)
+            item.ppmp_item = ppmp_item
+            logger.info(f"Linked item to PPMP item {ppmp_item_id}. Released quantity will be updated during claiming.")
+        except PPMPItem.DoesNotExist:
+            logger.warning(f"Could not find PPMP item with ID {ppmp_item_id}")
+        except Exception as e:
+            logger.warning(f"Could not link PPMP item: {str(e)}")
+    
     item.save()
     
     # Reserve the approved quantity to prevent overbooking
@@ -7442,26 +8135,46 @@ Resource Hive Management System
         return redirect('batch_request_detail', batch_id=batch_id)
     
     from .permissions import has_admin_permission
+    import json
     
     # Add PPMP matching check for each item (only for supply requests)
+    # Use multi-year matching to show all available years with unfulfilled items
     ppmp_matches = {}
     user_department = batch_request.user.userprofile.department if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department else None
     
     if user_department:
-        from .utils import check_ppmp_match
+        from .utils import check_ppmp_match_multi_year
         for item in batch_request.items.all():
-            match_result = check_ppmp_match(
+            match_result = check_ppmp_match_multi_year(
                 supply_name=item.supply.supply_name,
                 department=user_department,
-                year=batch_request.request_date.year
+                current_year=batch_request.request_date.year
             )
             ppmp_matches[item.id] = match_result
+    
+    # Convert ppmp_matches to JSON for JavaScript
+    # Need to serialize the data properly (remove non-serializable objects)
+    ppmp_matches_json = {}
+    for item_id, match_data in ppmp_matches.items():
+        ppmp_matches_json[str(item_id)] = {
+            'match_found': match_data.get('match_found', False),
+            'message': match_data.get('message', ''),
+            'total_matches': match_data.get('total_matches', 0),
+            'years_with_matches': [
+                {
+                    'year': year_data['year'],
+                    'total_remaining': year_data['total_remaining'],
+                }
+                for year_data in match_data.get('years_with_matches', [])
+            ] if match_data.get('years_with_matches') else []
+        }
     
     context = {
         'batch_request': batch_request,
         'items': batch_request.items.all().order_by('supply__supply_name'),
         'can_void_request': has_admin_permission(request.user, 'void_request'),
         'ppmp_matches': ppmp_matches,
+        'ppmp_matches_json': json.dumps(ppmp_matches_json),
         'user_department': user_department,
     }
     
@@ -7538,20 +8251,74 @@ def claim_batch_items(request, batch_id):
             # Save with skip_history to avoid duplicate entry
             item.supply.quantity_info.save(skip_history=True)
         
-        # Update PPMP released quantity if user has department and PPMP exists
-        if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department:
-            from .utils import check_ppmp_match
-            from .models import PPMPItem
-            match_result = check_ppmp_match(
-                supply_name=item.supply.supply_name,
-                department=batch_request.user.userprofile.department,
-                year=batch_request.request_date.year
-            )
-            if match_result['match_found'] and match_result['matched_items']:
-                # Update the first matching PPMP item's released quantity
-                ppmp_item = match_result['matched_items'][0]
-                ppmp_item.released += approved_qty
-                ppmp_item.save()
+        # Update PPMP released quantity NOW (during claiming, not approval)
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        # Handle multi-year allocations
+        if item.ppmp_allocations:
+            logger.info(f"Updating PPMP released quantities for multi-year allocations: {item.ppmp_allocations}")
+            for allocation in item.ppmp_allocations:
+                alloc_ppmp_item_id = allocation.get('ppmp_item_id')
+                alloc_quantity = allocation.get('quantity', 0)
+                alloc_year = allocation.get('year')
+                
+                if alloc_ppmp_item_id and alloc_quantity > 0:
+                    try:
+                        from .models import PPMPItem
+                        ppmp_item = PPMPItem.objects.get(id=alloc_ppmp_item_id)
+                        old_released = ppmp_item.released
+                        ppmp_item.released += alloc_quantity
+                        ppmp_item.save()
+                        logger.info(f"PPMP item {alloc_ppmp_item_id} (year {alloc_year}) released: {old_released} → {ppmp_item.released}")
+                        
+                        # Log activity
+                        ActivityLog.log_activity(
+                            user=request.user,
+                            action='release',
+                            model_name='PPMPItem',
+                            object_repr=f"PPMP {alloc_year} - {ppmp_item.unit_measure}",
+                            description=f"Released {alloc_quantity} units of {item.supply.supply_name} from PPMP {alloc_year}. New released count: {ppmp_item.released}/{ppmp_item.quantity}"
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to update PPMP item {alloc_ppmp_item_id}: {str(e)}")
+        
+        # Handle single-year selection
+        elif item.ppmp_item:
+            logger.info(f"Updating PPMP released quantity for single-year selection: PPMP item {item.ppmp_item.id}")
+            try:
+                old_released = item.ppmp_item.released
+                item.ppmp_item.released += approved_qty
+                item.ppmp_item.save()
+                logger.info(f"PPMP item {item.ppmp_item.id} (year {item.ppmp_item.ppmp.year}) released: {old_released} → {item.ppmp_item.released}")
+                
+                # Log activity
+                ActivityLog.log_activity(
+                    user=request.user,
+                    action='release',
+                    model_name='PPMPItem',
+                    object_repr=f"PPMP {item.ppmp_item.ppmp.year} - {item.ppmp_item.unit_measure}",
+                    description=f"Released {approved_qty} units of {item.supply.supply_name} from PPMP {item.ppmp_item.ppmp.year}. New released count: {item.ppmp_item.released}/{item.ppmp_item.quantity}"
+                )
+            except Exception as e:
+                logger.error(f"Failed to update PPMP item {item.ppmp_item.id}: {str(e)}")
+        
+        # Legacy path: No PPMP allocation was selected during approval
+        else:
+            if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department:
+                from .utils import check_ppmp_match
+                from .models import PPMPItem
+                match_result = check_ppmp_match(
+                    supply_name=item.supply.supply_name,
+                    department=batch_request.user.userprofile.department,
+                    year=batch_request.request_date.year
+                )
+                if match_result['match_found'] and match_result['matched_items']:
+                    # Update the first matching PPMP item's released quantity
+                    ppmp_item = match_result['matched_items'][0]
+                    ppmp_item.released += approved_qty
+                    ppmp_item.save()
+                    logger.info(f"Legacy PPMP update: PPMP item {ppmp_item.id} released quantity updated")
         
         # Update the approved_quantity if it was None
         if item.approved_quantity is None:
@@ -7651,20 +8418,74 @@ def claim_individual_item(request, batch_id, item_id):
         # Save with skip_history to avoid duplicate entry
         item.supply.quantity_info.save(skip_history=True)
     
-    # Update PPMP released quantity if user has department and PPMP exists
-    if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department:
-        from .utils import check_ppmp_match
-        from .models import PPMPItem
-        match_result = check_ppmp_match(
-            supply_name=item.supply.supply_name,
-            department=batch_request.user.userprofile.department,
-            year=batch_request.request_date.year
-        )
-        if match_result['match_found'] and match_result['matched_items']:
-            # Update the first matching PPMP item's released quantity
-            ppmp_item = match_result['matched_items'][0]
-            ppmp_item.released += approved_qty
-            ppmp_item.save()
+    # Update PPMP released quantity NOW (during claiming, not approval)
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # Handle multi-year allocations
+    if item.ppmp_allocations:
+        logger.info(f"Updating PPMP released quantities for multi-year allocations: {item.ppmp_allocations}")
+        for allocation in item.ppmp_allocations:
+            alloc_ppmp_item_id = allocation.get('ppmp_item_id')
+            alloc_quantity = allocation.get('quantity', 0)
+            alloc_year = allocation.get('year')
+            
+            if alloc_ppmp_item_id and alloc_quantity > 0:
+                try:
+                    from .models import PPMPItem
+                    ppmp_item = PPMPItem.objects.get(id=alloc_ppmp_item_id)
+                    old_released = ppmp_item.released
+                    ppmp_item.released += alloc_quantity
+                    ppmp_item.save()
+                    logger.info(f"PPMP item {alloc_ppmp_item_id} (year {alloc_year}) released: {old_released} → {ppmp_item.released}")
+                    
+                    # Log activity
+                    ActivityLog.log_activity(
+                        user=request.user,
+                        action='release',
+                        model_name='PPMPItem',
+                        object_repr=f"PPMP {alloc_year} - {ppmp_item.unit_measure}",
+                        description=f"Released {alloc_quantity} units of {item.supply.supply_name} from PPMP {alloc_year}. New released count: {ppmp_item.released}/{ppmp_item.quantity}"
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to update PPMP item {alloc_ppmp_item_id}: {str(e)}")
+    
+    # Handle single-year selection
+    elif item.ppmp_item:
+        logger.info(f"Updating PPMP released quantity for single-year selection: PPMP item {item.ppmp_item.id}")
+        try:
+            old_released = item.ppmp_item.released
+            item.ppmp_item.released += approved_qty
+            item.ppmp_item.save()
+            logger.info(f"PPMP item {item.ppmp_item.id} (year {item.ppmp_item.ppmp.year}) released: {old_released} → {item.ppmp_item.released}")
+            
+            # Log activity
+            ActivityLog.log_activity(
+                user=request.user,
+                action='release',
+                model_name='PPMPItem',
+                object_repr=f"PPMP {item.ppmp_item.ppmp.year} - {item.ppmp_item.unit_measure}",
+                description=f"Released {approved_qty} units of {item.supply.supply_name} from PPMP {item.ppmp_item.ppmp.year}. New released count: {item.ppmp_item.released}/{item.ppmp_item.quantity}"
+            )
+        except Exception as e:
+            logger.error(f"Failed to update PPMP item {item.ppmp_item.id}: {str(e)}")
+    
+    # Legacy path: No PPMP allocation was selected during approval
+    else:
+        if hasattr(batch_request.user, 'userprofile') and batch_request.user.userprofile.department:
+            from .utils import check_ppmp_match
+            from .models import PPMPItem
+            match_result = check_ppmp_match(
+                supply_name=item.supply.supply_name,
+                department=batch_request.user.userprofile.department,
+                year=batch_request.request_date.year
+            )
+            if match_result['match_found'] and match_result['matched_items']:
+                # Update the first matching PPMP item's released quantity
+                ppmp_item = match_result['matched_items'][0]
+                ppmp_item.released += approved_qty
+                ppmp_item.save()
+                logger.info(f"Legacy PPMP update: PPMP item {ppmp_item.id} released quantity updated")
     
     # Update the approved_quantity if it was None
     if item.approved_quantity is None:
@@ -8578,10 +9399,14 @@ def approve_borrow_item(request, batch_id, item_id):
         if approved_items > 0:
             batch_request.status = 'for_claiming'
             batch_request.approved_date = timezone.now()
+            if not batch_request.approved_by:
+                batch_request.approved_by = request.user
         else:
             batch_request.status = 'rejected'
     elif approved_items > 0:
         batch_request.status = 'partially_approved'
+        if not batch_request.approved_by:
+            batch_request.approved_by = request.user
     
     batch_request.save()
     
@@ -8641,10 +9466,14 @@ def reject_borrow_item(request, batch_id, item_id):
         if approved_items > 0:
             batch_request.status = 'for_claiming'
             batch_request.approved_date = timezone.now()
+            if not batch_request.approved_by:
+                batch_request.approved_by = request.user
         else:
             batch_request.status = 'rejected'
     elif approved_items > 0:
         batch_request.status = 'partially_approved'
+        if not batch_request.approved_by:
+            batch_request.approved_by = request.user
     
     batch_request.save()
     
@@ -9156,6 +9985,81 @@ def view_requisition_slip(request, batch_id):
     except Exception as e:
         messages.error(request, f'Error generating requisition slip: {str(e)}')
         return redirect('batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_supply_requests', batch_id=batch_id)
+
+
+# Borrower's Slip PDF Generation Views
+@login_required
+def download_borrowers_slip(request, batch_id):
+    """
+    Download the borrower's slip PDF for a borrow request batch.
+    Available for both admin users and the borrower.
+    """
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    
+    # Check permissions: admin users can download any slip, regular users can only download their own
+    if not (request.user.userprofile.role == 'ADMIN' or batch_request.user == request.user):
+        messages.error(request, 'You do not have permission to access this borrower\'s slip.')
+        return redirect('user_all_requests')
+    
+    # Only generate slip for approved, partially approved, for_claiming, active, or completed requests
+    if batch_request.status not in ['approved', 'partially_approved', 'for_claiming', 'active', 'returned', 'completed']:
+        messages.error(request, 'Borrower\'s slip is only available for approved requests.')
+        return redirect('borrow_batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_all_requests', batch_id=batch_id)
+    
+    try:
+        from .pdf_utils import download_borrowers_slip
+        
+        # Log the download activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='view',
+            model_name='BorrowRequestBatch',
+            object_repr=f"Borrower's Slip #{batch_id}",
+            description=f"Downloaded borrower's slip for borrow batch request #{batch_id}"
+        )
+        
+        return download_borrowers_slip(batch_request)
+        
+    except Exception as e:
+        messages.error(request, f'Error generating borrower\'s slip: {str(e)}')
+        return redirect('borrow_batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_all_requests', batch_id=batch_id)
+
+
+@login_required
+def view_borrowers_slip(request, batch_id):
+    """
+    View the borrower's slip PDF in browser for a borrow request batch.
+    Available for both admin users and the borrower.
+    """
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    
+    # Check permissions: admin users can view any slip, regular users can only view their own
+    if not (request.user.userprofile.role == 'ADMIN' or batch_request.user == request.user):
+        messages.error(request, 'You do not have permission to access this borrower\'s slip.')
+        return redirect('user_all_requests')
+    
+    # Only generate slip for approved, partially approved, for_claiming, active, or completed requests
+    if batch_request.status not in ['approved', 'partially_approved', 'for_claiming', 'active', 'returned', 'completed']:
+        messages.error(request, 'Borrower\'s slip is only available for approved requests.')
+        return redirect('borrow_batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_all_requests', batch_id=batch_id)
+    
+    try:
+        from .pdf_utils import view_borrowers_slip
+        
+        # Log the view activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='view',
+            model_name='BorrowRequestBatch',
+            object_repr=f"Borrower's Slip #{batch_id}",
+            description=f"Viewed borrower's slip for borrow batch request #{batch_id}"
+        )
+        
+        return view_borrowers_slip(batch_request)
+        
+    except Exception as e:
+        messages.error(request, f'Error generating borrower\'s slip: {str(e)}')
+        return redirect('borrow_batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_all_requests', batch_id=batch_id)
 
 
 # Barcode Inventory Management Views
@@ -10354,12 +11258,32 @@ def ppmp_delete(request, pk):
     """Delete a PPMP and all its items"""
     from .models import PPMP
     from django.contrib import messages
+    from django.db import connection
     
     ppmp = get_object_or_404(PPMP, pk=pk)
     
     if request.method == 'POST':
         department_name = ppmp.department.name
         year = ppmp.year
+        
+        # Get all PPMP item IDs associated with this PPMP
+        ppmp_item_ids = list(ppmp.items.values_list('id', flat=True))
+        
+        # Delete related PPMPItemRelease records first (if table exists)
+        if ppmp_item_ids:
+            with connection.cursor() as cursor:
+                try:
+                    # Delete all PPMPItemRelease records that reference these PPMP items
+                    placeholders = ','.join(['%s'] * len(ppmp_item_ids))
+                    cursor.execute(
+                        f"DELETE FROM app_ppmpitemrelease WHERE ppmp_item_id IN ({placeholders})",
+                        ppmp_item_ids
+                    )
+                except Exception as e:
+                    # Table might not exist or other error - log but continue
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.warning(f"Could not delete PPMPItemRelease records: {e}")
         
         # Delete the PPMP (cascade will delete all PPMPItems)
         ppmp.delete()
@@ -10368,4 +11292,282 @@ def ppmp_delete(request, pk):
         return redirect('ppmp_list')
     
     return render(request, 'app/ppmp_delete_confirm.html', {'ppmp': ppmp})
+
+
+@login_required
+def get_ppmp_matches(request):
+    """
+    API endpoint to get PPMP matches based on property name.
+    Returns a list of matching PPMP items across all departments and years.
+    """
+    from django.http import JsonResponse
+    from .models import PPMPItem
+    from difflib import SequenceMatcher
+    
+    property_name = request.GET.get('property_name', '').strip()
+    
+    if not property_name:
+        return JsonResponse({'matches': []})
+    
+    # Get all PPMP items
+    ppmp_items = PPMPItem.objects.select_related('ppmp', 'ppmp__department').all()
+    
+    matches = []
+    property_name_lower = property_name.lower()
+    
+    for item in ppmp_items:
+        # Check both unit_measure and description fields
+        item_name = item.unit_measure if item.unit_measure else item.description
+        
+        if not item_name:
+            continue
+            
+        item_name_lower = item_name.strip().lower()
+        
+        # Calculate similarity ratio
+        similarity = SequenceMatcher(None, property_name_lower, item_name_lower).ratio()
+        
+        # Include if exact match or high similarity (>= 0.9) AND has remaining quantity
+        if (property_name_lower in item_name_lower or item_name_lower in property_name_lower or similarity >= 0.9) and item.remaining > 0:
+            matches.append({
+                'ppmp_item_id': item.id,  # Add unique ID for matching
+                'department': item.ppmp.department.name,
+                'year': item.ppmp.year,
+                'item_name': item_name,
+                'quantity': item.quantity,
+                'remaining': item.remaining,
+                'unit_measure': item.unit_measure or '',
+                'similarity': similarity
+            })
+    
+    # Sort by similarity (highest first), then by year (most recent first)
+    matches.sort(key=lambda x: (-x['similarity'], -x['year']))
+    
+    # Limit to top 20 matches to avoid overwhelming the dropdown
+    matches = matches[:20]
+    
+    return JsonResponse({'matches': matches})
+
+
+@login_required
+def get_property_ppmp_references(request, property_id):
+    """
+    API endpoint to get PPMP references for a specific property.
+    Returns the ppmp_references JSONField data.
+    """
+    from django.http import JsonResponse
+    from .models import Property
+    
+    try:
+        property_obj = Property.objects.get(id=property_id)
+        ppmp_references = property_obj.ppmp_references or []
+        
+        return JsonResponse({'ppmp_references': ppmp_references})
+    except Property.DoesNotExist:
+        return JsonResponse({'ppmp_references': []})
+
+
+@login_required
+@require_POST
+def release_property(request):
+    """
+    Release/assign property quantity to someone.
+    Deducts from property current quantity and PPMP allocated items.
+    """
+    from django.http import JsonResponse
+    from .models import Property, PPMPItem, PropertyPPMPAllocation, Department, ActivityLog, User
+    from django.db.models import Q
+    from django.core.mail import send_mail
+    from django.template.loader import render_to_string
+    from django.utils.html import strip_tags
+    from django.conf import settings
+    import json
+    
+    try:
+        property_id = request.POST.get('property_id')
+        release_quantity = int(request.POST.get('release_quantity', 0))
+        remarks = request.POST.get('remarks', '')
+        ppmp_deductions = request.POST.get('ppmp_deductions', '[]')
+        
+        if release_quantity <= 0:
+            return JsonResponse({'success': False, 'error': 'Invalid release quantity'})
+        
+        property_obj = Property.objects.get(id=property_id)
+        
+        # Check if enough quantity available
+        if property_obj.quantity < release_quantity:
+            return JsonResponse({'success': False, 'error': f'Not enough quantity available. Current: {property_obj.quantity}'})
+        
+        # Parse PPMP deductions
+        try:
+            ppmp_deductions_data = json.loads(ppmp_deductions)
+        except:
+            ppmp_deductions_data = []
+        
+        # Deduct from property current quantity
+        property_obj.quantity -= release_quantity
+        
+        # Get existing PPMP references or initialize empty list
+        existing_ppmp_refs = property_obj.ppmp_references or []
+        
+        # Process PPMP allocations and create records
+        ppmp_info_list = []
+        departments_notified = {}  # Track departments and their allocated items
+        
+        for deduction in ppmp_deductions_data:
+            ppmp_item_id = deduction.get('ppmp_item_id')
+            deduct_qty = deduction.get('quantity', 0)
+            
+            if ppmp_item_id and deduct_qty > 0:
+                try:
+                    ppmp_item = PPMPItem.objects.get(id=ppmp_item_id)
+                    department = ppmp_item.ppmp.department
+                    
+                    # Update PPMP item released quantity
+                    ppmp_item.released = (ppmp_item.released or 0) + deduct_qty
+                    ppmp_item.save()
+                    
+                    # Create PropertyPPMPAllocation record
+                    PropertyPPMPAllocation.objects.create(
+                        property=property_obj,
+                        ppmp_item=ppmp_item,
+                        quantity_allocated=deduct_qty,
+                        allocated_by=request.user
+                    )
+                    
+                    # Add to ppmp_references JSONField
+                    ppmp_ref_entry = {
+                        'ppmp_item_id': ppmp_item.id,
+                        'department': department.name,
+                        'year': ppmp_item.ppmp.year,
+                        'item_name': ppmp_item.description,
+                        'selectedQty': deduct_qty,
+                        'remaining': ppmp_item.quantity - ppmp_item.released,
+                        'unit_measure': ppmp_item.unit_measure or ''
+                    }
+                    
+                    # Check if this PPMP item already exists in references
+                    existing_index = None
+                    for idx, ref in enumerate(existing_ppmp_refs):
+                        if ref.get('ppmp_item_id') == ppmp_item.id:
+                            existing_index = idx
+                            break
+                    
+                    if existing_index is not None:
+                        # Update existing reference quantity
+                        existing_ppmp_refs[existing_index]['selectedQty'] += deduct_qty
+                    else:
+                        # Add new reference
+                        existing_ppmp_refs.append(ppmp_ref_entry)
+                    
+                    # Collect info for activity log
+                    ppmp_info_list.append(f"{department.name} {ppmp_item.ppmp.year} - {ppmp_item.description} ({deduct_qty} units)")
+                    
+                    # Track departments for email notifications
+                    dept_key = department.id
+                    if dept_key not in departments_notified:
+                        departments_notified[dept_key] = {
+                            'department': department,
+                            'items': []
+                        }
+                    departments_notified[dept_key]['items'].append({
+                        'property_name': property_obj.property_name,
+                        'property_number': property_obj.property_number,
+                        'quantity': deduct_qty,
+                        'ppmp_year': ppmp_item.ppmp.year,
+                        'ppmp_item': ppmp_item.description,
+                        'remarks': remarks
+                    })
+                    
+                except PPMPItem.DoesNotExist:
+                    pass
+        
+        # Update property's ppmp_references JSONField and remarks
+        property_obj.ppmp_references = existing_ppmp_refs
+        
+        # Update remarks if provided
+        if remarks:
+            # Append new remarks to existing ones with timestamp
+            from datetime import datetime
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
+            new_remark = f"[{timestamp}] {remarks}"
+            
+            if property_obj.remarks:
+                property_obj.remarks = f"{property_obj.remarks}\n{new_remark}"
+            else:
+                property_obj.remarks = new_remark
+        
+        property_obj.save(user=request.user)
+        
+        # Build activity log description
+        description = f"Released {release_quantity} unit(s) of '{property_obj.property_name}'. Remaining quantity: {property_obj.quantity}."
+        
+        if ppmp_info_list:
+            description += f" Assigned to PPMP: {'; '.join(ppmp_info_list)}."
+        
+        if remarks:
+            description += f" Remarks: {remarks}"
+        
+        # Log activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='update',
+            model_name='Property',
+            object_repr=str(property_obj),
+            description=description
+        )
+        
+        # Send email notifications to departments
+        for dept_data in departments_notified.values():
+            department = dept_data['department']
+            items = dept_data['items']
+            
+            # Get all users from this department
+            dept_users = User.objects.filter(
+                userprofile__department=department,
+                is_active=True
+            ).exclude(email='')
+            
+            print(f"DEBUG: Found {dept_users.count()} users in department {department.name}")
+            
+            if dept_users.exists():
+                # Prepare email context
+                context = {
+                    'department_name': department.name,
+                    'items': items,
+                    'released_by': request.user.get_full_name() or request.user.username,
+                }
+                
+                # Send email to each user in the department
+                for user in dept_users:
+                    try:
+                        print(f"DEBUG: Attempting to send email to {user.email}")
+                        html_message = render_to_string('app/email/property_released_notification.html', {**context, 'user': user})
+                        plain_message = strip_tags(html_message)
+                        
+                        send_mail(
+                            subject=f'Property Ready for Claiming - {property_obj.property_name}',
+                            message=plain_message,
+                            from_email=settings.EMAIL_HOST_USER,
+                            recipient_list=[user.email],
+                            html_message=html_message,
+                            fail_silently=False,
+                        )
+                        print(f"DEBUG: Email sent successfully to {user.email}")
+                    except Exception as e:
+                        # Log the error for debugging
+                        print(f"ERROR: Failed to send email to {user.email}: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+        
+        return JsonResponse({
+            'success': True,
+            'new_quantity': property_obj.quantity,
+            'message': f'Successfully released {release_quantity} unit(s)'
+        })
+        
+    except Property.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Property not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 

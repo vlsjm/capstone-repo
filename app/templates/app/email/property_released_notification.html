@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Ready for Claiming</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #152d64 0%, #1a3a7a 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .header p {
+            margin: 8px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .greeting {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .message {
+            background-color: #e8f4fd;
+            border-left: 4px solid #152d64;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .message p {
+            margin: 0 0 10px 0;
+        }
+        .message p:last-child {
+            margin-bottom: 0;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .items-table th {
+            background-color: #152d64;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .items-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+        .items-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .highlight {
+            color: #152d64;
+            font-weight: 600;
+        }
+        .remarks-box {
+            background-color: #fff9e6;
+            border: 1px solid #ffd966;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .remarks-box strong {
+            color: #996600;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #e0e0e0;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .action-required {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .action-required p {
+            margin: 0;
+            color: #856404;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Property Ready for Claiming</h1>
+            <p>CvSU Bacoor ResourceHive - Property Management System</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                <p>Hello <strong>{{ user.get_full_name|default:user.username }}</strong>,</p>
+            </div>
+            
+            <div class="message">
+                <p><strong>Good news!</strong> Property items from your department's PPMP have been released and are now ready for claiming.</p>
+                <p><strong>Department:</strong> <span class="highlight">{{ department_name }}</span></p>
+                <p><strong>Released by:</strong> {{ released_by }}</p>
+            </div>
+            
+            <h3 style="color: #152d64; margin-top: 25px;">Released Items:</h3>
+            
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Property Name</th>
+                        <th>Property #</th>
+                        <th>Quantity</th>
+                        <th>PPMP Year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td><strong>{{ item.property_name }}</strong></td>
+                        <td>{{ item.property_number }}</td>
+                        <td class="highlight">{{ item.quantity }}</td>
+                        <td>{{ item.ppmp_year }}</td>
+                    </tr>
+                    {% if item.ppmp_item %}
+                    <tr>
+                        <td colspan="4" style="padding: 8px 12px; font-size: 12px; color: #666;">
+                            <em>PPMP Item: {{ item.ppmp_item }}</em>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% if item.remarks %}
+                    <tr>
+                        <td colspan="4" style="padding: 0;">
+                            <div class="remarks-box">
+                                <strong>Remarks:</strong>
+                                {{ item.remarks }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div class="action-required">
+                <p>Please coordinate with the admin to claim these items.</p>
+            </div>
+            
+            <p style="margin-top: 25px; font-size: 14px; color: #666;">
+                If you have any questions or concerns about these released items, please contact the admin or the person who released them.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>ResourceHive</strong> - Property Management System</p>
+            <p>This is an automated notification. Please do not reply to this email.</p>
+            <p>&copy; {% now "Y" %} ResourceHive. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

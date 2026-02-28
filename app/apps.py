@@ -10,6 +10,9 @@ class AppConfig(AppConfig):
         """Initialize scheduler when Django app is ready."""
         import logging
         import sys
+
+        # Register file-cleanup signals (barcode images, PPMP files)
+        import app.signals  # noqa: F401
         
         logger = logging.getLogger(__name__)
         

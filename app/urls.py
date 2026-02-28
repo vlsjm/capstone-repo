@@ -69,6 +69,7 @@ from .views import (
     add_subcategory,
     batch_request_detail,
     check_ppmp_before_approval,
+    get_ppmp_year_options,
     approve_batch_item,
     reject_batch_item,
     claim_batch_items,
@@ -90,10 +91,14 @@ from .views import (
     delete_archived_property,
     download_requisition_slip,
     view_requisition_slip,
+    download_borrowers_slip,
+    view_borrowers_slip,
     archive_property,
     unarchive_property,
     condemn_property,
     ArchivedItemsView,
+    export_archived_supplies_excel,
+    export_archived_properties_excel,
     update_supply_category,
     update_supply_subcategory,
     delete_supply_category,
@@ -257,10 +262,13 @@ urlpatterns = [
     path('property/<int:pk>/condemn/', condemn_property, name='condemn_property'),
     path('property/<int:pk>/delete-archived/', delete_archived_property, name='delete_archived_property'),
     path('archived-items/', ArchivedItemsView.as_view(), name='archived_items'),
+    path('archived-items/export-supplies/', export_archived_supplies_excel, name='export_archived_supplies'),
+    path('archived-items/export-properties/', export_archived_properties_excel, name='export_archived_properties'),
     
     # Batch request management URLs
     path('batch-request/<int:batch_id>/', batch_request_detail, name='batch_request_detail'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/check-ppmp/', check_ppmp_before_approval, name='check_ppmp_before_approval'),
+    path('batch-request/<int:batch_id>/item/<int:item_id>/ppmp-years/', get_ppmp_year_options, name='get_ppmp_year_options'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/approve/', approve_batch_item, name='approve_batch_item'),
     path('batch-request/<int:batch_id>/item/<int:item_id>/reject/', reject_batch_item, name='reject_batch_item'),
     
@@ -271,6 +279,10 @@ urlpatterns = [
     # Requisition slip PDF URLs
     path('batch-request/<int:batch_id>/requisition-slip/download/', download_requisition_slip, name='download_requisition_slip'),
     path('batch-request/<int:batch_id>/requisition-slip/view/', view_requisition_slip, name='view_requisition_slip'),
+    
+    # Borrower's slip PDF URLs
+    path('borrow-batch/<int:batch_id>/borrowers-slip/download/', download_borrowers_slip, name='download_borrowers_slip'),
+    path('borrow-batch/<int:batch_id>/borrowers-slip/view/', view_borrowers_slip, name='view_borrowers_slip'),
     
     # Damage report image serving (from PostgreSQL database)
     path('damage-report/<int:report_id>/image/', views.damage_report_image, name='damage_report_image'),
@@ -292,4 +304,9 @@ urlpatterns = [
     path('ppmp/list/', views.ppmp_list, name='ppmp_list'),
     path('ppmp/<int:pk>/', views.ppmp_detail, name='ppmp_detail'),
     path('ppmp/<int:pk>/delete/', views.ppmp_delete, name='ppmp_delete'),
+    
+    # API endpoints
+    path('api/ppmp-matches/', views.get_ppmp_matches, name='get_ppmp_matches'),
+    path('property/<int:property_id>/ppmp-references/', views.get_property_ppmp_references, name='get_property_ppmp_references'),
+    path('property/release/', views.release_property, name='release_property'),
 ]

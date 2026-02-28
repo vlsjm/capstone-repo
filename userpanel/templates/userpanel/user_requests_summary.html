@@ -182,6 +182,148 @@
             </div>
         {% endif %}
     </div>
+
+    <!-- PPMP Resources Section -->
+    {% if user_department %}
+    <div class="table-section" style="margin-top: 30px;">
+        <div class="section-header">
+            <h2><i class="fas fa-clipboard-list"></i> Department Resources (PPMP)</h2>
+            <p class="section-description">View available resources from your department's Project Procurement Management Plan.</p>
+        </div>
+        
+        <!-- PPMP Filter -->
+        <div class="section-filter">
+            <form method="get" action="" id="ppmpFilterForm">
+                <div class="filter-controls-wrapper">
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" name="ppmp_search" class="search-input" placeholder="Search by description..." value="{{ ppmp_search }}">
+                        {% if ppmp_year_filter %}<input type="hidden" name="ppmp_year" value="{{ ppmp_year_filter }}">{% endif %}
+                        {% if tally_year_filter %}<input type="hidden" name="tally_year" value="{{ tally_year_filter }}">{% endif %}
+                        {% if tally_month_filter %}<input type="hidden" name="tally_month" value="{{ tally_month_filter }}">{% endif %}
+                        {% if tally_category_filter %}<input type="hidden" name="tally_category" value="{{ tally_category_filter }}">{% endif %}
+                        {% if tally_search %}<input type="hidden" name="tally_search" value="{{ tally_search }}">{% endif %}
+                    </div>
+                    
+                    <div class="filter-form-section">
+                        <div class="filter-group">
+                            <label for="ppmp_year">Year:</label>
+                            <select name="ppmp_year" id="ppmp_year" class="year-select" onchange="document.getElementById('ppmpFilterForm').submit()">
+                                <option value="">All Years</option>
+                                {% for year in ppmp_years %}
+                                    <option value="{{ year }}" {% if ppmp_year_filter == year|stringformat:"s" %}selected{% endif %}>
+                                        {{ year }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        {% if ppmp_year_filter or ppmp_search %}
+                        <a href="?{% if tally_year_filter %}tally_year={{ tally_year_filter }}&{% endif %}{% if tally_month_filter %}tally_month={{ tally_month_filter }}&{% endif %}{% if tally_category_filter %}tally_category={{ tally_category_filter }}&{% endif %}{% if tally_search %}tally_search={{ tally_search }}{% endif %}" class="btn-clear-filter">
+                            <i class="fas fa-times"></i> Clear PPMP Filters
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        {% if ppmp_data %}
+            <div class="table-container">
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Unit</th>
+                            <th>Mode</th>
+                            <th>Category</th>
+                            <th>UACS Code</th>
+                            <th>Item Description</th>
+                            <th>Unit Price</th>
+                            <th>Planned Qty</th>
+                            <th>Released</th>
+                            <th>Remaining</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in ppmp_data %}
+                        <tr>
+                            <td><strong>{{ item.ppmp_year }}</strong></td>
+                            <td>{{ item.unit }}</td>
+                            <td>{{ item.mode }}</td>
+                            <td>{{ item.category }}</td>
+                            <td class="item-name">{{ item.description }}</td>
+                            <td>{{ item.unit_measure }}</td>
+                            <td>₱{{ item.unit_price|floatformat:2 }}</td>
+                            <td class="qty-cell">{{ item.planned_qty }}</td>
+                            <td class="qty-cell">{{ item.released }}</td>
+                            <td class="qty-cell">
+                                <strong class="{% if item.remaining > 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ item.remaining }}
+                                </strong>
+                            </td>
+                            <td>₱{{ item.total_amount|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- PPMP Pagination -->
+            {% if ppmp_data.has_other_pages %}
+            <div class="pagination-container">
+                <div class="pagination">
+                    {% if ppmp_data.has_previous %}
+                        <a href="?ppmp_page=1{% if ppmp_year_filter %}&ppmp_year={{ ppmp_year_filter }}{% endif %}{% if ppmp_search %}&ppmp_search={{ ppmp_search }}{% endif %}{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}{% if tally_category_filter %}&tally_category={{ tally_category_filter }}{% endif %}{% if tally_search %}&tally_search={{ tally_search }}{% endif %}" class="page-link">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                        <a href="?ppmp_page={{ ppmp_data.previous_page_number }}{% if ppmp_year_filter %}&ppmp_year={{ ppmp_year_filter }}{% endif %}{% if ppmp_search %}&ppmp_search={{ ppmp_search }}{% endif %}{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}{% if tally_category_filter %}&tally_category={{ tally_category_filter }}{% endif %}{% if tally_search %}&tally_search={{ tally_search }}{% endif %}" class="page-link">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    {% else %}
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-double-left"></i>
+                        </span>
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-left"></i>
+                        </span>
+                    {% endif %}
+
+                    <span class="page-info">
+                        Page {{ ppmp_data.number }} of {{ ppmp_data.paginator.num_pages }}
+                    </span>
+
+                    {% if ppmp_data.has_next %}
+                        <a href="?ppmp_page={{ ppmp_data.next_page_number }}{% if ppmp_year_filter %}&ppmp_year={{ ppmp_year_filter }}{% endif %}{% if ppmp_search %}&ppmp_search={{ ppmp_search }}{% endif %}{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}{% if tally_category_filter %}&tally_category={{ tally_category_filter }}{% endif %}{% if tally_search %}&tally_search={{ tally_search }}{% endif %}" class="page-link">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                        <a href="?ppmp_page={{ ppmp_data.paginator.num_pages }}{% if ppmp_year_filter %}&ppmp_year={{ ppmp_year_filter }}{% endif %}{% if ppmp_search %}&ppmp_search={{ ppmp_search }}{% endif %}{% if tally_year_filter %}&tally_year={{ tally_year_filter }}{% endif %}{% if tally_month_filter %}&tally_month={{ tally_month_filter }}{% endif %}{% if tally_category_filter %}&tally_category={{ tally_category_filter }}{% endif %}{% if tally_search %}&tally_search={{ tally_search }}{% endif %}" class="page-link">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    {% else %}
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-right"></i>
+                        </span>
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-double-right"></i>
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="page-summary">
+                    Showing {{ ppmp_data.start_index }} to {{ ppmp_data.end_index }} of {{ ppmp_data.paginator.count }} items
+                </div>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox empty-icon"></i>
+                <h3>No PPMP Resources Available</h3>
+                <p>No PPMP data found for {{ user_department.name }}{% if ppmp_year_filter %} for {{ ppmp_year_filter }}{% endif %}.</p>
+            </div>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 
 <!-- Export Modal -->
@@ -795,6 +937,14 @@
 
 .purpose-cell {
     max-width: 200px;
+}
+
+.text-success {
+    color: #28a745;
+}
+
+.text-danger {
+    color: #dc3545;
 }
 
 .empty-state {

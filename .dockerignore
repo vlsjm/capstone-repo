@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+Lib/
+Scripts/
+pyvenv.cfg
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# Docker (don't send compose file into the image)
+docker-compose*.yml
+Dockerfile
+
+# Env files (secrets – never bake into the image)
+.env
+.env.*
+
+# Debug / temp files
+debug.log
+debug_*.py
+check_timezone.py
+test_matching.py
+db.sqlite3
+
+# Uploaded media (handled via volumes)
+media/
+
+# Collected static files (rebuilt inside the image)
+staticfiles/

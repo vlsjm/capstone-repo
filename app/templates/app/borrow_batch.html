@@ -514,50 +514,41 @@
     
     /* Pagination */
     .pagination-container {
-      margin-top: 30px;
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
     }
     
     .pagination {
-      display: inline-flex;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      border-radius: 6px;
-      overflow: hidden;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      padding: 20px;
+      margin-top: 20px;
     }
     
-    .page-item {
-      margin: 0;
-    }
-    
-    .page-link {
-      display: block;
-      padding: 10px 15px;
-      background: white;
+    .pagination a {
       color: #152d64;
       text-decoration: none;
-      border: 1px solid #dee2e6;
-      border-right: none;
+      padding: 8px 16px;
+      border: 1px solid #152d64;
+      border-radius: 4px;
+      transition: all 0.3s ease;
       font-weight: 500;
-      transition: all 0.2s ease;
     }
     
-    .page-item:last-child .page-link {
-      border-right: 1px solid #dee2e6;
-    }
-    
-    .page-link:hover {
-      background: #e9ecef;
-      color: #152d64;
-      text-decoration: none;
-    }
-    
-    .page-item.active .page-link {
-      background: #152d64;
+    .pagination a:hover {
+      background-color: #152d64;
       color: white;
-      border-color: #152d64;
+    }
+    
+    .pagination .current {
+      background-color: #152d64;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: 500;
     }
     
     /* Count Badge Styles */
@@ -817,56 +808,7 @@
       color: #6c757d !important;
     }
     
-    /* Manage Users Pagination Styles */
-    .pagination-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 0;
-      margin-top: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(21, 45, 100, 0.1);
-      padding: 15px 20px;
-    }
-    
-    .pagination-info {
-      color: #6c757d;
-      font-size: 14px;
-    }
-    
-    .pagination-controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .pagination-btn {
-      background: #152d64;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 4px;
-      text-decoration: none;
-      font-size: 12px;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .pagination-btn:hover {
-      background: #0f1f45;
-      color: white;
-      text-decoration: none;
-    }
-    
-    .pagination-current {
-      color: #152d64;
-      font-weight: 600;
-      font-size: 14px;
-      margin: 0 10px;
-    }
+    /* Pagination overrides removed - using shared styles above */
     
     /* Responsive Table */
     .table-responsive {
@@ -1096,24 +1038,19 @@
       <!-- Pagination for Pending -->
       {% if pending_requests.has_other_pages %}
       <div class="pagination-container">
-        <div class="pagination-info">
-          Showing {{ pending_requests.start_index }}-{{ pending_requests.end_index }} of {{ pending_requests.paginator.count }} pending requests
-        </div>
-        <div class="pagination-controls">
+        <div class="pagination">
           {% if pending_requests.has_previous %}
-            <a href="?tab=pending&pending_page={{ pending_requests.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
-              <i class="fas fa-chevron-left"></i>
-            </a>
+            <a href="?tab=pending&pending_page=1{{ url_params }}">&laquo; First</a>
+            <a href="?tab=pending&pending_page={{ pending_requests.previous_page_number }}{{ url_params }}">Previous</a>
           {% endif %}
-          
-          <span class="pagination-current">
+
+          <span class="current">
             Page {{ pending_requests.number }} of {{ pending_requests.paginator.num_pages }}
           </span>
-          
+
           {% if pending_requests.has_next %}
-            <a href="?tab=pending&pending_page={{ pending_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
-              <i class="fas fa-chevron-right"></i>
-            </a>
+            <a href="?tab=pending&pending_page={{ pending_requests.next_page_number }}{{ url_params }}">Next</a>
+            <a href="?tab=pending&pending_page={{ pending_requests.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
           {% endif %}
         </div>
       </div>
@@ -1264,24 +1201,19 @@
       <!-- Pagination for For Claiming -->
       {% if for_claiming_requests.has_other_pages %}
       <div class="pagination-container">
-        <div class="pagination-info">
-          Showing {{ for_claiming_requests.start_index }}-{{ for_claiming_requests.end_index }} of {{ for_claiming_requests.paginator.count }} for claiming requests
-        </div>
-        <div class="pagination-controls">
+        <div class="pagination">
           {% if for_claiming_requests.has_previous %}
-            <a href="?tab=for_claiming&for_claiming_page={{ for_claiming_requests.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
-              <i class="fas fa-chevron-left"></i>
-            </a>
+            <a href="?tab=for_claiming&for_claiming_page=1{{ url_params }}">&laquo; First</a>
+            <a href="?tab=for_claiming&for_claiming_page={{ for_claiming_requests.previous_page_number }}{{ url_params }}">Previous</a>
           {% endif %}
-          
-          <span class="pagination-current">
+
+          <span class="current">
             Page {{ for_claiming_requests.number }} of {{ for_claiming_requests.paginator.num_pages }}
           </span>
-          
+
           {% if for_claiming_requests.has_next %}
-            <a href="?tab=for_claiming&for_claiming_page={{ for_claiming_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
-              <i class="fas fa-chevron-right"></i>
-            </a>
+            <a href="?tab=for_claiming&for_claiming_page={{ for_claiming_requests.next_page_number }}{{ url_params }}">Next</a>
+            <a href="?tab=for_claiming&for_claiming_page={{ for_claiming_requests.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
           {% endif %}
         </div>
       </div>
@@ -1424,24 +1356,19 @@
       <!-- Pagination for Active -->
       {% if active_requests.has_other_pages %}
       <div class="pagination-container">
-        <div class="pagination-info">
-          Showing {{ active_requests.start_index }}-{{ active_requests.end_index }} of {{ active_requests.paginator.count }} active requests
-        </div>
-        <div class="pagination-controls">
+        <div class="pagination">
           {% if active_requests.has_previous %}
-            <a href="?tab=active&active_page={{ active_requests.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
-              <i class="fas fa-chevron-left"></i>
-            </a>
+            <a href="?tab=active&active_page=1{{ url_params }}">&laquo; First</a>
+            <a href="?tab=active&active_page={{ active_requests.previous_page_number }}{{ url_params }}">Previous</a>
           {% endif %}
-          
-          <span class="pagination-current">
+
+          <span class="current">
             Page {{ active_requests.number }} of {{ active_requests.paginator.num_pages }}
           </span>
-          
+
           {% if active_requests.has_next %}
-            <a href="?tab=active&active_page={{ active_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
-              <i class="fas fa-chevron-right"></i>
-            </a>
+            <a href="?tab=active&active_page={{ active_requests.next_page_number }}{{ url_params }}">Next</a>
+            <a href="?tab=active&active_page={{ active_requests.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
           {% endif %}
         </div>
       </div>
@@ -1582,24 +1509,19 @@
       <!-- Pagination for Returned -->
       {% if returned_requests.has_other_pages %}
       <div class="pagination-container">
-        <div class="pagination-info">
-          Showing {{ returned_requests.start_index }}-{{ returned_requests.end_index }} of {{ returned_requests.paginator.count }} returned requests
-        </div>
-        <div class="pagination-controls">
+        <div class="pagination">
           {% if returned_requests.has_previous %}
-            <a href="?tab=returned&returned_page={{ returned_requests.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
-              <i class="fas fa-chevron-left"></i>
-            </a>
+            <a href="?tab=returned&returned_page=1{{ url_params }}">&laquo; First</a>
+            <a href="?tab=returned&returned_page={{ returned_requests.previous_page_number }}{{ url_params }}">Previous</a>
           {% endif %}
-          
-          <span class="pagination-current">
+
+          <span class="current">
             Page {{ returned_requests.number }} of {{ returned_requests.paginator.num_pages }}
           </span>
-          
+
           {% if returned_requests.has_next %}
-            <a href="?tab=returned&returned_page={{ returned_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
-              <i class="fas fa-chevron-right"></i>
-            </a>
+            <a href="?tab=returned&returned_page={{ returned_requests.next_page_number }}{{ url_params }}">Next</a>
+            <a href="?tab=returned&returned_page={{ returned_requests.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
           {% endif %}
         </div>
       </div>
@@ -1741,24 +1663,19 @@
       <!-- Pagination for Overdue -->
       {% if overdue_requests.has_other_pages %}
       <div class="pagination-container">
-        <div class="pagination-info">
-          Showing {{ overdue_requests.start_index }}-{{ overdue_requests.end_index }} of {{ overdue_requests.paginator.count }} overdue requests
-        </div>
-        <div class="pagination-controls">
+        <div class="pagination">
           {% if overdue_requests.has_previous %}
-            <a href="?tab=overdue&overdue_page={{ overdue_requests.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
-              <i class="fas fa-chevron-left"></i>
-            </a>
+            <a href="?tab=overdue&overdue_page=1{{ url_params }}">&laquo; First</a>
+            <a href="?tab=overdue&overdue_page={{ overdue_requests.previous_page_number }}{{ url_params }}">Previous</a>
           {% endif %}
-          
-          <span class="pagination-current">
+
+          <span class="current">
             Page {{ overdue_requests.number }} of {{ overdue_requests.paginator.num_pages }}
           </span>
-          
+
           {% if overdue_requests.has_next %}
-            <a href="?tab=overdue&overdue_page={{ overdue_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
-              <i class="fas fa-chevron-right"></i>
-            </a>
+            <a href="?tab=overdue&overdue_page={{ overdue_requests.next_page_number }}{{ url_params }}">Next</a>
+            <a href="?tab=overdue&overdue_page={{ overdue_requests.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
           {% endif %}
         </div>
       </div>
@@ -1885,24 +1802,19 @@
       <!-- Pagination for Rejected -->
       {% if rejected_requests.has_other_pages %}
       <div class="pagination-container">
-        <div class="pagination-info">
-          Showing {{ rejected_requests.start_index }}-{{ rejected_requests.end_index }} of {{ rejected_requests.paginator.count }} rejected requests
-        </div>
-        <div class="pagination-controls">
+        <div class="pagination">
           {% if rejected_requests.has_previous %}
-            <a href="?tab=rejected&rejected_page={{ rejected_requests.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
-              <i class="fas fa-chevron-left"></i>
-            </a>
+            <a href="?tab=rejected&rejected_page=1{{ url_params }}">&laquo; First</a>
+            <a href="?tab=rejected&rejected_page={{ rejected_requests.previous_page_number }}{{ url_params }}">Previous</a>
           {% endif %}
-          
-          <span class="pagination-current">
+
+          <span class="current">
             Page {{ rejected_requests.number }} of {{ rejected_requests.paginator.num_pages }}
           </span>
-          
+
           {% if rejected_requests.has_next %}
-            <a href="?tab=rejected&rejected_page={{ rejected_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
-              <i class="fas fa-chevron-right"></i>
-            </a>
+            <a href="?tab=rejected&rejected_page={{ rejected_requests.next_page_number }}{{ url_params }}">Next</a>
+            <a href="?tab=rejected&rejected_page={{ rejected_requests.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
           {% endif %}
         </div>
       </div>
@@ -2044,24 +1956,19 @@
       <!-- Pagination for Expired -->
       {% if expired_requests.has_other_pages %}
       <div class="pagination-container">
-        <div class="pagination-info">
-          Showing {{ expired_requests.start_index }}-{{ expired_requests.end_index }} of {{ expired_requests.paginator.count }} expired requests
-        </div>
-        <div class="pagination-controls">
+        <div class="pagination">
           {% if expired_requests.has_previous %}
-            <a href="?tab=expired&expired_page={{ expired_requests.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
-              <i class="fas fa-chevron-left"></i>
-            </a>
+            <a href="?tab=expired&expired_page=1{{ url_params }}">&laquo; First</a>
+            <a href="?tab=expired&expired_page={{ expired_requests.previous_page_number }}{{ url_params }}">Previous</a>
           {% endif %}
-          
-          <span class="pagination-current">
+
+          <span class="current">
             Page {{ expired_requests.number }} of {{ expired_requests.paginator.num_pages }}
           </span>
-          
+
           {% if expired_requests.has_next %}
-            <a href="?tab=expired&expired_page={{ expired_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
-              <i class="fas fa-chevron-right"></i>
-            </a>
+            <a href="?tab=expired&expired_page={{ expired_requests.next_page_number }}{{ url_params }}">Next</a>
+            <a href="?tab=expired&expired_page={{ expired_requests.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
           {% endif %}
         </div>
       </div>
@@ -2190,24 +2097,19 @@
       <!-- Pagination for Voided -->
       {% if voided_requests.has_other_pages %}
       <div class="pagination-container">
-        <div class="pagination-info">
-          Showing {{ voided_requests.start_index }}-{{ voided_requests.end_index }} of {{ voided_requests.paginator.count }} voided requests
-        </div>
-        <div class="pagination-controls">
+        <div class="pagination">
           {% if voided_requests.has_previous %}
-            <a href="?tab=voided&voided_page={{ voided_requests.previous_page_number }}{{ url_params }}" class="pagination-btn" title="Previous">
-              <i class="fas fa-chevron-left"></i>
-            </a>
+            <a href="?tab=voided&voided_page=1{{ url_params }}">&laquo; First</a>
+            <a href="?tab=voided&voided_page={{ voided_requests.previous_page_number }}{{ url_params }}">Previous</a>
           {% endif %}
-          
-          <span class="pagination-current">
+
+          <span class="current">
             Page {{ voided_requests.number }} of {{ voided_requests.paginator.num_pages }}
           </span>
-          
+
           {% if voided_requests.has_next %}
-            <a href="?tab=voided&voided_page={{ voided_requests.next_page_number }}{{ url_params }}" class="pagination-btn" title="Next">
-              <i class="fas fa-chevron-right"></i>
-            </a>
+            <a href="?tab=voided&voided_page={{ voided_requests.next_page_number }}{{ url_params }}">Next</a>
+            <a href="?tab=voided&voided_page={{ voided_requests.paginator.num_pages }}{{ url_params }}">Last &raquo;</a>
           {% endif %}
         </div>
       </div>

@@ -469,6 +469,8 @@ class Property(models.Model):
     condition = models.CharField(max_length=100, choices=CONDITION_CHOICES, default='In good condition')
     availability = models.CharField(max_length=20, choices=AVAILABILITY_CHOICES, default='available')
     is_archived = models.BooleanField(default=False)
+    ppmp_references = models.JSONField(null=True, blank=True, help_text="JSON field storing PPMP item references")
+    remarks = models.TextField(blank=True, null=True, help_text="Additional notes or comments about the property")
 
     def __str__(self):
         # Only show property name and property number (if available), not barcode
@@ -518,9 +520,12 @@ class Property(models.Model):
         # If this is a new property or overall_quantity has changed
         if not self.pk:
             # For new properties, set current quantity equal to overall_quantity
-            self.quantity = self.overall_quantity
-        elif self.pk:
+            # UNLESS it has already been set (e.g., by PPMP allocation logic or batch update)
+            if not hasattr(self, '_quantity_already_set') and not hasattr(self, '_skip_quantity_sync'):
+                self.quantity = self.overall_quantity
+        elif self.pk and not hasattr(self, '_skip_quantity_sync'):
             # For existing properties, only update quantity if overall_quantity actually changed
+            # Skip this logic if _skip_quantity_sync flag is set (used for manual quantity updates)
             old_obj = Property.objects.get(pk=self.pk)
             if old_obj.overall_quantity != self.overall_quantity:
                 self.quantity = self.overall_quantity
@@ -795,6 +800,11 @@ class SupplyRequestItem(models.Model):
     approved = models.BooleanField(default=False)  # Keep for backward compatibility
     claimed_date = models.DateTimeField(null=True, blank=True)  # When item was claimed
     remarks = models.TextField(blank=True, null=True)
+    
+    # PPMP tracking fields
+    ppmp_year = models.PositiveIntegerField(null=True, blank=True)  # Primary year's PPMP (for backward compatibility)
+    ppmp_item = models.ForeignKey('PPMPItem', on_delete=models.SET_NULL, null=True, blank=True, related_name='supply_requests')  # Primary PPMP item (for backward compatibility)
+    ppmp_allocations = models.JSONField(null=True, blank=True)  # For multi-year allocations: [{'ppmp_item_id': 1, 'year': 2024, 'quantity': 5}, ...]
 
     class Meta:
         unique_together = ['batch_request', 'supply']  # Prevent duplicate items in same batch
@@ -1802,6 +1812,7 @@ class BorrowRequestBatch(models.Model):
     purpose = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     approved_date = models.DateTimeField(null=True, blank=True)
+    approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_borrow_requests')
     claimed_date = models.DateTimeField(null=True, blank=True)
     returned_date = models.DateTimeField(null=True, blank=True)
     completed_date = models.DateTimeField(null=True, blank=True)
@@ -1915,7 +1926,7 @@ class BorrowRequestBatch(models.Model):
         """
         from django.conf import settings
         from zoneinfo import ZoneInfo
-        from app.utils import send_sms_alert
+        from app.utils import send_sms_alert, send_overdue_borrow_email
         
         logger = logging.getLogger(__name__)
         local_tz = ZoneInfo(settings.TIME_ZONE)
@@ -1979,54 +1990,57 @@ class BorrowRequestBatch(models.Model):
                     phone_number = user_profile.phone
                 except Exception:
                     logger.warning(f"Batch #{batch.id}: User {user.username} has no UserProfile. Skipping SMS.")
-                    continue
-                
-                if not phone_number:
-                    logger.warning(f"Batch #{batch.id}: User {user.username} has no phone number. Skipping SMS.")
-                    continue
-                
-                # Create SMS message
-                user_name = user.first_name or user.username
-                
-                # Calculate days overdue for each item
+
+                # Calculate days overdue for each item (needed for both SMS and email)
                 days_overdue_list = [(today - item.return_date).days for item in overdue_items_list]
                 max_days_overdue = max(days_overdue_list) if days_overdue_list else 0
-                
-                # Create item summary - list all overdue items with details
-                item_summary = ", ".join([
-                    f"{item.property.property_name} - {item.property.property_number} (x{item.quantity})"
-                    for item in overdue_items_list
-                ])
-                
-                # Construct SMS message
-                message = (
-                    f"Hello {user_name},\n\n"
-                    f"Borrow Request #{batch.id}\n"
-                    f"You have {item_count} OVERDUE item(s):\n"
-                    f"{item_summary}\n\n"
-                    f"Most overdue: {max_days_overdue} days\n\n"
-                    f"Please return these items ASAP.\n\n"
-                    f"Thank you,\nResource Hive Team"
-                )
-                
-                # Log the SMS for debugging
-                logger.info(f"\n{'='*60}\nSMS TO {phone_number} (User: {user.username}):\n{'='*60}\n{message}\n{'='*60}")
-                
-                # Send SMS
-                success, response = send_sms_alert(phone_number, message)
-                
-                if success:
-                    # Mark all items in this batch as notified
-                    for item in overdue_items_list:
-                        item.overdue_notified = True
-                        item.save(update_fields=['overdue_notified'])
-                    
-                    sms_sent_count += 1
-                    logger.info(f"✅ Batch #{batch.id}: SMS sent successfully to {user.username} ({phone_number})")
+
+                if not phone_number:
+                    logger.warning(f"Batch #{batch.id}: User {user.username} has no phone number. Skipping SMS.")
                 else:
-                    sms_failed_count += 1
-                    logger.error(f"❌ Batch #{batch.id}: Failed to send SMS to {user.username}: {response}")
-                
+                    # Create SMS message
+                    user_name = user.first_name or user.username
+
+                    # Create item summary - list all overdue items with details
+                    item_summary = ", ".join([
+                        f"{item.property.property_name} - {item.property.property_number} (x{item.quantity})"
+                        for item in overdue_items_list
+                    ])
+
+                    # Construct SMS message
+                    message = (
+                        f"Hello {user_name},\n\n"
+                        f"Borrow Request #{batch.id}\n"
+                        f"You have {item_count} OVERDUE item(s):\n"
+                        f"{item_summary}\n\n"
+                        f"Most overdue: {max_days_overdue} days\n\n"
+                        f"Please return these items ASAP.\n\n"
+                        f"Thank you,\nResource Hive Team"
+                    )
+
+                    # Log the SMS for debugging
+                    logger.info(f"\n{'='*60}\nSMS TO {phone_number} (User: {user.username}):\n{'='*60}\n{message}\n{'='*60}")
+
+                    # Send SMS
+                    success, response = send_sms_alert(phone_number, message)
+
+                    if success:
+                        # Mark all items in this batch as notified
+                        for item in overdue_items_list:
+                            item.overdue_notified = True
+                            item.save(update_fields=['overdue_notified'])
+
+                        sms_sent_count += 1
+                        logger.info(f"✅ Batch #{batch.id}: SMS sent successfully to {user.username} ({phone_number})")
+                    else:
+                        sms_failed_count += 1
+                        logger.error(f"❌ Batch #{batch.id}: Failed to send SMS to {user.username}: {response}")
+
+                # Send email alert (mirrors same parameters as SMS)
+                email_success = send_overdue_borrow_email(batch, overdue_items_list, max_days_overdue)
+                if not email_success:
+                    logger.warning(f"Batch #{batch.id}: Overdue email alert could not be sent to {user.username}")
+
                 # Create in-app notification (regardless of SMS success)
                 Notification.objects.create(
                     user=user,
@@ -2524,3 +2538,22 @@ class PPMPItem(models.Model):
     def remaining(self):
         """Calculate remaining quantity (planned - released)"""
         return max(0, self.quantity - self.released)
+
+
+class PropertyPPMPAllocation(models.Model):
+    """
+    Tracks allocations of PPMP items to properties
+    """
+    property = models.ForeignKey('Property', on_delete=models.CASCADE, related_name='ppmp_allocations')
+    ppmp_item = models.ForeignKey(PPMPItem, on_delete=models.CASCADE, related_name='property_allocations')
+    quantity_allocated = models.PositiveIntegerField(default=0)
+    allocated_date = models.DateTimeField(auto_now_add=True)
+    allocated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    class Meta:
+        verbose_name = "Property PPMP Allocation"
+        verbose_name_plural = "Property PPMP Allocations"
+        ordering = ['-allocated_date']
+    
+    def __str__(self):
+        return f"{self.property.property_name} - {self.ppmp_item.ppmp.department.name} {self.ppmp_item.ppmp.year} - {self.quantity_allocated} allocated"

@@ -1796,6 +1796,18 @@
                         <div style="display: inline-block; padding: 4px 10px; background: #d4edda; color: #155724; border-radius: 4px; font-size: 12px; font-weight: 600;">
                           {{ ppmp_matches|get_item:item.id|get_item:'message' }}
                         </div>
+                        {% with years_with_matches=ppmp_matches|get_item:item.id|get_item:'years_with_matches' %}
+                        {% if years_with_matches %}
+                        <div style="margin-top: 6px; font-size: 11px; color: #666;">
+                          {% for year_data in years_with_matches %}
+                            <div style="padding: 2px 0;">
+                              <strong>{{ year_data.year }}:</strong> 
+                              {{ year_data.total_remaining }}/{{ year_data.total_planned }} remaining
+                            </div>
+                          {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% endwith %}
                       {% else %}
                         <div style="display: inline-block; padding: 4px 10px; background: #fff3cd; color: #856404; border-radius: 4px; font-size: 12px; font-weight: 600;">
                           {{ ppmp_matches|get_item:item.id|get_item:'message' }}
@@ -1958,6 +1970,10 @@
   </div>
   
   <script>
+    // Make PPMP matches data available to JavaScript
+    /* @ts-ignore */
+    window.ppmpMatchesData = {{ ppmp_matches_json|safe }};
+    
     // Modal variables
     let currentRequestId = null;
     let currentRequestNumber = null;
@@ -2768,6 +2784,8 @@
       
       // PPMP Warning Modal functions
       let pendingApprovalForm = null;
+      let selectedPPMPYear = null;
+      let selectedPPMPItemId = null;
       
       window.showPPMPWarningModal = function(message, itemName, form) {
         const modal = document.getElementById('ppmpWarningModal');
@@ -2783,6 +2801,406 @@
         modal.classList.remove('show');
         pendingApprovalForm = null;
       };
+
+      // PPMP Year Selection Modal functions - Updated for multi-year split allocation support
+      let currentYearOptions = [];
+      let yearAllocations = {}; // Track quantity allocated to each year
+      
+      window.showPPMPYearSelectionModal = function(itemId, form) {
+        const modal = document.getElementById('ppmpYearSelectionModal');
+        const messageElement = document.getElementById('ppmpYearMessage');
+        const optionsElement = document.getElementById('ppmpYearOptions');
+        const batchId = document.body.getAttribute('data-batch-id');
+        
+        // Reset allocations
+        yearAllocations = {};
+        currentYearOptions = [];
+        
+        // Show loading in options
+        optionsElement.innerHTML = '<div style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #2196F3;"></i><p>Loading PPMP years...</p></div>';
+        messageElement.textContent = 'Fetching available PPMP years...';
+        
+        pendingApprovalForm = form;
+        modal.classList.add('show');
+        
+        // Get CSRF token
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Fetch PPMP year options from server
+        fetch(`/batch-request/${batchId}/item/${itemId}/ppmp-years/`, {
+          method: 'GET',
+          headers: {
+            'X-CSRFToken': csrftoken
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            optionsElement.innerHTML = `<div style="text-align: center; padding: 20px; color: #dc3545;">
+              <i class="fas fa-exclamation-triangle" style="font-size: 24px;"></i>
+              <p>${data.error || 'Failed to load PPMP years'}</p>
+            </div>`;
+            messageElement.textContent = data.message || 'No PPMP data available';
+            return;
+          }
+          
+          const yearOptions = data.year_options;
+          currentYearOptions = yearOptions;
+          
+          // Debug logging to verify ppmp_item_ids
+          console.log('=== RECEIVED YEAR OPTIONS FROM SERVER ===');
+          console.log('Full data:', yearOptions);
+          yearOptions.forEach(opt => {
+            console.log(`Year ${opt.year}: ppmp_item_id=${opt.ppmp_item_id}, ppmp_id=${opt.ppmp_id}, remaining=${opt.total_remaining}, matched_items_count=${opt.matched_items_count}`);
+            if (opt.items_details) {
+              opt.items_details.forEach((item, idx) => {
+                console.log(`  -> Item ${idx+1}: id=${item.id}, desc=${item.description}, qty=${item.quantity}, released=${item.released}, remaining=${item.remaining}`);
+              });
+            }
+          });
+          console.log('========================================');
+          
+          const approvedQty = parseInt(document.getElementById(`approved-quantity-${itemId}`).value || data.requested_quantity);
+          
+          // Check if only one year exists - auto-assign
+          if (yearOptions.length === 1) {
+            const singleYear = yearOptions[0];
+            
+            // Always auto-allocate for single year (no quantity validation)
+            {
+              // Auto-allocate
+              // Automatically create allocation for this single year
+              const allocations = [{
+                year: singleYear.year,
+                ppmp_item_id: singleYear.ppmp_item_id,
+                quantity: approvedQty
+              }];
+              
+              // Add allocations as JSON to the form
+              let allocationsInput = form.querySelector('input[name="ppmp_allocations"]');
+              if (!allocationsInput) {
+                allocationsInput = document.createElement('input');
+                allocationsInput.type = 'hidden';
+                allocationsInput.name = 'ppmp_allocations';
+                form.appendChild(allocationsInput);
+              }
+              allocationsInput.value = JSON.stringify(allocations);
+              
+              // For backward compatibility, also set single year fields
+              let yearInput = form.querySelector('input[name="ppmp_year"]');
+              if (!yearInput) {
+                yearInput = document.createElement('input');
+                yearInput.type = 'hidden';
+                yearInput.name = 'ppmp_year';
+                form.appendChild(yearInput);
+              }
+              yearInput.value = singleYear.year;
+              
+              let itemIdInput = form.querySelector('input[name="ppmp_item_id"]');
+              if (!itemIdInput) {
+                itemIdInput = document.createElement('input');
+                itemIdInput.type = 'hidden';
+                itemIdInput.name = 'ppmp_item_id';
+                form.appendChild(itemIdInput);
+              }
+              itemIdInput.value = singleYear.ppmp_item_id;
+              
+              // Close modal and submit
+              modal.classList.remove('show');
+              
+              // Show loading overlay
+              const loadingOverlay = document.getElementById('loadingOverlay');
+              if (loadingOverlay) {
+                loadingOverlay.classList.add('active');
+              }
+              
+              // Submit the form
+              form.submit();
+              return;
+            }
+          }
+          
+          // Multiple years - show modal for flexible allocation
+          messageElement.innerHTML = `
+            <p style="margin: 0 0 12px 0; color: #666;">Multiple PPMP years found for <strong>${data.supply_name}</strong>, <strong>${data.department_name}</strong>.</p>
+            <div style="background: #f8f9fa; padding: 10px 12px; border-radius: 4px; margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
+                <span><strong>Requested:</strong> ${approvedQty} units</span>
+              </div>
+              <div style="margin-top: 6px; color: #6c757d; font-size: 12px;"><i class="fas fa-info-circle"></i> Allocate quantities across years as needed (flexible allocation)</div>
+            </div>
+          `;
+          
+          // Build year options with allocation inputs
+          let optionsHtml = '<div id="year-allocations-list">';
+          yearOptions.forEach((yearData, index) => {
+            optionsHtml += `
+              <div class="ppmp-year-allocation-row" data-year="${yearData.year}" data-ppmp-item-id="${yearData.ppmp_item_id}" data-max="${yearData.total_remaining}"
+                   style="background: #fff; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e0e0e0; border-radius: 4px;">
+                <div style="flex: 1;">
+                  <div style="font-size: 14px; font-weight: 600; color: #333; margin-bottom: 2px;">
+                    <i class="fas fa-calendar-alt" style="color: #2196F3; margin-right: 5px; font-size: 12px;"></i>PPMP ${yearData.year}
+                  </div>
+                  <div style="font-size: 12px; color: #666;">
+                    Available: <strong>${yearData.total_remaining}</strong> units (${yearData.matched_items_count} item${yearData.matched_items_count > 1 ? 's' : ''})
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <input type="number" 
+                         class="year-allocation-input" 
+                         data-year="${yearData.year}"
+                         data-ppmp-item-id="${yearData.ppmp_item_id}"
+                         min="0"
+                         value="0"
+                         placeholder="0"
+                         style="width: 80px; padding: 5px 8px; border: 1px solid #ddd; border-radius: 3px; text-align: center; font-size: 14px;"
+                         onchange="updateAllocationSummary()">
+                </div>
+              </div>
+            `;
+          });
+          optionsHtml += '</div>';
+          
+          // Add summary section
+          optionsHtml += `
+            <div id="allocation-summary" style="background: #f8f9fa; padding: 12px; border-radius: 4px; margin-top: 12px; border: 1px solid #e0e0e0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px;">
+                <div>
+                  <span style="color: #666;">Total Allocated</span>
+                  <strong id="total-allocated" style="margin-left: 8px; font-size: 18px; color: #333;">0</strong>
+                </div>
+                <div style="color: #ccc; padding: 0 8px;">/</div>
+                <div>
+                  <span style="color: #666;">Required</span>
+                  <strong style="margin-left: 8px; font-size: 18px; color: #333;">${approvedQty}</strong>
+                </div>
+              </div>
+              <div style="background: #fff; padding: 6px 10px; border-radius: 3px; margin-bottom: 10px; text-align: center; font-size: 13px;">
+                Remaining: <strong id="remaining-to-allocate" style="font-size: 16px; margin-left: 6px;">${approvedQty}</strong>
+              </div>
+              <button type="button" id="auto-allocate-btn" onclick="autoAllocate(${approvedQty})" 
+                      style="width: 100%; padding: 8px; background: #fff; color: #333; border: 1px solid #ddd; border-radius: 3px; cursor: pointer; font-size: 13px; font-weight: 500;">
+                <i class="fas fa-magic"></i> Auto-Allocate
+              </button>
+            </div>
+          `;
+          
+          optionsElement.innerHTML = optionsHtml;
+          
+          // Store approved quantity for later use
+          window.ppmpRequiredQuantity = approvedQty;
+        })
+        .catch(error => {
+          console.error('Error fetching PPMP years:', error);
+          optionsElement.innerHTML = `<div style="text-align: center; padding: 20px; color: #dc3545;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 24px;"></i>
+            <p>Error loading PPMP years. Please try again.</p>
+          </div>`;
+        });
+      };
+      
+      // Helper functions for multi-year allocation
+      window.updateAllocationSummary = function() {
+        const inputs = document.querySelectorAll('.year-allocation-input');
+        let totalAllocated = 0;
+        
+        inputs.forEach(input => {
+          const value = parseInt(input.value) || 0;
+          totalAllocated += value;
+        });
+        
+        document.getElementById('total-allocated').textContent = totalAllocated;
+        const remaining = window.ppmpRequiredQuantity - totalAllocated;
+        document.getElementById('remaining-to-allocate').textContent = remaining;
+        
+        // Update color based on whether allocation is complete
+        const remainingSpan = document.getElementById('remaining-to-allocate');
+        if (remaining === 0) {
+          remainingSpan.style.color = '#28a745';
+        } else if (remaining < 0) {
+          remainingSpan.style.color = '#dc3545';
+        } else {
+          remainingSpan.style.color = '#333';
+        }
+      };
+      
+      window.autoAllocate = function(requiredQty) {
+        const inputs = document.querySelectorAll('.year-allocation-input');
+        
+        // Reset all inputs first
+        inputs.forEach(input => input.value = 0);
+        
+        // Distribute evenly across all years, with remainder going to first year
+        const yearsCount = inputs.length;
+        const baseAmount = Math.floor(requiredQty / yearsCount);
+        const remainder = requiredQty % yearsCount;
+        
+        inputs.forEach((input, index) => {
+          input.value = baseAmount + (index === 0 ? remainder : 0);
+        });
+        
+        updateAllocationSummary();
+      };
+      
+      window.confirmMultiYearAllocation = function() {
+        if (!pendingApprovalForm) return;
+        
+        // Collect allocations
+        const inputs = document.querySelectorAll('.year-allocation-input');
+        const allocations = [];
+        
+        inputs.forEach(input => {
+          const qty = parseInt(input.value) || 0;
+          if (qty > 0) {
+            const allocation = {
+              year: parseInt(input.getAttribute('data-year')),
+              ppmp_item_id: parseInt(input.getAttribute('data-ppmp-item-id')),
+              quantity: qty
+            };
+            allocations.push(allocation);
+            console.log(`Adding allocation: Year ${allocation.year}, PPMP Item ID ${allocation.ppmp_item_id}, Quantity ${allocation.quantity}`);
+            console.log('  -> Input element data attributes:', {
+              'data-year': input.getAttribute('data-year'),
+              'data-ppmp-item-id': input.getAttribute('data-ppmp-item-id'),
+              'max': input.getAttribute('max'),
+              'value': input.value
+            });
+          }
+        });
+        
+        console.log('All allocations to be sent:', allocations);
+        
+        // VALIDATION: Check for duplicate ppmp_item_ids across different years
+        const itemIdYearMap = new Map(); // Maps ppmp_item_id → year
+        let validationFailed = false;
+        
+        for (const alloc of allocations) {
+          if (itemIdYearMap.has(alloc.ppmp_item_id)) {
+            const previousYear = itemIdYearMap.get(alloc.ppmp_item_id);
+            if (previousYear !== alloc.year) {
+              console.error(`❌ VALIDATION ERROR: PPMP Item ID ${alloc.ppmp_item_id} is assigned to multiple years!`);
+              console.error(`   - Year ${previousYear}: ppmp_item_id ${alloc.ppmp_item_id}`);
+              console.error(`   - Year ${alloc.year}: ppmp_item_id ${alloc.ppmp_item_id}`);
+              alert(`ERROR: Data inconsistency detected! PPMP Item ID ${alloc.ppmp_item_id} is incorrectly assigned to both year ${previousYear} and ${alloc.year}. Please refresh the page and try again, or contact support if the issue persists.`);
+              validationFailed = true;
+              break;
+            }
+          }
+          itemIdYearMap.set(alloc.ppmp_item_id, alloc.year);
+        }
+        
+        if (validationFailed) {
+          console.error('Allocation validation failed. Aborting approval.');
+          return;
+        }
+        
+        // Validate total allocation matches required quantity
+        const totalAllocated = allocations.reduce((sum, a) => sum + a.quantity, 0);
+        if (totalAllocated !== window.ppmpRequiredQuantity) {
+          alert(`Total allocated (${totalAllocated}) must equal required quantity (${window.ppmpRequiredQuantity})`);
+          return;
+        }
+        
+        if (allocations.length === 0) {
+          alert('Please allocate quantities to at least one year');
+          return;
+        }
+        
+        // Add allocations as JSON to the form
+        let allocationsInput = pendingApprovalForm.querySelector('input[name="ppmp_allocations"]');
+        if (!allocationsInput) {
+          allocationsInput = document.createElement('input');
+          allocationsInput.type = 'hidden';
+          allocationsInput.name = 'ppmp_allocations';
+          pendingApprovalForm.appendChild(allocationsInput);
+        }
+        const allocationsJson = JSON.stringify(allocations);
+        allocationsInput.value = allocationsJson;
+        console.log('Allocations JSON to be submitted:', allocationsJson);
+        
+        // For backward compatibility, also set the first allocation as primary
+        if (allocations.length > 0) {
+          let yearInput = pendingApprovalForm.querySelector('input[name="ppmp_year"]');
+          if (!yearInput) {
+            yearInput = document.createElement('input');
+            yearInput.type = 'hidden';
+            yearInput.name = 'ppmp_year';
+            pendingApprovalForm.appendChild(yearInput);
+          }
+          yearInput.value = allocations[0].year;
+          
+          let itemIdInput = pendingApprovalForm.querySelector('input[name="ppmp_item_id"]');
+          if (!itemIdInput) {
+            itemIdInput = document.createElement('input');
+            itemIdInput.type = 'hidden';
+            itemIdInput.name = 'ppmp_item_id';
+            pendingApprovalForm.appendChild(itemIdInput);
+          }
+          itemIdInput.value = allocations[0].ppmp_item_id;
+        }
+        
+        // Store reference to form before closing modal
+        const formToSubmit = pendingApprovalForm;
+        
+        // Close modal
+        closePPMPYearSelectionModal();
+        
+        // Show loading overlay
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+          loadingOverlay.classList.add('active');
+        }
+        
+        // Submit the form
+        formToSubmit.submit();
+      };
+      
+      window.closePPMPYearSelectionModal = function() {
+        const modal = document.getElementById('ppmpYearSelectionModal');
+        modal.classList.remove('show');
+        pendingApprovalForm = null;
+        selectedPPMPYear = null;
+        selectedPPMPItemId = null;
+      };
+      
+      function selectPPMPYear(year, ppmpItemId) {
+        selectedPPMPYear = year;
+        selectedPPMPItemId = ppmpItemId;
+        
+        if (pendingApprovalForm) {
+          // Add hidden input for PPMP year
+          let yearInput = pendingApprovalForm.querySelector('input[name="ppmp_year"]');
+          if (!yearInput) {
+            yearInput = document.createElement('input');
+            yearInput.type = 'hidden';
+            yearInput.name = 'ppmp_year';
+            pendingApprovalForm.appendChild(yearInput);
+          }
+          yearInput.value = year;
+          
+          // Add hidden input for PPMP item ID
+          let itemIdInput = pendingApprovalForm.querySelector('input[name="ppmp_item_id"]');
+          if (!itemIdInput) {
+            itemIdInput = document.createElement('input');
+            itemIdInput.type = 'hidden';
+            itemIdInput.name = 'ppmp_item_id';
+            pendingApprovalForm.appendChild(itemIdInput);
+          }
+          itemIdInput.value = ppmpItemId;
+          
+          // Close modal and submit form
+          closePPMPYearSelectionModal();
+          
+          // Show loading overlay
+          const loadingOverlay = document.getElementById('loadingOverlay');
+          if (loadingOverlay) {
+            loadingOverlay.classList.add('active');
+          }
+          
+          // Submit the form
+          pendingApprovalForm.submit();
+        }
+      }
       
       // Handle PPMP confirmation
       document.getElementById('ppmpConfirmBtn').addEventListener('click', function() {
@@ -2867,7 +3285,7 @@
         }
       });
 
-      // Add event listeners for approve buttons - submit directly without modal
+      // Add event listeners for approve buttons - Check for multi-year PPMP matches
       const approveButtons = document.querySelectorAll('.btn-approve-table');
       approveButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -2891,45 +3309,25 @@
             hiddenRemarks.value = '';
           }
           
-          // Check PPMP before submitting
-          const batchId = document.body.getAttribute('data-batch-id');
-          const approvedQty = quantityInput ? quantityInput.value : hiddenQuantity.value;
+          // Check if this item has PPMP matches - look for ppmp_matches data
+          const ppmpMatchesData = window.ppmpMatchesData || {};
+          const itemPPMPMatch = ppmpMatchesData[itemId];
           
-          // Get CSRF token
-          const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-          
-          // Call AJAX to check PPMP
-          fetch(`/batch-request/${batchId}/item/${itemId}/check-ppmp/`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-              'X-CSRFToken': csrftoken
-            },
-            body: `approved_quantity=${approvedQty}`
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.needs_confirmation) {
-              // Show PPMP warning modal
-              showPPMPWarningModal(data.warning_message, data.item_name, form);
-            } else {
-              // No PPMP issue, proceed with approval
-              const loadingOverlay = document.getElementById('loadingOverlay');
-              if (loadingOverlay) {
-                loadingOverlay.classList.add('active');
-              }
-              form.submit();
-            }
-          })
-          .catch(error => {
-            console.error('Error checking PPMP:', error);
-            // On error, proceed anyway
+          // If item has multi-year PPMP matches, show year selection modal
+          if (itemPPMPMatch && itemPPMPMatch.match_found && itemPPMPMatch.years_with_matches && itemPPMPMatch.years_with_matches.length > 0) {
+            // Show the year selection modal
+            showPPMPYearSelectionModal(itemId, form);
+          } else {
+            // No PPMP matches or only one year - proceed with approval directly
+            // Show loading overlay
             const loadingOverlay = document.getElementById('loadingOverlay');
             if (loadingOverlay) {
               loadingOverlay.classList.add('active');
             }
+            
+            // Submit the form
             form.submit();
-          });
+          }
         });
       });
       
@@ -3118,6 +3516,30 @@
         </button>
         <button type="button" id="ppmpConfirmBtn" class="btn-confirm-action approve">
           <i class="fas fa-check"></i> Approve Anyway
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PPMP Year Selection Modal -->
+  <div id="ppmpYearSelectionModal" class="confirm-modal">
+    <div class="confirm-modal-content" style="max-width: 600px;">
+      <div class="confirm-modal-header">
+        <i class="fas fa-calendar-alt confirm-modal-icon" style="color: #2196F3;"></i>
+        <h2 class="confirm-modal-title">Select PPMP Year</h2>
+      </div>
+      <div class="confirm-modal-body">
+        <p id="ppmpYearMessage" style="margin-bottom: 20px; color: #555;"></p>
+        <div id="ppmpYearOptions" style="max-height: 400px; overflow-y: auto;">
+          <!-- Year options will be dynamically inserted here -->
+        </div>
+      </div>
+      <div class="confirm-modal-footer">
+        <button type="button" class="btn-confirm-cancel" onclick="closePPMPYearSelectionModal()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button type="button" class="btn-confirm-yes" onclick="confirmMultiYearAllocation()">
+          <i class="fas fa-check"></i> Confirm Allocation
         </button>
       </div>
     </div>

@@ -108,6 +108,26 @@
         .clear-filters-btn:hover {
             background: #5a6268;
         }
+
+        .btn-export-excel {
+            padding: 8px 16px;
+            background: #1d6f42;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-export-excel:hover {
+            background: #155232;
+        }
         
         /* Table styles with system theme */
         .archived-table {
@@ -489,6 +509,9 @@
                 <button class="clear-filters-btn" onclick="clearSupplyFilters()">
                     <i class="fas fa-times"></i> Clear Filters
                 </button>
+                <button class="btn-export-excel" onclick="exportArchivedSupplies()">
+                    <i class="fas fa-file-excel"></i> Export to Excel
+                </button>
             </div>
         </div>
 
@@ -572,6 +595,9 @@
                 </select>
                 <button class="clear-filters-btn" onclick="clearPropertyFilters()">
                     <i class="fas fa-times"></i> Clear Filters
+                </button>
+                <button class="btn-export-excel" onclick="exportArchivedProperties()">
+                    <i class="fas fa-file-excel"></i> Export to Excel
                 </button>
             </div>
         </div>
@@ -676,6 +702,27 @@
         initializeSupplyFilters();
         initializePropertyFilters();
     });
+
+    // Export functions
+    function exportArchivedSupplies() {
+        const category = document.getElementById('supply-category-filter').value;
+        const subcategory = document.getElementById('supply-subcategory-filter').value;
+        const params = new URLSearchParams();
+        if (category) params.set('category', category);
+        if (subcategory) params.set('subcategory', subcategory);
+        const url = '{% url "export_archived_supplies" %}' + (params.toString() ? '?' + params.toString() : '');
+        window.location.href = url;
+    }
+
+    function exportArchivedProperties() {
+        const category = document.getElementById('property-category-filter').value;
+        const condition = document.getElementById('property-condition-filter').value;
+        const params = new URLSearchParams();
+        if (category) params.set('category', category);
+        if (condition) params.set('condition', condition);
+        const url = '{% url "export_archived_properties" %}' + (params.toString() ? '?' + params.toString() : '');
+        window.location.href = url;
+    }
 
     // Supply filtering functionality
     function initializeSupplyFilters() {

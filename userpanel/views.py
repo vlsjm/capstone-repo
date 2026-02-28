@@ -279,7 +279,8 @@ class UserUnifiedRequestView(PermissionRequiredMixin, TemplateView):
     permission_required = 'app.view_user_module'
 
     def get(self, request):
-        from app.models import SupplyCategory, PropertyCategory
+        from app.models import SupplyCategory, PropertyCategory, PPMP, PPMPItem
+        from datetime import datetime as dt
         
         # Get supply cart items from session
         supply_cart_items = request.session.get('supply_cart', [])
@@ -319,11 +320,66 @@ class UserUnifiedRequestView(PermissionRequiredMixin, TemplateView):
             except Exception as e:
                 continue
         
+        # Get user's department for PPMP filtering
+        user_department = None
+        try:
+            user_profile = request.user.userprofile
+            user_department = user_profile.department
+        except:
+            pass
+        
+        # Import the admin-side matching function for consistent results
+        from app.utils import check_ppmp_match_multi_year
+        
         # Get available supplies - includes both current_quantity and available_quantity (after reserved items)
         available_supplies = Supply.objects.filter(
             available_for_request=True,
             quantity_info__current_quantity__gt=0
         ).select_related('quantity_info', 'category')
+        
+        # Annotate supplies with PPMP information using the same algorithm as admin side
+        ppmp_matched_count = 0
+        if user_department:
+            for supply in available_supplies:
+                # Use the admin-side matching function for accuracy
+                match_result = check_ppmp_match_multi_year(
+                    supply_name=supply.supply_name,
+                    department=user_department,
+                    current_year=dt.now().year
+                )
+                
+                if match_result['match_found'] and match_result['years_with_matches']:
+                    # Convert matched items to the format expected by template
+                    supply.ppmp_years = []
+                    for year_data in match_result['years_with_matches']:
+                        for matched_item in year_data['matched_items']:
+                            supply.ppmp_years.append({
+                                'year': year_data['year'],
+                                'budgeted_qty': matched_item.quantity,
+                                'released': matched_item.released,
+                                'remaining': matched_item.remaining,
+                                'unit_price': matched_item.unit_price,
+                                'unit_measure': matched_item.unit_measure,
+                                'item_name': matched_item.unit_measure
+                            })
+                    
+                    # Set aggregated info for backward compatibility
+                    supply.ppmp_info = {
+                        'budgeted_qty': sum(item['budgeted_qty'] for item in supply.ppmp_years),
+                        'released': sum(item['released'] for item in supply.ppmp_years),
+                        'remaining': sum(item['remaining'] for item in supply.ppmp_years),
+                        'years_count': len(set(item['year'] for item in supply.ppmp_years))
+                    }
+                    ppmp_matched_count += 1
+                else:
+                    # No match found
+                    supply.ppmp_info = None
+                    supply.ppmp_years = []
+        else:
+            # No department, so no PPMP matching
+            for supply in available_supplies:
+                supply.ppmp_info = None
+                supply.ppmp_years = []
         
         # Get available properties
         available_properties = Property.objects.filter(
@@ -3102,6 +3158,87 @@ def user_view_requisition_slip(request, batch_id):
         print(f"Error viewing requisition slip: {error_details}")  # Log to console
         messages.error(request, f'Error generating requisition slip: {str(e)}')
         return redirect('request_detail', type='batch_supply', request_id=batch_id)
+
+
+# Borrower's Slip PDF Generation Views (User Side)
+@login_required
+def user_download_borrowers_slip(request, batch_id):
+    """
+    Download the borrower's slip PDF for a borrow request batch (user side).
+    Users can only download their own borrower's slips.
+    """
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    
+    # Check permissions: users can only download their own slips
+    if batch_request.user != request.user:
+        messages.error(request, 'You do not have permission to access this borrower\'s slip.')
+        return redirect('user_all_requests')
+    
+    # Only generate slip for approved, partially approved, for_claiming, active, or completed requests
+    if batch_request.status not in ['approved', 'partially_approved', 'for_claiming', 'active', 'returned', 'completed']:
+        messages.error(request, 'Borrower\'s slip is only available for approved requests.')
+        return redirect('request_detail', type='batch_borrow', request_id=batch_id)
+    
+    try:
+        from app.pdf_utils import download_borrowers_slip
+        
+        # Log the download activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='view',
+            model_name='BorrowRequestBatch',
+            object_repr=f"Borrower's Slip #{batch_id}",
+            description=f"Downloaded borrower's slip for borrow batch request #{batch_id}"
+        )
+        
+        return download_borrowers_slip(batch_request)
+        
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error downloading borrower's slip: {error_details}")  # Log to console
+        messages.error(request, f'Error generating borrower\'s slip: {str(e)}')
+        return redirect('request_detail', type='batch_borrow', request_id=batch_id)
+
+
+@login_required
+def user_view_borrowers_slip(request, batch_id):
+    """
+    View the borrower's slip PDF in browser for a borrow request batch (user side).
+    Users can only view their own borrower's slips.
+    """
+    batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    
+    # Check permissions: users can only view their own slips
+    if batch_request.user != request.user:
+        messages.error(request, 'You do not have permission to access this borrower\'s slip.')
+        return redirect('user_all_requests')
+    
+    # Only generate slip for approved, partially approved, for_claiming, active, or completed requests
+    if batch_request.status not in ['approved', 'partially_approved', 'for_claiming', 'active', 'returned', 'completed']:
+        messages.error(request, 'Borrower\'s slip is only available for approved requests.')
+        return redirect('request_detail', type='batch_borrow', request_id=batch_id)
+    
+    try:
+        from app.pdf_utils import view_borrowers_slip
+        
+        # Log the view activity
+        ActivityLog.log_activity(
+            user=request.user,
+            action='view',
+            model_name='BorrowRequestBatch',
+            object_repr=f"Borrower's Slip #{batch_id}",
+            description=f"Viewed borrower's slip for borrow batch request #{batch_id}"
+        )
+        
+        return view_borrowers_slip(batch_request)
+        
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error viewing borrower's slip: {error_details}")  # Log to console
+        messages.error(request, f'Error generating borrower\'s slip: {str(e)}')
+        return redirect('request_detail', type='batch_borrow', request_id=batch_id)
 
 
 @login_required

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light only">
+    <meta name="supported-color-schemes" content="light">
+    <title>Overdue Borrow Alert - CvSU Bacoor Resource Hive</title>
+    <style>
+        :root {
+            color-scheme: light only;
+            supported-color-schemes: light;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .overdue-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .overdue-header {
+            background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+            color: #ffffff !important;
+            padding: 30px;
+            text-align: center;
+        }
+        .overdue-header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff !important;
+        }
+        .overdue-header p {
+            margin: 10px 0 0 0;
+            font-size: 14px;
+            color: #ffffff !important;
+        }
+        .overdue-content {
+            padding: 30px;
+            color: #333333;
+        }
+        .overdue-greeting {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .overdue-alert-box {
+            background-color: #fef2f2;
+            border-left: 4px solid #b91c1c;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .overdue-alert-box p {
+            margin: 0;
+            color: #7f1d1d;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .overdue-days-badge {
+            font-size: 30px;
+            font-weight: 700;
+            color: #b91c1c;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .overdue-batch-info {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        .overdue-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .overdue-detail-row:last-child {
+            border-bottom: none;
+        }
+        .overdue-detail-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .overdue-detail-value {
+            color: #333;
+            text-align: right;
+        }
+        .overdue-items-heading {
+            font-weight: 700;
+            font-size: 15px;
+            margin: 24px 0 10px 0;
+            color: #333;
+        }
+        .overdue-items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 0 20px 0;
+            font-size: 14px;
+        }
+        .overdue-items-table th {
+            background-color: #b91c1c;
+            color: #ffffff;
+            padding: 10px 12px;
+            text-align: left;
+        }
+        .overdue-items-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+        .overdue-items-table tr:last-child td {
+            border-bottom: none;
+        }
+        .overdue-items-table tr:nth-child(even) td {
+            background-color: #fef2f2;
+        }
+        .overdue-action-section {
+            background-color: #f0f4f8;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .overdue-action-button {
+            display: inline-block;
+            background-color: #b91c1c !important;
+            color: #ffffff !important;
+            text-decoration: none !important;
+            padding: 12px 30px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin: 10px 5px;
+            border: none;
+        }
+        .overdue-action-button:hover {
+            background-color: #7f1d1d !important;
+        }
+        .overdue-important-notice {
+            background-color: #fef2f2;
+            border: 1px solid #fca5a5;
+            padding: 16px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .overdue-important-notice p {
+            margin: 0;
+            color: #7f1d1d;
+        }
+        .overdue-footer {
+            background-color: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            color: #777;
+            font-size: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="overdue-container">
+        <!-- Header -->
+        <div class="overdue-header" style="background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%); background-color: #b91c1c; padding: 30px; text-align: center;">
+            <h1 style="color: #ffffff !important; margin: 0; font-size: 24px; font-weight: 600; -webkit-text-fill-color: #ffffff;">&#9888; Overdue Borrow Alert</h1>
+            <p style="color: #ffffff !important; margin: 10px 0 0 0; font-size: 14px; -webkit-text-fill-color: #ffffff;">CvSU Bacoor Resource Hive</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="overdue-content">
+            <!-- Greeting -->
+            <div class="overdue-greeting">
+                Hello {{ user.first_name|default:user.username }},
+            </div>
+
+            <!-- Alert Box -->
+            <div class="overdue-alert-box">
+                <p>&#128680; You have <strong>{{ item_count }} overdue item{% if item_count != 1 %}s{% endif %}</strong> from Borrow Request Batch <strong>#{{ batch.id|stringformat:"03d" }}</strong> that must be returned immediately!</p>
+            </div>
+
+            <!-- Days Overdue Badge -->
+            <div class="overdue-days-badge">
+                {{ max_days_overdue }} day{% if max_days_overdue != 1 %}s{% endif %} overdue
+            </div>
+
+            <!-- Batch Details -->
+            <div class="overdue-batch-info">
+                <div class="overdue-detail-row">
+                    <span class="overdue-detail-label">Batch Request #:</span>
+                    <span class="overdue-detail-value"><strong>#{{ batch.id|stringformat:"03d" }}</strong></span>
+                </div>
+                <div class="overdue-detail-row">
+                    <span class="overdue-detail-label">Borrower:</span>
+                    <span class="overdue-detail-value">{{ user.get_full_name|default:user.username }}</span>
+                </div>
+                <div class="overdue-detail-row">
+                    <span class="overdue-detail-label">Overdue Item(s):</span>
+                    <span class="overdue-detail-value" style="color: #b91c1c; font-weight: 700;">{{ item_count }}</span>
+                </div>
+                <div class="overdue-detail-row">
+                    <span class="overdue-detail-label">Most Days Overdue:</span>
+                    <span class="overdue-detail-value" style="color: #b91c1c; font-weight: 700;">{{ max_days_overdue }} day{% if max_days_overdue != 1 %}s{% endif %}</span>
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <div class="overdue-items-heading">Overdue Items:</div>
+            <table class="overdue-items-table">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Property #</th>
+                        <th style="text-align: center;">Qty</th>
+                        <th>Return Date</th>
+                        <th style="text-align: center;">Days Overdue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in overdue_items %}
+                    <tr>
+                        <td><strong>{{ item.property.property_name }}</strong></td>
+                        <td>{{ item.property.property_number }}</td>
+                        <td style="text-align: center;">{{ item.quantity }}</td>
+                        <td>{{ item.return_date|date:"M d, Y" }}</td>
+                        <td style="text-align: center; color: #b91c1c; font-weight: 700;">{{ item.days_overdue }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Message -->
+            <p style="line-height: 1.6; margin: 20px 0;">
+                These items are <strong>past their return date</strong>. Please return them to the Resource Hive office as soon as possible. 
+                Continued delays may affect your borrowing privileges.
+            </p>
+
+            <!-- Action Section
+            <div class="overdue-action-section" style="background-color: #f0f4f8; padding: 20px; border-radius: 6px; margin: 20px 0; text-align: center;">
+                <p style="margin-top: 0;">View your borrow details and take action:</p>
+                <a href="{{ dashboard_url }}" class="overdue-action-button" style="display: inline-block; background-color: #b91c1c !important; color: #ffffff !important; text-decoration: none; padding: 12px 30px; border-radius: 4px; font-weight: 600; margin: 10px 5px; -webkit-text-fill-color: #ffffff;">Go to Dashboard</a>
+            </div> -->
+
+            <!-- Important Notice -->
+            <div class="overdue-important-notice">
+                <p>
+                    <strong>Important:</strong> If you have already returned these items, please disregard this notice. 
+                    Otherwise, return them immediately or contact the Resource Hive office to discuss your situation.
+                </p>
+            </div>
+
+            <p style="margin-top: 25px;">
+                Thank you for your cooperation.<br>
+                <strong>Resource Hive Team</strong>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="overdue-footer">
+            <p style="margin: 0;">
+                This is an automated alert from Resource Hive. Please do not reply to this email.
+            </p>
+            <p style="margin: 10px 0 0 0; color: #999;">
+                &copy; {{ current_year }} Resource Hive. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
