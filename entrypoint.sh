@@ -20,6 +20,11 @@ echo "PostgreSQL is up!"
 echo "Running migrations..."
 python manage.py migrate --noinput
 
+# Create superuser (only if needed)
+echo "Creating superuser if it doesn't exist…"
+python manage.py createsuperuser --noinput || true
+
+
 echo "Starting Gunicorn..."
 exec gunicorn ResourceHive.wsgi:application \
     --bind 0.0.0.0:8000 \
@@ -27,7 +32,3 @@ exec gunicorn ResourceHive.wsgi:application \
     --timeout 120 \
     --access-logfile - \
     --error-logfile -
-    
-# Create superuser (only if needed)
-echo "Creating superuser if it doesn't exist…"
-python manage.py createsuperuser --noinput || true
