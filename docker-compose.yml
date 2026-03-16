@@ -28,7 +28,7 @@ services:
       - .env
     environment:
       DB_HOST: db
-      DB_PORT: 5432
+      DB_PORT: "5432"
     volumes:
       - media_data:/app/media
       - static_data:/app/staticfiles
@@ -36,23 +36,15 @@ services:
   # ---- Nginx Reverse Proxy ----
   nginx:
     image: nginx:1.27-alpine
+    expose:
+      - "80"
     restart: unless-stopped
     depends_on:
       - web
     environment:
       - DOMAIN=${DOMAIN:-localhost}
     volumes:
-    - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
-    - static_data:/app/staticfiles:ro
-    - media_data:/app/media:ro
-     expose:
-    - "80"
-    # Renew certificates every 12 hours (only acts if renewal is due)
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - static_data:/app/staticfiles:ro
+      - media_data:/app/media:ro
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
-volumes:
-  pg_data:
-  media_data:
-  static_data:
-  certbot_www:
-  certbot_conf:
