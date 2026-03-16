@@ -27,3 +27,7 @@ exec gunicorn ResourceHive.wsgi:application \
     --timeout 120 \
     --access-logfile - \
     --error-logfile -
+    
+# Create superuser (only if needed)
+echo "Creating superuser if it doesn't exist…"
+python manage.py createsuperuser --noinput || true
