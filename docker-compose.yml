@@ -42,18 +42,11 @@ services:
     environment:
       - DOMAIN=${DOMAIN:-localhost}
     volumes:
-      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
-      - static_data:/app/staticfiles:ro
-      - media_data:/app/media:ro
-      - certbot_www:/var/www/certbot:ro
-      - certbot_conf:/etc/letsencrypt:ro
-
-  # ---- Certbot (SSL Certificate Manager) ----
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - certbot_www:/var/www/certbot
-      - certbot_conf:/etc/letsencrypt
+    - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+    - static_data:/app/staticfiles:ro
+    - media_data:/app/media:ro
+     expose:
+    - "80"
     # Renew certificates every 12 hours (only acts if renewal is due)
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
