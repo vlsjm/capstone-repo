@@ -28,7 +28,7 @@ services:
       - .env
     environment:
       DB_HOST: db
-      DB_PORT: "5432"
+      DB_PORT: 5432
     volumes:
       - media_data:/app/media
       - static_data:/app/staticfiles
@@ -36,15 +36,33 @@ services:
   # ---- Nginx Reverse Proxy ----
   nginx:
     image: nginx:1.27-alpine
-    expose:
-      - "80"
     restart: unless-stopped
     depends_on:
       - web
+    ports:
+      - "80:80"
+      - "443:443"
     environment:
       - DOMAIN=${DOMAIN:-localhost}
     volumes:
       - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
       - static_data:/app/staticfiles:ro
       - media_data:/app/media:ro
+      - certbot_www:/var/www/certbot:ro
+      - certbot_conf:/etc/letsencrypt:ro
+
+  # ---- Certbot (SSL Certificate Manager) ----
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+    # Renew certificates every 12 hours (only acts if renewal is due)
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+volumes:
+  pg_data:
+  media_data:
+  static_data:
+  certbot_www:
+  certbot_conf:
