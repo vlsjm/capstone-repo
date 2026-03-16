@@ -24,11 +24,11 @@ services:
     env_file:
       - .env
     environment:
-      DB_HOST: db
+      DB_HOST: "db"
       DB_PORT: "5432"
-      DJANGO_SUPERUSER_USERNAME
-      DJANGO_SUPERUSER_EMAIL
-      DJANGO_SUPERUSER_PASSWORD
+      DJANGO_SUPERUSER_USERNAME: "${DJANGO_SUPERUSER_USERNAME}"
+      DJANGO_SUPERUSER_EMAIL: "${DJANGO_SUPERUSER_EMAIL}"
+      DJANGO_SUPERUSER_PASSWORD: "${DJANGO_SUPERUSER_PASSWORD}"
     depends_on:
       db:
         condition: service_healthy
