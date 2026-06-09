@@ -48,37 +48,42 @@ def generate_barcode_image(code):
     """
     Generate a Code128 barcode and return it as a ContentFile for ImageField.
     Returns a tuple: (filename, ContentFile)
+    Raises: Exception if barcode generation fails
     """
-    # Create barcode instance
-    code128 = barcode.get_barcode_class('code128')
-    
-    # Pad short codes to minimum 12 characters for consistent barcode width
-    # This ensures all barcodes have similar bar thickness
-    barcode_text = code
-    if len(code) < 12:
-        # Pad with spaces on the right to make all barcodes similar length
-        barcode_text = code.ljust(12)
-    
-    # Configure barcode writer options for 1.5 inch width
-    # 1.5 inch = 38.1 mm
-    # Module width controls the width of individual bars
-    writer_options = {
-        'module_width': 0.3,  # Width of individual bars in mm
-        'module_height': 15.0,  # Height of bars in mm (increased by 5mm)
-        'quiet_zone': 3.0,  # Quiet zone on sides in mm
-        'font_size': 10,  # Font size for text
-        'text_distance': 5.0,  # Distance between barcode and text in mm
-        'dpi': 300,  # Higher DPI for better print quality
-    }
-    
-    # Generate the barcode with padded text
-    rv = BytesIO()
-    code128(barcode_text, writer=ImageWriter()).write(rv, options=writer_options)
-    
-    # Return as ContentFile with original filename (not padded)
-    filename = f"{code}.png"
-    return filename, ContentFile(rv.getvalue())
-    return filename, ContentFile(rv.getvalue())
+    try:
+        # Create barcode instance
+        code128 = barcode.get_barcode_class('code128')
+        
+        # Pad short codes to minimum 12 characters for consistent barcode width
+        # This ensures all barcodes have similar bar thickness
+        barcode_text = code
+        if len(code) < 12:
+            # Pad with spaces on the right to make all barcodes similar length
+            barcode_text = code.ljust(12)
+        
+        # Configure barcode writer options for 1.5 inch width
+        # 1.5 inch = 38.1 mm
+        # Module width controls the width of individual bars
+        writer_options = {
+            'module_width': 0.3,  # Width of individual bars in mm
+            'module_height': 15.0,  # Height of bars in mm (increased by 5mm)
+            'quiet_zone': 3.0,  # Quiet zone on sides in mm
+            'font_size': 10,  # Font size for text
+            'text_distance': 5.0,  # Distance between barcode and text in mm
+            'dpi': 300,  # Higher DPI for better print quality
+        }
+        
+        # Generate the barcode with padded text
+        rv = BytesIO()
+        code128(barcode_text, writer=ImageWriter()).write(rv, options=writer_options)
+        
+        # Return as ContentFile with original filename (not padded)
+        filename = f"{code}.png"
+        logger.info(f"Successfully generated barcode for {code}")
+        return filename, ContentFile(rv.getvalue())
+    except Exception as e:
+        logger.error(f"Failed to generate barcode for {code}: {str(e)}", exc_info=True)
+        raise
 
 
 

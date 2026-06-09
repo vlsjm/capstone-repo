@@ -23,8 +23,14 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install only the runtime system libraries (no compilers)
+# Note: Added font and image processing libraries needed for barcode generation
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
+    libfreetype6 \
+    libjpeg62-turbo \
+    zlib1g \
+    fontconfig \
+    fonts-dejavu \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy pre-built Python packages from the builder stage
@@ -38,7 +44,7 @@ RUN python manage.py collectstatic --noinput 2>/dev/null || true
 
 # Create a non-root user for security
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser \
-    && mkdir -p /app/media /app/staticfiles \
+    && mkdir -p /app/media /app/media/barcodes /app/media/barcodes/supplies /app/media/barcodes/properties /app/staticfiles \
     && touch /app/debug.log \
     && chown -R appuser:appgroup /app/media /app/staticfiles /app/debug.log
 
