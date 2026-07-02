@@ -411,6 +411,42 @@
       flex-wrap: wrap;
     }
 
+    .pagination-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pagination-link {
+      min-width: 42px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid #d9e2f2;
+      background: #fff;
+      color: #152d64;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pagination-link:hover {
+      background: #edf2ff;
+    }
+
+    .pagination-link.active {
+      background: #152d64;
+      color: #fff;
+      border-color: #152d64;
+    }
+
+    .pagination-link.disabled {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
     .small-text {
       color: #6b7a99;
       font-size: 13px;
@@ -700,14 +736,47 @@
               <div class="small-text">
                 Showing {{ reservations_page.start_index }} to {{ reservations_page.end_index }} of {{ reservations_page.paginator.count }} reservation{{ reservations_page.paginator.count|pluralize }}
               </div>
-              <div class="action-row" style="margin-top: 0;">
-                {% if reservations_page.has_previous %}
-                  <a class="btn-secondary" href="?tab=list&facility={{ reservation_facility_filter }}&status={{ status_filter }}&page={{ reservations_page.previous_page_number }}"><i class="fas fa-chevron-left"></i> Previous</a>
-                {% endif %}
-                {% if reservations_page.has_next %}
-                  <a class="btn-secondary" href="?tab=list&facility={{ reservation_facility_filter }}&status={{ status_filter }}&page={{ reservations_page.next_page_number }}"><i class="fas fa-chevron-right"></i> Next</a>
-                {% endif %}
-              </div>
+              {% if reservations_page.paginator.num_pages > 1 %}
+                <div class="pagination-links">
+                  {% if reservations_page.has_previous %}
+                    <a class="pagination-link" href="?tab=list&facility={{ reservation_facility_filter }}&status={{ status_filter }}&page={{ reservations_page.previous_page_number }}"><i class="fas fa-chevron-left"></i></a>
+                  {% else %}
+                    <span class="pagination-link disabled"><i class="fas fa-chevron-left"></i></span>
+                  {% endif %}
+
+                  {% with total_pages=reservations_page.paginator.num_pages current_page=reservations_page.number %}
+                    {% if current_page > 3 %}
+                      <a class="pagination-link" href="?tab=list&facility={{ reservation_facility_filter }}&status={{ status_filter }}&page=1">1</a>
+                      {% if current_page > 4 %}
+                        <span class="small-text" style="padding: 0 4px;">...</span>
+                      {% endif %}
+                    {% endif %}
+
+                    {% for num in reservations_page.paginator.page_range %}
+                      {% if num >= current_page|add:'-2' and num <= current_page|add:'2' %}
+                        {% if num == current_page %}
+                          <span class="pagination-link active">{{ num }}</span>
+                        {% else %}
+                          <a class="pagination-link" href="?tab=list&facility={{ reservation_facility_filter }}&status={{ status_filter }}&page={{ num }}">{{ num }}</a>
+                        {% endif %}
+                      {% endif %}
+                    {% endfor %}
+
+                    {% if current_page < total_pages|add:'-2' %}
+                      {% if current_page < total_pages|add:'-3' %}
+                        <span class="small-text" style="padding: 0 4px;">...</span>
+                      {% endif %}
+                      <a class="pagination-link" href="?tab=list&facility={{ reservation_facility_filter }}&status={{ status_filter }}&page={{ total_pages }}">{{ total_pages }}</a>
+                    {% endif %}
+                  {% endwith %}
+
+                  {% if reservations_page.has_next %}
+                    <a class="pagination-link" href="?tab=list&facility={{ reservation_facility_filter }}&status={{ status_filter }}&page={{ reservations_page.next_page_number }}"><i class="fas fa-chevron-right"></i></a>
+                  {% else %}
+                    <span class="pagination-link disabled"><i class="fas fa-chevron-right"></i></span>
+                  {% endif %}
+                </div>
+              {% endif %}
             </div>
           {% else %}
             <div class="empty-state">No reservations found.</div>
