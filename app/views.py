@@ -9324,6 +9324,33 @@ def claim_individual_item(request, batch_id, item_id):
     return redirect('batch_request_detail', batch_id=batch_id)
 
 # Batch Borrow Request Management Views
+
+def _resolve_borrow_signatory_selection(request, signatories):
+    """Resolve the borrow slip signatory selection from the URL or session."""
+    session_key = 'borrow_signatory_mode'
+    signatory_id = request.GET.get('signatory')
+
+    if signatory_id is None:
+        signatory_id = request.session.get(session_key)
+    else:
+        request.session[session_key] = signatory_id
+
+    selected_signatory = signatories.filter(is_default=True).first()
+    selected_signatory_mode = 'dynamic'
+
+    if signatory_id:
+        if signatory_id == 'dynamic':
+            selected_signatory = None
+            selected_signatory_mode = 'dynamic'
+        else:
+            selected_signatory = signatories.filter(pk=signatory_id).first() or selected_signatory
+            selected_signatory_mode = str(selected_signatory.id) if selected_signatory else 'dynamic'
+    elif selected_signatory:
+        selected_signatory_mode = str(selected_signatory.id)
+
+    request.session[session_key] = selected_signatory_mode
+    return selected_signatory, selected_signatory_mode
+
 @permission_required('app.view_admin_module')
 @login_required
 def borrow_batch_request_detail(request, batch_id):
@@ -9332,18 +9359,7 @@ def borrow_batch_request_detail(request, batch_id):
     from .models import SlipSignatory
 
     signatories = SlipSignatory.objects.filter(document_type='borrow').order_by('-is_default', 'name')
-    selected_signatory = signatories.filter(is_default=True).first()
-    selected_signatory_mode = 'dynamic'
-    selected_signatory_id = request.GET.get('signatory')
-    if selected_signatory_id:
-        if selected_signatory_id == 'dynamic':
-            selected_signatory = None
-            selected_signatory_mode = 'dynamic'
-        else:
-            selected_signatory = signatories.filter(pk=selected_signatory_id).first() or selected_signatory
-            selected_signatory_mode = str(selected_signatory.id) if selected_signatory else 'dynamic'
-    elif selected_signatory:
-        selected_signatory_mode = str(selected_signatory.id)
+    selected_signatory, selected_signatory_mode = _resolve_borrow_signatory_selection(request, signatories)
     
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -10150,22 +10166,9 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
         department_filter = self.request.GET.get('department', '')
         date_from = self.request.GET.get('date_from', '')
         date_to = self.request.GET.get('date_to', '')
-        signatory_id = self.request.GET.get('signatory')
-
         from .models import SlipSignatory
         signatories = SlipSignatory.objects.filter(document_type='borrow').order_by('-is_default', 'name')
-        selected_signatory = signatories.filter(is_default=True).first()
-        selected_signatory_mode = 'dynamic'
-
-        if signatory_id:
-            if signatory_id == 'dynamic':
-                selected_signatory = None
-                selected_signatory_mode = 'dynamic'
-            else:
-                selected_signatory = signatories.filter(pk=signatory_id).first() or selected_signatory
-                selected_signatory_mode = str(selected_signatory.id) if selected_signatory else 'dynamic'
-        elif selected_signatory:
-            selected_signatory_mode = str(selected_signatory.id)
+        selected_signatory, selected_signatory_mode = _resolve_borrow_signatory_selection(self.request, signatories)
         
         # Base queryset with related data
         base_queryset = BorrowRequestBatch.objects.select_related('user', 'user__userprofile', 'user__userprofile__department').prefetch_related('items__property').order_by('request_date')
