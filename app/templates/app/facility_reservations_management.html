@@ -1,0 +1,1035 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facility Reservations - Resource Hive</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/userStyle.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <style>
+    .facility-page {
+      margin-left: 270px;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #f5f7fb 0%, #eef3fb 100%);
+      padding: 22px;
+    }
+
+    .facility-shell {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .page-hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .page-hero h1 {
+      margin: 0;
+      color: #152d64;
+      font-size: 34px;
+      font-weight: 700;
+    }
+
+    .page-hero p {
+      margin: 6px 0 0;
+      color: #5e6c84;
+      max-width: 760px;
+    }
+
+    .action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .action-bar .btn-primary,
+    .action-bar .btn-secondary {
+      min-width: 160px;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 26px rgba(21, 45, 100, 0.08);
+      border: 1px solid rgba(21, 45, 100, 0.08);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 18px;
+      background: linear-gradient(135deg, #152d64 0%, #1e448d 100%);
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-header h2,
+    .panel-header h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .panel-body {
+      padding: 18px;
+    }
+
+    .form-control,
+    .facility-page input,
+    .facility-page select,
+    .facility-page textarea {
+      width: 100%;
+      border: 1px solid #d9e2f2;
+      border-radius: 10px;
+      padding: 11px 12px;
+      font-size: 14px;
+      background: #fff;
+      color: #152d64;
+      box-sizing: border-box;
+    }
+
+    .facility-page textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .field-row {
+      margin-bottom: 14px;
+    }
+
+    .field-row label {
+      display: block;
+      margin-bottom: 6px;
+      color: #152d64;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger,
+    .btn-ghost {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .btn-primary { background: #152d64; color: #fff; }
+    .btn-primary:hover { background: #0f224f; color: #fff; }
+    .btn-secondary { background: #edf2ff; color: #152d64; }
+    .btn-secondary:hover { background: #dbe4ff; }
+    .btn-danger { background: #dc3545; color: #fff; }
+    .btn-danger:hover { background: #b62d39; color: #fff; }
+    .btn-ghost { background: #f5f7fb; color: #152d64; }
+
+    .table-panel {
+      overflow: hidden;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th {
+      background: #152d64;
+      color: #fff;
+      text-align: left;
+      padding: 14px 12px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .data-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #e9eef6;
+      vertical-align: top;
+      color: #344767;
+    }
+
+    .data-table tbody tr:hover {
+      background: #f8fbff;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-pending { background: #fff4db; color: #9a6700; }
+    .status-reserved { background: #dcfce7; color: #166534; }
+
+    .facility-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .legend-chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #f5f7fb;
+      color: #152d64;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .tab-strip {
+      display: inline-flex;
+      gap: 8px;
+      background: #fff;
+      padding: 8px;
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(21, 45, 100, 0.08);
+      margin-bottom: 18px;
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      color: #6b7a99;
+      font-weight: 700;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: #152d64;
+      color: #fff;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .calendar-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .calendar-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #152d64;
+      margin: 0;
+    }
+
+    .calendar-grid {
+      background: #fff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 10px 26px rgba(21, 45, 100, 0.08);
+      border: 1px solid rgba(21, 45, 100, 0.08);
+    }
+
+    .calendar-header,
+    .calendar-week {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    .calendar-header div {
+      background: #152d64;
+      color: #fff;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+
+    .calendar-day {
+      min-height: 144px;
+      border-right: 1px solid #edf2f7;
+      border-bottom: 1px solid #edf2f7;
+      padding: 10px;
+      position: relative;
+      background: #fff;
+    }
+
+    .calendar-day:nth-child(7n) { border-right: none; }
+
+    .calendar-day.other-month {
+      background: #f8fafc;
+      color: #99a4b8;
+    }
+
+    .calendar-day.today {
+      box-shadow: inset 0 0 0 2px #1e448d;
+      background: #f5f9ff;
+    }
+
+    .day-number {
+      font-weight: 800;
+      color: #152d64;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .reservation-pill {
+      display: block;
+      border-radius: 10px;
+      padding: 7px 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      line-height: 1.25;
+      border: 1px solid transparent;
+      background: #f5f7fb;
+      color: #152d64;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .reservation-pill:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(21, 45, 100, 0.15);
+    }
+
+    .reservation-pill.pending { background: #fff4db; border-color: #f4d28d; }
+    .reservation-pill.pending:hover { background: #fef1d4; }
+    .reservation-pill.reserved { background: #dcfce7; border-color: #a7e3ba; }
+    .reservation-pill.reserved:hover { background: #d3fae0; }
+
+    .reservation-pill strong { display: block; margin-bottom: 4px; }
+
+    .reservation-window {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .reservation-time {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(21, 45, 100, 0.82);
+    }
+
+    .reservation-time span:last-child {
+      text-align: right;
+    }
+
+    .facility-picker {
+      margin: 12px 0 18px;
+      padding: 14px;
+      border: 1px solid #e4eaf5;
+      border-radius: 14px;
+      background: #f8fbff;
+    }
+
+    .facility-picker-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .facility-picker-header h3 {
+      margin: 0;
+      font-size: 15px;
+      color: #152d64;
+    }
+
+    .reservation-list-filter {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .empty-state {
+      padding: 28px;
+      text-align: center;
+      color: #6b7a99;
+      background: #fff;
+      border: 1px dashed #d5deee;
+      border-radius: 14px;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .small-text {
+      color: #6b7a99;
+      font-size: 13px;
+    }
+
+    .field-errors {
+      color: #dc3545;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 18, 43, 0.58);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 2000;
+    }
+
+    .modal-shell {
+      width: min(860px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(21, 45, 100, 0.12);
+    }
+
+    .modal-shell.modal-large {
+      width: min(1040px, 100%);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, #152d64 0%, #1e448d 100%);
+      color: #fff;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .modal-close {
+      border: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .detail-row label {
+      font-weight: 700;
+      color: #152d64;
+      font-size: 14px;
+    }
+
+    .detail-row span {
+      color: #5e6c84;
+      word-break: break-word;
+      line-height: 1.5;
+      padding: 6px 0;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    @media (max-width: 1200px) {
+      .card-grid { grid-template-columns: 1fr; }
+      .reservation-list-filter { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .facility-page { margin-left: 0; }
+      .calendar-day { min-height: 120px; }
+    }
+  </style>
+</head>
+<body>
+  {% include 'app/includes/sidebar.html' %}
+  <main class="facility-page">
+    <div class="facility-shell">
+      <div class="page-hero">
+        <div>
+          <h1>Facility Reservations</h1>
+          <p>Manage facilities and manually control reservation schedules from a month calendar and list view. Pending bookings may overlap; reserved bookings cannot.</p>
+        </div>
+      </div>
+
+      {% if messages %}
+        <div class="panel" style="margin-bottom: 18px;">
+          <div class="panel-body">
+            {% for message in messages %}
+              <div class="badge {% if message.tags == 'success' %}status-reserved{% else %}status-pending{% endif %}" style="margin-bottom: 8px; border-radius: 12px; padding: 10px 12px; display: block;">{{ message }}</div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="action-bar">
+        <button type="button" class="btn-primary" onclick="openAddFacility()">
+          <i class="fas fa-plus"></i> Add Facility
+        </button>
+        <button type="button" class="btn-secondary" onclick="openAddReservation()">
+          <i class="fas fa-calendar-plus"></i> Add Reservation
+        </button>
+      </div>
+
+      <div class="tab-strip">
+        <button type="button" class="tab-btn {% if active_tab == 'calendar' %}active{% endif %}" onclick="switchTab('calendar')"><i class="fas fa-calendar-days"></i> Calendar</button>
+        <button type="button" class="tab-btn {% if active_tab == 'list' %}active{% endif %}" onclick="switchTab('list')"><i class="fas fa-list"></i> List</button>
+      </div>
+
+      <section id="calendar-tab" class="tab-content {% if active_tab == 'calendar' %}active{% endif %}">
+        <div class="panel" style="margin-bottom: 16px;">
+          <div class="panel-body">
+            <div class="calendar-toolbar">
+              <div>
+                <h2 class="calendar-title">{{ month_name }}</h2>
+                <div class="small-text" style="margin-top: 4px;">{% if selected_facility %}{{ selected_facility.name }}{% else %}No facility selected{% endif %}</div>
+              </div>
+              <form method="get" class="calendar-nav" style="margin: 0;">
+                <input type="hidden" name="tab" value="calendar">
+                <input type="hidden" name="year" value="{{ year }}">
+                <input type="hidden" name="month" value="{{ month }}">
+                <select name="facility" class="form-control" style="width: 240px;" onchange="this.form.submit()">
+                  <option value="">Select facility</option>
+                  {% for facility in facilities %}
+                    <option value="{{ facility.id }}" {% if facility.id == selected_facility_id %}selected{% endif %}>{{ facility.name }}</option>
+                  {% endfor %}
+                </select>
+                <a class="btn-ghost" href="{% url 'facility_reservations_management' %}?tab=calendar&facility={{ selected_facility_id }}&year={{ navigation.previous_year }}&month={{ navigation.previous_month }}"><i class="fas fa-chevron-left"></i></a>
+                <a class="btn-ghost" href="{% url 'facility_reservations_management' %}?tab=calendar&facility={{ selected_facility_id }}&year={{ navigation.today_year }}&month={{ navigation.today_month }}"><i class="fas fa-calendar-day"></i> Today</a>
+                <a class="btn-ghost" href="{% url 'facility_reservations_management' %}?tab=calendar&facility={{ selected_facility_id }}&year={{ navigation.next_year }}&month={{ navigation.next_month }}"><i class="fas fa-chevron-right"></i></a>
+              </form>
+            </div>
+
+            <div class="facility-legend">
+              <div class="legend-chip"><span class="badge status-pending" style="margin-right: 6px;">Pending</span></div>
+              <div class="legend-chip"><span class="badge status-reserved" style="margin-right: 6px;">Reserved</span></div>
+            </div>
+          </div>
+        </div>
+
+        {% if selected_facility %}
+          <div class="calendar-grid">
+            <div class="calendar-header">
+              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+            {% for week in calendar_weeks %}
+              <div class="calendar-week">
+                {% for day in week %}
+                  <div class="calendar-day {% if not day.in_current_month %}other-month{% endif %} {% if day.is_today %}today{% endif %}">
+                    <div class="day-number">
+                      <span>{{ day.day_number }}</span>
+                    </div>
+                    {% for reservation in day.reservations|slice:':3' %}
+                      <div class="reservation-pill {{ reservation.status }}" 
+                           data-reservation-id="{{ reservation.id }}" 
+                           data-reserver-name="{{ reservation.reserver_name }}"
+                           data-purpose="{{ reservation.purpose }}"
+                           data-status="{{ reservation.status_display }}"
+                           data-start-time="{{ reservation.start_display|date:'M d, Y g:i A' }}"
+                           data-end-time="{{ reservation.end_display|date:'M d, Y g:i A' }}"
+                           onclick="openReservationDetail(this)">
+                        <strong>{{ reservation.reserver_name }}</strong>
+                        <div class="reservation-window">
+                          <div class="reservation-time">
+                            <span>Start</span>
+                            <span>{{ reservation.start_display|date:'M d, g:i A' }}</span>
+                          </div>
+                          <div class="reservation-time">
+                            <span>End</span>
+                            <span>{{ reservation.end_display|date:'M d, g:i A' }}</span>
+                          </div>
+                        </div>
+                        <div>{{ reservation.purpose|truncatechars:32 }}</div>
+                      </div>
+                    {% endfor %}
+                    {% if day.reservations|length > 3 %}
+                      <div class="small-text">+{{ day.reservations|length|add:'-3' }} more</div>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">Choose a facility to view its month calendar.</div>
+        {% endif %}
+      </section>
+
+      <section id="list-tab" class="tab-content {% if active_tab == 'list' %}active{% endif %}">
+        <div class="panel" style="margin-bottom: 16px;">
+          <div class="panel-body">
+            <form method="get" class="reservation-list-filter" style="margin-bottom: 0;">
+              <input type="hidden" name="tab" value="list">
+              <div class="field-row" style="margin-bottom: 0;">
+                <label>Facility filter</label>
+                <select name="facility" class="form-control" onchange="this.form.submit()">
+                  <option value="">All facilities</option>
+                  {% for facility in facilities %}
+                    <option value="{{ facility.id }}" {% if facility.id|stringformat:'s' == reservation_facility_filter|stringformat:'s' %}selected{% endif %}>{{ facility.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="field-row" style="margin-bottom: 0;">
+                <label>Status filter</label>
+                <select name="status" class="form-control" onchange="this.form.submit()">
+                  <option value="">All statuses</option>
+                  <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                  <option value="reserved" {% if status_filter == 'reserved' %}selected{% endif %}>Reserved</option>
+                </select>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel table-panel">
+          {% if reservations_page.paginator.count %}
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Facility</th>
+                  <th>Purpose</th>
+                  <th>Reserver</th>
+                  <th>Start time</th>
+                  <th>End time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for reservation in reservations_page %}
+                  <tr>
+                    <td>{{ reservation.facility.name }}</td>
+                    <td>{{ reservation.purpose }}</td>
+                    <td>{{ reservation.reserver_name }}</td>
+                    <td>{{ reservation.start_datetime|date:'M d, Y g:i A' }}</td>
+                    <td>{{ reservation.end_datetime|date:'M d, Y g:i A' }}</td>
+                    <td><span class="badge status-{{ reservation.status }}">{{ reservation.get_status_display }}</span></td>
+                    <td>
+                      <div class="action-row" style="margin-top: 0;">
+                        <button type="button" class="btn-ghost" onclick="openEditReservation('{{ reservation.id }}')"><i class="fas fa-pen"></i> Edit</button>
+                        <form method="post" onsubmit="return confirm('Remove this reservation?');">
+                          {% csrf_token %}
+                          <input type="hidden" name="action" value="delete_reservation">
+                          <input type="hidden" name="reservation_id" value="{{ reservation.id }}">
+                          <button type="submit" class="btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+            <div class="panel-body pagination">
+              <div class="small-text">
+                Showing {{ reservations_page.start_index }} to {{ reservations_page.end_index }} of {{ reservations_page.paginator.count }} reservation{{ reservations_page.paginator.count|pluralize }}
+              </div>
+              <div class="action-row" style="margin-top: 0;">
+                {% if reservations_page.has_previous %}
+                  <a class="btn-secondary" href="?tab=list&facility={{ reservation_facility_filter }}&status={{ status_filter }}&page={{ reservations_page.previous_page_number }}"><i class="fas fa-chevron-left"></i> Previous</a>
+                {% endif %}
+                {% if reservations_page.has_next %}
+                  <a class="btn-secondary" href="?tab=list&facility={{ reservation_facility_filter }}&status={{ status_filter }}&page={{ reservations_page.next_page_number }}"><i class="fas fa-chevron-right"></i> Next</a>
+                {% endif %}
+              </div>
+            </div>
+          {% else %}
+            <div class="empty-state">No reservations found.</div>
+          {% endif %}
+        </div>
+      </section>
+
+      <div id="facilityModal" class="modal-overlay" aria-hidden="true">
+        <div class="modal-shell">
+          <div class="modal-header">
+            <h2 id="facilityModalTitle">Add Facility</h2>
+            <button type="button" class="modal-close" onclick="closeModal('facilityModal')"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="modal-body">
+            <form method="post" id="facilityForm">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="save_facility">
+              <input type="hidden" name="facility_id" id="facility_id" value="{{ facility_form.instance.id|default:'' }}">
+              <input type="hidden" name="tab" value="{{ active_tab }}">
+              <div class="field-row">
+                <label for="id_name">Facility name</label>
+                {{ facility_form.name }}
+                {% if facility_form.name.errors %}
+                  <div class="field-errors">{{ facility_form.name.errors|join:', ' }}</div>
+                {% endif %}
+              </div>
+              {% if facility_form.non_field_errors %}
+                <div class="field-errors">{{ facility_form.non_field_errors|join:', ' }}</div>
+              {% endif %}
+              <div class="action-row">
+                <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save facility</button>
+                <button type="button" class="btn-secondary" onclick="closeModal('facilityModal')">Cancel</button>
+              </div>
+            </form>
+
+            <div style="margin-top: 22px;">
+              <div class="facility-picker-header" style="margin-bottom: 12px;">
+                <h3>Existing Facilities</h3>
+                <div class="small-text">Manage facilities from the same modal</div>
+              </div>
+              {% if facilities %}
+                <div style="display: grid; gap: 10px;">
+                  {% for facility in facilities %}
+                    <div style="padding: 12px; border: 1px solid #e4eaf5; border-radius: 12px; display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap;">
+                      <div>
+                        <div style="font-weight: 700; color: #152d64;">{{ facility.name }}</div>
+                        <div class="small-text">{{ facility.reservations.count }} reservation{{ facility.reservations.count|pluralize }}</div>
+                      </div>
+                      <div class="action-row" style="margin-top: 0;">
+                        <button type="button" class="btn-ghost" onclick="openEditFacility('{{ facility.id }}', '{{ facility.name|escapejs }}')">
+                          <i class="fas fa-pen"></i> Edit
+                        </button>
+                        <form method="post" onsubmit="return confirm('Remove this facility and all related reservations?');">
+                          {% csrf_token %}
+                          <input type="hidden" name="action" value="delete_facility">
+                          <input type="hidden" name="facility_id" value="{{ facility.id }}">
+                          <button type="submit" class="btn-danger"><i class="fas fa-trash"></i> Remove</button>
+                        </form>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="empty-state">No facilities have been added yet.</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="reservationModal" class="modal-overlay" aria-hidden="true">
+        <div class="modal-shell modal-large">
+          <div class="modal-header">
+            <h2 id="reservationModalTitle">Add Reservation</h2>
+            <button type="button" class="modal-close" onclick="closeModal('reservationModal')"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="modal-body">
+            <form method="post" id="reservationForm">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="save_reservation">
+              <input type="hidden" name="reservation_id" id="reservation_id" value="{{ reservation_form.instance.id|default:'' }}">
+              <input type="hidden" name="tab" value="{{ active_tab }}">
+              <input type="hidden" name="month" value="{{ month }}">
+              <input type="hidden" name="year" value="{{ year }}">
+              {{ reservation_form.facility.as_hidden }}
+              <div class="reservation-list-filter">
+                <div class="field-row" style="margin-bottom: 0;">
+                  <label for="id_reserver_name">Reserver name</label>
+                  {{ reservation_form.reserver_name }}
+                  {% if reservation_form.reserver_name.errors %}<div class="field-errors">{{ reservation_form.reserver_name.errors|join:', ' }}</div>{% endif %}
+                </div>
+                <div class="field-row" style="margin-bottom: 0;">
+                  <label for="id_status">Status</label>
+                  {{ reservation_form.status }}
+                  {% if reservation_form.status.errors %}<div class="field-errors">{{ reservation_form.status.errors|join:', ' }}</div>{% endif %}
+                </div>
+              </div>
+              <div class="facility-picker">
+                <div class="facility-picker-header">
+                  <h3>Existing Facilities</h3>
+                  <div class="small-text">Use the dropdown to fill the facility field</div>
+                </div>
+                {% if facilities %}
+                  <select class="form-control" id="reservationFacilityPicker" onchange="setReservationFacility(this.value)">
+                    <option value="">Select existing facility</option>
+                    {% for facility in facilities %}
+                      <option value="{{ facility.id }}" {% if selected_facility and selected_facility.id == facility.id %}selected{% endif %}>{{ facility.name }}</option>
+                    {% endfor %}
+                  </select>
+                {% else %}
+                  <div class="small-text">No facilities have been added yet.</div>
+                {% endif %}
+              </div>
+              <div class="field-row">
+                <label for="id_purpose">Purpose</label>
+                {{ reservation_form.purpose }}
+                {% if reservation_form.purpose.errors %}<div class="field-errors">{{ reservation_form.purpose.errors|join:', ' }}</div>{% endif %}
+              </div>
+              <div class="reservation-list-filter">
+                <div class="field-row" style="margin-bottom: 0;">
+                  <label for="id_start_datetime">Start time</label>
+                  {{ reservation_form.start_datetime }}
+                  {% if reservation_form.start_datetime.errors %}<div class="field-errors">{{ reservation_form.start_datetime.errors|join:', ' }}</div>{% endif %}
+                </div>
+                <div class="field-row" style="margin-bottom: 0;">
+                  <label for="id_end_datetime">End time</label>
+                  {{ reservation_form.end_datetime }}
+                  {% if reservation_form.end_datetime.errors %}<div class="field-errors">{{ reservation_form.end_datetime.errors|join:', ' }}</div>{% endif %}
+                </div>
+              </div>
+              {% if reservation_form.non_field_errors %}
+                <div class="field-errors">{{ reservation_form.non_field_errors|join:', ' }}</div>
+              {% endif %}
+              <div class="action-row">
+                <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save reservation</button>
+                <button type="button" class="btn-secondary" onclick="closeModal('reservationModal')">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div id="reservationDetailModal" class="modal-overlay" aria-hidden="true">
+        <div class="modal-shell">
+          <div class="modal-header">
+            <h2>Reservation Details</h2>
+            <button type="button" class="modal-close" onclick="closeModal('reservationDetailModal')"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="modal-body">
+            <div class="detail-grid">
+              <div class="detail-row">
+                <label>Reserver</label>
+                <span id="detailReserverName">-</span>
+              </div>
+              <div class="detail-row">
+                <label>Purpose</label>
+                <span id="detailPurpose">-</span>
+              </div>
+              <div class="detail-row">
+                <label>Status</label>
+                <span id="detailStatus">-</span>
+              </div>
+              <div class="detail-row">
+                <label>Start Time</label>
+                <span id="detailStartTime">-</span>
+              </div>
+              <div class="detail-row">
+                <label>End Time</label>
+                <span id="detailEndTime">-</span>
+              </div>
+            </div>
+            <div class="action-row" style="margin-top: 24px;">
+              <button type="button" class="btn-primary" onclick="editReservationFromDetail()" id="editFromDetailBtn"><i class="fas fa-pen"></i> Edit</button>
+              <button type="button" class="btn-secondary" onclick="closeModal('reservationDetailModal')">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function openAddFacility() {
+      const form = document.getElementById('facilityForm');
+      if (form) {
+        form.reset();
+      }
+      document.getElementById('facility_id').value = '';
+      document.getElementById('facilityModalTitle').textContent = 'Add Facility';
+      openModal('facilityModal');
+    }
+
+    function openAddReservation() {
+      const form = document.getElementById('reservationForm');
+      if (form) {
+        form.reset();
+      }
+      document.getElementById('reservation_id').value = '';
+      document.getElementById('reservationModalTitle').textContent = 'Add Reservation';
+      openModal('reservationModal');
+    }
+
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+    }
+
+    function openEditFacility(facilityId, facilityName) {
+      const form = document.getElementById('facilityForm');
+      if (form) {
+        form.reset();
+      }
+      document.getElementById('facility_id').value = facilityId;
+      document.getElementById('facilityModalTitle').textContent = 'Edit Facility';
+      document.getElementById('id_name').value = facilityName;
+      openModal('facilityModal');
+    }
+
+    function openEditReservation(reservationId) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', 'list');
+      url.searchParams.set('edit_reservation', reservationId);
+      window.location.href = url.toString();
+    }
+
+    function setReservationFacility(facilityId) {
+      const facilityField = document.getElementById('id_facility');
+      if (!facilityField) return;
+      facilityField.value = facilityId;
+
+      const picker = document.getElementById('reservationFacilityPicker');
+      if (picker && picker.value !== facilityId) {
+        picker.value = facilityId;
+      }
+    }
+
+    function switchTab(tab) {
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set('tab', tab);
+      window.location.href = currentUrl.toString();
+    }
+
+    function openReservationDetail(element) {
+      const id = element.dataset.reservationId;
+      const reserverName = element.dataset.reserverName;
+      const purpose = element.dataset.purpose;
+      const status = element.dataset.status;
+      const startTime = element.dataset.startTime;
+      const endTime = element.dataset.endTime;
+      
+      document.getElementById('detailReserverName').textContent = reserverName;
+      document.getElementById('detailPurpose').textContent = purpose;
+      
+      const statusClass = element.className.includes('pending') ? 'pending' : 'reserved';
+      document.getElementById('detailStatus').innerHTML = '<span class="badge status-' + statusClass + '">' + status + '</span>';
+      
+      document.getElementById('detailStartTime').textContent = startTime;
+      document.getElementById('detailEndTime').textContent = endTime;
+      document.getElementById('editFromDetailBtn').setAttribute('onclick', "editReservationFromDetail('" + id + "')");
+      openModal('reservationDetailModal');
+    }
+
+    function editReservationFromDetail(reservationId) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', 'list');
+      url.searchParams.set('edit_reservation', reservationId);
+      window.location.href = url.toString();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const hasFacilityEdit = new URLSearchParams(window.location.search).has('edit_facility');
+      const hasReservationEdit = new URLSearchParams(window.location.search).has('edit_reservation');
+
+      if (hasFacilityEdit) {
+        const facilityModal = document.getElementById('facilityModal');
+        if (facilityModal) {
+          document.getElementById('facilityModalTitle').textContent = 'Edit Facility';
+          facilityModal.style.display = 'flex';
+          facilityModal.setAttribute('aria-hidden', 'false');
+          document.body.classList.add('modal-open');
+        }
+      }
+
+      if (hasReservationEdit) {
+        const reservationModal = document.getElementById('reservationModal');
+        if (reservationModal) {
+          document.getElementById('reservationModalTitle').textContent = 'Edit Reservation';
+          reservationModal.style.display = 'flex';
+          reservationModal.setAttribute('aria-hidden', 'false');
+          document.body.classList.add('modal-open');
+        }
+      }
+
+      document.querySelectorAll('.modal-overlay').forEach(function(modal) {
+        modal.addEventListener('click', function(event) {
+          if (event.target === modal) {
+            closeModal(modal.id);
+          }
+        });
+      });
+
+      const reservationSelect = document.getElementById('id_facility');
+      if (reservationSelect) {
+        reservationSelect.addEventListener('change', function() {
+          const picker = document.getElementById('reservationFacilityPicker');
+          if (picker && picker.value !== reservationSelect.value) {
+            picker.value = reservationSelect.value;
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

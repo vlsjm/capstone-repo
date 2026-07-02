@@ -4,11 +4,11 @@ from django.utils import timezone
 from .models import (
     Supply, Property, SupplyRequest,
     Reservation, ReservationBatch, ReservationItem, DamageReport, LostItem, BorrowRequest,
-    UserProfile, ActivityLog, Notification, AdminPermission,
+    UserProfile, ActivityLog, Notification, AdminPermission, SlipSignatory,
     SupplyQuantity, SupplyHistory, PropertyHistory,
-    Department, PropertyCategory, SupplyCategory, SupplySubcategory, 
+    Department, PropertyCategory, AccountablePerson, SupplyCategory, SupplySubcategory, 
     SupplyRequestBatch, SupplyRequestItem, BorrowRequestBatch, BorrowRequestItem, BadStockReport,
-    UserSession, PPMP, PPMPItem
+    UserSession, PPMP, PPMPItem, Facility, FacilityReservation
 )
 
 @admin.register(Property)
@@ -19,7 +19,7 @@ class PropertyAdmin(admin.ModelAdmin):
         'availability', 'location'
     ]
     list_filter = ['category', 'condition', 'availability', 'year_acquired']
-    search_fields = ['property_name', 'property_number', 'accountable_person', 'location']
+    search_fields = ['property_name', 'property_number', 'accountable_person__name', 'location']
     fieldsets = (
         ('Basic Information', {
             'fields': ('property_number', 'property_name', 'category', 'description')
@@ -45,9 +45,18 @@ class PropertyCategoryAdmin(admin.ModelAdmin):
     search_fields = ['name', 'uacs']
     fields = ['name', 'uacs']
 
+
+@admin.register(AccountablePerson)
+class AccountablePersonAdmin(admin.ModelAdmin):
+    list_display = ['name']
+    search_fields = ['name']
+    fields = ['name']
+
 admin.site.register(Supply)
 admin.site.register(SupplyRequest)
 admin.site.register(Reservation)
+admin.site.register(Facility)
+admin.site.register(FacilityReservation)
 
 @admin.register(DamageReport)
 class DamageReportAdmin(admin.ModelAdmin):
@@ -247,6 +256,19 @@ class AdminPermissionAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         # Only superusers can delete permission types
         return request.user.is_superuser
+
+
+@admin.register(SlipSignatory)
+class SlipSignatoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'designation', 'document_type', 'is_default', 'created_by', 'updated_at']
+    list_filter = ['document_type', 'is_default']
+    search_fields = ['name', 'designation']
+    readonly_fields = ['created_at', 'updated_at']
+
+    def save_model(self, request, obj, form, change):
+        if not obj.created_by_id:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
 
 admin.site.register(ActivityLog)
 admin.site.register(Notification)

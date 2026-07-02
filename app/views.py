@@ -349,7 +349,7 @@ def export_unserviceable_items(request):
             prop.category.name if prop.category else 'N/A',
             prop.description or 'N/A',
             prop.location or 'N/A',
-            prop.accountable_person or 'N/A',
+            prop.accountable_person.name if prop.accountable_person else 'N/A',
             prop.year_acquired.strftime('%Y-%m-%d') if prop.year_acquired else 'N/A',
             float(prop.unit_value) if prop.unit_value else 0,
             prop.quantity or 0
@@ -434,7 +434,7 @@ def export_needs_repair_items(request):
             prop.category.name if prop.category else 'N/A',
             prop.description or 'N/A',
             prop.location or 'N/A',
-            prop.accountable_person or 'N/A',
+            prop.accountable_person.name if prop.accountable_person else 'N/A',
             prop.year_acquired.strftime('%Y-%m-%d') if prop.year_acquired else 'N/A',
             float(prop.unit_value) if prop.unit_value else 0,
             prop.quantity or 0
@@ -570,7 +570,7 @@ from .models import(
     SupplyRequest, DamageReport, LostItem, Reservation, ReservationBatch, ReservationItem,
     ActivityLog, UserProfile, Notification, AdminPermission,
     SupplyQuantity, SupplyHistory, PropertyHistory,
-    Department, PropertyCategory, SupplyCategory, SupplySubcategory,
+    Department, PropertyCategory, AccountablePerson, SupplyCategory, SupplySubcategory,
     SupplyRequestBatch, SupplyRequestItem, BadStockReport, UserSession
 )
 from .forms import PropertyForm, PropertyNumberChangeForm, SupplyForm, UserProfileForm, UserRegistrationForm, DepartmentForm, SupplyRequestBatchForm, SupplyRequestItemForm, SupplyRequestBatchForm, SupplyRequestItemForm, BadStockReportForm
@@ -2504,6 +2504,71 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
     permission_required = 'app.view_admin_module'
     context_object_name = 'batch_requests'
     paginate_by = 8  # Optimized for table layout - shows 8 requests per page for better UX
+
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action')
+
+        if action in {'save_signatory_default', 'update_signatory', 'delete_signatory'}:
+            if not request.user.is_staff:
+                messages.error(request, 'You do not have permission to manage slip signatories.')
+                return redirect(request.get_full_path())
+
+            from .models import SlipSignatory
+
+            if action == 'delete_signatory':
+                signatory_id = request.POST.get('signatory_id')
+                signatory = SlipSignatory.objects.filter(pk=signatory_id, document_type='supply').first()
+                if not signatory:
+                    messages.error(request, 'Default person not found.')
+                    return redirect(request.get_full_path())
+
+                was_default = signatory.is_default
+                signatory.delete()
+
+                if was_default:
+                    next_default = SlipSignatory.objects.filter(document_type='supply').order_by('name').first()
+                    if next_default:
+                        next_default.is_default = True
+                        next_default.save(update_fields=['is_default'])
+
+                messages.success(request, 'Default person removed successfully.')
+                return redirect(request.get_full_path())
+
+            signatory_id = request.POST.get('signatory_id')
+            name = request.POST.get('signatory_name', '').strip()
+            designation = request.POST.get('signatory_designation', '').strip()
+            is_default = request.POST.get('is_default') == 'on'
+
+            if not name:
+                messages.error(request, 'Please provide a default person name.')
+                return redirect(request.get_full_path())
+
+            if signatory_id:
+                signatory = SlipSignatory.objects.filter(pk=signatory_id, document_type='supply').first()
+                if not signatory:
+                    messages.error(request, 'Default person not found.')
+                    return redirect(request.get_full_path())
+
+                signatory.name = name
+                signatory.designation = designation
+                signatory.is_default = is_default
+                signatory.created_by = request.user
+                signatory.save()
+                messages.success(request, f'Default person "{name}" has been updated.')
+                return redirect(request.get_full_path())
+
+            SlipSignatory.objects.create(
+                name=name,
+                designation=designation,
+                document_type='supply',
+                is_default=is_default,
+                created_by=request.user,
+            )
+
+            messages.success(request, f'Default person "{name}" has been saved.')
+            return redirect(request.get_full_path())
+
+        return redirect(request.get_full_path())
     
     def get_queryset(self):
         # Show batch requests ordered by oldest first
@@ -2520,6 +2585,22 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
         department_filter = self.request.GET.get('department', '')
         date_from = self.request.GET.get('date_from', '')
         date_to = self.request.GET.get('date_to', '')
+        signatory_id = self.request.GET.get('signatory')
+
+        from .models import SlipSignatory
+        signatories = SlipSignatory.objects.filter(document_type='supply').order_by('-is_default', 'name')
+        selected_signatory = signatories.filter(is_default=True).first()
+        selected_signatory_mode = 'dynamic'
+
+        if signatory_id:
+            if signatory_id == 'dynamic':
+                selected_signatory = None
+                selected_signatory_mode = 'dynamic'
+            else:
+                selected_signatory = signatories.filter(pk=signatory_id).first() or selected_signatory
+                selected_signatory_mode = str(selected_signatory.id) if selected_signatory else 'dynamic'
+        elif selected_signatory:
+            selected_signatory_mode = str(selected_signatory.id)
         
         # Base queryset with related data
         base_queryset = SupplyRequestBatch.objects.select_related('user', 'user__userprofile', 'user__userprofile__department').prefetch_related('items__supply').order_by('request_date')
@@ -2624,6 +2705,8 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
             url_params.append(f'date_from={date_from}')
         if date_to:
             url_params.append(f'date_to={date_to}')
+        if selected_signatory_mode:
+            url_params.append(f'signatory={selected_signatory_mode}')
         
         base_url_params = '&'.join(url_params)
         context['url_params'] = '&' + base_url_params if base_url_params else ''
@@ -2652,6 +2735,9 @@ class UserSupplyRequestListView(PermissionRequiredMixin, ListView):
             except:
                 users_departments[str(user.id)] = ''
         context['users_departments'] = users_departments
+        context['signatories'] = signatories
+        context['selected_signatory'] = selected_signatory
+        context['selected_signatory_mode'] = selected_signatory_mode
         
         return context
 
@@ -3392,7 +3478,7 @@ class PropertyListView(PermissionRequiredMixin, ListView):
     paginate_by = 15
 
     def get_queryset(self):
-        queryset = Property.objects.filter(is_archived=False).select_related('category').order_by('property_name')
+        queryset = Property.objects.filter(is_archived=False).select_related('category', 'accountable_person').order_by('property_name')
         
         # Apply search filter
         search_query = self.request.GET.get('search')
@@ -3449,11 +3535,12 @@ class PropertyListView(PermissionRequiredMixin, ListView):
         
         # Get all categories for the filter dropdown
         context['categories'] = PropertyCategory.objects.all()
+        context['accountable_persons'] = AccountablePerson.objects.all().order_by('name')
         context['form'] = PropertyForm()
         
         # Build properties_by_category from ALL non-archived properties (not just paginated ones)
         # This ensures the Property Inventory modal dropdown shows all available properties
-        all_properties = Property.objects.filter(is_archived=False).select_related('category').order_by('property_name')
+        all_properties = Property.objects.filter(is_archived=False).select_related('category', 'accountable_person').order_by('property_name')
         properties_by_category = defaultdict(list)
         for prop in all_properties:
             properties_by_category[prop.category].append(prop)
@@ -3717,6 +3804,50 @@ def add_property(request):
             messages.error(request, f'Please correct the following errors: {", ".join(error_messages)}')
     return redirect('property_list')
 
+
+@permission_required('app.view_admin_module')
+def add_accountable_person(request):
+    if request.method == 'POST':
+        name = (request.POST.get('name') or '').strip()
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+        if not name:
+            error_message = 'Accountable person name is required.'
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': error_message})
+            messages.error(request, error_message)
+            return redirect('property_list')
+
+        person, created = AccountablePerson.objects.get_or_create(name=name)
+        if not created:
+            error_message = f'Accountable person "{name}" already exists.'
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': error_message})
+            messages.error(request, error_message)
+            return redirect('property_list')
+
+        ActivityLog.log_activity(
+            user=request.user,
+            action='create',
+            model_name='AccountablePerson',
+            object_repr=str(person),
+            description=f"Added new accountable person '{name}'"
+        )
+
+        if is_ajax:
+            return JsonResponse({
+                'success': True,
+                'message': 'Accountable person added successfully.',
+                'person': {
+                    'id': person.id,
+                    'name': person.name,
+                }
+            })
+
+        messages.success(request, 'Accountable person added successfully.')
+
+    return redirect('property_list')
+
 @permission_required('app.view_admin_module')
 @login_required
 @admin_permission_required('edit_property')
@@ -3785,7 +3916,11 @@ def edit_property(request):
                 property_obj.overall_quantity = 0
 
             property_obj.location = request.POST.get('location')
-            property_obj.accountable_person = request.POST.get('accountable_person')
+            accountable_person_id = request.POST.get('accountable_person')
+            if accountable_person_id:
+                property_obj.accountable_person_id = accountable_person_id
+            else:
+                property_obj.accountable_person = None
             
             # Handle year_acquired date field
             year_acquired_str = request.POST.get('year_acquired')
@@ -4193,6 +4328,17 @@ def get_property_categories(request):
         for category in categories
     ]
     return JsonResponse({'categories': categories_data})
+
+
+@login_required
+def get_accountable_persons(request):
+    """Return all accountable persons as JSON for dropdown updates"""
+    people = AccountablePerson.objects.all().order_by('name')
+    people_data = [
+        {'id': person.id, 'name': person.name}
+        for person in people
+    ]
+    return JsonResponse({'accountable_persons': people_data})
 
 class CheckOutPageView(PermissionRequiredMixin, TemplateView):
     template_name = 'app/checkout.html'
@@ -5882,7 +6028,7 @@ def export_property_to_pdf_ics(request):
     accountable_person_filter = request.POST.get('accountable_person_ics', '(All)')
     
     # Get all properties
-    properties = Property.objects.select_related('category').all()
+    properties = Property.objects.select_related('category', 'accountable_person').all()
     
     # Filter properties with unit value (unit cost) below 50,000
     filtered_properties = []
@@ -5894,7 +6040,7 @@ def export_property_to_pdf_ics(request):
         # Filter based on unit cost being below 50,000
         if unit_cost < 50000:
             # Apply accountable person filter if specified
-            if accountable_person_filter == '(All)' or prop.accountable_person == accountable_person_filter:
+            if accountable_person_filter == '(All)' or (prop.accountable_person and prop.accountable_person.name == accountable_person_filter):
                 filtered_properties.append({
                     'article': prop.property_name or 'N/A',  # Property name as Article
                     'description': prop.description or '',
@@ -5905,7 +6051,7 @@ def export_property_to_pdf_ics(request):
                     'qty_per_card': qty_per_card,
                     'qty_per_physical_count': prop.quantity_per_physical_count or qty_per_card,
                     'remarks': 'test',
-                    'accountable_person': prop.accountable_person or 'N/A',
+                    'accountable_person': prop.accountable_person.name if prop.accountable_person else 'N/A',
                     'year_acquired': prop.year_acquired.strftime('%m/%d/%Y') if prop.year_acquired else 'N/A'
                 })
     
@@ -6329,7 +6475,7 @@ def export_inventory_count_form_cvsu(request):
             opt_col = 12  # Start after column 11 (Remarks)
             if include_accountable_person:
                 cell = ws.cell(row=current_row, column=opt_col)
-                cell.value = prop.accountable_person or ''
+                cell.value = prop.accountable_person.name if prop.accountable_person else ''
                 cell.font = normal_font
                 cell.alignment = left_alignment
                 cell.border = thin_border
@@ -7189,7 +7335,7 @@ def export_archived_properties_excel(request):
                 prop.description or 'N/A',
                 prop.category.name if prop.category else 'N/A',
                 prop.location or 'N/A',
-                prop.accountable_person or 'N/A',
+                prop.accountable_person.name if prop.accountable_person else 'N/A',
                 year,
                 prop.get_condition_display() if hasattr(prop, 'get_condition_display') else (prop.condition or 'N/A'),
             ]
@@ -7248,7 +7394,7 @@ class ArchivedItemsView(PermissionRequiredMixin, TemplateView):
             supplies_by_category[category_name].append(supply)
         
         # Get archived properties
-        properties = Property.objects.filter(is_archived=True).select_related('category').order_by('property_name')
+        properties = Property.objects.filter(is_archived=True).select_related('category', 'accountable_person').order_by('property_name')
         
         # Barcodes are already stored in database, no need to generate
         # They will be displayed using barcode_image field
@@ -7942,11 +8088,50 @@ def reject_batch_item(request, batch_id, item_id):
 def batch_request_detail(request, batch_id):
     """View detailed information about a batch request with individual item actions"""
     batch_request = get_object_or_404(SupplyRequestBatch, id=batch_id)
+    from .models import SlipSignatory
+
+    signatories = SlipSignatory.objects.filter(document_type='supply').order_by('-is_default', 'name')
+    selected_signatory = signatories.filter(is_default=True).first()
+    selected_signatory_mode = 'dynamic'
+    selected_signatory_id = request.GET.get('signatory')
+    if selected_signatory_id:
+        if selected_signatory_id == 'dynamic':
+            selected_signatory = None
+            selected_signatory_mode = 'dynamic'
+        else:
+            selected_signatory = signatories.filter(pk=selected_signatory_id).first() or selected_signatory
+            selected_signatory_mode = str(selected_signatory.id) if selected_signatory else 'dynamic'
+    elif selected_signatory:
+        selected_signatory_mode = str(selected_signatory.id)
     
     if request.method == 'POST':
         action = request.POST.get('action')
         item_id = request.POST.get('item_id')
         remarks = request.POST.get('remarks', '').strip()
+
+        if action == 'save_signatory_default':
+            if not request.user.is_staff:
+                messages.error(request, 'You do not have permission to manage slip signatories.')
+                return redirect('batch_request_detail', batch_id=batch_id)
+
+            name = request.POST.get('signatory_name', '').strip()
+            designation = request.POST.get('signatory_designation', '').strip()
+            is_default = request.POST.get('is_default') == 'on'
+
+            if not name:
+                messages.error(request, 'Please provide a default person name.')
+                return redirect('batch_request_detail', batch_id=batch_id)
+
+            SlipSignatory.objects.create(
+                name=name,
+                designation=designation,
+                document_type='supply',
+                is_default=is_default,
+                created_by=request.user,
+            )
+
+            messages.success(request, f'Default signatory "{name}" has been saved.')
+            return redirect('batch_request_detail', batch_id=batch_id)
         
         # Handle void action for for_claiming requests
         if action == 'void_request' and batch_request.status == 'for_claiming':
@@ -8176,6 +8361,9 @@ Resource Hive Management System
         'ppmp_matches': ppmp_matches,
         'ppmp_matches_json': json.dumps(ppmp_matches_json),
         'user_department': user_department,
+        'signatories': signatories,
+        'selected_signatory': selected_signatory,
+        'selected_signatory_mode': selected_signatory_mode,
     }
     
     return render(request, 'app/batch_request_detail.html', context)
@@ -8532,11 +8720,50 @@ def claim_individual_item(request, batch_id, item_id):
 def borrow_batch_request_detail(request, batch_id):
     """View detailed information about a batch borrow request with individual item actions"""
     batch_request = get_object_or_404(BorrowRequestBatch, id=batch_id)
+    from .models import SlipSignatory
+
+    signatories = SlipSignatory.objects.filter(document_type='borrow').order_by('-is_default', 'name')
+    selected_signatory = signatories.filter(is_default=True).first()
+    selected_signatory_mode = 'dynamic'
+    selected_signatory_id = request.GET.get('signatory')
+    if selected_signatory_id:
+        if selected_signatory_id == 'dynamic':
+            selected_signatory = None
+            selected_signatory_mode = 'dynamic'
+        else:
+            selected_signatory = signatories.filter(pk=selected_signatory_id).first() or selected_signatory
+            selected_signatory_mode = str(selected_signatory.id) if selected_signatory else 'dynamic'
+    elif selected_signatory:
+        selected_signatory_mode = str(selected_signatory.id)
     
     if request.method == 'POST':
         action = request.POST.get('action')
         item_id = request.POST.get('item_id')
         remarks = request.POST.get('remarks', '').strip()
+
+        if action == 'save_signatory_default':
+            if not request.user.is_staff:
+                messages.error(request, 'You do not have permission to manage slip signatories.')
+                return redirect('borrow_batch_request_detail', batch_id=batch_id)
+
+            name = request.POST.get('signatory_name', '').strip()
+            designation = request.POST.get('signatory_designation', '').strip()
+            is_default = request.POST.get('is_default') == 'on'
+
+            if not name:
+                messages.error(request, 'Please provide a default person name.')
+                return redirect('borrow_batch_request_detail', batch_id=batch_id)
+
+            SlipSignatory.objects.create(
+                name=name,
+                designation=designation,
+                document_type='borrow',
+                is_default=is_default,
+                created_by=request.user,
+            )
+
+            messages.success(request, f'Default signatory "{name}" has been saved.')
+            return redirect('borrow_batch_request_detail', batch_id=batch_id)
         
         # Handle void action for for_claiming requests
         if action == 'void_request' and batch_request.status == 'for_claiming':
@@ -8717,6 +8944,9 @@ Resource Hive Management System
         'batch': batch_request,
         'items': batch_request.items.all().order_by('property__property_name'),
         'can_void_request': has_admin_permission(request.user, 'void_request'),
+        'signatories': signatories,
+        'selected_signatory': selected_signatory,
+        'selected_signatory_mode': selected_signatory_mode,
     }
     
     return render(request, 'app/borrow_batch_request_detail.html', context)
@@ -9215,6 +9445,71 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
     context_object_name = 'batch_requests'
     paginate_by = 10
 
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action')
+
+        if action in {'save_signatory_default', 'update_signatory', 'delete_signatory'}:
+            if not request.user.is_staff:
+                messages.error(request, 'You do not have permission to manage slip signatories.')
+                return redirect(request.get_full_path())
+
+            from .models import SlipSignatory
+
+            if action == 'delete_signatory':
+                signatory_id = request.POST.get('signatory_id')
+                signatory = SlipSignatory.objects.filter(pk=signatory_id, document_type='borrow').first()
+                if not signatory:
+                    messages.error(request, 'Default person not found.')
+                    return redirect(request.get_full_path())
+
+                was_default = signatory.is_default
+                signatory.delete()
+
+                if was_default:
+                    next_default = SlipSignatory.objects.filter(document_type='borrow').order_by('name').first()
+                    if next_default:
+                        next_default.is_default = True
+                        next_default.save(update_fields=['is_default'])
+
+                messages.success(request, 'Default person removed successfully.')
+                return redirect(request.get_full_path())
+
+            signatory_id = request.POST.get('signatory_id')
+            name = request.POST.get('signatory_name', '').strip()
+            designation = request.POST.get('signatory_designation', '').strip()
+            is_default = request.POST.get('is_default') == 'on'
+
+            if not name:
+                messages.error(request, 'Please provide a default person name.')
+                return redirect(request.get_full_path())
+
+            if signatory_id:
+                signatory = SlipSignatory.objects.filter(pk=signatory_id, document_type='borrow').first()
+                if not signatory:
+                    messages.error(request, 'Default person not found.')
+                    return redirect(request.get_full_path())
+
+                signatory.name = name
+                signatory.designation = designation
+                signatory.is_default = is_default
+                signatory.created_by = request.user
+                signatory.save()
+                messages.success(request, f'Default person "{name}" has been updated.')
+                return redirect(request.get_full_path())
+
+            SlipSignatory.objects.create(
+                name=name,
+                designation=designation,
+                document_type='borrow',
+                is_default=is_default,
+                created_by=request.user,
+            )
+
+            messages.success(request, f'Default person "{name}" has been saved.')
+            return redirect(request.get_full_path())
+
+        return redirect(request.get_full_path())
+
     def get_queryset(self):
         # Check for overdue batches, near-overdue items, and expired items before getting the queryset
         BorrowRequestBatch.check_overdue_batches()
@@ -9246,6 +9541,22 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
         department_filter = self.request.GET.get('department', '')
         date_from = self.request.GET.get('date_from', '')
         date_to = self.request.GET.get('date_to', '')
+        signatory_id = self.request.GET.get('signatory')
+
+        from .models import SlipSignatory
+        signatories = SlipSignatory.objects.filter(document_type='borrow').order_by('-is_default', 'name')
+        selected_signatory = signatories.filter(is_default=True).first()
+        selected_signatory_mode = 'dynamic'
+
+        if signatory_id:
+            if signatory_id == 'dynamic':
+                selected_signatory = None
+                selected_signatory_mode = 'dynamic'
+            else:
+                selected_signatory = signatories.filter(pk=signatory_id).first() or selected_signatory
+                selected_signatory_mode = str(selected_signatory.id) if selected_signatory else 'dynamic'
+        elif selected_signatory:
+            selected_signatory_mode = str(selected_signatory.id)
         
         # Base queryset with related data
         base_queryset = BorrowRequestBatch.objects.select_related('user', 'user__userprofile', 'user__userprofile__department').prefetch_related('items__property').order_by('request_date')
@@ -9329,6 +9640,8 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
             url_params += f'&date_from={date_from}'
         if date_to:
             url_params += f'&date_to={date_to}'
+        if selected_signatory_mode:
+            url_params += f'&signatory={selected_signatory_mode}'
         
         context.update({
             'current_tab': current_tab,
@@ -9346,6 +9659,9 @@ class UserBorrowRequestBatchListView(LoginRequiredMixin, ListView):
             'date_to': date_to,
             'departments': Department.objects.all(),
             'url_params': url_params,
+            'signatories': signatories,
+            'selected_signatory': selected_signatory,
+            'selected_signatory_mode': selected_signatory_mode,
         })
         
         return context
@@ -9932,7 +10248,13 @@ def download_requisition_slip(request, batch_id):
         return redirect('batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_supply_requests', batch_id=batch_id)
     
     try:
+        from .models import SlipSignatory
         from .pdf_utils import download_requisition_slip
+        signatory = None
+        signatory_id = request.GET.get('signatory')
+        use_dynamic_approved_by = signatory_id == 'dynamic'
+        if signatory_id and signatory_id != 'dynamic':
+            signatory = SlipSignatory.objects.filter(pk=signatory_id, document_type='supply').first()
         
         # Log the download activity
         ActivityLog.log_activity(
@@ -9943,7 +10265,11 @@ def download_requisition_slip(request, batch_id):
             description=f"Downloaded requisition slip for batch request #{batch_id}"
         )
         
-        return download_requisition_slip(batch_request)
+        return download_requisition_slip(
+            batch_request,
+            approved_signatory=signatory,
+            use_dynamic_approved_by=use_dynamic_approved_by,
+        )
         
     except Exception as e:
         messages.error(request, f'Error generating requisition slip: {str(e)}')
@@ -9969,7 +10295,13 @@ def view_requisition_slip(request, batch_id):
         return redirect('batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_supply_requests', batch_id=batch_id)
     
     try:
+        from .models import SlipSignatory
         from .pdf_utils import view_requisition_slip
+        signatory = None
+        signatory_id = request.GET.get('signatory')
+        use_dynamic_approved_by = signatory_id == 'dynamic'
+        if signatory_id and signatory_id != 'dynamic':
+            signatory = SlipSignatory.objects.filter(pk=signatory_id, document_type='supply').first()
         
         # Log the view activity
         ActivityLog.log_activity(
@@ -9980,7 +10312,11 @@ def view_requisition_slip(request, batch_id):
             description=f"Viewed requisition slip for batch request #{batch_id}"
         )
         
-        return view_requisition_slip(batch_request)
+        return view_requisition_slip(
+            batch_request,
+            approved_signatory=signatory,
+            use_dynamic_approved_by=use_dynamic_approved_by,
+        )
         
     except Exception as e:
         messages.error(request, f'Error generating requisition slip: {str(e)}')
@@ -10007,7 +10343,13 @@ def download_borrowers_slip(request, batch_id):
         return redirect('borrow_batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_all_requests', batch_id=batch_id)
     
     try:
+        from .models import SlipSignatory
         from .pdf_utils import download_borrowers_slip
+        signatory = None
+        signatory_id = request.GET.get('signatory')
+        use_dynamic_approved_by = signatory_id == 'dynamic'
+        if signatory_id and signatory_id != 'dynamic':
+            signatory = SlipSignatory.objects.filter(pk=signatory_id, document_type='borrow').first()
         
         # Log the download activity
         ActivityLog.log_activity(
@@ -10018,7 +10360,11 @@ def download_borrowers_slip(request, batch_id):
             description=f"Downloaded borrower's slip for borrow batch request #{batch_id}"
         )
         
-        return download_borrowers_slip(batch_request)
+        return download_borrowers_slip(
+            batch_request,
+            approved_signatory=signatory,
+            use_dynamic_approved_by=use_dynamic_approved_by,
+        )
         
     except Exception as e:
         messages.error(request, f'Error generating borrower\'s slip: {str(e)}')
@@ -10044,7 +10390,13 @@ def view_borrowers_slip(request, batch_id):
         return redirect('borrow_batch_request_detail' if request.user.userprofile.role == 'ADMIN' else 'user_all_requests', batch_id=batch_id)
     
     try:
+        from .models import SlipSignatory
         from .pdf_utils import view_borrowers_slip
+        signatory = None
+        signatory_id = request.GET.get('signatory')
+        use_dynamic_approved_by = signatory_id == 'dynamic'
+        if signatory_id and signatory_id != 'dynamic':
+            signatory = SlipSignatory.objects.filter(pk=signatory_id, document_type='borrow').first()
         
         # Log the view activity
         ActivityLog.log_activity(
@@ -10055,7 +10407,11 @@ def view_borrowers_slip(request, batch_id):
             description=f"Viewed borrower's slip for borrow batch request #{batch_id}"
         )
         
-        return view_borrowers_slip(batch_request)
+        return view_borrowers_slip(
+            batch_request,
+            approved_signatory=signatory,
+            use_dynamic_approved_by=use_dynamic_approved_by,
+        )
         
     except Exception as e:
         messages.error(request, f'Error generating borrower\'s slip: {str(e)}')

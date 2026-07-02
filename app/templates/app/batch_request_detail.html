@@ -1590,11 +1590,10 @@
 
   <div class="batch-details">
     <div class="back-button-container">
-      <a href="{% url 'user_supply_requests' %}" class="btn btn-back restore-scroll-position">
+      <a href="{% url 'user_supply_requests' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-back restore-scroll-position">
         <i class="fas fa-arrow-left"></i> Back to Requests
       </a>
     </div>
-    
     <div class="batch-header">
       <h1>
         <i class="fas fa-file-alt"></i> 
@@ -1739,12 +1738,16 @@
           Download or view the official requisition and issue slip for this approved supply request. This document serves as a receipt and record of the transaction.
         </p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <a href="{% url 'download_requisition_slip' batch_request.id %}" 
+           <a href="{% url 'download_requisition_slip' batch_request.id %}{% if selected_signatory_mode %}?signatory={{ selected_signatory_mode }}{% endif %}"
+             id="downloadSlipLink"
+             data-base-href="{% url 'download_requisition_slip' batch_request.id %}"
              class="btn" 
              style="background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%); color: white; font-size: 12px; padding: 8px 16px; text-decoration: none;">
             <i class="fas fa-download"></i> Download PDF
           </a>
-          <a href="{% url 'view_requisition_slip' batch_request.id %}" 
+           <a href="{% url 'view_requisition_slip' batch_request.id %}{% if selected_signatory_mode %}?signatory={{ selected_signatory_mode }}{% endif %}"
+             id="viewSlipLink"
+             data-base-href="{% url 'view_requisition_slip' batch_request.id %}"
              target="_blank"
              class="btn" 
              style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; font-size: 12px; padding: 8px 16px; text-decoration: none;">
@@ -1963,12 +1966,12 @@
     </div>
     
     <div style="margin-top: 30px; text-align: center;">
-      <a href="{% url 'user_supply_requests' %}" class="btn btn-back">
+      <a href="{% url 'user_supply_requests' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-back">
         <i class="fas fa-arrow-left"></i> Back to Supply Requests
       </a>
     </div>
   </div>
-  
+
   <script>
     // Make PPMP matches data available to JavaScript
     /* @ts-ignore */

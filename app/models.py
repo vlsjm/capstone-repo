@@ -194,6 +194,99 @@ class UserProfile(models.Model):
         elif self.role == 'ADMIN' and self.has_limited_access:
             return self.admin_permissions.values_list('codename', flat=True)
         return []
+
+
+class SlipSignatory(models.Model):
+    DOCUMENT_TYPE_CHOICES = [
+        ('supply', 'Supply Request'),
+        ('borrow', 'Borrow Request'),
+    ]
+
+    name = models.CharField(max_length=150)
+    designation = models.CharField(max_length=150, blank=True, null=True)
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPE_CHOICES)
+    is_default = models.BooleanField(default=False)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_slip_signatories')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['document_type', '-is_default', 'name']
+
+    def __str__(self):
+        designation = f" - {self.designation}" if self.designation else ""
+        return f"{self.name}{designation} ({self.get_document_type_display()})"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.is_default:
+            SlipSignatory.objects.filter(document_type=self.document_type).exclude(pk=self.pk).update(is_default=False)
+
+
+class Facility(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class FacilityReservation(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('reserved', 'Reserved'),
+    ]
+
+    facility = models.ForeignKey(Facility, on_delete=models.CASCADE, related_name='reservations')
+    purpose = models.TextField()
+    reserver_name = models.CharField(max_length=150)
+    start_datetime = models.DateTimeField()
+    end_datetime = models.DateTimeField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+
+    class Meta:
+        ordering = ['start_datetime', 'facility__name']
+
+    def __str__(self):
+        return f"{self.facility.name} - {self.reserver_name} ({self.get_status_display()})"
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        errors = {}
+        now = timezone.localtime(timezone.now())
+
+        if self.start_datetime and self.start_datetime < now:
+            errors['start_datetime'] = 'Start time cannot be in the past.'
+
+        if self.end_datetime and self.end_datetime < now:
+            errors['end_datetime'] = 'End time cannot be in the past.'
+
+        if self.start_datetime and self.end_datetime and self.end_datetime <= self.start_datetime:
+            errors['end_datetime'] = 'End time must be after start time.'
+
+        if self.facility and self.start_datetime and self.end_datetime and self.status == 'reserved':
+            overlapping_reservations = FacilityReservation.objects.filter(
+                facility=self.facility,
+                status='reserved',
+                start_datetime__lt=self.end_datetime,
+                end_datetime__gt=self.start_datetime,
+            )
+            if self.pk:
+                overlapping_reservations = overlapping_reservations.exclude(pk=self.pk)
+
+            if overlapping_reservations.exists():
+                errors['status'] = 'Reserved reservations cannot overlap for the same facility.'
+
+        if errors:
+            raise ValidationError(errors)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
     
 
 class SupplyQuantity(models.Model):
@@ -428,6 +521,16 @@ class PropertyCategory(models.Model):
     def __str__(self):
         return self.name
 
+
+class AccountablePerson(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
 class Property(models.Model):
     CONDITION_CHOICES = [
         ('In good condition', 'In good condition'),
@@ -464,7 +567,7 @@ class Property(models.Model):
     reserved_quantity = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0, help_text="Quantity reserved by pending/approved requests")
     quantity_per_physical_count = models.PositiveIntegerField(validators=[MinValueValidator(0)], default=0, help_text="Quantity based on physical count/inventory")
     location = models.CharField(max_length=255, null=True, blank=True)
-    accountable_person = models.CharField(max_length=255, null=True, blank=True)
+    accountable_person = models.ForeignKey(AccountablePerson, on_delete=models.SET_NULL, null=True, blank=True, related_name='properties')
     year_acquired = models.DateField(null=True, blank=True)
     condition = models.CharField(max_length=100, choices=CONDITION_CHOICES, default='In good condition')
     availability = models.CharField(max_length=20, choices=AVAILABILITY_CHOICES, default='available')

@@ -59,7 +59,9 @@ from .views import (
     CustomLoginView,
     create_department,
     add_property_category,
+    add_accountable_person,
     get_property_categories,
+    get_accountable_persons,
     modify_property_quantity_generic,
     modify_property_quantity_batch,
     modify_supply_quantity_generic,
@@ -108,6 +110,7 @@ from .views import (
     ResourceAllocationDashboardView,
     mark_property_as_lost,
 )
+from .facility_management import FacilityReservationsManagementView, PublicFacilityReservationsView
 
 urlpatterns = [
     # Supply Approved Tally
@@ -153,7 +156,9 @@ urlpatterns = [
     path('property/modify_quantity/', views.modify_property_quantity_generic, name='modify_property_quantity_generic'),
     path('property/modify_quantity_batch/', views.modify_property_quantity_batch, name='modify_property_quantity_batch'),
     path('add-property-category/', add_property_category, name='add_property_category'),
+    path('add-accountable-person/', add_accountable_person, name='add_accountable_person'),
     path('get-property-categories/', get_property_categories, name='get_property_categories'),
+    path('get-accountable-persons/', get_accountable_persons, name='get_accountable_persons'),
     path('update_property_category/', update_property_category, name='update_property_category'),
     path('delete_property_category/<int:category_id>/', delete_property_category, name='delete_property_category'),
 
@@ -189,6 +194,8 @@ urlpatterns = [
     
     # Resource Allocation Dashboard (Admin Only)
     path('resource-allocation/', ResourceAllocationDashboardView.as_view(), name='resource_allocation_dashboard'),
+    path('facility-reservations/', FacilityReservationsManagementView.as_view(), name='facility_reservations_management'),
+    path('facility-calendar/', PublicFacilityReservationsView.as_view(), name='public_facility_calendar'),
 
     # Batch borrow request management URLs
     path('borrow-batch-detail/<int:batch_id>/', borrow_batch_request_detail, name='borrow_batch_request_detail'),

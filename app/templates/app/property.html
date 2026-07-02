@@ -2664,6 +2664,9 @@ input:focus {
                 <button id="openCategoryModalBtn" class="actions-dropdown-item primary">
                   <i class="fas fa-folder-plus"></i> Add Category
                 </button>
+                <button id="openAccountablePersonModalBtn" class="actions-dropdown-item primary">
+                  <i class="fas fa-user-plus"></i> Add Accountable Person
+                </button>
                 <button id="openExportModalBtn" class="actions-dropdown-item success">
                   <i class="fas fa-file-excel"></i> Export to Excel
                 </button>
@@ -2753,7 +2756,7 @@ input:focus {
                           data-current-quantity="{{ property.quantity|default:'0' }}"
                           data-quantity-physical-count="{{ property.quantity_per_physical_count|default:'0' }}"
                           data-location="{{ property.location|default:'N/A' }}"
-                          data-accountable-person="{{ property.accountable_person|default:'N/A' }}"
+                          data-accountable-person="{{ property.accountable_person.name|default:'N/A' }}"
                           data-year-acquired="{{ property.year_acquired|date:'M d, Y'|default:'N/A' }}"
                           data-condition="{{ property.get_condition_display|default:'N/A' }}"
                           data-availability="{% if property.condition == 'Needing repair' or property.condition == 'Unserviceable' or property.condition == 'No longer needed' or property.condition == 'Obsolete' %}Not Available{% else %}{% if property.availability == 'available' %}Available{% else %}Not Available{% endif %}{% endif %}"
@@ -2775,7 +2778,7 @@ input:focus {
                           data-quantity="{{ property.quantity }}"
                           data-quantity-physical-count="{{ property.quantity_per_physical_count }}"
                           data-location="{{ property.location|default:'' }}"
-                          data-accountable-person="{{ property.accountable_person|default:'' }}"
+                          data-accountable-person="{{ property.accountable_person.id|default:'' }}"
                           data-year-acquired="{{ property.year_acquired|date:'Y-m-d'|default:'' }}"
                           data-condition="{{ property.condition }}"
                           data-category="{{ property.category.id|default:'' }}"
@@ -3044,6 +3047,102 @@ input:focus {
                         <i class="fas fa-folder-open"></i>
                         <p>No categories available</p>
                         <small>Add your first category above</small>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accountable Person Modal -->
+    <div id="accountablePersonModal" class="modal" style="display: none;">
+      <div class="modern-modal-content" style="max-width: 720px;">
+        <div class="modal-header">
+          <div class="modal-title">
+            <i class="fas fa-user-plus"></i>
+            <h2>Manage Accountable Persons</h2>
+          </div>
+          <button class="modal-close-btn" id="closeAccountablePersonModalBtn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="add-category-section">
+            <div class="section-header">
+              <h3><i class="fas fa-plus-circle"></i> Add New Accountable Person</h3>
+            </div>
+
+            <form id="addAccountablePersonForm" method="POST" action="{% url 'add_accountable_person' %}">
+              {% csrf_token %}
+              <div class="form-row" style="grid-template-columns: 1fr auto;">
+                <div class="form-group">
+                  <label for="accountablePersonName" class="form-label">
+                    <i class="fas fa-user"></i>
+                    Accountable Person Name
+                    <span class="required">*</span>
+                  </label>
+                  <input type="text"
+                         name="name"
+                         id="accountablePersonName"
+                         class="form-input"
+                         placeholder="Enter accountable person name"
+                         required>
+                </div>
+
+                <div class="form-group form-actions">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Add Person
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="categories-list-section">
+            <div class="section-header">
+              <h3><i class="fas fa-list"></i> Existing Accountable Persons</h3>
+              <span class="category-count">{{ accountable_persons.count }} persons</span>
+            </div>
+
+            <div class="modern-table-container">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>Name</th>
+                    <th>Properties</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for person in accountable_persons %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                      <div class="category-info">
+                        <i class="fas fa-user category-icon"></i>
+                        <span class="category-name">{{ person.name }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="property-count {% if person.properties.count > 0 %}has-properties{% else %}no-properties{% endif %}">
+                        {{ person.properties.count }}
+                      </span>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="3" class="empty-state">
+                      <div class="empty-content">
+                        <i class="fas fa-user-slash"></i>
+                        <p>No accountable persons available</p>
+                        <small>Add your first accountable person above</small>
                       </div>
                     </td>
                   </tr>
@@ -3386,7 +3485,12 @@ input:focus {
         <label>
           <i class="fas fa-user"></i> Accountable Person
         </label>
-        <input type="text" name="accountable_person" id="edit_accountable_person" placeholder="Enter responsible person's name" />
+        <select name="accountable_person" id="edit_accountable_person" class="select2">
+          <option value="">Select accountable person</option>
+          {% for person in accountable_persons %}
+            <option value="{{ person.id }}">{{ person.name }}</option>
+          {% endfor %}
+        </select>
       </div>
 
       <div class="form-group">
@@ -4386,6 +4490,13 @@ input:focus {
       allowClear: true,
       dropdownParent: $('#addPropertyModal')
     });
+
+    $('#id_accountable_person').select2({
+      width: '100%',
+      placeholder: "Select accountable person",
+      allowClear: true,
+      dropdownParent: $('#addPropertyModal')
+    });
     
     // Don't initialize edit_category here - it will be initialized when the modal opens
     
@@ -4397,7 +4508,7 @@ input:focus {
     });
     
     // Also initialize any existing .select2 elements (but not edit_category)
-    $('.select2').not('#edit_category').select2({
+    $('.select2').not('#edit_category, #id_accountable_person, #edit_accountable_person').select2({
       width: '100%',
       placeholder: "Select a category",
       allowClear: true
@@ -5150,6 +5261,199 @@ input:focus {
           .catch(error => {
             console.error('Error fetching fresh category options:', error);
           });
+        }
+
+        const accountablePersonModal = document.getElementById('accountablePersonModal');
+        const openAccountablePersonBtn = document.getElementById('openAccountablePersonModalBtn');
+        const closeAccountablePersonBtn = document.getElementById('closeAccountablePersonModalBtn');
+        const addAccountablePersonForm = document.getElementById('addAccountablePersonForm');
+
+        if (openAccountablePersonBtn && accountablePersonModal) {
+          openAccountablePersonBtn.onclick = function() {
+            accountablePersonModal.style.display = 'block';
+          };
+        }
+
+        if (closeAccountablePersonBtn && accountablePersonModal) {
+          closeAccountablePersonBtn.onclick = function() {
+            accountablePersonModal.style.display = 'none';
+            setTimeout(() => {
+              fetchAndUpdateAccountablePersonOptions();
+            }, 300);
+          };
+        }
+
+        window.addEventListener('click', function(event) {
+          if (event.target == accountablePersonModal) {
+            accountablePersonModal.style.display = 'none';
+            setTimeout(() => {
+              fetchAndUpdateAccountablePersonOptions();
+            }, 300);
+          }
+        });
+
+        function refreshAccountablePersonsTable() {
+          fetch(window.location.href, {
+            method: 'GET',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+          .then(response => response.text())
+          .then(html => {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+
+            const newTable = tempDiv.querySelector('#accountablePersonModal .modern-table-container');
+            const currentTable = document.querySelector('#accountablePersonModal .modern-table-container');
+            const newCount = tempDiv.querySelector('#accountablePersonModal .category-count');
+            const currentCount = document.querySelector('#accountablePersonModal .category-count');
+
+            if (newTable && currentTable) {
+              currentTable.innerHTML = newTable.innerHTML;
+            }
+
+            if (newCount && currentCount) {
+              currentCount.textContent = newCount.textContent;
+            }
+          })
+          .catch(error => {
+            console.error('Error refreshing accountable persons table:', error);
+          });
+        }
+
+        function fetchAndUpdateAccountablePersonOptions() {
+          fetch('{% url "get_accountable_persons" %}', {
+            method: 'GET',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              'Accept': 'application/json'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.accountable_persons && Array.isArray(data.accountable_persons)) {
+              const selects = document.querySelectorAll('#id_accountable_person, #edit_accountable_person');
+
+              selects.forEach(select => {
+                if (!select) return;
+
+                const currentValue = select.value;
+                select.innerHTML = '';
+
+                const placeholderOption = document.createElement('option');
+                placeholderOption.value = '';
+                placeholderOption.textContent = 'Select accountable person';
+                select.appendChild(placeholderOption);
+
+                data.accountable_persons.forEach(person => {
+                  const option = document.createElement('option');
+                  option.value = person.id;
+                  option.textContent = person.name;
+                  select.appendChild(option);
+                });
+
+                if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
+                  select.value = currentValue;
+                }
+
+                if (typeof jQuery !== 'undefined') {
+                  const $select = jQuery(select);
+                  if ($select.hasClass('select2-hidden-accessible')) {
+                    try {
+                      $select.trigger('change');
+                    } catch (e) {
+                      console.warn('Failed to refresh accountable person Select2:', e);
+                    }
+                  }
+                }
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching accountable persons:', error);
+          });
+        }
+
+        if (addAccountablePersonForm) {
+          addAccountablePersonForm.onsubmit = function(e) {
+            e.preventDefault();
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+
+            const formData = new FormData(this);
+
+            fetch(this.action, {
+              method: 'POST',
+              body: formData,
+              headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+              }
+            })
+            .then(response => response.json())
+            .then(data => {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalText;
+
+              const existingMessage = document.querySelector('.person-success-message, .person-error-message');
+              if (existingMessage) {
+                existingMessage.remove();
+              }
+
+              if (data.success) {
+                document.getElementById('accountablePersonName').value = '';
+
+                const successMessage = document.createElement('div');
+                successMessage.className = 'person-success-message';
+                successMessage.style.cssText = 'color: #155724; margin: 10px 0; padding: 10px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; font-weight: 500; display: flex; align-items: center; gap: 6px;';
+                successMessage.innerHTML = '<i class="fas fa-check-circle"></i>' + (data.message || 'Accountable person added successfully!');
+                addAccountablePersonForm.insertAdjacentElement('afterend', successMessage);
+
+                setTimeout(function() {
+                  if (successMessage && successMessage.parentNode) {
+                    successMessage.remove();
+                  }
+                }, 3000);
+
+                refreshAccountablePersonsTable();
+                fetchAndUpdateAccountablePersonOptions();
+                document.getElementById('accountablePersonName').focus();
+              } else {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'person-error-message';
+                errorDiv.style.cssText = 'color: #721c24; margin: 10px 0; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; font-weight: 500; display: flex; align-items: center; gap: 6px;';
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i>' + (data.error || 'Error adding accountable person. Please try again.');
+                addAccountablePersonForm.insertAdjacentElement('afterend', errorDiv);
+
+                setTimeout(function() {
+                  if (errorDiv && errorDiv.parentNode) {
+                    errorDiv.remove();
+                  }
+                }, 5000);
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalText;
+
+              const errorDiv = document.createElement('div');
+              errorDiv.className = 'person-error-message';
+              errorDiv.style.cssText = 'color: #721c24; margin: 10px 0; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; font-weight: 500; display: flex; align-items: center; gap: 6px;';
+              errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i>Network error. Please check your connection and try again.';
+              addAccountablePersonForm.insertAdjacentElement('afterend', errorDiv);
+
+              setTimeout(function() {
+                if (errorDiv && errorDiv.parentNode) {
+                  errorDiv.remove();
+                }
+              }, 5000);
+            });
+          };
         }
 
         // Simplified function to refresh all category dropdowns

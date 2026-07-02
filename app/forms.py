@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
 from .models import Property, Supply, SupplyQuantity, SupplyCategory, SupplySubcategory, BadStockReport
 from django.contrib.auth.models import User
-from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, LostItem, Reservation, Department,PropertyCategory, SupplyRequestBatch, SupplyRequestItem, Supply, SupplyQuantity, PPMP, PPMPItem
+from .models import UserProfile, SupplyRequest, BorrowRequest, DamageReport, LostItem, Reservation, Department,PropertyCategory, AccountablePerson, SupplyRequestBatch, SupplyRequestItem, Supply, SupplyQuantity, PPMP, PPMPItem, Facility, FacilityReservation
 from datetime import date
 import os
 
@@ -266,7 +266,7 @@ class PropertyForm(forms.ModelForm):
             'category': forms.Select(attrs={'class': 'select2'}), 
             'condition': forms.Select(attrs={'class': 'form-select'}),
             'availability': forms.Select(attrs={'class': 'form-select'}),
-            'accountable_person': forms.TextInput(attrs={'placeholder': 'Enter accountable person name'}),
+            'accountable_person': forms.Select(attrs={'class': 'select2'}),
             'year_acquired': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         }
 
@@ -295,6 +295,8 @@ class PropertyForm(forms.ModelForm):
         # Optional: reorder categories or set placeholder
         self.fields['category'].queryset = PropertyCategory.objects.all().order_by('name')
         self.fields['category'].empty_label = "Select a category"
+        self.fields['accountable_person'].queryset = AccountablePerson.objects.all().order_by('name')
+        self.fields['accountable_person'].empty_label = "Select accountable person"
 
     def clean(self):
         cleaned_data = super().clean()
@@ -911,3 +913,55 @@ class PPMPUploadForm(forms.ModelForm):
                 )
         
         return cleaned_data
+
+
+class FacilityForm(forms.ModelForm):
+    class Meta:
+        model = Facility
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter facility name',
+                'maxlength': 150,
+            }),
+        }
+
+
+class FacilityReservationForm(forms.ModelForm):
+    facility = forms.ModelChoiceField(
+        queryset=Facility.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label='Facility'
+    )
+    start_datetime = forms.DateTimeField(
+        input_formats=['%Y-%m-%dT%H:%M'],
+        widget=forms.DateTimeInput(attrs={
+            'type': 'datetime-local',
+            'class': 'form-control',
+        }),
+        label='Start time',
+    )
+    end_datetime = forms.DateTimeField(
+        input_formats=['%Y-%m-%dT%H:%M'],
+        widget=forms.DateTimeInput(attrs={
+            'type': 'datetime-local',
+            'class': 'form-control',
+        }),
+        label='End time',
+    )
+
+    class Meta:
+        model = FacilityReservation
+        fields = ['facility', 'purpose', 'reserver_name', 'start_datetime', 'end_datetime', 'status']
+        widgets = {
+            'purpose': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Enter purpose'}),
+            'reserver_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter reserver name'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['facility'].queryset = Facility.objects.order_by('name')
+        self.fields['facility'].required = True
+        self.fields['status'].choices = FacilityReservation.STATUS_CHOICES

@@ -46,6 +46,10 @@
       border-radius: 6px;
       font-size: 14px;
     }
+
+    .filter-select {
+      min-width: 240px;
+    }
     
     .filter-btn, .clear-btn {
       padding: 8px 16px;
@@ -59,6 +63,8 @@
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     
     .filter-btn {
@@ -877,7 +883,7 @@
     
     <!-- Search and Filter Section -->
     <div class="search-filter-section">
-      <form method="get" class="search-form">
+      <form method="get" class="search-form" action="{{ request.get_full_path }}">
         <input type="text" name="search" placeholder="Search by borrower name or property..." value="{{ search_query }}" class="search-input">
         <select name="department" class="filter-select">
           <option value="">All Departments</option>
@@ -887,14 +893,102 @@
         </select>
         <input type="date" name="date_from" placeholder="From Date" value="{{ date_from }}" class="date-input">
         <input type="date" name="date_to" placeholder="To Date" value="{{ date_to }}" class="date-input">
+        <select name="signatory" class="filter-select" onchange="this.form.submit()" style="min-width: 240px;">
+          <option value="dynamic" {% if selected_signatory_mode == 'dynamic' %}selected{% endif %}>Use dynamic approved by</option>
+          {% for signatory in signatories %}
+            <option value="{{ signatory.id }}" {% if selected_signatory and selected_signatory.id == signatory.id %}selected{% endif %}>
+              {% if signatory.is_default %}Default - {% endif %}{{ signatory.name }}{% if signatory.designation %} ({{ signatory.designation }}){% endif %}
+            </option>
+          {% endfor %}
+        </select>
         <button type="submit" class="filter-btn">
           <i class="fas fa-filter"></i> Filter
         </button>
+        {% if request.user.is_staff %}
+        <button type="button" class="filter-btn" onclick="openSignatoryModal()" style="background: #28a745; border-color: #28a745;">
+          <i class="fas fa-user-plus"></i> Add Default Person
+        </button>
+        {% endif %}
         <a href="{% url 'user_borrow_requests' %}" class="clear-btn">
           <i class="fas fa-times"></i> Clear
         </a>
       </form>
     </div>
+
+    {% if request.user.is_staff %}
+    <div id="signatoryModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 1050; align-items: center; justify-content: center; padding: 20px;">
+      <div style="background: white; width: min(100%, 760px); max-height: 90vh; border-radius: 14px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2); overflow: hidden; display: flex; flex-direction: column;">
+        <div style="background: linear-gradient(135deg, #152d64 0%, #1f4f9e 100%); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-weight: 700; font-size: 16px;">Add Default Approver</div>
+          <button type="button" onclick="closeSignatoryModal()" style="background: transparent; border: none; color: white; font-size: 22px; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+        <div style="padding: 18px 20px 0 20px; display: grid; gap: 14px; overflow-y: auto;">
+          <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; padding: 16px;">
+            <form method="post" action="{{ request.get_full_path }}" style="display: grid; gap: 14px;">
+              {% csrf_token %}
+              <input type="hidden" name="action" id="borrowSignatoryAction" value="save_signatory_default">
+              <input type="hidden" name="signatory_id" id="borrowSignatoryIdField" value="">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                  <label style="display: block; font-size: 12px; font-weight: 700; color: #152d64; margin-bottom: 6px;">Person Name</label>
+                  <input type="text" name="signatory_name" id="borrowSignatoryNameField" required style="width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 8px;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 12px; font-weight: 700; color: #152d64; margin-bottom: 6px;">Designation</label>
+                  <input type="text" name="signatory_designation" id="borrowSignatoryDesignationField" placeholder="Optional designation" style="width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 8px;">
+                </div>
+              </div>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #495057;">
+                <input type="checkbox" name="is_default" id="borrowSignatoryDefaultField" checked>
+                Set as default for this document type
+              </label>
+              <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+                <button type="button" onclick="resetBorrowSignatoryForm()" style="background: #6c757d; color: white; font-size: 12px; padding: 8px 14px; border: none; border-radius: 6px;">New</button>
+                <button type="button" onclick="closeSignatoryModal()" style="background: #6c757d; color: white; font-size: 12px; padding: 8px 14px; border: none; border-radius: 6px;">Close</button>
+                <button type="submit" style="background: #28a745; color: white; font-size: 12px; padding: 8px 14px; border: none; border-radius: 6px;">Save</button>
+              </div>
+            </form>
+          </div>
+
+          <div style="border: 1px solid #e9ecef; border-radius: 12px; overflow: hidden;">
+            <div style="padding: 12px 16px; background: #152d64; color: white; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.4px; display: flex; justify-content: space-between; align-items: center;">
+              <span>Saved Default People</span>
+              <span>{{ signatories|length }} item{{ signatories|length|pluralize }}</span>
+            </div>
+            <div style="max-height: 260px; overflow: auto; background: white;">
+              {% if signatories %}
+                {% for signatory in signatories %}
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr auto; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid #f1f3f5;">
+                  <div>
+                    <div style="font-weight: 700; color: #152d64;">{{ signatory.name }}</div>
+                    <div style="font-size: 12px; color: #6c757d;">
+                      {% if signatory.designation %}{{ signatory.designation }}{% else %}No designation{% endif %}
+                      {% if signatory.is_default %} · Default{% endif %}
+                    </div>
+                  </div>
+                  <div style="font-size: 12px; color: #6c757d;">
+                    {{ signatory.get_document_type_display }}
+                  </div>
+                  <div style="display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;">
+                    <button type="button" class="filter-btn" style="height: 34px; padding: 0 12px; background: #0d6efd;" onclick='editBorrowSignatory({{ signatory.id }}, "{{ signatory.name|escapejs }}", "{{ signatory.designation|default_if_none:''|escapejs }}", {{ signatory.is_default|yesno:"true,false" }})'>Edit</button>
+                    <form method="post" action="{{ request.get_full_path }}" onsubmit="return confirm('Remove this default person?');" style="display: inline; margin: 0;">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="delete_signatory">
+                      <input type="hidden" name="signatory_id" value="{{ signatory.id }}">
+                      <button type="submit" style="height: 34px; padding: 0 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">Delete</button>
+                    </form>
+                  </div>
+                </div>
+                {% endfor %}
+              {% else %}
+                <div style="padding: 16px; color: #6c757d; font-size: 13px;">No saved default people yet.</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
 
     <!-- Tab Navigation -->
     <div class="tab-navigation">
@@ -968,7 +1062,7 @@
               </td>
               <td>{{ batch_request.request_date|date:"M d, Y" }}</td>
               <td>
-                <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="detail-link">
+                <a href="{% url 'borrow_batch_request_detail' batch_request.id %}?tab={{ current_tab }}{{ url_params }}" class="detail-link">
                   <i class="fas fa-external-link-alt"></i> View
                 </a>
               </td>
@@ -1112,7 +1206,7 @@
                 </td>
                 <td>
                   <div style="display: flex; gap: 5px; align-items: center;">
-                    <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'borrow_batch_request_detail' batch_request.id %}?tab={{ current_tab }}{{ url_params }}" class="btn btn-sm btn-primary">
                       <i class="fas fa-eye"></i> View Details
                     </a>
                     {% if perms.app.view_admin_module %}
@@ -1275,7 +1369,7 @@
                 </td>
                 <td>
                   <div style="display: flex; gap: 5px; align-items: center;">
-                    <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'borrow_batch_request_detail' batch_request.id %}?tab={{ current_tab }}{{ url_params }}" class="btn btn-sm btn-primary">
                       <i class="fas fa-eye"></i> View Details
                     </a>
                     {% if perms.app.view_admin_module %}
@@ -1429,7 +1523,7 @@
                   {% endif %}
                 </td>
                 <td>
-                  <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="btn btn-sm btn-primary">
+                  <a href="{% url 'borrow_batch_request_detail' batch_request.id %}?tab={{ current_tab }}{{ url_params }}" class="btn btn-sm btn-primary">
                     <i class="fas fa-eye"></i> View Details
                   </a>
                 </td>
@@ -1582,7 +1676,7 @@
                 </td>
                 <td>
                   <div style="display: flex; gap: 5px; align-items: center;">
-                    <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'borrow_batch_request_detail' batch_request.id %}?tab={{ current_tab }}{{ url_params }}" class="btn btn-sm btn-primary">
                       <i class="fas fa-eye"></i> View Details
                     </a>
                     {% if perms.app.view_admin_module %}
@@ -1730,7 +1824,7 @@
                 </td>
                 <td>{{ batch_request.request_date|date:"M d, Y H:i" }}</td>
                 <td>
-                  <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="btn btn-sm btn-primary">
+                  <a href="{% url 'borrow_batch_request_detail' batch_request.id %}?tab={{ current_tab }}{{ url_params }}" class="btn btn-sm btn-primary">
                     <i class="fas fa-eye"></i> View Details
                   </a>
                 </td>
@@ -1879,7 +1973,7 @@
                 </td>
                 <td>
                   <div style="display: flex; gap: 5px; align-items: center;">
-                    <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'borrow_batch_request_detail' batch_request.id %}?tab={{ current_tab }}{{ url_params }}" class="btn btn-sm btn-primary">
                       <i class="fas fa-eye"></i> View Details
                     </a>
                   </div>
@@ -2024,7 +2118,7 @@
                 <td>{{ batch_request.request_date|date:"M d, Y" }}</td>
                 <td>
                   <div style="display: flex; gap: 5px; align-items: center;">
-                    <a href="{% url 'borrow_batch_request_detail' batch_request.id %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'borrow_batch_request_detail' batch_request.id %}?tab={{ current_tab }}{{ url_params }}" class="btn btn-sm btn-primary">
                       <i class="fas fa-eye"></i> View Details
                     </a>
                   </div>
@@ -2118,6 +2212,49 @@
   </div>
 
 <script>
+function openSignatoryModal() {
+  const modal = document.getElementById('signatoryModal');
+  if (modal) {
+    modal.style.display = 'flex';
+  }
+}
+
+function closeSignatoryModal() {
+  const modal = document.getElementById('signatoryModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+function resetBorrowSignatoryForm() {
+  const actionField = document.getElementById('borrowSignatoryAction');
+  const idField = document.getElementById('borrowSignatoryIdField');
+  const nameField = document.getElementById('borrowSignatoryNameField');
+  const designationField = document.getElementById('borrowSignatoryDesignationField');
+  const defaultField = document.getElementById('borrowSignatoryDefaultField');
+
+  if (actionField) actionField.value = 'save_signatory_default';
+  if (idField) idField.value = '';
+  if (nameField) nameField.value = '';
+  if (designationField) designationField.value = '';
+  if (defaultField) defaultField.checked = true;
+}
+
+function editBorrowSignatory(signatoryId, name, designation, isDefault) {
+  const actionField = document.getElementById('borrowSignatoryAction');
+  const idField = document.getElementById('borrowSignatoryIdField');
+  const nameField = document.getElementById('borrowSignatoryNameField');
+  const designationField = document.getElementById('borrowSignatoryDesignationField');
+  const defaultField = document.getElementById('borrowSignatoryDefaultField');
+
+  if (actionField) actionField.value = 'update_signatory';
+  if (idField) idField.value = signatoryId;
+  if (nameField) nameField.value = name;
+  if (designationField) designationField.value = designation;
+  if (defaultField) defaultField.checked = isDefault;
+  openSignatoryModal();
+}
+
 // Custom Alert Modal Functions
 function showCustomAlert(title, message, type = 'info') {
   const modal = document.getElementById('customAlertModal');
@@ -2155,6 +2292,15 @@ function closeCustomAlert() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  const signatoryModal = document.getElementById('signatoryModal');
+  if (signatoryModal) {
+    signatoryModal.addEventListener('click', function(event) {
+      if (event.target === this) {
+        closeSignatoryModal();
+      }
+    });
+  }
+
   // Close modal on outside click
   document.getElementById('customAlertModal').addEventListener('click', function(e) {
     if (e.target === this) {

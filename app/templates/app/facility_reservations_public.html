@@ -1,0 +1,705 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facility Calendar - Resource Hive</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/userStyle.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <style>
+    :root {
+      --navy: #152d64;
+      --blue: #1e448d;
+      --ink: #344767;
+      --muted: #6b7a99;
+      --panel: #ffffff;
+      --line: #e4eaf5;
+      --soft: #f8fbff;
+      --sky: #eef3fb;
+      --amber-bg: #fff4db;
+      --amber-line: #f4d28d;
+      --amber-ink: #9a6700;
+      --green-bg: #dcfce7;
+      --green-line: #a7e3ba;
+      --green-ink: #166534;
+    }
+
+    body {
+      background: linear-gradient(180deg, #f5f7fb 0%, #eef3fb 100%);
+    }
+
+    .public-facility-page {
+      margin-left: 0;
+      min-height: 100vh;
+      padding: 28px 22px 36px;
+      color: var(--ink);
+    }
+
+    .public-shell {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .hero-panel,
+    .info-panel,
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(21, 45, 100, 0.08);
+      border-radius: 18px;
+      box-shadow: 0 10px 26px rgba(21, 45, 100, 0.08);
+      overflow: hidden;
+    }
+
+    .hero-panel {
+      padding: 24px;
+      background: linear-gradient(135deg, #152d64 0%, #1e448d 100%);
+      color: #fff;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .hero-panel::after {
+      content: '';
+      position: absolute;
+      inset: auto -80px -100px auto;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      z-index: -1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      margin-bottom: 16px;
+    }
+
+    .hero-panel h1 {
+      margin: 0;
+      font-size: 38px;
+      line-height: 1.05;
+      font-weight: 800;
+    }
+
+    .hero-panel p {
+      margin: 12px 0 0;
+      max-width: 860px;
+      font-size: 16px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.88);
+    }
+
+    .info-panel {
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .info-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .info-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .info-value {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .small-text {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .panel {
+      margin-bottom: 18px;
+    }
+
+    .panel-body {
+      padding: 18px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .toolbar h2 {
+      margin: 0;
+      color: var(--navy);
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .toolbar-topline {
+      margin-top: 6px;
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .form-control,
+    .public-facility-page select {
+      width: 100%;
+      border: 1px solid #d9e2f2;
+      border-radius: 10px;
+      padding: 11px 12px;
+      font-size: 14px;
+      background: #fff;
+      color: var(--navy);
+      box-sizing: border-box;
+    }
+
+    .btn-ghost,
+    .facility-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 10px;
+      border: 1px solid #d9e2f2;
+      background: #fff;
+      color: var(--navy);
+      font-weight: 700;
+      text-decoration: none;
+      padding: 10px 14px;
+      transition: 0.2s ease;
+      cursor: pointer;
+    }
+
+    .btn-ghost:hover,
+    .facility-chip:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(21, 45, 100, 0.08);
+    }
+
+    .facility-chip.active {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+    }
+
+    .facility-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .facility-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .facility-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: var(--soft);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .facility-card strong {
+      display: block;
+      color: var(--navy);
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-pending {
+      background: var(--amber-bg);
+      color: var(--amber-ink);
+      border: 1px solid var(--amber-line);
+    }
+
+    .status-reserved {
+      background: var(--green-bg);
+      color: var(--green-ink);
+      border: 1px solid var(--green-line);
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .legend-chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #f5f7fb;
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .calendar-grid {
+      background: #fff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 10px 26px rgba(21, 45, 100, 0.08);
+      border: 1px solid rgba(21, 45, 100, 0.08);
+    }
+
+    .calendar-header,
+    .calendar-week {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    .calendar-header div {
+      background: var(--navy);
+      color: #fff;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+
+    .calendar-day {
+      min-height: 150px;
+      border-right: 1px solid #edf2f7;
+      border-bottom: 1px solid #edf2f7;
+      padding: 10px;
+      position: relative;
+      background: #fff;
+    }
+
+    .calendar-day:nth-child(7n) {
+      border-right: none;
+    }
+
+    .calendar-day.other-month {
+      background: #f8fafc;
+      color: #99a4b8;
+    }
+
+    .calendar-day.today {
+      box-shadow: inset 0 0 0 2px #1e448d;
+      background: #f5f9ff;
+    }
+
+    .day-number {
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .reservation-pill {
+      display: block;
+      border-radius: 10px;
+      padding: 7px 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      line-height: 1.25;
+      border: 1px solid transparent;
+      background: #f5f7fb;
+      color: var(--navy);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: left;
+    }
+
+    .reservation-pill:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(21, 45, 100, 0.15);
+    }
+
+    .reservation-pill.pending {
+      background: var(--amber-bg);
+      border-color: var(--amber-line);
+    }
+
+    .reservation-pill.pending:hover {
+      background: #fef1d4;
+    }
+
+    .reservation-pill.reserved {
+      background: var(--green-bg);
+      border-color: var(--green-line);
+    }
+
+    .reservation-pill.reserved:hover {
+      background: #d3fae0;
+    }
+
+    .reservation-pill strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .reservation-window {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .reservation-time {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(21, 45, 100, 0.82);
+    }
+
+    .reservation-time span:last-child {
+      text-align: right;
+    }
+
+    .empty-state {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      background: #fff;
+      border: 1px dashed #d5deee;
+      border-radius: 14px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 18, 43, 0.58);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 2000;
+    }
+
+    .modal-shell {
+      width: min(860px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(21, 45, 100, 0.12);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, #152d64 0%, #1e448d 100%);
+      color: #fff;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .modal-close {
+      border: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .detail-row label {
+      font-weight: 700;
+      color: var(--navy);
+      font-size: 14px;
+    }
+
+    .detail-row span {
+      color: #5e6c84;
+      word-break: break-word;
+      line-height: 1.5;
+      padding: 6px 0;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    @media (max-width: 1200px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .public-facility-page {
+        padding: 18px 14px 28px;
+      }
+
+      .calendar-day {
+        min-height: 120px;
+      }
+
+      .detail-row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="public-facility-page">
+    <div class="public-shell">
+      <section class="hero">
+        <div class="hero-panel">
+          <div class="eyebrow"><i class="fas fa-calendar-days"></i> Public facility calendar</div>
+          <h1>View facility schedules without signing in.</h1>
+          <p>Use this page to check the facility calendar, see the reservations scheduled per day, and browse the available facilities. This is read-only and does not expose any management actions.</p>
+        </div>
+        <div class="info-panel">
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="info-label">Selected facility</div>
+              <div class="info-value">{% if selected_facility %}{{ selected_facility.name }}{% else %}None{% endif %}</div>
+              <div class="small-text">Choose a facility below to inspect its month view.</div>
+            </div>
+            <div class="info-card">
+              <div class="info-label">Facilities available</div>
+              <div class="info-value">{{ facilities|length }}</div>
+              <div class="small-text">Public view only lists facilities that exist in the system.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {% if facilities %}
+        <section class="panel">
+          <div class="panel-body">
+            <div class="toolbar">
+              <div>
+                <h2>{{ month_name }}</h2>
+                <div class="small-text toolbar-topline">{% if selected_facility %}{{ selected_facility.name }}{% else %}No facility selected{% endif %}</div>
+              </div>
+              <form method="get" class="calendar-nav" style="margin: 0;">
+                <input type="hidden" name="year" value="{{ year }}">
+                <input type="hidden" name="month" value="{{ month }}">
+                <select name="facility" class="form-control" style="width: 260px;" onchange="this.form.submit()">
+                  {% for facility in facilities %}
+                    <option value="{{ facility.id }}" {% if facility.id == selected_facility_id %}selected{% endif %}>{{ facility.name }}</option>
+                  {% endfor %}
+                </select>
+                <a class="btn-ghost" href="{% url 'public_facility_calendar' %}?facility={{ selected_facility_id }}&year={{ navigation.previous_year }}&month={{ navigation.previous_month }}"><i class="fas fa-chevron-left"></i></a>
+                <a class="btn-ghost" href="{% url 'public_facility_calendar' %}?facility={{ selected_facility_id }}&year={{ navigation.today_year }}&month={{ navigation.today_month }}"><i class="fas fa-calendar-day"></i> Today</a>
+                <a class="btn-ghost" href="{% url 'public_facility_calendar' %}?facility={{ selected_facility_id }}&year={{ navigation.next_year }}&month={{ navigation.next_month }}"><i class="fas fa-chevron-right"></i></a>
+              </form>
+            </div>
+
+            <div class="legend">
+              <div class="legend-chip"><span class="badge status-pending" style="margin-right: 6px;">Pending</span></div>
+              <div class="legend-chip"><span class="badge status-reserved" style="margin-right: 6px;">Reserved</span></div>
+            </div>
+
+            <div class="calendar-grid">
+              <div class="calendar-header">
+                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+              </div>
+              {% for week in calendar_weeks %}
+                <div class="calendar-week">
+                  {% for day in week %}
+                    <div class="calendar-day {% if not day.in_current_month %}other-month{% endif %} {% if day.is_today %}today{% endif %}">
+                      <div class="day-number">
+                        <span>{{ day.day_number }}</span>
+                      </div>
+                      {% for reservation in day.reservations|slice:':3' %}
+                        <button type="button"
+                                class="reservation-pill {{ reservation.status }}"
+                                data-reservation-id="{{ reservation.id }}"
+                                data-reserver-name="{{ reservation.reserver_name }}"
+                                data-purpose="{{ reservation.purpose }}"
+                                data-status="{{ reservation.status_display }}"
+                                data-start-time="{{ reservation.start_display|date:'M d, Y g:i A' }}"
+                                data-end-time="{{ reservation.end_display|date:'M d, Y g:i A' }}"
+                                onclick="openReservationDetail(this)">
+                          <strong>{{ reservation.reserver_name }}</strong>
+                          <div class="reservation-window">
+                            <div class="reservation-time">
+                              <span>Start</span>
+                              <span>{{ reservation.start_display|date:'M d, g:i A' }}</span>
+                            </div>
+                            <div class="reservation-time">
+                              <span>End</span>
+                              <span>{{ reservation.end_display|date:'M d, g:i A' }}</span>
+                            </div>
+                          </div>
+                          <div>{{ reservation.purpose|truncatechars:32 }}</div>
+                        </button>
+                      {% endfor %}
+                      {% if day.reservations|length > 3 %}
+                        <div class="small-text">+{{ day.reservations|length|add:'-3' }} more</div>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+
+      {% else %}
+        <div class="empty-state">No facilities have been added yet.</div>
+      {% endif %}
+    </div>
+  </main>
+
+  <div id="reservationDetailModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-shell">
+      <div class="modal-header">
+        <h2>Reservation Details</h2>
+        <button type="button" class="modal-close" onclick="closeModal('reservationDetailModal')"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-row">
+            <label>Reserver</label>
+            <span id="detailReserverName">-</span>
+          </div>
+          <div class="detail-row">
+            <label>Purpose</label>
+            <span id="detailPurpose">-</span>
+          </div>
+          <div class="detail-row">
+            <label>Status</label>
+            <span id="detailStatus">-</span>
+          </div>
+          <div class="detail-row">
+            <label>Start Time</label>
+            <span id="detailStartTime">-</span>
+          </div>
+          <div class="detail-row">
+            <label>End Time</label>
+            <span id="detailEndTime">-</span>
+          </div>
+        </div>
+        <div class="small-text" style="margin-top: 18px;">This public calendar is read-only.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+    }
+
+    function openReservationDetail(element) {
+      document.getElementById('detailReserverName').textContent = element.dataset.reserverName;
+      document.getElementById('detailPurpose').textContent = element.dataset.purpose;
+      const statusClass = element.classList.contains('pending') ? 'pending' : 'reserved';
+      document.getElementById('detailStatus').innerHTML = '<span class="badge status-' + statusClass + '">' + element.dataset.status + '</span>';
+      document.getElementById('detailStartTime').textContent = element.dataset.startTime;
+      document.getElementById('detailEndTime').textContent = element.dataset.endTime;
+      openModal('reservationDetailModal');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.modal-overlay').forEach(function(modal) {
+        modal.addEventListener('click', function(event) {
+          if (event.target === modal) {
+            closeModal(modal.id);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

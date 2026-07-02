@@ -16,7 +16,35 @@ from django.utils import timezone
 from datetime import datetime
 
 
-def generate_requisition_slip_pdf(batch_request):
+def _format_user_signature(user):
+    name = f"{user.first_name} {user.last_name}".strip()
+    if not name:
+        name = user.username
+
+    designation = ""
+    if hasattr(user, 'userprofile') and user.userprofile:
+        if user.userprofile.designation:
+            designation = user.userprofile.designation
+        elif user.userprofile.department:
+            designation = user.userprofile.department.name
+
+    return name, designation
+
+
+def _resolve_approved_signature(batch_request, approved_signatory=None, use_dynamic_approved_by=False):
+    if approved_signatory:
+        return approved_signatory.name, approved_signatory.designation or ""
+
+    if use_dynamic_approved_by and batch_request.approved_by:
+        return _format_user_signature(batch_request.approved_by)
+
+    if batch_request.approved_by:
+        return _format_user_signature(batch_request.approved_by)
+
+    return "", ""
+
+
+def generate_requisition_slip_pdf(batch_request, approved_signatory=None, use_dynamic_approved_by=False):
     """
     Generate a requisition and issue slip PDF that exactly matches the official form format.
     This serves as a receipt/documentation for the supply request.
@@ -192,16 +220,14 @@ def generate_requisition_slip_pdf(batch_request):
     signature_headers = ["", "Requested by:", "Approved by:", "Issued by:", "Received by:"]
     
     # Get names for signatures
-    requester_name = f"{batch_request.user.first_name} {batch_request.user.last_name}" if batch_request.user.first_name else batch_request.user.username
-    requester_designation = batch_request.user.userprofile.designation if batch_request.user.userprofile and batch_request.user.userprofile.designation else batch_request.user.userprofile.department.name if batch_request.user.userprofile.department else ""
+    requester_name, requester_designation = _format_user_signature(batch_request.user)
     
     # Get approved by name and designation from tracked user
-    approved_by_name = ""
-    approved_by_designation = ""
-    if batch_request.approved_by:
-        approved_by_name = f"{batch_request.approved_by.first_name} {batch_request.approved_by.last_name}" if batch_request.approved_by.first_name else batch_request.approved_by.username
-        if batch_request.approved_by.userprofile:
-            approved_by_designation = batch_request.approved_by.userprofile.designation if batch_request.approved_by.userprofile.designation else ""
+    approved_by_name, approved_by_designation = _resolve_approved_signature(
+        batch_request,
+        approved_signatory=approved_signatory,
+        use_dynamic_approved_by=use_dynamic_approved_by,
+    )
     
     # Get issued by name and designation from tracked user (claimed_by)
     issued_by_name = ""
@@ -298,11 +324,15 @@ def generate_requisition_slip_pdf(batch_request):
     return pdf
 
 
-def download_requisition_slip(batch_request):
+def download_requisition_slip(batch_request, approved_signatory=None, use_dynamic_approved_by=False):
     """
     Generate and return an HTTP response with the requisition slip PDF for download.
     """
-    pdf_data = generate_requisition_slip_pdf(batch_request)
+    pdf_data = generate_requisition_slip_pdf(
+        batch_request,
+        approved_signatory=approved_signatory,
+        use_dynamic_approved_by=use_dynamic_approved_by,
+    )
     
     # Create the HttpResponse object with PDF content
     response = HttpResponse(pdf_data, content_type='application/pdf')
@@ -332,11 +362,15 @@ def download_requisition_slip(batch_request):
     return response
 
 
-def view_requisition_slip(batch_request):
+def view_requisition_slip(batch_request, approved_signatory=None, use_dynamic_approved_by=False):
     """
     Generate and return an HTTP response to view the requisition slip PDF in browser.
     """
-    pdf_data = generate_requisition_slip_pdf(batch_request)
+    pdf_data = generate_requisition_slip_pdf(
+        batch_request,
+        approved_signatory=approved_signatory,
+        use_dynamic_approved_by=use_dynamic_approved_by,
+    )
     
     # Create the HttpResponse object with PDF content for viewing
     response = HttpResponse(pdf_data, content_type='application/pdf')
@@ -370,7 +404,7 @@ def view_requisition_slip(batch_request):
 # Borrower's Slip PDF Generation
 # ============================================================================
 
-def generate_borrowers_slip_pdf(batch_request):
+def generate_borrowers_slip_pdf(batch_request, approved_signatory=None, use_dynamic_approved_by=False):
     """
     Generate a borrower's slip PDF for borrow request batches.
     This serves as a receipt/documentation for the borrow request.
@@ -477,8 +511,10 @@ def generate_borrowers_slip_pdf(batch_request):
         wordWrap='LTR'
     )
     
-    # Add items
-    for item in batch_request.items.all().order_by('property__property_name'):
+    # Add only items that belong on the final slip; rejected items stay off the document.
+    borrow_items = batch_request.items.exclude(status='rejected').order_by('property__property_name')
+
+    for item in borrow_items:
         item_id = f"PROP-{item.property.id:03d}"
         item_name = Paragraph(item.property.property_name, item_style)  # Wrap in Paragraph for text wrapping
         quantity = str(item.approved_quantity) if item.approved_quantity else str(item.quantity)
@@ -543,16 +579,14 @@ def generate_borrowers_slip_pdf(batch_request):
     signature_headers = ["", "Requested by:", "Approved by:", "Released by:", "Received by:"]
     
     # Get names for signatures
-    requester_name = f"{batch_request.user.first_name} {batch_request.user.last_name}" if batch_request.user.first_name else batch_request.user.username
-    requester_designation = batch_request.user.userprofile.designation if batch_request.user.userprofile and batch_request.user.userprofile.designation else batch_request.user.userprofile.department.name if batch_request.user.userprofile.department else ""
+    requester_name, requester_designation = _format_user_signature(batch_request.user)
     
     # Get approved by name and designation from tracked user
-    approved_by_name = ""
-    approved_by_designation = ""
-    if batch_request.approved_by:
-        approved_by_name = f"{batch_request.approved_by.first_name} {batch_request.approved_by.last_name}" if batch_request.approved_by.first_name else batch_request.approved_by.username
-        if batch_request.approved_by.userprofile:
-            approved_by_designation = batch_request.approved_by.userprofile.designation if batch_request.approved_by.userprofile.designation else ""
+    approved_by_name, approved_by_designation = _resolve_approved_signature(
+        batch_request,
+        approved_signatory=approved_signatory,
+        use_dynamic_approved_by=use_dynamic_approved_by,
+    )
     
     # Get released by name and designation from tracked user (claimed_by)
     released_by_name = ""
@@ -649,11 +683,15 @@ def generate_borrowers_slip_pdf(batch_request):
     return pdf
 
 
-def download_borrowers_slip(batch_request):
+def download_borrowers_slip(batch_request, approved_signatory=None, use_dynamic_approved_by=False):
     """
     Generate and return an HTTP response with the borrower's slip PDF for download.
     """
-    pdf_data = generate_borrowers_slip_pdf(batch_request)
+    pdf_data = generate_borrowers_slip_pdf(
+        batch_request,
+        approved_signatory=approved_signatory,
+        use_dynamic_approved_by=use_dynamic_approved_by,
+    )
     
     # Create the HttpResponse object with PDF content
     response = HttpResponse(pdf_data, content_type='application/pdf')
@@ -683,11 +721,15 @@ def download_borrowers_slip(batch_request):
     return response
 
 
-def view_borrowers_slip(batch_request):
+def view_borrowers_slip(batch_request, approved_signatory=None, use_dynamic_approved_by=False):
     """
     Generate and return an HTTP response to view the borrower's slip PDF in browser.
     """
-    pdf_data = generate_borrowers_slip_pdf(batch_request)
+    pdf_data = generate_borrowers_slip_pdf(
+        batch_request,
+        approved_signatory=approved_signatory,
+        use_dynamic_approved_by=use_dynamic_approved_by,
+    )
     
     # Create the HttpResponse object with PDF content for viewing
     response = HttpResponse(pdf_data, content_type='application/pdf')

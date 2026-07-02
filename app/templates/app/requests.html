@@ -414,7 +414,7 @@
     
     .search-row {
       display: grid;
-      grid-template-columns: 250px 200px 150px 150px auto;
+      grid-template-columns: 250px 200px 150px 150px 240px 1fr;
       gap: 15px;
       align-items: center;
       position: relative;
@@ -488,6 +488,7 @@
       gap: 8px;
       align-items: center;
       height: 42px; /* Match other elements */
+      min-width: 0;
     }
     
     .btn-filter {
@@ -505,6 +506,8 @@
       gap: 8px;
       font-size: 14px;
       box-sizing: border-box;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     
     .btn-filter:hover {
@@ -529,6 +532,8 @@
       text-decoration: none;
       font-size: 14px;
       box-sizing: border-box;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     
     .btn-clear:hover {
@@ -569,14 +574,14 @@
     /* Responsive design for search controls */
     @media (max-width: 1200px) {
       .search-row {
-        grid-template-columns: 200px 180px 120px 120px auto;
+        grid-template-columns: 200px 180px 120px 120px 220px 1fr;
         gap: 12px;
       }
     }
     
     @media (max-width: 1000px) {
       .search-row {
-        grid-template-columns: 180px 160px 110px 110px auto;
+        grid-template-columns: 180px 160px 110px 110px 200px 1fr;
         gap: 10px;
       }
     }
@@ -587,6 +592,7 @@
         grid-template-areas: 
           "search department"
           "date-from date-to"
+          "signatory signatory"
           "buttons buttons";
         gap: 12px;
       }
@@ -606,6 +612,10 @@
       
       .filter-group:nth-child(4) {
         grid-area: date-to;
+      }
+
+      .filter-group:nth-child(5) {
+        grid-area: signatory;
       }
       
       .filter-buttons {
@@ -628,6 +638,7 @@
           "department" 
           "date-from"
           "date-to"
+          "signatory"
           "buttons";
         gap: 15px;
       }
@@ -1958,7 +1969,7 @@
     <main class="requests-content">
       <!-- Search and Filter Controls -->
       <div class="search-filter-container">
-        <form method="GET" class="search-filter-form" id="filterForm">
+        <form method="GET" class="search-filter-form" id="filterForm" action="{{ request.get_full_path }}">
           <div class="search-row">
             <!-- Search Input -->
             <div class="search-input-group">
@@ -2006,12 +2017,28 @@
                      class="date-input"
                      placeholder="To Date">
             </div>
+
+            <div class="filter-group">
+              <select name="signatory" class="filter-select" onchange="this.form.submit()" style="min-width: 240px;">
+                <option value="dynamic" {% if selected_signatory_mode == 'dynamic' %}selected{% endif %}>Use dynamic approved by</option>
+                {% for signatory in signatories %}
+                  <option value="{{ signatory.id }}" {% if selected_signatory and selected_signatory.id == signatory.id %}selected{% endif %}>
+                    {% if signatory.is_default %}Default - {% endif %}{{ signatory.name }}{% if signatory.designation %} ({{ signatory.designation }}){% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
             
             <!-- Filter Buttons -->
             <div class="filter-buttons">
               <button type="submit" class="btn-filter">
                 <i class="fas fa-filter"></i> Filter
               </button>
+              {% if request.user.is_staff %}
+              <button type="button" class="btn-filter" onclick="openSignatoryModal()" style="background: #28a745; border-color: #28a745;">
+                <i class="fas fa-user-plus"></i> Add Default Person
+              </button>
+              {% endif %}
               <a href="{% url 'user_supply_requests' %}" class="btn-clear">
                 <i class="fas fa-times"></i> Clear
               </a>
@@ -2022,6 +2049,81 @@
           <input type="hidden" name="tab" value="{{ current_tab }}" id="currentTabInput">
         </form>
       </div>
+
+      {% if request.user.is_staff %}
+      <div id="signatoryModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 1050; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: white; width: min(100%, 760px); max-height: 90vh; border-radius: 14px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2); overflow: hidden; display: flex; flex-direction: column;">
+          <div style="background: linear-gradient(135deg, #152d64 0%, #1f4f9e 100%); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 700; font-size: 16px;">Add Default Approver</div>
+            <button type="button" onclick="closeSignatoryModal()" style="background: transparent; border: none; color: white; font-size: 22px; cursor: pointer; line-height: 1;">&times;</button>
+          </div>
+          <div style="padding: 18px 20px 0 20px; display: grid; gap: 14px; overflow-y: auto;">
+            <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; padding: 16px;">
+              <form method="post" action="{{ request.get_full_path }}" style="display: grid; gap: 14px;">
+                {% csrf_token %}
+                <input type="hidden" name="action" id="signatoryAction" value="save_signatory_default">
+                <input type="hidden" name="signatory_id" id="signatoryIdField" value="">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #152d64; margin-bottom: 6px;">Person Name</label>
+                    <input type="text" name="signatory_name" id="signatoryNameField" required style="width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 8px;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #152d64; margin-bottom: 6px;">Designation</label>
+                    <input type="text" name="signatory_designation" id="signatoryDesignationField" placeholder="Optional designation" style="width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 8px;">
+                  </div>
+                </div>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #495057;">
+                  <input type="checkbox" name="is_default" id="signatoryDefaultField" checked>
+                  Set as default for this document type
+                </label>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+                  <button type="button" onclick="resetSignatoryForm()" style="background: #6c757d; color: white; font-size: 12px; padding: 8px 14px; border: none; border-radius: 6px;">New</button>
+                  <button type="button" onclick="closeSignatoryModal()" style="background: #6c757d; color: white; font-size: 12px; padding: 8px 14px; border: none; border-radius: 6px;">Close</button>
+                  <button type="submit" style="background: #28a745; color: white; font-size: 12px; padding: 8px 14px; border: none; border-radius: 6px;">Save</button>
+                </div>
+              </form>
+            </div>
+
+            <div style="border: 1px solid #e9ecef; border-radius: 12px; overflow: hidden;">
+              <div style="padding: 12px 16px; background: #152d64; color: white; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.4px; display: flex; justify-content: space-between; align-items: center;">
+                <span>Saved Default People</span>
+                <span>{{ signatories|length }} item{{ signatories|length|pluralize }}</span>
+              </div>
+              <div style="max-height: 260px; overflow: auto; background: white;">
+                {% if signatories %}
+                  {% for signatory in signatories %}
+                  <div style="display: grid; grid-template-columns: 1.2fr 1fr auto; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid #f1f3f5;">
+                    <div>
+                      <div style="font-weight: 700; color: #152d64;">{{ signatory.name }}</div>
+                      <div style="font-size: 12px; color: #6c757d;">
+                        {% if signatory.designation %}{{ signatory.designation }}{% else %}No designation{% endif %}
+                        {% if signatory.is_default %} · Default{% endif %}
+                      </div>
+                    </div>
+                    <div style="font-size: 12px; color: #6c757d;">
+                      {{ signatory.get_document_type_display }}
+                    </div>
+                    <div style="display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;">
+                      <button type="button" class="btn-filter" style="height: 34px; padding: 0 12px; background: #0d6efd;" onclick='editSignatory({{ signatory.id }}, "{{ signatory.name|escapejs }}", "{{ signatory.designation|default_if_none:''|escapejs }}", {{ signatory.is_default|yesno:"true,false" }})'>Edit</button>
+                      <form method="post" action="{{ request.get_full_path }}" onsubmit="return confirm('Remove this default person?');" style="display: inline; margin: 0;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_signatory">
+                        <input type="hidden" name="signatory_id" value="{{ signatory.id }}">
+                        <button type="submit" style="height: 34px; padding: 0 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">Delete</button>
+                      </form>
+                    </div>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                  <div style="padding: 16px; color: #6c757d; font-size: 13px;">No saved default people yet.</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
 
       <!-- Filter Tabs -->
       <div class="filter-tabs">
@@ -2078,7 +2180,7 @@
                 </td>
                 <td>{{ batch_request.request_date|date:"M d, Y" }}</td>
                 <td>
-                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link save-scroll-position">
+                  <a href="{% url 'batch_request_detail' batch_request.id %}?tab={{ current_tab }}{{ url_params }}" class="detail-link save-scroll-position">
                     <i class="fas fa-external-link-alt"></i> View
                   </a>
                 </td>
@@ -2219,7 +2321,7 @@
                 <td>{{ batch_request.approved_date|date:"M d, Y"|default:"N/A" }}</td>
                 <td>
                   <div style="display: flex; gap: 8px; justify-content: center;">
-                    <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link save-scroll-position">
+                    <a href="{% url 'batch_request_detail' batch_request.id %}?tab={{ current_tab }}{{ url_params }}" class="detail-link save-scroll-position">
                       <i class="fas fa-external-link-alt"></i> View
                     </a>
                     <button type="button" 
@@ -2394,7 +2496,7 @@
                   {% endif %}
                 </td>
                 <td>
-                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link save-scroll-position">
+                  <a href="{% url 'batch_request_detail' batch_request.id %}?tab={{ current_tab }}{{ url_params }}" class="detail-link save-scroll-position">
                     <i class="fas fa-external-link-alt"></i> View
                   </a>
                 </td>
@@ -2545,7 +2647,7 @@
                 </td>
                 <td>{{ batch_request.request_date|date:"M d, Y" }}</td>
                 <td>
-                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link save-scroll-position">
+                  <a href="{% url 'batch_request_detail' batch_request.id %}?tab={{ current_tab }}{{ url_params }}" class="detail-link save-scroll-position">
                     <i class="fas fa-external-link-alt"></i> View
                   </a>
                 </td>
@@ -2685,7 +2787,7 @@
                 </td>
                 <td>{{ batch_request.request_date|date:"M d, Y" }}</td>
                 <td>
-                  <a href="{% url 'batch_request_detail' batch_request.id %}" class="detail-link save-scroll-position">
+                  <a href="{% url 'batch_request_detail' batch_request.id %}?tab={{ current_tab }}{{ url_params }}" class="detail-link save-scroll-position">
                     <i class="fas fa-external-link-alt"></i> View
                   </a>
                 </td>
@@ -4312,6 +4414,60 @@
   </div>
 
   <script>
+    function openSignatoryModal() {
+      const modal = document.getElementById('signatoryModal');
+      if (modal) {
+        modal.style.display = 'flex';
+      }
+    }
+
+    function closeSignatoryModal() {
+      const modal = document.getElementById('signatoryModal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    }
+
+    function resetSignatoryForm() {
+      const actionField = document.getElementById('signatoryAction');
+      const idField = document.getElementById('signatoryIdField');
+      const nameField = document.getElementById('signatoryNameField');
+      const designationField = document.getElementById('signatoryDesignationField');
+      const defaultField = document.getElementById('signatoryDefaultField');
+
+      if (actionField) actionField.value = 'save_signatory_default';
+      if (idField) idField.value = '';
+      if (nameField) nameField.value = '';
+      if (designationField) designationField.value = '';
+      if (defaultField) defaultField.checked = true;
+    }
+
+    function editSignatory(signatoryId, name, designation, isDefault) {
+      const actionField = document.getElementById('signatoryAction');
+      const idField = document.getElementById('signatoryIdField');
+      const nameField = document.getElementById('signatoryNameField');
+      const designationField = document.getElementById('signatoryDesignationField');
+      const defaultField = document.getElementById('signatoryDefaultField');
+
+      if (actionField) actionField.value = 'update_signatory';
+      if (idField) idField.value = signatoryId;
+      if (nameField) nameField.value = name;
+      if (designationField) designationField.value = designation;
+      if (defaultField) defaultField.checked = isDefault;
+      openSignatoryModal();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const modal = document.getElementById('signatoryModal');
+      if (modal) {
+        modal.addEventListener('click', function(event) {
+          if (event.target === this) {
+            closeSignatoryModal();
+          }
+        });
+      }
+    });
+
     // Scroll position, tab, and page number retention
     document.addEventListener('DOMContentLoaded', function() {
       // Check if we need to restore scroll position and page
