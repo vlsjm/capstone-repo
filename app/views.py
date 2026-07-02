@@ -3546,6 +3546,18 @@ class PropertyListView(PermissionRequiredMixin, ListView):
             properties_by_category[prop.category].append(prop)
         context['properties_by_category'] = dict(properties_by_category)
         
+        # Properties eligible for ICS (unit value below 50,000) for the Generate ICS modal
+        context['all_ics_properties'] = Property.objects.filter(
+            is_archived=False,
+            unit_value__lt=50000,
+        ).select_related('accountable_person').order_by('accountable_person__name', 'property_name')
+        
+        # Properties eligible for PAR (unit value >= 50,000) for the Generate PAR modal
+        context['all_par_properties'] = Property.objects.filter(
+            is_archived=False,
+            unit_value__gte=50000,
+        ).select_related('accountable_person').order_by('accountable_person__name', 'property_name')
+        
         # Add user permissions to context
         context['can_report_lost_items'] = has_admin_permission(self.request.user, 'report_lost_items')
         context['can_manage_lost_items'] = has_admin_permission(self.request.user, 'manage_lost_items')
@@ -3809,6 +3821,7 @@ def add_property(request):
 def add_accountable_person(request):
     if request.method == 'POST':
         name = (request.POST.get('name') or '').strip()
+        designation = (request.POST.get('designation') or '').strip()
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
         if not name:
@@ -3818,20 +3831,60 @@ def add_accountable_person(request):
             messages.error(request, error_message)
             return redirect('property_list')
 
-        person, created = AccountablePerson.objects.get_or_create(name=name)
-        if not created:
+        person = AccountablePerson.objects.filter(name=name).first()
+        if person:
+            # Allow designation updates from the same form for existing names.
+            if designation and (person.designation or '').strip() != designation:
+                old_designation = person.designation
+                person.designation = designation
+                person.save(update_fields=['designation'])
+
+                ActivityLog.log_activity(
+                    user=request.user,
+                    action='update',
+                    model_name='AccountablePerson',
+                    object_repr=str(person),
+                    description=(
+                        f"Updated designation for accountable person '{name}' "
+                        f"from '{old_designation or 'None'}' to '{designation}'"
+                    )
+                )
+
+                success_message = f'Updated designation for "{name}".'
+                if is_ajax:
+                    return JsonResponse({
+                        'success': True,
+                        'message': success_message,
+                        'person': {
+                            'id': person.id,
+                            'name': person.name,
+                            'designation': person.designation or '',
+                        }
+                    })
+
+                messages.success(request, success_message)
+                return redirect('property_list')
+
             error_message = f'Accountable person "{name}" already exists.'
             if is_ajax:
                 return JsonResponse({'success': False, 'error': error_message})
             messages.error(request, error_message)
             return redirect('property_list')
 
+        person = AccountablePerson.objects.create(
+            name=name,
+            designation=designation or None,
+        )
+
         ActivityLog.log_activity(
             user=request.user,
             action='create',
             model_name='AccountablePerson',
             object_repr=str(person),
-            description=f"Added new accountable person '{name}'"
+            description=(
+                f"Added new accountable person '{name}'"
+                + (f" with designation '{designation}'" if designation else '')
+            )
         )
 
         if is_ajax:
@@ -3841,6 +3894,7 @@ def add_accountable_person(request):
                 'person': {
                     'id': person.id,
                     'name': person.name,
+                    'designation': person.designation or '',
                 }
             })
 
@@ -4330,12 +4384,91 @@ def get_property_categories(request):
     return JsonResponse({'categories': categories_data})
 
 
+@permission_required('app.view_admin_module')
+@require_POST
+def update_accountable_person(request):
+    """Update accountable person name/designation."""
+    person_id = request.POST.get('id')
+    name = (request.POST.get('name') or '').strip()
+    designation = (request.POST.get('designation') or '').strip()
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    if not person_id:
+        error_message = 'Accountable person ID is required.'
+        if is_ajax:
+            return JsonResponse({'success': False, 'error': error_message})
+        messages.error(request, error_message)
+        return redirect('property_list')
+
+    if not name:
+        error_message = 'Accountable person name is required.'
+        if is_ajax:
+            return JsonResponse({'success': False, 'error': error_message})
+        messages.error(request, error_message)
+        return redirect('property_list')
+
+    person = get_object_or_404(AccountablePerson, id=person_id)
+
+    duplicate = AccountablePerson.objects.exclude(id=person.id).filter(name=name).exists()
+    if duplicate:
+        error_message = f'Accountable person "{name}" already exists.'
+        if is_ajax:
+            return JsonResponse({'success': False, 'error': error_message})
+        messages.error(request, error_message)
+        return redirect('property_list')
+
+    old_name = person.name
+    old_designation = person.designation or ''
+
+    person.name = name
+    person.designation = designation or None
+    person.save(update_fields=['name', 'designation'])
+
+    changes = []
+    if old_name != person.name:
+        changes.append(f"name from '{old_name}' to '{person.name}'")
+    if old_designation != (person.designation or ''):
+        changes.append(
+            f"designation from '{old_designation or 'None'}' to '{person.designation or 'None'}'"
+        )
+
+    ActivityLog.log_activity(
+        user=request.user,
+        action='update',
+        model_name='AccountablePerson',
+        object_repr=str(person),
+        description=(
+            f"Updated accountable person '{person.name}'"
+            + (f": {', '.join(changes)}" if changes else '')
+        )
+    )
+
+    success_message = 'Accountable person updated successfully.'
+    if is_ajax:
+        return JsonResponse({
+            'success': True,
+            'message': success_message,
+            'person': {
+                'id': person.id,
+                'name': person.name,
+                'designation': person.designation or '',
+            }
+        })
+
+    messages.success(request, success_message)
+    return redirect('property_list')
+
+
 @login_required
 def get_accountable_persons(request):
     """Return all accountable persons as JSON for dropdown updates"""
     people = AccountablePerson.objects.all().order_by('name')
     people_data = [
-        {'id': person.id, 'name': person.name}
+        {
+            'id': person.id,
+            'name': person.name,
+            'designation': person.designation or '',
+        }
         for person in people
     ]
     return JsonResponse({'accountable_persons': people_data})
@@ -6018,145 +6151,621 @@ def _generate_pdf_quantity_report(supply, activity_data, total_additions, total_
 
 @login_required
 def export_property_to_pdf_ics(request):
-    """Export properties with unit value below 50,000 as Excel Inventory Custodian Slip (ICS)"""
-    from openpyxl import Workbook
-    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    """Generate a PDF Inventory Custodian Slip (ICS) matching the official government form format.
+
+    Accepts optional POST field 'property_ids' (list) from the Generate ICS modal.
+    If provided, only those properties are exported. Otherwise falls back to all
+    non-archived properties with unit cost < 50,000, optionally filtered by accountable person.
+    """
+    from io import BytesIO
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.platypus import (
+        SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, KeepTogether
+    )
+    from reportlab.lib import colors
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
     from django.utils import timezone
-    
-    # Get form data
-    college_campus = request.POST.get('college_campus', 'BACOOR')
+
+    # ── Collect properties ─────────────────────────────────────────────────
+    selected_ids = request.POST.getlist('property_ids')
     accountable_person_filter = request.POST.get('accountable_person_ics', '(All)')
-    
-    # Get all properties
-    properties = Property.objects.select_related('category', 'accountable_person').all()
-    
-    # Filter properties with unit value (unit cost) below 50,000
-    filtered_properties = []
-    for prop in properties:
-        unit_cost = float(prop.unit_value or 0)
-        qty_per_card = int(prop.overall_quantity or 0)  # Use overall_quantity instead of quantity
-        total_value = unit_cost * qty_per_card
-        
-        # Filter based on unit cost being below 50,000
-        if unit_cost < 50000:
-            # Apply accountable person filter if specified
-            if accountable_person_filter == '(All)' or (prop.accountable_person and prop.accountable_person.name == accountable_person_filter):
-                filtered_properties.append({
-                    'article': prop.property_name or 'N/A',  # Property name as Article
-                    'description': prop.description or '',
-                    'property_number': prop.property_number or 'N/A',
-                    'unit_of_measure': prop.unit_of_measure or 'unit',
-                    'unit_cost': unit_cost,
-                    'total_value': total_value,
-                    'qty_per_card': qty_per_card,
-                    'qty_per_physical_count': prop.quantity_per_physical_count or qty_per_card,
-                    'remarks': 'test',
-                    'accountable_person': prop.accountable_person.name if prop.accountable_person else 'N/A',
-                    'year_acquired': prop.year_acquired.strftime('%m/%d/%Y') if prop.year_acquired else 'N/A'
-                })
-    
-    # Create workbook
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "ICS Below 50000"
-    
-    # Header styling
-    header_fill = PatternFill(start_color="152d64", end_color="152d64", fill_type="solid")
-    header_font = Font(bold=True, color="FFFFFF", size=11)
-    border = Border(
-        left=Side(style='thin'),
-        right=Side(style='thin'),
-        top=Side(style='thin'),
-        bottom=Side(style='thin')
-    )
-    
-    # Add title
-    ws.merge_cells('A1:K1')
-    ws['A1'] = 'List of Inventories / Inventory Custodian Slip (ICS)'
-    ws['A1'].font = Font(bold=True, size=14)
-    ws['A1'].alignment = Alignment(horizontal='center')
-    
-    # Add info rows
-    ws.merge_cells('A2:K2')
-    ws['A2'] = f'College / Campus: {college_campus}'
-    ws['A2'].alignment = Alignment(horizontal='left')
-    
-    ws.merge_cells('A3:K3')
-    ws['A3'] = f'Accountable Person: {accountable_person_filter}'
-    ws['A3'].alignment = Alignment(horizontal='left')
-    
-    ws.merge_cells('A4:K4')
-    ws['A4'] = f'Generated on: {timezone.now().strftime("%B %d, %Y %I:%M %p")}'
-    ws['A4'].alignment = Alignment(horizontal='center')
-    
-    # Headers
-    headers = ['Article', 'Description', 'Property Number', 'Unit Of Measure', 
-               'Unit Cost', 'Total Value', 'QTY Per card', 'Qty Per Physical Count', 
-               'Remarks', 'Accountable Person', 'Year Acquired']
-    ws.append([])  # Empty row
-    ws.append(headers)
-    
-    # Style headers (row 6)
-    for cell in ws[6]:
-        cell.fill = header_fill
-        cell.font = header_font
-        cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-        cell.border = border
-    
-    # Add data
-    if filtered_properties:
-        for prop in filtered_properties:
-            ws.append([
-                prop['article'],
-                prop['description'],
-                prop['property_number'],
-                prop['unit_of_measure'],
-                prop['unit_cost'],
-                prop['total_value'],
-                prop['qty_per_card'],
-                prop['qty_per_physical_count'],
-                prop['remarks'],
-                prop['accountable_person'],
-                prop['year_acquired']
-            ])
+
+    if selected_ids:
+        qs = Property.objects.filter(
+            id__in=selected_ids
+        ).select_related('category', 'accountable_person').order_by('property_name')
     else:
-        ws.append(['No properties found with unit cost below ₱50,000.00', '', '', '', '', '', '', '', '', '', ''])
-    
-    # Style data rows
-    for row in ws.iter_rows(min_row=7, max_row=ws.max_row, min_col=1, max_col=11):
-        for cell in row:
-            cell.border = border
-            cell.alignment = Alignment(vertical='center', wrap_text=True)
-    
-    # Format number columns
-    for row in ws.iter_rows(min_row=7, max_row=ws.max_row, min_col=5, max_col=6):
-        for cell in row:
-            if isinstance(cell.value, (int, float)):
-                cell.number_format = '#,##0.00'
-                cell.alignment = Alignment(horizontal='right', vertical='center')
-    
-    # Center align specific columns
-    for row in ws.iter_rows(min_row=7, max_row=ws.max_row):
-        # Property Number
-        row[2].alignment = Alignment(horizontal='center', vertical='center')
-        # Unit of Measure
-        row[3].alignment = Alignment(horizontal='center', vertical='center')
-        # QTY columns
-        row[6].alignment = Alignment(horizontal='center', vertical='center')
-        row[7].alignment = Alignment(horizontal='center', vertical='center')
-    
-    # Adjust column widths
-    column_widths = [20, 30, 18, 15, 12, 12, 12, 18, 15, 20, 15]
-    for i, width in enumerate(column_widths, 1):
-        ws.column_dimensions[chr(64 + i)].width = width
-    
-    # Create response
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        qs = Property.objects.filter(
+            is_archived=False, unit_value__lt=50000
+        ).select_related('category', 'accountable_person').order_by('property_name')
+        if accountable_person_filter and accountable_person_filter != '(All)':
+            qs = qs.filter(accountable_person__name=accountable_person_filter)
+
+    # Build data rows
+    props_data = []
+    grand_total = 0.0
+    for prop in qs:
+        unit_cost  = float(prop.unit_value or 0)
+        qty        = int(prop.overall_quantity or 0)
+        total_val  = unit_cost * qty
+        grand_total += total_val
+        props_data.append({
+            'qty':           qty,
+            'unit':          prop.unit_of_measure or '',
+            'unit_cost':     unit_cost,
+            'total_cost':    total_val,
+            'description':   prop.property_name or '',
+            'date_acquired': prop.year_acquired.strftime('%m/%d/%Y') if prop.year_acquired else '',
+            'item_no':       prop.property_number or '',
+            'useful_life':   '',   # Field not stored – left blank for manual entry
+            'accountable':   prop.accountable_person.name if prop.accountable_person else '',
+            'accountable_designation': (
+                prop.accountable_person.designation if prop.accountable_person else ''
+            ),
+        })
+
+    # ── Build PDF ───────────────────────────────────────────────────────────
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=0.6 * inch,
+        leftMargin=0.6 * inch,
+        topMargin=0.5 * inch,
+        bottomMargin=0.6 * inch,
     )
-    response['Content-Disposition'] = f'attachment; filename=ICS_Below_50000_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
-    wb.save(response)
-    
+
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle(
+        'ICSTitle',
+        parent=styles['Normal'],
+        fontSize=12,
+        fontName='Helvetica-Bold',
+        alignment=TA_CENTER,
+        spaceAfter=6,
+    )
+    label_style = ParagraphStyle(
+        'ICSLabel',
+        parent=styles['Normal'],
+        fontSize=9,
+        fontName='Helvetica',
+        alignment=TA_LEFT,
+    )
+    cell_style = ParagraphStyle(
+        'ICSCell',
+        parent=styles['Normal'],
+        fontSize=8,
+        fontName='Helvetica',
+        alignment=TA_CENTER,
+        leading=10,
+    )
+    cell_left = ParagraphStyle(
+        'ICSCellLeft',
+        parent=cell_style,
+        alignment=TA_LEFT,
+    )
+
+    story = []
+
+    # ── Title ───────────────────────────────────────────────────────────────
+    story.append(Paragraph('INVENTORY CUSTODIAN SLIP', title_style))
+    story.append(Spacer(1, 8))
+
+    # ── Entry Name row ──────────────────────────────────────────────────────
+    entry_data = [['Entry Name:  CAVITE STATE UNIVERSITY']]
+    entry_tbl = Table(entry_data, colWidths=[7.27 * inch])
+    entry_tbl.setStyle(TableStyle([
+        ('FONTNAME',    (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE',    (0, 0), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+        ('TOPPADDING',  (0, 0), (-1, -1), 2),
+    ]))
+    story.append(entry_tbl)
+    story.append(Spacer(1, 4))
+
+    # ── Fund Cluster / ICS No. row ──────────────────────────────────────────
+    # Two cells side by side, underlines drawn as bottom borders
+    meta_data = [['Fund Cluster: ___________', 'ICS No.: ________']]
+    meta_tbl = Table(meta_data, colWidths=[3.6 * inch, 3.67 * inch])
+    meta_tbl.setStyle(TableStyle([
+        ('FONTNAME',    (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE',    (0, 0), (-1, -1), 9),
+        ('ALIGN',       (1, 0), (1, 0),   'RIGHT'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('TOPPADDING',  (0, 0), (-1, -1), 3),
+    ]))
+    story.append(meta_tbl)
+    story.append(Spacer(1, 4))
+
+    # ── Main ICS Table ──────────────────────────────────────────────────────
+    # Column widths (total ≈ 7.27 in):
+    # Qty | Unit | Unit Cost | Total Cost | Description | Date Acq. | Inv. Item No. | Est. Useful Life
+    W = [0.55, 0.55, 0.85, 0.85, 2.00, 0.72, 0.90, 0.85]
+    col_widths = [w * inch for w in W]
+    total_w    = sum(col_widths)  # should equal page width inside margins
+
+    # Row 0: main header labels (spanning where needed)
+    # Row 1: sub-headers for 'Amount' (Unit Cost | Total Cost)
+    header_rows = [
+        # [Qty, Unit, Amount(span 2), Description, Date Acquired, Inventory Item No., Estimated Useful Life]
+        [
+            Paragraph('Qty',             cell_style),
+            Paragraph('Unit',            cell_style),
+            Paragraph('Amount',          cell_style),   # spans cols 2-3
+            '',                                          # (spanned)
+            Paragraph('Description',     cell_style),
+            Paragraph('Date\nAcquired',  cell_style),
+            Paragraph('Inventory\nItem No.', cell_style),
+            Paragraph('Estimated\nUseful Life', cell_style),
+        ],
+        [
+            '',  # Qty (spanned)
+            '',  # Unit (spanned)
+            Paragraph('Unit\nCost',  cell_style),
+            Paragraph('Total\nCost', cell_style),
+            '',  # Description (spanned)
+            '',  # Date Acquired (spanned)
+            '',  # Inv. Item No. (spanned)
+            '',  # Useful Life (spanned)
+        ],
+    ]
+
+    # Build data rows
+    MIN_ROWS = 12
+    data_rows = []
+    for p in props_data:
+        data_rows.append([
+            Paragraph(str(p['qty']),         cell_style),
+            Paragraph(p['unit'],             cell_style),
+            Paragraph(f"{p['unit_cost']:,.2f}", cell_style),
+            Paragraph(f"{p['total_cost']:,.2f}", cell_style),
+            Paragraph(p['description'],      cell_left),
+            Paragraph(p['date_acquired'],    cell_style),
+            Paragraph(p['item_no'],          cell_style),
+            Paragraph(p['useful_life'],      cell_style),
+        ])
+
+    # Pad to minimum rows
+    while len(data_rows) < MIN_ROWS:
+        data_rows.append(['', '', '', '', '', '', '', ''])
+
+    # Total row
+    total_row = [
+        '', Paragraph('Total', cell_style),
+        Paragraph(f"{grand_total:,.2f}", cell_style),
+        '', '', '', '', '',
+    ]
+
+    table_data = header_rows + data_rows + [total_row]
+    main_tbl = Table(table_data, colWidths=col_widths, repeatRows=2)
+
+    thin  = colors.black
+    n_header = 2
+    n_data   = len(data_rows)
+    n_total  = 1
+    last_row = n_header + n_data + n_total - 1
+
+    main_tbl.setStyle(TableStyle([
+        # ── Grid (entire table) ──────────────────────────────────────────
+        ('GRID',      (0, 0), (-1, last_row), 0.5, thin),
+        ('FONTNAME',  (0, 0), (-1, last_row), 'Helvetica'),
+        ('FONTSIZE',  (0, 0), (-1, last_row), 8),
+        ('ALIGN',     (0, 0), (-1, last_row), 'CENTER'),
+        ('VALIGN',    (0, 0), (-1, last_row), 'MIDDLE'),
+        ('LEFTPADDING',  (0, 0), (-1, -1), 2),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 2),
+        ('TOPPADDING',   (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING',(0, 0), (-1, -1), 3),
+
+        # ── Header row 0: "Amount" spans cols 2-3 ───────────────────────
+        ('SPAN',      (2, 0), (3, 0)),
+        # Qty spans rows 0-1
+        ('SPAN',      (0, 0), (0, 1)),
+        # Unit spans rows 0-1
+        ('SPAN',      (1, 0), (1, 1)),
+        # Description spans rows 0-1
+        ('SPAN',      (4, 0), (4, 1)),
+        # Date Acquired spans rows 0-1
+        ('SPAN',      (5, 0), (5, 1)),
+        # Inventory Item No. spans rows 0-1
+        ('SPAN',      (6, 0), (6, 1)),
+        # Estimated Useful Life spans rows 0-1
+        ('SPAN',      (7, 0), (7, 1)),
+
+        # Header background (very light gray)
+        ('BACKGROUND', (0, 0), (-1, 1), colors.Color(0.93, 0.93, 0.93)),
+        ('FONTNAME',   (0, 0), (-1, 1), 'Helvetica-Bold'),
+
+        # Description column: left-align in data rows
+        ('ALIGN', (4, n_header), (4, last_row - 1), 'LEFT'),
+
+        # ── Total row ────────────────────────────────────────────────────
+        ('FONTNAME',   (0, last_row), (-1, last_row), 'Helvetica-Bold'),
+        ('ALIGN',      (1, last_row), (1, last_row),  'RIGHT'),
+        ('SPAN',       (0, last_row), (0, last_row)),   # qty blank
+    ]))
+
+    story.append(main_tbl)
+    story.append(Spacer(1, 10))
+
+    # ── Signature section ───────────────────────────────────────────────────
+    # Two columns: "Received from:" (left) | "Received by:" (right)
+    now = timezone.now()
+    safe_date_str = f"{now.strftime('%B')} {now.day}, {now.year}"
+
+    received_from_name  = 'ZANNIE I. GAMUYAO'
+    received_from_desig = 'Head Property Management Unit'
+    received_from_pos   = 'Position/Office'
+    received_from_date  = safe_date_str
+
+    unique_accountables = {}
+    for prop in qs:
+        if not prop.accountable_person:
+            continue
+        normalized_name = (prop.accountable_person.name or '').strip()
+        if normalized_name and normalized_name not in unique_accountables:
+            unique_accountables[normalized_name] = (prop.accountable_person.designation or '').strip()
+
+    if len(unique_accountables) == 1:
+        received_by_name = next(iter(unique_accountables))
+        received_by_desig = unique_accountables.get(received_by_name, '')
+    elif accountable_person_filter and accountable_person_filter != '(All)':
+        received_by_name = accountable_person_filter
+        matched_person = AccountablePerson.objects.filter(name=accountable_person_filter).first()
+        received_by_desig = (matched_person.designation or '').strip() if matched_person else ''
+    else:
+        received_by_name = ''
+        received_by_desig = ''
+    received_by_pos   = 'Position/Office'
+    received_by_date  = safe_date_str
+
+    sig_label = ParagraphStyle('SigLabel', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_LEFT)
+    sig_name  = ParagraphStyle('SigName',  parent=styles['Normal'], fontSize=9, fontName='Helvetica-BoldOblique', alignment=TA_CENTER)
+    sig_desig = ParagraphStyle('SigDesig', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_CENTER, underlineProportion=1)
+    sig_small = ParagraphStyle('SigSmall', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_CENTER)
+
+    half = 3.635 * inch
+
+    def sig_block(header_text, name, designation, position, date_text):
+        """Return a list of Paragraph/Spacer building blocks for one signature column."""
+        return [
+            Paragraph(header_text, sig_label),
+            Spacer(1, 20),
+            Paragraph(f'<u>{name}</u>' if name else '_' * 28, sig_name),
+            Paragraph('Signature Over Printed Name', sig_small),
+            Paragraph(f'<u>{designation}</u>' if designation else '_' * 28, sig_small),
+            Paragraph(position, sig_small),
+            Paragraph(f'<b><u>{date_text}</u></b>', sig_small),
+            Paragraph('Date', sig_small),
+        ]
+
+    # Each side is a nested table
+    def make_sig_table(header_text, name, designation, position, date_text):
+        rows = [
+            [Paragraph(header_text, sig_label)],
+            [Spacer(1, 18)],
+            [Paragraph(f'<u>{name}</u>' if name else '', sig_name)],
+            [Paragraph('Signature Over Printed Name', sig_small)],
+            [Paragraph(f'<u>{designation}</u>' if designation else '', sig_small)],
+            [Paragraph(position, sig_small)],
+            [Paragraph(f'<b><u>{date_text}</u></b>', sig_small)],
+            [Paragraph('Date', sig_small)],
+        ]
+        t = Table(rows, colWidths=[half])
+        t.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ]))
+        return t
+
+    sig_data = [[
+        make_sig_table('Received from:', received_from_name, received_from_desig, received_from_pos, received_from_date),
+        make_sig_table('Received by:',   received_by_name,   received_by_desig,   received_by_pos,   received_by_date),
+    ]]
+    sig_outer = Table(sig_data, colWidths=[half, half])
+    sig_outer.setStyle(TableStyle([
+        ('GRID',    (0, 0), (-1, -1), 0.5, thin),
+        ('VALIGN',  (0, 0), (-1, -1), 'TOP'),
+        ('TOPPADDING',    (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('LEFTPADDING',   (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING',  (0, 0), (-1, -1), 6),
+    ]))
+    story.append(sig_outer)
+
+    # ── Build and return ────────────────────────────────────────────────────
+    doc.build(story)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+
+    response = HttpResponse(pdf_bytes, content_type='application/pdf')
+    fname = f'ICS_{timezone.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+    response['Content-Disposition'] = f'attachment; filename="{fname}"'
+    return response
+
+
+@login_required
+def export_property_to_pdf_par(request):
+    """Generate a PDF Property Acknowledgement Receipt (PAR) matching the official government form format.
+
+    Accepts optional POST field 'property_ids' (list) from the Generate PAR modal.
+    If provided, only those properties are exported. Otherwise falls back to all
+    non-archived properties with unit cost >= 50,000, optionally filtered by accountable person.
+    """
+    from io import BytesIO
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.platypus import (
+        SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, KeepTogether
+    )
+    from reportlab.lib import colors
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+    from django.utils import timezone
+
+    # ── Collect properties ─────────────────────────────────────────────────
+    selected_ids = request.POST.getlist('property_ids')
+
+    if selected_ids:
+        qs = Property.objects.filter(
+            id__in=selected_ids
+        ).select_related('category', 'accountable_person').order_by('property_name')
+    else:
+        qs = Property.objects.filter(
+            is_archived=False, unit_value__gte=50000
+        ).select_related('category', 'accountable_person').order_by('property_name')
+
+    # Build data rows
+    props_data = []
+    grand_total = 0.0
+    for prop in qs:
+        unit_cost  = float(prop.unit_value or 0)
+        qty        = int(prop.overall_quantity or 0)
+        total_val  = unit_cost * qty
+        grand_total += total_val
+        props_data.append({
+            'qty':           qty,
+            'unit':          prop.unit_of_measure or '',
+            'unit_cost':     unit_cost,
+            'total_cost':    total_val,
+            'description':   prop.property_name or '',
+            'property_no':   prop.property_number or '',
+            'date_acquired': prop.year_acquired.strftime('%m/%d/%Y') if prop.year_acquired else '',
+            'accountable':   prop.accountable_person.name if prop.accountable_person else '',
+            'accountable_designation': (
+                prop.accountable_person.designation if prop.accountable_person else ''
+            ),
+        })
+
+    # ── Build PDF ───────────────────────────────────────────────────────────
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=0.6 * inch,
+        leftMargin=0.6 * inch,
+        topMargin=0.5 * inch,
+        bottomMargin=0.6 * inch,
+    )
+
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle(
+        'PARTitle',
+        parent=styles['Normal'],
+        fontSize=12,
+        fontName='Helvetica-Bold',
+        alignment=TA_CENTER,
+        spaceAfter=6,
+    )
+    label_style = ParagraphStyle(
+        'PARLabel',
+        parent=styles['Normal'],
+        fontSize=9,
+        fontName='Helvetica',
+        alignment=TA_LEFT,
+    )
+    cell_style = ParagraphStyle(
+        'PARCell',
+        parent=styles['Normal'],
+        fontSize=8,
+        fontName='Helvetica',
+        alignment=TA_CENTER,
+        leading=10,
+    )
+    cell_left = ParagraphStyle(
+        'PARCellLeft',
+        parent=cell_style,
+        alignment=TA_LEFT,
+    )
+    cell_right = ParagraphStyle(
+        'PARCellRight',
+        parent=cell_style,
+        alignment=TA_RIGHT,
+    )
+
+    story = []
+
+    # ── Title ───────────────────────────────────────────────────────────────
+    story.append(Paragraph('PROPERTY ACKNOWLEDGEMENT RECEIPT', title_style))
+    story.append(Spacer(1, 8))
+
+    # ── Entry Name + P.O No. row ────────────────────────────────────────────
+    entry_data = [['Entry Name:  CAVITE STATE UNIVERSITY', 'P.O No. ________']]
+    entry_tbl = Table(entry_data, colWidths=[4.5 * inch, 2.77 * inch])
+    entry_tbl.setStyle(TableStyle([
+        ('FONTNAME',    (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE',    (0, 0), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+        ('TOPPADDING',  (0, 0), (-1, -1), 2),
+        ('ALIGN',       (1, 0), (1, 0),   'RIGHT'),
+    ]))
+    story.append(entry_tbl)
+    story.append(Spacer(1, 4))
+
+    # ── Fund Cluster / PAR No. row ──────────────────────────────────────────
+    meta_data = [['Fund Cluster: ___________', 'PAR No.: ________']]
+    meta_tbl = Table(meta_data, colWidths=[3.6 * inch, 3.67 * inch])
+    meta_tbl.setStyle(TableStyle([
+        ('FONTNAME',    (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE',    (0, 0), (-1, -1), 9),
+        ('ALIGN',       (1, 0), (1, 0),   'RIGHT'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('TOPPADDING',  (0, 0), (-1, -1), 3),
+    ]))
+    story.append(meta_tbl)
+    story.append(Spacer(1, 4))
+
+    # ── Main PAR Table ──────────────────────────────────────────────────────
+    # Column widths (total ≈ 7.27 in):
+    # Qty | Unit | Description | Property Number | Date Acquired | Unit Cost | Total Amount
+    W = [0.55, 0.55, 2.10, 0.95, 0.82, 0.85, 0.95]
+    col_widths = [w * inch for w in W]
+
+    # Header row
+    header_row = [
+        Paragraph('Qty',             cell_style),
+        Paragraph('Unit',            cell_style),
+        Paragraph('Description',     cell_style),
+        Paragraph('Property\nNumber', cell_style),
+        Paragraph('Date\nAcquired',  cell_style),
+        Paragraph('Unit\nCost',      cell_style),
+        Paragraph('Total Amount',    cell_style),
+    ]
+
+    # Build data rows
+    MIN_ROWS = 12
+    data_rows = []
+    for p in props_data:
+        data_rows.append([
+            Paragraph(str(p['qty']),         cell_style),
+            Paragraph(p['unit'],             cell_style),
+            Paragraph(p['description'],      cell_left),
+            Paragraph(p['property_no'],      cell_style),
+            Paragraph(p['date_acquired'],    cell_style),
+            Paragraph(f"{p['unit_cost']:,.2f}", cell_right),
+            Paragraph(f"{p['total_cost']:,.2f}", cell_right),
+        ])
+
+    # Pad to minimum rows
+    while len(data_rows) < MIN_ROWS:
+        data_rows.append(['', '', '', '', '', '', ''])
+
+    table_data = [header_row] + data_rows
+    main_tbl = Table(table_data, colWidths=col_widths, repeatRows=1)
+
+    thin  = colors.black
+    n_header = 1
+    n_data   = len(data_rows)
+    last_row = n_header + n_data - 1
+
+    main_tbl.setStyle(TableStyle([
+        # ── Grid (entire table) ──────────────────────────────────────────
+        ('GRID',      (0, 0), (-1, last_row), 0.5, thin),
+        ('FONTNAME',  (0, 0), (-1, last_row), 'Helvetica'),
+        ('FONTSIZE',  (0, 0), (-1, last_row), 8),
+        ('ALIGN',     (0, 0), (-1, last_row), 'CENTER'),
+        ('VALIGN',    (0, 0), (-1, last_row), 'MIDDLE'),
+        ('LEFTPADDING',  (0, 0), (-1, -1), 2),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 2),
+        ('TOPPADDING',   (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING',(0, 0), (-1, -1), 3),
+
+        # Header background
+        ('BACKGROUND', (0, 0), (-1, 0), colors.Color(0.93, 0.93, 0.93)),
+        ('FONTNAME',   (0, 0), (-1, 0), 'Helvetica-Bold'),
+
+        # Description column: left-align in data rows
+        ('ALIGN', (2, n_header), (2, last_row), 'LEFT'),
+        # Unit Cost and Total Amount: right-align in data rows
+        ('ALIGN', (5, n_header), (6, last_row), 'RIGHT'),
+    ]))
+
+    story.append(main_tbl)
+    story.append(Spacer(1, 10))
+
+    # ── Signature section ───────────────────────────────────────────────────
+    # Two columns: "Received from:" (left) | "Issued by:" (right)
+    now = timezone.now()
+    safe_date_str = f"{now.strftime('%B')} {now.day}, {now.year}"
+
+    received_from_name  = 'ZANNIE I. GAMUYAO'
+    received_from_desig = 'Head Property Management Unit'
+    received_from_pos   = 'Position/Office'
+    received_from_date  = safe_date_str
+
+    # Try to find a unique accountable person from the selected/exported properties.
+    unique_accountables = {}
+    for p in props_data:
+        accountable_name = (p.get('accountable') or '').strip()
+        if accountable_name and accountable_name not in unique_accountables:
+            unique_accountables[accountable_name] = (p.get('accountable_designation') or '').strip()
+
+    if len(unique_accountables) == 1:
+        issued_by_name = next(iter(unique_accountables))
+        issued_by_desig = unique_accountables.get(issued_by_name, '')
+    else:
+        issued_by_name = ''
+        issued_by_desig = ''
+
+    issued_by_pos   = 'Position/Office'
+    issued_by_date  = safe_date_str
+
+    sig_label = ParagraphStyle('SigLabelPAR', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_LEFT)
+    sig_name  = ParagraphStyle('SigNamePAR',  parent=styles['Normal'], fontSize=9, fontName='Helvetica-BoldOblique', alignment=TA_CENTER)
+    sig_desig = ParagraphStyle('SigDesigPAR', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_CENTER, underlineProportion=1)
+    sig_small = ParagraphStyle('SigSmallPAR', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_CENTER)
+
+    half = 3.635 * inch
+
+    def make_sig_table(header_text, name, designation, position, date_text):
+        rows = [
+            [Paragraph(header_text, sig_label)],
+            [Spacer(1, 18)],
+            [Paragraph(f'<u>{name}</u>' if name else '', sig_name)],
+            [Paragraph('Signature Over Printed Name', sig_small)],
+            [Paragraph(f'<u>{designation}</u>' if designation else '', sig_small)],
+            [Paragraph(position, sig_small)],
+            [Paragraph(f'<b><u>{date_text}</u></b>', sig_small)],
+            [Paragraph('Date', sig_small)],
+        ]
+        t = Table(rows, colWidths=[half])
+        t.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ]))
+        return t
+
+    sig_data = [[
+        make_sig_table('Received from:', received_from_name, received_from_desig, received_from_pos, received_from_date),
+        make_sig_table('Issued by:',     issued_by_name,     issued_by_desig,     issued_by_pos,     issued_by_date),
+    ]]
+    sig_outer = Table(sig_data, colWidths=[half, half])
+    sig_outer.setStyle(TableStyle([
+        ('GRID',    (0, 0), (-1, -1), 0.5, thin),
+        ('VALIGN',  (0, 0), (-1, -1), 'TOP'),
+        ('TOPPADDING',    (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('LEFTPADDING',   (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING',  (0, 0), (-1, -1), 6),
+    ]))
+    story.append(sig_outer)
+
+    # ── Build and return ────────────────────────────────────────────────────
+    doc.build(story)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+
+    response = HttpResponse(pdf_bytes, content_type='application/pdf')
+    fname = f'PAR_{timezone.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+    response['Content-Disposition'] = f'attachment; filename="{fname}"'
     return response
 
 

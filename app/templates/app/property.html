@@ -2655,6 +2655,12 @@ input:focus {
             <button id="openModifyQuantityModalBtn" class="action-btn secondary-btn" style="display: flex; align-items: center; gap: 6px; background-color: #4a5568; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
               <i class="fas fa-edit"></i> Property Inventory
             </button>
+            <button id="openGenerateICSModalBtn" class="action-btn" style="display: flex; align-items: center; gap: 6px; background-color: #198754; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+              <i class="fas fa-file-invoice"></i> Generate ICS
+            </button>
+            <button id="openGeneratePARModalBtn" class="action-btn" style="display: flex; align-items: center; gap: 6px; background-color: #0d6efd; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+              <i class="fas fa-file-alt"></i> Generate PAR
+            </button>
             
             <div class="actions-dropdown">
               <button class="actions-dropdown-toggle" type="button" id="actionsDropdownToggle">
@@ -3080,7 +3086,8 @@ input:focus {
 
             <form id="addAccountablePersonForm" method="POST" action="{% url 'add_accountable_person' %}">
               {% csrf_token %}
-              <div class="form-row" style="grid-template-columns: 1fr auto;">
+              <input type="hidden" name="id" id="accountablePersonId">
+              <div class="form-row" style="grid-template-columns: 1fr 1fr auto;">
                 <div class="form-group">
                   <label for="accountablePersonName" class="form-label">
                     <i class="fas fa-user"></i>
@@ -3095,10 +3102,26 @@ input:focus {
                          required>
                 </div>
 
+                <div class="form-group">
+                  <label for="accountablePersonDesignation" class="form-label">
+                    <i class="fas fa-id-badge"></i>
+                    Designation
+                  </label>
+                  <input type="text"
+                         name="designation"
+                         id="accountablePersonDesignation"
+                         class="form-input"
+                         placeholder="Enter designation (optional)">
+                </div>
+
                 <div class="form-group form-actions">
                   <button type="submit" class="btn btn-primary">
                     <i class="fas fa-plus"></i>
-                    Add Person
+                    <span class="accountable-submit-text">Add Person</span>
+                  </button>
+                  <button type="button" id="cancelAccountablePersonEditBtn" class="btn btn-secondary" style="display: none; margin-top: 8px;">
+                    <i class="fas fa-times"></i>
+                    Cancel Edit
                   </button>
                 </div>
               </div>
@@ -3117,7 +3140,9 @@ input:focus {
                   <tr>
                     <th>No.</th>
                     <th>Name</th>
+                    <th>Designation</th>
                     <th>Properties</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -3131,14 +3156,28 @@ input:focus {
                       </div>
                     </td>
                     <td>
+                      <span class="uacs-code">{{ person.designation|default:'—' }}</span>
+                    </td>
+                    <td>
                       <span class="property-count {% if person.properties.count > 0 %}has-properties{% else %}no-properties{% endif %}">
                         {{ person.properties.count }}
                       </span>
                     </td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn-action btn-edit edit-accountable-person-btn"
+                        data-id="{{ person.id }}"
+                        data-name="{{ person.name }}"
+                        data-designation="{{ person.designation|default:'' }}"
+                        title="Edit accountable person">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                    </td>
                   </tr>
                   {% empty %}
                   <tr>
-                    <td colspan="3" class="empty-state">
+                    <td colspan="5" class="empty-state">
                       <div class="empty-content">
                         <i class="fas fa-user-slash"></i>
                         <p>No accountable persons available</p>
@@ -3804,6 +3843,184 @@ input:focus {
             </div>
         </form>
     </div>
+</div>
+
+<!-- Generate ICS Modal -->
+<div id="generateICSModal" class="modal" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); overflow:auto;">
+  <div class="modal-content" style="background:#fff; margin:3% auto; padding:28px 30px 24px; border-radius:10px; max-width:780px; width:95%; position:relative; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+    <span id="closeGenerateICSModalBtn" style="position:absolute; right:18px; top:12px; font-size:26px; font-weight:bold; cursor:pointer; color:#6c757d; line-height:1;">&times;</span>
+    <h3 style="color:#152d64; margin:0 0 4px 0; font-size:20px;"><i class="fas fa-file-invoice" style="margin-right:8px;"></i>Generate ICS</h3>
+    <p style="color:#6c757d; font-size:13px; margin:0 0 20px 0;">Select items below to include in the Inventory Custodian Slip (ICS). Only items with unit cost below &#8369;50,000 will appear.</p>
+
+    <!-- Search and Accountable Person Filter Container -->
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; width:100%;">
+      <!-- Search Input -->
+      <div style="position:relative; flex-grow:1; max-width:280px; display:flex; align-items:center;">
+        <i class="fas fa-search" style="position:absolute; left:12px; color:#6c757d; font-size:14px; pointer-events:none;"></i>
+        <input type="text" id="icsSearchInput" placeholder="Search Property No. or Name..." style="padding:8px 12px 8px 32px; border:1px solid #dee2e6; border-radius:6px; font-size:14px; width:100%; outline:none; transition:all 0.2s;" onfocus="this.style.borderColor='#152d64'; this.style.boxShadow='0 0 0 2px rgba(21, 45, 100, 0.1)';" onblur="this.style.borderColor='#dee2e6'; this.style.boxShadow='none';">
+      </div>
+      <!-- Filter by Accountable Person -->
+      <div style="display:flex; align-items:center; gap:8px;">
+        <label style="font-size:14px; font-weight:600; color:#152d64; white-space:nowrap;"><i class="fas fa-user" style="margin-right:5px;"></i>Filter:</label>
+        <select id="icsAccountablePersonFilter" style="padding:8px 12px; border:1px solid #dee2e6; border-radius:6px; font-size:14px; min-width:220px; background:#fff; cursor:pointer;">
+          <option value="">— All Accountable Persons —</option>
+          {% for person in accountable_persons %}
+          <option value="{{ person.name }}">{{ person.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+        <button type="button" id="icsSelectAllBtn" style="padding:6px 14px; border:1px solid #152d64; border-radius:5px; background:#fff; color:#152d64; font-size:13px; cursor:pointer;">Select All</button>
+        <button type="button" id="icsDeselectAllBtn" style="padding:6px 14px; border:1px solid #6c757d; border-radius:5px; background:#fff; color:#6c757d; font-size:13px; cursor:pointer;">Deselect All</button>
+      </div>
+    </div>
+
+    <!-- Selectable Property Table -->
+    <div style="border:1px solid #dee2e6; border-radius:8px; overflow:hidden; max-height:380px; overflow-y:auto;">
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="background:#152d64; color:#fff; position:sticky; top:0; z-index:2;">
+            <th style="padding:11px 14px; width:44px; text-align:center;">
+              <input type="checkbox" id="icsSelectAllChk" title="Toggle all" style="width:16px;height:16px;cursor:pointer;">
+            </th>
+            <th style="padding:11px 14px; text-align:left; font-size:13px;">Property Number</th>
+            <th style="padding:11px 14px; text-align:left; font-size:13px;">Property Name</th>
+            <th style="padding:11px 14px; text-align:left; font-size:13px;">Accountable Person</th>
+            <th style="padding:11px 14px; text-align:right; font-size:13px;">Unit Cost</th>
+          </tr>
+        </thead>
+        <tbody id="icsPropertyTableBody">
+          {% for prop in all_ics_properties %}
+          <tr class="ics-prop-row" 
+              data-accountable="{{ prop.accountable_person.name|default:'' }}"
+              data-number="{{ prop.property_number|default:'Not assigned' }}"
+              data-name="{{ prop.property_name }}"
+              style="border-bottom:1px solid #f0f0f0; transition:background 0.15s;"
+              onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background=''">
+            <td style="padding:9px 14px; text-align:center;">
+              <input type="checkbox" class="ics-prop-chk" name="property_ids" value="{{ prop.id }}" style="width:16px;height:16px;cursor:pointer;">
+            </td>
+            <td style="padding:9px 14px; font-size:13px; color:#152d64; font-weight:500;">{{ prop.property_number|default:'Not assigned' }}</td>
+            <td style="padding:9px 14px; font-size:13px;">{{ prop.property_name }}</td>
+            <td style="padding:9px 14px; font-size:13px; color:#495057;">{{ prop.accountable_person.name|default:'—' }}</td>
+            <td style="padding:9px 14px; font-size:13px; text-align:right; color:#28a745;">{{ prop.unit_value|peso }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" style="padding:30px; text-align:center; color:#6c757d; font-size:14px;">
+              <i class="fas fa-inbox" style="font-size:28px; display:block; margin-bottom:8px; opacity:0.4;"></i>
+              No properties with unit cost below &#8369;50,000 found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Selection summary + actions -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:18px; flex-wrap:wrap; gap:10px;">
+      <span id="icsSelectedCount" style="font-size:13px; color:#6c757d;">0 item(s) selected</span>
+      <div style="display:flex; gap:10px;">
+        <button type="button" id="closeICSCancelBtn" style="padding:9px 22px; border:1px solid #6c757d; border-radius:5px; background:#fff; color:#6c757d; font-size:14px; cursor:pointer;">Cancel</button>
+        <form method="POST" action="{% url 'export_property_pdf_ics' %}" id="generateICSForm">
+          {% csrf_token %}
+          <div id="icsHiddenInputs"></div>
+          <button type="submit" id="generateICSSubmitBtn" style="padding:9px 22px; border:none; border-radius:5px; background:#198754; color:#fff; font-size:14px; cursor:pointer; display:flex; align-items:center; gap:7px;" disabled>
+            <i class="fas fa-file-excel"></i> Generate ICS
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Generate PAR Modal -->
+<div id="generatePARModal" class="modal" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); overflow:auto;">
+  <div class="modal-content" style="background:#fff; margin:3% auto; padding:28px 30px 24px; border-radius:10px; max-width:780px; width:95%; position:relative; box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+    <span id="closeGeneratePARModalBtn" style="position:absolute; right:18px; top:12px; font-size:26px; font-weight:bold; cursor:pointer; color:#6c757d; line-height:1;">&times;</span>
+    <h3 style="color:#152d64; margin:0 0 4px 0; font-size:20px;"><i class="fas fa-file-alt" style="margin-right:8px;"></i>Generate PAR</h3>
+    <p style="color:#6c757d; font-size:13px; margin:0 0 20px 0;">Select items below to include in the Property Acknowledgement Receipt (PAR). Only items with unit cost &#8369;50,000 and above will appear.</p>
+
+    <!-- Search and Accountable Person Filter Container -->
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; width:100%;">
+      <!-- Search Input -->
+      <div style="position:relative; flex-grow:1; max-width:280px; display:flex; align-items:center;">
+        <i class="fas fa-search" style="position:absolute; left:12px; color:#6c757d; font-size:14px; pointer-events:none;"></i>
+        <input type="text" id="parSearchInput" placeholder="Search Property No. or Name..." style="padding:8px 12px 8px 32px; border:1px solid #dee2e6; border-radius:6px; font-size:14px; width:100%; outline:none; transition:all 0.2s;" onfocus="this.style.borderColor='#152d64'; this.style.boxShadow='0 0 0 2px rgba(21, 45, 100, 0.1)';" onblur="this.style.borderColor='#dee2e6'; this.style.boxShadow='none';">
+      </div>
+      <!-- Filter by Accountable Person -->
+      <div style="display:flex; align-items:center; gap:8px;">
+        <label style="font-size:14px; font-weight:600; color:#152d64; white-space:nowrap;"><i class="fas fa-user" style="margin-right:5px;"></i>Filter:</label>
+        <select id="parAccountablePersonFilter" style="padding:8px 12px; border:1px solid #dee2e6; border-radius:6px; font-size:14px; min-width:220px; background:#fff; cursor:pointer;">
+          <option value="">— All Accountable Persons —</option>
+          {% for person in accountable_persons %}
+          <option value="{{ person.name }}">{{ person.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+        <button type="button" id="parSelectAllBtn" style="padding:6px 14px; border:1px solid #152d64; border-radius:5px; background:#fff; color:#152d64; font-size:13px; cursor:pointer;">Select All</button>
+        <button type="button" id="parDeselectAllBtn" style="padding:6px 14px; border:1px solid #6c757d; border-radius:5px; background:#fff; color:#6c757d; font-size:13px; cursor:pointer;">Deselect All</button>
+      </div>
+    </div>
+
+    <!-- Selectable Property Table -->
+    <div style="border:1px solid #dee2e6; border-radius:8px; overflow:hidden; max-height:380px; overflow-y:auto;">
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="background:#152d64; color:#fff; position:sticky; top:0; z-index:2;">
+            <th style="padding:11px 14px; width:44px; text-align:center;">
+              <input type="checkbox" id="parSelectAllChk" title="Toggle all" style="width:16px;height:16px;cursor:pointer;">
+            </th>
+            <th style="padding:11px 14px; text-align:left; font-size:13px;">Property Number</th>
+            <th style="padding:11px 14px; text-align:left; font-size:13px;">Property Name</th>
+            <th style="padding:11px 14px; text-align:left; font-size:13px;">Accountable Person</th>
+            <th style="padding:11px 14px; text-align:right; font-size:13px;">Unit Cost</th>
+          </tr>
+        </thead>
+        <tbody id="parPropertyTableBody">
+          {% for prop in all_par_properties %}
+          <tr class="par-prop-row" 
+              data-accountable="{{ prop.accountable_person.name|default:'' }}"
+              data-number="{{ prop.property_number|default:'Not assigned' }}"
+              data-name="{{ prop.property_name }}"
+              style="border-bottom:1px solid #f0f0f0; transition:background 0.15s;"
+              onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background=''">
+            <td style="padding:9px 14px; text-align:center;">
+              <input type="checkbox" class="par-prop-chk" name="property_ids" value="{{ prop.id }}" style="width:16px;height:16px;cursor:pointer;">
+            </td>
+            <td style="padding:9px 14px; font-size:13px; color:#152d64; font-weight:500;">{{ prop.property_number|default:'Not assigned' }}</td>
+            <td style="padding:9px 14px; font-size:13px;">{{ prop.property_name }}</td>
+            <td style="padding:9px 14px; font-size:13px; color:#495057;">{{ prop.accountable_person.name|default:'—' }}</td>
+            <td style="padding:9px 14px; font-size:13px; text-align:right; color:#0d6efd;">{{ prop.unit_value|peso }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" style="padding:30px; text-align:center; color:#6c757d; font-size:14px;">
+              <i class="fas fa-inbox" style="font-size:28px; display:block; margin-bottom:8px; opacity:0.4;"></i>
+              No properties with unit cost &#8369;50,000 and above found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Selection summary + actions -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:18px; flex-wrap:wrap; gap:10px;">
+      <span id="parSelectedCount" style="font-size:13px; color:#6c757d;">0 item(s) selected</span>
+      <div style="display:flex; gap:10px;">
+        <button type="button" id="closePARCancelBtn" style="padding:9px 22px; border:1px solid #6c757d; border-radius:5px; background:#fff; color:#6c757d; font-size:14px; cursor:pointer;">Cancel</button>
+        <form method="POST" action="{% url 'export_property_pdf_par' %}" id="generatePARForm">
+          {% csrf_token %}
+          <div id="parHiddenInputs"></div>
+          <button type="submit" id="generatePARSubmitBtn" style="padding:9px 22px; border:none; border-radius:5px; background:#0d6efd; color:#fff; font-size:14px; cursor:pointer; display:flex; align-items:center; gap:7px;" disabled>
+            <i class="fas fa-file-pdf"></i> Generate PAR
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Change Property Number Modal -->
@@ -5267,16 +5484,73 @@ input:focus {
         const openAccountablePersonBtn = document.getElementById('openAccountablePersonModalBtn');
         const closeAccountablePersonBtn = document.getElementById('closeAccountablePersonModalBtn');
         const addAccountablePersonForm = document.getElementById('addAccountablePersonForm');
+        const accountablePersonIdInput = document.getElementById('accountablePersonId');
+        const accountablePersonNameInput = document.getElementById('accountablePersonName');
+        const accountablePersonDesignationInput = document.getElementById('accountablePersonDesignation');
+        const cancelAccountablePersonEditBtn = document.getElementById('cancelAccountablePersonEditBtn');
+
+        function resetAccountablePersonForm() {
+          if (!addAccountablePersonForm) return;
+
+          const submitBtn = addAccountablePersonForm.querySelector('button[type="submit"]');
+          const submitText = addAccountablePersonForm.querySelector('.accountable-submit-text');
+          const submitIcon = submitBtn ? submitBtn.querySelector('i') : null;
+
+          if (accountablePersonIdInput) accountablePersonIdInput.value = '';
+          if (accountablePersonNameInput) accountablePersonNameInput.value = '';
+          if (accountablePersonDesignationInput) accountablePersonDesignationInput.value = '';
+
+          if (submitText) submitText.textContent = 'Add Person';
+          if (submitIcon) submitIcon.className = 'fas fa-plus';
+          if (cancelAccountablePersonEditBtn) cancelAccountablePersonEditBtn.style.display = 'none';
+        }
+
+        function setAccountablePersonEditMode(personId, personName, personDesignation) {
+          if (!addAccountablePersonForm) return;
+
+          const submitBtn = addAccountablePersonForm.querySelector('button[type="submit"]');
+          const submitText = addAccountablePersonForm.querySelector('.accountable-submit-text');
+          const submitIcon = submitBtn ? submitBtn.querySelector('i') : null;
+
+          if (accountablePersonIdInput) accountablePersonIdInput.value = personId || '';
+          if (accountablePersonNameInput) accountablePersonNameInput.value = personName || '';
+          if (accountablePersonDesignationInput) accountablePersonDesignationInput.value = personDesignation || '';
+
+          if (submitText) submitText.textContent = 'Update Person';
+          if (submitIcon) submitIcon.className = 'fas fa-save';
+          if (cancelAccountablePersonEditBtn) cancelAccountablePersonEditBtn.style.display = 'inline-flex';
+
+          if (accountablePersonNameInput) accountablePersonNameInput.focus();
+        }
+
+        if (cancelAccountablePersonEditBtn) {
+          cancelAccountablePersonEditBtn.addEventListener('click', function() {
+            resetAccountablePersonForm();
+          });
+        }
+
+        document.addEventListener('click', function(event) {
+          const editBtn = event.target.closest('.edit-accountable-person-btn');
+          if (!editBtn) return;
+
+          setAccountablePersonEditMode(
+            editBtn.dataset.id,
+            editBtn.dataset.name,
+            editBtn.dataset.designation
+          );
+        });
 
         if (openAccountablePersonBtn && accountablePersonModal) {
           openAccountablePersonBtn.onclick = function() {
             accountablePersonModal.style.display = 'block';
+            resetAccountablePersonForm();
           };
         }
 
         if (closeAccountablePersonBtn && accountablePersonModal) {
           closeAccountablePersonBtn.onclick = function() {
             accountablePersonModal.style.display = 'none';
+            resetAccountablePersonForm();
             setTimeout(() => {
               fetchAndUpdateAccountablePersonOptions();
             }, 300);
@@ -5286,6 +5560,7 @@ input:focus {
         window.addEventListener('click', function(event) {
           if (event.target == accountablePersonModal) {
             accountablePersonModal.style.display = 'none';
+            resetAccountablePersonForm();
             setTimeout(() => {
               fetchAndUpdateAccountablePersonOptions();
             }, 300);
@@ -5381,12 +5656,16 @@ input:focus {
 
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
+            const isEditMode = !!(accountablePersonIdInput && accountablePersonIdInput.value);
+            const requestUrl = isEditMode ? '{% url "update_accountable_person" %}' : this.action;
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            submitBtn.innerHTML = isEditMode
+              ? '<i class="fas fa-spinner fa-spin"></i> Updating...'
+              : '<i class="fas fa-spinner fa-spin"></i> Adding...';
 
             const formData = new FormData(this);
 
-            fetch(this.action, {
+            fetch(requestUrl, {
               method: 'POST',
               body: formData,
               headers: {
@@ -5405,12 +5684,12 @@ input:focus {
               }
 
               if (data.success) {
-                document.getElementById('accountablePersonName').value = '';
+                resetAccountablePersonForm();
 
                 const successMessage = document.createElement('div');
                 successMessage.className = 'person-success-message';
                 successMessage.style.cssText = 'color: #155724; margin: 10px 0; padding: 10px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; font-weight: 500; display: flex; align-items: center; gap: 6px;';
-                successMessage.innerHTML = '<i class="fas fa-check-circle"></i>' + (data.message || 'Accountable person added successfully!');
+                successMessage.innerHTML = '<i class="fas fa-check-circle"></i>' + (data.message || 'Accountable person saved successfully!');
                 addAccountablePersonForm.insertAdjacentElement('afterend', successMessage);
 
                 setTimeout(function() {
@@ -5421,7 +5700,9 @@ input:focus {
 
                 refreshAccountablePersonsTable();
                 fetchAndUpdateAccountablePersonOptions();
-                document.getElementById('accountablePersonName').focus();
+                if (accountablePersonNameInput) {
+                  accountablePersonNameInput.focus();
+                }
               } else {
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'person-error-message';
@@ -6815,6 +7096,272 @@ function closeAllModals() {
         if (modal) modal.style.display = "none";
     });
 }
+
+// ── Generate ICS Modal ─────────────────────────────────────────────────────
+(function() {
+    const modal       = document.getElementById('generateICSModal');
+    const openBtn     = document.getElementById('openGenerateICSModalBtn');
+    const closeBtn    = document.getElementById('closeGenerateICSModalBtn');
+    const cancelBtn   = document.getElementById('closeICSCancelBtn');
+    const filterSel   = document.getElementById('icsAccountablePersonFilter');
+    const searchInp   = document.getElementById('icsSearchInput');
+    const selectAllChk= document.getElementById('icsSelectAllChk');
+    const selectAllBtn= document.getElementById('icsSelectAllBtn');
+    const deselectBtn = document.getElementById('icsDeselectAllBtn');
+    const countSpan   = document.getElementById('icsSelectedCount');
+    const submitBtn   = document.getElementById('generateICSSubmitBtn');
+    const hiddenDiv   = document.getElementById('icsHiddenInputs');
+    const tableBody   = document.getElementById('icsPropertyTableBody');
+
+    if (!modal || !openBtn) return;
+
+    function getVisibleRows() {
+        return Array.from(tableBody.querySelectorAll('tr.ics-prop-row')).filter(r => r.style.display !== 'none');
+    }
+
+    function getCheckedCheckboxes() {
+        return Array.from(tableBody.querySelectorAll('input.ics-prop-chk:checked'));
+    }
+
+    function updateCounter() {
+        const n = getCheckedCheckboxes().length;
+        countSpan.textContent = n + ' item(s) selected';
+        submitBtn.disabled = (n === 0);
+
+        // Sync header checkbox state
+        const visible = getVisibleRows();
+        const visibleChecked = visible.filter(r => r.querySelector('input.ics-prop-chk').checked);
+        if (visible.length > 0 && visibleChecked.length === visible.length) {
+            selectAllChk.checked      = true;
+            selectAllChk.indeterminate = false;
+        } else if (visibleChecked.length > 0) {
+            selectAllChk.checked      = false;
+            selectAllChk.indeterminate = true;
+        } else {
+            selectAllChk.checked      = false;
+            selectAllChk.indeterminate = false;
+        }
+    }
+
+    function applyFilter() {
+        const val = filterSel.value.toLowerCase().trim();
+        const query = searchInp ? searchInp.value.toLowerCase().trim() : '';
+
+        tableBody.querySelectorAll('tr.ics-prop-row').forEach(row => {
+            const acc = (row.dataset.accountable || '').toLowerCase();
+            const num = (row.dataset.number || '').toLowerCase();
+            const name = (row.dataset.name || '').toLowerCase();
+
+            const accMatches = !val || acc.includes(val);
+            const searchMatches = !query || num.includes(query) || name.includes(query);
+
+            row.style.display = (accMatches && searchMatches) ? '' : 'none';
+        });
+        updateCounter();
+    }
+
+    function openModal() {
+        modal.style.display = 'block';
+        filterSel.value = '';
+        if (searchInp) searchInp.value = '';
+        applyFilter();
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
+    });
+
+    filterSel.addEventListener('change', applyFilter);
+    if (searchInp) {
+        searchInp.addEventListener('input', applyFilter);
+    }
+
+    // Header select-all checkbox
+    selectAllChk.addEventListener('change', function() {
+        const checked = this.checked;
+        getVisibleRows().forEach(row => {
+            row.querySelector('input.ics-prop-chk').checked = checked;
+        });
+        updateCounter();
+    });
+
+    // Select All / Deselect All buttons (only affect visible rows)
+    selectAllBtn.addEventListener('click', function() {
+        getVisibleRows().forEach(row => {
+            row.querySelector('input.ics-prop-chk').checked = true;
+        });
+        updateCounter();
+    });
+
+    deselectBtn.addEventListener('click', function() {
+        getVisibleRows().forEach(row => {
+            row.querySelector('input.ics-prop-chk').checked = false;
+        });
+        updateCounter();
+    });
+
+    tableBody.addEventListener('change', function(e) {
+        if (e.target.classList.contains('ics-prop-chk')) {
+            updateCounter();
+        }
+    });
+
+    // Before submit: inject hidden inputs for selected property IDs
+    document.getElementById('generateICSForm').addEventListener('submit', function() {
+        hiddenDiv.innerHTML = '';
+        getCheckedCheckboxes().forEach(chk => {
+            const inp = document.createElement('input');
+            inp.type  = 'hidden';
+            inp.name  = 'property_ids';
+            inp.value = chk.value;
+            hiddenDiv.appendChild(inp);
+        });
+    });
+
+    updateCounter();
+})();
+// ──────────────────────────────────────────────────────────────────────────
+
+// ── Generate PAR Modal ─────────────────────────────────────────────────────
+(function() {
+    const modal       = document.getElementById('generatePARModal');
+    const openBtn     = document.getElementById('openGeneratePARModalBtn');
+    const closeBtn    = document.getElementById('closeGeneratePARModalBtn');
+    const cancelBtn   = document.getElementById('closePARCancelBtn');
+    const filterSel   = document.getElementById('parAccountablePersonFilter');
+    const searchInp   = document.getElementById('parSearchInput');
+    const selectAllChk= document.getElementById('parSelectAllChk');
+    const selectAllBtn= document.getElementById('parSelectAllBtn');
+    const deselectBtn = document.getElementById('parDeselectAllBtn');
+    const countSpan   = document.getElementById('parSelectedCount');
+    const submitBtn   = document.getElementById('generatePARSubmitBtn');
+    const hiddenDiv   = document.getElementById('parHiddenInputs');
+    const tableBody   = document.getElementById('parPropertyTableBody');
+
+    if (!modal || !openBtn) return;
+
+    function getVisibleRows() {
+        return Array.from(tableBody.querySelectorAll('tr.par-prop-row')).filter(r => r.style.display !== 'none');
+    }
+
+    function getCheckedCheckboxes() {
+        return Array.from(tableBody.querySelectorAll('input.par-prop-chk:checked'));
+    }
+
+    function updateCounter() {
+        const n = getCheckedCheckboxes().length;
+        countSpan.textContent = n + ' item(s) selected';
+        submitBtn.disabled = (n === 0);
+
+        // Sync header checkbox state
+        const visible = getVisibleRows();
+        const visibleChecked = visible.filter(r => r.querySelector('input.par-prop-chk').checked);
+        if (visible.length > 0 && visibleChecked.length === visible.length) {
+            selectAllChk.checked      = true;
+            selectAllChk.indeterminate = false;
+        } else if (visibleChecked.length > 0) {
+            selectAllChk.checked      = false;
+            selectAllChk.indeterminate = true;
+        } else {
+            selectAllChk.checked      = false;
+            selectAllChk.indeterminate = false;
+        }
+    }
+
+    function applyFilter() {
+        const val = filterSel.value.toLowerCase().trim();
+        const query = searchInp ? searchInp.value.toLowerCase().trim() : '';
+
+        tableBody.querySelectorAll('tr.par-prop-row').forEach(row => {
+            const acc = (row.dataset.accountable || '').toLowerCase();
+            const num = (row.dataset.number || '').toLowerCase();
+            const name = (row.dataset.name || '').toLowerCase();
+
+            const accMatches = !val || acc.includes(val);
+            const searchMatches = !query || num.includes(query) || name.includes(query);
+
+            row.style.display = (accMatches && searchMatches) ? '' : 'none';
+        });
+        updateCounter();
+    }
+
+    function openModal() {
+        modal.style.display = 'block';
+        filterSel.value = '';
+        if (searchInp) searchInp.value = '';
+        applyFilter();
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
+    });
+
+    filterSel.addEventListener('change', applyFilter);
+    if (searchInp) {
+        searchInp.addEventListener('input', applyFilter);
+    }
+
+    // Header select-all checkbox
+    selectAllChk.addEventListener('change', function() {
+        const checked = this.checked;
+        getVisibleRows().forEach(row => {
+            row.querySelector('input.par-prop-chk').checked = checked;
+        });
+        updateCounter();
+    });
+
+    // Select All / Deselect All buttons (only affect visible rows)
+    selectAllBtn.addEventListener('click', function() {
+        getVisibleRows().forEach(row => {
+            row.querySelector('input.par-prop-chk').checked = true;
+        });
+        updateCounter();
+    });
+
+    deselectBtn.addEventListener('click', function() {
+        getVisibleRows().forEach(row => {
+            row.querySelector('input.par-prop-chk').checked = false;
+        });
+        updateCounter();
+    });
+
+    tableBody.addEventListener('change', function(e) {
+        if (e.target.classList.contains('par-prop-chk')) {
+            updateCounter();
+        }
+    });
+
+    // Before submit: inject hidden inputs for selected property IDs
+    document.getElementById('generatePARForm').addEventListener('submit', function() {
+        hiddenDiv.innerHTML = '';
+        getCheckedCheckboxes().forEach(chk => {
+            const inp = document.createElement('input');
+            inp.type  = 'hidden';
+            inp.name  = 'property_ids';
+            inp.value = chk.value;
+            hiddenDiv.appendChild(inp);
+        });
+    });
+
+    updateCounter();
+})();
+// ──────────────────────────────────────────────────────────────────────────
 
 // Add exportModal and infoModal to your window click handler
 window.onclick = function(event) {

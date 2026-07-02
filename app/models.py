@@ -524,6 +524,7 @@ class PropertyCategory(models.Model):
 
 class AccountablePerson(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    designation = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         ordering = ['name']

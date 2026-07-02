@@ -48,9 +48,9 @@ class PropertyCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(AccountablePerson)
 class AccountablePersonAdmin(admin.ModelAdmin):
-    list_display = ['name']
-    search_fields = ['name']
-    fields = ['name']
+    list_display = ['name', 'designation']
+    search_fields = ['name', 'designation']
+    fields = ['name', 'designation']
 
 admin.site.register(Supply)
 admin.site.register(SupplyRequest)
