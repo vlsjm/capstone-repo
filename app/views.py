@@ -6329,8 +6329,27 @@ def export_property_to_pdf_ics(request):
             Paragraph(p['useful_life'],      cell_style),
         ])
 
-    # Pad to minimum rows
-    while len(data_rows) < MIN_ROWS:
+    # Dynamically pad rows so the main table fills the page before the signature block.
+    # Estimate available vertical space and desired row height, then compute needed rows.
+    from math import ceil
+    page_height_pts = A4[1]
+    top_margin_pts = doc.topMargin
+    bottom_margin_pts = doc.bottomMargin
+    available_pts = page_height_pts - top_margin_pts - bottom_margin_pts
+
+    # Rough estimates of vertical space used by elements outside the main table
+    pre_table_estimate = 80  # title, entry/meta rows, small spacers (points)
+    signature_estimate = 140  # signature block and its paddings
+
+    target_table_height = max(0, available_pts - pre_table_estimate - signature_estimate - 10)
+    desired_row_height = 18  # points per data row
+
+    # Compute how many data rows are needed to approach target height (account for header rows and total row)
+    # For the ICS table we have 2 header rows and 1 total row
+    n_header = 2
+    n_total = 1
+    rows_needed = max(MIN_ROWS, ceil(target_table_height / desired_row_height) - n_header - n_total)
+    while len(data_rows) < rows_needed:
         data_rows.append(['', '', '', '', '', '', '', ''])
 
     # Total row
@@ -6423,10 +6442,10 @@ def export_property_to_pdf_ics(request):
     received_by_pos   = 'Position/Office'
     received_by_date  = safe_date_str
 
-    sig_label = ParagraphStyle('SigLabel', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_LEFT)
-    sig_name  = ParagraphStyle('SigName',  parent=styles['Normal'], fontSize=9, fontName='Helvetica-BoldOblique', alignment=TA_CENTER)
-    sig_desig = ParagraphStyle('SigDesig', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_CENTER, underlineProportion=1)
-    sig_small = ParagraphStyle('SigSmall', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_CENTER)
+    sig_label = ParagraphStyle('SigLabel', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_LEFT, spaceBefore=0, spaceAfter=0, leading=9)
+    sig_name  = ParagraphStyle('SigName',  parent=styles['Normal'], fontSize=9, fontName='Helvetica-BoldOblique', alignment=TA_CENTER, spaceBefore=0, spaceAfter=0, leading=10)
+    sig_desig = ParagraphStyle('SigDesig', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_CENTER, underlineProportion=1, spaceBefore=0, spaceAfter=0, leading=9)
+    sig_small = ParagraphStyle('SigSmall', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_CENTER, spaceBefore=0, spaceAfter=0, leading=9)
 
     half = 3.635 * inch
 
@@ -6434,7 +6453,7 @@ def export_property_to_pdf_ics(request):
         """Return a list of Paragraph/Spacer building blocks for one signature column."""
         return [
             Paragraph(header_text, sig_label),
-            Spacer(1, 20),
+            Spacer(1, 14),
             Paragraph(f'<u>{name}</u>' if name else '_' * 28, sig_name),
             Paragraph('Signature Over Printed Name', sig_small),
             Paragraph(f'<u>{designation}</u>' if designation else '_' * 28, sig_small),
@@ -6447,11 +6466,25 @@ def export_property_to_pdf_ics(request):
     def make_sig_table(header_text, name, designation, position, date_text):
         rows = [
             [Paragraph(header_text, sig_label)],
-            [Spacer(1, 18)],
+            [Spacer(1, 14)],
+
+            # Name + signature label (tightly grouped)
             [Paragraph(f'<u>{name}</u>' if name else '', sig_name)],
+            [Spacer(1, 2)],
             [Paragraph('Signature Over Printed Name', sig_small)],
+
+            # Larger gap between groups
+            [Spacer(1, 10)],
+
+            # Designation + position (tightly grouped)
             [Paragraph(f'<u>{designation}</u>' if designation else '', sig_small)],
+            [Spacer(1, 2)],
             [Paragraph(position, sig_small)],
+
+            # Gap before date group
+            [Spacer(1, 10)],
+
+            # Date + label
             [Paragraph(f'<b><u>{date_text}</u></b>', sig_small)],
             [Paragraph('Date', sig_small)],
         ]
@@ -6460,6 +6493,10 @@ def export_property_to_pdf_ics(request):
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
         ]))
         return t
 
@@ -6471,10 +6508,10 @@ def export_property_to_pdf_ics(request):
     sig_outer.setStyle(TableStyle([
         ('GRID',    (0, 0), (-1, -1), 0.5, thin),
         ('VALIGN',  (0, 0), (-1, -1), 'TOP'),
-        ('TOPPADDING',    (0, 0), (-1, -1), 6),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('LEFTPADDING',   (0, 0), (-1, -1), 6),
-        ('RIGHTPADDING',  (0, 0), (-1, -1), 6),
+        ('TOPPADDING',    (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+        ('LEFTPADDING',   (0, 0), (-1, -1), 4),
+        ('RIGHTPADDING',  (0, 0), (-1, -1), 4),
     ]))
     story.append(sig_outer)
 
@@ -6640,7 +6677,7 @@ def export_property_to_pdf_par(request):
     ]
 
     # Build data rows
-    MIN_ROWS = 12
+    MIN_ROWS = 19
     data_rows = []
     for p in props_data:
         data_rows.append([
@@ -6653,8 +6690,22 @@ def export_property_to_pdf_par(request):
             Paragraph(f"{p['total_cost']:,.2f}", cell_right),
         ])
 
-    # Pad to minimum rows
-    while len(data_rows) < MIN_ROWS:
+    # Dynamically pad rows so the PAR table fills the page before the signature block.
+    from math import ceil
+    page_height_pts = A4[1]
+    top_margin_pts = doc.topMargin
+    bottom_margin_pts = doc.bottomMargin
+    available_pts = page_height_pts - top_margin_pts - bottom_margin_pts
+
+    # Estimates for vertical space outside the main table
+    pre_table_estimate = 100
+    signature_estimate = 140
+    target_table_height = max(0, available_pts - pre_table_estimate - signature_estimate - 10)
+    desired_row_height = 18
+
+    n_header = 1
+    rows_needed = max(MIN_ROWS, ceil(target_table_height / desired_row_height) - n_header)
+    while len(data_rows) < rows_needed:
         data_rows.append(['', '', '', '', '', '', ''])
 
     table_data = [header_row] + data_rows
@@ -6717,21 +6768,35 @@ def export_property_to_pdf_par(request):
     issued_by_pos   = 'Position/Office'
     issued_by_date  = safe_date_str
 
-    sig_label = ParagraphStyle('SigLabelPAR', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_LEFT)
-    sig_name  = ParagraphStyle('SigNamePAR',  parent=styles['Normal'], fontSize=9, fontName='Helvetica-BoldOblique', alignment=TA_CENTER)
-    sig_desig = ParagraphStyle('SigDesigPAR', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_CENTER, underlineProportion=1)
-    sig_small = ParagraphStyle('SigSmallPAR', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_CENTER)
+    sig_label = ParagraphStyle('SigLabelPAR', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_LEFT, spaceBefore=0, spaceAfter=0, leading=9)
+    sig_name  = ParagraphStyle('SigNamePAR',  parent=styles['Normal'], fontSize=9, fontName='Helvetica-BoldOblique', alignment=TA_CENTER, spaceBefore=0, spaceAfter=0, leading=10)
+    sig_desig = ParagraphStyle('SigDesigPAR', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_CENTER, underlineProportion=1, spaceBefore=0, spaceAfter=0, leading=9)
+    sig_small = ParagraphStyle('SigSmallPAR', parent=styles['Normal'], fontSize=8, fontName='Helvetica', alignment=TA_CENTER, spaceBefore=0, spaceAfter=0, leading=9)
 
     half = 3.635 * inch
 
     def make_sig_table(header_text, name, designation, position, date_text):
         rows = [
             [Paragraph(header_text, sig_label)],
-            [Spacer(1, 18)],
+            [Spacer(1, 14)],
+
+            # Name + signature label (tightly grouped)
             [Paragraph(f'<u>{name}</u>' if name else '', sig_name)],
+            [Spacer(1, 2)],
             [Paragraph('Signature Over Printed Name', sig_small)],
+
+            # Larger gap between groups
+            [Spacer(1, 10)],
+
+            # Designation + position (tightly grouped)
             [Paragraph(f'<u>{designation}</u>' if designation else '', sig_small)],
+            [Spacer(1, 2)],
             [Paragraph(position, sig_small)],
+
+            # Gap before date group
+            [Spacer(1, 10)],
+
+            # Date + label
             [Paragraph(f'<b><u>{date_text}</u></b>', sig_small)],
             [Paragraph('Date', sig_small)],
         ]
@@ -6740,21 +6805,25 @@ def export_property_to_pdf_par(request):
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
         ]))
         return t
 
     sig_data = [[
-        make_sig_table('Received from:', received_from_name, received_from_desig, received_from_pos, received_from_date),
+        make_sig_table('Received by:', received_from_name, received_from_desig, received_from_pos, received_from_date),
         make_sig_table('Issued by:',     issued_by_name,     issued_by_desig,     issued_by_pos,     issued_by_date),
     ]]
     sig_outer = Table(sig_data, colWidths=[half, half])
     sig_outer.setStyle(TableStyle([
         ('GRID',    (0, 0), (-1, -1), 0.5, thin),
         ('VALIGN',  (0, 0), (-1, -1), 'TOP'),
-        ('TOPPADDING',    (0, 0), (-1, -1), 6),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('LEFTPADDING',   (0, 0), (-1, -1), 6),
-        ('RIGHTPADDING',  (0, 0), (-1, -1), 6),
+        ('TOPPADDING',    (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+        ('LEFTPADDING',   (0, 0), (-1, -1), 4),
+        ('RIGHTPADDING',  (0, 0), (-1, -1), 4),
     ]))
     story.append(sig_outer)
 
