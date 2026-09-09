@@ -26,6 +26,10 @@ python manage.py createsuperuser --noinput || true
 
 
 echo "Starting Gunicorn..."
+if [ "$#" -gt 0 ]; then
+    exec "$@"
+fi
+
 exec gunicorn ResourceHive.wsgi:application \
     --bind 0.0.0.0:8000 \
     --workers "${GUNICORN_WORKERS:-3}" \

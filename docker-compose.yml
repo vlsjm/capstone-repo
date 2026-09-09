@@ -1,58 +1,91 @@
-version: "3.9"
-
 services:
-  # ---- PostgreSQL Database ----
-  db:
+  db-dev:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_NAME:-resourcehivedb}
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      POSTGRES_DB: ${DEV_DB_NAME:-resourcehive_dev}
+      POSTGRES_USER: ${DEV_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DEV_DB_PASSWORD:-devpassword}
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - postgres_dev_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DEV_DB_USER:-postgres} -d ${DEV_DB_NAME:-resourcehive_dev}"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
-  # ---- Django / Gunicorn ----
-  web:
-    build: .
+  app-dev:
+    image: cvsu-inventory:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
-      DB_HOST: "db"
+      DEBUG: "True"
+      SECRET_KEY: ${DEV_SECRET_KEY:-dev-only-secret-key}
+      ALLOWED_HOSTS: ${DEV_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      DB_NAME: ${DEV_DB_NAME:-resourcehive_dev}
+      DB_USER: ${DEV_DB_USER:-postgres}
+      DB_PASSWORD: ${DEV_DB_PASSWORD:-devpassword}
+      DB_HOST: db-dev
       DB_PORT: "5432"
-      DJANGO_SUPERUSER_USERNAME: "${DJANGO_SUPERUSER_USERNAME}"
-      DJANGO_SUPERUSER_EMAIL: "${DJANGO_SUPERUSER_EMAIL}"
-      DJANGO_SUPERUSER_PASSWORD: "${DJANGO_SUPERUSER_PASSWORD}"
+      GUNICORN_WORKERS: "1"
     depends_on:
-      db:
+      db-dev:
         condition: service_healthy
-    expose:
-      - "8000"
+    ports:
+      - "${DEV_PORT:-8000}:8000"
     volumes:
-      - media_data:/app/media
-      - static_data:/app/staticfiles
-    command: /app/entrypoint.sh
+      - .:/app
+      - media_dev_data:/app/media
+      - static_dev_data:/app/staticfiles
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["python manage.py migrate --noinput && exec python manage.py runserver 0.0.0.0:8000"]
 
-  # ---- Nginx Reverse Proxy ----
-  nginx:
-    image: nginx:1.27-alpine
+  db-prod:
+    image: postgres:16-alpine
     restart: unless-stopped
-    depends_on:
-      - web
-    expose:
-      - "80"
+    environment:
+      POSTGRES_DB: ${PROD_DB_NAME:-resourcehive_prod}
+      POSTGRES_USER: ${PROD_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${PROD_DB_PASSWORD:-change-this-production-password}
     volumes:
-      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
-      - static_data:/app/staticfiles:ro
-      - media_data:/app/media:ro
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PROD_DB_USER:-postgres} -d ${PROD_DB_NAME:-resourcehive_prod}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app-prod:
+    image: cvsu-inventory:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DEBUG: "False"
+      SECRET_KEY: ${PROD_SECRET_KEY:?Set PROD_SECRET_KEY in .env}
+      ALLOWED_HOSTS: ${PROD_ALLOWED_HOSTS:?Set PROD_ALLOWED_HOSTS in .env}
+      DB_NAME: ${PROD_DB_NAME:-resourcehive_prod}
+      DB_USER: ${PROD_DB_USER:-postgres}
+      DB_PASSWORD: ${PROD_DB_PASSWORD:?Set PROD_DB_PASSWORD in .env}
+      DB_HOST: db-prod
+      DB_PORT: "5432"
+      GUNICORN_WORKERS: ${PROD_GUNICORN_WORKERS:-3}
+    depends_on:
+      db-prod:
+        condition: service_healthy
+    ports:
+      - "${PROD_PORT:-8001}:8000"
+    volumes:
+      - media_prod_data:/app/media
+      - static_prod_data:/app/staticfiles
 
 volumes:
-  pg_data:
-  media_data:
-  static_data:
+  postgres_dev_data:
+  postgres_prod_data:
+  media_dev_data:
+  media_prod_data:
+  static_dev_data:
+  static_prod_data:

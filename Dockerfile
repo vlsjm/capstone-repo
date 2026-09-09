@@ -49,7 +49,8 @@ RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser \
     && chown -R appuser:appgroup /app/media /app/staticfiles /app/debug.log
 
 # Make the entrypoint script executable
-RUN chmod +x /app/entrypoint.sh
+RUN sed -i 's/\r$//' /app/entrypoint.sh \
+    && chmod +x /app/entrypoint.sh
 
 USER appuser
 
