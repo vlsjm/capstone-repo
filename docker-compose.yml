@@ -36,7 +36,6 @@ services:
     ports:
       - "${DEV_PORT:-8000}:8000"
     volumes:
-      - .:/app
       - media_dev_data:/app/media
       - static_dev_data:/app/staticfiles
     entrypoint: ["/bin/sh", "-c"]
@@ -73,6 +72,7 @@ services:
       DB_HOST: db-prod
       DB_PORT: "5432"
       GUNICORN_WORKERS: ${PROD_GUNICORN_WORKERS:-3}
+      CSRF_TRUSTED_ORIGINS: ${PROD_CSRF_TRUSTED_ORIGINS:-https://inventoryp.cvsu-bacoor.com}
     depends_on:
       db-prod:
         condition: service_healthy

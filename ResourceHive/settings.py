@@ -29,6 +29,11 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.ngrok-free.dev',
     'https://*.railway.app',
 ]
+CSRF_TRUSTED_ORIGINS.extend(
+    origin.strip()
+    for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+    if origin.strip()
+)
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
